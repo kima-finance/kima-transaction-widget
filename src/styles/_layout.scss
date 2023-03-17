@@ -1,0 +1,115 @@
+.kima-card {
+  position: relative;
+  .kima-card-header {
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      @include breakpoint(phablet) {
+        flex-direction: column-reverse;
+        align-items: flex-start;
+      }
+
+      .title {
+        display: flex;
+        align-items: center;
+        font-size: 1.2em;
+
+        h3 {
+          margin: 0;
+        }
+
+        span {
+          color: $textSecondary;
+          font-weight: bold;
+          margin: 0 0 0 1em;
+        }
+
+        @include breakpoint(phablet) {
+          flex-direction: column;
+          align-items: flex-start;
+
+          p {
+            margin: 0;
+          }
+        }
+      }
+
+      .control-buttons {
+        display: flex;
+        align-items: center;
+
+        @include breakpoint(phablet) {
+          margin-left: auto;
+        }
+
+        .icon-button {
+          background: transparent;
+          border: none;
+          font-size: 1em;
+          padding: 1px 6px;
+          cursor: pointer;
+          @include transition;
+
+          &:hover {
+            opacity: 0.6;
+          }
+
+          svg {
+            width: 1em;
+            height: 1em;
+          }
+
+          &:first-of-type svg {
+            margin-top: 0.5em;
+          }
+        }
+
+        a, .menu-button {
+          margin-left: auto;
+          margin-right: 1em;
+          margin-top: 0.3em;
+          color: $textSecondary;
+          text-decoration: none;
+          cursor: pointer;
+        }
+
+        .maximize {
+          color: $textSecondary;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+
+  .kima-card-footer {
+    display: flex;
+    align-items: center;
+    @include transition;
+    max-height: 3em;
+    padding-top: 2em;
+    opacity: 1;
+    box-sizing: content-box;
+
+    svg {
+      width: 10em;
+      height: 2.5em;
+    }
+
+    p {
+      font-size: 0.8em;
+      margin: 0 0 0 1em;
+    }
+
+    button {
+      margin-left: 1em;
+    }
+
+    @include breakpoint(phablet) {
+      p {
+        display: none;
+      }
+    }
+  }
+}

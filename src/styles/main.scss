@@ -1,0 +1,194 @@
+@import 'variables';
+@import 'layout';
+@import 'reusable';
+@import 'modal';
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+.kima-card {
+  border-radius: 1em;
+  width: 100%;
+  padding: 2em;
+  border: 1px solid $border;
+  box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+  font-family: 'Poppins', sans-serif;
+  @include transition;
+  transition-delay: 0.2s;
+
+  &.light {
+    background: white;
+    color: black;
+
+    .kima-card-header .kima-card-network-label .label {
+      background: $progressbarLight;
+    }
+
+    .kima-card-content {
+      .kima-progressbar {
+        background: $progressbarLight;
+      }
+
+      .kima-tooltip .content-wrapper {
+        background: white;
+      }
+    }
+  }
+
+  &.dark {
+    background: $backgroundDark;
+    color: white;
+
+    .kima-card-header .kima-card-network-label .label {
+      background: $progressbarDark;
+    }
+
+    .kima-card-content {
+      .kima-progressbar {
+        background: $progressbarDark;
+      }
+      .kima-tooltip .content-wrapper {
+        background: $backgroundDarker;
+      }
+    }
+  }
+
+  &.font {
+    &-large {
+      font-size: $fontLarge;
+      max-width: 1100px;
+    }
+
+    &-medium {
+      font-size: $fontMedium;
+      max-width: 900px;
+    }
+
+    &-small {
+      font-size: $fontSmall;
+      max-width: 700px;
+    }
+  }
+
+  @include breakpoint(phablet) {
+    max-width: 100vh !important;
+    font-size: 14px !important;
+    padding: 1.5em;
+    border-radius: 0;
+  }
+
+  @include breakpoint(mobile) {
+    padding: 1em;
+  }
+
+  &-content {
+    width: 100%;
+    margin: 2em 0;
+    opacity: 1;
+    max-height: 40em;
+    min-height: 25em;
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    @include transition;
+  }
+
+  &.transaction-card {
+    .kima-card-content {
+      display: block;
+      min-height: 17em;
+      margin: 2em 0 2em;
+    }
+  }
+
+  &.minimized {
+    max-width: 30em;
+
+    .kima-card-content {
+      opacity: 0;
+      max-height: 0;
+      min-height: 0;
+      margin: 0;
+      pointer-events: none;
+    }
+
+    .kima-card-footer {
+      opacity: 0;
+      max-height: 0;
+      pointer-events: none;
+    }
+  }
+
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox */
+  input[type='number'] {
+    -moz-appearance: textfield;
+  }
+
+  .hide-scrollbar {
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .custom-scrollbar {
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: white;
+        border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #a19f9f;
+        border-radius: 3px;
+    }
+  }
+
+  .slide-area {
+    width: 40em;
+    padding: 2em;
+    margin: 0 auto;
+    overflow: hidden;
+    overflow-x: scroll;
+    mask-image: linear-gradient(
+      90deg,
+      #00000020 0%,
+      black 5%,
+      black 95%,
+      #00000020 100%
+    );
+    position: relative;
+  }
+
+  .scroll-button {
+    position: absolute;
+    width: 100%;
+    bottom: 8em;
+
+    svg {
+      width: 2em;
+      height: 4em;
+      cursor: pointer;
+      position: absolute;
+
+      &:first-of-type {
+        left: 4em;
+      }
+
+      &:last-of-type {
+        right: 4em;
+        transform: rotate(180deg);
+      }
+    }
+  }
+}

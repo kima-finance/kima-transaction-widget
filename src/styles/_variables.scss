@@ -1,0 +1,47 @@
+$fontLarge: 18px;
+$fontMedium: 14px;
+$fontSmall: 10px;
+
+// colors
+$backgroundDark: #1b1e25;
+$backgroundDarker: #0c0f17;
+$border: #66aae5;
+$borderSecondary: #979797;
+$textSecondary: #5aa0db;
+$progressbarLight: #e3e3e3;
+$progressbarDark: #4f5156;
+$primary: #66aae5;
+$secondary: #e3e3e3;
+$hover: #5aa0db80;
+
+@mixin transition() {
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+@mixin breakpoint($point) {
+  @if $point == desktop {
+    @media (max-width: 1440px) {
+      @content;
+    }
+  } @else if $point == laptop {
+    @media (max-width: 1120px) {
+      @content;
+    }
+  } @else if $point == tablet {
+    @media (max-width: 900px) {
+      @content;
+    }
+  } @else if $point == phablet {
+    @media (max-width: 768px) {
+      @content;
+    }
+  } @else if $point == mobile {
+    @media (max-width: 500px) {
+      @content;
+    }
+  } @else {
+    @media ($point) {
+      @content;
+    }
+  }
+}

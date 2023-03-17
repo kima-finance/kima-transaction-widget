@@ -1,0 +1,185 @@
+import { Web3Provider } from '@ethersproject/providers'
+import detectEthereumProvider from '@metamask/detect-provider'
+import { BigNumber, ethers } from 'ethers'
+import React, {
+  ReactNode,
+  useCallback,
+  useContext,
+  // useEffect,
+  useMemo,
+  useState
+} from 'react'
+// import { useDispatch } from 'react-redux'
+import { useSelector } from 'react-redux'
+// import { setOriginNetwork } from '../store/optionSlice'
+import { selectErrorHandler, selectProvider } from '../store/selectors'
+// import { CHAIN_IDS_TO_NAMES } from '../utils/constants'
+
+export type Provider = ethers.providers.Web3Provider | undefined
+export type Signer = ethers.Signer | undefined
+
+interface IEthereumProviderContext {
+  connect(): void
+  disconnect(): void
+  provider: Provider
+  chainId: number | undefined
+  signer: Signer
+  signerAddress: string | undefined
+  providerError: string | null
+}
+
+const EthereumProviderContext = React.createContext<IEthereumProviderContext>({
+  connect: () => {},
+  disconnect: () => {},
+  provider: undefined,
+  chainId: undefined,
+  signer: undefined,
+  signerAddress: undefined,
+  providerError: null
+})
+export const EthereumProvider = ({ children }: { children: ReactNode }) => {
+  const errorHandler = useSelector(selectErrorHandler)
+  const [providerError, setProviderError] = useState<string | null>(null)
+  const [provider, setProvider] = useState<Provider>(undefined)
+  const [chainId, setChainId] = useState<number | undefined>(undefined)
+  const [signer, setSigner] = useState<Signer>(undefined)
+  const [signerAddress, setSignerAddress] = useState<string | undefined>(
+    undefined
+  )
+  const ethereumProvider = useSelector(selectProvider)
+
+  const connect = useCallback(() => {
+    setProviderError(null)
+
+    const handleProvider = (
+      web3Provider: Web3Provider,
+      detectedProvider: any
+    ) => {
+      web3Provider
+        .send('eth_requestAccounts', [])
+        .then(() => {
+          setProviderError(null)
+          setProvider(web3Provider)
+          web3Provider
+            .getNetwork()
+            .then((network) => {
+              console.log('eth_requestAccounts', network)
+              setChainId(network.chainId)
+            })
+            .catch((e) => {
+              errorHandler(e)
+              setProviderError('An error occurred while getting the network')
+            })
+          const signer = web3Provider.getSigner()
+          setSigner(signer)
+          signer
+            .getAddress()
+            .then((address) => {
+              setSignerAddress(address)
+            })
+            .catch((e) => {
+              errorHandler(e)
+              setProviderError(
+                'An error occurred while getting the signer address'
+              )
+            })
+          // TODO: try using ethers directly
+          // @ts-ignore
+          if (detectedProvider && detectedProvider.on) {
+            // @ts-ignore
+            detectedProvider.on('chainChanged', (chainId) => {
+              try {
+                console.log('chainChanged', chainId)
+                setChainId(BigNumber.from(chainId).toNumber())
+              } catch (e) {
+                errorHandler(e)
+              }
+            })
+            // @ts-ignore
+            detectedProvider.on('accountsChanged', (accounts) => {
+              try {
+                const signer = web3Provider.getSigner()
+                setSigner(signer)
+                signer
+                  .getAddress()
+                  .then((address) => {
+                    setSignerAddress(address)
+                  })
+                  .catch((e) => {
+                    errorHandler(e)
+                    setProviderError(
+                      'An error occurred while getting the signer address'
+                    )
+                  })
+              } catch (e) {
+                errorHandler(e)
+              }
+            })
+          }
+        })
+        .catch((e) => {
+          errorHandler(e)
+          setProviderError('An error occurred while requesting eth accounts')
+        })
+    }
+
+    if (ethereumProvider) {
+      handleProvider(ethereumProvider, ethereumProvider)
+    } else {
+      detectEthereumProvider()
+        .then((detectedProvider) => {
+          if (detectedProvider) {
+            const provider = new ethers.providers.Web3Provider(
+              // @ts-ignore
+              detectedProvider,
+              'any'
+            )
+
+            handleProvider(provider, detectedProvider)
+          } else {
+            setProviderError('Please install MetaMask')
+          }
+        })
+        .catch((e) => {
+          errorHandler(e)
+          setProviderError('Please install MetaMask')
+        })
+    }
+  }, [ethereumProvider])
+
+  const disconnect = useCallback(() => {
+    setProviderError(null)
+    setProvider(undefined)
+    setChainId(undefined)
+    setSigner(undefined)
+    setSignerAddress(undefined)
+  }, [])
+  const contextValue = useMemo(
+    () => ({
+      connect,
+      disconnect,
+      provider,
+      chainId,
+      signer,
+      signerAddress,
+      providerError
+    }),
+    [
+      connect,
+      disconnect,
+      provider,
+      chainId,
+      signer,
+      signerAddress,
+      providerError
+    ]
+  )
+  return (
+    <EthereumProviderContext.Provider value={contextValue}>
+      {children}
+    </EthereumProviderContext.Provider>
+  )
+}
+export const useEthereumProvider = () => {
+  return useContext(EthereumProviderContext)
+}

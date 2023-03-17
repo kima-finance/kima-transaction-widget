@@ -1,0 +1,1123 @@
+.kima-card {
+  .kima-card-content {
+    .kima-progressbar {
+      height: 1em;
+      width: 100%;
+      position: relative;
+      border-radius: 1em;
+      margin-bottom: 4em;
+
+      @include breakpoint(phablet) {
+        font-size: 1.5em;
+      }
+
+      .value {
+        position: absolute;
+        z-index: 10;
+        height: 100%;
+        width: 100%;
+        border-radius: 1em;
+        background: linear-gradient(90deg, #85d2dd 8.08%, #579dda 96.15%);
+        @include transition;
+        transition-duration: 1000ms;
+      }
+
+      .step-indicators {
+        position: relative;
+        z-index: 20;
+        display: flex;
+        justify-content: space-between;
+        margin: 0 -0.2em;
+        padding-bottom: 4em;
+
+        .step {
+          width: 1.4em;
+          height: 1.4em;
+          margin-top: -0.2em;
+          position: relative;
+          cursor: pointer;
+
+          &:before {
+            content: '';
+            border-radius: 100%;
+            position: absolute;
+            left: 0.3em;
+            top: 0.3em;
+            width: 0.8em;
+            height: 0.8em;
+            background: white;
+            box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.15);
+            box-sizing: content-box;
+          }
+
+          &.active:before {
+            width: 1em;
+            height: 1em;
+            left: 0;
+            top: 0;
+            background: $textSecondary;
+            border: 0.2em solid white;
+          }
+
+          .step-info {
+            position: absolute;
+            width: 10em;
+            left: -4em;
+            top: 2em;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            @include transition;
+
+            // &:hover {
+            //   color: $textSecondary;
+            // }
+
+            > svg {
+              width: 1em;
+              height: 1em;
+            }
+
+            span {
+              text-align: center;
+              margin-left: 0.5em;
+            }
+
+            @include breakpoint(phablet) {
+              width: 3em;
+              left: -0.5em;
+              flex-direction: column;
+              position: relative;
+              margin-left: -0.3em;
+
+              span {
+                font-size: 0.66em;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+                margin-left: 0;
+                margin-top: 1em;
+                width: 100%;
+              }
+
+              svg {
+                position: absolute;
+                top: 0;
+              }
+
+              &:hover {
+                align-items: center;
+                span {
+                  overflow: visible !important;
+                  text-overflow: inherit !important;
+                  white-space: inherit !important;
+                  display: flex;
+                  justify-content: center;
+                }
+              }
+            }
+          }
+
+          &:first-of-type .step-info {
+            left: 0;
+            justify-content: flex-start;
+          }
+
+          &:last-of-type .step-info {
+            left: unset;
+            right: 0;
+            justify-content: flex-end;
+
+            @include breakpoint(phablet) {
+              right: 1em;
+            }
+          }
+        }
+      }
+    }
+
+    .kima-tooltip {
+      padding-top: 2em;
+      width: 100%;
+      position: relative;
+
+      > div {
+        position: relative;
+        height: fit-content;
+        width: 50%;
+        display: flex;
+        justify-content: center;
+        @include transition;
+
+        &.position-first {
+          left: -1em !important;
+          justify-content: flex-start;
+
+          .content-wrapper:before {
+            left: 1em;
+          }
+        }
+
+        &.position-last {
+          left: calc(50% + 1em) !important;
+          justify-content: flex-end;
+
+          .content-wrapper:before {
+            left: calc(100% - 3em) !important;
+          }
+        }
+
+        @include breakpoint(phablet) {
+          width: 100%;
+          left: 0 !important;
+
+          &.position-last {
+            left: 1em !important;
+          }
+        }
+
+        .content-wrapper {
+          width: 22em;
+          border: 1px solid $border;
+          border-radius: 1em;
+          padding: 1.5em;
+          position: relative;
+
+          &:before {
+            position: absolute;
+            content: '';
+            width: 2em;
+            height: 1.5em;
+            left: calc(50% - 1em);
+            top: -1.5em;
+            background: $border;
+            clip-path: polygon(50% 0, 100% 100%, 0 100%);
+            @include transition;
+          }
+
+          .info-item {
+            position: relative;
+            &:not(:first-of-type) {
+              margin-top: 0.8em;
+            }
+
+            p {
+              margin-left: 1.5em;
+
+              a {
+                margin-left: 0.5em;
+              }
+
+              .copy-btn {
+                display: inline;
+                cursor: pointer;
+                @include transition();
+
+                &:hover {
+                  opacity: 0.7;
+                }
+
+                svg {
+                  width: 1em;
+                  height: 1em;
+                  margin-left: 0.5em;
+                }
+              }
+            }
+
+            svg {
+              position: absolute;
+              margin-top: 0.3em;
+              width: 1em;
+              height: 1em;
+            }
+          }
+
+          @include breakpoint(phablet) {
+            width: 100%;
+
+            &:before {
+              opacity: 0;
+            }
+
+            .arrow {
+              position: absolute;
+              position: absolute;
+              content: '';
+              width: 2em;
+              height: 1.5em;
+              top: -1.5em;
+              background: $border;
+              clip-path: polygon(50% 0, 100% 100%, 0 100%);
+              @include transition;
+            }
+          }
+        }
+      }
+    }
+
+    .network-select {
+      position: relative;
+
+      p {
+        font-size: 1.2em;
+        font-weight: 500;
+        text-align: center;
+      }
+
+      .network-container {
+        display: flex;
+        column-gap: 1em;
+        align-items: center;
+        justify-content: center;
+        margin-top: 2em;
+        width: max-content;
+        margin: 0 auto;
+      }
+    }
+
+    .single-form {
+      padding-left: 5em;
+
+      .form-item {
+        display: flex;
+        align-items: center;
+
+        &:not(:first-of-type) {
+          margin-top: 2em;
+        }
+
+        > span {
+          font-size: 1.16em;
+          width: 10em;
+        }
+
+        .network-item {
+          display: flex;
+          align-items: center;
+          width: 9em;
+          height: 3.5em;
+          border-radius: 0.8em;
+
+          padding: 0 0.8em;
+          cursor: pointer;
+          @include transition;
+
+          svg {
+            width: 2em;
+            height: 2em;
+            border-radius: 100%;
+          }
+
+          p {
+            width: 100%;
+            text-align: center;
+            font-weight: bold;
+          }
+
+          &:not(:first-of-type) {
+            margin-left: 0.5em;
+          }
+
+          &.light {
+            background: $progressbarLight;
+          }
+
+          &.dark {
+            background: $progressbarDark;
+          }
+
+          &.active {
+            background: $border;
+
+            p {
+              color: white;
+            }
+          }
+
+          &:hover {
+            opacity: 0.7;
+          }
+        }
+
+        .amount-label {
+          display: flex;
+          align-items: center;
+          background-color: $secondary;
+          padding: 1em;
+          border-radius: 1em;
+
+          &.dark {
+            background-color: $progressbarDark;
+
+            .coin-wrapper {
+              background: $borderSecondary;
+              color: white;
+            }
+          }
+
+          span {
+            font-size: 1.1em;
+            font-weight: 500;
+          }
+
+          .coin-wrapper {
+            display: flex;
+            align-items: center;
+            border-radius: 1em;
+            font-size: 1em;
+            font-weight: 500;
+            padding: 0.2em;
+            padding-right: 0.5em;
+            background: white;
+            color: black;
+            margin-left: 1em;
+
+            svg {
+              width: 1.5em;
+              height: 1.5em;
+              margin-right: 0.5em;
+            }
+          }
+        }
+
+        input {
+          border: 1px solid $borderSecondary;
+          border-radius: 0.8em;
+          height: 3em;
+          background: transparent;
+          color: white;
+          outline: none;
+          font: unset;
+          width: 10em;
+          padding: 0.3em 0.5em 0.3em 1em;
+          box-sizing: content-box;
+
+          &.kima-address-input {
+            width: 20em;
+          }
+        }
+
+        &.light {
+          input {
+            color: black;
+          }
+        }
+
+        .error {
+          color: red;
+          font-size: 0.8em;
+          margin-left: 1em;
+        }
+      }
+
+      .coin-dropdown {
+        position: relative;
+        border-radius: 1em;
+        padding: 0.5em;
+        // padding-right: 3em;
+        height: 2.8em;
+        display: flex;
+        align-items: center;
+        margin-left: 0.5em;
+        cursor: pointer;
+        box-sizing: content-box;
+
+        .coin-wrapper {
+          display: flex;
+          align-items: center;
+          border-radius: 1em;
+          font-size: 1em;
+          font-weight: 500;
+          padding: 0.2em;
+          padding-right: 0.5em;
+          background: white;
+          color: black;
+
+          svg {
+            width: 1.5em;
+            height: 1.5em;
+            margin-right: 0.5em;
+          }
+        }
+
+        &.dark {
+          .coin-wrapper {
+            background: $borderSecondary;
+            color: white;
+          }
+        }
+
+        // &:before {
+        //   position: absolute;
+        //   content: '';
+        //   width: 0.8em;
+        //   height: 0.8em;
+        //   right: 1.1em;
+        //   top: 1.7em;
+        //   border-top: 2px solid;
+        //   border-right: 2px solid;
+        //   border-color: white;
+        //   transform: rotate(-45deg);
+        //   @include transition;
+        // }
+
+        .coin-menu {
+          box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+          position: absolute;
+          z-index: 100;
+          max-height: 10em;
+          width: 100%;
+          top: 100%;
+          left: 0;
+          overflow: hidden;
+          @include transition;
+          padding: 0.5em 0;
+
+          .coin-item {
+            padding: 0em 1em;
+            @include transition;
+            display: flex;
+            align-items: center;
+
+            svg {
+              width: 2.5em;
+              height: 2.5em;
+            }
+
+            p {
+              width: 100%;
+              text-align: center;
+              margin: 0;
+            }
+
+            &:hover {
+              background: $hover;
+            }
+          }
+
+          &.light {
+            background: white;
+          }
+
+          &.dark {
+            background: $progressbarDark;
+          }
+
+          &.collapsed {
+            max-height: 0;
+            opacity: 0;
+          }
+        }
+
+        &.light {
+          background: $progressbarLight;
+
+          &:before {
+            border-color: black;
+          }
+        }
+
+        &.collapsed {
+          &:before {
+            transform: rotate(135deg);
+            top: 1.2em;
+          }
+        }
+
+        &.dark {
+          background: $progressbarDark;
+        }
+      }
+
+      .network-dropdown {
+        position: relative;
+        border-radius: 1em;
+        padding-left: 1em;
+        padding-right: 3em;
+        height: 4em;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        box-sizing: content-box;
+
+        .network-wrapper {
+          display: flex;
+          align-items: center;
+          border-radius: 1em;
+          font-size: 1.2em;
+          font-weight: 500;
+          padding: 0.2em;
+          padding-right: 0.5em;
+          color: black;
+          z-index: inherit;
+
+          svg {
+            width: 1.8em;
+            height: 1.8em;
+            margin-right: 0.5em;
+          }
+        }
+
+        &.dark {
+          .network-wrapper {
+            color: white;
+          }
+        }
+
+        &:before {
+          box-sizing: content-box;
+          position: absolute;
+          content: '';
+          width: 0.8em;
+          height: 0.8em;
+          right: 1.1em;
+          top: 1.7em;
+          border-top: 2px solid;
+          border-right: 2px solid;
+          border-color: white;
+          transform: rotate(-45deg);
+          @include transition;
+        }
+
+        .network-menu {
+          box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+          position: absolute;
+          z-index: 100;
+          max-height: 12em;
+          width: 100%;
+          top: calc(100% - 0.5em);
+          left: 0;
+          padding: 0.5em 0;
+          overflow-x: clip;
+          overflow-y: scroll;
+          @include transition;
+
+          &-item {
+            padding: 0.5em 1em;
+            @include transition;
+            display: flex;
+            align-items: center;
+
+            svg {
+              width: 2em;
+              height: 2em;
+            }
+
+            p {
+              width: 100%;
+              text-align: center;
+              margin: 0;
+              font-size: 1.2em;
+            }
+
+            &:hover {
+              background: $hover;
+            }
+          }
+
+          &.light {
+            background: white;
+          }
+
+          &.dark {
+            background: $progressbarDark;
+          }
+
+          &.collapsed {
+            max-height: 0;
+            opacity: 0;
+          }
+        }
+
+        &.light {
+          background: $progressbarLight;
+
+          &:before {
+            border-color: black;
+          }
+        }
+
+        &.collapsed {
+          &:before {
+            transform: rotate(135deg);
+            top: 1.2em;
+          }
+        }
+
+        &.dark {
+          background: $progressbarDark;
+        }
+      }
+    }
+
+    .wallet-button {
+      font-size: 1.16em;
+      display: flex;
+      align-items: center;
+
+      button {
+        width: 14em;
+        height: 3.5em;
+      }
+
+      .provider-error {
+        color: red;
+        font-size: 0.8em;
+        margin-left: 1em;
+      }
+
+      &.error-below {
+        flex-direction: column;
+
+        .provider-error {
+          margin-left: 0;
+          margin-top: 1em;
+        }
+      }
+    }
+
+    .connect-wallet-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      p {
+        font-size: 1.2em;
+        font-weight: 500;
+        margin-bottom: 2em;
+      }
+    }
+
+    .coin-select {
+      p {
+        font-size: 1.2em;
+        font-weight: 500;
+        text-align: center;
+      }
+
+      .coin-list-container {
+        display: flex;
+        column-gap: 1em;
+        align-items: center;
+        justify-content: center;
+        margin-top: 2em;
+      }
+
+      .amount-input,
+      .address-input {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 2em;
+
+        > span {
+          margin-right: 1.5em;
+          font-size: 1.2em;
+        }
+
+        .input-wrapper {
+          position: relative;
+
+          input {
+            border: 1px solid $borderSecondary;
+            border-radius: 0.8em;
+            height: 3em;
+            background: transparent;
+            color: white;
+            outline: none;
+            font: unset;
+            width: 12em;
+            padding: 0.3em 0.5em 0.3em 1em;
+            box-sizing: content-box;
+          }
+
+          .coin-label {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            padding: 0.3em 0.5em 0.3em 0.3em;
+            border-radius: 1em;
+            right: 0.8em;
+            top: 0.8em;
+
+            svg {
+              width: 1.5em;
+              height: 1.5em;
+            }
+
+            span {
+              margin-left: 0.5em;
+            }
+          }
+        }
+
+        > input {
+          border: 1px solid $borderSecondary;
+          border-radius: 0.8em;
+          height: 3em;
+          background: transparent;
+          color: white;
+          outline: none;
+          font: unset;
+          width: 10em;
+          padding: 0.3em 0.5em 0.3em 1em;
+          box-sizing: content-box;
+
+          &.kima-address-input {
+            width: 20em;
+          }
+        }
+
+        &.light {
+          input {
+            color: black;
+          }
+
+          .coin-label {
+            background: $progressbarLight;
+          }
+        }
+
+        &.dark {
+          .coin-label {
+            background: $progressbarDark;
+          }
+        }
+      }
+    }
+
+    .confirm-details {
+      padding: 0 8em;
+      font-size: 1.2em;
+
+      > p {
+        text-align: center;
+        font-weight: bold;
+        font-size: 1.3em;
+      }
+
+      .detail-item {
+        padding: 1em 2em;
+        display: flex;
+        align-items: center;
+        border-top: 1px solid $secondary;
+
+        p {
+          margin: 0;
+        }
+
+        .label {
+          font-weight: bold;
+          width: 10em;
+        }
+
+        .kima-card-network-label {
+          display: flex;
+          padding: 0.3em 0.5em 0.3em 0.5em;
+          border-radius: 1em;
+          margin-left: 1em;
+        }
+
+        &:last-of-type {
+          border-bottom: 1px solid $secondary;
+        }
+      }
+
+      &.light {
+        .kima-card-network-label {
+          background: $progressbarLight;
+        }
+      }
+
+      &.dark {
+        .kima-card-network-label {
+          background: $progressbarDark;
+        }
+      }
+    }
+
+    .kima-custom-checkbox {
+      margin-left: 2em;
+      display: flex;
+      align-items: center;
+
+      .icon-wrapper {
+        border: 1px solid #ffffff;
+        height: 1em;
+        width: 1em;
+        border-radius: 0.2em;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+
+        &.light {
+          border-color: $progressbarDark;
+        }
+
+        svg {
+          margin-top: 0.2em;
+          margin-left: 1px;
+        }
+      }
+
+      > span {
+        margin-left: 0.5em;
+      }
+    }
+
+    .kima-stepbox {
+      display: flex;
+      justify-content: center;
+
+      .content-wrapper {
+        display: flex;
+        flex-direction: column;
+        border: 1px solid $border;
+        border-radius: 1em;
+        padding: 1.5em 2em;
+
+        .step-item {
+          display: flex;
+          align-items: center;
+          margin: 0.3em 0;
+
+          .info-item {
+            position: relative;
+
+            a {
+              text-decoration: underline;
+            }
+
+            p {
+              display: flex;
+              align-items: center;
+            }
+
+            &:first-of-type {
+              width: 11em;
+
+              p {
+                margin: 0 0 0 1.5em;
+              }
+
+              svg {
+                position: absolute;
+                margin-top: 0.3em;
+                width: 1em;
+                height: 1em;
+              }
+            }
+
+            &:not(:first-of-type) {
+              p {
+                margin: 0;
+
+                a {
+                  margin-left: 0.5em;
+                }
+
+                .copy-btn {
+                  display: inline;
+                  cursor: pointer;
+                  @include transition();
+
+                  &:hover {
+                    opacity: 0.7;
+                  }
+
+                  svg {
+                    width: 1em;
+                    height: 1em;
+                    margin-left: 0.5em;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .card-item {
+    width: 10em;
+    height: 9em;
+    border-radius: 1em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    @include transition;
+
+    svg,
+    img {
+      width: 3em;
+      height: 3em;
+      border-radius: 100%;
+    }
+
+    span {
+      font-weight: bold;
+      margin-top: 1em;
+      text-align: center;
+    }
+
+    &.light {
+      background: $progressbarLight;
+    }
+
+    &.dark {
+      background: $progressbarDark;
+    }
+
+    &.active {
+      background: $border;
+
+      span {
+        color: white;
+      }
+    }
+
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+
+  .kima-card-network-label {
+    display: flex;
+    align-items: center;
+    column-gap: 0.5em;
+    padding-top: 1em;
+
+    > svg {
+      width: 1em;
+      height: 1em;
+    }
+
+    .label {
+      display: flex;
+      border-radius: 1em;
+      font-size: 1em;
+      column-gap: 0.3em;
+      align-items: center;
+      padding: 0.2em 0.4em;
+
+      .icon-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 1.2em;
+        height: 1.2em;
+
+        svg {
+          width: 100%;
+          height: 100%;
+        }
+      }
+    }
+
+    .warning-container {
+      margin-left: 1em;
+      display: flex;
+      align-items: center;
+      column-gap: 0.5em;
+    }
+  }
+
+  .primary-button {
+    background: $primary;
+    border-radius: 0.8em;
+    width: 10em;
+    height: 3em;
+    cursor: pointer;
+    color: white;
+    font-size: 1em;
+    font-weight: bold;
+    font-family: inherit;
+    border: none;
+    @include transition;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover, &:disabled {
+      opacity: 0.7;
+    }
+
+    .loading-indicator {
+      margin-right: 0.5em;
+
+      svg {
+        width: 1.5em;
+        height: 1.5em;
+        margin-top: 0.3em;
+      }
+    }
+  }
+
+  .secondary-button {
+    border-radius: 0.8em;
+    width: 10em;
+    height: 3em;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    font-family: inherit;
+    border: none;
+    @include transition;
+
+    &.dark {
+      color: white;
+      background: $progressbarDark;
+    }
+
+    &.light {
+      color: black;
+      background: $secondary;
+    }
+
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+
+  .dropdown-menu {
+    box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+    position: absolute;
+    z-index: 100;
+    padding: 0.5em 0;
+    max-height: 10em;
+    width: max-content;
+    overflow: hidden;
+    @include transition;
+
+    .menu-item {
+      padding: 0.5em 1em;
+      @include transition;
+
+      &:hover {
+        background: $hover;
+      }
+    }
+
+    &.light {
+      background: white;
+    }
+
+    &.dark {
+      background: $backgroundDark;
+    }
+
+    &.closed {
+      max-height: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+}
