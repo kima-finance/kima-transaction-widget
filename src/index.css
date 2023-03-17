@@ -1160,7 +1160,6 @@
   border-radius: 1em;
   width: 100%;
   padding: 2em;
-  border: 1px solid #66aae5;
   box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
   font-family: "Poppins", sans-serif;
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
@@ -1170,6 +1169,7 @@
 .kima-card.light {
   background: white;
   color: black;
+  border: 1px solid #66aae5;
 }
 .kima-card.light .kima-card-header .kima-card-network-label .label {
   background: #e3e3e3;
@@ -1183,6 +1183,7 @@
 .kima-card.dark {
   background: #1b1e25;
   color: white;
+  border: 1px solid #2c4963;
 }
 .kima-card.dark .kima-card-header .kima-card-network-label .label {
   background: #4f5156;

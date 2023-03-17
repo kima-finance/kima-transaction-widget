@@ -63,7 +63,6 @@ export const EthereumProvider = ({ children }: { children: ReactNode }) => {
           web3Provider
             .getNetwork()
             .then((network) => {
-              console.log('eth_requestAccounts', network)
               setChainId(network.chainId)
             })
             .catch((e) => {
@@ -89,7 +88,6 @@ export const EthereumProvider = ({ children }: { children: ReactNode }) => {
             // @ts-ignore
             detectedProvider.on('chainChanged', (chainId) => {
               try {
-                console.log('chainChanged', chainId)
                 setChainId(BigNumber.from(chainId).toNumber())
               } catch (e) {
                 errorHandler(e)

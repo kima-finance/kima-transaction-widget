@@ -58,6 +58,7 @@ import AddressInputWizard from './reusable/AddressInputWizard'
 import { HelpPopup, BankPopup, WalletConnectModal } from './modals'
 import useCurrencyOptions from '../hooks/useCurrencyOptions'
 import { ChainName, CHAIN_NAMES_TO_STRING } from '../utils/constants'
+import { Toaster } from 'react-hot-toast'
 
 interface Props {
   theme: ThemeOptions
@@ -435,6 +436,29 @@ export const TransferWidget = ({
       <WalletConnectModal />
       <HelpPopup />
       <BankPopup />
+      <Toaster
+        position='top-right'
+        reverseOrder={false}
+        containerStyle={{
+          position: 'absolute'
+        }}
+        toastOptions={{
+          duration: 10 * 1000,
+          style: {
+            position: 'relative',
+            top: '3rem',
+            right: '1.5rem',
+            margin: '5px 0',
+            padding: '.7rem 1.5rem',
+            color:
+              theme.colorMode === ColorModeOptions.light ? 'black' : 'white',
+            fontSize: '1em',
+            borderRadius: '1em',
+            border: '1px solid #66aae5',
+            background: 'transparent'
+          }
+        }}
+      />
     </div>
   )
 }

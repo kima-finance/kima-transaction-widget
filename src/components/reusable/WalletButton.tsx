@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
+import { toast } from 'react-hot-toast'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { setConnectModal } from '../../store/optionSlice'
@@ -23,6 +24,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const compliantOption = useSelector(selectCompliantOption)
   const selectedNetwork = useSelector(selectOriginNetwork)
   const walletAutoConnect = useSelector(selectWalletAutoConnect)
+
   const { disconnect: disconnectSolana } = useWallet()
   const { connect, disconnect: disconnectEVM } = useEthereumProvider()
   const { isReady, statusMessage, walletAddress } =
@@ -35,6 +37,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
 
   const handleClick = () => {
     if (isReady) {
+      toast.error('Wallet not connected')
       if (selectedNetwork === ChainName.SOLANA) {
         disconnectSolana()
       } else {
@@ -51,6 +54,18 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
     connect()
   }
 
+  const errorMessage = useMemo(() => {
+    if (!isReady) return statusMessage
+    if (sourceCompliant !== 'low' && compliantOption)
+      return `Source address has ${sourceCompliant} risk`
+    return ''
+  }, [isReady, statusMessage, sourceCompliant, compliantOption])
+
+  useEffect(() => {
+    if (!errorMessage) return
+    toast.error(errorMessage)
+  }, [errorMessage])
+
   return (
     <div
       className={`wallet-button ${theme.colorMode} ${
@@ -63,13 +78,13 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
           ? `Disconnect ${getShortenedAddress(walletAddress || '')}`
           : 'Wallet'}
       </PrimaryButton>
-      {!isReady ? (
+      {/* {!isReady ? (
         <p className='provider-error'>{statusMessage}</p>
       ) : sourceCompliant !== 'low' && compliantOption ? (
         <p className='provider-error'>
           Non-compliant address {`(${sourceCompliant} risk)`}
         </p>
-      ) : null}
+      ) : null} */}
     </div>
   )
 }

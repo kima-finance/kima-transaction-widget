@@ -85,23 +85,20 @@ function useIsWalletReady(enableNetworkAutoswitch: boolean = false): {
           if (autoSwitch) forceNetworkSwitch()
           else if (initChainFromProvider) switchChainHandler(correctEvmNetwork)
         }
-        return createWalletStatus(
-          false,
-          `Wallet not connected to ${
-            CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[correctEvmNetwork]]
-          }`,
-          forceNetworkSwitch,
-          signerAddress
-        )
+
+        if (evmChainId)
+          return createWalletStatus(
+            false,
+            `Wallet not connected to ${
+              CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[correctEvmNetwork]]
+            }`,
+            forceNetworkSwitch,
+            signerAddress
+          )
       }
     }
 
-    return createWalletStatus(
-      false,
-      'Wallet not connected',
-      forceNetworkSwitch,
-      undefined
-    )
+    return createWalletStatus(false, '', forceNetworkSwitch, undefined)
   }, [
     sourceChain,
     autoSwitch,

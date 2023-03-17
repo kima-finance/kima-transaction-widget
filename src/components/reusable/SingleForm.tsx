@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useEffect, useMemo } from 'react'
+import { toast } from 'react-hot-toast'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   selectAmount,
@@ -28,6 +29,19 @@ const SingleForm = ({
   const targetCompliant = useSelector(selectTargetCompliant)
   const transactionOption = useSelector(selectTransactionOption)
   const selectedCoin = useSelector(selectCurrencyOptions)
+
+  const errorMessage = useMemo(
+    () =>
+      compliantOption && targetCompliant !== 'low'
+        ? `Target address has ${targetCompliant} risk`
+        : '',
+    [compliantOption, targetCompliant]
+  )
+
+  useEffect(() => {
+    if (!errorMessage) return
+    toast.error(errorMessage)
+  }, [errorMessage])
 
   return (
     <div className='single-form'>
