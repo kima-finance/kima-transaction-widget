@@ -656,6 +656,9 @@
   margin-left: 0;
   margin-top: 1em;
 }
+.kima-card .kima-card-content .wallet-button .balance-info {
+  margin-left: 1em;
+}
 .kima-card .kima-card-content .connect-wallet-step {
   display: flex;
   flex-direction: column;

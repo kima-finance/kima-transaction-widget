@@ -51,14 +51,15 @@ import {
   selectTargetNetwork
 } from '../store/selectors'
 import useIsWalletReady from '../hooks/useIsWalletReady'
+import useServiceFee from '../hooks/useServiceFee'
 import useAllowance from '../hooks/useAllowance'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
-import useServiceFee from '../hooks/useServiceFee'
 import AddressInputWizard from './reusable/AddressInputWizard'
 import { HelpPopup, BankPopup, WalletConnectModal } from './modals'
 import useCurrencyOptions from '../hooks/useCurrencyOptions'
 import { ChainName, CHAIN_NAMES_TO_STRING } from '../utils/constants'
-import { Toaster } from 'react-hot-toast'
+import { toast, Toaster } from 'react-hot-toast'
+import useBalance from '../hooks/useBalance'
 
 interface Props {
   theme: ThemeOptions
@@ -84,6 +85,7 @@ export const TransferWidget = ({
   const { walletAddress, isReady } = useIsWalletReady()
   const { isApproved, approve } = useAllowance()
   const { serviceFee: fee } = useServiceFee()
+  const { balance } = useBalance()
 
   // Redux variables
   const mode = useSelector(selectMode)
@@ -199,6 +201,10 @@ export const TransferWidget = ({
   }
 
   const handleSubmit = async () => {
+    if (!balance || balance < amount) {
+      toast.error('Insufficient balance!')
+      return
+    }
     if (!isApproved) {
       approve()
       return

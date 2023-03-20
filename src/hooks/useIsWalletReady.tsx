@@ -64,12 +64,20 @@ function useIsWalletReady(enableNetworkAutoswitch: boolean = false): {
   }, [provider, correctEvmNetwork, sourceChain])
 
   return useMemo(() => {
-    if (sourceChain === ChainName.SOLANA && solPK) {
+    if (sourceChain === ChainName.SOLANA) {
+      if (solPK) {
+        return createWalletStatus(
+          true,
+          undefined,
+          forceNetworkSwitch,
+          solPK.toBase58()
+        )
+      }
       return createWalletStatus(
-        true,
-        undefined,
+        false,
+        'Wallet not connected',
         forceNetworkSwitch,
-        solPK.toBase58()
+        ''
       )
     }
     if (isEVMChain(sourceChain) && hasEthInfo && signerAddress) {

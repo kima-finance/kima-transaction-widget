@@ -675,6 +675,10 @@
           margin-top: 1em;
         }
       }
+
+      .balance-info {
+        margin-left: 1em;
+      }
     }
 
     .connect-wallet-step {
@@ -1046,7 +1050,8 @@
     align-items: center;
     justify-content: center;
 
-    &:hover, &:disabled {
+    &:hover,
+    &:disabled {
       opacity: 0.7;
     }
 

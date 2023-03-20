@@ -5,6 +5,7 @@ import { useWallet } from '@solana/wallet-adapter-react'
 import { setConnectModal } from '../../store/optionSlice'
 import {
   selectCompliantOption,
+  selectCurrencyOptions,
   selectOriginNetwork,
   selectSourceCompliant,
   selectTheme,
@@ -16,19 +17,22 @@ import { useEthereumProvider } from '../../contexts/EthereumProviderContext'
 import { ChainName } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 import { connectWalletBtn } from '../../utils/testId'
+import useBalance from '../../hooks/useBalance'
+import { formatterFloat } from '../../helpers/functions'
 
 const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const dispatch = useDispatch()
   const theme = useSelector(selectTheme)
+  const selectedCoin = useSelector(selectCurrencyOptions)
   const sourceCompliant = useSelector(selectSourceCompliant)
   const compliantOption = useSelector(selectCompliantOption)
   const selectedNetwork = useSelector(selectOriginNetwork)
   const walletAutoConnect = useSelector(selectWalletAutoConnect)
-
   const { disconnect: disconnectSolana } = useWallet()
   const { connect, disconnect: disconnectEVM } = useEthereumProvider()
   const { isReady, statusMessage, walletAddress } =
     useIsWalletReady(walletAutoConnect)
+  const { balance } = useBalance()
 
   useEffect(() => {
     if (!connect) return
@@ -78,13 +82,12 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
           ? `Disconnect ${getShortenedAddress(walletAddress || '')}`
           : 'Wallet'}
       </PrimaryButton>
-      {/* {!isReady ? (
-        <p className='provider-error'>{statusMessage}</p>
-      ) : sourceCompliant !== 'low' && compliantOption ? (
-        <p className='provider-error'>
-          Non-compliant address {`(${sourceCompliant} risk)`}
+
+      {isReady ? (
+        <p className='balance-info'>
+          {formatterFloat.format(balance)} {selectedCoin.symbol} available
         </p>
-      ) : null} */}
+      ) : null}
     </div>
   )
 }

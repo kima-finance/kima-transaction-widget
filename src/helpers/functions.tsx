@@ -3,5 +3,5 @@ export const formatterInt = new Intl.NumberFormat('en-US', {
 })
 
 export const formatterFloat = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 3
+  maximumFractionDigits: 2
 })
