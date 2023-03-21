@@ -367,6 +367,7 @@ export const TransferWidget = ({
             <button
               className='icon-button'
               onClick={() => {
+                if (isApproving || isSubmitting) return
                 dispatch(initialize())
                 closeHandler()
               }}
@@ -412,6 +413,7 @@ export const TransferWidget = ({
         </ExternalLink>
         <SecondaryButton
           clickHandler={() => {
+            if (isApproving || isSubmitting) return
             setWizard((prev) => !prev)
           }}
           theme={theme.colorMode}
