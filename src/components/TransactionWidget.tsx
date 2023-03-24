@@ -18,6 +18,7 @@ import {
   selectTxId
 } from '../store/selectors'
 import { useDispatch } from 'react-redux'
+import { toast, Toaster } from 'react-hot-toast'
 import { initialize } from '../store/optionSlice'
 import { HashPopup, HelpPopup } from './modals'
 
@@ -48,60 +49,21 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
 
         if (!data) return
 
-        const status = data.status
-
         // Status of last transaction
-        console.log(status)
         setData({
+          status: data.status,
           sourceChain: data.originChain,
           targetChain: data.targetChain,
           tssPullHash: data.tssPullHash,
           tssReleaseHash: data.tssReleaseHash,
+          failReason: data.failReason,
           amount: +data.amount,
           symbol: data.symbol,
           kimaTxHash: data.kimaTxHash
         })
-        setErrorStep(-1)
 
-        if (status === TransactionStatus.AVAILABLE) {
-          setStep(1)
-          setPercent(25)
-          setLoadingStep(1)
-        } else if (status === TransactionStatus.CONFIRMED) {
-          setStep(2)
-          setPercent(50)
-          setLoadingStep(2)
-        } else if (status.startsWith(TransactionStatus.UNAVAILABLE)) {
-          setStep(1)
-          setPercent(25)
-          setErrorStep(1)
-          setLoadingStep(-1)
-          console.error(data.failReason)
-        } else if (status === TransactionStatus.KEYSIGNED) {
-          setStep(3)
-          setPercent(75)
-          setLoadingStep(3)
-        } else if (status === TransactionStatus.PAID) {
-          setStep(3)
-          setPercent(90)
-          setLoadingStep(3)
-        } else if (status === TransactionStatus.FAILEDTOPAY) {
-          setStep(3)
-          setPercent(90)
-          setErrorStep(3)
-          setLoadingStep(-1)
-          console.error(data.failReason)
-        } else if (status === TransactionStatus.FAILEDTOPULL) {
-          setStep(1)
-          setPercent(25)
-          setErrorStep(1)
-          setLoadingStep(-1)
-          console.error(data.failReason)
-        } else if (status === TransactionStatus.COMPLETED) {
-          setStep(4)
-          setPercent(100)
+        if (data.status === TransactionStatus.COMPLETED) {
           clearInterval(timerId)
-          setLoadingStep(-1)
           setTimeout(() => {
             successHandler({
               txId
@@ -117,6 +79,57 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       clearInterval(timerId)
     }
   }, [nodeProviderQuery, txId])
+
+  useEffect(() => {
+    if (!data) return
+
+    console.log(data.status)
+    setErrorStep(-1)
+    const status = data.status as string
+
+    if (status === TransactionStatus.AVAILABLE) {
+      setStep(1)
+      setPercent(25)
+      setLoadingStep(1)
+    } else if (status === TransactionStatus.CONFIRMED) {
+      setStep(2)
+      setPercent(50)
+      setLoadingStep(2)
+    } else if (status.startsWith(TransactionStatus.UNAVAILABLE)) {
+      setStep(1)
+      setPercent(25)
+      setErrorStep(1)
+      setLoadingStep(-1)
+      console.error(data.failReason)
+      toast.error('Unavailable')
+    } else if (status === TransactionStatus.KEYSIGNED) {
+      setStep(3)
+      setPercent(75)
+      setLoadingStep(3)
+    } else if (status === TransactionStatus.PAID) {
+      setStep(3)
+      setPercent(90)
+      setLoadingStep(3)
+    } else if (status === TransactionStatus.FAILEDTOPAY) {
+      setStep(3)
+      setPercent(90)
+      setErrorStep(3)
+      setLoadingStep(-1)
+      console.error(data.failReason)
+      toast.error('Failed to release tokens to target!')
+    } else if (status === TransactionStatus.FAILEDTOPULL) {
+      setStep(1)
+      setPercent(25)
+      setErrorStep(1)
+      setLoadingStep(-1)
+      console.error(data.failReason)
+      toast.error('Failed to pull tokens from source!')
+    } else if (status === TransactionStatus.COMPLETED) {
+      setStep(4)
+      setPercent(100)
+      setLoadingStep(-1)
+    }
+  }, [data?.status])
 
   return (
     <Provider store={store}>
@@ -223,6 +236,29 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
         </div>
         <HelpPopup />
         <HashPopup data={data} />
+        <Toaster
+          position='top-right'
+          reverseOrder={false}
+          containerStyle={{
+            position: 'absolute'
+          }}
+          toastOptions={{
+            duration: 10 * 1000,
+            style: {
+              position: 'relative',
+              top: '3rem',
+              right: '1.5rem',
+              margin: '5px 0',
+              padding: '.7rem 1.5rem',
+              color:
+                theme.colorMode === ColorModeOptions.light ? 'black' : 'white',
+              fontSize: '1em',
+              borderRadius: '1em',
+              border: '1px solid #66aae5',
+              background: 'transparent'
+            }
+          }}
+        />
       </div>
     </Provider>
   )

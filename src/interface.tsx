@@ -1,5 +1,8 @@
 export { ChainName as SupportNetworks } from './utils/constants'
-import { ChainName as SupportNetworks } from './utils/constants'
+import {
+  ChainName as SupportNetworks,
+  TransactionStatus
+} from './utils/constants'
 
 export enum FontSizeOptions {
   large = 'large',
@@ -59,6 +62,7 @@ export interface ThemeOptions {
 }
 
 export interface TransactionData {
+  status?: TransactionStatus
   sourceChain?: string
   targetChain?: string
   tssPullHash?: string
@@ -66,4 +70,5 @@ export interface TransactionData {
   symbol?: string
   amount?: number
   kimaTxHash?: string
+  failReason?: string
 }

@@ -25,8 +25,8 @@ const App = () => {
               fontSize: FontSizeOptions.medium
             }}
             mode={ModeOptions.bridge}
-            kimaBackendUrl='https://transaction_backend.kima.finance'
-            kimaNodeProviderQuery='https://api_staging_testnet.kima.finance'
+            kimaBackendUrl='http://localhost:3001'
+            kimaNodeProviderQuery='https://api_testnet.kima.finance'
             titleOption={{
               initialTitle: 'New Purchase'
             }}

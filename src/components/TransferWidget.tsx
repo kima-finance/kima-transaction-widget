@@ -262,6 +262,7 @@ export const TransferWidget = ({
       errorHandler(e)
       dispatch(setSubmitting(false))
       console.log(e?.status !== 500 ? 'rpc disconnected' : '', e)
+      toast.error('Failed to submit transaction')
     }
   }
 
