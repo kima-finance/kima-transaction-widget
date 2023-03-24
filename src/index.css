@@ -26,15 +26,6 @@
   font-weight: bold;
   margin: 0 0 0 1em;
 }
-@media (max-width: 768px) {
-  .kima-card .kima-card-header .topbar .title {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .kima-card .kima-card-header .topbar .title p {
-    margin: 0;
-  }
-}
 .kima-card .kima-card-header .topbar .control-buttons {
   display: flex;
   align-items: center;
@@ -195,6 +186,8 @@
   .kima-card .kima-card-content .kima-progressbar .step-indicators .step .step-info svg {
     position: absolute;
     top: 0;
+    width: 0.8em;
+    height: 0.8em;
   }
   .kima-card .kima-card-content .kima-progressbar .step-indicators .step .step-info:hover {
     align-items: center;
@@ -877,6 +870,19 @@
   width: 1em;
   height: 1em;
   margin-left: 0.5em;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item:first-of-type {
+    padding-left: 0;
+  }
+  .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item:not(:first-of-type) {
+    padding-left: 1.5em;
+    padding-top: 0.2em;
+  }
 }
 .kima-card .card-item {
   width: 10em;
