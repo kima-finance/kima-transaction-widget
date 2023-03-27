@@ -54,7 +54,7 @@ const SingleForm = ({
         <span className='label'>Source Network</span>
         <NetworkDropdown />
       </div>
-      <div className='form-item'>
+      <div className='form-item wallet-button-item'>
         <span className='label'>Connect wallet:</span>
         <WalletButton />
       </div>

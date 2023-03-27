@@ -6,6 +6,7 @@ interface Props {
   className?: string
   theme?: string
   style?: any
+  disabled?: boolean
 }
 
 const SecondaryButton = ({
@@ -13,12 +14,14 @@ const SecondaryButton = ({
   clickHandler,
   children,
   theme,
-  style
+  style,
+  disabled = false
 }: Props) => (
   <button
     className={`secondary-button ${className} ${theme}`}
     onClick={clickHandler}
     {...style}
+    disabled={disabled}
   >
     {children}
   </button>
