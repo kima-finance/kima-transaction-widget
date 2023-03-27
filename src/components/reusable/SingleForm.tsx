@@ -68,11 +68,11 @@ const SingleForm = ({
         <div className={`form-item ${theme.colorMode}`}>
           <span className='label'>Target Address:</span>
           <AddressInput />
-          {compliantOption && targetCompliant !== 'low' ? (
+          {/* {compliantOption && targetCompliant !== 'low' ? (
             <p className='error'>
               Non-compliant address {`(${targetCompliant} risk)`}
             </p>
-          ) : null}
+          ) : null} */}
         </div>
       )}
 
