@@ -24,7 +24,6 @@ import {
   initialize,
   setConfirming,
   setCurrencyOptions,
-  setServiceFee,
   setSourceCompliant,
   setSubmitted,
   setSubmitting,
@@ -167,10 +166,6 @@ export const TransferWidget = ({
       if (wizardStep > 0) setWizardStep(1)
     }
   }, [isReady, wizardStep, formStep])
-
-  useEffect(() => {
-    dispatch(setServiceFee(fee))
-  }, [fee])
 
   const checkPoolBalance = async () => {
     const res: any = await fetchWrapper.get(
