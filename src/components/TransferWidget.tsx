@@ -367,6 +367,7 @@ export const TransferWidget = ({
                 dispatch(initialize())
                 closeHandler()
               }}
+              disabled={isApproving || isSubmitting}
             >
               <CrossIcon
                 fill={theme.colorMode === 'light' ? 'black' : 'white'}
@@ -407,35 +408,43 @@ export const TransferWidget = ({
             fill={theme.colorMode === 'light' ? 'black' : '#C5C5C5'}
           />
         </ExternalLink>
-        <SecondaryButton
-          clickHandler={() => {
-            if (isApproving || isSubmitting) return
-            setWizard((prev) => !prev)
-          }}
-          theme={theme.colorMode}
-          style={{ style: { width: '12em', marginLeft: 'auto' } }}
-        >
-          Switch to {isWizard ? 'Form' : 'Wizard'}
-        </SecondaryButton>
-        <SecondaryButton clickHandler={onBack} theme={theme.colorMode}>
-          {(isWizard && wizardStep > 0) || (!isWizard && formStep > 0)
-            ? 'Back'
-            : 'Cancel'}
-        </SecondaryButton>
-        <PrimaryButton
-          clickHandler={onNext}
-          isLoading={isApproving || isSubmitting}
-        >
-          {(isWizard && wizardStep === 5) || (!isWizard && formStep === 1)
-            ? isApproved
-              ? isSubmitting
-                ? 'Submitting...'
-                : 'Submit'
-              : isApproving
-              ? 'Approving...'
-              : 'Approve'
-            : 'Next'}
-        </PrimaryButton>
+        <div className='button-group'>
+          <SecondaryButton
+            clickHandler={() => {
+              if (isApproving || isSubmitting) return
+              setWizard((prev) => !prev)
+            }}
+            disabled={isApproving || isSubmitting}
+            theme={theme.colorMode}
+            style={{ style: { width: '12em', marginLeft: 'auto' } }}
+          >
+            Switch to {isWizard ? 'Form' : 'Wizard'}
+          </SecondaryButton>
+          <SecondaryButton
+            clickHandler={onBack}
+            theme={theme.colorMode}
+            disabled={isApproving || isSubmitting}
+          >
+            {(isWizard && wizardStep > 0) || (!isWizard && formStep > 0)
+              ? 'Back'
+              : 'Cancel'}
+          </SecondaryButton>
+          <PrimaryButton
+            clickHandler={onNext}
+            isLoading={isApproving || isSubmitting}
+            disabled={isApproving || isSubmitting}
+          >
+            {(isWizard && wizardStep === 5) || (!isWizard && formStep === 1)
+              ? isApproved
+                ? isSubmitting
+                  ? 'Submitting...'
+                  : 'Submit'
+                : isApproving
+                ? 'Approving...'
+                : 'Approve'
+              : 'Next'}
+          </PrimaryButton>
+        </div>
       </div>
       <WalletConnectModal />
       <HelpPopup />

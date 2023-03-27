@@ -35,7 +35,6 @@
           height: 1.4em;
           margin-top: -0.2em;
           position: relative;
-          cursor: pointer;
 
           &:before {
             content: '';
@@ -281,6 +280,10 @@
     .single-form {
       padding-left: 5em;
 
+      @include breakpoint(phablet) {
+        padding-left: 0;
+      }
+
       .form-item {
         display: flex;
         align-items: center;
@@ -395,8 +398,16 @@
           padding: 0.3em 0.5em 0.3em 1em;
           box-sizing: content-box;
 
+          @include breakpoint(mobile) {
+            width: 8em;
+          }
+
           &.kima-address-input {
             width: 20em;
+
+            @include breakpoint(mobile) {
+              width: 14em;
+            }
           }
         }
 
@@ -410,6 +421,16 @@
           color: red;
           font-size: 0.8em;
           margin-left: 1em;
+        }
+
+        &.wallet-button-item {
+          @include breakpoint(phablet) {
+            align-items: flex-start;
+          }
+
+          > span {
+            padding-top: 1em;
+          }
         }
       }
 
@@ -681,6 +702,15 @@
       .balance-info {
         margin-left: 1em;
       }
+
+      @include breakpoint(phablet) {
+        flex-direction: column;
+        align-items: flex-start;
+
+        .balance-info {
+          margin-left: 0;
+        }
+      }
     }
 
     .connect-wallet-step {
@@ -840,6 +870,22 @@
       &.dark {
         .kima-card-network-label {
           background: $progressbarDark;
+        }
+      }
+
+      @include breakpoint(phablet) {
+        padding: 0 2em;
+      }
+
+      @include breakpoint(mobile) {
+        padding: 0;
+
+        .detail-item {
+          padding: 1em 1em 1em 0;
+
+          .label {
+            width: 8em;
+          }
         }
       }
     }
@@ -1073,6 +1119,10 @@
       opacity: 0.7;
     }
 
+    &:disabled {
+      cursor: default;
+    }
+
     .loading-indicator {
       margin-right: 0.5em;
 
@@ -1081,6 +1131,10 @@
         height: 1.5em;
         margin-top: 0.3em;
       }
+    }
+
+    @include breakpoint(mobile) {
+      width: 8em;
     }
   }
 
@@ -1105,8 +1159,17 @@
       background: $secondary;
     }
 
-    &:hover {
+    &:hover,
+    &:disabled {
       opacity: 0.7;
+    }
+
+    &:disabled {
+      cursor: default;
+    }
+
+    @include breakpoint(mobile) {
+      width: 8em;
     }
   }
 
