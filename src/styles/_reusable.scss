@@ -345,6 +345,11 @@
           }
         }
 
+        .amount-label-container {
+          display: flex;
+          align-items: center;
+        }
+
         .amount-label {
           display: flex;
           align-items: center;
@@ -428,9 +433,19 @@
             align-items: flex-start;
           }
 
+          @include breakpoint(mobile) {
+            .wallet-button {
+              align-items: flex-end;
+            }
+          }
+
           > span {
             padding-top: 1em;
           }
+        }
+
+        @include breakpoint(mobile) {
+          justify-content: space-between;
         }
       }
 

@@ -59,6 +59,7 @@ import useCurrencyOptions from '../hooks/useCurrencyOptions'
 import { ChainName, CHAIN_NAMES_TO_STRING } from '../utils/constants'
 import { toast, Toaster } from 'react-hot-toast'
 import useBalance from '../hooks/useBalance'
+import useWidth from '../hooks/useWidth'
 
 interface Props {
   theme: ThemeOptions
@@ -85,6 +86,7 @@ export const TransferWidget = ({
   const { isApproved, approve } = useAllowance()
   const { serviceFee: fee } = useServiceFee()
   const { balance } = useBalance()
+  const windowWidth = useWidth()
 
   // Redux variables
   const mode = useSelector(selectMode)
@@ -459,8 +461,8 @@ export const TransferWidget = ({
           duration: 10 * 1000,
           style: {
             position: 'relative',
-            top: '3rem',
-            right: '1.5rem',
+            top: windowWidth > 768 ? '3rem' : '1.5rem',
+            right: windowWidth > 768 ? '1.5rem' : '0rem',
             margin: '5px 0',
             padding: '.7rem 1.5rem',
             color:
@@ -468,7 +470,12 @@ export const TransferWidget = ({
             fontSize: '1em',
             borderRadius: '1em',
             border: '1px solid #66aae5',
-            background: 'transparent'
+            background:
+              windowWidth > 768
+                ? 'transparent'
+                : theme.colorMode === ColorModeOptions.light
+                ? 'white'
+                : theme.backgroundColorDark ?? '#1b1e25'
           }
         }}
       />
