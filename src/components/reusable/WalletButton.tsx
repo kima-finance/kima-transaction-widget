@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react'
 import { toast } from 'react-hot-toast'
 import { useDispatch, useSelector } from 'react-redux'
-import { useWallet } from '@solana/wallet-adapter-react'
+// import { useWallet } from '@solana/wallet-adapter-react'
 import { setConnectModal } from '../../store/optionSlice'
 import {
   selectCompliantOption,
@@ -28,8 +28,8 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const compliantOption = useSelector(selectCompliantOption)
   const selectedNetwork = useSelector(selectOriginNetwork)
   const walletAutoConnect = useSelector(selectWalletAutoConnect)
-  const { disconnect: disconnectSolana } = useWallet()
-  const { connect, disconnect: disconnectEVM } = useEthereumProvider()
+  // const { disconnect: disconnectSolana } = useWallet()
+  const { connect /*disconnect: disconnectEVM*/ } = useEthereumProvider()
   const { isReady, statusMessage, walletAddress } =
     useIsWalletReady(walletAutoConnect)
   const { balance } = useBalance()
@@ -40,15 +40,15 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   }, [connect])
 
   const handleClick = () => {
-    if (isReady) {
-      toast.error('Wallet not connected')
-      if (selectedNetwork === ChainName.SOLANA) {
-        disconnectSolana()
-      } else {
-        disconnectEVM()
-      }
-      return
-    }
+    // if (isReady) {
+    //   toast.error('Wallet not connected')
+    //   if (selectedNetwork === ChainName.SOLANA) {
+    //     disconnectSolana()
+    //   } else {
+    //     disconnectEVM()
+    //   }
+    //   return
+    // }
 
     if (selectedNetwork === ChainName.SOLANA) {
       dispatch(setConnectModal(true))
@@ -78,9 +78,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
       data-testid={connectWalletBtn}
     >
       <PrimaryButton clickHandler={handleClick}>
-        {isReady
-          ? `Disconnect ${getShortenedAddress(walletAddress || '')}`
-          : 'Wallet'}
+        {isReady ? `${getShortenedAddress(walletAddress || '')}` : 'Wallet'}
       </PrimaryButton>
 
       {isReady ? (
