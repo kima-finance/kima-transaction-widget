@@ -21,7 +21,7 @@ const App = () => {
         <div className='container'>
           <KimaTransactionWidget
             theme={{
-              colorMode: ColorModeOptions.dark,
+              colorMode: ColorModeOptions.light,
               fontSize: FontSizeOptions.medium
             }}
             mode={ModeOptions.bridge}

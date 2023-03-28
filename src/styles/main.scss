@@ -169,6 +169,10 @@
       #00000020 100%
     );
     position: relative;
+
+    @include breakpoint(phablet) {
+      width: calc(100% - 4em);
+    }
   }
 
   .scroll-button {
@@ -190,6 +194,10 @@
         right: 4em;
         transform: rotate(180deg);
       }
+    }
+
+    @include breakpoint(phablet) {
+      display: none;
     }
   }
 }

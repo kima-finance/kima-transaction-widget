@@ -1150,6 +1150,11 @@
   justify-content: center;
   pointer-events: none;
 }
+@media (max-width: 768px) {
+  .kima-card .kima-modal {
+    border-radius: 0;
+  }
+}
 .kima-card .kima-modal .modal-content-container {
   position: relative;
   width: calc(100% - 8em);
@@ -1161,6 +1166,9 @@
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
   overflow: hidden;
   box-sizing: content-box;
+}
+.kima-card .kima-modal .modal-content-container .kima-card-footer {
+  flex-direction: row;
 }
 .kima-card .kima-modal .modal-overlay {
   cursor: pointer;
@@ -1395,6 +1403,11 @@
   mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.1254901961) 0%, black 5%, black 95%, rgba(0, 0, 0, 0.1254901961) 100%);
   position: relative;
 }
+@media (max-width: 768px) {
+  .kima-card .slide-area {
+    width: calc(100% - 4em);
+  }
+}
 .kima-card .scroll-button {
   position: absolute;
   width: 100%;
@@ -1412,6 +1425,11 @@
 .kima-card .scroll-button svg:last-of-type {
   right: 4em;
   transform: rotate(180deg);
+}
+@media (max-width: 768px) {
+  .kima-card .scroll-button {
+    display: none;
+  }
 }
 
 /*# sourceMappingURL=index.css.map */

@@ -13,6 +13,10 @@
     align-items: center;
     justify-content: center;
 
+    @include breakpoint(phablet) {
+      border-radius: 0;
+    }
+
     .modal-content-container {
       position: relative;
       width: calc(100% - 8em);
@@ -24,6 +28,10 @@
       @include transition;
       overflow: hidden;
       box-sizing: content-box;
+
+      .kima-card-footer {
+        flex-direction: row;
+      }
     }
 
     .modal-overlay {
