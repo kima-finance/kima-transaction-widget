@@ -22,7 +22,6 @@ import { useDispatch } from 'react-redux'
 import { toast, Toaster } from 'react-hot-toast'
 import { initialize } from '../store/optionSlice'
 import { HashPopup, HelpPopup } from './modals'
-import 'react-tooltip/dist/react-tooltip.css'
 
 export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [step, setStep] = useState(0)
