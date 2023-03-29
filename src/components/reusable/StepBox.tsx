@@ -53,7 +53,7 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                 />
               ) : step >= index ? (
                 index === errorStep ? (
-                  <WarningIcon />
+                  <WarningIcon data-tooltip-id='error-tooltip' />
                 ) : (
                   <CheckIcon />
                 )

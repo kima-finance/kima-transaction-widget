@@ -59,7 +59,7 @@ const Progressbar = ({ step, errorStep, setFocus, loadingStep }: Props) => {
                 />
               ) : step >= index ? (
                 index === errorStep ? (
-                  <WarningIcon />
+                  <WarningIcon data-tooltip-id='error-tooltip' />
                 ) : (
                   <CheckIcon />
                 )

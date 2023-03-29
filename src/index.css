@@ -1040,6 +1040,7 @@
   display: flex;
   align-items: center;
   column-gap: 0.5em;
+  cursor: pointer;
 }
 .kima-card .primary-button {
   background: #66aae5;
