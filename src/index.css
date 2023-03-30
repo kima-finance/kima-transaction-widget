@@ -418,6 +418,14 @@
   display: flex;
   align-items: center;
 }
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .single-form .form-item .amount-label-container {
+    width: 13.7em;
+  }
+  .kima-card .kima-card-content .single-form .form-item .amount-label-container input {
+    width: 100%;
+  }
+}
 .kima-card .kima-card-content .single-form .form-item .amount-label {
   display: flex;
   align-items: center;
@@ -465,17 +473,12 @@
   padding: 0.3em 0.5em 0.3em 1em;
   box-sizing: content-box;
 }
-@media (max-width: 500px) {
-  .kima-card .kima-card-content .single-form .form-item input {
-    width: 8em;
-  }
-}
 .kima-card .kima-card-content .single-form .form-item input.kima-address-input {
   width: 20em;
 }
 @media (max-width: 500px) {
   .kima-card .kima-card-content .single-form .form-item input.kima-address-input {
-    width: 14em;
+    width: 12em;
   }
 }
 .kima-card .kima-card-content .single-form .form-item.light input {
@@ -494,6 +497,9 @@
 @media (max-width: 500px) {
   .kima-card .kima-card-content .single-form .form-item.wallet-button-item .wallet-button {
     align-items: flex-end;
+  }
+  .kima-card .kima-card-content .single-form .form-item.wallet-button-item .wallet-button button {
+    width: 12em;
   }
 }
 .kima-card .kima-card-content .single-form .form-item.wallet-button-item > span {
@@ -686,6 +692,11 @@
 }
 .kima-card .kima-card-content .single-form .network-dropdown.dark {
   background: #4f5156;
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .single-form .network-dropdown {
+    width: 10em;
+  }
 }
 .kima-card .kima-card-content .wallet-button {
   font-size: 1.16em;
@@ -1135,6 +1146,10 @@
   max-height: 0;
   opacity: 0;
   pointer-events: none;
+}
+.kima-card .error-tooltip.dark {
+  color: black;
+  background-color: white;
 }
 
 .kima-card .kima-modal {

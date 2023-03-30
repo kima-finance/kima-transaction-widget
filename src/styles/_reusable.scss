@@ -348,6 +348,14 @@
         .amount-label-container {
           display: flex;
           align-items: center;
+
+          @include breakpoint(mobile) {
+            width: 13.7em;
+
+            input {
+              width: 100%;
+            }
+          }
         }
 
         .amount-label {
@@ -403,15 +411,11 @@
           padding: 0.3em 0.5em 0.3em 1em;
           box-sizing: content-box;
 
-          @include breakpoint(mobile) {
-            width: 8em;
-          }
-
           &.kima-address-input {
             width: 20em;
 
             @include breakpoint(mobile) {
-              width: 14em;
+              width: 12em;
             }
           }
         }
@@ -436,6 +440,10 @@
           @include breakpoint(mobile) {
             .wallet-button {
               align-items: flex-end;
+              
+              button {
+                width: 12em;
+              }
             }
           }
 
@@ -685,6 +693,10 @@
 
         &.dark {
           background: $progressbarDark;
+        }
+
+        @include breakpoint(mobile) {
+          width: 10em;
         }
       }
     }
@@ -1220,6 +1232,13 @@
       max-height: 0;
       opacity: 0;
       pointer-events: none;
+    }
+  }
+
+  .error-tooltip {
+    &.dark {
+      color: black;
+      background-color: white;
     }
   }
 }

@@ -266,6 +266,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
         />
         <Tooltip
           id='error-tooltip'
+          className={`error-tooltip ${theme.colorMode}`}
           content={errorMessage}
           style={{ zIndex: 10000 }}
         />
