@@ -27,7 +27,7 @@ const NetworkLabel = ({ sourceChain, targetChain, hasError }: Props) => {
         {TargetInfo?.label}
       </div>
       {hasError && (
-        <div className='warning-container'>
+        <div className='warning-container' data-tooltip-id='error-tooltip'>
           <WarningIcon />
           <span>1 issue</span>
         </div>

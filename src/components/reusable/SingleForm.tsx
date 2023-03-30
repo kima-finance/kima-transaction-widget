@@ -68,26 +68,28 @@ const SingleForm = ({
         <div className={`form-item ${theme.colorMode}`}>
           <span className='label'>Target Address:</span>
           <AddressInput />
-          {compliantOption && targetCompliant !== 'low' ? (
+          {/* {compliantOption && targetCompliant !== 'low' ? (
             <p className='error'>
               Non-compliant address {`(${targetCompliant} risk)`}
             </p>
-          ) : null}
+          ) : null} */}
         </div>
       )}
 
       {mode === ModeOptions.bridge ? (
         <div className={`form-item ${theme.colorMode}`}>
           <span className='label'>Amount:</span>
-          <input
-            type='number'
-            value={amount || ''}
-            onChange={(e) => {
-              const _amount = +e.target.value
-              dispatch(setAmount(parseFloat(_amount.toFixed(2))))
-            }}
-          />
-          <CoinDropdown />
+          <div className='amount-label-container'>
+            <input
+              type='number'
+              value={amount || ''}
+              onChange={(e) => {
+                const _amount = +e.target.value
+                dispatch(setAmount(parseFloat(_amount.toFixed(2))))
+              }}
+            />
+            <CoinDropdown />
+          </div>
         </div>
       ) : (
         <div className={`form-item ${theme.colorMode}`}>

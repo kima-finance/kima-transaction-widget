@@ -127,5 +127,15 @@
         display: none;
       }
     }
+
+    @include breakpoint(mobile) {
+      flex-direction: column;
+      max-height: unset;
+      padding-top: 0em;
+
+      .button-group {
+        margin-left: unset;
+      }
+    }
   }
 }

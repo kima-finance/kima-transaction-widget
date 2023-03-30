@@ -345,6 +345,19 @@
           }
         }
 
+        .amount-label-container {
+          display: flex;
+          align-items: center;
+
+          @include breakpoint(mobile) {
+            width: 13.7em;
+
+            input {
+              width: 100%;
+            }
+          }
+        }
+
         .amount-label {
           display: flex;
           align-items: center;
@@ -398,15 +411,11 @@
           padding: 0.3em 0.5em 0.3em 1em;
           box-sizing: content-box;
 
-          @include breakpoint(mobile) {
-            width: 8em;
-          }
-
           &.kima-address-input {
             width: 20em;
 
             @include breakpoint(mobile) {
-              width: 14em;
+              width: 12em;
             }
           }
         }
@@ -428,9 +437,23 @@
             align-items: flex-start;
           }
 
+          @include breakpoint(mobile) {
+            .wallet-button {
+              align-items: flex-end;
+              
+              button {
+                width: 12em;
+              }
+            }
+          }
+
           > span {
             padding-top: 1em;
           }
+        }
+
+        @include breakpoint(mobile) {
+          justify-content: space-between;
         }
       }
 
@@ -670,6 +693,10 @@
 
         &.dark {
           background: $progressbarDark;
+        }
+
+        @include breakpoint(mobile) {
+          width: 10em;
         }
       }
     }
@@ -1095,6 +1122,7 @@
       display: flex;
       align-items: center;
       column-gap: 0.5em;
+      cursor: pointer;
     }
   }
 
@@ -1204,6 +1232,13 @@
       max-height: 0;
       opacity: 0;
       pointer-events: none;
+    }
+  }
+
+  .error-tooltip {
+    &.dark {
+      color: black;
+      background-color: white;
     }
   }
 }

@@ -116,7 +116,8 @@ function useIsWalletReady(enableNetworkAutoswitch: boolean = false): {
     correctEvmNetwork,
     hasCorrectEvmNetwork,
     provider,
-    signerAddress
+    signerAddress,
+    initChainFromProvider
   ])
 }
 

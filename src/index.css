@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import 'react-tooltip/dist/react-tooltip.css';
 .kima-card {
   position: relative;
 }
@@ -100,6 +101,16 @@
   }
   .kima-card .kima-card-footer .button-group button:first-of-type {
     display: none;
+  }
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-footer {
+    flex-direction: column;
+    max-height: unset;
+    padding-top: 0em;
+  }
+  .kima-card .kima-card-footer .button-group {
+    margin-left: unset;
   }
 }
 
@@ -403,6 +414,18 @@
 .kima-card .kima-card-content .single-form .form-item .network-item:hover {
   opacity: 0.7;
 }
+.kima-card .kima-card-content .single-form .form-item .amount-label-container {
+  display: flex;
+  align-items: center;
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .single-form .form-item .amount-label-container {
+    width: 13.7em;
+  }
+  .kima-card .kima-card-content .single-form .form-item .amount-label-container input {
+    width: 100%;
+  }
+}
 .kima-card .kima-card-content .single-form .form-item .amount-label {
   display: flex;
   align-items: center;
@@ -450,17 +473,12 @@
   padding: 0.3em 0.5em 0.3em 1em;
   box-sizing: content-box;
 }
-@media (max-width: 500px) {
-  .kima-card .kima-card-content .single-form .form-item input {
-    width: 8em;
-  }
-}
 .kima-card .kima-card-content .single-form .form-item input.kima-address-input {
   width: 20em;
 }
 @media (max-width: 500px) {
   .kima-card .kima-card-content .single-form .form-item input.kima-address-input {
-    width: 14em;
+    width: 12em;
   }
 }
 .kima-card .kima-card-content .single-form .form-item.light input {
@@ -476,8 +494,21 @@
     align-items: flex-start;
   }
 }
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .single-form .form-item.wallet-button-item .wallet-button {
+    align-items: flex-end;
+  }
+  .kima-card .kima-card-content .single-form .form-item.wallet-button-item .wallet-button button {
+    width: 12em;
+  }
+}
 .kima-card .kima-card-content .single-form .form-item.wallet-button-item > span {
   padding-top: 1em;
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .single-form .form-item {
+    justify-content: space-between;
+  }
 }
 .kima-card .kima-card-content .single-form .coin-dropdown {
   position: relative;
@@ -661,6 +692,11 @@
 }
 .kima-card .kima-card-content .single-form .network-dropdown.dark {
   background: #4f5156;
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .single-form .network-dropdown {
+    width: 10em;
+  }
 }
 .kima-card .kima-card-content .wallet-button {
   font-size: 1.16em;
@@ -1016,6 +1052,7 @@
   display: flex;
   align-items: center;
   column-gap: 0.5em;
+  cursor: pointer;
 }
 .kima-card .primary-button {
   background: #66aae5;
@@ -1110,6 +1147,10 @@
   opacity: 0;
   pointer-events: none;
 }
+.kima-card .error-tooltip.dark {
+  color: black;
+  background-color: white;
+}
 
 .kima-card .kima-modal {
   position: absolute;
@@ -1126,6 +1167,11 @@
   justify-content: center;
   pointer-events: none;
 }
+@media (max-width: 768px) {
+  .kima-card .kima-modal {
+    border-radius: 0;
+  }
+}
 .kima-card .kima-modal .modal-content-container {
   position: relative;
   width: calc(100% - 8em);
@@ -1137,6 +1183,9 @@
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
   overflow: hidden;
   box-sizing: content-box;
+}
+.kima-card .kima-modal .modal-content-container .kima-card-footer {
+  flex-direction: row;
 }
 .kima-card .kima-modal .modal-overlay {
   cursor: pointer;
@@ -1371,6 +1420,11 @@
   mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.1254901961) 0%, black 5%, black 95%, rgba(0, 0, 0, 0.1254901961) 100%);
   position: relative;
 }
+@media (max-width: 768px) {
+  .kima-card .slide-area {
+    width: calc(100% - 4em);
+  }
+}
 .kima-card .scroll-button {
   position: absolute;
   width: 100%;
@@ -1388,6 +1442,11 @@
 .kima-card .scroll-button svg:last-of-type {
   right: 4em;
   transform: rotate(180deg);
+}
+@media (max-width: 768px) {
+  .kima-card .scroll-button {
+    display: none;
+  }
 }
 
 /*# sourceMappingURL=index.css.map */

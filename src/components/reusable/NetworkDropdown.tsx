@@ -27,6 +27,7 @@ const NetworkDropdown = React.memo(
       Array<ChainName>
     >([])
     const ref = useRef<any>()
+    const sourceChangeRef = useRef<boolean>(false)
     const mode = useSelector(selectMode)
     const useFIAT = useSelector(selectUseFIAT)
     const originNetwork = useSelector(selectOriginNetwork)
@@ -64,6 +65,10 @@ const NetworkDropdown = React.memo(
 
           setAvailableNetworks(networks.Chains)
           if (isOriginChain && !targetNetwork) {
+            dispatch(setTargetNetwork(networks.Chains[0]))
+          }
+          if (sourceChangeRef.current) {
+            sourceChangeRef.current = false
             dispatch(setTargetNetwork(networks.Chains[0]))
           }
         } catch (e) {
@@ -124,6 +129,7 @@ const NetworkDropdown = React.memo(
               onClick={async () => {
                 if (isOriginChain) {
                   dispatch(setOriginNetwork(network.id))
+                  sourceChangeRef.current = true
                 } else {
                   dispatch(setTargetNetwork(network.id))
                   dispatch(setServiceFee(-1))

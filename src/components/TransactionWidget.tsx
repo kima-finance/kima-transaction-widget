@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { Tooltip } from 'react-tooltip'
 import AnimatedNumber from 'animated-number-react'
 import { CrossIcon, FooterLogo, MinimizeIcon } from '../assets/icons'
 import Progressbar from './reusable/Progressbar'
@@ -26,6 +27,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [step, setStep] = useState(0)
   const [focus, setFocus] = useState(-1)
   const [errorStep, setErrorStep] = useState(-1)
+  const [errorMessage, setErrorMessage] = useState('')
   const [loadingStep, setLoadingStep] = useState(-1)
   const [minimized, setMinimized] = useState(false)
   const [percent, setPercent] = useState(0)
@@ -102,6 +104,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setLoadingStep(-1)
       console.error(data.failReason)
       toast.error('Unavailable')
+      setErrorMessage('Unavailable')
     } else if (status === TransactionStatus.KEYSIGNED) {
       setStep(3)
       setPercent(75)
@@ -117,6 +120,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setLoadingStep(-1)
       console.error(data.failReason)
       toast.error('Failed to release tokens to target!')
+      setErrorMessage('Failed to release tokens to target!')
     } else if (status === TransactionStatus.FAILEDTOPULL) {
       setStep(1)
       setPercent(25)
@@ -124,6 +128,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setLoadingStep(-1)
       console.error(data.failReason)
       toast.error('Failed to pull tokens from source!')
+      setErrorMessage('Failed to pull tokens from source!')
     } else if (status === TransactionStatus.COMPLETED) {
       setStep(4)
       setPercent(100)
@@ -258,6 +263,12 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
               background: 'transparent'
             }
           }}
+        />
+        <Tooltip
+          id='error-tooltip'
+          className={`error-tooltip ${theme.colorMode}`}
+          content={errorMessage}
+          style={{ zIndex: 10000 }}
         />
       </div>
     </Provider>
