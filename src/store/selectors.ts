@@ -56,3 +56,5 @@ export const selectTargetCompliant = (state: RootState) =>
   state.option.targetCompliant
 export const selectUseFIAT = (state: RootState) =>
   state.option.useFIAT
+export const selectSupportPermit = (state: RootState) => 
+state.option.supportPermit

@@ -38,6 +38,7 @@ export interface OptionState {
   sourceCompliant: string // source address is compliant or not
   targetCompliant: string // target address is compliant or not
   useFIAT: boolean // use FIAT Payment mockup or not?
+  supportPermit: boolean // wheather current selected ERC20 token supports permit functionality
 }
 
 const initialState: OptionState = {
@@ -73,7 +74,8 @@ const initialState: OptionState = {
   compliantOption: true,
   sourceCompliant: 'low',
   targetCompliant: 'low',
-  useFIAT: false
+  useFIAT: false,
+  supportPermit: false,
 }
 
 export const optionSlice = createSlice({
@@ -93,6 +95,7 @@ export const optionSlice = createSlice({
       state.targetCompliant = 'low'
       state.useFIAT = false
       state.initChainFromProvider = false
+      state.supportPermit = false
     },
     setTheme: (state, action: PayloadAction<ThemeOptions>) => {
       state.theme = action.payload
@@ -196,6 +199,9 @@ export const optionSlice = createSlice({
     setUseFIAT: (state, action: PayloadAction<boolean>) => {
       state.useFIAT = action.payload
     },
+    setSupportPermit: (state, action: PayloadAction<boolean>) => {
+      state.supportPermit = action.payload
+    }
   }
 })
 
@@ -234,7 +240,8 @@ export const {
   setCompliantOption,
   setSourceCompliant,
   setTargetCompliant,
-  setUseFIAT
+  setUseFIAT,
+  setSupportPermit
 } = optionSlice.actions
 
 export default optionSlice.reducer

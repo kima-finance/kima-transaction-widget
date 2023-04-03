@@ -21,9 +21,10 @@ import {
   selectErrorHandler,
   selectNodeProviderQuery,
   selectOriginNetwork,
-  selectServiceFee
+  selectServiceFee,
+  selectSupportPermit
 } from '../store/selectors'
-import { setApproving } from '../store/optionSlice'
+import { setApproving, setSupportPermit } from '../store/optionSlice'
 import { getOrCreateAssociatedTokenAccount } from '../utils/solana/getOrCreateAssociatedTokenAccount'
 import { PublicKey, Transaction } from '@solana/web3.js'
 // import { SignerWalletAdapterProps } from '@solana/wallet-adapter-base'
@@ -57,6 +58,7 @@ export default function useAllowance() {
   }, [selectedNetwork, evmChainId])
   const amount = useSelector(selectAmount)
   const serviceFee = useSelector(selectServiceFee)
+  const supportPermit = useSelector(selectSupportPermit)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
   const { connection } = useConnection()
   const { publicKey, signTransaction } = useSolanaWallet()
@@ -66,8 +68,8 @@ export default function useAllowance() {
   }, [selectedCoin, sourceChain])
   const [targetAddress, setTargetAddress] = useState<string>()
   const isApproved = useMemo(() => {
-    return allowance >= amount + serviceFee
-  }, [allowance, amount, serviceFee])
+    return supportPermit || allowance >= amount + serviceFee
+  }, [allowance, amount, serviceFee, supportPermit])
 
   const updatePoolAddress = async () => {
     try {
@@ -133,6 +135,28 @@ export default function useAllowance() {
         if (!tokenAddress || !targetAddress || !signer || !signerAddress) return
 
         const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer)
+        let supportPermit = false
+
+        try {
+          await erc20Contract.estimateGas.permit(
+            signerAddress,
+            signerAddress,
+            0,
+            0,
+            27,
+            '0x61bdc658f5be9e482a4df83d4d9198fa9265eb336fcc5ad62417dc2605db891e',
+            '0x670c52e31c90222e42e90c5e82df9ff26405df82575fc93699b884faab1032e8'
+          )
+        } catch (e) {
+          const errorString = (e?.message as string) || ''
+          if (errorString.indexOf('expired deadline') >= 0) supportPermit = true
+        }
+
+        dispatch(setSupportPermit(supportPermit))
+        if (supportPermit) {
+          return
+        }
+
         const decimals = await erc20Contract.decimals()
         const userAllowance = await erc20Contract.allowance(
           signerAddress,
@@ -222,8 +246,9 @@ export default function useAllowance() {
   return useMemo(
     () => ({
       isApproved,
+      poolAddress: targetAddress,
       approve
     }),
-    [isApproved, approve]
+    [isApproved, approve, targetAddress]
   )
 }

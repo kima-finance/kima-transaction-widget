@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { signERC2612Permit } from 'eth-permit'
+import { Contract } from '@ethersproject/contracts'
+import ERC20ABI from '../utils/ethereum/erc20ABI.json'
 import { CrossIcon, FooterLogo } from '../assets/icons'
 import {
   ConfirmDetails,
@@ -45,6 +48,7 @@ import {
   selectOriginNetwork,
   selectSourceCompliant,
   selectSubmitting,
+  selectSupportPermit,
   selectTargetAddress,
   selectTargetCompliant,
   selectTargetNetwork
@@ -56,10 +60,16 @@ import { fetchWrapper } from '../helpers/fetch-wrapper'
 import AddressInputWizard from './reusable/AddressInputWizard'
 import { HelpPopup, BankPopup, WalletConnectModal } from './modals'
 import useCurrencyOptions from '../hooks/useCurrencyOptions'
-import { ChainName, CHAIN_NAMES_TO_STRING } from '../utils/constants'
+import {
+  ChainName,
+  CHAIN_NAMES_TO_STRING,
+  isEVMChain
+} from '../utils/constants'
 import { toast, Toaster } from 'react-hot-toast'
 import useBalance from '../hooks/useBalance'
 import useWidth from '../hooks/useWidth'
+import { useEthereumProvider } from '../contexts/EthereumProviderContext'
+import { parseUnits } from '@ethersproject/units'
 
 interface Props {
   theme: ThemeOptions
@@ -83,7 +93,8 @@ export const TransferWidget = ({
 
   // Hooks for wallet connection, allowance
   const { walletAddress, isReady } = useIsWalletReady()
-  const { isApproved, approve } = useAllowance()
+  const { provider, signer } = useEthereumProvider()
+  const { isApproved, approve, poolAddress } = useAllowance()
   const { serviceFee: fee } = useServiceFee()
   const { balance } = useBalance()
   const windowWidth = useWidth()
@@ -104,6 +115,7 @@ export const TransferWidget = ({
   const { options: selectedCoin } = useCurrencyOptions()
   const backendUrl = useSelector(selectBackendUrl)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
+  const supportPermit = useSelector(selectSupportPermit)
 
   useEffect(() => {
     if (!walletAddress) return
@@ -202,6 +214,7 @@ export const TransferWidget = ({
       toast.error('Insufficient balance!')
       return
     }
+
     if (!isApproved) {
       approve()
       return
@@ -209,11 +222,36 @@ export const TransferWidget = ({
 
     try {
       dispatch(setSubmitting(true))
+      const doPermit = supportPermit && isEVMChain(sourceChain)
+
+      if (doPermit) {
+        const deadline = Math.floor(Date.now() / 1000) + 3600
+        const erc20Contract = new Contract(
+          selectedCoin.address[sourceChain],
+          ERC20ABI.abi,
+          signer
+        )
+        const decimals = await erc20Contract.decimals()
+        const nonce = await provider?.getTransactionCount(walletAddress || '')
+        console.log(parseUnits((amount + fee).toString(), decimals))
+        const result = await signERC2612Permit(
+          provider,
+          selectedCoin.address[sourceChain],
+          walletAddress || '',
+          poolAddress || '',
+          parseUnits((amount + fee).toString(), decimals).toString(),
+          deadline,
+          nonce
+        )
+
+        console.log(result)
+      }
 
       if (!(await checkPoolBalance())) {
         dispatch(setSubmitting(false))
         return
       }
+
       const params = JSON.stringify({
         originAddress: walletAddress,
         originChain: sourceChain,
