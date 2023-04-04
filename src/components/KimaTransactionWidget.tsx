@@ -35,7 +35,7 @@ import {
   setInitChainFromProvider
 } from '../store/optionSlice'
 import '../index.css'
-import { selectSubmitted } from '../store/selectors'
+import { selectOriginNetwork, selectSubmitted } from '../store/selectors'
 import { TransactionWidget } from './TransactionWidget'
 import { TransferWidget } from './TransferWidget'
 import { ChainName, CHAIN_IDS_TO_NAMES } from '../utils/constants'
@@ -85,6 +85,7 @@ export const KimaTransactionWidget = ({
 }: Props) => {
   const submitted = useSelector(selectSubmitted)
   const dispatch = useDispatch()
+  const sourceChain = useSelector(selectOriginNetwork)
 
   useEffect(() => {
     dispatch(setTheme(theme))
@@ -139,25 +140,36 @@ export const KimaTransactionWidget = ({
     } else if (mode === ModeOptions.status) {
       dispatch(setTxId(txId || 1))
       dispatch(setSubmitted(true))
-    } else {
-      if (dAppOption === DAppOptions.G$) {
-        if (provider) {
-          provider
-            ?.getNetwork()
-            .then((network) => {
-              dispatch(setOriginNetwork(CHAIN_IDS_TO_NAMES[network.chainId]))
-              dispatch(setInitChainFromProvider(true))
-            })
-            .catch((e) => {
-              console.log(e)
-            })
-        } else {
-          dispatch(setOriginNetwork('CEL'))
-        }
-      } else if (dAppOption === DAppOptions.None)
-        dispatch(setOriginNetwork('ETH'))
     }
   }, [provider, theme, transactionOption, errorHandler, closeHandler, mode])
+
+  useEffect(() => {
+    if (mode !== ModeOptions.bridge) return
+    if (dAppOption === DAppOptions.G$) {
+      if (provider) {
+        provider
+          ?.getNetwork()
+          .then((network) => {
+            dispatch(setOriginNetwork(CHAIN_IDS_TO_NAMES[network.chainId]))
+            if (CHAIN_IDS_TO_NAMES[network.chainId] !== sourceChain) {
+              dispatch(setTargetNetwork(''))
+            }
+            dispatch(setInitChainFromProvider(true))
+          })
+          .catch((e) => {
+            console.log(e)
+            dispatch(setInitChainFromProvider(false))
+          })
+      } else {
+        dispatch(setOriginNetwork('CEL'))
+        dispatch(setTargetNetwork(''))
+        dispatch(setInitChainFromProvider(false))
+      }
+    } else if (dAppOption === DAppOptions.None) {
+      dispatch(setTargetNetwork(''))
+      dispatch(setOriginNetwork('ETH'))
+    }
+  }, [sourceChain, mode, dAppOption, provider])
 
   return submitted ? (
     <TransactionWidget theme={theme} />
