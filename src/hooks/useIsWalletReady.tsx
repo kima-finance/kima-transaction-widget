@@ -11,12 +11,7 @@ import {
   CHAIN_NAMES_TO_STRING
 } from '../utils/constants'
 import { useSelector } from 'react-redux'
-import {
-  selectErrorHandler,
-  selectInitChainFromProvider,
-  selectOriginNetwork,
-  selectSwitchChainHandler
-} from '../store/selectors'
+import { selectErrorHandler, selectOriginNetwork } from '../store/selectors'
 
 const createWalletStatus = (
   isReady: boolean,
@@ -40,8 +35,6 @@ function useIsWalletReady(enableNetworkAutoswitch: boolean = false): {
   const { publicKey: solPK } = useWallet()
   const { provider, signerAddress, chainId: evmChainId } = useEthereumProvider()
   const sourceChain = useSelector(selectOriginNetwork)
-  const switchChainHandler = useSelector(selectSwitchChainHandler)
-  const initChainFromProvider = useSelector(selectInitChainFromProvider)
   const hasEthInfo = !!provider && !!signerAddress
   const errorHandler = useSelector(selectErrorHandler)
   const correctEvmNetwork = CHAIN_NAMES_TO_IDS[sourceChain]
@@ -91,7 +84,6 @@ function useIsWalletReady(enableNetworkAutoswitch: boolean = false): {
       } else {
         if (provider && correctEvmNetwork) {
           if (autoSwitch) forceNetworkSwitch()
-          else if (initChainFromProvider) switchChainHandler(correctEvmNetwork)
         }
 
         if (evmChainId)
@@ -116,8 +108,7 @@ function useIsWalletReady(enableNetworkAutoswitch: boolean = false): {
     correctEvmNetwork,
     hasCorrectEvmNetwork,
     provider,
-    signerAddress,
-    initChainFromProvider
+    signerAddress
   ])
 }
 

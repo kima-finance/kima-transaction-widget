@@ -1163,6 +1163,14 @@
 
     @include breakpoint(mobile) {
       width: 8em;
+
+      &:hover {
+        opacity: 1;
+      }
+
+      &:hover:focus:active {
+        opacity: 0.7;
+      }
     }
   }
 
@@ -1198,6 +1206,14 @@
 
     @include breakpoint(mobile) {
       width: 8em;
+
+      &:hover {
+        opacity: 1;
+      }
+
+      &:hover:focus:active {
+        opacity: 0.7;
+      }
     }
   }
 

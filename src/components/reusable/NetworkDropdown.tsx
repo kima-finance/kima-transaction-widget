@@ -2,9 +2,11 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { ChainName } from '../../utils/constants'
 import {
+  selectDappOption,
   selectMode,
   selectNodeProviderQuery,
   selectOriginNetwork,
+  selectSwitchChainHandler,
   selectTargetNetwork,
   selectTheme,
   selectUseFIAT
@@ -16,9 +18,10 @@ import {
   setTargetNetwork
 } from '../../store/optionSlice'
 import useNetworkOptions from '../../hooks/useNetworkOptions'
-import { ModeOptions } from '../../interface'
+import { DAppOptions, ModeOptions } from '../../interface'
 import { fetchWrapper } from '../../helpers/fetch-wrapper'
 import { BankIcon } from '../../assets/icons'
+import { CHAIN_NAMES_TO_IDS } from '../../utils/constants'
 
 const NetworkDropdown = React.memo(
   ({ isOriginChain = true }: { isOriginChain?: boolean }) => {
@@ -30,6 +33,8 @@ const NetworkDropdown = React.memo(
     const sourceChangeRef = useRef<boolean>(false)
     const mode = useSelector(selectMode)
     const useFIAT = useSelector(selectUseFIAT)
+    const dAppOption = useSelector(selectDappOption)
+    const switchChainHandler = useSelector(selectSwitchChainHandler)
     const originNetwork = useSelector(selectOriginNetwork)
     const targetNetwork = useSelector(selectTargetNetwork)
     const nodeProviderQuery = useSelector(selectNodeProviderQuery)
@@ -128,7 +133,12 @@ const NetworkDropdown = React.memo(
               key={network.label}
               onClick={async () => {
                 if (isOriginChain) {
-                  dispatch(setOriginNetwork(network.id))
+                  if (dAppOption === DAppOptions.G$) {
+                    if (network.id !== originNetwork)
+                      switchChainHandler(CHAIN_NAMES_TO_IDS[network.id])
+                  } else {
+                    dispatch(setOriginNetwork(network.id))
+                  }
                   sourceChangeRef.current = true
                 } else {
                   dispatch(setTargetNetwork(network.id))

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { CrossIcon, FooterLogo } from '../assets/icons'
 import {
@@ -75,6 +75,7 @@ export const TransferWidget = ({
   paymentTitleOption
 }: Props) => {
   const dispatch = useDispatch()
+  const mainRef = useRef<HTMLDivElement>(null)
 
   // State variables for UI
   const [isWizard, setWizard] = useState(false)
@@ -310,6 +311,8 @@ export const TransferWidget = ({
     if ((isWizard && wizardStep === 5) || (!isWizard && formStep > 0)) {
       handleSubmit()
     }
+
+    mainRef.current?.click()
   }
 
   const onBack = () => {
@@ -379,7 +382,7 @@ export const TransferWidget = ({
         </div>
       </div>
 
-      <div className='kima-card-content'>
+      <div className='kima-card-content' ref={mainRef}>
         {isWizard ? (
           wizardStep === 0 ? (
             <NetworkSelect />

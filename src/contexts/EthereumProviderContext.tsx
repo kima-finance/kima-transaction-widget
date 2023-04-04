@@ -5,15 +5,15 @@ import React, {
   ReactNode,
   useCallback,
   useContext,
-  // useEffect,
   useMemo,
   useState
 } from 'react'
-// import { useDispatch } from 'react-redux'
 import { useSelector } from 'react-redux'
-// import { setOriginNetwork } from '../store/optionSlice'
-import { selectErrorHandler, selectProvider } from '../store/selectors'
-// import { CHAIN_IDS_TO_NAMES } from '../utils/constants'
+import {
+  selectErrorHandler,
+  selectProvider,
+  selectWalletAutoConnect
+} from '../store/selectors'
 
 export type Provider = ethers.providers.Web3Provider | undefined
 export type Signer = ethers.Signer | undefined
@@ -39,6 +39,7 @@ const EthereumProviderContext = React.createContext<IEthereumProviderContext>({
 })
 export const EthereumProvider = ({ children }: { children: ReactNode }) => {
   const errorHandler = useSelector(selectErrorHandler)
+  const autoConnect = useSelector(selectWalletAutoConnect)
   const [providerError, setProviderError] = useState<string | null>(null)
   const [provider, setProvider] = useState<Provider>(undefined)
   const [chainId, setChainId] = useState<number | undefined>(undefined)
@@ -123,7 +124,7 @@ export const EthereumProvider = ({ children }: { children: ReactNode }) => {
 
     if (ethereumProvider) {
       handleProvider(ethereumProvider, ethereumProvider)
-    } else {
+    } else if (autoConnect) {
       detectEthereumProvider()
         .then((detectedProvider) => {
           if (detectedProvider) {
