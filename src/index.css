@@ -1088,6 +1088,12 @@
   .kima-card .primary-button {
     width: 8em;
   }
+  .kima-card .primary-button:hover {
+    opacity: 1;
+  }
+  .kima-card .primary-button:hover:focus:active {
+    opacity: 0.7;
+  }
 }
 .kima-card .secondary-button {
   border-radius: 0.8em;
@@ -1117,6 +1123,12 @@
 @media (max-width: 500px) {
   .kima-card .secondary-button {
     width: 8em;
+  }
+  .kima-card .secondary-button:hover {
+    opacity: 1;
+  }
+  .kima-card .secondary-button:hover:focus:active {
+    opacity: 0.7;
   }
 }
 .kima-card .dropdown-menu {
