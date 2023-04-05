@@ -125,8 +125,10 @@ export const EthereumProvider = ({ children }: { children: ReactNode }) => {
     if (ethereumProvider) {
       handleProvider(ethereumProvider, ethereumProvider)
     } else if (autoConnect) {
+      console.log(autoConnect)
       detectEthereumProvider()
         .then((detectedProvider) => {
+          console.log(detectedProvider)
           if (detectedProvider) {
             const provider = new ethers.providers.Web3Provider(
               // @ts-ignore
@@ -144,7 +146,7 @@ export const EthereumProvider = ({ children }: { children: ReactNode }) => {
           setProviderError('Please install MetaMask')
         })
     }
-  }, [ethereumProvider])
+  }, [ethereumProvider, autoConnect])
 
   const disconnect = useCallback(() => {
     setProviderError(null)

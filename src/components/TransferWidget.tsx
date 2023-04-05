@@ -186,11 +186,15 @@ export const TransferWidget = ({
           targetNetwork === ChainName.FUSE || targetNetwork === ChainName.CELO
             ? 'G$'
             : 'USDK'
-        console.log(
-          `Tried to transfer ${amount} ${symbol}, but ${
-            CHAIN_NAMES_TO_STRING[targetNetwork]
-          } pool has only ${+poolBalance[i].balance} ${symbol}`
+        const errorString = `Tried to transfer ${amount} ${symbol}, but ${
+          CHAIN_NAMES_TO_STRING[targetNetwork]
+        } pool has only ${+poolBalance[i].balance} ${symbol}`
+        console.log(errorString)
+
+        toast.error(
+          `${CHAIN_NAMES_TO_STRING[targetNetwork]} pool has insufficient balance!`
         )
+        errorHandler(errorString)
         return false
       }
     }
@@ -201,6 +205,7 @@ export const TransferWidget = ({
   const handleSubmit = async () => {
     if (!balance || balance < amount) {
       toast.error('Insufficient balance!')
+      errorHandler('Insufficient balance!')
       return
     }
     if (!isApproved) {
@@ -236,6 +241,7 @@ export const TransferWidget = ({
 
       if (result?.code !== 0) {
         errorHandler(result)
+        toast.error('Failed to submit transaction!')
         dispatch(setSubmitting(false))
         return
       }
