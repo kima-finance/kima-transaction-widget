@@ -30,7 +30,6 @@ const App = () => {
             titleOption={{
               initialTitle: 'New Purchase'
             }}
-            autoConnect={true}
             useFIAT={true}
             paymentTitleOption={{
               title:
