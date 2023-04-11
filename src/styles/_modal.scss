@@ -98,7 +98,6 @@
     }
 
     &.help-popup {
-
       .modal-content-container {
         width: 30em;
         height: 20em;
@@ -137,35 +136,44 @@
 
     &.bank-popup {
       .modal-content-container {
-        width: 40em;
-        height: 24em;
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        position: relative;
+      }
+
+      .topbar {
+        position: absolute;
+        top: 2em;
+        right: 2em;
+        width: 100%;
       }
 
       .modal-content {
-        height: calc(100% - 2em);
+        height: 100%;
 
         .bank-simulation {
           h1 {
             font-size: 1.5em;
             margin-bottom: 1em;
           }
-  
+
           .content-item {
             display: flex;
             align-items: enter;
             margin: 0.5em 0;
             padding: 0 3em;
-  
+
             > span {
               width: 10em;
               text-align: left;
             }
-  
+
             p {
               margin: 0;
             }
           }
-  
+
           button {
             margin: 2em auto 0;
             width: 16em;

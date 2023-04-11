@@ -1,40 +1,30 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import md5 from 'crypto-js/md5'
 import { CrossIcon } from '../../assets/icons'
-import { setBankPopup, setSubmitted, setTxId } from '../../store/optionSlice'
-import {
-  selectAmount,
-  selectBankPopup,
-  selectTheme,
-  selectTxId
-} from '../../store/selectors'
-import { PrimaryButton } from '../reusable'
+import { setBankPopup } from '../../store/optionSlice'
+import { selectBankPopup, selectTheme } from '../../store/selectors'
 
 const HelpPopup = () => {
   const dispatch = useDispatch()
-  const txId = useSelector(selectTxId)
   const theme = useSelector(selectTheme)
-  const amount = useSelector(selectAmount)
   const bankPopup = useSelector(selectBankPopup)
-  const [loading, setLoading] = useState(false)
-  const [memo, setMemo] = useState<string>('')
+  // const [memo, setMemo] = useState<string>('')
 
-  useEffect(() => {
-    setMemo(md5(Math.random().toString()).toString())
-  }, [])
+  // useEffect(() => {
+  //   setMemo(md5(Math.random().toString()).toString())
+  // }, [])
 
-  const onSubmit = () => {
-    if (loading) return
+  // const onSubmit = () => {
+  //   if (loading) return
 
-    setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
-      dispatch(setTxId(txId))
-      dispatch(setSubmitted(true))
-      dispatch(setBankPopup(false))
-    }, 5000)
-  }
+  //   setLoading(true)
+  //   setTimeout(() => {
+  //     setLoading(false)
+  //     dispatch(setTxId(txId))
+  //     dispatch(setSubmitted(true))
+  //     dispatch(setBankPopup(false))
+  //   }, 5000)
+  // }
 
   return (
     <div
@@ -65,7 +55,7 @@ const HelpPopup = () => {
           </div>
         </div>
         <div className='modal-content'>
-          <div className='bank-simulation'>
+          {/* <div className='bank-simulation'>
             <h1>Welcome to the First National Crypto Bank</h1>
             <p>
               You’re about to send funds to the Kima Finance LTD. bank account
@@ -89,7 +79,14 @@ const HelpPopup = () => {
             >
               {loading ? 'Transferring funds ...' : 'Submit'}
             </PrimaryButton>
-          </div>
+          </div> */}
+          <iframe
+            src='http://dca-stage.herokuapp.com/widgets/kyc?partner=kimastage&user_uuid=aaaa'
+            width='100%'
+            height='100%'
+            frameBorder='0'
+            allow='camera'
+          ></iframe>
         </div>
       </div>
     </div>
