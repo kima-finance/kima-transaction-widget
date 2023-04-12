@@ -169,11 +169,11 @@ export const KimaTransactionWidget = ({
   }, [sourceChain, mode, dAppOption, provider])
 
   useEffect(() => {
-    if (dAppOption === DAppOptions.None) {
+    if (dAppOption === DAppOptions.None && mode === ModeOptions.bridge) {
       dispatch(setTargetNetwork(''))
       dispatch(setOriginNetwork('ETH'))
     }
-  }, [dAppOption])
+  }, [dAppOption, mode])
 
   return submitted ? (
     <TransactionWidget theme={theme} />

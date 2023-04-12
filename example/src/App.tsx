@@ -24,13 +24,12 @@ const App = () => {
               colorMode: ColorModeOptions.light,
               fontSize: FontSizeOptions.medium
             }}
-            mode={ModeOptions.bridge}
+            mode={ModeOptions.payment}
             kimaBackendUrl='http://localhost:3001'
             kimaNodeProviderQuery='https://api_testnet.kima.finance'
             titleOption={{
               initialTitle: 'New Purchase'
             }}
-            useFIAT={true}
             paymentTitleOption={{
               title:
                 'You can now purchase our NFT on Polygon, using funds from other chains.',
