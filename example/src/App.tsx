@@ -6,7 +6,8 @@ import {
   FontSizeOptions,
   ModeOptions,
   SupportNetworks,
-  ColorModeOptions
+  ColorModeOptions,
+  DAppOptions
 } from 'kima-transaction-widget'
 import 'kima-transaction-widget/dist/index.css'
 
@@ -24,7 +25,7 @@ const App = () => {
               colorMode: ColorModeOptions.light,
               fontSize: FontSizeOptions.medium
             }}
-            mode={ModeOptions.light}
+            mode={ModeOptions.bridge}
             kimaBackendUrl='http://localhost:3001'
             kimaNodeProviderQuery='https://api_testnet.kima.finance'
             titleOption={{
@@ -38,6 +39,7 @@ const App = () => {
                 fontWeight: '500'
               }
             }}
+            dAppOption={DAppOptions.LightDemo}
             lightModeOption={{
               kimaAccounts: [
                 '0x8222ADB2A2092c3774105a5F558987265D920C09',

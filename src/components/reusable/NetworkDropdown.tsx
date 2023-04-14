@@ -48,10 +48,7 @@ const NetworkDropdown = React.memo(
       return networkOptions[0]
     }, [originNetwork, targetNetwork, networkOptions])
     const networks = useMemo(() => {
-      if (
-        isOriginChain &&
-        (mode === ModeOptions.bridge || mode === ModeOptions.light)
-      ) {
+      if (isOriginChain && mode === ModeOptions.bridge) {
         return networkOptions
       }
 
@@ -59,14 +56,14 @@ const NetworkDropdown = React.memo(
         (network) =>
           availableNetworks.findIndex((id: any) => id === network.id) >= 0
       )
-    }, [networkOptions, isOriginChain, availableNetworks])
+    }, [networkOptions, isOriginChain, availableNetworks, dAppOption])
     const theme = useSelector(selectTheme)
     const dispatch = useDispatch()
 
     useEffect(() => {
       if (
         !nodeProviderQuery ||
-        (mode !== ModeOptions.bridge && mode !== ModeOptions.light)
+        (mode !== ModeOptions.bridge && dAppOption !== DAppOptions.LightDemo)
       )
         return
       ;(async function () {

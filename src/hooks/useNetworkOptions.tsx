@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
-import { DAppOptions, ModeOptions } from '../interface'
+import { DAppOptions } from '../interface'
 import {
   selectDappOption,
   selectLightModeOption,
@@ -19,7 +19,10 @@ export default function useNetworkOptions() {
 
   useEffect(() => {
     if (!nodeProviderQuery) return
-    if (dAppOption === DAppOptions.None) {
+    if (
+      dAppOption === DAppOptions.None ||
+      dAppOption === DAppOptions.LightDemo
+    ) {
       ;(async function () {
         try {
           const networks: any = await fetchWrapper.get(
@@ -31,7 +34,7 @@ export default function useNetworkOptions() {
               (network) =>
                 networks.Chains.findIndex((id: any) => id === network.id) >=
                   0 &&
-                (lightModeOption && mode === ModeOptions.light
+                (lightModeOption && dAppOption === DAppOptions.LightDemo
                   ? lightModeOption.chains.findIndex(
                       (id: any) => id === network.id
                     ) >= 0

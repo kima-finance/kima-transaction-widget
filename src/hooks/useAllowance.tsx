@@ -18,8 +18,8 @@ import ERC20ABI from '../utils/ethereum/erc20ABI.json'
 import {
   selectAmount,
   selectCurrencyOptions,
+  selectDappOption,
   selectErrorHandler,
-  selectMode,
   selectNodeProviderQuery,
   selectOriginNetwork,
   selectServiceFee
@@ -31,7 +31,7 @@ import { PublicKey, Transaction } from '@solana/web3.js'
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import { createApproveTransferInstruction } from '../utils/solana/createTransferInstruction'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
-import { ModeOptions } from '../interface'
+import { DAppOptions } from '../interface'
 
 type ParsedAccountData = {
   /** Name of the program that owns this account */
@@ -49,7 +49,7 @@ export default function useAllowance() {
   const { signerAddress, signer, chainId: evmChainId } = useEthereumProvider()
   const selectedNetwork = useSelector(selectOriginNetwork)
   const errorHandler = useSelector(selectErrorHandler)
-  const mode = useSelector(selectMode)
+  const dAppOption = useSelector(selectDappOption)
   const sourceChain = useMemo(() => {
     if (selectedNetwork === ChainName.SOLANA) return selectedNetwork
     if (CHAIN_NAMES_TO_IDS[selectedNetwork] !== evmChainId) {
@@ -69,8 +69,10 @@ export default function useAllowance() {
   }, [selectedCoin, sourceChain])
   const [targetAddress, setTargetAddress] = useState<string>()
   const isApproved = useMemo(() => {
-    return mode === ModeOptions.light || allowance >= amount + serviceFee
-  }, [allowance, amount, serviceFee, mode])
+    return (
+      dAppOption === DAppOptions.LightDemo || allowance >= amount + serviceFee
+    )
+  }, [allowance, amount, serviceFee, dAppOption])
 
   const updatePoolAddress = async () => {
     try {

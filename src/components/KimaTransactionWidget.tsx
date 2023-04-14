@@ -96,10 +96,12 @@ export const KimaTransactionWidget = ({
     dispatch(setTheme(theme))
     if (transactionOption) dispatch(setTransactionOption(transactionOption))
 
-    if (mode === ModeOptions.light && lightModeOption) {
+    if (dAppOption === DAppOptions.LightDemo && lightModeOption) {
       dispatch(setLightModeOption(lightModeOption))
+      if (mode === ModeOptions.bridge) {
+        dispatch(setTargetAddress(lightModeOption.kimaAccounts[0]))
+      }
       dispatch(setSourceAddress(lightModeOption.kimaAccounts[0]))
-      dispatch(setTargetAddress(lightModeOption.kimaAccounts[0]))
       dispatch(setOriginNetwork('ETH'))
       dispatch(setTargetNetwork(''))
     }
@@ -182,7 +184,11 @@ export const KimaTransactionWidget = ({
   }, [sourceChain, mode, dAppOption, provider])
 
   useEffect(() => {
-    if (dAppOption === DAppOptions.None && mode === ModeOptions.bridge) {
+    if (
+      (dAppOption === DAppOptions.None ||
+        dAppOption === DAppOptions.LightDemo) &&
+      mode === ModeOptions.bridge
+    ) {
       dispatch(setTargetNetwork(''))
       dispatch(setOriginNetwork('ETH'))
     }

@@ -11,6 +11,7 @@ import {
 } from './reusable'
 import {
   ColorModeOptions,
+  DAppOptions,
   ModeOptions,
   PaymentTitleOption,
   ThemeOptions,
@@ -39,6 +40,7 @@ import {
   selectBackendUrl,
   selectCloseHandler,
   selectCompliantOption,
+  selectDappOption,
   selectErrorHandler,
   selectMode,
   selectNodeProviderQuery,
@@ -86,6 +88,7 @@ export const TransferWidget = ({
 
   // Redux variables
   const mode = useSelector(selectMode)
+  const dAppOption = useSelector(selectDappOption)
   const amount = useSelector(selectAmount)
   const sourceChain = useSelector(selectOriginNetwork)
   const sourceAddress = useSelector(selectSourceAddress)
@@ -171,11 +174,11 @@ export const TransferWidget = ({
   }, [selectedCoin])
 
   useEffect(() => {
-    if (!isReady && mode !== ModeOptions.light) {
+    if (!isReady && dAppOption !== DAppOptions.LightDemo) {
       if (formStep > 0) setFormStep(0)
       if (wizardStep > 0) setWizardStep(1)
     }
-  }, [isReady, wizardStep, formStep, mode])
+  }, [isReady, wizardStep, formStep, dAppOption])
 
   const checkPoolBalance = async () => {
     const res: any = await fetchWrapper.get(
@@ -210,7 +213,8 @@ export const TransferWidget = ({
   }
 
   const handleSubmit = async () => {
-    const _balance = mode === ModeOptions.light ? balanceLightMode : balance
+    const _balance =
+      dAppOption === DAppOptions.LightDemo ? balanceLightMode : balance
     if (!_balance || _balance < amount) {
       toast.error('Insufficient balance!')
       errorHandler('Insufficient balance!')
@@ -307,7 +311,7 @@ export const TransferWidget = ({
     }
 
     if (!isWizard && !formStep) {
-      if (mode === ModeOptions.light && amount > 0) {
+      if (dAppOption === DAppOptions.LightDemo && amount > 0) {
         dispatch(setConfirming(true))
         setFormStep(1)
         return
@@ -434,7 +438,7 @@ export const TransferWidget = ({
           />
         </ExternalLink>
         <div className='button-group'>
-          {mode !== ModeOptions.light && (
+          {dAppOption !== DAppOptions.LightDemo && (
             <SecondaryButton
               clickHandler={() => {
                 if (isApproving || isSubmitting) return

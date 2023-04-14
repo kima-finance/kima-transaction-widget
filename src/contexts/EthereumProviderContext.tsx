@@ -10,12 +10,12 @@ import React, {
 } from 'react'
 import { useSelector } from 'react-redux'
 import {
+  selectDappOption,
   selectErrorHandler,
-  selectMode,
   selectProvider,
   selectWalletAutoConnect
 } from '../store/selectors'
-import { ModeOptions } from '../interface'
+import { DAppOptions } from '../interface'
 
 export type Provider = ethers.providers.Web3Provider | undefined
 export type Signer = ethers.Signer | undefined
@@ -40,7 +40,7 @@ const EthereumProviderContext = React.createContext<IEthereumProviderContext>({
   providerError: null
 })
 export const EthereumProvider = ({ children }: { children: ReactNode }) => {
-  const mode = useSelector(selectMode)
+  const dAppOption = useSelector(selectDappOption)
   const errorHandler = useSelector(selectErrorHandler)
   const autoConnect = useSelector(selectWalletAutoConnect)
   const [providerError, setProviderError] = useState<string | null>(null)
@@ -127,7 +127,7 @@ export const EthereumProvider = ({ children }: { children: ReactNode }) => {
 
     if (ethereumProvider) {
       handleProvider(ethereumProvider, ethereumProvider)
-    } else if (autoConnect && mode !== ModeOptions.light) {
+    } else if (autoConnect && dAppOption !== DAppOptions.LightDemo) {
       console.log(autoConnect)
       detectEthereumProvider()
         .then((detectedProvider) => {
@@ -149,7 +149,7 @@ export const EthereumProvider = ({ children }: { children: ReactNode }) => {
           setProviderError('Please install MetaMask')
         })
     }
-  }, [ethereumProvider, autoConnect, mode])
+  }, [ethereumProvider, autoConnect, dAppOption])
 
   const disconnect = useCallback(() => {
     setProviderError(null)

@@ -5,6 +5,7 @@ import {
   selectAmount,
   selectCompliantOption,
   selectCurrencyOptions,
+  selectDappOption,
   selectMode,
   selectTargetCompliant,
   selectTheme,
@@ -12,7 +13,7 @@ import {
 } from '../../store/selectors'
 import { CoinDropdown, WalletButton } from './'
 import { setAmount } from '../../store/optionSlice'
-import { ModeOptions, PaymentTitleOption } from '../../interface'
+import { DAppOptions, ModeOptions, PaymentTitleOption } from '../../interface'
 import AddressInput from './AddressInput'
 import NetworkDropdown from './NetworkDropdown'
 import AccountDropdown from './AccountDropdown'
@@ -24,6 +25,7 @@ const SingleForm = ({
 }) => {
   const dispatch = useDispatch()
   const mode = useSelector(selectMode)
+  const dAppOption = useSelector(selectDappOption)
   const theme = useSelector(selectTheme)
   const amount = useSelector(selectAmount)
   const compliantOption = useSelector(selectCompliantOption)
@@ -55,7 +57,7 @@ const SingleForm = ({
         <span className='label'>Source Network</span>
         <NetworkDropdown />
       </div>
-      {mode === ModeOptions.light ? (
+      {dAppOption === DAppOptions.LightDemo ? (
         <div className='form-item item'>
           <span className='label'>Source Address:</span>
           <AccountDropdown />
@@ -67,28 +69,28 @@ const SingleForm = ({
         </div>
       )}
 
-      {(mode === ModeOptions.bridge || mode === ModeOptions.light) && (
+      {mode === ModeOptions.bridge && (
         <div className='form-item'>
           <span className='label'>Target Network:</span>
           <NetworkDropdown isOriginChain={false} />
         </div>
       )}
 
-      {mode === ModeOptions.bridge && (
-        <div className={`form-item ${theme.colorMode}`}>
-          <span className='label'>Target Address:</span>
-          <AddressInput />
-        </div>
-      )}
+      {mode === ModeOptions.bridge ? (
+        dAppOption === DAppOptions.LightDemo ? (
+          <div className={`form-item ${theme.colorMode}`}>
+            <span className='label'>Target Address:</span>
+            <AccountDropdown isSourceAccount={false} />
+          </div>
+        ) : (
+          <div className={`form-item ${theme.colorMode}`}>
+            <span className='label'>Target Address:</span>
+            <AddressInput />
+          </div>
+        )
+      ) : null}
 
-      {mode === ModeOptions.light && (
-        <div className={`form-item ${theme.colorMode}`}>
-          <span className='label'>Target Address:</span>
-          <AccountDropdown isSourceAccount={false} />
-        </div>
-      )}
-
-      {mode === ModeOptions.bridge || mode === ModeOptions.light ? (
+      {mode === ModeOptions.bridge ? (
         <div className={`form-item ${theme.colorMode}`}>
           <span className='label'>Amount:</span>
           <div className='amount-label-container'>
@@ -97,7 +99,7 @@ const SingleForm = ({
               value={amount || ''}
               onChange={(e) => {
                 let _amount = +e.target.value
-                if (mode === ModeOptions.light && _amount > 100) {
+                if (dAppOption === DAppOptions.LightDemo && _amount > 100) {
                   toast.error('Can transfer up to 100 USDK in the light mode')
                   _amount = 100
                 }

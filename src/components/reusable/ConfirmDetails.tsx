@@ -2,10 +2,11 @@ import React, { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { formatterFloat } from '../../helpers/functions'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
-import { ModeOptions } from '../../interface'
+import { DAppOptions, ModeOptions } from '../../interface'
 import {
   selectAmount,
   selectCurrencyOptions,
+  selectDappOption,
   selectFeeDeduct,
   selectMode,
   selectOriginNetwork,
@@ -22,6 +23,7 @@ import { getShortenedAddress } from '../../utils/functions'
 const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
   const feeDeduct = useSelector(selectFeeDeduct)
   const mode = useSelector(selectMode)
+  const dAppOption = useSelector(selectDappOption)
   const theme = useSelector(selectTheme)
   const amount = useSelector(selectAmount)
   const serviceFee = useSelector(selectServiceFee)
@@ -58,7 +60,9 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
         <span className='label'>Source wallet:</span>
         <p>
           {getShortenedAddress(
-            (mode === ModeOptions.light ? sourceAddress : walletAddress) || ''
+            (dAppOption === DAppOptions.LightDemo
+              ? sourceAddress
+              : walletAddress) || ''
           )}
         </p>
         <span className='kima-card-network-label'>
@@ -70,7 +74,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
         <span className='label'>Amount:</span>
         <p>
           {formatterFloat.format(
-            feeDeduct || mode === ModeOptions.light
+            feeDeduct || dAppOption === DAppOptions.LightDemo
               ? amount
               : amount + serviceFee
           )}{' '}
