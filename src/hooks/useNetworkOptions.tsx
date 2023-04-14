@@ -1,14 +1,21 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
-import { DAppOptions } from '../interface'
-import { selectDappOption, selectNodeProviderQuery } from '../store/selectors'
+import { DAppOptions, ModeOptions } from '../interface'
+import {
+  selectDappOption,
+  selectLightModeOption,
+  selectMode,
+  selectNodeProviderQuery
+} from '../store/selectors'
 import { networkOptions } from '../utils/constants'
 
 export default function useNetworkOptions() {
-  const [options, setOptions] = useState<Array<any>>(networkOptions)
+  const mode = useSelector(selectMode)
   const dAppOption = useSelector(selectDappOption)
+  const lightModeOption = useSelector(selectLightModeOption)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
+  const [options, setOptions] = useState<Array<any>>(networkOptions)
 
   useEffect(() => {
     if (!nodeProviderQuery) return
@@ -22,21 +29,27 @@ export default function useNetworkOptions() {
           setOptions(
             networkOptions.filter(
               (network) =>
-                networks.Chains.findIndex((id: any) => id === network.id) >= 0
+                networks.Chains.findIndex((id: any) => id === network.id) >=
+                  0 &&
+                (lightModeOption && mode === ModeOptions.light
+                  ? lightModeOption.chains.findIndex(
+                      (id: any) => id === network.id
+                    ) >= 0
+                  : true)
             )
           )
         } catch (e) {
           console.log('rpc disconnected', e)
         }
       })()
-    } else {
+    } else if (dAppOption === DAppOptions.G$) {
       setOptions(
         networkOptions.filter(
           (network) => network.label === 'Fuse' || network.label === 'Celo'
         )
       )
     }
-  }, [nodeProviderQuery, dAppOption])
+  }, [nodeProviderQuery, dAppOption, lightModeOption, mode])
 
   return useMemo(
     () => ({

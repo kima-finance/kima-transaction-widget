@@ -33,9 +33,9 @@ export enum ChainName {
   FUSE = 'FUS',
   CELO = 'CEL',
   BSC = 'BSC',
-  ARBITRIUM = "ARB",
-  OPTIMISM = "OPT",
-  POLYGON_ZKEVM = "ZKE"
+  ARBITRIUM = 'ARB',
+  OPTIMISM = 'OPT',
+  POLYGON_ZKEVM = 'ZKE'
 }
 
 export enum SupportedChainId {
@@ -98,7 +98,7 @@ export const CHAIN_NAMES_TO_GECKO_ID: { [chainName: string]: string } = {
   [ChainName.BSC]: 'binancecoin',
   [ChainName.OPTIMISM]: 'ethereum',
   [ChainName.ARBITRIUM]: 'ethereum',
-  [ChainName.POLYGON_ZKEVM]: 'matic-network',
+  [ChainName.POLYGON_ZKEVM]: 'matic-network'
 }
 
 export const CHAIN_IDS_TO_NAMES: { [chainId: number]: string } = {
@@ -117,17 +117,22 @@ export const networkOptions = [
   {
     id: ChainName.ETHEREUM,
     label: 'Ethereum',
-    icon: EthereumIcon
+    icon: EthereumIcon,
+    providerUrl: 'https://sepolia.infura.io/v3/bf666ea7001545acbc960bc0ad380d57'
   },
   {
     id: ChainName.POLYGON,
     label: 'Polygon',
-    icon: PolygonIcon
+    icon: PolygonIcon,
+    providerUrl:
+      'https://polygon-mumbai.infura.io/v3/bf666ea7001545acbc960bc0ad380d57'
   },
   {
     id: ChainName.AVALANCHE,
     label: 'Avalanche',
-    icon: AvalancheIcon
+    icon: AvalancheIcon,
+    providerUrl:
+      'https://avalanche-fuji.infura.io/v3/bf666ea7001545acbc960bc0ad380d57'
   },
   {
     id: ChainName.BSC,

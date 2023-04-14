@@ -11,9 +11,11 @@ import React, {
 import { useSelector } from 'react-redux'
 import {
   selectErrorHandler,
+  selectMode,
   selectProvider,
   selectWalletAutoConnect
 } from '../store/selectors'
+import { ModeOptions } from '../interface'
 
 export type Provider = ethers.providers.Web3Provider | undefined
 export type Signer = ethers.Signer | undefined
@@ -38,6 +40,7 @@ const EthereumProviderContext = React.createContext<IEthereumProviderContext>({
   providerError: null
 })
 export const EthereumProvider = ({ children }: { children: ReactNode }) => {
+  const mode = useSelector(selectMode)
   const errorHandler = useSelector(selectErrorHandler)
   const autoConnect = useSelector(selectWalletAutoConnect)
   const [providerError, setProviderError] = useState<string | null>(null)
@@ -124,7 +127,7 @@ export const EthereumProvider = ({ children }: { children: ReactNode }) => {
 
     if (ethereumProvider) {
       handleProvider(ethereumProvider, ethereumProvider)
-    } else if (autoConnect) {
+    } else if (autoConnect && mode !== ModeOptions.light) {
       console.log(autoConnect)
       detectEthereumProvider()
         .then((detectedProvider) => {
@@ -146,7 +149,7 @@ export const EthereumProvider = ({ children }: { children: ReactNode }) => {
           setProviderError('Please install MetaMask')
         })
     }
-  }, [ethereumProvider, autoConnect])
+  }, [ethereumProvider, autoConnect, mode])
 
   const disconnect = useCallback(() => {
     setProviderError(null)

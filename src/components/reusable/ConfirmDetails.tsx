@@ -10,6 +10,7 @@ import {
   selectMode,
   selectOriginNetwork,
   selectServiceFee,
+  selectSourceAddress,
   selectTargetAddress,
   selectTargetNetwork,
   selectTheme,
@@ -28,6 +29,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
   const targetNetwork = useSelector(selectTargetNetwork)
   const targetAddress = useSelector(selectTargetAddress)
   const transactionOption = useSelector(selectTransactionOption)
+  const sourceAddress = useSelector(selectSourceAddress)
   const { walletAddress } = useIsWalletReady()
   const originNetworkOption = useMemo(
     () => networkOptions.filter((network) => network.id === originNetwork)[0],
@@ -54,7 +56,11 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
       </p>
       <div className='detail-item'>
         <span className='label'>Source wallet:</span>
-        <p>{getShortenedAddress(walletAddress || '')}</p>
+        <p>
+          {getShortenedAddress(
+            (mode === ModeOptions.light ? sourceAddress : walletAddress) || ''
+          )}
+        </p>
         <span className='kima-card-network-label'>
           <originNetworkOption.icon />
           {originNetworkOption.label}
@@ -63,7 +69,11 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
       <div className='detail-item'>
         <span className='label'>Amount:</span>
         <p>
-          {formatterFloat.format(feeDeduct ? amount : amount + serviceFee)}{' '}
+          {formatterFloat.format(
+            feeDeduct || mode === ModeOptions.light
+              ? amount
+              : amount + serviceFee
+          )}{' '}
           {selectedCoin.symbol}
         </p>
       </div>

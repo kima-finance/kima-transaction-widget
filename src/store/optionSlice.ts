@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 // import { WalletName } from '@solana/wallet-adapter-base'
-import { DAppOptions, ModeOptions, ThemeOptions, TransactionOption } from '../interface'
+import { DAppOptions, LightModeOption, ModeOptions, ThemeOptions, TransactionOption } from '../interface'
 import { COIN_LIST } from '../utils/constants'
 
 export interface OptionState {
@@ -9,6 +9,7 @@ export interface OptionState {
   originNetwork: string // origin network on UI
   targetNetwork: string // target network on UI
   targetAddress: string // target address on UI
+  sourceAddress: string // source address on UI
   connectModal: boolean // solana wallet connection modal state - open or closed
   helpPopup: boolean // shows popup to show help instructions
   hashPopup: boolean // shows popup to show hashes of transactions (kima tx, pull & release hashes)
@@ -38,6 +39,7 @@ export interface OptionState {
   sourceCompliant: string // source address is compliant or not
   targetCompliant: string // target address is compliant or not
   useFIAT: boolean // use FIAT Payment mockup or not?
+  lightModeOption?: LightModeOption // accounts / chains option for light mode widget
 }
 
 const initialState: OptionState = {
@@ -45,6 +47,7 @@ const initialState: OptionState = {
   mode: ModeOptions.bridge,
   originNetwork: '',
   targetNetwork: '',
+  sourceAddress: '',
   targetAddress: '',
   connectModal: false,
   helpPopup: false,
@@ -73,7 +76,7 @@ const initialState: OptionState = {
   compliantOption: true,
   sourceCompliant: 'low',
   targetCompliant: 'low',
-  useFIAT: false
+  useFIAT: false, 
 }
 
 export const optionSlice = createSlice({
@@ -88,6 +91,7 @@ export const optionSlice = createSlice({
       state.serviceFee = -1
       state.amount = 0
       state.targetAddress = ''
+      state.sourceAddress = ''
       state.compliantOption = true
       state.sourceCompliant = 'low'
       state.targetCompliant = 'low'
@@ -102,6 +106,9 @@ export const optionSlice = createSlice({
     },
     setTargetNetwork: (state, action: PayloadAction<string>) => {
       state.targetNetwork = action.payload
+    },
+    setSourceAddress: (state, action: PayloadAction<string>) => {
+      state.sourceAddress = action.payload
     },
     setTargetAddress: (state, action: PayloadAction<string>) => {
       state.targetAddress = action.payload
@@ -196,6 +203,9 @@ export const optionSlice = createSlice({
     setUseFIAT: (state, action: PayloadAction<boolean>) => {
       state.useFIAT = action.payload
     },
+    setLightModeOption: (state, action: PayloadAction<LightModeOption>) => {
+      state.lightModeOption = action.payload
+    },
   }
 })
 
@@ -204,6 +214,7 @@ export const {
   setTheme,
   setOriginNetwork,
   setTargetNetwork,
+  setSourceAddress,
   setTargetAddress,
   setConnectModal,
   setHelpPopup,
@@ -234,7 +245,8 @@ export const {
   setCompliantOption,
   setSourceCompliant,
   setTargetCompliant,
-  setUseFIAT
+  setUseFIAT,
+  setLightModeOption,
 } = optionSlice.actions
 
 export default optionSlice.reducer

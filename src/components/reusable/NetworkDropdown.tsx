@@ -48,7 +48,10 @@ const NetworkDropdown = React.memo(
       return networkOptions[0]
     }, [originNetwork, targetNetwork, networkOptions])
     const networks = useMemo(() => {
-      if (isOriginChain && mode === ModeOptions.bridge) {
+      if (
+        isOriginChain &&
+        (mode === ModeOptions.bridge || mode === ModeOptions.light)
+      ) {
         return networkOptions
       }
 
@@ -61,7 +64,11 @@ const NetworkDropdown = React.memo(
     const dispatch = useDispatch()
 
     useEffect(() => {
-      if (!nodeProviderQuery || mode !== ModeOptions.bridge) return
+      if (
+        !nodeProviderQuery ||
+        (mode !== ModeOptions.bridge && mode !== ModeOptions.light)
+      )
+        return
       ;(async function () {
         try {
           const networks: any = await fetchWrapper.get(

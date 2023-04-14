@@ -43,6 +43,7 @@ import {
   selectMode,
   selectNodeProviderQuery,
   selectOriginNetwork,
+  selectSourceAddress,
   selectSourceCompliant,
   selectSubmitting,
   selectTargetAddress,
@@ -60,6 +61,7 @@ import { ChainName, CHAIN_NAMES_TO_STRING } from '../utils/constants'
 import { toast, Toaster } from 'react-hot-toast'
 import useBalance from '../hooks/useBalance'
 import useWidth from '../hooks/useWidth'
+import useBalanceLightMode from '../hooks/useBalanceLightMode'
 
 interface Props {
   theme: ThemeOptions
@@ -82,17 +84,11 @@ export const TransferWidget = ({
   const [formStep, setFormStep] = useState(0)
   const [wizardStep, setWizardStep] = useState(0)
 
-  // Hooks for wallet connection, allowance
-  const { walletAddress, isReady } = useIsWalletReady()
-  const { isApproved, approve } = useAllowance()
-  const { serviceFee: fee } = useServiceFee()
-  const { balance } = useBalance()
-  const windowWidth = useWidth()
-
   // Redux variables
   const mode = useSelector(selectMode)
   const amount = useSelector(selectAmount)
   const sourceChain = useSelector(selectOriginNetwork)
+  const sourceAddress = useSelector(selectSourceAddress)
   const targetAddress = useSelector(selectTargetAddress)
   const targetNetwork = useSelector(selectTargetNetwork)
   const compliantOption = useSelector(selectCompliantOption)
@@ -105,6 +101,17 @@ export const TransferWidget = ({
   const { options: selectedCoin } = useCurrencyOptions()
   const backendUrl = useSelector(selectBackendUrl)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
+
+  // Hooks for wallet connection, allowance
+  const { walletAddress, isReady } = useIsWalletReady()
+  const { isApproved, approve } = useAllowance()
+  const { serviceFee: fee } = useServiceFee()
+  const { balance } = useBalance()
+  const { balance: balanceLightMode } = useBalanceLightMode({
+    chain: sourceChain as ChainName,
+    address: sourceAddress
+  })
+  const windowWidth = useWidth()
 
   useEffect(() => {
     if (!walletAddress) return
@@ -164,11 +171,11 @@ export const TransferWidget = ({
   }, [selectedCoin])
 
   useEffect(() => {
-    if (!isReady) {
+    if (!isReady && mode !== ModeOptions.light) {
       if (formStep > 0) setFormStep(0)
       if (wizardStep > 0) setWizardStep(1)
     }
-  }, [isReady, wizardStep, formStep])
+  }, [isReady, wizardStep, formStep, mode])
 
   const checkPoolBalance = async () => {
     const res: any = await fetchWrapper.get(
@@ -203,7 +210,8 @@ export const TransferWidget = ({
   }
 
   const handleSubmit = async () => {
-    if (!balance || balance < amount) {
+    const _balance = mode === ModeOptions.light ? balanceLightMode : balance
+    if (!_balance || _balance < amount) {
       toast.error('Insufficient balance!')
       errorHandler('Insufficient balance!')
       return
@@ -299,6 +307,12 @@ export const TransferWidget = ({
     }
 
     if (!isWizard && !formStep) {
+      if (mode === ModeOptions.light && amount > 0) {
+        dispatch(setConfirming(true))
+        setFormStep(1)
+        return
+      }
+
       if (isReady) {
         if (fee < 0) return
         if (
@@ -420,17 +434,19 @@ export const TransferWidget = ({
           />
         </ExternalLink>
         <div className='button-group'>
-          <SecondaryButton
-            clickHandler={() => {
-              if (isApproving || isSubmitting) return
-              setWizard((prev) => !prev)
-            }}
-            disabled={isApproving || isSubmitting}
-            theme={theme.colorMode}
-            style={{ style: { width: '12em', marginLeft: 'auto' } }}
-          >
-            Switch to {isWizard ? 'Form' : 'Wizard'}
-          </SecondaryButton>
+          {mode !== ModeOptions.light && (
+            <SecondaryButton
+              clickHandler={() => {
+                if (isApproving || isSubmitting) return
+                setWizard((prev) => !prev)
+              }}
+              disabled={isApproving || isSubmitting}
+              theme={theme.colorMode}
+              style={{ style: { width: '12em', marginLeft: 'auto' } }}
+            >
+              Switch to {isWizard ? 'Form' : 'Wizard'}
+            </SecondaryButton>
+          )}
           <SecondaryButton
             clickHandler={onBack}
             theme={theme.colorMode}
@@ -480,9 +496,7 @@ export const TransferWidget = ({
             borderRadius: '1em',
             border: '1px solid #66aae5',
             background:
-              windowWidth > 768
-                ? 'transparent'
-                : theme.colorMode === ColorModeOptions.light
+              theme.colorMode === ColorModeOptions.light
                 ? 'white'
                 : theme.backgroundColorDark ?? '#1b1e25'
           }

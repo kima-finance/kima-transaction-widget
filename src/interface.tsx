@@ -13,7 +13,8 @@ export enum FontSizeOptions {
 export enum ModeOptions {
   payment = 'payment',
   bridge = 'bridge',
-  status = 'status'
+  status = 'status',
+  light = 'light'
 }
 
 export enum CurrencyOptions {
@@ -71,4 +72,9 @@ export interface TransactionData {
   amount?: number
   kimaTxHash?: string
   failReason?: string
+}
+
+export interface LightModeOption {
+  kimaAccounts: Array<string>
+  chains: Array<SupportNetworks>
 }

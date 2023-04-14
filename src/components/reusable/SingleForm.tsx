@@ -15,6 +15,7 @@ import { setAmount } from '../../store/optionSlice'
 import { ModeOptions, PaymentTitleOption } from '../../interface'
 import AddressInput from './AddressInput'
 import NetworkDropdown from './NetworkDropdown'
+import AccountDropdown from './AccountDropdown'
 
 const SingleForm = ({
   paymentTitleOption
@@ -54,29 +55,40 @@ const SingleForm = ({
         <span className='label'>Source Network</span>
         <NetworkDropdown />
       </div>
-      <div className='form-item wallet-button-item'>
-        <span className='label'>Connect wallet:</span>
-        <WalletButton />
-      </div>
-      {mode === ModeOptions.bridge && (
+      {mode === ModeOptions.light ? (
+        <div className='form-item item'>
+          <span className='label'>Source Address:</span>
+          <AccountDropdown />
+        </div>
+      ) : (
+        <div className='form-item wallet-button-item'>
+          <span className='label'>Connect wallet:</span>
+          <WalletButton />
+        </div>
+      )}
+
+      {(mode === ModeOptions.bridge || mode === ModeOptions.light) && (
         <div className='form-item'>
           <span className='label'>Target Network:</span>
           <NetworkDropdown isOriginChain={false} />
         </div>
       )}
+
       {mode === ModeOptions.bridge && (
         <div className={`form-item ${theme.colorMode}`}>
           <span className='label'>Target Address:</span>
           <AddressInput />
-          {/* {compliantOption && targetCompliant !== 'low' ? (
-            <p className='error'>
-              Non-compliant address {`(${targetCompliant} risk)`}
-            </p>
-          ) : null} */}
         </div>
       )}
 
-      {mode === ModeOptions.bridge ? (
+      {mode === ModeOptions.light && (
+        <div className={`form-item ${theme.colorMode}`}>
+          <span className='label'>Target Address:</span>
+          <AccountDropdown isSourceAccount={false} />
+        </div>
+      )}
+
+      {mode === ModeOptions.bridge || mode === ModeOptions.light ? (
         <div className={`form-item ${theme.colorMode}`}>
           <span className='label'>Amount:</span>
           <div className='amount-label-container'>
@@ -84,7 +96,11 @@ const SingleForm = ({
               type='number'
               value={amount || ''}
               onChange={(e) => {
-                const _amount = +e.target.value
+                let _amount = +e.target.value
+                if (mode === ModeOptions.light && _amount > 100) {
+                  toast.error('Can transfer up to 100 USDK in the light mode')
+                  _amount = 100
+                }
                 dispatch(setAmount(parseFloat(_amount.toFixed(2))))
               }}
             />

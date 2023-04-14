@@ -5,6 +5,7 @@ import {
   ThemeOptions,
   ModeOptions,
   TitleOption,
+  LightModeOption,
   PaymentTitleOption,
   DAppOptions
 } from '../interface'
@@ -32,7 +33,9 @@ import {
   setWalletAutoConnect,
   setDappOption,
   setSwitchChainHandler,
-  setInitChainFromProvider
+  setInitChainFromProvider,
+  setLightModeOption,
+  setSourceAddress
 } from '../store/optionSlice'
 import '../index.css'
 import { selectOriginNetwork, selectSubmitted } from '../store/selectors'
@@ -52,6 +55,7 @@ interface Props {
   provider?: Web3Provider
   titleOption?: TitleOption
   compliantOption?: boolean
+  lightModeOption?: LightModeOption
   helpURL?: string
   transactionOption?: TransactionOption
   paymentTitleOption?: PaymentTitleOption
@@ -75,6 +79,7 @@ export const KimaTransactionWidget = ({
   useFIAT = false,
   helpURL = '',
   compliantOption = true,
+  lightModeOption,
   transactionOption,
   kimaBackendUrl,
   kimaNodeProviderQuery,
@@ -90,6 +95,14 @@ export const KimaTransactionWidget = ({
   useEffect(() => {
     dispatch(setTheme(theme))
     if (transactionOption) dispatch(setTransactionOption(transactionOption))
+
+    if (mode === ModeOptions.light && lightModeOption) {
+      dispatch(setLightModeOption(lightModeOption))
+      dispatch(setSourceAddress(lightModeOption.kimaAccounts[0]))
+      dispatch(setTargetAddress(lightModeOption.kimaAccounts[0]))
+      dispatch(setOriginNetwork('ETH'))
+      dispatch(setTargetNetwork(''))
+    }
     dispatch(setCompliantOption(compliantOption))
     dispatch(setErrorHandler(errorHandler))
     dispatch(setCloseHandler(closeHandler))
