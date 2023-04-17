@@ -233,7 +233,8 @@ export const TransferWidget = ({
         return
       }
       const params = JSON.stringify({
-        originAddress: walletAddress,
+        originAddress:
+          dAppOption === DAppOptions.LightDemo ? sourceAddress : walletAddress,
         originChain: sourceChain,
         targetAddress: targetAddress,
         targetChain: targetNetwork,
