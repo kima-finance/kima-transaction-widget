@@ -239,7 +239,7 @@ export const TransferWidget = ({
         targetChain: targetNetwork,
         symbol: selectedCoin.label,
         amount: amount,
-        fee: fee
+        fee: dAppOption === DAppOptions.LightDemo ? 0 : fee
       })
 
       console.log(params)
