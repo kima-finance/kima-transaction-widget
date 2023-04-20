@@ -122,7 +122,7 @@ export const KimaTransactionWidget = ({
       )
       dispatch(setUseFIAT(useFIAT))
       if (useFIAT) {
-        dispatch(setTxId(txId || 1))
+        dispatch(setTxId(txId || -1))
       }
       ;(async function () {
         try {

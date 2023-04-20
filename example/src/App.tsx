@@ -25,7 +25,8 @@ const App = () => {
               colorMode: ColorModeOptions.light,
               fontSize: FontSizeOptions.medium
             }}
-            mode={ModeOptions.bridge}
+            mode={ModeOptions.payment}
+            useFIAT={true}
             kimaBackendUrl='http://localhost:3001'
             kimaNodeProviderQuery='https://api_staging_testnet.kima.finance'
             titleOption={{

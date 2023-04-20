@@ -16,8 +16,7 @@
     "start": "microbundle-crl watch --no-compress --format modern,cjs --css-modules false",
     "sass": "sass src/styles/main.scss src/index.css -w",
     "run-build": "serve -s ./example/build -p 3000",
-    "run-test": "react-scripts test",
-    "test": "npm-run-all -p -l run-build run-test"
+    "test": "react-scripts test"
   },
   "peerDependencies": {
     "react": ">=17.0.0",

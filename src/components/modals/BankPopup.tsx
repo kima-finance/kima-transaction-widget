@@ -11,7 +11,7 @@ import {
 } from '../../store/selectors'
 import { PrimaryButton } from '../reusable'
 
-const HelpPopup = () => {
+const BankPopup = () => {
   const dispatch = useDispatch()
   const txId = useSelector(selectTxId)
   const theme = useSelector(selectTheme)
@@ -21,7 +21,7 @@ const HelpPopup = () => {
   const [memo, setMemo] = useState<string>('')
 
   useEffect(() => {
-    setMemo(md5(Math.random().toString()).toString())
+    setMemo(md5('memo test').toString())
   }, [])
 
   const onSubmit = () => {
@@ -96,4 +96,4 @@ const HelpPopup = () => {
   )
 }
 
-export default HelpPopup
+export default BankPopup
