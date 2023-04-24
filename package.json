@@ -53,7 +53,6 @@
     "dist"
   ],
   "jest": {
-    "testTimeout": 10000,
     "coveragePathIgnorePatterns": [
       "src/utils",
       "src/styles/hooks",
