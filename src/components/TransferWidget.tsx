@@ -213,6 +213,7 @@ export const TransferWidget = ({
   }
 
   const handleSubmit = async () => {
+    console.log('handleSubmit', balanceLightMode, amount)
     const _balance =
       dAppOption === DAppOptions.LightDemo ? balanceLightMode : balance
     if (!_balance || _balance < amount) {
@@ -220,12 +221,15 @@ export const TransferWidget = ({
       errorHandler('Insufficient balance!')
       return
     }
+
+    console.log(isApproved)
     if (!isApproved) {
       approve()
       return
     }
 
     try {
+      console.log('dispatch(setSubmitting(true))')
       dispatch(setSubmitting(true))
 
       if (!(await checkPoolBalance())) {

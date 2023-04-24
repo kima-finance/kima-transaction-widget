@@ -128,7 +128,6 @@ export const EthereumProvider = ({ children }: { children: ReactNode }) => {
     if (ethereumProvider) {
       handleProvider(ethereumProvider, ethereumProvider)
     } else if (autoConnect && dAppOption !== DAppOptions.LightDemo) {
-      console.log(autoConnect)
       detectEthereumProvider()
         .then((detectedProvider) => {
           console.log(detectedProvider)

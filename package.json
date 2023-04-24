@@ -15,8 +15,8 @@
     "build": "microbundle-crl --no-compress --format modern,cjs --css-modules false",
     "start": "microbundle-crl watch --no-compress --format modern,cjs --css-modules false",
     "sass": "sass src/styles/main.scss src/index.css -w",
-    "run-build": "serve -s ./example/build -p 3000",
-    "test": "react-scripts test"
+    "test": "react-scripts test --coverage --watchAll",
+    "eject": "react-scripts eject"
   },
   "peerDependencies": {
     "react": ">=17.0.0",
@@ -52,6 +52,16 @@
   "files": [
     "dist"
   ],
+  "jest": {
+    "testTimeout": 10000,
+    "coveragePathIgnorePatterns": [
+      "src/utils",
+      "src/styles/hooks",
+      "src/assets",
+      "src/contexts",
+      "src/helpers"
+    ]
+  },
   "dependencies": {
     "@ethersproject/constants": "^5.7.0",
     "@ethersproject/contracts": "^5.7.0",

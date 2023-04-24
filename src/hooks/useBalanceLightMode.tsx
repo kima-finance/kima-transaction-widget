@@ -28,6 +28,7 @@ export default function useBalanceLightMode({
   useEffect(() => {
     ;(async () => {
       try {
+        console.log(tokenAddress, providerUrl, address)
         if (!tokenAddress || !providerUrl || !address) return
 
         const provider = new JsonRpcProvider(providerUrl)
@@ -35,8 +36,10 @@ export default function useBalanceLightMode({
         const decimals = await erc20Contract.decimals()
         const userBalance = await erc20Contract.balanceOf(address)
 
+        console.log('userBalance', userBalance)
         setBalance(+formatUnits(userBalance, decimals))
       } catch (error) {
+        console.log('error', error)
         errorHandler(error)
       }
     })()

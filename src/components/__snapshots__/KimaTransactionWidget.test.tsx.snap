@@ -1877,7 +1877,9 @@ exports[`KimaTransactionWidget test Payment scenario 1`] = `
           <div
             class="amount-label light"
           >
-            <span />
+            <span>
+              5
+            </span>
             <div
               class="coin-wrapper"
             >
@@ -2339,7 +2341,7 @@ exports[`KimaTransactionWidget test Payment scenario 1`] = `
               </span>
               <p>
                 $
-                0
+                5
               </p>
             </div>
             <div

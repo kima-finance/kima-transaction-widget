@@ -54,7 +54,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
     <div className={`confirm-details ${theme.colorMode}`}>
       <p>
         Step {isApproved ? '2' : '1'}&nbsp;of 2&nbsp;&nbsp;&nbsp;
-        {isApproved ? 'Submit trasaction' : 'Approval'}
+        {isApproved ? 'Submit transaction' : 'Approval'}
       </p>
       <div className='detail-item'>
         <span className='label'>Source wallet:</span>
