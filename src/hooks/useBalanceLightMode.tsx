@@ -36,7 +36,6 @@ export default function useBalanceLightMode({
         const decimals = await erc20Contract.decimals()
         const userBalance = await erc20Contract.balanceOf(address)
 
-        console.log('userBalance', userBalance)
         setBalance(+formatUnits(userBalance, decimals))
       } catch (error) {
         console.log('error', error)

@@ -6,8 +6,8 @@ import {
   FontSizeOptions,
   ModeOptions,
   SupportNetworks,
-  ColorModeOptions,
-  DAppOptions
+  // DAppOptions,
+  ColorModeOptions
 } from 'kima-transaction-widget'
 import 'kima-transaction-widget/dist/index.css'
 
@@ -25,7 +25,7 @@ const App = () => {
               colorMode: ColorModeOptions.light,
               fontSize: FontSizeOptions.medium
             }}
-            mode={ModeOptions.payment}
+            mode={ModeOptions.bridge}
             useFIAT={true}
             kimaBackendUrl='http://localhost:3001'
             kimaNodeProviderQuery='https://api_staging_testnet.kima.finance'
@@ -40,18 +40,18 @@ const App = () => {
                 fontWeight: '500'
               }
             }}
-            dAppOption={DAppOptions.LightDemo}
-            lightModeOption={{
-              kimaAccounts: [
-                '0x1150bd27bA25fa13806C98324F201dfe815A4502',
-                '0x97810930b49D820205Be8eFe370201D32d9255B5'
-              ],
-              chains: [
-                SupportNetworks.ETHEREUM,
-                SupportNetworks.AVALANCHE,
-                SupportNetworks.POLYGON
-              ]
-            }}
+            // dAppOption={DAppOptions.LightDemo}
+            // lightModeOption={{
+            //   kimaAccounts: [
+            //     '0x1150bd27bA25fa13806C98324F201dfe815A4502',
+            //     '0x97810930b49D820205Be8eFe370201D32d9255B5'
+            //   ],
+            //   chains: [
+            //     SupportNetworks.ETHEREUM,
+            //     SupportNetworks.AVALANCHE,
+            //     SupportNetworks.POLYGON
+            //   ]
+            // }}
             helpURL='https://t.me/GoodDollarX'
             // compliantOption={false}
             transactionOption={{
