@@ -15,7 +15,6 @@ import {
   selectProvider,
   selectWalletAutoConnect
 } from '../store/selectors'
-import { DAppOptions } from '../interface'
 
 export type Provider = ethers.providers.Web3Provider | undefined
 export type Signer = ethers.Signer | undefined
@@ -127,7 +126,7 @@ export const EthereumProvider = ({ children }: { children: ReactNode }) => {
 
     if (ethereumProvider) {
       handleProvider(ethereumProvider, ethereumProvider)
-    } else if (autoConnect && dAppOption !== DAppOptions.LightDemo) {
+    } else if (autoConnect) {
       detectEthereumProvider()
         .then((detectedProvider) => {
           console.log(detectedProvider)

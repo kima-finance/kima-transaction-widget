@@ -11,7 +11,6 @@ import {
 } from './reusable'
 import {
   ColorModeOptions,
-  DAppOptions,
   ModeOptions,
   PaymentTitleOption,
   ThemeOptions,
@@ -45,7 +44,6 @@ import {
   selectMode,
   selectNodeProviderQuery,
   selectOriginNetwork,
-  selectSourceAddress,
   selectSourceCompliant,
   selectSubmitting,
   selectTargetAddress,
@@ -63,7 +61,6 @@ import { ChainName, CHAIN_NAMES_TO_STRING } from '../utils/constants'
 import { toast, Toaster } from 'react-hot-toast'
 import useBalance from '../hooks/useBalance'
 import useWidth from '../hooks/useWidth'
-import useBalanceLightMode from '../hooks/useBalanceLightMode'
 
 interface Props {
   theme: ThemeOptions
@@ -91,7 +88,6 @@ export const TransferWidget = ({
   const dAppOption = useSelector(selectDappOption)
   const amount = useSelector(selectAmount)
   const sourceChain = useSelector(selectOriginNetwork)
-  const sourceAddress = useSelector(selectSourceAddress)
   const targetAddress = useSelector(selectTargetAddress)
   const targetNetwork = useSelector(selectTargetNetwork)
   const compliantOption = useSelector(selectCompliantOption)
@@ -110,10 +106,6 @@ export const TransferWidget = ({
   const { isApproved, approve } = useAllowance()
   const { serviceFee: fee } = useServiceFee()
   const { balance } = useBalance()
-  const { balance: balanceLightMode } = useBalanceLightMode({
-    chain: sourceChain as ChainName,
-    address: sourceAddress
-  })
   const windowWidth = useWidth()
 
   useEffect(() => {
@@ -174,7 +166,7 @@ export const TransferWidget = ({
   }, [selectedCoin])
 
   useEffect(() => {
-    if (!isReady && dAppOption !== DAppOptions.LightDemo) {
+    if (!isReady) {
       if (formStep > 0) setFormStep(0)
       if (wizardStep > 0) setWizardStep(1)
     }
@@ -213,23 +205,18 @@ export const TransferWidget = ({
   }
 
   const handleSubmit = async () => {
-    console.log('handleSubmit', balanceLightMode, amount)
-    const _balance =
-      dAppOption === DAppOptions.LightDemo ? balanceLightMode : balance
-    if (!_balance || _balance < amount) {
+    if (balance < amount) {
       toast.error('Insufficient balance!')
       errorHandler('Insufficient balance!')
       return
     }
 
-    console.log(isApproved)
     if (!isApproved) {
       approve()
       return
     }
 
     try {
-      console.log('dispatch(setSubmitting(true))')
       dispatch(setSubmitting(true))
 
       if (!(await checkPoolBalance())) {
@@ -237,14 +224,13 @@ export const TransferWidget = ({
         return
       }
       const params = JSON.stringify({
-        originAddress:
-          dAppOption === DAppOptions.LightDemo ? sourceAddress : walletAddress,
+        originAddress: walletAddress,
         originChain: sourceChain,
         targetAddress: targetAddress,
         targetChain: targetNetwork,
         symbol: selectedCoin.label,
         amount: amount,
-        fee: dAppOption === DAppOptions.LightDemo ? 0 : fee
+        fee
       })
 
       console.log(params)
@@ -316,7 +302,7 @@ export const TransferWidget = ({
     }
 
     if (!isWizard && !formStep) {
-      if (dAppOption === DAppOptions.LightDemo && amount > 0) {
+      if (amount > 0) {
         dispatch(setConfirming(true))
         setFormStep(1)
         return
@@ -443,19 +429,17 @@ export const TransferWidget = ({
           />
         </ExternalLink>
         <div className='button-group'>
-          {dAppOption !== DAppOptions.LightDemo && (
-            <SecondaryButton
-              clickHandler={() => {
-                if (isApproving || isSubmitting) return
-                setWizard((prev) => !prev)
-              }}
-              disabled={isApproving || isSubmitting}
-              theme={theme.colorMode}
-              style={{ style: { width: '12em', marginLeft: 'auto' } }}
-            >
-              Switch to {isWizard ? 'Form' : 'Wizard'}
-            </SecondaryButton>
-          )}
+          <SecondaryButton
+            clickHandler={() => {
+              if (isApproving || isSubmitting) return
+              setWizard((prev) => !prev)
+            }}
+            disabled={isApproving || isSubmitting}
+            theme={theme.colorMode}
+            style={{ style: { width: '12em', marginLeft: 'auto' } }}
+          >
+            Switch to {isWizard ? 'Form' : 'Wizard'}
+          </SecondaryButton>
           <SecondaryButton
             clickHandler={onBack}
             theme={theme.colorMode}

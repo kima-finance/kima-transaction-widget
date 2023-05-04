@@ -33,9 +33,7 @@ import {
   setWalletAutoConnect,
   setDappOption,
   setSwitchChainHandler,
-  setInitChainFromProvider,
-  setLightModeOption,
-  setSourceAddress
+  setInitChainFromProvider
 } from '../store/optionSlice'
 import '../index.css'
 import { selectOriginNetwork, selectSubmitted } from '../store/selectors'
@@ -92,18 +90,61 @@ export const KimaTransactionWidget = ({
   const dispatch = useDispatch()
   const sourceChain = useSelector(selectOriginNetwork)
 
+  const handleLightMode = async () => {
+    const params = JSON.stringify({
+      originAddress: lightModeOption?.sourceAddress,
+      originChain: lightModeOption?.sourceChain,
+      targetAddress: lightModeOption?.targetAddress,
+      targetChain: lightModeOption?.targetChain,
+      symbol: 'USDK',
+      amount: lightModeOption?.amount,
+      fee: 0
+    })
+
+    console.log(params)
+    dispatch(setSubmitted(true))
+
+    try {
+      await fetchWrapper.post(`${kimaBackendUrl}/auth`, params)
+      const result: any = await fetchWrapper.post(
+        `${kimaBackendUrl}/submit`,
+        params
+      )
+
+      console.log(result)
+
+      if (result?.code !== 0) {
+        errorHandler(result)
+        closeHandler(result)
+        return
+      }
+
+      let txId = -1
+
+      for (const event of result.events) {
+        if (event.type === 'transaction_requested') {
+          for (const attr of event.attributes) {
+            if (attr.key === 'txId') {
+              txId = attr.value
+            }
+          }
+        }
+      }
+
+      console.log(txId)
+      dispatch(setTxId(txId))
+    } catch (e) {
+      errorHandler(e)
+      closeHandler(e)
+    }
+  }
+
   useEffect(() => {
     dispatch(setTheme(theme))
     if (transactionOption) dispatch(setTransactionOption(transactionOption))
 
-    if (dAppOption === DAppOptions.LightDemo && lightModeOption) {
-      dispatch(setLightModeOption(lightModeOption))
-      if (mode === ModeOptions.bridge) {
-        dispatch(setTargetAddress(lightModeOption.kimaAccounts[0]))
-      }
-      dispatch(setSourceAddress(lightModeOption.kimaAccounts[0]))
-      dispatch(setOriginNetwork('ETH'))
-      dispatch(setTargetNetwork(''))
+    if (mode === ModeOptions.lightDemo && lightModeOption) {
+      handleLightMode()
     }
     dispatch(setCompliantOption(compliantOption))
     dispatch(setErrorHandler(errorHandler))
@@ -184,11 +225,7 @@ export const KimaTransactionWidget = ({
   }, [sourceChain, mode, dAppOption, provider])
 
   useEffect(() => {
-    if (
-      (dAppOption === DAppOptions.None ||
-        dAppOption === DAppOptions.LightDemo) &&
-      mode === ModeOptions.bridge
-    ) {
+    if (dAppOption === DAppOptions.None && mode === ModeOptions.bridge) {
       dispatch(setTargetNetwork(''))
       dispatch(setOriginNetwork('ETH'))
     }

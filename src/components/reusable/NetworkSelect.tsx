@@ -60,7 +60,7 @@ const Network = ({ isOriginChain = true }: Props) => {
   useEffect(() => {
     if (
       !nodeProviderQuery ||
-      (mode !== ModeOptions.bridge && dAppOption !== DAppOptions.LightDemo)
+      (mode !== ModeOptions.bridge)
     )
       return
     ;(async function () {

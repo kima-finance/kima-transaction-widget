@@ -25,10 +25,10 @@ const App = () => {
               colorMode: ColorModeOptions.light,
               fontSize: FontSizeOptions.medium
             }}
-            mode={ModeOptions.bridge}
+            mode={ModeOptions.lightDemo}
             useFIAT={true}
             kimaBackendUrl='http://localhost:3001'
-            kimaNodeProviderQuery='https://api_staging_testnet.kima.finance'
+            kimaNodeProviderQuery='https://api_testnet.kima.finance'
             titleOption={{
               initialTitle: 'New Purchase'
             }}
@@ -40,18 +40,13 @@ const App = () => {
                 fontWeight: '500'
               }
             }}
-            // dAppOption={DAppOptions.LightDemo}
-            // lightModeOption={{
-            //   kimaAccounts: [
-            //     '0x1150bd27bA25fa13806C98324F201dfe815A4502',
-            //     '0x97810930b49D820205Be8eFe370201D32d9255B5'
-            //   ],
-            //   chains: [
-            //     SupportNetworks.ETHEREUM,
-            //     SupportNetworks.AVALANCHE,
-            //     SupportNetworks.POLYGON
-            //   ]
-            // }}
+            lightModeOption={{
+              sourceAddress: '0x1150bd27bA25fa13806C98324F201dfe815A4502',
+              targetAddress: '0x97810930b49D820205Be8eFe370201D32d9255B5',
+              sourceChain: SupportNetworks.ETHEREUM,
+              targetChain: SupportNetworks.POLYGON,
+              amount: '100'
+            }}
             helpURL='https://t.me/GoodDollarX'
             // compliantOption={false}
             transactionOption={{
@@ -59,7 +54,7 @@ const App = () => {
               targetAddress: '0x67cc400c434F691Ed45e452dC8F2Baf0101a9B63',
               amount: 5
             }}
-            txId={124}
+            txId={-1}
             errorHandler={(e: any) => {
               console.log('error:', e)
             }}

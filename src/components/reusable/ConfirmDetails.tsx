@@ -2,16 +2,14 @@ import React, { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { formatterFloat } from '../../helpers/functions'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
-import { DAppOptions, ModeOptions } from '../../interface'
+import { ModeOptions } from '../../interface'
 import {
   selectAmount,
   selectCurrencyOptions,
-  selectDappOption,
   selectFeeDeduct,
   selectMode,
   selectOriginNetwork,
   selectServiceFee,
-  selectSourceAddress,
   selectTargetAddress,
   selectTargetNetwork,
   selectTheme,
@@ -23,7 +21,6 @@ import { getShortenedAddress } from '../../utils/functions'
 const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
   const feeDeduct = useSelector(selectFeeDeduct)
   const mode = useSelector(selectMode)
-  const dAppOption = useSelector(selectDappOption)
   const theme = useSelector(selectTheme)
   const amount = useSelector(selectAmount)
   const serviceFee = useSelector(selectServiceFee)
@@ -31,7 +28,6 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
   const targetNetwork = useSelector(selectTargetNetwork)
   const targetAddress = useSelector(selectTargetAddress)
   const transactionOption = useSelector(selectTransactionOption)
-  const sourceAddress = useSelector(selectSourceAddress)
   const { walletAddress } = useIsWalletReady()
   const originNetworkOption = useMemo(
     () => networkOptions.filter((network) => network.id === originNetwork)[0],
@@ -58,13 +54,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
       </p>
       <div className='detail-item'>
         <span className='label'>Source wallet:</span>
-        <p>
-          {getShortenedAddress(
-            (dAppOption === DAppOptions.LightDemo
-              ? sourceAddress
-              : walletAddress) || ''
-          )}
-        </p>
+        <p>{getShortenedAddress(walletAddress || '')}</p>
         <span className='kima-card-network-label'>
           <originNetworkOption.icon />
           {originNetworkOption.label}
@@ -73,11 +63,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
       <div className='detail-item'>
         <span className='label'>Amount:</span>
         <p>
-          {formatterFloat.format(
-            feeDeduct || dAppOption === DAppOptions.LightDemo
-              ? amount
-              : amount + serviceFee
-          )}{' '}
+          {formatterFloat.format(feeDeduct ? amount : amount + serviceFee)}{' '}
           {selectedCoin.symbol}
         </p>
       </div>

@@ -24,18 +24,6 @@ describe('KimaTransactionWidget test', function () {
               fontSize: FontSizeOptions.medium
             }}
             mode={ModeOptions.bridge}
-            dAppOption={DAppOptions.LightDemo}
-            lightModeOption={{
-              kimaAccounts: [
-                '0x1150bd27bA25fa13806C98324F201dfe815A4502',
-                '0x97810930b49D820205Be8eFe370201D32d9255B5'
-              ],
-              chains: [
-                SupportNetworks.ETHEREUM,
-                SupportNetworks.AVALANCHE,
-                SupportNetworks.POLYGON
-              ]
-            }}
             kimaBackendUrl='https://backend_demo_staging.kima.finance'
             kimaNodeProviderQuery='https://api_staging_testnet.kima.finance'
           />

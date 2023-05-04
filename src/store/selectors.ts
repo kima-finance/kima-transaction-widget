@@ -9,8 +9,6 @@ export const selectOriginNetwork = (state: RootState) =>
   state.option.originNetwork
 export const selectTargetNetwork = (state: RootState) =>
   state.option.targetNetwork
-  export const selectSourceAddress = (state: RootState) =>
-  state.option.sourceAddress
 export const selectTargetAddress = (state: RootState) =>
   state.option.targetAddress
 export const selectConnectModal = (state: RootState) =>
@@ -57,5 +55,3 @@ export const selectSourceCompliant = (state: RootState) =>
 export const selectTargetCompliant = (state: RootState) =>
   state.option.targetCompliant
 export const selectUseFIAT = (state: RootState) => state.option.useFIAT
-export const selectLightModeOption = (state: RootState) =>
-  state.option.lightModeOption

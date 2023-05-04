@@ -41,18 +41,6 @@ describe('TransferWidget test', function () {
             titleOption={{
               initialTitle: 'New Purchase'
             }}
-            dAppOption={DAppOptions.LightDemo}
-            lightModeOption={{
-              kimaAccounts: [
-                '0x1150bd27bA25fa13806C98324F201dfe815A4502',
-                '0x97810930b49D820205Be8eFe370201D32d9255B5'
-              ],
-              chains: [
-                SupportNetworks.ETHEREUM,
-                SupportNetworks.AVALANCHE,
-                SupportNetworks.POLYGON
-              ]
-            }}
             useFIAT={true}
             paymentTitleOption={{
               title:

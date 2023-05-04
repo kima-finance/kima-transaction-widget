@@ -4,7 +4,6 @@ import { fetchWrapper } from '../helpers/fetch-wrapper'
 import { DAppOptions } from '../interface'
 import {
   selectDappOption,
-  selectLightModeOption,
   selectMode,
   selectNodeProviderQuery
 } from '../store/selectors'
@@ -13,16 +12,12 @@ import { networkOptions } from '../utils/constants'
 export default function useNetworkOptions() {
   const mode = useSelector(selectMode)
   const dAppOption = useSelector(selectDappOption)
-  const lightModeOption = useSelector(selectLightModeOption)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
   const [options, setOptions] = useState<Array<any>>(networkOptions)
 
   useEffect(() => {
     if (!nodeProviderQuery) return
-    if (
-      dAppOption === DAppOptions.None ||
-      dAppOption === DAppOptions.LightDemo
-    ) {
+    if (dAppOption === DAppOptions.None) {
       ;(async function () {
         try {
           const networks: any = await fetchWrapper.get(
@@ -32,13 +27,7 @@ export default function useNetworkOptions() {
           setOptions(
             networkOptions.filter(
               (network) =>
-                networks.Chains.findIndex((id: any) => id === network.id) >=
-                  0 &&
-                (lightModeOption && dAppOption === DAppOptions.LightDemo
-                  ? lightModeOption.chains.findIndex(
-                      (id: any) => id === network.id
-                    ) >= 0
-                  : true)
+                networks.Chains.findIndex((id: any) => id === network.id) >= 0
             )
           )
         } catch (e) {
@@ -52,7 +41,7 @@ export default function useNetworkOptions() {
         )
       )
     }
-  }, [nodeProviderQuery, dAppOption, lightModeOption, mode])
+  }, [nodeProviderQuery, dAppOption, mode])
 
   return useMemo(
     () => ({
