@@ -25,7 +25,7 @@ const App = () => {
               colorMode: ColorModeOptions.light,
               fontSize: FontSizeOptions.medium
             }}
-            mode={ModeOptions.lightDemo}
+            mode={ModeOptions.status}
             useFIAT={true}
             kimaBackendUrl='http://localhost:3001'
             kimaNodeProviderQuery='https://api_testnet.kima.finance'
@@ -39,13 +39,6 @@ const App = () => {
                 fontSize: '1.2em',
                 fontWeight: '500'
               }
-            }}
-            lightModeOption={{
-              sourceAddress: '0x1150bd27bA25fa13806C98324F201dfe815A4502',
-              targetAddress: '0x97810930b49D820205Be8eFe370201D32d9255B5',
-              sourceChain: SupportNetworks.ETHEREUM,
-              targetChain: SupportNetworks.POLYGON,
-              amount: '100'
             }}
             helpURL='https://t.me/GoodDollarX'
             // compliantOption={false}

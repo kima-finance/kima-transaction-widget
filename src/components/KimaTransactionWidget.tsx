@@ -5,7 +5,6 @@ import {
   ThemeOptions,
   ModeOptions,
   TitleOption,
-  LightModeOption,
   PaymentTitleOption,
   DAppOptions
 } from '../interface'
@@ -53,7 +52,6 @@ interface Props {
   provider?: Web3Provider
   titleOption?: TitleOption
   compliantOption?: boolean
-  lightModeOption?: LightModeOption
   helpURL?: string
   transactionOption?: TransactionOption
   paymentTitleOption?: PaymentTitleOption
@@ -77,7 +75,6 @@ export const KimaTransactionWidget = ({
   useFIAT = false,
   helpURL = '',
   compliantOption = true,
-  lightModeOption,
   transactionOption,
   kimaBackendUrl,
   kimaNodeProviderQuery,
@@ -90,62 +87,10 @@ export const KimaTransactionWidget = ({
   const dispatch = useDispatch()
   const sourceChain = useSelector(selectOriginNetwork)
 
-  const handleLightMode = async () => {
-    const params = JSON.stringify({
-      originAddress: lightModeOption?.sourceAddress,
-      originChain: lightModeOption?.sourceChain,
-      targetAddress: lightModeOption?.targetAddress,
-      targetChain: lightModeOption?.targetChain,
-      symbol: 'USDK',
-      amount: lightModeOption?.amount,
-      fee: 0
-    })
-
-    console.log(params)
-    dispatch(setSubmitted(true))
-
-    try {
-      await fetchWrapper.post(`${kimaBackendUrl}/auth`, params)
-      const result: any = await fetchWrapper.post(
-        `${kimaBackendUrl}/submit`,
-        params
-      )
-
-      console.log(result)
-
-      if (result?.code !== 0) {
-        errorHandler(result)
-        closeHandler(result)
-        return
-      }
-
-      let txId = -1
-
-      for (const event of result.events) {
-        if (event.type === 'transaction_requested') {
-          for (const attr of event.attributes) {
-            if (attr.key === 'txId') {
-              txId = attr.value
-            }
-          }
-        }
-      }
-
-      console.log(txId)
-      dispatch(setTxId(txId))
-    } catch (e) {
-      errorHandler(e)
-      closeHandler(e)
-    }
-  }
-
   useEffect(() => {
     dispatch(setTheme(theme))
     if (transactionOption) dispatch(setTransactionOption(transactionOption))
 
-    if (mode === ModeOptions.lightDemo && lightModeOption) {
-      handleLightMode()
-    }
     dispatch(setCompliantOption(compliantOption))
     dispatch(setErrorHandler(errorHandler))
     dispatch(setCloseHandler(closeHandler))
