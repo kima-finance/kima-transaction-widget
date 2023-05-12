@@ -73,7 +73,7 @@ const initialState: OptionState = {
   compliantOption: true,
   sourceCompliant: 'low',
   targetCompliant: 'low',
-  useFIAT: false
+  useFIAT: false, 
 }
 
 export const optionSlice = createSlice({
@@ -195,7 +195,7 @@ export const optionSlice = createSlice({
     },
     setUseFIAT: (state, action: PayloadAction<boolean>) => {
       state.useFIAT = action.payload
-    },
+    }
   }
 })
 
@@ -234,7 +234,7 @@ export const {
   setCompliantOption,
   setSourceCompliant,
   setTargetCompliant,
-  setUseFIAT
+  setUseFIAT,
 } = optionSlice.actions
 
 export default optionSlice.reducer

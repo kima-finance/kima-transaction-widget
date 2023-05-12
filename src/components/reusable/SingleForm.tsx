@@ -54,27 +54,25 @@ const SingleForm = ({
         <span className='label'>Source Network</span>
         <NetworkDropdown />
       </div>
+
       <div className='form-item wallet-button-item'>
         <span className='label'>Connect wallet:</span>
         <WalletButton />
       </div>
+
       {mode === ModeOptions.bridge && (
         <div className='form-item'>
           <span className='label'>Target Network:</span>
           <NetworkDropdown isOriginChain={false} />
         </div>
       )}
-      {mode === ModeOptions.bridge && (
+
+      {mode === ModeOptions.bridge ? (
         <div className={`form-item ${theme.colorMode}`}>
           <span className='label'>Target Address:</span>
           <AddressInput />
-          {/* {compliantOption && targetCompliant !== 'low' ? (
-            <p className='error'>
-              Non-compliant address {`(${targetCompliant} risk)`}
-            </p>
-          ) : null} */}
         </div>
-      )}
+      ) : null}
 
       {mode === ModeOptions.bridge ? (
         <div className={`form-item ${theme.colorMode}`}>
@@ -84,7 +82,7 @@ const SingleForm = ({
               type='number'
               value={amount || ''}
               onChange={(e) => {
-                const _amount = +e.target.value
+                let _amount = +e.target.value
                 dispatch(setAmount(parseFloat(_amount.toFixed(2))))
               }}
             />

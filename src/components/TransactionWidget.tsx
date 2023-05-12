@@ -83,7 +83,11 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   }, [nodeProviderQuery, txId])
 
   useEffect(() => {
-    if (!data) return
+    if (!data) {
+      setStep(0)
+      setLoadingStep(0)
+      return
+    }
 
     console.log(data.status)
     setErrorStep(-1)

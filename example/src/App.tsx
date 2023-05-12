@@ -6,6 +6,7 @@ import {
   FontSizeOptions,
   ModeOptions,
   SupportNetworks,
+  // DAppOptions,
   ColorModeOptions
 } from 'kima-transaction-widget'
 import 'kima-transaction-widget/dist/index.css'
@@ -24,14 +25,13 @@ const App = () => {
               colorMode: ColorModeOptions.light,
               fontSize: FontSizeOptions.medium
             }}
-            mode={ModeOptions.bridge}
+            mode={ModeOptions.status}
+            useFIAT={true}
             kimaBackendUrl='http://localhost:3001'
             kimaNodeProviderQuery='https://api_testnet.kima.finance'
             titleOption={{
               initialTitle: 'New Purchase'
             }}
-            autoConnect={true}
-            useFIAT={true}
             paymentTitleOption={{
               title:
                 'You can now purchase our NFT on Polygon, using funds from other chains.',
@@ -47,7 +47,7 @@ const App = () => {
               targetAddress: '0x67cc400c434F691Ed45e452dC8F2Baf0101a9B63',
               amount: 5
             }}
-            txId={124}
+            txId={-1}
             errorHandler={(e: any) => {
               console.log('error:', e)
             }}

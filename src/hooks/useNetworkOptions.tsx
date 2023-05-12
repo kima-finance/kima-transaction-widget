@@ -2,13 +2,18 @@ import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 import { DAppOptions } from '../interface'
-import { selectDappOption, selectNodeProviderQuery } from '../store/selectors'
+import {
+  selectDappOption,
+  selectMode,
+  selectNodeProviderQuery
+} from '../store/selectors'
 import { networkOptions } from '../utils/constants'
 
 export default function useNetworkOptions() {
-  const [options, setOptions] = useState<Array<any>>(networkOptions)
+  const mode = useSelector(selectMode)
   const dAppOption = useSelector(selectDappOption)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
+  const [options, setOptions] = useState<Array<any>>(networkOptions)
 
   useEffect(() => {
     if (!nodeProviderQuery) return
@@ -29,14 +34,14 @@ export default function useNetworkOptions() {
           console.log('rpc disconnected', e)
         }
       })()
-    } else {
+    } else if (dAppOption === DAppOptions.G$) {
       setOptions(
         networkOptions.filter(
           (network) => network.label === 'Fuse' || network.label === 'Celo'
         )
       )
     }
-  }, [nodeProviderQuery, dAppOption])
+  }, [nodeProviderQuery, dAppOption, mode])
 
   return useMemo(
     () => ({

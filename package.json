@@ -1,6 +1,6 @@
 {
   "name": "@kimafinance/kima-transaction-widget",
-  "version": "1.1.33-beta.1",
+  "version": "1.1.45-beta.1",
   "description": "Kima Transaction Widget",
   "author": "",
   "license": "MIT",
@@ -15,9 +15,8 @@
     "build": "microbundle-crl --no-compress --format modern,cjs --css-modules false",
     "start": "microbundle-crl watch --no-compress --format modern,cjs --css-modules false",
     "sass": "sass src/styles/main.scss src/index.css -w",
-    "run-build": "serve -s ./example/build -p 3000",
-    "run-test": "react-scripts test",
-    "test": "npm-run-all -p -l run-build run-test"
+    "test": "react-scripts test --coverage --watchAll",
+    "eject": "react-scripts eject"
   },
   "peerDependencies": {
     "react": ">=17.0.0",
@@ -53,6 +52,15 @@
   "files": [
     "dist"
   ],
+  "jest": {
+    "coveragePathIgnorePatterns": [
+      "src/utils",
+      "src/styles/hooks",
+      "src/assets",
+      "src/contexts",
+      "src/helpers"
+    ]
+  },
   "dependencies": {
     "@ethersproject/constants": "^5.7.0",
     "@ethersproject/contracts": "^5.7.0",
@@ -68,6 +76,7 @@
     "@types/crypto-js": "^4.1.1",
     "animated-number-react": "^0.1.2",
     "better-sqlite3": "^7.6.2",
+    "browserify-zlib": "^0.2.0",
     "buffer-layout": "^1.2.2",
     "crypto-browserify": "^3.12.0",
     "crypto-js": "^4.1.1",

@@ -39,6 +39,7 @@ import {
   selectBackendUrl,
   selectCloseHandler,
   selectCompliantOption,
+  selectDappOption,
   selectErrorHandler,
   selectMode,
   selectNodeProviderQuery,
@@ -82,15 +83,9 @@ export const TransferWidget = ({
   const [formStep, setFormStep] = useState(0)
   const [wizardStep, setWizardStep] = useState(0)
 
-  // Hooks for wallet connection, allowance
-  const { walletAddress, isReady } = useIsWalletReady()
-  const { isApproved, approve } = useAllowance()
-  const { serviceFee: fee } = useServiceFee()
-  const { balance } = useBalance()
-  const windowWidth = useWidth()
-
   // Redux variables
   const mode = useSelector(selectMode)
+  const dAppOption = useSelector(selectDappOption)
   const amount = useSelector(selectAmount)
   const sourceChain = useSelector(selectOriginNetwork)
   const targetAddress = useSelector(selectTargetAddress)
@@ -105,6 +100,13 @@ export const TransferWidget = ({
   const { options: selectedCoin } = useCurrencyOptions()
   const backendUrl = useSelector(selectBackendUrl)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
+
+  // Hooks for wallet connection, allowance
+  const { walletAddress, isReady } = useIsWalletReady()
+  const { isApproved, approve } = useAllowance()
+  const { serviceFee: fee } = useServiceFee()
+  const { balance } = useBalance()
+  const windowWidth = useWidth()
 
   useEffect(() => {
     if (!walletAddress) return
@@ -168,7 +170,7 @@ export const TransferWidget = ({
       if (formStep > 0) setFormStep(0)
       if (wizardStep > 0) setWizardStep(1)
     }
-  }, [isReady, wizardStep, formStep])
+  }, [isReady, wizardStep, formStep, dAppOption])
 
   const checkPoolBalance = async () => {
     const res: any = await fetchWrapper.get(
@@ -186,11 +188,15 @@ export const TransferWidget = ({
           targetNetwork === ChainName.FUSE || targetNetwork === ChainName.CELO
             ? 'G$'
             : 'USDK'
-        console.log(
-          `Tried to transfer ${amount} ${symbol}, but ${
-            CHAIN_NAMES_TO_STRING[targetNetwork]
-          } pool has only ${+poolBalance[i].balance} ${symbol}`
+        const errorString = `Tried to transfer ${amount} ${symbol}, but ${
+          CHAIN_NAMES_TO_STRING[targetNetwork]
+        } pool has only ${+poolBalance[i].balance} ${symbol}`
+        console.log(errorString)
+
+        toast.error(
+          `${CHAIN_NAMES_TO_STRING[targetNetwork]} pool has insufficient balance!`
         )
+        errorHandler(errorString)
         return false
       }
     }
@@ -199,10 +205,12 @@ export const TransferWidget = ({
   }
 
   const handleSubmit = async () => {
-    if (!balance || balance < amount) {
+    if (balance < amount) {
       toast.error('Insufficient balance!')
+      errorHandler('Insufficient balance!')
       return
     }
+
     if (!isApproved) {
       approve()
       return
@@ -222,7 +230,7 @@ export const TransferWidget = ({
         targetChain: targetNetwork,
         symbol: selectedCoin.label,
         amount: amount,
-        fee: fee
+        fee
       })
 
       console.log(params)
@@ -236,6 +244,7 @@ export const TransferWidget = ({
 
       if (result?.code !== 0) {
         errorHandler(result)
+        toast.error('Failed to submit transaction!')
         dispatch(setSubmitting(false))
         return
       }
@@ -293,6 +302,12 @@ export const TransferWidget = ({
     }
 
     if (!isWizard && !formStep) {
+      if (amount > 0) {
+        dispatch(setConfirming(true))
+        setFormStep(1)
+        return
+      }
+
       if (isReady) {
         if (fee < 0) return
         if (
@@ -474,9 +489,7 @@ export const TransferWidget = ({
             borderRadius: '1em',
             border: '1px solid #66aae5',
             background:
-              windowWidth > 768
-                ? 'transparent'
-                : theme.colorMode === ColorModeOptions.light
+              theme.colorMode === ColorModeOptions.light
                 ? 'white'
                 : theme.backgroundColorDark ?? '#1b1e25'
           }
