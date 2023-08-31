@@ -149,7 +149,7 @@ export const TransferWidget = ({
     if (!nodeProviderQuery) return
     ;(async function () {
       const res: any = await fetchWrapper.get(
-        `${nodeProviderQuery}/kima-finance/kima/kima/pool_balance`
+        `${nodeProviderQuery}/kima-finance/kima/pool_balance`
       )
 
       console.table(
@@ -174,7 +174,7 @@ export const TransferWidget = ({
 
   const checkPoolBalance = async () => {
     const res: any = await fetchWrapper.get(
-      `${nodeProviderQuery}/kima-finance/kima/kima/pool_balance`
+      `${nodeProviderQuery}/kima-finance/kima/pool_balance`
     )
 
     const poolBalance = res.poolBalance
@@ -205,6 +205,12 @@ export const TransferWidget = ({
   }
 
   const handleSubmit = async () => {
+    if (fee < 0) {
+      toast.error('Fee is not calculated!')
+      errorHandler('Fee is not calculated!')
+      return
+    }
+
     if (balance < amount) {
       toast.error('Insufficient balance!')
       errorHandler('Insufficient balance!')

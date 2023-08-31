@@ -74,7 +74,7 @@ export default function useAllowance() {
   const updatePoolAddress = async () => {
     try {
       const result: any = await fetchWrapper.get(
-        `${nodeProviderQuery}/kima-finance/kima/kima/tss_pubkey`
+        `${nodeProviderQuery}/kima-finance/kima/tss_pubkey`
       )
       if (result?.tssPubkey?.length < 1) {
         return

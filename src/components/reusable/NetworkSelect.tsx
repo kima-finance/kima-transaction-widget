@@ -58,15 +58,11 @@ const Network = ({ isOriginChain = true }: Props) => {
   }, [networkOptions, isOriginChain, availableNetworks, dAppOption])
 
   useEffect(() => {
-    if (
-      !nodeProviderQuery ||
-      (mode !== ModeOptions.bridge)
-    )
-      return
+    if (!nodeProviderQuery || mode !== ModeOptions.bridge) return
     ;(async function () {
       try {
         const networks: any = await fetchWrapper.get(
-          `${nodeProviderQuery}/kima-finance/kima/kima/get_available_chains/${originNetwork}`
+          `${nodeProviderQuery}/kima-finance/kima/get_available_chains/${originNetwork}`
         )
 
         setAvailableNetworks(networks.Chains)

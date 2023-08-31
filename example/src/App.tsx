@@ -25,21 +25,21 @@ const App = () => {
               colorMode: ColorModeOptions.light,
               fontSize: FontSizeOptions.medium
             }}
-            mode={ModeOptions.payment}
+            mode={ModeOptions.bridge}
             useFIAT={true}
             kimaBackendUrl='http://localhost:3001'
-            kimaNodeProviderQuery='https://api_testnet.kima.finance'
-            titleOption={{
-              initialTitle: 'New Purchase'
-            }}
-            paymentTitleOption={{
-              title:
-                'You can now purchase our NFT on Polygon, using funds from other chains.',
-              style: {
-                fontSize: '1.2em',
-                fontWeight: '500'
-              }
-            }}
+            kimaNodeProviderQuery='https://api_staging_testnet.kima.finance'
+            // titleOption={{
+            //   initialTitle: 'New Purchase'
+            // }}
+            // paymentTitleOption={{
+            //   title:
+            //     'You can now purchase our NFT on Polygon, using funds from other chains.',
+            //   style: {
+            //     fontSize: '1.2em',
+            //     fontWeight: '500'
+            //   }
+            // }}
             // helpURL='https://t.me/GoodDollarX'
             // compliantOption={false}
             transactionOption={{
