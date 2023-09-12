@@ -80,8 +80,9 @@ const HelpPopup = () => {
               {loading ? 'Transferring funds ...' : 'Submit'}
             </PrimaryButton>
           </div> */}
+
           <iframe
-            src='http://dca-stage.herokuapp.com/widgets/kyc?partner=kimastage&user_uuid=aaaa'
+            src='https://sandbox.depasify.com/widgets/kyc?partner=kimastage&user_uuid=cf54674a-08c0-4e90-a788-097b3cf0ce99'
             width='100%'
             height='100%'
             frameBorder='0'
