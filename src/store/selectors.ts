@@ -18,11 +18,9 @@ export const selectHashPopup = (state: RootState) => state.option.hashPopup
 export const selectBankPopup = (state: RootState) => state.option.bankPopup
 export const selectSolanaProvider = (state: RootState) =>
   state.option.solanaProvider
-export const selectProvider = (state: RootState) =>
-  state.option.provider
-  export const selectDappOption = (state: RootState) =>
-  state.option.dAppOption
-export const selectWalletAutoConnect = (state: RootState) => 
+export const selectProvider = (state: RootState) => state.option.provider
+export const selectDappOption = (state: RootState) => state.option.dAppOption
+export const selectWalletAutoConnect = (state: RootState) =>
   state.option.walletAutoConnect
 export const selectSubmitted = (state: RootState) => state.option.submitted
 export const selectTransactionOption = (state: RootState) =>
@@ -36,8 +34,10 @@ export const selectCloseHandler = (state: RootState) =>
   state.option.closeHandler
 export const selectSuccessHandler = (state: RootState) =>
   state.option.successHandler
-export const selectSwitchChainHandler = (state: RootState) => state.option.switchChainHandler
-export const selectInitChainFromProvider = (state: RootState) => state.option.initChainFromProvider
+export const selectSwitchChainHandler = (state: RootState) =>
+  state.option.switchChainHandler
+export const selectInitChainFromProvider = (state: RootState) =>
+  state.option.initChainFromProvider
 export const selectServiceFee = (state: RootState) => state.option.serviceFee
 export const selectMode = (state: RootState) => state.option.mode
 export const selectConfirming = (state: RootState) => state.option.isConfirming
@@ -54,5 +54,4 @@ export const selectSourceCompliant = (state: RootState) =>
   state.option.sourceCompliant
 export const selectTargetCompliant = (state: RootState) =>
   state.option.targetCompliant
-export const selectUseFIAT = (state: RootState) =>
-  state.option.useFIAT
+export const selectUseFIAT = (state: RootState) => state.option.useFIAT

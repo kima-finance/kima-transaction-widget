@@ -3,9 +3,11 @@ import { useSelector, useDispatch } from 'react-redux'
 import useNetworkOptions from '../../hooks/useNetworkOptions'
 import { ArrowIcon } from '../../assets/icons'
 import {
+  selectDappOption,
   selectMode,
   selectNodeProviderQuery,
   selectOriginNetwork,
+  selectSwitchChainHandler,
   selectTargetNetwork,
   selectTheme
 } from '../../store/selectors'
@@ -14,8 +16,8 @@ import {
   setServiceFee,
   setTargetNetwork
 } from '../../store/optionSlice'
-import { ChainName } from '../../utils/constants'
-import { ModeOptions } from '../../interface'
+import { CHAIN_NAMES_TO_IDS, ChainName } from '../../utils/constants'
+import { DAppOptions, ModeOptions } from '../../interface'
 import { fetchWrapper } from '../../helpers/fetch-wrapper'
 
 interface Props {
@@ -23,11 +25,14 @@ interface Props {
 }
 
 const Network = ({ isOriginChain = true }: Props) => {
+  const sourceChangeRef = useRef<boolean>(false)
   const theme = useSelector(selectTheme)
   const mode = useSelector(selectMode)
+  const dAppOption = useSelector(selectDappOption)
   const originNetwork = useSelector(selectOriginNetwork)
   const targetNetwork = useSelector(selectTargetNetwork)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
+  const switchChainHandler = useSelector(selectSwitchChainHandler)
   const dispatch = useDispatch()
   const sliderRef = useRef<any>()
   const [availableNetworks, setAvailableNetworks] = useState<Array<ChainName>>(
@@ -50,40 +55,29 @@ const Network = ({ isOriginChain = true }: Props) => {
       (network) =>
         availableNetworks.findIndex((id: any) => id === network.id) >= 0
     )
-  }, [networkOptions, isOriginChain, availableNetworks])
+  }, [networkOptions, isOriginChain, availableNetworks, dAppOption])
 
   useEffect(() => {
     if (!nodeProviderQuery || mode !== ModeOptions.bridge) return
     ;(async function () {
       try {
         const networks: any = await fetchWrapper.get(
-          `${nodeProviderQuery}/kima-finance/kima/kima/get_available_chains/${originNetwork}`
+          `${nodeProviderQuery}/kima-finance/kima/get_available_chains/${originNetwork}`
         )
 
         setAvailableNetworks(networks.Chains)
-        if (isOriginChain) {
+        if (isOriginChain && !targetNetwork) {
+          dispatch(setTargetNetwork(networks.Chains[0]))
+        }
+        if (sourceChangeRef.current) {
+          sourceChangeRef.current = false
           dispatch(setTargetNetwork(networks.Chains[0]))
         }
       } catch (e) {
         console.log('rpc disconnected', e)
       }
     })()
-  }, [nodeProviderQuery, originNetwork, mode, isOriginChain])
-
-  useEffect(() => {
-    if (!nodeProviderQuery || mode !== ModeOptions.payment) return
-    ;(async function () {
-      try {
-        const networks: any = await fetchWrapper.get(
-          `${nodeProviderQuery}/kima-finance/kima/kima/get_available_chains/${targetNetwork}`
-        )
-
-        setAvailableNetworks(networks.Chains)
-      } catch (e) {
-        console.log('rpc disconnected', e)
-      }
-    })()
-  }, [nodeProviderQuery, mode])
+  }, [nodeProviderQuery, originNetwork, targetNetwork, mode, isOriginChain])
 
   useEffect(() => {
     let isDown = false
@@ -156,7 +150,13 @@ const Network = ({ isOriginChain = true }: Props) => {
               key={network.id}
               onClick={() => {
                 if (isOriginChain) {
-                  dispatch(setOriginNetwork(network.id))
+                  if (dAppOption === DAppOptions.G$) {
+                    if (network.id !== originNetwork)
+                      switchChainHandler(CHAIN_NAMES_TO_IDS[network.id])
+                  } else {
+                    dispatch(setOriginNetwork(network.id))
+                  }
+                  sourceChangeRef.current = true
                 } else {
                   dispatch(setTargetNetwork(network.id))
                   dispatch(setServiceFee(-1))

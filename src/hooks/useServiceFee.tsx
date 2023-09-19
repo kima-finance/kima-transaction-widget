@@ -116,7 +116,7 @@ export default function useServiceFee() {
 
     try {
       const gasFeeData: any = await fetchWrapper.get(
-        `${nodeProviderQuery}/kima-finance/kima/kima/gas_fee`
+        `${nodeProviderQuery}/kima-finance/kima/gas_fee`
       )
 
       gasFeeData.gasFee.forEach((data: any) => {
@@ -124,7 +124,7 @@ export default function useServiceFee() {
       })
 
       const estimation: any = await fetchWrapper.get(
-        `${nodeProviderQuery}/kima-finance/kima/kima/estimate_transfer/${sourceChain}/${walletAddress}/${targetChain}/${targetAddress}/${amount}`
+        `${nodeProviderQuery}/kima-finance/kima/estimate_transfer/${sourceChain}/${walletAddress}/${targetChain}/${targetAddress}/${amount}`
       )
 
       const [originFee, targetFee] = await getFeeInUSD(
@@ -132,14 +132,16 @@ export default function useServiceFee() {
         targetChain,
         gasFee
       )
-      let fee =
-        parseFloat(estimation.estimateTransfer.TakerPenalty) +
-        parseFloat(estimation.estimateTransfer.MakerPenalty) -
-        parseFloat(estimation.estimateTransfer.TakerBounty) -
-        parseFloat(estimation.estimateTransfer.MakerBounty) +
-        parseFloat(estimation.estimateTransfer.NetworkFee) +
-        originFee +
-        targetFee
+
+      let delta =
+        parseFloat(estimation.estimateTransfer.TakerPenalty ?? '0') +
+        parseFloat(estimation.estimateTransfer.MakerPenalty ?? '0') -
+        parseFloat(estimation.estimateTransfer.TakerBounty ?? '0') -
+        parseFloat(estimation.estimateTransfer.MakerBounty ?? '0') +
+        parseFloat(estimation.estimateTransfer.NetworkFee ?? '0')
+
+      if (isNaN(delta)) delta = 0
+      let fee = delta + originFee + targetFee
 
       fee = fee < 0 ? 0 : fee
       dispatch(

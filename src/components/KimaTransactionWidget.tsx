@@ -90,6 +90,7 @@ export const KimaTransactionWidget = ({
   useEffect(() => {
     dispatch(setTheme(theme))
     if (transactionOption) dispatch(setTransactionOption(transactionOption))
+
     dispatch(setCompliantOption(compliantOption))
     dispatch(setErrorHandler(errorHandler))
     dispatch(setCloseHandler(closeHandler))
@@ -107,12 +108,12 @@ export const KimaTransactionWidget = ({
       )
       dispatch(setUseFIAT(useFIAT))
       if (useFIAT) {
-        dispatch(setTxId(txId || 1))
+        dispatch(setTxId(txId || -1))
       }
       ;(async function () {
         try {
           const networks: any = await fetchWrapper.get(
-            `${kimaNodeProviderQuery}/kima-finance/kima/kima/get_available_chains/${
+            `${kimaNodeProviderQuery}/kima-finance/kima/get_available_chains/${
               transactionOption?.targetChain || ChainName.ETHEREUM
             }`
           )
@@ -165,11 +166,15 @@ export const KimaTransactionWidget = ({
         dispatch(setTargetNetwork(''))
         dispatch(setInitChainFromProvider(false))
       }
-    } else if (dAppOption === DAppOptions.None) {
+    }
+  }, [sourceChain, mode, dAppOption, provider])
+
+  useEffect(() => {
+    if (dAppOption === DAppOptions.None && mode === ModeOptions.bridge) {
       dispatch(setTargetNetwork(''))
       dispatch(setOriginNetwork('ETH'))
     }
-  }, [sourceChain, mode, dAppOption, provider])
+  }, [dAppOption, mode])
 
   return submitted ? (
     <TransactionWidget theme={theme} />

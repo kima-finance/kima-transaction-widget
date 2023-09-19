@@ -6,6 +6,7 @@ import {
   FontSizeOptions,
   ModeOptions,
   SupportNetworks,
+  // DAppOptions,
   ColorModeOptions
 } from 'kima-transaction-widget'
 import 'kima-transaction-widget/dist/index.css'
@@ -25,6 +26,7 @@ const App = () => {
               fontSize: FontSizeOptions.medium
             }}
             mode={ModeOptions.payment}
+            useFIAT={true}
             kimaBackendUrl='http://localhost:3001'
             kimaNodeProviderQuery='https://api_testnet.kima.finance'
             titleOption={{
@@ -41,10 +43,10 @@ const App = () => {
             }}
             transactionOption={{
               targetChain: SupportNetworks.AVALANCHE,
-              targetAddress: '0x67cc400c434F691Ed45e452dC8F2Baf0101a9B63',
+              targetAddress: '0x8222ADB2A2092c3774105a5F558987265D920C09',
               amount: 5
             }}
-            // txId={124}
+            txId={-1}
             errorHandler={(e: any) => {
               console.log('error:', e)
             }}

@@ -18,6 +18,7 @@ import ERC20ABI from '../utils/ethereum/erc20ABI.json'
 import {
   selectAmount,
   selectCurrencyOptions,
+  selectDappOption,
   selectErrorHandler,
   selectNodeProviderQuery,
   selectOriginNetwork,
@@ -47,6 +48,7 @@ export default function useAllowance() {
   const { signerAddress, signer, chainId: evmChainId } = useEthereumProvider()
   const selectedNetwork = useSelector(selectOriginNetwork)
   const errorHandler = useSelector(selectErrorHandler)
+  const dAppOption = useSelector(selectDappOption)
   const sourceChain = useMemo(() => {
     if (selectedNetwork === ChainName.SOLANA) return selectedNetwork
     if (CHAIN_NAMES_TO_IDS[selectedNetwork] !== evmChainId) {
@@ -67,12 +69,12 @@ export default function useAllowance() {
   const [targetAddress, setTargetAddress] = useState<string>()
   const isApproved = useMemo(() => {
     return allowance >= amount + serviceFee
-  }, [allowance, amount, serviceFee])
+  }, [allowance, amount, serviceFee, dAppOption])
 
   const updatePoolAddress = async () => {
     try {
       const result: any = await fetchWrapper.get(
-        `${nodeProviderQuery}/kima-finance/kima/kima/tss_pubkey`
+        `${nodeProviderQuery}/kima-finance/kima/tss_pubkey`
       )
       if (result?.tssPubkey?.length < 1) {
         return

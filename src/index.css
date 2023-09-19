@@ -604,6 +604,7 @@
   align-items: center;
   cursor: pointer;
   box-sizing: content-box;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 .kima-card .kima-card-content .single-form .network-dropdown .network-wrapper {
   display: flex;
@@ -728,6 +729,22 @@
     align-items: flex-start;
   }
   .kima-card .kima-card-content .wallet-button .balance-info {
+    margin-left: 0;
+  }
+}
+.kima-card .kima-card-content .account-dropdown {
+  display: flex;
+  align-items: center;
+}
+.kima-card .kima-card-content .account-dropdown .balance-info {
+  margin-left: 1em;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-content .account-dropdown {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .kima-card .kima-card-content .account-dropdown .balance-info {
     margin-left: 0;
   }
 }

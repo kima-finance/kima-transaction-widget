@@ -44,7 +44,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       // Monitor last transaction for now until transaction_data endpoint is ready
       try {
         const result: any = await fetchWrapper.get(
-          `${nodeProviderQuery}/kima-finance/kima/kima/transaction_data/${txId}`
+          `${nodeProviderQuery}/kima-finance/kima/transaction_data/${txId}`
         )
 
         const data = result?.transactionData
@@ -83,7 +83,11 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   }, [nodeProviderQuery, txId])
 
   useEffect(() => {
-    if (!data) return
+    if (!data) {
+      setStep(0)
+      setLoadingStep(0)
+      return
+    }
 
     console.log(data.status)
     setErrorStep(-1)

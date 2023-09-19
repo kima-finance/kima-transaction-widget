@@ -19,7 +19,7 @@ export default function useCurrencyOptions() {
     ;(async function () {
       try {
         const coins: any = await fetchWrapper.get(
-          `${nodeProviderQuery}/kima-finance/kima/kima/getCurrencies/${originNetwork}/${targetNetwork}`
+          `${nodeProviderQuery}/kima-finance/kima/getCurrencies/${originNetwork}/${targetNetwork}`
         )
 
         setOptions(
