@@ -6,6 +6,7 @@ import {
   selectCompliantOption,
   selectCurrencyOptions,
   selectMode,
+  selectOriginNetwork,
   selectTargetCompliant,
   selectTargetNetwork,
   selectTheme,
@@ -31,6 +32,7 @@ const SingleForm = ({
   const targetCompliant = useSelector(selectTargetCompliant)
   const transactionOption = useSelector(selectTransactionOption)
   const selectedCoin = useSelector(selectCurrencyOptions)
+  const sourceNetwork = useSelector(selectOriginNetwork)
   const targetNetwork = useSelector(selectTargetNetwork)
 
   const errorMessage = useMemo(
@@ -58,19 +60,25 @@ const SingleForm = ({
         <NetworkDropdown />
       </div>
 
-      <div className='form-item wallet-button-item'>
-        <span className='label'>Connect wallet:</span>
-        <WalletButton />
+      <div
+        className={`dynamic-area ${
+          sourceNetwork === ChainName.FIAT ? 'reverse' : ''
+        }`}
+      >
+        <div className='form-item wallet-button-item'>
+          <span className='label'>Connect wallet:</span>
+          <WalletButton />
+        </div>
+
+        {mode === ModeOptions.bridge && (
+          <div className='form-item'>
+            <span className='label'>Target Network:</span>
+            <NetworkDropdown isOriginChain={false} />
+          </div>
+        )}
       </div>
 
-      {mode === ModeOptions.bridge && (
-        <div className='form-item'>
-          <span className='label'>Target Network:</span>
-          <NetworkDropdown isOriginChain={false} />
-        </div>
-      )}
-
-      {mode === ModeOptions.bridge ? (
+      {mode === ModeOptions.bridge && sourceNetwork !== ChainName.FIAT ? (
         targetNetwork === ChainName.FIAT ? (
           <BankInput />
         ) : (

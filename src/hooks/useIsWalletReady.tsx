@@ -14,7 +14,8 @@ import { useSelector } from 'react-redux'
 import {
   selectErrorHandler,
   selectOriginNetwork,
-  selectTargetNetwork
+  selectTargetNetwork,
+  selectTargetNetworkFetching
 } from '../store/selectors'
 
 const createWalletStatus = (
@@ -40,10 +41,12 @@ function useIsWalletReady(enableNetworkAutoswitch: boolean = false): {
   const { provider, signerAddress, chainId: evmChainId } = useEthereumProvider()
   const sourceChain = useSelector(selectOriginNetwork)
   const targetChain = useSelector(selectTargetNetwork)
+  const targetNetworkFetching = useSelector(selectTargetNetworkFetching)
   const correctChain = useMemo(() => {
-    if (sourceChain === ChainName.FIAT) return targetChain
+    if (sourceChain === ChainName.FIAT && !targetNetworkFetching)
+      return targetChain
     return sourceChain
-  }, [sourceChain, targetChain])
+  }, [sourceChain, targetChain, targetNetworkFetching])
   const hasEthInfo = !!provider && !!signerAddress
   const errorHandler = useSelector(selectErrorHandler)
   const correctEvmNetwork = CHAIN_NAMES_TO_IDS[correctChain]

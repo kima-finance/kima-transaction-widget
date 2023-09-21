@@ -699,6 +699,17 @@
     width: 10em;
   }
 }
+.kima-card .kima-card-content .single-form .dynamic-area {
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.kima-card .kima-card-content .single-form .dynamic-area.reverse {
+  flex-direction: column-reverse;
+}
+.kima-card .kima-card-content .single-form .dynamic-area .form-item {
+  margin-top: 2em;
+}
 .kima-card .kima-card-content .wallet-button {
   font-size: 1.16em;
   display: flex;
@@ -878,6 +889,10 @@
 }
 .kima-card .kima-card-content .confirm-details .detail-item:last-of-type {
   border-bottom: 1px solid #e3e3e3;
+}
+.kima-card .kima-card-content .confirm-details .detail-item .signature {
+  max-width: 65%;
+  word-wrap: break-word;
 }
 .kima-card .kima-card-content .confirm-details.light .kima-card-network-label {
   background: #e3e3e3;

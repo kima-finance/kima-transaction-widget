@@ -56,3 +56,7 @@ export const selectTargetCompliant = (state: RootState) =>
   state.option.targetCompliant
 export const selectUseFIAT = (state: RootState) => state.option.useFIAT
 export const selectBankDetails = (state: RootState) => state.option.bankDetails
+export const selectTargetNetworkFetching = (state: RootState) =>
+  state.option.targetNetworkFetching
+export const selectSignature = (state: RootState) => state.option.signature
+export const selectSigning = (state: RootState) => state.option.isSigning

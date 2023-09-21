@@ -49,6 +49,9 @@ export interface OptionState {
   targetCompliant: string // target address is compliant or not
   useFIAT: boolean // use FIAT Payment mockup or not?
   bankDetails: BankDetails
+  targetNetworkFetching: boolean // is fetching available chains according to current source network or not
+  signature: string // off-chain proof of target address for on-ramping fiat transaction
+  isSigning: boolean // is waiting for signature
 }
 
 const initialState: OptionState = {
@@ -88,7 +91,10 @@ const initialState: OptionState = {
   bankDetails: {
     iban: '',
     recipient: ''
-  }
+  },
+  targetNetworkFetching: false,
+  signature: '',
+  isSigning: false
 }
 
 export const optionSlice = createSlice({
@@ -112,6 +118,9 @@ export const optionSlice = createSlice({
         recipient: ''
       }
       state.initChainFromProvider = false
+      state.targetNetworkFetching = false
+      state.signature = ''
+      state.isSigning = false
     },
     setTheme: (state, action: PayloadAction<ThemeOptions>) => {
       state.theme = action.payload
@@ -217,6 +226,15 @@ export const optionSlice = createSlice({
     },
     setBankDetails: (state, action: PayloadAction<BankDetails>) => {
       state.bankDetails = action.payload
+    },
+    setTargetNetworkFetching: (state, action: PayloadAction<boolean>) => {
+      state.targetNetworkFetching = action.payload
+    },
+    setSignature: (state, action: PayloadAction<string>) => {
+      state.signature = action.payload
+    },
+    setSigning: (state, action: PayloadAction<boolean>) => {
+      state.isSigning = action.payload
     }
   }
 })
@@ -257,7 +275,10 @@ export const {
   setSourceCompliant,
   setTargetCompliant,
   setUseFIAT,
-  setBankDetails
+  setBankDetails,
+  setTargetNetworkFetching,
+  setSignature,
+  setSigning
 } = optionSlice.actions
 
 export default optionSlice.reducer

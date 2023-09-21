@@ -700,6 +700,20 @@
           width: 10em;
         }
       }
+
+      .dynamic-area {
+        display: flex;
+        flex-direction: column;
+        @include transition;
+
+        &.reverse {
+          flex-direction: column-reverse;
+        }
+
+        .form-item {
+          margin-top: 2em;
+        }
+      }
     }
 
     .wallet-button {
@@ -904,6 +918,11 @@
 
         &:last-of-type {
           border-bottom: 1px solid $secondary;
+        }
+
+        .signature {
+          max-width: 65%;
+          word-wrap: break-word;
         }
       }
 

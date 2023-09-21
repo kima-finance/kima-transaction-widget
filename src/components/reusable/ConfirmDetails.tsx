@@ -11,6 +11,7 @@ import {
   selectMode,
   selectOriginNetwork,
   selectServiceFee,
+  selectSignature,
   selectTargetAddress,
   selectTargetNetwork,
   selectTheme,
@@ -29,6 +30,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
   const targetNetwork = useSelector(selectTargetNetwork)
   const targetAddress = useSelector(selectTargetAddress)
   const bankDetails = useSelector(selectBankDetails)
+  const signature = useSelector(selectSignature)
   const transactionOption = useSelector(selectTransactionOption)
   const { walletAddress } = useIsWalletReady()
   const originNetworkOption = useMemo(
@@ -52,16 +54,45 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
     <div className={`confirm-details ${theme.colorMode}`}>
       <p>
         Step {isApproved ? '2' : '1'}&nbsp;of 2&nbsp;&nbsp;&nbsp;
-        {isApproved ? 'Submit transaction' : 'Approval'}
+        {isApproved
+          ? 'Submit transaction'
+          : originNetwork === ChainName.FIAT
+          ? 'Bank Details'
+          : 'Approval'}
       </p>
-      <div className='detail-item'>
-        <span className='label'>Source wallet:</span>
-        <p>{getShortenedAddress(walletAddress || '')}</p>
-        <span className='kima-card-network-label'>
-          <originNetworkOption.icon />
-          {originNetworkOption.label}
-        </span>
-      </div>
+      {originNetwork === ChainName.FIAT ? (
+        <div>
+          <div className='detail-item'>
+            <span className='label'>IBAN:</span>
+            <p>ES6621000418401234567891</p>
+            <span className='kima-card-network-label'>
+              <originNetworkOption.icon />
+              FIAT
+            </span>
+          </div>
+          <div className='detail-item'>
+            <span className='label'>Recipient:</span>
+            <p>Kima Sandbox</p>
+          </div>
+          <div className='detail-item'>
+            <span className='label'>BIC:</span>
+            <p>CAIXESBBXXX</p>
+          </div>
+          <div className='detail-item'>
+            <span className='label'>Description:</span>
+            <p className='signature'>{signature}</p>
+          </div>
+        </div>
+      ) : (
+        <div className='detail-item'>
+          <span className='label'>Source wallet:</span>
+          <p>{getShortenedAddress(walletAddress || '')}</p>
+          <span className='kima-card-network-label'>
+            <originNetworkOption.icon />
+            {originNetworkOption.label}
+          </span>
+        </div>
+      )}
       <div className='detail-item'>
         <span className='label'>Amount:</span>
         <p>

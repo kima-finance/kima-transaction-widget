@@ -45,6 +45,7 @@ import {
   selectMode,
   selectNodeProviderQuery,
   selectOriginNetwork,
+  selectSigning,
   selectSourceCompliant,
   selectSubmitting,
   selectTargetAddress,
@@ -62,6 +63,7 @@ import { ChainName, CHAIN_NAMES_TO_STRING } from '../utils/constants'
 import { toast, Toaster } from 'react-hot-toast'
 import useBalance from '../hooks/useBalance'
 import useWidth from '../hooks/useWidth'
+import useSign from '../hooks/useSign'
 
 interface Props {
   theme: ThemeOptions
@@ -98,6 +100,7 @@ export const TransferWidget = ({
   const errorHandler = useSelector(selectErrorHandler)
   const closeHandler = useSelector(selectCloseHandler)
   const isSubmitting = useSelector(selectSubmitting)
+  const isSigning = useSelector(selectSigning)
   const { options: selectedCoin } = useCurrencyOptions()
   const backendUrl = useSelector(selectBackendUrl)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
@@ -106,6 +109,7 @@ export const TransferWidget = ({
   // Hooks for wallet connection, allowance
   const { walletAddress, isReady } = useIsWalletReady()
   const { isApproved, approve } = useAllowance()
+  const { isSigned, sign } = useSign()
   const { serviceFee: fee } = useServiceFee()
   const { balance } = useBalance()
   const windowWidth = useWidth()
@@ -219,8 +223,12 @@ export const TransferWidget = ({
       return
     }
 
-    if (!isApproved) {
-      console.log(isApproved)
+    if (sourceChain === ChainName.FIAT) {
+      if (!isSigned) {
+        sign()
+        return
+      }
+    } else if (!isApproved) {
       approve()
       return
     }
@@ -356,7 +364,7 @@ export const TransferWidget = ({
   }
 
   const onBack = () => {
-    if (isApproving || isSubmitting) return
+    if (isApproving || isSubmitting || isSigning) return
     if (isWizard && wizardStep > 0) {
       if (mode === ModeOptions.payment && wizardStep === 5) setWizardStep(1)
       else setWizardStep((step) => step - 1)
@@ -408,11 +416,11 @@ export const TransferWidget = ({
             <button
               className='icon-button'
               onClick={() => {
-                if (isApproving || isSubmitting) return
+                if (isApproving || isSubmitting || isSigning) return
                 dispatch(initialize())
                 closeHandler()
               }}
-              disabled={isApproving || isSubmitting}
+              disabled={isApproving || isSubmitting || isSigning}
             >
               <CrossIcon
                 fill={theme.colorMode === 'light' ? 'black' : 'white'}
@@ -438,12 +446,18 @@ export const TransferWidget = ({
           ) : wizardStep === 4 ? (
             <CoinSelect />
           ) : (
-            <ConfirmDetails isApproved={isApproved} />
+            <ConfirmDetails
+              isApproved={
+                sourceChain === ChainName.FIAT ? isSigned : isApproved
+              }
+            />
           )
         ) : formStep === 0 ? (
           <SingleForm paymentTitleOption={paymentTitleOption} />
         ) : (
-          <ConfirmDetails isApproved={isApproved} />
+          <ConfirmDetails
+            isApproved={sourceChain === ChainName.FIAT ? isSigned : isApproved}
+          />
         )}
       </div>
 
@@ -456,10 +470,10 @@ export const TransferWidget = ({
         <div className='button-group'>
           <SecondaryButton
             clickHandler={() => {
-              if (isApproving || isSubmitting) return
+              if (isApproving || isSubmitting || isSigning) return
               setWizard((prev) => !prev)
             }}
-            disabled={isApproving || isSubmitting}
+            disabled={isApproving || isSubmitting || isSigning}
             theme={theme.colorMode}
             style={{ style: { width: '12em', marginLeft: 'auto' } }}
           >
@@ -468,7 +482,7 @@ export const TransferWidget = ({
           <SecondaryButton
             clickHandler={onBack}
             theme={theme.colorMode}
-            disabled={isApproving || isSubmitting}
+            disabled={isApproving || isSubmitting || isSigning}
           >
             {(isWizard && wizardStep > 0) || (!isWizard && formStep > 0)
               ? 'Back'
@@ -476,14 +490,19 @@ export const TransferWidget = ({
           </SecondaryButton>
           <PrimaryButton
             clickHandler={onNext}
-            isLoading={isApproving || isSubmitting}
-            disabled={isApproving || isSubmitting}
+            isLoading={isApproving || isSubmitting || isSigning}
+            disabled={isApproving || isSubmitting || isSigning}
           >
             {(isWizard && wizardStep === 5) || (!isWizard && formStep === 1)
-              ? isApproved
+              ? (sourceChain !== ChainName.FIAT && isApproved) ||
+                (sourceChain === ChainName.FIAT && isSigned)
                 ? isSubmitting
                   ? 'Submitting...'
                   : 'Submit'
+                : sourceChain === ChainName.FIAT
+                ? isSigning
+                  ? 'Signing...'
+                  : 'Sign'
                 : isApproving
                 ? 'Approving...'
                 : 'Approve'

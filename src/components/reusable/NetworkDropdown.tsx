@@ -14,7 +14,8 @@ import {
 import {
   setOriginNetwork,
   setServiceFee,
-  setTargetNetwork
+  setTargetNetwork,
+  setTargetNetworkFetching
 } from '../../store/optionSlice'
 import useNetworkOptions from '../../hooks/useNetworkOptions'
 import { DAppOptions, ModeOptions } from '../../interface'
@@ -80,6 +81,7 @@ const NetworkDropdown = React.memo(
             chains = networks.Chains
             if (useFIAT) chains.push(ChainName.FIAT)
           }
+
           setAvailableNetworks(chains)
 
           if (isOriginChain && !targetNetwork) {
@@ -88,7 +90,6 @@ const NetworkDropdown = React.memo(
 
           if (sourceChangeRef.current) {
             sourceChangeRef.current = false
-            console.log(chains, targetNetwork)
             dispatch(
               setTargetNetwork(
                 chains.findIndex((chain) => chain === targetNetwork) < 0 ||
@@ -97,6 +98,7 @@ const NetworkDropdown = React.memo(
                   : targetNetwork
               )
             )
+            dispatch(setTargetNetworkFetching(false))
           }
         } catch (e) {
           console.log('rpc disconnected', e)
@@ -171,6 +173,7 @@ const NetworkDropdown = React.memo(
                     if (network.id !== originNetwork)
                       switchChainHandler(CHAIN_NAMES_TO_IDS[network.id])
                   } else {
+                    dispatch(setTargetNetworkFetching(true))
                     dispatch(setOriginNetwork(network.id))
                   }
                   sourceChangeRef.current = true
