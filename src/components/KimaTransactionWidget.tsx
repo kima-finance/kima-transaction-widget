@@ -102,14 +102,15 @@ export const KimaTransactionWidget = ({
     dispatch(setProvider(provider))
     dispatch(setDappOption(dAppOption))
     dispatch(setWalletAutoConnect(autoConnect))
+    dispatch(setUseFIAT(useFIAT))
+    if (useFIAT) {
+      dispatch(setTxId(txId || -1))
+    }
+
     if (mode === ModeOptions.payment) {
       dispatch(
         setTargetNetwork(transactionOption?.targetChain || ChainName.ETHEREUM)
       )
-      dispatch(setUseFIAT(useFIAT))
-      if (useFIAT) {
-        dispatch(setTxId(txId || -1))
-      }
       ;(async function () {
         try {
           const networks: any = await fetchWrapper.get(

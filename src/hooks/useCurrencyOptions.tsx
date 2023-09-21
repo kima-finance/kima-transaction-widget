@@ -6,7 +6,7 @@ import {
   selectOriginNetwork,
   selectTargetNetwork
 } from '../store/selectors'
-import { COIN_LIST } from '../utils/constants'
+import { COIN_LIST, ChainName } from '../utils/constants'
 
 export default function useCurrencyOptions() {
   const [options, setOptions] = useState(COIN_LIST['USDK'])
@@ -18,6 +18,13 @@ export default function useCurrencyOptions() {
     if (!nodeProviderQuery || !originNetwork || !targetNetwork) return
     ;(async function () {
       try {
+        if (
+          originNetwork === ChainName.FIAT ||
+          targetNetwork === ChainName.FIAT
+        ) {
+          setOptions(COIN_LIST['KEUR'])
+          return
+        }
         const coins: any = await fetchWrapper.get(
           `${nodeProviderQuery}/kima-finance/kima/getCurrencies/${originNetwork}/${targetNetwork}`
         )

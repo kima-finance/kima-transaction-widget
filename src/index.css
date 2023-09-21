@@ -502,9 +502,6 @@
     width: 12em;
   }
 }
-.kima-card .kima-card-content .single-form .form-item.wallet-button-item > span {
-  padding-top: 1em;
-}
 @media (max-width: 500px) {
   .kima-card .kima-card-content .single-form .form-item {
     justify-content: space-between;

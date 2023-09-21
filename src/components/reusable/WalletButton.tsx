@@ -28,8 +28,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const compliantOption = useSelector(selectCompliantOption)
   const selectedNetwork = useSelector(selectOriginNetwork)
   const walletAutoConnect = useSelector(selectWalletAutoConnect)
-  // const { disconnect: disconnectSolana } = useWallet()
-  const { connect /*disconnect: disconnectEVM*/ } = useEthereumProvider()
+  const { connect } = useEthereumProvider()
   const { isReady, statusMessage, walletAddress } =
     useIsWalletReady(walletAutoConnect)
   const { balance } = useBalance()
@@ -40,16 +39,6 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   }, [connect])
 
   const handleClick = () => {
-    // if (isReady) {
-    //   toast.error('Wallet not connected')
-    //   if (selectedNetwork === ChainName.SOLANA) {
-    //     disconnectSolana()
-    //   } else {
-    //     disconnectEVM()
-    //   }
-    //   return
-    // }
-
     if (selectedNetwork === ChainName.SOLANA) {
       dispatch(setConnectModal(true))
       return

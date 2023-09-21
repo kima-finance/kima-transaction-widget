@@ -10,7 +10,9 @@ import {
   SolanaIcon,
   BSCIcon,
   ArbitriumIcon,
-  OptimismIcon
+  OptimismIcon,
+  BankIcon,
+  KEURICON
 } from '../assets/icons'
 import {
   AVAX_USDK_ADDRESS,
@@ -22,7 +24,9 @@ import {
   SOLANA_USDK_ADDRESS,
   OPTIMISM_USDK_ADDRESS,
   ARBITRIUM_USDK_ADDRESS,
-  POLYGON_ZKEVM_ADDRESS
+  POLYGON_ZKEVM_ADDRESS,
+  POLYGON_KEUR_ADDRESS,
+  ETHEREUM_KEUR_ADDRESS
 } from './config'
 
 export enum ChainName {
@@ -35,7 +39,8 @@ export enum ChainName {
   BSC = 'BSC',
   ARBITRIUM = 'ARB',
   OPTIMISM = 'OPT',
-  POLYGON_ZKEVM = 'ZKE'
+  POLYGON_ZKEVM = 'ZKE',
+  FIAT = 'FIAT'
 }
 
 export enum SupportedChainId {
@@ -72,7 +77,8 @@ export const CHAIN_NAMES_TO_STRING: { [chainName: string]: string } = {
   [ChainName.BSC]: 'Binance',
   [ChainName.OPTIMISM]: 'Optimism',
   [ChainName.ARBITRIUM]: 'Arbitrium',
-  [ChainName.POLYGON_ZKEVM]: 'Polygon zkEVM'
+  [ChainName.POLYGON_ZKEVM]: 'Polygon zkEVM',
+  [ChainName.FIAT]: 'Pay with FIAT'
 }
 
 export const CHAIN_NAMES_TO_EXPLORER: { [chainName: string]: string } = {
@@ -168,6 +174,11 @@ export const networkOptions = [
     id: ChainName.POLYGON_ZKEVM,
     label: 'Polygon zkEVM',
     icon: PolygonIcon
+  },
+  {
+    id: ChainName.FIAT,
+    label: 'Pay with FIAT',
+    icon: BankIcon
   }
 ]
 export const getNetworkOption = (id: string) => {
@@ -218,6 +229,15 @@ export const COIN_LIST: CoinOptions = {
     address: {
       FUS: FUSE_GDOLLAR_ADDRESS,
       CEL: CELO_GDOLLAR_ADDRESS
+    }
+  },
+  KEUR: {
+    symbol: 'KEUR',
+    label: 'KEUR',
+    icon: KEURICON,
+    address: {
+      ETH: ETHEREUM_KEUR_ADDRESS,
+      POL: POLYGON_KEUR_ADDRESS
     }
   }
 }

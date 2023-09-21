@@ -129,7 +129,6 @@ export const EthereumProvider = ({ children }: { children: ReactNode }) => {
     } else if (autoConnect) {
       detectEthereumProvider()
         .then((detectedProvider) => {
-          console.log(detectedProvider)
           if (detectedProvider) {
             const provider = new ethers.providers.Web3Provider(
               // @ts-ignore

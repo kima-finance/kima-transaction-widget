@@ -440,15 +440,11 @@
           @include breakpoint(mobile) {
             .wallet-button {
               align-items: flex-end;
-              
+
               button {
                 width: 12em;
               }
             }
-          }
-
-          > span {
-            padding-top: 1em;
           }
         }
 
