@@ -74,7 +74,7 @@ const NetworkDropdown = React.memo(
             chains = [ChainName.ETHEREUM, ChainName.POLYGON]
           } else {
             const networks: any = await fetchWrapper.get(
-              `${nodeProviderQuery}/kima-finance/kima/get_available_chains/${originNetwork}`
+              `${nodeProviderQuery}/kima-finance/kima/kima/get_available_chains/${originNetwork}`
             )
 
             chains = networks.Chains
@@ -91,7 +91,8 @@ const NetworkDropdown = React.memo(
             console.log(chains, targetNetwork)
             dispatch(
               setTargetNetwork(
-                chains.findIndex((chain) => chain === targetNetwork) < 0
+                chains.findIndex((chain) => chain === targetNetwork) < 0 ||
+                  targetNetwork === originNetwork
                   ? chains[0]
                   : targetNetwork
               )
@@ -120,7 +121,7 @@ const NetworkDropdown = React.memo(
     //       }
 
     //       const networks: any = await fetchWrapper.get(
-    //         `${nodeProviderQuery}/kima-finance/kima/get_available_chains/${targetNetwork}`
+    //         `${nodeProviderQuery}/kima-finance/kima/kima/get_available_chains/${targetNetwork}`
     //       )
 
     //       setAvailableNetworks(networks.Chains)

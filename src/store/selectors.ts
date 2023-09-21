@@ -55,3 +55,4 @@ export const selectSourceCompliant = (state: RootState) =>
 export const selectTargetCompliant = (state: RootState) =>
   state.option.targetCompliant
 export const selectUseFIAT = (state: RootState) => state.option.useFIAT
+export const selectBankDetails = (state: RootState) => state.option.bankDetails

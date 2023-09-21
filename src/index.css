@@ -365,6 +365,9 @@
     padding-left: 0;
   }
 }
+.kima-card .kima-card-content .single-form .bank-input {
+  margin-top: 2em;
+}
 .kima-card .kima-card-content .single-form .form-item {
   display: flex;
   align-items: center;

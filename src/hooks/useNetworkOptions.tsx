@@ -23,7 +23,7 @@ export default function useNetworkOptions() {
       ;(async function () {
         try {
           const networks: any = await fetchWrapper.get(
-            `${nodeProviderQuery}/kima-finance/kima/getChains`
+            `${nodeProviderQuery}/kima-finance/kima/kima/getChains`
           )
 
           setOptions(

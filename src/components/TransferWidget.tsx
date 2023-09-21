@@ -37,6 +37,7 @@ import {
   selectAmount,
   selectApproving,
   selectBackendUrl,
+  selectBankDetails,
   selectCloseHandler,
   selectCompliantOption,
   selectDappOption,
@@ -100,6 +101,7 @@ export const TransferWidget = ({
   const { options: selectedCoin } = useCurrencyOptions()
   const backendUrl = useSelector(selectBackendUrl)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
+  const bankDetails = useSelector(selectBankDetails)
 
   // Hooks for wallet connection, allowance
   const { walletAddress, isReady } = useIsWalletReady()
@@ -149,7 +151,7 @@ export const TransferWidget = ({
     if (!nodeProviderQuery) return
     ;(async function () {
       const res: any = await fetchWrapper.get(
-        `${nodeProviderQuery}/kima-finance/kima/pool_balance`
+        `${nodeProviderQuery}/kima-finance/kima/kima/pool_balance`
       )
 
       console.table(
@@ -174,7 +176,7 @@ export const TransferWidget = ({
 
   const checkPoolBalance = async () => {
     const res: any = await fetchWrapper.get(
-      `${nodeProviderQuery}/kima-finance/kima/pool_balance`
+      `${nodeProviderQuery}/kima-finance/kima/kima/pool_balance`
     )
 
     const poolBalance = res.poolBalance
@@ -218,6 +220,7 @@ export const TransferWidget = ({
     }
 
     if (!isApproved) {
+      console.log(isApproved)
       approve()
       return
     }
@@ -308,14 +311,30 @@ export const TransferWidget = ({
     }
 
     if (!isWizard && !formStep) {
-      if (amount > 0) {
-        dispatch(setConfirming(true))
-        setFormStep(1)
-        return
-      }
-
       if (isReady) {
-        if (fee < 0) return
+        if (targetNetwork === ChainName.FIAT) {
+          if (!bankDetails.iban) {
+            toast.error('Invalid IBAN!')
+            errorHandler('Invalid IBAN!')
+            return
+          }
+          if (!bankDetails.recipient) {
+            toast.error('Invalid Recipient Address!')
+            errorHandler('Invalid Recipient Address!')
+            return
+          }
+        }
+        if (amount <= 0) {
+          toast.error('Invalid amount!')
+          errorHandler('Invalid amount!')
+          return
+        }
+
+        if (fee < 0) {
+          toast.error('Fee is not calculated!')
+          errorHandler('Fee is not calculated!')
+          return
+        }
         if (
           compliantOption &&
           (sourceCompliant !== 'low' || targetCompliant !== 'low')

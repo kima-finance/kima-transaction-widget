@@ -1,7 +1,17 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 // import { WalletName } from '@solana/wallet-adapter-base'
-import { DAppOptions, ModeOptions, ThemeOptions, TransactionOption } from '../interface'
+import {
+  DAppOptions,
+  ModeOptions,
+  ThemeOptions,
+  TransactionOption
+} from '../interface'
 import { COIN_LIST } from '../utils/constants'
+
+type BankDetails = {
+  iban: string
+  recipient: string
+}
 
 export interface OptionState {
   theme: ThemeOptions // light or dark
@@ -38,6 +48,7 @@ export interface OptionState {
   sourceCompliant: string // source address is compliant or not
   targetCompliant: string // target address is compliant or not
   useFIAT: boolean // use FIAT Payment mockup or not?
+  bankDetails: BankDetails
 }
 
 const initialState: OptionState = {
@@ -73,7 +84,11 @@ const initialState: OptionState = {
   compliantOption: true,
   sourceCompliant: 'low',
   targetCompliant: 'low',
-  useFIAT: false, 
+  useFIAT: false,
+  bankDetails: {
+    iban: '',
+    recipient: ''
+  }
 }
 
 export const optionSlice = createSlice({
@@ -92,6 +107,10 @@ export const optionSlice = createSlice({
       state.sourceCompliant = 'low'
       state.targetCompliant = 'low'
       state.useFIAT = false
+      state.bankDetails = {
+        iban: '',
+        recipient: ''
+      }
       state.initChainFromProvider = false
     },
     setTheme: (state, action: PayloadAction<ThemeOptions>) => {
@@ -195,6 +214,9 @@ export const optionSlice = createSlice({
     },
     setUseFIAT: (state, action: PayloadAction<boolean>) => {
       state.useFIAT = action.payload
+    },
+    setBankDetails: (state, action: PayloadAction<BankDetails>) => {
+      state.bankDetails = action.payload
     }
   }
 })
@@ -235,6 +257,7 @@ export const {
   setSourceCompliant,
   setTargetCompliant,
   setUseFIAT,
+  setBankDetails
 } = optionSlice.actions
 
 export default optionSlice.reducer

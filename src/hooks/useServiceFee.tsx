@@ -115,8 +115,12 @@ export default function useServiceFee() {
     let gasFee: any = {}
 
     try {
+      if (sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT) {
+        dispatch(setServiceFee(0))
+        return
+      }
       const gasFeeData: any = await fetchWrapper.get(
-        `${nodeProviderQuery}/kima-finance/kima/gas_fee`
+        `${nodeProviderQuery}/kima-finance/kima/kima/gas_fee`
       )
 
       gasFeeData.gasFee.forEach((data: any) => {
@@ -124,7 +128,7 @@ export default function useServiceFee() {
       })
 
       const estimation: any = await fetchWrapper.get(
-        `${nodeProviderQuery}/kima-finance/kima/estimate_transfer/${sourceChain}/${walletAddress}/${targetChain}/${targetAddress}/${amount}`
+        `${nodeProviderQuery}/kima-finance/kima/kima/estimate_transfer/${sourceChain}/${walletAddress}/${targetChain}/${targetAddress}/${amount}`
       )
 
       const [originFee, targetFee] = await getFeeInUSD(

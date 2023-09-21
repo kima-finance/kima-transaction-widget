@@ -5,6 +5,7 @@ import useIsWalletReady from '../../hooks/useIsWalletReady'
 import { ModeOptions } from '../../interface'
 import {
   selectAmount,
+  selectBankDetails,
   selectCurrencyOptions,
   selectFeeDeduct,
   selectMode,
@@ -15,7 +16,7 @@ import {
   selectTheme,
   selectTransactionOption
 } from '../../store/selectors'
-import { networkOptions } from '../../utils/constants'
+import { ChainName, networkOptions } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 
 const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
@@ -27,6 +28,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
   const originNetwork = useSelector(selectOriginNetwork)
   const targetNetwork = useSelector(selectTargetNetwork)
   const targetAddress = useSelector(selectTargetAddress)
+  const bankDetails = useSelector(selectBankDetails)
   const transactionOption = useSelector(selectTransactionOption)
   const { walletAddress } = useIsWalletReady()
   const originNetworkOption = useMemo(
@@ -67,20 +69,37 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
           {selectedCoin.symbol}
         </p>
       </div>
-      <div className='detail-item'>
-        <span className='label'>Target wallet:</span>
-        <p>
-          {getShortenedAddress(
-            (mode === ModeOptions.payment
-              ? transactionOption?.targetAddress
-              : targetAddress) || ''
-          )}
-        </p>
-        <span className='kima-card-network-label'>
-          <targetNetworkOption.icon />
-          {targetNetworkOption.label}
-        </span>
-      </div>
+      {targetNetwork === ChainName.FIAT ? (
+        <div>
+          <div className='detail-item'>
+            <span className='label'>IBAN:</span>
+            <p>{bankDetails.iban}</p>
+            <span className='kima-card-network-label'>
+              <targetNetworkOption.icon />
+              FIAT
+            </span>
+          </div>
+          <div className='detail-item'>
+            <span className='label'>Recipient:</span>
+            <p>{bankDetails.recipient}</p>
+          </div>
+        </div>
+      ) : (
+        <div className='detail-item'>
+          <span className='label'>Target wallet:</span>
+          <p>
+            {getShortenedAddress(
+              (mode === ModeOptions.payment
+                ? transactionOption?.targetAddress
+                : targetAddress) || ''
+            )}
+          </p>
+          <span className='kima-card-network-label'>
+            <targetNetworkOption.icon />
+            {targetNetworkOption.label}
+          </span>
+        </div>
+      )}
     </div>
   )
 }

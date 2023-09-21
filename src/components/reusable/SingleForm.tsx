@@ -7,14 +7,16 @@ import {
   selectCurrencyOptions,
   selectMode,
   selectTargetCompliant,
+  selectTargetNetwork,
   selectTheme,
   selectTransactionOption
 } from '../../store/selectors'
-import { CoinDropdown, WalletButton } from './'
+import { BankInput, CoinDropdown, WalletButton } from './'
 import { setAmount } from '../../store/optionSlice'
 import { ModeOptions, PaymentTitleOption } from '../../interface'
 import AddressInput from './AddressInput'
 import NetworkDropdown from './NetworkDropdown'
+import { ChainName } from '../../utils/constants'
 
 const SingleForm = ({
   paymentTitleOption
@@ -29,6 +31,7 @@ const SingleForm = ({
   const targetCompliant = useSelector(selectTargetCompliant)
   const transactionOption = useSelector(selectTransactionOption)
   const selectedCoin = useSelector(selectCurrencyOptions)
+  const targetNetwork = useSelector(selectTargetNetwork)
 
   const errorMessage = useMemo(
     () =>
@@ -68,10 +71,14 @@ const SingleForm = ({
       )}
 
       {mode === ModeOptions.bridge ? (
-        <div className={`form-item ${theme.colorMode}`}>
-          <span className='label'>Target Address:</span>
-          <AddressInput />
-        </div>
+        targetNetwork === ChainName.FIAT ? (
+          <BankInput />
+        ) : (
+          <div className={`form-item ${theme.colorMode}`}>
+            <span className='label'>Target Address:</span>
+            <AddressInput />
+          </div>
+        )
       ) : null}
 
       {mode === ModeOptions.bridge ? (
