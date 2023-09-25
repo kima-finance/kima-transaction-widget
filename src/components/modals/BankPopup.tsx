@@ -2,29 +2,13 @@ import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { CrossIcon } from '../../assets/icons'
 import { setBankPopup } from '../../store/optionSlice'
-import { selectBankPopup, selectTheme } from '../../store/selectors'
+import { selectBankPopup, selectTheme, selectUuid } from '../../store/selectors'
 
 const HelpPopup = () => {
   const dispatch = useDispatch()
+  const uuid = useSelector(selectUuid)
   const theme = useSelector(selectTheme)
   const bankPopup = useSelector(selectBankPopup)
-  // const [memo, setMemo] = useState<string>('')
-
-  // useEffect(() => {
-  //   setMemo(md5(Math.random().toString()).toString())
-  // }, [])
-
-  // const onSubmit = () => {
-  //   if (loading) return
-
-  //   setLoading(true)
-  //   setTimeout(() => {
-  //     setLoading(false)
-  //     dispatch(setTxId(txId))
-  //     dispatch(setSubmitted(true))
-  //     dispatch(setBankPopup(false))
-  //   }, 5000)
-  // }
 
   return (
     <div
@@ -55,34 +39,8 @@ const HelpPopup = () => {
           </div>
         </div>
         <div className='modal-content'>
-          {/* <div className='bank-simulation'>
-            <h1>Welcome to the First National Crypto Bank</h1>
-            <p>
-              You’re about to send funds to the Kima Finance LTD. bank account
-            </p>
-            <div className='content-item'>
-              <span>User account:</span>
-              <p>2345234525245</p>
-            </div>
-            <div className='content-item'>
-              <span>Sum:</span>
-              <p>${amount}</p>
-            </div>
-            <div className='content-item'>
-              <span>Memo:</span>
-              <p>{memo}</p>
-            </div>
-            <PrimaryButton
-              clickHandler={onSubmit}
-              isLoading={loading}
-              disabled={loading}
-            >
-              {loading ? 'Transferring funds ...' : 'Submit'}
-            </PrimaryButton>
-          </div> */}
-
           <iframe
-            src='https://sandbox.depasify.com/widgets/kyc?partner=kimastage&user_uuid=cf54674a-08c0-4e90-a788-097b3cf0ce99'
+            src={`https://sandbox.depasify.com/widgets/kyc?partner=kimastage&user_uuid=${uuid}`}
             width='100%'
             height='100%'
             frameBorder='0'

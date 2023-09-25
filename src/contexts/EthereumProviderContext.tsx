@@ -85,7 +85,6 @@ export const EthereumProvider = ({ children }: { children: ReactNode }) => {
                 'An error occurred while getting the signer address'
               )
             })
-          // TODO: try using ethers directly
           // @ts-ignore
           if (detectedProvider && detectedProvider.on) {
             // @ts-ignore

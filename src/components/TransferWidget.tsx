@@ -22,6 +22,7 @@ import CoinSelect from './reusable/CoinSelect'
 // store
 import {
   initialize,
+  setBankPopup,
   setConfirming,
   setCurrencyOptions,
   setSourceCompliant,
@@ -90,7 +91,7 @@ export const TransferWidget = ({
   const mode = useSelector(selectMode)
   const dAppOption = useSelector(selectDappOption)
   const amount = useSelector(selectAmount)
-  const sourceChain = useSelector(selectOriginNetwork)
+  const sourceNetwork = useSelector(selectOriginNetwork)
   const targetAddress = useSelector(selectTargetAddress)
   const targetNetwork = useSelector(selectTargetNetwork)
   const compliantOption = useSelector(selectCompliantOption)
@@ -223,7 +224,7 @@ export const TransferWidget = ({
       return
     }
 
-    if (sourceChain === ChainName.FIAT) {
+    if (sourceNetwork === ChainName.FIAT) {
       if (!isSigned) {
         sign()
         return
@@ -242,7 +243,7 @@ export const TransferWidget = ({
       }
       const params = JSON.stringify({
         originAddress: walletAddress,
-        originChain: sourceChain,
+        originChain: sourceNetwork,
         targetAddress: targetAddress,
         targetChain: targetNetwork,
         symbol: selectedCoin.label,
@@ -351,6 +352,13 @@ export const TransferWidget = ({
         if (mode === ModeOptions.payment || (targetAddress && amount > 0)) {
           dispatch(setConfirming(true))
           setFormStep(1)
+
+          if (
+            sourceNetwork === ChainName.FIAT ||
+            targetNetwork === ChainName.FIAT
+          ) {
+            dispatch(setBankPopup(true))
+          }
         }
         return
       }
@@ -448,7 +456,7 @@ export const TransferWidget = ({
           ) : (
             <ConfirmDetails
               isApproved={
-                sourceChain === ChainName.FIAT ? isSigned : isApproved
+                sourceNetwork === ChainName.FIAT ? isSigned : isApproved
               }
             />
           )
@@ -456,7 +464,9 @@ export const TransferWidget = ({
           <SingleForm paymentTitleOption={paymentTitleOption} />
         ) : (
           <ConfirmDetails
-            isApproved={sourceChain === ChainName.FIAT ? isSigned : isApproved}
+            isApproved={
+              sourceNetwork === ChainName.FIAT ? isSigned : isApproved
+            }
           />
         )}
       </div>
@@ -494,12 +504,12 @@ export const TransferWidget = ({
             disabled={isApproving || isSubmitting || isSigning}
           >
             {(isWizard && wizardStep === 5) || (!isWizard && formStep === 1)
-              ? (sourceChain !== ChainName.FIAT && isApproved) ||
-                (sourceChain === ChainName.FIAT && isSigned)
+              ? (sourceNetwork !== ChainName.FIAT && isApproved) ||
+                (sourceNetwork === ChainName.FIAT && isSigned)
                 ? isSubmitting
                   ? 'Submitting...'
                   : 'Submit'
-                : sourceChain === ChainName.FIAT
+                : sourceNetwork === ChainName.FIAT
                 ? isSigning
                   ? 'Signing...'
                   : 'Sign'

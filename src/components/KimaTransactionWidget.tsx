@@ -32,7 +32,8 @@ import {
   setWalletAutoConnect,
   setDappOption,
   setSwitchChainHandler,
-  setInitChainFromProvider
+  setInitChainFromProvider,
+  setUuid
 } from '../store/optionSlice'
 import '../index.css'
 import { selectOriginNetwork, selectSubmitted } from '../store/selectors'
@@ -105,6 +106,14 @@ export const KimaTransactionWidget = ({
     dispatch(setUseFIAT(useFIAT))
     if (useFIAT) {
       dispatch(setTxId(txId || -1))
+      ;(async function () {
+        try {
+          const uuid = await fetchWrapper.get(`${kimaBackendUrl}/uuid`)
+          dispatch(setUuid(uuid))
+        } catch (e) {
+          console.log('uuid generate failed', e)
+        }
+      })()
     }
 
     if (mode === ModeOptions.payment) {

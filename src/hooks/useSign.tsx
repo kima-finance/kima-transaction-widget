@@ -1,5 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import sha256 from 'crypto-js/sha256'
+import Base64 from 'crypto-js/enc-base64'
 import { useEthereumProvider } from '../contexts/EthereumProviderContext'
 import { ChainName } from '../utils/constants'
 import {
@@ -26,15 +28,15 @@ export default function useSign() {
       dispatch(setSigning(true))
       const message = `${amount} | ${signerAddress}`
       const signature = await signer?.signMessage(message)
-      console.log(message, signature)
+      const hash = Base64.stringify(sha256(signature || ''))
       setIsSigned(true)
-      dispatch(setSignature(signature || ''))
+      dispatch(setSignature(hash))
       dispatch(setSigning(false))
     } catch (error) {
       errorHandler(error)
       dispatch(setSigning(false))
     }
-  }, [signer, amount])
+  }, [signer, amount, sourceNetwork, signerAddress])
 
   return useMemo(
     () => ({

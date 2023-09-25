@@ -60,3 +60,4 @@ export const selectTargetNetworkFetching = (state: RootState) =>
   state.option.targetNetworkFetching
 export const selectSignature = (state: RootState) => state.option.signature
 export const selectSigning = (state: RootState) => state.option.isSigning
+export const selectUuid = (state: RootState) => state.option.uuid

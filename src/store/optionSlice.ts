@@ -52,6 +52,7 @@ export interface OptionState {
   targetNetworkFetching: boolean // is fetching available chains according to current source network or not
   signature: string // off-chain proof of target address for on-ramping fiat transaction
   isSigning: boolean // is waiting for signature
+  uuid: string // uuid for depasify KYC
 }
 
 const initialState: OptionState = {
@@ -94,7 +95,8 @@ const initialState: OptionState = {
   },
   targetNetworkFetching: false,
   signature: '',
-  isSigning: false
+  isSigning: false,
+  uuid: ''
 }
 
 export const optionSlice = createSlice({
@@ -121,6 +123,7 @@ export const optionSlice = createSlice({
       state.targetNetworkFetching = false
       state.signature = ''
       state.isSigning = false
+      state.uuid = ''
     },
     setTheme: (state, action: PayloadAction<ThemeOptions>) => {
       state.theme = action.payload
@@ -235,6 +238,9 @@ export const optionSlice = createSlice({
     },
     setSigning: (state, action: PayloadAction<boolean>) => {
       state.isSigning = action.payload
+    },
+    setUuid: (state, action: PayloadAction<string>) => {
+      state.uuid = action.payload
     }
   }
 })
@@ -278,7 +284,8 @@ export const {
   setBankDetails,
   setTargetNetworkFetching,
   setSignature,
-  setSigning
+  setSigning,
+  setUuid
 } = optionSlice.actions
 
 export default optionSlice.reducer
