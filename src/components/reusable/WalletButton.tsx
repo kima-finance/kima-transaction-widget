@@ -6,7 +6,7 @@ import { setConnectModal } from '../../store/optionSlice'
 import {
   selectCompliantOption,
   selectCurrencyOptions,
-  selectOriginNetwork,
+  selectSourceChain,
   selectSourceCompliant,
   selectTheme,
   selectWalletAutoConnect
@@ -26,7 +26,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const selectedCoin = useSelector(selectCurrencyOptions)
   const sourceCompliant = useSelector(selectSourceCompliant)
   const compliantOption = useSelector(selectCompliantOption)
-  const selectedNetwork = useSelector(selectOriginNetwork)
+  const selectedNetwork = useSelector(selectSourceChain)
   const walletAutoConnect = useSelector(selectWalletAutoConnect)
   const { connect } = useEthereumProvider()
   const { isReady, statusMessage, walletAddress } =

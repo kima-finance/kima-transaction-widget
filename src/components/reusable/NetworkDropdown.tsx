@@ -5,17 +5,17 @@ import {
   selectDappOption,
   selectMode,
   selectNodeProviderQuery,
-  selectOriginNetwork,
+  selectSourceChain,
   selectSwitchChainHandler,
-  selectTargetNetwork,
+  selectTargetChain,
   selectTheme,
   selectUseFIAT
 } from '../../store/selectors'
 import {
-  setOriginNetwork,
+  setSourceChain,
   setServiceFee,
-  setTargetNetwork,
-  setTargetNetworkFetching
+  setTargetChain,
+  setTargetChainFetching
 } from '../../store/optionSlice'
 import useNetworkOptions from '../../hooks/useNetworkOptions'
 import { DAppOptions, ModeOptions } from '../../interface'
@@ -34,8 +34,8 @@ const NetworkDropdown = React.memo(
     const useFIAT = useSelector(selectUseFIAT)
     const dAppOption = useSelector(selectDappOption)
     const switchChainHandler = useSelector(selectSwitchChainHandler)
-    const originNetwork = useSelector(selectOriginNetwork)
-    const targetNetwork = useSelector(selectTargetNetwork)
+    const originNetwork = useSelector(selectSourceChain)
+    const targetNetwork = useSelector(selectTargetChain)
     const nodeProviderQuery = useSelector(selectNodeProviderQuery)
     const { options: networkOptions } = useNetworkOptions()
     const selectedNetwork = useMemo(() => {
@@ -85,20 +85,20 @@ const NetworkDropdown = React.memo(
           setAvailableNetworks(chains)
 
           if (isOriginChain && !targetNetwork) {
-            dispatch(setTargetNetwork(chains[0]))
+            dispatch(setTargetChain(chains[0]))
           }
 
           if (sourceChangeRef.current) {
             sourceChangeRef.current = false
             dispatch(
-              setTargetNetwork(
+              setTargetChain(
                 chains.findIndex((chain) => chain === targetNetwork) < 0 ||
                   targetNetwork === originNetwork
                   ? chains[0]
                   : targetNetwork
               )
             )
-            dispatch(setTargetNetworkFetching(false))
+            dispatch(setTargetChainFetching(false))
           }
         } catch (e) {
           console.log('rpc disconnected', e)
@@ -173,12 +173,12 @@ const NetworkDropdown = React.memo(
                     if (network.id !== originNetwork)
                       switchChainHandler(CHAIN_NAMES_TO_IDS[network.id])
                   } else {
-                    dispatch(setTargetNetworkFetching(true))
-                    dispatch(setOriginNetwork(network.id))
+                    dispatch(setTargetChainFetching(true))
+                    dispatch(setSourceChain(network.id))
                   }
                   sourceChangeRef.current = true
                 } else {
-                  dispatch(setTargetNetwork(network.id))
+                  dispatch(setTargetChain(network.id))
                   dispatch(setServiceFee(-1))
                 }
               }}

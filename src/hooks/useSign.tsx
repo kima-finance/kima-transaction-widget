@@ -7,15 +7,15 @@ import { ChainName } from '../utils/constants'
 import {
   selectAmount,
   selectErrorHandler,
-  selectOriginNetwork
+  selectSourceChain
 } from '../store/selectors'
-import { setSignature, setSigning } from '../store/optionSlice'
+import { setSignature } from '../store/optionSlice'
 
-export default function useSign() {
+export default function useSign({ setSigning }: { setSigning: any }) {
   const dispatch = useDispatch()
   const [isSigned, setIsSigned] = useState<boolean>(false)
   const { signerAddress, signer } = useEthereumProvider()
-  const sourceNetwork = useSelector(selectOriginNetwork)
+  const sourceNetwork = useSelector(selectSourceChain)
   const errorHandler = useSelector(selectErrorHandler)
   const amount = useSelector(selectAmount)
 
@@ -25,16 +25,16 @@ export default function useSign() {
       return
     }
     try {
-      dispatch(setSigning(true))
+      setSigning(true)
       const message = `${amount} | ${signerAddress}`
       const signature = await signer?.signMessage(message)
       const hash = Base64.stringify(sha256(signature || ''))
       setIsSigned(true)
       dispatch(setSignature(hash))
-      dispatch(setSigning(false))
+      setSigning(false)
     } catch (error) {
       errorHandler(error)
-      dispatch(setSigning(false))
+      setSigning(false)
     }
   }, [signer, amount, sourceNetwork, signerAddress])
 

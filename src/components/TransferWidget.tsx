@@ -22,12 +22,9 @@ import CoinSelect from './reusable/CoinSelect'
 // store
 import {
   initialize,
-  setBankPopup,
-  setConfirming,
   setCurrencyOptions,
   setSourceCompliant,
   setSubmitted,
-  setSubmitting,
   setTargetAddress,
   setTargetCompliant,
   setTheme,
@@ -36,7 +33,6 @@ import {
 import '../index.css'
 import {
   selectAmount,
-  selectApproving,
   selectBackendUrl,
   selectBankDetails,
   selectCloseHandler,
@@ -45,13 +41,11 @@ import {
   selectErrorHandler,
   selectMode,
   selectNodeProviderQuery,
-  selectOriginNetwork,
-  selectSigning,
+  selectSourceChain,
   selectSourceCompliant,
-  selectSubmitting,
   selectTargetAddress,
   selectTargetCompliant,
-  selectTargetNetwork
+  selectTargetChain
 } from '../store/selectors'
 import useIsWalletReady from '../hooks/useIsWalletReady'
 import useServiceFee from '../hooks/useServiceFee'
@@ -91,27 +85,28 @@ export const TransferWidget = ({
   const mode = useSelector(selectMode)
   const dAppOption = useSelector(selectDappOption)
   const amount = useSelector(selectAmount)
-  const sourceNetwork = useSelector(selectOriginNetwork)
+  const sourceNetwork = useSelector(selectSourceChain)
   const targetAddress = useSelector(selectTargetAddress)
-  const targetNetwork = useSelector(selectTargetNetwork)
+  const targetNetwork = useSelector(selectTargetChain)
   const compliantOption = useSelector(selectCompliantOption)
   const sourceCompliant = useSelector(selectSourceCompliant)
   const targetCompliant = useSelector(selectTargetCompliant)
-  const isApproving = useSelector(selectApproving)
   const errorHandler = useSelector(selectErrorHandler)
   const closeHandler = useSelector(selectCloseHandler)
-  const isSubmitting = useSelector(selectSubmitting)
-  const isSigning = useSelector(selectSigning)
   const { options: selectedCoin } = useCurrencyOptions()
   const backendUrl = useSelector(selectBackendUrl)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
   const bankDetails = useSelector(selectBankDetails)
 
   // Hooks for wallet connection, allowance
+  const [isApproving, setApproving] = useState(false)
+  const [isSubmitting, setSubmitting] = useState(false)
+  const [isSigning, setSigning] = useState(false)
+  const [isConfirming, setConfirming] = useState(false)
   const { walletAddress, isReady } = useIsWalletReady()
-  const { isApproved, approve } = useAllowance()
-  const { isSigned, sign } = useSign()
-  const { serviceFee: fee } = useServiceFee()
+  const { isApproved, approve } = useAllowance({ setApproving })
+  const { isSigned, sign } = useSign({ setSigning })
+  const { serviceFee: fee } = useServiceFee(isConfirming)
   const { balance } = useBalance()
   const windowWidth = useWidth()
 
@@ -235,12 +230,16 @@ export const TransferWidget = ({
     }
 
     try {
-      dispatch(setSubmitting(true))
+      if (sourceNetwork === ChainName.FIAT || targetNetwork === ChainName.FIAT)
+        return
+
+      setSubmitting(true)
 
       if (!(await checkPoolBalance())) {
-        dispatch(setSubmitting(false))
+        setSubmitting(false)
         return
       }
+
       const params = JSON.stringify({
         originAddress: walletAddress,
         originChain: sourceNetwork,
@@ -263,7 +262,7 @@ export const TransferWidget = ({
       if (result?.code !== 0) {
         errorHandler(result)
         toast.error('Failed to submit transaction!')
-        dispatch(setSubmitting(false))
+        setSubmitting(false)
         return
       }
 
@@ -282,10 +281,10 @@ export const TransferWidget = ({
       console.log(txId)
       dispatch(setTxId(txId))
       dispatch(setSubmitted(true))
-      dispatch(setSubmitting(false))
+      setSubmitting(false)
     } catch (e) {
       errorHandler(e)
-      dispatch(setSubmitting(false))
+      setSubmitting(false)
       console.log(e?.status !== 500 ? 'rpc disconnected' : '', e)
       toast.error('Failed to submit transaction')
     }
@@ -314,7 +313,7 @@ export const TransferWidget = ({
         (!compliantOption ||
           (sourceCompliant === 'low' && targetCompliant === 'low'))
       ) {
-        dispatch(setConfirming(true))
+        setConfirming(true)
         setWizardStep(5)
       } else setWizardStep((step) => step + 1)
     }
@@ -350,15 +349,8 @@ export const TransferWidget = ({
         )
           return
         if (mode === ModeOptions.payment || (targetAddress && amount > 0)) {
-          dispatch(setConfirming(true))
+          setConfirming(true)
           setFormStep(1)
-
-          if (
-            sourceNetwork === ChainName.FIAT ||
-            targetNetwork === ChainName.FIAT
-          ) {
-            dispatch(setBankPopup(true))
-          }
         }
         return
       }
@@ -376,17 +368,34 @@ export const TransferWidget = ({
     if (isWizard && wizardStep > 0) {
       if (mode === ModeOptions.payment && wizardStep === 5) setWizardStep(1)
       else setWizardStep((step) => step - 1)
-      dispatch(setConfirming(false))
+      setConfirming(false)
     }
 
     if (!isWizard && formStep > 0) {
       setFormStep(0)
-      dispatch(setConfirming(false))
+      setConfirming(false)
     }
 
     if ((isWizard && wizardStep === 0) || (!isWizard && formStep === 0)) {
       closeHandler()
     }
+  }
+
+  const getButtonLabel = () => {
+    if ((isWizard && wizardStep === 5) || (!isWizard && formStep === 1)) {
+      if (
+        (sourceNetwork !== ChainName.FIAT && isApproved) ||
+        (sourceNetwork === ChainName.FIAT && isSigned)
+      ) {
+        return isSubmitting ? 'Submitting...' : 'Submit'
+      } else if (sourceNetwork === ChainName.FIAT) {
+        return isSigning ? 'Signing...' : 'Sign'
+      } else {
+        return isApproving ? 'Approving...' : 'Approve'
+      }
+    }
+
+    return 'Next'
   }
 
   useEffect(() => {
@@ -503,20 +512,7 @@ export const TransferWidget = ({
             isLoading={isApproving || isSubmitting || isSigning}
             disabled={isApproving || isSubmitting || isSigning}
           >
-            {(isWizard && wizardStep === 5) || (!isWizard && formStep === 1)
-              ? (sourceNetwork !== ChainName.FIAT && isApproved) ||
-                (sourceNetwork === ChainName.FIAT && isSigned)
-                ? isSubmitting
-                  ? 'Submitting...'
-                  : 'Submit'
-                : sourceNetwork === ChainName.FIAT
-                ? isSigning
-                  ? 'Signing...'
-                  : 'Sign'
-                : isApproving
-                ? 'Approving...'
-                : 'Approve'
-              : 'Next'}
+            {getButtonLabel()}
           </PrimaryButton>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { Contract } from '@ethersproject/contracts'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import {
@@ -21,10 +21,9 @@ import {
   selectDappOption,
   selectErrorHandler,
   selectNodeProviderQuery,
-  selectOriginNetwork,
+  selectSourceChain,
   selectServiceFee
 } from '../store/selectors'
-import { setApproving } from '../store/optionSlice'
 import { getOrCreateAssociatedTokenAccount } from '../utils/solana/getOrCreateAssociatedTokenAccount'
 import { PublicKey, Transaction } from '@solana/web3.js'
 // import { SignerWalletAdapterProps } from '@solana/wallet-adapter-base'
@@ -41,12 +40,11 @@ type ParsedAccountData = {
   space: number
 }
 
-export default function useAllowance() {
-  const dispatch = useDispatch()
+export default function useAllowance({ setApproving }: { setApproving: any }) {
   const [allowance, setAllowance] = useState<number>(0)
   const [decimals, setDecimals] = useState<number | null>(null)
   const { signerAddress, signer, chainId: evmChainId } = useEthereumProvider()
-  const selectedNetwork = useSelector(selectOriginNetwork)
+  const selectedNetwork = useSelector(selectSourceChain)
   const errorHandler = useSelector(selectErrorHandler)
   const dAppOption = useSelector(selectDappOption)
   const sourceChain = useMemo(() => {
@@ -158,18 +156,18 @@ export default function useAllowance() {
       try {
         const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer)
 
-        dispatch(setApproving(true))
+        setApproving(true)
         const approve = await erc20Contract.approve(
           targetAddress,
           parseUnits((amount + serviceFee).toString(), decimals)
         )
 
         await approve.wait()
-        dispatch(setApproving(false))
+        setApproving(false)
         setAllowance(amount + serviceFee)
       } catch (error) {
         errorHandler(error)
-        dispatch(setApproving(false))
+        setApproving(false)
       }
 
       return
@@ -178,7 +176,7 @@ export default function useAllowance() {
     if (!signTransaction) return
 
     try {
-      dispatch(setApproving(true))
+      setApproving(true)
       const mint = new PublicKey(tokenAddress)
       const toPublicKey = new PublicKey(targetAddress as string)
       const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
@@ -208,10 +206,10 @@ export default function useAllowance() {
 
       await connection.sendRawTransaction(signed.serialize())
       setAllowance(amount + serviceFee)
-      dispatch(setApproving(false))
+      setApproving(false)
     } catch (e) {
       errorHandler(e)
-      dispatch(setApproving(false))
+      setApproving(false)
     }
   }, [
     decimals,

@@ -9,11 +9,11 @@ import {
   selectCurrencyOptions,
   selectFeeDeduct,
   selectMode,
-  selectOriginNetwork,
+  selectSourceChain,
   selectServiceFee,
   selectSignature,
   selectTargetAddress,
-  selectTargetNetwork,
+  selectTargetChain,
   selectTheme,
   selectTransactionOption
 } from '../../store/selectors'
@@ -26,8 +26,8 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
   const theme = useSelector(selectTheme)
   const amount = useSelector(selectAmount)
   const serviceFee = useSelector(selectServiceFee)
-  const originNetwork = useSelector(selectOriginNetwork)
-  const targetNetwork = useSelector(selectTargetNetwork)
+  const originNetwork = useSelector(selectSourceChain)
+  const targetNetwork = useSelector(selectTargetChain)
   const targetAddress = useSelector(selectTargetAddress)
   const bankDetails = useSelector(selectBankDetails)
   const signature = useSelector(selectSignature)

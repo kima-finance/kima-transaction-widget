@@ -22,9 +22,9 @@ import {
   setSuccessHandler,
   setBackendUrl,
   setNodeProviderQuery,
-  setTargetNetwork,
+  setTargetChain,
   setTargetAddress,
-  setOriginNetwork,
+  setSourceChain,
   setTargetCompliant,
   setCompliantOption,
   setUseFIAT,
@@ -36,7 +36,7 @@ import {
   setUuid
 } from '../store/optionSlice'
 import '../index.css'
-import { selectOriginNetwork, selectSubmitted } from '../store/selectors'
+import { selectSourceChain, selectSubmitted } from '../store/selectors'
 import { TransactionWidget } from './TransactionWidget'
 import { TransferWidget } from './TransferWidget'
 import { ChainName, CHAIN_IDS_TO_NAMES } from '../utils/constants'
@@ -86,7 +86,7 @@ export const KimaTransactionWidget = ({
 }: Props) => {
   const submitted = useSelector(selectSubmitted)
   const dispatch = useDispatch()
-  const sourceChain = useSelector(selectOriginNetwork)
+  const sourceChain = useSelector(selectSourceChain)
 
   useEffect(() => {
     dispatch(setTheme(theme))
@@ -118,7 +118,7 @@ export const KimaTransactionWidget = ({
 
     if (mode === ModeOptions.payment) {
       dispatch(
-        setTargetNetwork(transactionOption?.targetChain || ChainName.ETHEREUM)
+        setTargetChain(transactionOption?.targetChain || ChainName.ETHEREUM)
       )
       ;(async function () {
         try {
@@ -127,7 +127,7 @@ export const KimaTransactionWidget = ({
               transactionOption?.targetChain || ChainName.ETHEREUM
             }`
           )
-          dispatch(setOriginNetwork(networks.Chains[0]))
+          dispatch(setSourceChain(networks.Chains[0]))
         } catch (e) {
           console.log('rpc disconnected', e)
         }
@@ -161,9 +161,9 @@ export const KimaTransactionWidget = ({
         provider
           ?.getNetwork()
           .then((network) => {
-            dispatch(setOriginNetwork(CHAIN_IDS_TO_NAMES[network.chainId]))
+            dispatch(setSourceChain(CHAIN_IDS_TO_NAMES[network.chainId]))
             if (CHAIN_IDS_TO_NAMES[network.chainId] !== sourceChain) {
-              dispatch(setTargetNetwork(''))
+              dispatch(setTargetChain(''))
             }
             dispatch(setInitChainFromProvider(true))
           })
@@ -172,8 +172,8 @@ export const KimaTransactionWidget = ({
             dispatch(setInitChainFromProvider(false))
           })
       } else {
-        dispatch(setOriginNetwork('CEL'))
-        dispatch(setTargetNetwork(''))
+        dispatch(setSourceChain('CEL'))
+        dispatch(setTargetChain(''))
         dispatch(setInitChainFromProvider(false))
       }
     }
@@ -181,8 +181,8 @@ export const KimaTransactionWidget = ({
 
   useEffect(() => {
     if (dAppOption === DAppOptions.None && mode === ModeOptions.bridge) {
-      dispatch(setTargetNetwork(''))
-      dispatch(setOriginNetwork('ETH'))
+      dispatch(setTargetChain(''))
+      dispatch(setSourceChain('ETH'))
     }
   }, [dAppOption, mode])
 

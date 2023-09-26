@@ -6,9 +6,9 @@ import {
   selectCompliantOption,
   selectCurrencyOptions,
   selectMode,
-  selectOriginNetwork,
+  selectSourceChain,
   selectTargetCompliant,
-  selectTargetNetwork,
+  selectTargetChain,
   selectTheme,
   selectTransactionOption
 } from '../../store/selectors'
@@ -32,8 +32,8 @@ const SingleForm = ({
   const targetCompliant = useSelector(selectTargetCompliant)
   const transactionOption = useSelector(selectTransactionOption)
   const selectedCoin = useSelector(selectCurrencyOptions)
-  const sourceNetwork = useSelector(selectOriginNetwork)
-  const targetNetwork = useSelector(selectTargetNetwork)
+  const sourceNetwork = useSelector(selectSourceChain)
+  const targetNetwork = useSelector(selectTargetChain)
 
   const errorMessage = useMemo(
     () =>

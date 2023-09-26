@@ -6,14 +6,13 @@ import { DAppOptions, ModeOptions } from '../interface'
 import { setServiceFee } from '../store/optionSlice'
 import {
   selectAmount,
-  selectConfirming,
   selectDappOption,
   selectMode,
   selectNodeProviderQuery,
-  selectOriginNetwork,
+  selectSourceChain,
   selectServiceFee,
   selectTargetAddress,
-  selectTargetNetwork,
+  selectTargetChain,
   selectTransactionOption
 } from '../store/selectors'
 import { ChainName, CHAIN_NAMES_TO_GECKO_ID } from '../utils/constants'
@@ -68,16 +67,15 @@ async function getFeeInUSD(
   return [isNaN(sourceFee) ? 0 : sourceFee, isNaN(targetFee) ? 0 : targetFee]
 }
 
-export default function useServiceFee() {
+export default function useServiceFee(isConfirming: boolean = false) {
   const { walletAddress, isReady } = useIsWalletReady()
   const dispatch = useDispatch()
   const serviceFee = useSelector(selectServiceFee)
   const mode = useSelector(selectMode)
   const amount_ = useSelector(selectAmount)
   const dAppOption = useSelector(selectDappOption)
-  const isConfirming = useSelector(selectConfirming)
-  const sourceChain = useSelector(selectOriginNetwork)
-  const targetNetwork = useSelector(selectTargetNetwork)
+  const sourceChain = useSelector(selectSourceChain)
+  const targetNetwork = useSelector(selectTargetChain)
   const targetAddress_ = useSelector(selectTargetAddress)
   const transactionOption = useSelector(selectTransactionOption)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
