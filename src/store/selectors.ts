@@ -55,3 +55,4 @@ export const selectTargetChainFetching = (state: RootState) =>
   state.option.targetNetworkFetching
 export const selectSignature = (state: RootState) => state.option.signature
 export const selectUuid = (state: RootState) => state.option.uuid
+export const selectKycStatus = (state: RootState) => state.option.kycStatus

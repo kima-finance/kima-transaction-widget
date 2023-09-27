@@ -1,14 +1,65 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { CrossIcon } from '../../assets/icons'
 import { setBankPopup } from '../../store/optionSlice'
-import { selectBankPopup, selectTheme, selectUuid } from '../../store/selectors'
+import {
+  selectBackendUrl,
+  selectBankPopup,
+  selectTheme,
+  selectUuid
+} from '../../store/selectors'
+import { CrossIcon } from '../../assets/icons'
+import { fetchWrapper } from '../../helpers/fetch-wrapper'
 
-const HelpPopup = () => {
+type KYCResult = {
+  id: string
+  status: string
+  name: string
+  surname: string
+  external_uuid: string
+  account_id: string
+  created_at: number
+}
+
+const BankPopup = ({
+  setVerifying,
+  isVerifying
+}: {
+  setVerifying: any
+  isVerifying: boolean
+}) => {
   const dispatch = useDispatch()
   const uuid = useSelector(selectUuid)
   const theme = useSelector(selectTheme)
   const bankPopup = useSelector(selectBankPopup)
+  const kimaBackendUrl = useSelector(selectBackendUrl)
+
+  useEffect(() => {
+    if (!kimaBackendUrl || !uuid || !isVerifying) return
+    const timerId = setInterval(async () => {
+      try {
+        const res: any = await fetchWrapper.post(
+          `${kimaBackendUrl}/kyc`,
+          JSON.stringify({
+            uuid
+          })
+        )
+        const kycResult: Array<KYCResult> = res.data
+        console.log(kycResult)
+
+        if (!kycResult.length) {
+          console.log('failed to check kyc status')
+        } else if (kycResult[0].status === 'approved') {
+          setVerifying(true)
+        }
+      } catch (e) {
+        console.log('failed to check kyc status')
+      }
+    }, 3000)
+
+    return () => {
+      clearInterval(timerId)
+    }
+  }, [kimaBackendUrl, uuid, isVerifying])
 
   return (
     <div
@@ -52,4 +103,4 @@ const HelpPopup = () => {
   )
 }
 
-export default HelpPopup
+export default BankPopup

@@ -22,6 +22,7 @@ import CoinSelect from './reusable/CoinSelect'
 // store
 import {
   initialize,
+  setBankPopup,
   setCurrencyOptions,
   setSourceCompliant,
   setSubmitted,
@@ -45,7 +46,8 @@ import {
   selectSourceCompliant,
   selectTargetAddress,
   selectTargetCompliant,
-  selectTargetChain
+  selectTargetChain,
+  selectKycStatus
 } from '../store/selectors'
 import useIsWalletReady from '../hooks/useIsWalletReady'
 import useServiceFee from '../hooks/useServiceFee'
@@ -85,9 +87,9 @@ export const TransferWidget = ({
   const mode = useSelector(selectMode)
   const dAppOption = useSelector(selectDappOption)
   const amount = useSelector(selectAmount)
-  const sourceNetwork = useSelector(selectSourceChain)
+  const sourceChain = useSelector(selectSourceChain)
   const targetAddress = useSelector(selectTargetAddress)
-  const targetNetwork = useSelector(selectTargetChain)
+  const targetChain = useSelector(selectTargetChain)
   const compliantOption = useSelector(selectCompliantOption)
   const sourceCompliant = useSelector(selectSourceCompliant)
   const targetCompliant = useSelector(selectTargetCompliant)
@@ -97,12 +99,14 @@ export const TransferWidget = ({
   const backendUrl = useSelector(selectBackendUrl)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
   const bankDetails = useSelector(selectBankDetails)
+  const kycStatus = useSelector(selectKycStatus)
 
   // Hooks for wallet connection, allowance
   const [isApproving, setApproving] = useState(false)
   const [isSubmitting, setSubmitting] = useState(false)
   const [isSigning, setSigning] = useState(false)
   const [isConfirming, setConfirming] = useState(false)
+  const [isVerifying, setVerifying] = useState(false)
   const { walletAddress, isReady } = useIsWalletReady()
   const { isApproved, approve } = useAllowance({ setApproving })
   const { isSigned, sign } = useSign({ setSigning })
@@ -181,28 +185,28 @@ export const TransferWidget = ({
 
     const poolBalance = res.poolBalance
     for (let i = 0; i < poolBalance.length; i++) {
-      if (poolBalance[i].chainName === targetNetwork) {
+      if (poolBalance[i].chainName === targetChain) {
         if (+poolBalance[i].balance >= amount + fee) {
           return true
         }
 
         const symbol =
-          targetNetwork === ChainName.FUSE || targetNetwork === ChainName.CELO
+          targetChain === ChainName.FUSE || targetChain === ChainName.CELO
             ? 'G$'
             : 'USDK'
         const errorString = `Tried to transfer ${amount} ${symbol}, but ${
-          CHAIN_NAMES_TO_STRING[targetNetwork]
+          CHAIN_NAMES_TO_STRING[targetChain]
         } pool has only ${+poolBalance[i].balance} ${symbol}`
         console.log(errorString)
 
         toast.error(
-          `${CHAIN_NAMES_TO_STRING[targetNetwork]} pool has insufficient balance!`
+          `${CHAIN_NAMES_TO_STRING[targetChain]} pool has insufficient balance!`
         )
         errorHandler(errorString)
         return false
       }
     }
-    console.log(`${CHAIN_NAMES_TO_STRING[targetNetwork]} pool error`)
+    console.log(`${CHAIN_NAMES_TO_STRING[targetChain]} pool error`)
     return false
   }
 
@@ -219,7 +223,15 @@ export const TransferWidget = ({
       return
     }
 
-    if (sourceNetwork === ChainName.FIAT) {
+    if (sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT) {
+      if (kycStatus !== 'approved') {
+        setVerifying(true)
+        dispatch(setBankPopup(true))
+        return
+      }
+    }
+
+    if (sourceChain === ChainName.FIAT) {
       if (!isSigned) {
         sign()
         return
@@ -230,7 +242,7 @@ export const TransferWidget = ({
     }
 
     try {
-      if (sourceNetwork === ChainName.FIAT || targetNetwork === ChainName.FIAT)
+      if (sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT)
         return
 
       setSubmitting(true)
@@ -242,9 +254,9 @@ export const TransferWidget = ({
 
       const params = JSON.stringify({
         originAddress: walletAddress,
-        originChain: sourceNetwork,
+        originChain: sourceChain,
         targetAddress: targetAddress,
-        targetChain: targetNetwork,
+        targetChain: targetChain,
         symbol: selectedCoin.label,
         amount: amount,
         fee
@@ -320,7 +332,7 @@ export const TransferWidget = ({
 
     if (!isWizard && !formStep) {
       if (isReady) {
-        if (targetNetwork === ChainName.FIAT) {
+        if (targetChain === ChainName.FIAT) {
           if (!bankDetails.iban) {
             toast.error('Invalid IBAN!')
             errorHandler('Invalid IBAN!')
@@ -383,12 +395,18 @@ export const TransferWidget = ({
 
   const getButtonLabel = () => {
     if ((isWizard && wizardStep === 5) || (!isWizard && formStep === 1)) {
+      if (sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT) {
+        if (isVerifying) return 'KYC Verifying...'
+        if (kycStatus !== 'approved') {
+          return 'KYC Verify'
+        }
+      }
       if (
-        (sourceNetwork !== ChainName.FIAT && isApproved) ||
-        (sourceNetwork === ChainName.FIAT && isSigned)
+        (sourceChain !== ChainName.FIAT && isApproved) ||
+        (sourceChain === ChainName.FIAT && isSigned)
       ) {
         return isSubmitting ? 'Submitting...' : 'Submit'
-      } else if (sourceNetwork === ChainName.FIAT) {
+      } else if (sourceChain === ChainName.FIAT) {
         return isSigning ? 'Signing...' : 'Sign'
       } else {
         return isApproving ? 'Approving...' : 'Approve'
@@ -465,7 +483,7 @@ export const TransferWidget = ({
           ) : (
             <ConfirmDetails
               isApproved={
-                sourceNetwork === ChainName.FIAT ? isSigned : isApproved
+                sourceChain === ChainName.FIAT ? isSigned : isApproved
               }
             />
           )
@@ -473,9 +491,7 @@ export const TransferWidget = ({
           <SingleForm paymentTitleOption={paymentTitleOption} />
         ) : (
           <ConfirmDetails
-            isApproved={
-              sourceNetwork === ChainName.FIAT ? isSigned : isApproved
-            }
+            isApproved={sourceChain === ChainName.FIAT ? isSigned : isApproved}
           />
         )}
       </div>
@@ -518,7 +534,9 @@ export const TransferWidget = ({
       </div>
       <WalletConnectModal />
       <HelpPopup />
-      <BankPopup />
+      {sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT ? (
+        <BankPopup setVerifying={setVerifying} isVerifying={isVerifying} />
+      ) : null}
       <Toaster
         position='top-right'
         reverseOrder={false}
