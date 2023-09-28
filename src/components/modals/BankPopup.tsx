@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { setBankPopup } from '../../store/optionSlice'
+import { setBankPopup, setKYCStatus } from '../../store/optionSlice'
 import {
   selectBackendUrl,
   selectBankPopup,
@@ -9,6 +9,7 @@ import {
 } from '../../store/selectors'
 import { CrossIcon } from '../../assets/icons'
 import { fetchWrapper } from '../../helpers/fetch-wrapper'
+import { toast } from 'react-hot-toast'
 
 type KYCResult = {
   id: string
@@ -49,7 +50,9 @@ const BankPopup = ({
         if (!kycResult.length) {
           console.log('failed to check kyc status')
         } else if (kycResult[0].status === 'approved') {
-          setVerifying(true)
+          setVerifying(false)
+          dispatch(setKYCStatus('approved'))
+          toast.success('KYC is verified')
         }
       } catch (e) {
         console.log('failed to check kyc status')

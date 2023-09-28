@@ -110,6 +110,7 @@ export const KimaTransactionWidget = ({
         try {
           const uuid = await fetchWrapper.get(`${kimaBackendUrl}/uuid`)
           dispatch(setUuid(uuid))
+          console.log('uuid: ', uuid)
         } catch (e) {
           console.log('uuid generate failed', e)
         }

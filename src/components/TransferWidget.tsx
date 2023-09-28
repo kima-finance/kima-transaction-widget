@@ -304,7 +304,11 @@ export const TransferWidget = ({
 
   const onNext = () => {
     if (isWizard && wizardStep < 5) {
-      if (wizardStep === 1 && !isReady) return
+      if (wizardStep === 1 && !isReady) {
+        toast.error('Wallet is not connected!')
+        errorHandler('Wallet is not connected!')
+        return
+      }
       if (wizardStep === 3) {
         if (targetAddress) {
           setWizardStep(4)
@@ -365,6 +369,9 @@ export const TransferWidget = ({
           setFormStep(1)
         }
         return
+      } else {
+        toast.error('Wallet is not connected!')
+        errorHandler('Wallet is not connected!')
       }
     }
 
