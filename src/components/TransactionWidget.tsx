@@ -44,10 +44,10 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       // Monitor last transaction for now until transaction_data endpoint is ready
       try {
         const result: any = await fetchWrapper.get(
-          `${nodeProviderQuery}/kima-finance/kima/kima/transaction_data/${txId}`
+          `${nodeProviderQuery}/kima-finance/kima-blockchain/kima/transaction_data/${txId}`
         )
 
-        const data = result?.transactionData
+        const data = result?.TransactionData
 
         if (!data) return
 

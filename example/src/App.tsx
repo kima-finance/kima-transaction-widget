@@ -26,9 +26,9 @@ const App = () => {
               fontSize: FontSizeOptions.medium
             }}
             mode={ModeOptions.bridge}
-            useFIAT={true}
+            // useFIAT={true}
             kimaBackendUrl='http://localhost:3001'
-            kimaNodeProviderQuery='https://api_testnet.kima.finance'
+            kimaNodeProviderQuery='https://api_staging_testnet.kima.finance'
             // titleOption={{
             //   initialTitle: 'New Purchase'
             // }}

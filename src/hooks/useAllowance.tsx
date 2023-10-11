@@ -71,9 +71,8 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
 
   const updatePoolAddress = async () => {
     try {
-      // FIXME:
       const result: any = await fetchWrapper.get(
-        `${nodeProviderQuery}/kima-finance/kima/kima/tss_pubkey`
+        `${nodeProviderQuery}/kima-finance/kima-blockchain/kima/tss_pubkey`
       )
       if (result?.tssPubkey?.length < 1) {
         return

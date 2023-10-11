@@ -155,7 +155,7 @@ export const TransferWidget = ({
     if (!nodeProviderQuery) return
     ;(async function () {
       const res: any = await fetchWrapper.get(
-        `${nodeProviderQuery}/kima-finance/kima/kima/pool_balance`
+        `${nodeProviderQuery}/kima-finance/kima-blockchain/kima/pool_balance`
       )
 
       console.table(
@@ -180,7 +180,7 @@ export const TransferWidget = ({
 
   const checkPoolBalance = async () => {
     const res: any = await fetchWrapper.get(
-      `${nodeProviderQuery}/kima-finance/kima/kima/pool_balance`
+      `${nodeProviderQuery}/kima-finance/kima-blockchain/kima/pool_balance`
     )
 
     const poolBalance = res.poolBalance

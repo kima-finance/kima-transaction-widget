@@ -124,7 +124,7 @@ export const KimaTransactionWidget = ({
       ;(async function () {
         try {
           const networks: any = await fetchWrapper.get(
-            `${kimaNodeProviderQuery}/kima-finance/kima/kima/get_available_chains/${
+            `${kimaNodeProviderQuery}/kima-finance/kima-blockchain/kima/get_available_chains/${
               transactionOption?.targetChain || ChainName.ETHEREUM
             }`
           )
