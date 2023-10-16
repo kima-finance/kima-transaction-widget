@@ -11,7 +11,12 @@ import {
   CHAIN_NAMES_TO_STRING
 } from '../utils/constants'
 import { useSelector } from 'react-redux'
-import { selectErrorHandler, selectOriginNetwork } from '../store/selectors'
+import {
+  selectErrorHandler,
+  selectSourceChain,
+  selectTargetChain,
+  selectTargetChainFetching
+} from '../store/selectors'
 
 const createWalletStatus = (
   isReady: boolean,
@@ -34,15 +39,22 @@ function useIsWalletReady(enableNetworkAutoswitch: boolean = false): {
   const autoSwitch = enableNetworkAutoswitch
   const { publicKey: solPK } = useWallet()
   const { provider, signerAddress, chainId: evmChainId } = useEthereumProvider()
-  const sourceChain = useSelector(selectOriginNetwork)
+  const sourceChain = useSelector(selectSourceChain)
+  const targetChain = useSelector(selectTargetChain)
+  const targetNetworkFetching = useSelector(selectTargetChainFetching)
+  const correctChain = useMemo(() => {
+    if (sourceChain === ChainName.FIAT && !targetNetworkFetching)
+      return targetChain
+    return sourceChain
+  }, [sourceChain, targetChain, targetNetworkFetching])
   const hasEthInfo = !!provider && !!signerAddress
   const errorHandler = useSelector(selectErrorHandler)
-  const correctEvmNetwork = CHAIN_NAMES_TO_IDS[sourceChain]
+  const correctEvmNetwork = CHAIN_NAMES_TO_IDS[correctChain]
   const hasCorrectEvmNetwork = evmChainId === correctEvmNetwork
 
   const forceNetworkSwitch = useCallback(() => {
     if (provider && correctEvmNetwork) {
-      if (!isEVMChain(sourceChain)) {
+      if (!isEVMChain(correctChain)) {
         return
       }
 
@@ -54,10 +66,10 @@ function useIsWalletReady(enableNetworkAutoswitch: boolean = false): {
         errorHandler(e)
       }
     }
-  }, [provider, correctEvmNetwork, sourceChain])
+  }, [provider, correctEvmNetwork, correctChain])
 
   return useMemo(() => {
-    if (sourceChain === ChainName.SOLANA) {
+    if (correctChain === ChainName.SOLANA) {
       if (solPK) {
         return createWalletStatus(
           true,
@@ -73,7 +85,7 @@ function useIsWalletReady(enableNetworkAutoswitch: boolean = false): {
         ''
       )
     }
-    if (isEVMChain(sourceChain) && hasEthInfo && signerAddress) {
+    if (isEVMChain(correctChain) && hasEthInfo && signerAddress) {
       if (hasCorrectEvmNetwork) {
         return createWalletStatus(
           true,
@@ -100,7 +112,7 @@ function useIsWalletReady(enableNetworkAutoswitch: boolean = false): {
 
     return createWalletStatus(false, '', forceNetworkSwitch, undefined)
   }, [
-    sourceChain,
+    correctChain,
     autoSwitch,
     forceNetworkSwitch,
     solPK,

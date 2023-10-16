@@ -6,15 +6,15 @@ import {
   selectDappOption,
   selectMode,
   selectNodeProviderQuery,
-  selectOriginNetwork,
+  selectSourceChain,
   selectSwitchChainHandler,
-  selectTargetNetwork,
+  selectTargetChain,
   selectTheme
 } from '../../store/selectors'
 import {
-  setOriginNetwork,
+  setSourceChain,
   setServiceFee,
-  setTargetNetwork
+  setTargetChain
 } from '../../store/optionSlice'
 import { CHAIN_NAMES_TO_IDS, ChainName } from '../../utils/constants'
 import { DAppOptions, ModeOptions } from '../../interface'
@@ -29,8 +29,8 @@ const Network = ({ isOriginChain = true }: Props) => {
   const theme = useSelector(selectTheme)
   const mode = useSelector(selectMode)
   const dAppOption = useSelector(selectDappOption)
-  const originNetwork = useSelector(selectOriginNetwork)
-  const targetNetwork = useSelector(selectTargetNetwork)
+  const originNetwork = useSelector(selectSourceChain)
+  const targetNetwork = useSelector(selectTargetChain)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
   const switchChainHandler = useSelector(selectSwitchChainHandler)
   const dispatch = useDispatch()
@@ -62,16 +62,16 @@ const Network = ({ isOriginChain = true }: Props) => {
     ;(async function () {
       try {
         const networks: any = await fetchWrapper.get(
-          `${nodeProviderQuery}/kima-finance/kima/get_available_chains/${originNetwork}`
+          `${nodeProviderQuery}/kima-finance/kima-blockchain/kima/get_available_chains/${originNetwork}`
         )
 
         setAvailableNetworks(networks.Chains)
         if (isOriginChain && !targetNetwork) {
-          dispatch(setTargetNetwork(networks.Chains[0]))
+          dispatch(setTargetChain(networks.Chains[0]))
         }
         if (sourceChangeRef.current) {
           sourceChangeRef.current = false
-          dispatch(setTargetNetwork(networks.Chains[0]))
+          dispatch(setTargetChain(networks.Chains[0]))
         }
       } catch (e) {
         console.log('rpc disconnected', e)
@@ -154,11 +154,11 @@ const Network = ({ isOriginChain = true }: Props) => {
                     if (network.id !== originNetwork)
                       switchChainHandler(CHAIN_NAMES_TO_IDS[network.id])
                   } else {
-                    dispatch(setOriginNetwork(network.id))
+                    dispatch(setSourceChain(network.id))
                   }
                   sourceChangeRef.current = true
                 } else {
-                  dispatch(setTargetNetwork(network.id))
+                  dispatch(setTargetChain(network.id))
                   dispatch(setServiceFee(-1))
                 }
               }}

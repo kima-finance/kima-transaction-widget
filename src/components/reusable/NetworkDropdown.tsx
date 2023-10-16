@@ -5,22 +5,21 @@ import {
   selectDappOption,
   selectMode,
   selectNodeProviderQuery,
-  selectOriginNetwork,
+  selectSourceChain,
   selectSwitchChainHandler,
-  selectTargetNetwork,
+  selectTargetChain,
   selectTheme,
   selectUseFIAT
 } from '../../store/selectors'
 import {
-  setBankPopup,
-  setOriginNetwork,
+  setSourceChain,
   setServiceFee,
-  setTargetNetwork
+  setTargetChain,
+  setTargetChainFetching
 } from '../../store/optionSlice'
 import useNetworkOptions from '../../hooks/useNetworkOptions'
 import { DAppOptions, ModeOptions } from '../../interface'
 import { fetchWrapper } from '../../helpers/fetch-wrapper'
-import { BankIcon } from '../../assets/icons'
 import { CHAIN_NAMES_TO_IDS } from '../../utils/constants'
 
 const NetworkDropdown = React.memo(
@@ -35,8 +34,8 @@ const NetworkDropdown = React.memo(
     const useFIAT = useSelector(selectUseFIAT)
     const dAppOption = useSelector(selectDappOption)
     const switchChainHandler = useSelector(selectSwitchChainHandler)
-    const originNetwork = useSelector(selectOriginNetwork)
-    const targetNetwork = useSelector(selectTargetNetwork)
+    const originNetwork = useSelector(selectSourceChain)
+    const targetNetwork = useSelector(selectTargetChain)
     const nodeProviderQuery = useSelector(selectNodeProviderQuery)
     const { options: networkOptions } = useNetworkOptions()
     const selectedNetwork = useMemo(() => {
@@ -47,6 +46,7 @@ const NetworkDropdown = React.memo(
       if (index >= 0) return networkOptions[index]
       return networkOptions[0]
     }, [originNetwork, targetNetwork, networkOptions])
+
     const networks = useMemo(() => {
       if (isOriginChain && mode === ModeOptions.bridge) {
         return networkOptions
@@ -56,7 +56,13 @@ const NetworkDropdown = React.memo(
         (network) =>
           availableNetworks.findIndex((id: any) => id === network.id) >= 0
       )
-    }, [networkOptions, isOriginChain, availableNetworks, dAppOption])
+    }, [
+      networkOptions,
+      isOriginChain,
+      availableNetworks,
+      dAppOption,
+      originNetwork
+    ])
     const theme = useSelector(selectTheme)
     const dispatch = useDispatch()
 
@@ -64,38 +70,68 @@ const NetworkDropdown = React.memo(
       if (!nodeProviderQuery || mode !== ModeOptions.bridge) return
       ;(async function () {
         try {
-          const networks: any = await fetchWrapper.get(
-            `${nodeProviderQuery}/kima-finance/kima/get_available_chains/${originNetwork}`
-          )
+          let chains: ChainName[] = []
+          if (originNetwork === ChainName.FIAT) {
+            chains = [ChainName.ETHEREUM, ChainName.POLYGON]
+          } else {
+            const networks: any = await fetchWrapper.get(
+              `${nodeProviderQuery}/kima-finance/kima-blockchain/kima/get_available_chains/${originNetwork}`
+            )
 
-          setAvailableNetworks(networks.Chains)
-          if (isOriginChain && !targetNetwork) {
-            dispatch(setTargetNetwork(networks.Chains[0]))
+            chains = networks.Chains
+            if (useFIAT) chains.push(ChainName.FIAT)
           }
+
+          setAvailableNetworks(chains)
+
+          if (isOriginChain && !targetNetwork) {
+            dispatch(setTargetChain(chains[0]))
+          }
+
           if (sourceChangeRef.current) {
             sourceChangeRef.current = false
-            dispatch(setTargetNetwork(networks.Chains[0]))
+            dispatch(
+              setTargetChain(
+                chains.findIndex((chain) => chain === targetNetwork) < 0 ||
+                  targetNetwork === originNetwork
+                  ? chains[0]
+                  : targetNetwork
+              )
+            )
+            dispatch(setTargetChainFetching(false))
           }
         } catch (e) {
           console.log('rpc disconnected', e)
         }
       })()
-    }, [nodeProviderQuery, originNetwork, targetNetwork, mode, isOriginChain])
+    }, [
+      nodeProviderQuery,
+      originNetwork,
+      targetNetwork,
+      mode,
+      isOriginChain,
+      useFIAT
+    ])
 
-    useEffect(() => {
-      if (!nodeProviderQuery || mode !== ModeOptions.payment) return
-      ;(async function () {
-        try {
-          const networks: any = await fetchWrapper.get(
-            `${nodeProviderQuery}/kima-finance/kima/get_available_chains/${targetNetwork}`
-          )
+    // useEffect(() => {
+    //   if (!nodeProviderQuery || mode !== ModeOptions.payment) return
+    //   ;(async function () {
+    //     try {
+    //       if (targetNetwork === ChainName.FIAT) {
+    //         setAvailableNetworks([ChainName.ETHEREUM, ChainName.POLYGON])
+    //         return
+    //       }
 
-          setAvailableNetworks(networks.Chains)
-        } catch (e) {
-          console.log('rpc disconnected', e)
-        }
-      })()
-    }, [nodeProviderQuery, mode])
+    //       const networks: any = await fetchWrapper.get(
+    //         `${nodeProviderQuery}/kima-finance/kima-blockchain/kima/get_available_chains/${targetNetwork}`
+    //       )
+
+    //       setAvailableNetworks(networks.Chains)
+    //     } catch (e) {
+    //       console.log('rpc disconnected', e)
+    //     }
+    //   })()
+    // }, [nodeProviderQuery, mode, targetNetwork])
 
     useEffect(() => {
       const bodyMouseDowntHandler = (e: any) => {
@@ -137,11 +173,12 @@ const NetworkDropdown = React.memo(
                     if (network.id !== originNetwork)
                       switchChainHandler(CHAIN_NAMES_TO_IDS[network.id])
                   } else {
-                    dispatch(setOriginNetwork(network.id))
+                    dispatch(setTargetChainFetching(true))
+                    dispatch(setSourceChain(network.id))
                   }
                   sourceChangeRef.current = true
                 } else {
-                  dispatch(setTargetNetwork(network.id))
+                  dispatch(setTargetChain(network.id))
                   dispatch(setServiceFee(-1))
                 }
               }}
@@ -150,7 +187,7 @@ const NetworkDropdown = React.memo(
               <p>{network.label}</p>
             </div>
           ))}
-          {useFIAT ? (
+          {/* {useFIAT ? (
             <div
               className='network-menu-item'
               onClick={() => {
@@ -160,7 +197,7 @@ const NetworkDropdown = React.memo(
               <BankIcon />
               <p>pay with FIAT</p>
             </div>
-          ) : null}
+          ) : null} */}
         </div>
       </div>
     )

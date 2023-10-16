@@ -5,13 +5,15 @@ import { DAppOptions } from '../interface'
 import {
   selectDappOption,
   selectMode,
-  selectNodeProviderQuery
+  selectNodeProviderQuery,
+  selectUseFIAT
 } from '../store/selectors'
-import { networkOptions } from '../utils/constants'
+import { ChainName, networkOptions } from '../utils/constants'
 
 export default function useNetworkOptions() {
   const mode = useSelector(selectMode)
   const dAppOption = useSelector(selectDappOption)
+  const useFIAT = useSelector(selectUseFIAT)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
   const [options, setOptions] = useState<Array<any>>(networkOptions)
 
@@ -21,13 +23,15 @@ export default function useNetworkOptions() {
       ;(async function () {
         try {
           const networks: any = await fetchWrapper.get(
-            `${nodeProviderQuery}/kima-finance/kima/getChains`
+            `${nodeProviderQuery}/kima-finance/kima-blockchain/kima/get_chains`
           )
 
           setOptions(
             networkOptions.filter(
               (network) =>
-                networks.Chains.findIndex((id: any) => id === network.id) >= 0
+                networks.Chains.findIndex((id: any) => id === network.id) >=
+                  0 ||
+                (network.id === ChainName.FIAT && useFIAT)
             )
           )
         } catch (e) {

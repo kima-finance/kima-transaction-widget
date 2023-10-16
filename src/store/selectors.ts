@@ -5,10 +5,8 @@ import { RootState } from '.'
  */
 
 export const selectTheme = (state: RootState) => state.option.theme
-export const selectOriginNetwork = (state: RootState) =>
-  state.option.originNetwork
-export const selectTargetNetwork = (state: RootState) =>
-  state.option.targetNetwork
+export const selectSourceChain = (state: RootState) => state.option.sourceChain
+export const selectTargetChain = (state: RootState) => state.option.targetChain
 export const selectTargetAddress = (state: RootState) =>
   state.option.targetAddress
 export const selectConnectModal = (state: RootState) =>
@@ -26,8 +24,6 @@ export const selectSubmitted = (state: RootState) => state.option.submitted
 export const selectTransactionOption = (state: RootState) =>
   state.option.transactionOption
 export const selectAmount = (state: RootState) => state.option.amount
-export const selectApproving = (state: RootState) => state.option.isApproving
-export const selectSubmitting = (state: RootState) => state.option.isSubmitting
 export const selectErrorHandler = (state: RootState) =>
   state.option.errorHandler
 export const selectCloseHandler = (state: RootState) =>
@@ -40,7 +36,6 @@ export const selectInitChainFromProvider = (state: RootState) =>
   state.option.initChainFromProvider
 export const selectServiceFee = (state: RootState) => state.option.serviceFee
 export const selectMode = (state: RootState) => state.option.mode
-export const selectConfirming = (state: RootState) => state.option.isConfirming
 export const selectFeeDeduct = (state: RootState) => state.option.feeDeduct
 export const selectBackendUrl = (state: RootState) => state.option.backendUrl
 export const selectNodeProviderQuery = (state: RootState) =>
@@ -55,3 +50,9 @@ export const selectSourceCompliant = (state: RootState) =>
 export const selectTargetCompliant = (state: RootState) =>
   state.option.targetCompliant
 export const selectUseFIAT = (state: RootState) => state.option.useFIAT
+export const selectBankDetails = (state: RootState) => state.option.bankDetails
+export const selectTargetChainFetching = (state: RootState) =>
+  state.option.targetNetworkFetching
+export const selectSignature = (state: RootState) => state.option.signature
+export const selectUuid = (state: RootState) => state.option.uuid
+export const selectKycStatus = (state: RootState) => state.option.kycStatus

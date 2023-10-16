@@ -1,13 +1,23 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 // import { WalletName } from '@solana/wallet-adapter-base'
-import { DAppOptions, ModeOptions, ThemeOptions, TransactionOption } from '../interface'
+import {
+  DAppOptions,
+  ModeOptions,
+  ThemeOptions,
+  TransactionOption
+} from '../interface'
 import { COIN_LIST } from '../utils/constants'
+
+type BankDetails = {
+  iban: string
+  recipient: string
+}
 
 export interface OptionState {
   theme: ThemeOptions // light or dark
   mode: ModeOptions // payment or bridge
-  originNetwork: string // origin network on UI
-  targetNetwork: string // target network on UI
+  sourceChain: string // origin network on UI
+  targetChain: string // target network on UI
   targetAddress: string // target address on UI
   connectModal: boolean // solana wallet connection modal state - open or closed
   helpPopup: boolean // shows popup to show help instructions
@@ -19,9 +29,6 @@ export interface OptionState {
   solanaProvider: any // selected solana wallet provider - phantom, solflare or ...
   submitted: boolean // if transaction is submitted, shows Transaction Widget to monitor status
   amount: number // amount input
-  isApproving: boolean // is waiting for approval
-  isSubmitting: boolean // is waiting for submission
-  isConfirming: boolean // is on the confirmation page, disable service fee update
   feeDeduct: boolean // whether deduct fee from amount or not
   transactionOption?: TransactionOption // input option from dApp
   errorHandler: Function // error callback function from dApp
@@ -38,13 +45,18 @@ export interface OptionState {
   sourceCompliant: string // source address is compliant or not
   targetCompliant: string // target address is compliant or not
   useFIAT: boolean // use FIAT Payment mockup or not?
+  bankDetails: BankDetails
+  targetNetworkFetching: boolean // is fetching available chains according to current source network or not
+  signature: string // off-chain proof of target address for on-ramping fiat transaction
+  uuid: string // uuid for depasify KYC
+  kycStatus: string // kyc status from depasify
 }
 
 const initialState: OptionState = {
   theme: {},
   mode: ModeOptions.bridge,
-  originNetwork: '',
-  targetNetwork: '',
+  sourceChain: '',
+  targetChain: '',
   targetAddress: '',
   connectModal: false,
   helpPopup: false,
@@ -56,9 +68,6 @@ const initialState: OptionState = {
   solanaProvider: undefined,
   submitted: false,
   amount: 0,
-  isApproving: false,
-  isSubmitting: false,
-  isConfirming: false,
   feeDeduct: false,
   errorHandler: () => void 0,
   closeHandler: () => void 0,
@@ -73,7 +82,15 @@ const initialState: OptionState = {
   compliantOption: true,
   sourceCompliant: 'low',
   targetCompliant: 'low',
-  useFIAT: false, 
+  useFIAT: false,
+  bankDetails: {
+    iban: '',
+    recipient: ''
+  },
+  targetNetworkFetching: false,
+  signature: '',
+  uuid: '',
+  kycStatus: ''
 }
 
 export const optionSlice = createSlice({
@@ -82,8 +99,6 @@ export const optionSlice = createSlice({
   reducers: {
     initialize: (state) => {
       state.submitted = false
-      state.isConfirming = false
-      state.isApproving = false
       state.txId = -1
       state.serviceFee = -1
       state.amount = 0
@@ -92,16 +107,22 @@ export const optionSlice = createSlice({
       state.sourceCompliant = 'low'
       state.targetCompliant = 'low'
       state.useFIAT = false
+      state.bankDetails = {
+        iban: '',
+        recipient: ''
+      }
       state.initChainFromProvider = false
+      state.targetNetworkFetching = false
+      state.signature = ''
     },
     setTheme: (state, action: PayloadAction<ThemeOptions>) => {
       state.theme = action.payload
     },
-    setOriginNetwork: (state, action: PayloadAction<string>) => {
-      state.originNetwork = action.payload
+    setSourceChain: (state, action: PayloadAction<string>) => {
+      state.sourceChain = action.payload
     },
-    setTargetNetwork: (state, action: PayloadAction<string>) => {
-      state.targetNetwork = action.payload
+    setTargetChain: (state, action: PayloadAction<string>) => {
+      state.targetChain = action.payload
     },
     setTargetAddress: (state, action: PayloadAction<string>) => {
       state.targetAddress = action.payload
@@ -139,12 +160,6 @@ export const optionSlice = createSlice({
     setAmount: (state, action: PayloadAction<number>) => {
       state.amount = action.payload
     },
-    setApproving: (state, action: PayloadAction<boolean>) => {
-      state.isApproving = action.payload
-    },
-    setSubmitting: (state, action: PayloadAction<boolean>) => {
-      state.isSubmitting = action.payload
-    },
     setErrorHandler: (state, action: PayloadAction<Function>) => {
       state.errorHandler = action.payload
     },
@@ -165,9 +180,6 @@ export const optionSlice = createSlice({
     },
     setMode: (state, action: PayloadAction<ModeOptions>) => {
       state.mode = action.payload
-    },
-    setConfirming: (state, action: PayloadAction<boolean>) => {
-      state.isConfirming = action.payload
     },
     setFeeDeduct: (state, action: PayloadAction<boolean>) => {
       state.feeDeduct = action.payload
@@ -195,6 +207,21 @@ export const optionSlice = createSlice({
     },
     setUseFIAT: (state, action: PayloadAction<boolean>) => {
       state.useFIAT = action.payload
+    },
+    setBankDetails: (state, action: PayloadAction<BankDetails>) => {
+      state.bankDetails = action.payload
+    },
+    setTargetChainFetching: (state, action: PayloadAction<boolean>) => {
+      state.targetNetworkFetching = action.payload
+    },
+    setSignature: (state, action: PayloadAction<string>) => {
+      state.signature = action.payload
+    },
+    setUuid: (state, action: PayloadAction<string>) => {
+      state.uuid = action.payload
+    },
+    setKYCStatus: (state, action: PayloadAction<string>) => {
+      state.kycStatus = action.payload
     }
   }
 })
@@ -202,8 +229,8 @@ export const optionSlice = createSlice({
 export const {
   initialize,
   setTheme,
-  setOriginNetwork,
-  setTargetNetwork,
+  setSourceChain,
+  setTargetChain,
   setTargetAddress,
   setConnectModal,
   setHelpPopup,
@@ -216,9 +243,6 @@ export const {
   setSubmitted,
   setTransactionOption,
   setAmount,
-  setApproving,
-  setSubmitting,
-  setConfirming,
   setErrorHandler,
   setCloseHandler,
   setSuccessHandler,
@@ -235,6 +259,11 @@ export const {
   setSourceCompliant,
   setTargetCompliant,
   setUseFIAT,
+  setBankDetails,
+  setTargetChainFetching,
+  setSignature,
+  setUuid,
+  setKYCStatus
 } = optionSlice.actions
 
 export default optionSlice.reducer

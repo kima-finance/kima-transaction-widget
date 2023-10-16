@@ -17,7 +17,7 @@ import ERC20ABI from '../utils/ethereum/erc20ABI.json'
 import {
   selectCurrencyOptions,
   selectErrorHandler,
-  selectOriginNetwork
+  selectSourceChain
 } from '../store/selectors'
 import { getOrCreateAssociatedTokenAccount } from '../utils/solana/getOrCreateAssociatedTokenAccount'
 import { PublicKey } from '@solana/web3.js'
@@ -34,7 +34,7 @@ type ParsedAccountData = {
 export default function useBalance() {
   const [balance, setBalance] = useState<number>(0)
   const { signerAddress, signer, chainId: evmChainId } = useEthereumProvider()
-  const selectedNetwork = useSelector(selectOriginNetwork)
+  const selectedNetwork = useSelector(selectSourceChain)
   const errorHandler = useSelector(selectErrorHandler)
   const sourceChain = useMemo(() => {
     if (selectedNetwork === ChainName.SOLANA) return selectedNetwork
