@@ -190,10 +190,7 @@ export const TransferWidget = ({
           return true
         }
 
-        const symbol =
-          targetChain === ChainName.FUSE || targetChain === ChainName.CELO
-            ? 'G$'
-            : 'USDK'
+        const symbol = 'USDK'
         const errorString = `Tried to transfer ${amount} ${symbol}, but ${
           CHAIN_NAMES_TO_STRING[targetChain]
         } pool has only ${+poolBalance[i].balance} ${symbol}`
