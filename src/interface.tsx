@@ -27,7 +27,6 @@ export enum ColorModeOptions {
 }
 
 export enum DAppOptions {
-  G$ = 'G$',
   None = 'none'
 }
 

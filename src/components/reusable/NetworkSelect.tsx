@@ -7,7 +7,6 @@ import {
   selectMode,
   selectNodeProviderQuery,
   selectSourceChain,
-  selectSwitchChainHandler,
   selectTargetChain,
   selectTheme
 } from '../../store/selectors'
@@ -16,8 +15,8 @@ import {
   setServiceFee,
   setTargetChain
 } from '../../store/optionSlice'
-import { CHAIN_NAMES_TO_IDS, ChainName } from '../../utils/constants'
-import { DAppOptions, ModeOptions } from '../../interface'
+import { ChainName } from '../../utils/constants'
+import { ModeOptions } from '../../interface'
 import { fetchWrapper } from '../../helpers/fetch-wrapper'
 
 interface Props {
@@ -32,7 +31,6 @@ const Network = ({ isOriginChain = true }: Props) => {
   const originNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
-  const switchChainHandler = useSelector(selectSwitchChainHandler)
   const dispatch = useDispatch()
   const sliderRef = useRef<any>()
   const [availableNetworks, setAvailableNetworks] = useState<Array<ChainName>>(
@@ -150,12 +148,7 @@ const Network = ({ isOriginChain = true }: Props) => {
               key={network.id}
               onClick={() => {
                 if (isOriginChain) {
-                  if (dAppOption === DAppOptions.G$) {
-                    if (network.id !== originNetwork)
-                      switchChainHandler(CHAIN_NAMES_TO_IDS[network.id])
-                  } else {
-                    dispatch(setSourceChain(network.id))
-                  }
+                  dispatch(setSourceChain(network.id))
                   sourceChangeRef.current = true
                 } else {
                   dispatch(setTargetChain(network.id))

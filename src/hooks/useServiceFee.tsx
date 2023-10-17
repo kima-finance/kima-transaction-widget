@@ -2,11 +2,10 @@ import { useEffect, useMemo } from 'react'
 import { useDispatch } from 'react-redux'
 import { useSelector } from 'react-redux'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
-import { DAppOptions, ModeOptions } from '../interface'
+import { ModeOptions } from '../interface'
 import { setServiceFee } from '../store/optionSlice'
 import {
   selectAmount,
-  selectDappOption,
   selectMode,
   selectNodeProviderQuery,
   selectSourceChain,
@@ -73,7 +72,6 @@ export default function useServiceFee(isConfirming: boolean = false) {
   const serviceFee = useSelector(selectServiceFee)
   const mode = useSelector(selectMode)
   const amount_ = useSelector(selectAmount)
-  const dAppOption = useSelector(selectDappOption)
   const sourceChain = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
   const targetAddress_ = useSelector(selectTargetAddress)
@@ -148,11 +146,7 @@ export default function useServiceFee(isConfirming: boolean = false) {
       // fee = fee < 0 ? 0 : fee
 
       let fee = 0
-      dispatch(
-        setServiceFee(
-          dAppOption === DAppOptions.G$ ? 0 : parseFloat(fee.toFixed(2))
-        )
-      )
+      dispatch(setServiceFee(parseFloat(fee.toFixed(2))))
     } catch (e) {
       dispatch(setServiceFee(0))
       console.log('rpc disconnected', e)

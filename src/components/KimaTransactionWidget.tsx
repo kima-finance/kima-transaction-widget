@@ -32,14 +32,13 @@ import {
   setWalletAutoConnect,
   setDappOption,
   setSwitchChainHandler,
-  setInitChainFromProvider,
   setUuid
 } from '../store/optionSlice'
 import '../index.css'
-import { selectSourceChain, selectSubmitted } from '../store/selectors'
+import { selectSubmitted } from '../store/selectors'
 import { TransactionWidget } from './TransactionWidget'
 import { TransferWidget } from './TransferWidget'
-import { ChainName, CHAIN_IDS_TO_NAMES } from '../utils/constants'
+import { ChainName } from '../utils/constants'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 import { Web3Provider } from '@ethersproject/providers'
 
@@ -86,7 +85,6 @@ export const KimaTransactionWidget = ({
 }: Props) => {
   const submitted = useSelector(selectSubmitted)
   const dispatch = useDispatch()
-  const sourceChain = useSelector(selectSourceChain)
 
   useEffect(() => {
     dispatch(setTheme(theme))
@@ -154,31 +152,6 @@ export const KimaTransactionWidget = ({
       dispatch(setSubmitted(true))
     }
   }, [provider, theme, transactionOption, errorHandler, closeHandler, mode])
-
-  useEffect(() => {
-    if (mode !== ModeOptions.bridge) return
-    if (dAppOption === DAppOptions.G$) {
-      if (provider) {
-        provider
-          ?.getNetwork()
-          .then((network) => {
-            dispatch(setSourceChain(CHAIN_IDS_TO_NAMES[network.chainId]))
-            if (CHAIN_IDS_TO_NAMES[network.chainId] !== sourceChain) {
-              dispatch(setTargetChain(''))
-            }
-            dispatch(setInitChainFromProvider(true))
-          })
-          .catch((e) => {
-            console.log(e)
-            dispatch(setInitChainFromProvider(false))
-          })
-      } else {
-        dispatch(setSourceChain('CEL'))
-        dispatch(setTargetChain(''))
-        dispatch(setInitChainFromProvider(false))
-      }
-    }
-  }, [sourceChain, mode, dAppOption, provider])
 
   useEffect(() => {
     if (dAppOption === DAppOptions.None && mode === ModeOptions.bridge) {

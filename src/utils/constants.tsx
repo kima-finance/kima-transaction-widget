@@ -4,9 +4,6 @@ import {
   PolygonIcon,
   AvalancheIcon,
   USDTIcon,
-  GoodDollarIcon,
-  FuseIcon,
-  CeloIcon,
   SolanaIcon,
   BSCIcon,
   ArbitriumIcon,
@@ -16,9 +13,7 @@ import {
 } from '../assets/icons'
 import {
   AVAX_USDK_ADDRESS,
-  CELO_GDOLLAR_ADDRESS,
   ETHEREUM_USDK_ADDRESS,
-  FUSE_GDOLLAR_ADDRESS,
   BSC_USDK_ADDRESS,
   POLYGON_USDK_ADDRESS,
   SOLANA_USDK_ADDRESS,
@@ -34,8 +29,6 @@ export enum ChainName {
   POLYGON = 'POL',
   AVALANCHE = 'AVX',
   SOLANA = 'SOL',
-  FUSE = 'FUS',
-  CELO = 'CEL',
   BSC = 'BSC',
   ARBITRIUM = 'ARB',
   OPTIMISM = 'OPT',
@@ -47,8 +40,6 @@ export enum SupportedChainId {
   ETHEREUM = 11155111,
   POLYGON = 80001,
   AVALANCHE = 43113,
-  FUSE = 122,
-  CELO = 42220,
   BSC = 97,
   ARBITRIUM = 421613,
   OPTIMISM = 420,
@@ -59,8 +50,6 @@ export const CHAIN_NAMES_TO_IDS: { [chainName: string]: SupportedChainId } = {
   [ChainName.ETHEREUM]: SupportedChainId.ETHEREUM,
   [ChainName.POLYGON]: SupportedChainId.POLYGON,
   [ChainName.AVALANCHE]: SupportedChainId.AVALANCHE,
-  [ChainName.FUSE]: SupportedChainId.FUSE,
-  [ChainName.CELO]: SupportedChainId.CELO,
   [ChainName.BSC]: SupportedChainId.BSC,
   [ChainName.OPTIMISM]: SupportedChainId.OPTIMISM,
   [ChainName.ARBITRIUM]: SupportedChainId.ARBITRIUM,
@@ -71,8 +60,6 @@ export const CHAIN_NAMES_TO_STRING: { [chainName: string]: string } = {
   [ChainName.ETHEREUM]: 'Ethereum',
   [ChainName.POLYGON]: 'Polygon',
   [ChainName.AVALANCHE]: 'Avalanche',
-  [ChainName.FUSE]: 'Fuse',
-  [ChainName.CELO]: 'Celo',
   [ChainName.SOLANA]: 'Solana',
   [ChainName.BSC]: 'Binance',
   [ChainName.OPTIMISM]: 'Optimism',
@@ -85,8 +72,6 @@ export const CHAIN_NAMES_TO_EXPLORER: { [chainName: string]: string } = {
   [ChainName.ETHEREUM]: 'sepolia.etherscan.io',
   [ChainName.POLYGON]: 'mumbai.polygonscan.com',
   [ChainName.AVALANCHE]: 'testnet.snowtrace.io',
-  [ChainName.FUSE]: 'explorer.fuse.io',
-  [ChainName.CELO]: 'explorer.celo.org',
   [ChainName.SOLANA]: 'solscan.io',
   [ChainName.BSC]: 'testnet.bscscan.com',
   [ChainName.OPTIMISM]: 'goerli-optimism.etherscan.io',
@@ -98,8 +83,6 @@ export const CHAIN_NAMES_TO_GECKO_ID: { [chainName: string]: string } = {
   [ChainName.ETHEREUM]: 'ethereum',
   [ChainName.POLYGON]: 'matic-network',
   [ChainName.AVALANCHE]: 'avalanche-2',
-  [ChainName.FUSE]: 'fuse-network-token',
-  [ChainName.CELO]: 'celo',
   [ChainName.SOLANA]: 'solana',
   [ChainName.BSC]: 'binancecoin',
   [ChainName.OPTIMISM]: 'ethereum',
@@ -111,8 +94,6 @@ export const CHAIN_IDS_TO_NAMES: { [chainId: number]: string } = {
   [SupportedChainId.ETHEREUM]: ChainName.ETHEREUM,
   [SupportedChainId.POLYGON]: ChainName.POLYGON,
   [SupportedChainId.AVALANCHE]: ChainName.AVALANCHE,
-  [SupportedChainId.FUSE]: ChainName.FUSE,
-  [SupportedChainId.CELO]: ChainName.CELO,
   [SupportedChainId.BSC]: ChainName.BSC,
   [SupportedChainId.OPTIMISM]: ChainName.OPTIMISM,
   [SupportedChainId.ARBITRIUM]: ChainName.ARBITRIUM,
@@ -144,16 +125,6 @@ export const networkOptions = [
     id: ChainName.BSC,
     label: 'Binance',
     icon: BSCIcon
-  },
-  {
-    id: ChainName.FUSE,
-    label: 'Fuse',
-    icon: FuseIcon
-  },
-  {
-    id: ChainName.CELO,
-    label: 'Celo',
-    icon: CeloIcon
   },
   {
     id: ChainName.SOLANA,
@@ -194,8 +165,6 @@ export const isEVMChain = (chainId: string) =>
   chainId === ChainName.ETHEREUM ||
   chainId === ChainName.POLYGON ||
   chainId === ChainName.AVALANCHE ||
-  chainId === ChainName.FUSE ||
-  chainId === ChainName.CELO ||
   chainId === ChainName.BSC ||
   chainId === ChainName.OPTIMISM ||
   chainId === ChainName.ARBITRIUM ||
@@ -221,15 +190,6 @@ export const COIN_LIST: CoinOptions = {
       ZKE: POLYGON_ZKEVM_ADDRESS
     },
     decimals: 6
-  },
-  GDOLLAR: {
-    symbol: 'G$',
-    label: 'GDOLLAR',
-    icon: GoodDollarIcon,
-    address: {
-      FUS: FUSE_GDOLLAR_ADDRESS,
-      CEL: CELO_GDOLLAR_ADDRESS
-    }
   },
   KEUR: {
     symbol: 'KEUR',

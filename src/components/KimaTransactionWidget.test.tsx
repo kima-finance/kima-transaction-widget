@@ -100,42 +100,4 @@ describe('KimaTransactionWidget test', function () {
 
     expect(container).toMatchSnapshot()
   })
-
-  it('Good Dollar integration', async function () {
-    var provider = new ethers.providers.JsonRpcProvider(
-      'https://mainnet.infura.io/v3/'
-    )
-
-    const { container } = await act(async () =>
-      render(
-        <KimaProvider>
-          <KimaTransactionWidget
-            theme={{
-              colorMode: ColorModeOptions.light,
-              fontSize: FontSizeOptions.medium
-            }}
-            mode={ModeOptions.bridge}
-            dAppOption={DAppOptions.G$}
-            kimaBackendUrl='https://gooddollar-beta.kima.finance'
-            kimaNodeProviderQuery='https://api_testnet.kima.finance'
-            compliantOption={false}
-            autoConnect={false}
-            provider={provider as Web3Provider}
-            helpURL='https://t.me/GoodDollarX'
-            errorHandler={(e: any) => {
-              console.log('error:', e)
-            }}
-            successHandler={() => {
-              console.log('success')
-            }}
-            switchChainHandler={() => {
-              console.log('switch handler')
-            }}
-          />
-        </KimaProvider>
-      )
-    )
-
-    expect(container).toMatchSnapshot()
-  })
 })

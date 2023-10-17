@@ -38,12 +38,6 @@ export default function useNetworkOptions() {
           console.log('rpc disconnected', e)
         }
       })()
-    } else if (dAppOption === DAppOptions.G$) {
-      setOptions(
-        networkOptions.filter(
-          (network) => network.label === 'Fuse' || network.label === 'Celo'
-        )
-      )
     }
   }, [nodeProviderQuery, dAppOption, mode])
 

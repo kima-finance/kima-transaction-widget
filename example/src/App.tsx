@@ -5,8 +5,6 @@ import {
   KimaProvider,
   FontSizeOptions,
   ModeOptions,
-  // SupportNetworks,
-  // DAppOptions,
   ColorModeOptions
 } from 'kima-transaction-widget'
 import 'kima-transaction-widget/dist/index.css'

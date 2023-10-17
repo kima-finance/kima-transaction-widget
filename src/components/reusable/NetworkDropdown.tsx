@@ -6,7 +6,6 @@ import {
   selectMode,
   selectNodeProviderQuery,
   selectSourceChain,
-  selectSwitchChainHandler,
   selectTargetChain,
   selectTheme,
   selectUseFIAT
@@ -18,9 +17,8 @@ import {
   setTargetChainFetching
 } from '../../store/optionSlice'
 import useNetworkOptions from '../../hooks/useNetworkOptions'
-import { DAppOptions, ModeOptions } from '../../interface'
+import { ModeOptions } from '../../interface'
 import { fetchWrapper } from '../../helpers/fetch-wrapper'
-import { CHAIN_NAMES_TO_IDS } from '../../utils/constants'
 
 const NetworkDropdown = React.memo(
   ({ isOriginChain = true }: { isOriginChain?: boolean }) => {
@@ -33,7 +31,6 @@ const NetworkDropdown = React.memo(
     const mode = useSelector(selectMode)
     const useFIAT = useSelector(selectUseFIAT)
     const dAppOption = useSelector(selectDappOption)
-    const switchChainHandler = useSelector(selectSwitchChainHandler)
     const originNetwork = useSelector(selectSourceChain)
     const targetNetwork = useSelector(selectTargetChain)
     const nodeProviderQuery = useSelector(selectNodeProviderQuery)
@@ -169,13 +166,8 @@ const NetworkDropdown = React.memo(
               key={network.label}
               onClick={async () => {
                 if (isOriginChain) {
-                  if (dAppOption === DAppOptions.G$) {
-                    if (network.id !== originNetwork)
-                      switchChainHandler(CHAIN_NAMES_TO_IDS[network.id])
-                  } else {
-                    dispatch(setTargetChainFetching(true))
-                    dispatch(setSourceChain(network.id))
-                  }
+                  dispatch(setTargetChainFetching(true))
+                  dispatch(setSourceChain(network.id))
                   sourceChangeRef.current = true
                 } else {
                   dispatch(setTargetChain(network.id))
