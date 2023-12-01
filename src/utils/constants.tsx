@@ -68,6 +68,18 @@ export const CHAIN_NAMES_TO_STRING: { [chainName: string]: string } = {
   [ChainName.FIAT]: 'Pay with FIAT'
 }
 
+export const CHAIN_STRING_TO_NAME: { [chainName: string]: ChainName } = {
+  ['Ethereum']: ChainName.ETHEREUM,
+  ['Polygon']: ChainName.POLYGON,
+  ['Avalanche']: ChainName.AVALANCHE,
+  ['Solana']: ChainName.SOLANA,
+  ['Binance']: ChainName.BSC,
+  ['Optimism']: ChainName.OPTIMISM,
+  ['Arbitrium']: ChainName.ARBITRIUM,
+  ['Polygon zkEVM']: ChainName.POLYGON_ZKEVM,
+  ['Pay with FIAT']: ChainName.FIAT
+}
+
 export const CHAIN_NAMES_TO_EXPLORER: { [chainName: string]: string } = {
   [ChainName.ETHEREUM]: 'sepolia.etherscan.io',
   [ChainName.POLYGON]: 'mumbai.polygonscan.com',

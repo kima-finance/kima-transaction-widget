@@ -110,25 +110,25 @@ const NetworkDropdown = React.memo(
       useFIAT
     ])
 
-    // useEffect(() => {
-    //   if (!nodeProviderQuery || mode !== ModeOptions.payment) return
-    //   ;(async function () {
-    //     try {
-    //       if (targetNetwork === ChainName.FIAT) {
-    //         setAvailableNetworks([ChainName.ETHEREUM, ChainName.POLYGON])
-    //         return
-    //       }
+    useEffect(() => {
+      if (!nodeProviderQuery || mode !== ModeOptions.payment) return
+      ;(async function () {
+        try {
+          if (targetNetwork === ChainName.FIAT) {
+            setAvailableNetworks([ChainName.ETHEREUM, ChainName.POLYGON])
+            return
+          }
 
-    //       const networks: any = await fetchWrapper.get(
-    //         `${nodeProviderQuery}/kima-finance/kima-blockchain/kima/get_available_chains/${targetNetwork}`
-    //       )
+          const networks: any = await fetchWrapper.get(
+            `${nodeProviderQuery}/kima-finance/kima-blockchain/kima/get_available_chains/${targetNetwork}`
+          )
 
-    //       setAvailableNetworks(networks.Chains)
-    //     } catch (e) {
-    //       console.log('rpc disconnected', e)
-    //     }
-    //   })()
-    // }, [nodeProviderQuery, mode, targetNetwork])
+          setAvailableNetworks(networks.Chains)
+        } catch (e) {
+          console.log('rpc disconnected', e)
+        }
+      })()
+    }, [nodeProviderQuery, mode, targetNetwork])
 
     useEffect(() => {
       const bodyMouseDowntHandler = (e: any) => {

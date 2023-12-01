@@ -5,7 +5,8 @@ import {
   KimaProvider,
   FontSizeOptions,
   ModeOptions,
-  ColorModeOptions
+  ColorModeOptions,
+  SupportNetworks
 } from 'kima-transaction-widget'
 import 'kima-transaction-widget/dist/index.css'
 
@@ -23,10 +24,10 @@ const App = () => {
               colorMode: ColorModeOptions.light,
               fontSize: FontSizeOptions.medium
             }}
-            mode={ModeOptions.bridge}
+            mode={ModeOptions.payment}
             // useFIAT={true}
             kimaBackendUrl='http://localhost:3001'
-            kimaNodeProviderQuery='https://api_staging_testnet.kima.finance'
+            kimaNodeProviderQuery='https://api_testnet.kima.finance'
             // titleOption={{
             //   initialTitle: 'New Purchase'
             // }}
@@ -38,11 +39,11 @@ const App = () => {
             //     fontWeight: '500'
             //   }
             // }}
-            // transactionOption={{
-            //   targetChain: SupportNetworks.AVALANCHE,
-            //   targetAddress: '0x8222ADB2A2092c3774105a5F558987265D920C09',
-            //   amount: 5
-            // }}
+            transactionOption={{
+              targetChain: SupportNetworks.AVALANCHE,
+              targetAddress: '0x8222ADB2A2092c3774105a5F558987265D920C09',
+              amount: 5
+            }}
             // txId={-1}
             errorHandler={(e: any) => {
               console.log('error:', e)
