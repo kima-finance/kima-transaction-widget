@@ -26,6 +26,8 @@ export const selectTransactionOption = (state: RootState) =>
 export const selectAmount = (state: RootState) => state.option.amount
 export const selectErrorHandler = (state: RootState) =>
   state.option.errorHandler
+export const selectKeplrHandler = (state: RootState) =>
+  state.option.keplrHandler
 export const selectCloseHandler = (state: RootState) =>
   state.option.closeHandler
 export const selectSuccessHandler = (state: RootState) =>

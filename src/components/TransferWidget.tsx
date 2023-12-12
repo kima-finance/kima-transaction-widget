@@ -11,6 +11,7 @@ import {
 } from './reusable'
 import {
   ColorModeOptions,
+  DAppOptions,
   ModeOptions,
   PaymentTitleOption,
   ThemeOptions,
@@ -47,7 +48,8 @@ import {
   selectTargetAddress,
   selectTargetCompliant,
   selectTargetChain,
-  selectKycStatus
+  selectKycStatus,
+  selectKeplrHandler
 } from '../store/selectors'
 import useIsWalletReady from '../hooks/useIsWalletReady'
 import useServiceFee from '../hooks/useServiceFee'
@@ -94,6 +96,7 @@ export const TransferWidget = ({
   const sourceCompliant = useSelector(selectSourceCompliant)
   const targetCompliant = useSelector(selectTargetCompliant)
   const errorHandler = useSelector(selectErrorHandler)
+  const keplrHandler = useSelector(selectKeplrHandler)
   const closeHandler = useSelector(selectCloseHandler)
   const { options: selectedCoin } = useCurrencyOptions()
   const backendUrl = useSelector(selectBackendUrl)
@@ -214,7 +217,7 @@ export const TransferWidget = ({
       return
     }
 
-    if (balance < amount) {
+    if (dAppOption !== DAppOptions.LPDrain && balance < amount) {
       toast.error('Insufficient balance!')
       errorHandler('Insufficient balance!')
       return
@@ -233,7 +236,7 @@ export const TransferWidget = ({
         sign()
         return
       }
-    } else if (!isApproved) {
+    } else if (!isApproved && dAppOption !== DAppOptions.LPDrain) {
       approve()
       return
     }
@@ -243,6 +246,14 @@ export const TransferWidget = ({
         return
 
       setSubmitting(true)
+
+      if (
+        dAppOption === DAppOptions.LPDrain ||
+        dAppOption === DAppOptions.LPAdd
+      ) {
+        keplrHandler()
+        return
+      }
 
       if (!(await checkPoolBalance())) {
         setSubmitting(false)
@@ -407,6 +418,7 @@ export const TransferWidget = ({
       }
       if (
         (sourceChain !== ChainName.FIAT && isApproved) ||
+        dAppOption === DAppOptions.LPDrain ||
         (sourceChain === ChainName.FIAT && isSigned)
       ) {
         return isSubmitting ? 'Submitting...' : 'Submit'

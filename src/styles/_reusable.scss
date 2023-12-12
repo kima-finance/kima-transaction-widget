@@ -1179,6 +1179,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    letter-spacing: 0;
 
     &:hover,
     &:disabled {
@@ -1196,6 +1197,7 @@
         width: 1.5em;
         height: 1.5em;
         margin-top: 0.3em;
+        fill: white !important;
       }
     }
 
@@ -1221,6 +1223,7 @@
     font-weight: bold;
     font-family: inherit;
     border: none;
+    letter-spacing: 0;
     @include transition;
 
     &.dark {

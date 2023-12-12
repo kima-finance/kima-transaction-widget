@@ -28,7 +28,9 @@ export enum ColorModeOptions {
 }
 
 export enum DAppOptions {
-  None = 'none'
+  None = 'none',
+  LPAdd = 'LPAdd',
+  LPDrain = 'LPDrain'
 }
 
 export interface TransactionOption {

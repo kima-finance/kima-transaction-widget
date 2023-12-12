@@ -32,6 +32,7 @@ export interface OptionState {
   feeDeduct: boolean // whether deduct fee from amount or not
   transactionOption?: TransactionOption // input option from dApp
   errorHandler: Function // error callback function from dApp
+  keplrHandler: Function // keplr wallet integration function from dApp
   closeHandler: Function // callback function for close event
   successHandler: Function // callback function for success event
   switchChainHandler: Function // callback function to switch chain request
@@ -73,6 +74,7 @@ const initialState: OptionState = {
   closeHandler: () => void 0,
   successHandler: () => void 0,
   switchChainHandler: () => void 0,
+  keplrHandler: () => void 0,
   initChainFromProvider: false,
   serviceFee: -1,
   backendUrl: '',
@@ -163,6 +165,9 @@ export const optionSlice = createSlice({
     setErrorHandler: (state, action: PayloadAction<Function>) => {
       state.errorHandler = action.payload
     },
+    setKeplrHandler: (state, action: PayloadAction<Function>) => {
+      state.keplrHandler = action.payload
+    },
     setCloseHandler: (state, action: PayloadAction<Function>) => {
       state.closeHandler = action.payload
     },
@@ -244,6 +249,7 @@ export const {
   setTransactionOption,
   setAmount,
   setErrorHandler,
+  setKeplrHandler,
   setCloseHandler,
   setSuccessHandler,
   setSwitchChainHandler,

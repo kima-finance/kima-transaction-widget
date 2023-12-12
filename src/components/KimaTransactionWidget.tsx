@@ -32,7 +32,8 @@ import {
   setWalletAutoConnect,
   setDappOption,
   setSwitchChainHandler,
-  setUuid
+  setUuid,
+  setKeplrHandler
 } from '../store/optionSlice'
 import '../index.css'
 import { selectSubmitted } from '../store/selectors'
@@ -61,6 +62,7 @@ interface Props {
   closeHandler?: (e: any) => void
   successHandler?: (e: any) => void
   switchChainHandler?: (chainId: number) => void
+  keplrHandler?: (e: any) => void
 }
 
 export const KimaTransactionWidget = ({
@@ -81,7 +83,8 @@ export const KimaTransactionWidget = ({
   errorHandler = () => void 0,
   closeHandler = () => void 0,
   successHandler = () => void 0,
-  switchChainHandler = () => void 0
+  switchChainHandler = () => void 0,
+  keplrHandler = () => void 0
 }: Props) => {
   const submitted = useSelector(selectSubmitted)
   const dispatch = useDispatch()
@@ -92,6 +95,7 @@ export const KimaTransactionWidget = ({
 
     dispatch(setCompliantOption(compliantOption))
     dispatch(setErrorHandler(errorHandler))
+    dispatch(setKeplrHandler(keplrHandler))
     dispatch(setCloseHandler(closeHandler))
     dispatch(setSuccessHandler(successHandler))
     dispatch(setSwitchChainHandler(switchChainHandler))

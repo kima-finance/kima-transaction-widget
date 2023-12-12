@@ -1101,6 +1101,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  letter-spacing: 0;
 }
 .kima-card .primary-button:hover, .kima-card .primary-button:disabled {
   opacity: 0.7;
@@ -1115,6 +1116,7 @@
   width: 1.5em;
   height: 1.5em;
   margin-top: 0.3em;
+  fill: white !important;
 }
 @media (max-width: 500px) {
   .kima-card .primary-button {
@@ -1136,6 +1138,7 @@
   font-weight: bold;
   font-family: inherit;
   border: none;
+  letter-spacing: 0;
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 .kima-card .secondary-button.dark {
