@@ -1,0 +1,29 @@
+name: kima-transaction-widget Actions
+on:
+  push:
+    branches:
+      - dev
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 18
+          registry-url: https://registry.npmjs.org/
+
+      - name: test
+        run: |
+          echo ${{ secrets.NPM_TOKEN }}
+
+      - name: Build the npm module and publish to npmjs.org
+        run: |
+          cd example
+
+          npm install
+          npm publish --tag beta.1
+
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
