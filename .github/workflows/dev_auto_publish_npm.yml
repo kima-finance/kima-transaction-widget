@@ -20,7 +20,6 @@ jobs:
 
       - name: Build the npm module and publish to npmjs.org
         run: |
-          cd example
 
           npm install
           npm publish --tag beta.1
