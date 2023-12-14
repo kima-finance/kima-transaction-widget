@@ -22,7 +22,7 @@ jobs:
         run: |
 
           npm install
-          npm publish --tag beta.1
+          npm publish
 
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
