@@ -26,7 +26,9 @@ export {
   SupportNetworks,
   CurrencyOptions,
   ModeOptions,
-  DAppOptions
+  DAppOptions,
+  CHAIN_STRING_TO_NAME,
+  CHAIN_NAMES_TO_STRING
 } from './interface'
 export { KimaTransactionWidget } from './components/KimaTransactionWidget'
 export const KimaProvider = ({ children }: any) => {

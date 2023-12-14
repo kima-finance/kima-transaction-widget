@@ -28,7 +28,6 @@ export default function useBalanceLightMode({
   useEffect(() => {
     ;(async () => {
       try {
-        console.log(tokenAddress, providerUrl, address)
         if (!tokenAddress || !providerUrl || !address) return
 
         const provider = new JsonRpcProvider(providerUrl)

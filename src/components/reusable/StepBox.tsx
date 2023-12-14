@@ -65,8 +65,7 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                 <p>
                   Kima TX ID:{' '}
                   <ExternalLink
-                    // to={`https://explorer.kima.finance/transactions/${data?.kimaTxHash}`}
-                    to={`https://explorer.kima.finance/transfers`}
+                    to={`https://explorer.kima.finance/transactions/${data?.kimaTxHash}`}
                   >
                     {getShortenedAddress(data?.kimaTxHash || '')}
                   </ExternalLink>

@@ -85,7 +85,6 @@ export const EthereumProvider = ({ children }: { children: ReactNode }) => {
                 'An error occurred while getting the signer address'
               )
             })
-          // TODO: try using ethers directly
           // @ts-ignore
           if (detectedProvider && detectedProvider.on) {
             // @ts-ignore
@@ -129,7 +128,6 @@ export const EthereumProvider = ({ children }: { children: ReactNode }) => {
     } else if (autoConnect) {
       detectEthereumProvider()
         .then((detectedProvider) => {
-          console.log(detectedProvider)
           if (detectedProvider) {
             const provider = new ethers.providers.Web3Provider(
               // @ts-ignore

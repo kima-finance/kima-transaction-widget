@@ -22,9 +22,9 @@ import {
   setSuccessHandler,
   setBackendUrl,
   setNodeProviderQuery,
-  setTargetNetwork,
+  setTargetChain,
   setTargetAddress,
-  setOriginNetwork,
+  setSourceChain,
   setTargetCompliant,
   setCompliantOption,
   setUseFIAT,
@@ -32,13 +32,14 @@ import {
   setWalletAutoConnect,
   setDappOption,
   setSwitchChainHandler,
-  setInitChainFromProvider
+  setUuid,
+  setKeplrHandler
 } from '../store/optionSlice'
 import '../index.css'
-import { selectOriginNetwork, selectSubmitted } from '../store/selectors'
+import { selectSubmitted } from '../store/selectors'
 import { TransactionWidget } from './TransactionWidget'
 import { TransferWidget } from './TransferWidget'
-import { ChainName, CHAIN_IDS_TO_NAMES } from '../utils/constants'
+import { ChainName } from '../utils/constants'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 import { Web3Provider } from '@ethersproject/providers'
 
@@ -61,6 +62,7 @@ interface Props {
   closeHandler?: (e: any) => void
   successHandler?: (e: any) => void
   switchChainHandler?: (chainId: number) => void
+  keplrHandler?: (e: any) => void
 }
 
 export const KimaTransactionWidget = ({
@@ -81,11 +83,11 @@ export const KimaTransactionWidget = ({
   errorHandler = () => void 0,
   closeHandler = () => void 0,
   successHandler = () => void 0,
-  switchChainHandler = () => void 0
+  switchChainHandler = () => void 0,
+  keplrHandler = () => void 0
 }: Props) => {
   const submitted = useSelector(selectSubmitted)
   const dispatch = useDispatch()
-  const sourceChain = useSelector(selectOriginNetwork)
 
   useEffect(() => {
     dispatch(setTheme(theme))
@@ -93,6 +95,7 @@ export const KimaTransactionWidget = ({
 
     dispatch(setCompliantOption(compliantOption))
     dispatch(setErrorHandler(errorHandler))
+    dispatch(setKeplrHandler(keplrHandler))
     dispatch(setCloseHandler(closeHandler))
     dispatch(setSuccessHandler(successHandler))
     dispatch(setSwitchChainHandler(switchChainHandler))
@@ -102,22 +105,32 @@ export const KimaTransactionWidget = ({
     dispatch(setProvider(provider))
     dispatch(setDappOption(dAppOption))
     dispatch(setWalletAutoConnect(autoConnect))
+    dispatch(setUseFIAT(useFIAT))
+    if (useFIAT) {
+      dispatch(setTxId(txId || -1))
+      ;(async function () {
+        try {
+          const uuid = await fetchWrapper.get(`${kimaBackendUrl}/uuid`)
+          dispatch(setUuid(uuid))
+          console.log('uuid: ', uuid)
+        } catch (e) {
+          console.log('uuid generate failed', e)
+        }
+      })()
+    }
+
     if (mode === ModeOptions.payment) {
       dispatch(
-        setTargetNetwork(transactionOption?.targetChain || ChainName.ETHEREUM)
+        setTargetChain(transactionOption?.targetChain || ChainName.ETHEREUM)
       )
-      dispatch(setUseFIAT(useFIAT))
-      if (useFIAT) {
-        dispatch(setTxId(txId || -1))
-      }
       ;(async function () {
         try {
           const networks: any = await fetchWrapper.get(
-            `${kimaNodeProviderQuery}/kima-finance/kima/kima/get_available_chains/${
+            `${kimaNodeProviderQuery}/kima-finance/kima-blockchain/kima/get_available_chains/${
               transactionOption?.targetChain || ChainName.ETHEREUM
             }`
           )
-          dispatch(setOriginNetwork(networks.Chains[0]))
+          dispatch(setSourceChain(networks.Chains[0]))
         } catch (e) {
           console.log('rpc disconnected', e)
         }
@@ -145,34 +158,9 @@ export const KimaTransactionWidget = ({
   }, [provider, theme, transactionOption, errorHandler, closeHandler, mode])
 
   useEffect(() => {
-    if (mode !== ModeOptions.bridge) return
-    if (dAppOption === DAppOptions.G$) {
-      if (provider) {
-        provider
-          ?.getNetwork()
-          .then((network) => {
-            dispatch(setOriginNetwork(CHAIN_IDS_TO_NAMES[network.chainId]))
-            if (CHAIN_IDS_TO_NAMES[network.chainId] !== sourceChain) {
-              dispatch(setTargetNetwork(''))
-            }
-            dispatch(setInitChainFromProvider(true))
-          })
-          .catch((e) => {
-            console.log(e)
-            dispatch(setInitChainFromProvider(false))
-          })
-      } else {
-        dispatch(setOriginNetwork('CEL'))
-        dispatch(setTargetNetwork(''))
-        dispatch(setInitChainFromProvider(false))
-      }
-    }
-  }, [sourceChain, mode, dAppOption, provider])
-
-  useEffect(() => {
     if (dAppOption === DAppOptions.None && mode === ModeOptions.bridge) {
-      dispatch(setTargetNetwork(''))
-      dispatch(setOriginNetwork('ETH'))
+      dispatch(setTargetChain(''))
+      dispatch(setSourceChain('ETH'))
     }
   }, [dAppOption, mode])
 

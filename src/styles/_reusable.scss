@@ -284,6 +284,10 @@
         padding-left: 0;
       }
 
+      .bank-input {
+        margin-top: 2em;
+      }
+
       .form-item {
         display: flex;
         align-items: center;
@@ -440,15 +444,11 @@
           @include breakpoint(mobile) {
             .wallet-button {
               align-items: flex-end;
-              
+
               button {
                 width: 12em;
               }
             }
-          }
-
-          > span {
-            padding-top: 1em;
           }
         }
 
@@ -700,6 +700,20 @@
           width: 10em;
         }
       }
+
+      .dynamic-area {
+        display: flex;
+        flex-direction: column;
+        @include transition;
+
+        &.reverse {
+          flex-direction: column-reverse;
+        }
+
+        .form-item {
+          margin-top: 2em;
+        }
+      }
     }
 
     .wallet-button {
@@ -904,6 +918,11 @@
 
         &:last-of-type {
           border-bottom: 1px solid $secondary;
+        }
+
+        .signature {
+          max-width: 65%;
+          word-wrap: break-word;
         }
       }
 
@@ -1160,6 +1179,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    letter-spacing: 0;
 
     &:hover,
     &:disabled {
@@ -1177,6 +1197,7 @@
         width: 1.5em;
         height: 1.5em;
         margin-top: 0.3em;
+        fill: white !important;
       }
     }
 
@@ -1202,6 +1223,7 @@
     font-weight: bold;
     font-family: inherit;
     border: none;
+    letter-spacing: 0;
     @include transition;
 
     &.dark {

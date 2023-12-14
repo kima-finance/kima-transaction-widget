@@ -1,40 +1,68 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import md5 from 'crypto-js/md5'
-import { CrossIcon } from '../../assets/icons'
-import { setBankPopup, setSubmitted, setTxId } from '../../store/optionSlice'
+import { setBankPopup, setKYCStatus } from '../../store/optionSlice'
 import {
-  selectAmount,
+  selectBackendUrl,
   selectBankPopup,
   selectTheme,
-  selectTxId
+  selectUuid
 } from '../../store/selectors'
-import { PrimaryButton } from '../reusable'
+import { CrossIcon } from '../../assets/icons'
+import { fetchWrapper } from '../../helpers/fetch-wrapper'
+import { toast } from 'react-hot-toast'
 
-const BankPopup = () => {
+type KYCResult = {
+  id: string
+  status: string
+  name: string
+  surname: string
+  external_uuid: string
+  account_id: string
+  created_at: number
+}
+
+const BankPopup = ({
+  setVerifying,
+  isVerifying
+}: {
+  setVerifying: any
+  isVerifying: boolean
+}) => {
   const dispatch = useDispatch()
-  const txId = useSelector(selectTxId)
+  const uuid = useSelector(selectUuid)
   const theme = useSelector(selectTheme)
-  const amount = useSelector(selectAmount)
   const bankPopup = useSelector(selectBankPopup)
-  const [loading, setLoading] = useState(false)
-  const [memo, setMemo] = useState<string>('')
+  const kimaBackendUrl = useSelector(selectBackendUrl)
 
   useEffect(() => {
-    setMemo(md5('memo test').toString())
-  }, [])
+    if (!kimaBackendUrl || !uuid || !isVerifying) return
+    const timerId = setInterval(async () => {
+      try {
+        const res: any = await fetchWrapper.post(
+          `${kimaBackendUrl}/kyc`,
+          JSON.stringify({
+            uuid
+          })
+        )
+        const kycResult: Array<KYCResult> = res.data
+        console.log(kycResult)
 
-  const onSubmit = () => {
-    if (loading) return
+        if (!kycResult.length) {
+          console.log('failed to check kyc status')
+        } else if (kycResult[0].status === 'approved') {
+          setVerifying(false)
+          dispatch(setKYCStatus('approved'))
+          toast.success('KYC is verified')
+        }
+      } catch (e) {
+        console.log('failed to check kyc status')
+      }
+    }, 3000)
 
-    setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
-      dispatch(setTxId(txId))
-      dispatch(setSubmitted(true))
-      dispatch(setBankPopup(false))
-    }, 5000)
-  }
+    return () => {
+      clearInterval(timerId)
+    }
+  }, [kimaBackendUrl, uuid, isVerifying])
 
   return (
     <div
@@ -65,31 +93,13 @@ const BankPopup = () => {
           </div>
         </div>
         <div className='modal-content'>
-          <div className='bank-simulation'>
-            <h1>Welcome to the First National Crypto Bank</h1>
-            <p>
-              You’re about to send funds to the Kima Finance LTD. bank account
-            </p>
-            <div className='content-item'>
-              <span>User account:</span>
-              <p>2345234525245</p>
-            </div>
-            <div className='content-item'>
-              <span>Sum:</span>
-              <p>${amount}</p>
-            </div>
-            <div className='content-item'>
-              <span>Memo:</span>
-              <p>{memo}</p>
-            </div>
-            <PrimaryButton
-              clickHandler={onSubmit}
-              isLoading={loading}
-              disabled={loading}
-            >
-              {loading ? 'Transferring funds ...' : 'Submit'}
-            </PrimaryButton>
-          </div>
+          <iframe
+            src={`https://sandbox.depasify.com/widgets/kyc?partner=kimastage&user_uuid=${uuid}`}
+            width='100%'
+            height='100%'
+            frameBorder='0'
+            allow='camera'
+          ></iframe>
         </div>
       </div>
     </div>

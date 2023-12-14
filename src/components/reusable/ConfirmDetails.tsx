@@ -2,31 +2,37 @@ import React, { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { formatterFloat } from '../../helpers/functions'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
-import { ModeOptions } from '../../interface'
+import { DAppOptions, ModeOptions } from '../../interface'
 import {
   selectAmount,
+  selectBankDetails,
   selectCurrencyOptions,
   selectFeeDeduct,
   selectMode,
-  selectOriginNetwork,
+  selectSourceChain,
   selectServiceFee,
+  selectSignature,
   selectTargetAddress,
-  selectTargetNetwork,
+  selectTargetChain,
   selectTheme,
-  selectTransactionOption
+  selectTransactionOption,
+  selectDappOption
 } from '../../store/selectors'
-import { networkOptions } from '../../utils/constants'
+import { ChainName, networkOptions } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 
 const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
   const feeDeduct = useSelector(selectFeeDeduct)
   const mode = useSelector(selectMode)
+  const dAppOption = useSelector(selectDappOption)
   const theme = useSelector(selectTheme)
   const amount = useSelector(selectAmount)
   const serviceFee = useSelector(selectServiceFee)
-  const originNetwork = useSelector(selectOriginNetwork)
-  const targetNetwork = useSelector(selectTargetNetwork)
+  const originNetwork = useSelector(selectSourceChain)
+  const targetNetwork = useSelector(selectTargetChain)
   const targetAddress = useSelector(selectTargetAddress)
+  const bankDetails = useSelector(selectBankDetails)
+  const signature = useSelector(selectSignature)
   const transactionOption = useSelector(selectTransactionOption)
   const { walletAddress } = useIsWalletReady()
   const originNetworkOption = useMemo(
@@ -46,20 +52,65 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
   )
   const selectedCoin = useSelector(selectCurrencyOptions)
 
+  const sourceWalletAddress = useMemo(() => {
+    return getShortenedAddress(walletAddress || '')
+  }, [walletAddress])
+
+  const targetWalletAddress = useMemo(() => {
+    return getShortenedAddress(
+      (mode === ModeOptions.payment
+        ? transactionOption?.targetAddress
+        : targetAddress) || ''
+    )
+  }, [mode, transactionOption, targetAddress])
+
   return (
     <div className={`confirm-details ${theme.colorMode}`}>
       <p>
         Step {isApproved ? '2' : '1'}&nbsp;of 2&nbsp;&nbsp;&nbsp;
-        {isApproved ? 'Submit transaction' : 'Approval'}
+        {isApproved
+          ? 'Submit transaction'
+          : originNetwork === ChainName.FIAT
+          ? 'Bank Details'
+          : 'Approval'}
       </p>
-      <div className='detail-item'>
-        <span className='label'>Source wallet:</span>
-        <p>{getShortenedAddress(walletAddress || '')}</p>
-        <span className='kima-card-network-label'>
-          <originNetworkOption.icon />
-          {originNetworkOption.label}
-        </span>
-      </div>
+      {originNetwork === ChainName.FIAT ? (
+        <div>
+          <div className='detail-item'>
+            <span className='label'>IBAN:</span>
+            <p>ES6621000418401234567891</p>
+            <span className='kima-card-network-label'>
+              <originNetworkOption.icon />
+              FIAT
+            </span>
+          </div>
+          <div className='detail-item'>
+            <span className='label'>Recipient:</span>
+            <p>Kima Sandbox</p>
+          </div>
+          <div className='detail-item'>
+            <span className='label'>BIC:</span>
+            <p>CAIXESBBXXX</p>
+          </div>
+          <div className='detail-item'>
+            <span className='label'>Description:</span>
+            <p className='signature'>{signature}</p>
+          </div>
+        </div>
+      ) : (
+        <div className='detail-item'>
+          <span className='label'>Source wallet:</span>
+          <p>
+            {dAppOption === DAppOptions.LPDrain
+              ? targetWalletAddress
+              : sourceWalletAddress}
+          </p>
+          <span className='kima-card-network-label'>
+            <originNetworkOption.icon />
+            {originNetworkOption.label}
+          </span>
+        </div>
+      )}
       <div className='detail-item'>
         <span className='label'>Amount:</span>
         <p>
@@ -67,20 +118,35 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
           {selectedCoin.symbol}
         </p>
       </div>
-      <div className='detail-item'>
-        <span className='label'>Target wallet:</span>
-        <p>
-          {getShortenedAddress(
-            (mode === ModeOptions.payment
-              ? transactionOption?.targetAddress
-              : targetAddress) || ''
-          )}
-        </p>
-        <span className='kima-card-network-label'>
-          <targetNetworkOption.icon />
-          {targetNetworkOption.label}
-        </span>
-      </div>
+      {targetNetwork === ChainName.FIAT ? (
+        <div>
+          <div className='detail-item'>
+            <span className='label'>IBAN:</span>
+            <p>{bankDetails.iban}</p>
+            <span className='kima-card-network-label'>
+              <targetNetworkOption.icon />
+              FIAT
+            </span>
+          </div>
+          <div className='detail-item'>
+            <span className='label'>Recipient:</span>
+            <p>{bankDetails.recipient}</p>
+          </div>
+        </div>
+      ) : (
+        <div className='detail-item'>
+          <span className='label'>Target wallet:</span>
+          <p>
+            {dAppOption === DAppOptions.LPDrain
+              ? sourceWalletAddress
+              : targetWalletAddress}
+          </p>
+          <span className='kima-card-network-label'>
+            <targetNetworkOption.icon />
+            {targetNetworkOption.label}
+          </span>
+        </div>
+      )}
     </div>
   )
 }

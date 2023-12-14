@@ -1,4 +1,5 @@
 export { ChainName as SupportNetworks } from './utils/constants'
+export { CHAIN_STRING_TO_NAME, CHAIN_NAMES_TO_STRING } from './utils/constants'
 import {
   ChainName as SupportNetworks,
   TransactionStatus
@@ -27,8 +28,9 @@ export enum ColorModeOptions {
 }
 
 export enum DAppOptions {
-  G$ = 'G$',
-  None = 'none'
+  None = 'none',
+  LPAdd = 'LPAdd',
+  LPDrain = 'LPDrain'
 }
 
 export interface TransactionOption {
