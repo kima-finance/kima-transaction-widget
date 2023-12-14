@@ -2,7 +2,7 @@ name: kima-transaction-widget Actions
 on:
   push:
     branches:
-      - dev
+      - main
 jobs:
   build:
     runs-on: ubuntu-latest

@@ -1,6 +1,11 @@
 # kima-transaction-widget
 
-[![NPM](https://img.shields.io/npm/v/kima-transfer-widget.svg)](https://www.npmjs.com/package/kima-transfer-widget) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![NPM](https://img.shields.io/npm/v/kima-transfer-widget.svg)](https://www.npmjs.com/package/@kimafinance/kima-transaction-widget) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+
+[![Build & Deploy](https://github.com/kimafinance/kima-transaction-widget/actions/workflows/ci.yml/badge.svg)](https://github.com/jaywcjlove/coverage-badges-cli/actions/workflows/ci.yml)
+[![Coverage Status](https://jaywcjlove.github.io/coverage-badges-cli/badges.svg)](https://jaywcjlove.github.io/coverage-badges-cli/lcov-report/)
+[![npm version](https://img.shields.io/npm/v/coverage-badges-cli.svg)](https://www.npmjs.com/package/coverage-badges-cli)
+[![Download NPM](https://img.shields.io/npm/dm/coverage-badges-cli.svg?style=flat)](https://www.npmjs.com/package/coverage-badges-cli/)
 
 ## Install
 
@@ -12,6 +17,7 @@ yarn add @kimafinance/kima-transaction-widget
 ## Usage
 
 ### Payment Scenario
+
 ```tsx
 import React from 'react'
 
@@ -77,10 +83,10 @@ const App = () => {
 }
 
 export default App
-
 ```
 
 ### Bridge Scenario
+
 ```tsx
 import React from 'react'
 
@@ -132,20 +138,19 @@ export default App
 
 ## Props
 
-| Prop Name                      | Type               | Description              | Values          | Default Value |
-| ------------------------------ | ------------------ | ------------------------ | ----------------| ------------- |
-| theme `(required)`             | ThemeOptions       | colorMode, fontSize, fontFamily, backgroundColor    |  | |
-| mode `(required)`              | ModeOptions        | scenario of the widget   | `payment`, `bridge` | |
-| transactionOption `(optional)` | TransactionOption  | target chain, address and currency | | |
-| titleOption `(optional)`       | TitleOption        | titles of widget for every steps | | |
-| kimaBackendUrl `(required)`    | string             | backend url of widget | | |
-| kimaNodeProviderQuery `(required)` | string         | REST API endpoint of KIMA blockchain | | |
-| paymentTitleOption `(optional)` | PaymentTitleOption | customize title of payment scenario | | |
-| comliantOption `(optional)`    | boolean            | compliant address checking | | `true` |
-| closeHandler `(optional)`      | Function           | callback function to handle close event | | |
-| successHandler `(optional)`    | Function           | callback function to handle success event | | |
-| errorHandler `(optional)`      | Function           | callback function to handle errors | | |
-
+| Prop Name                          | Type               | Description                                      | Values              | Default Value |
+| ---------------------------------- | ------------------ | ------------------------------------------------ | ------------------- | ------------- |
+| theme `(required)`                 | ThemeOptions       | colorMode, fontSize, fontFamily, backgroundColor |                     |               |
+| mode `(required)`                  | ModeOptions        | scenario of the widget                           | `payment`, `bridge` |               |
+| transactionOption `(optional)`     | TransactionOption  | target chain, address and currency               |                     |               |
+| titleOption `(optional)`           | TitleOption        | titles of widget for every steps                 |                     |               |
+| kimaBackendUrl `(required)`        | string             | backend url of widget                            |                     |               |
+| kimaNodeProviderQuery `(required)` | string             | REST API endpoint of KIMA blockchain             |                     |               |
+| paymentTitleOption `(optional)`    | PaymentTitleOption | customize title of payment scenario              |                     |               |
+| comliantOption `(optional)`        | boolean            | compliant address checking                       |                     | `true`        |
+| closeHandler `(optional)`          | Function           | callback function to handle close event          |                     |               |
+| successHandler `(optional)`        | Function           | callback function to handle success event        |                     |               |
+| errorHandler `(optional)`          | Function           | callback function to handle errors               |                     |               |
 
 ## Note
 
