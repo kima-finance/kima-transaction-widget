@@ -44,52 +44,13 @@ exports[`Bank modal test click close button 1`] = `
       <div
         class="modal-content"
       >
-        <div
-          class="bank-simulation"
-        >
-          <h1>
-            Welcome to the First National Crypto Bank
-          </h1>
-          <p>
-            You’re about to send funds to the Kima Finance LTD. bank account
-          </p>
-          <div
-            class="content-item"
-          >
-            <span>
-              User account:
-            </span>
-            <p>
-              2345234525245
-            </p>
-          </div>
-          <div
-            class="content-item"
-          >
-            <span>
-              Sum:
-            </span>
-            <p>
-              $
-              0
-            </p>
-          </div>
-          <div
-            class="content-item"
-          >
-            <span>
-              Memo:
-            </span>
-            <p>
-              795c52aa3017d3415c8da49b905e035e
-            </p>
-          </div>
-          <button
-            class="primary-button undefined"
-          >
-            Submit
-          </button>
-        </div>
+        <iframe
+          allow="camera"
+          frameborder="0"
+          height="100%"
+          src="https://sandbox.depasify.com/widgets/kyc?partner=kimastage&user_uuid="
+          width="100%"
+        />
       </div>
     </div>
   </div>
@@ -260,52 +221,13 @@ exports[`Bank modal test clicking overlay should close modal 1`] = `
       <div
         class="modal-content"
       >
-        <div
-          class="bank-simulation"
-        >
-          <h1>
-            Welcome to the First National Crypto Bank
-          </h1>
-          <p>
-            You’re about to send funds to the Kima Finance LTD. bank account
-          </p>
-          <div
-            class="content-item"
-          >
-            <span>
-              User account:
-            </span>
-            <p>
-              2345234525245
-            </p>
-          </div>
-          <div
-            class="content-item"
-          >
-            <span>
-              Sum:
-            </span>
-            <p>
-              $
-              0
-            </p>
-          </div>
-          <div
-            class="content-item"
-          >
-            <span>
-              Memo:
-            </span>
-            <p>
-              795c52aa3017d3415c8da49b905e035e
-            </p>
-          </div>
-          <button
-            class="primary-button undefined"
-          >
-            Submit
-          </button>
-        </div>
+        <iframe
+          allow="camera"
+          frameborder="0"
+          height="100%"
+          src="https://sandbox.depasify.com/widgets/kyc?partner=kimastage&user_uuid="
+          width="100%"
+        />
       </div>
     </div>
   </div>
