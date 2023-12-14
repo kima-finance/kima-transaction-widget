@@ -25,8 +25,8 @@ const BankPopup = ({
   setVerifying,
   isVerifying
 }: {
-  setVerifying: any
-  isVerifying: boolean
+  setVerifying?: any
+  isVerifying?: boolean
 }) => {
   const dispatch = useDispatch()
   const uuid = useSelector(selectUuid)
