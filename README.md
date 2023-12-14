@@ -1,7 +1,5 @@
 # kima-transaction-widget
 
-<!-- [![NPM](https://img.shields.io/npm/v/kima-transfer-widget.svg)](https://www.npmjs.com/package/@kimafinance/kima-transaction-widget) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com) -->
-
 [![Build & Deploy](https://github.com/kima-finance/kima-transaction-widget/actions/workflows/dev_auto_publish_npm.yml/badge.svg)](https://github.com/kima-finance/kima-transaction-widget/actions/workflows/dev_auto_publish_npm.yml)
 [![npm version](https://img.shields.io/npm/v/%40kimafinance/kima-transaction-widget)](https://www.npmjs.com/package/@kimafinance/kima-transaction-widget/)
 [![Download NPM](https://img.shields.io/npm/dm/%40kimafinance/kima-transaction-widget.svg?style=flat)](https://www.npmjs.com/package/@kimafinance/kima-transaction-widget/)
