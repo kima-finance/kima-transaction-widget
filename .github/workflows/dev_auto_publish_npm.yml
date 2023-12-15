@@ -6,6 +6,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - uses: actions/checkout@v2
@@ -22,7 +25,7 @@ jobs:
         run: |
 
           npm install
-          npm publish
+          npm publish --provenance
 
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
