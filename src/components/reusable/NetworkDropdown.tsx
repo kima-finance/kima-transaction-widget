@@ -153,7 +153,7 @@ const NetworkDropdown = React.memo(
       >
         <div className='network-wrapper'>
           {<selectedNetwork.icon />}
-          {selectedNetwork.label}
+          <span>{selectedNetwork.label}</span>
         </div>
         <div
           className={`network-menu custom-scrollbar ${theme.colorMode} ${

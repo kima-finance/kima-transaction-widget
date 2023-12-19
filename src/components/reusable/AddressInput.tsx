@@ -4,6 +4,13 @@ import { useSelector } from 'react-redux'
 import { setTargetAddress } from '../../store/optionSlice'
 import { selectTargetAddress } from '../../store/selectors'
 
+/**
+ * Component for target address input
+ * @component
+ * @props
+ * @returns
+ */
+
 const AddressInput = () => {
   const dispatch = useDispatch()
   const targetAddress = useSelector(selectTargetAddress)
