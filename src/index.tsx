@@ -6,13 +6,10 @@ import * as SolanaAdapter from '@solana/wallet-adapter-react'
 import {
   PhantomWalletAdapter,
   SolflareWalletAdapter,
-  SolletWalletAdapter,
   CloverWalletAdapter,
   Coin98WalletAdapter,
-  SlopeWalletAdapter,
   SolongWalletAdapter,
-  TorusWalletAdapter,
-  SolletExtensionWalletAdapter
+  TorusWalletAdapter
 } from '@solana/wallet-adapter-wallets'
 import { EthereumProvider } from './contexts/EthereumProviderContext'
 import { SOLANA_HOST } from './utils/constants'
@@ -35,11 +32,8 @@ export const KimaProvider = ({ children }: any) => {
   const wallets = [
     new PhantomWalletAdapter(),
     new SolflareWalletAdapter(),
-    new SolletWalletAdapter(),
-    new SolletExtensionWalletAdapter(),
     new CloverWalletAdapter(),
     new Coin98WalletAdapter(),
-    new SlopeWalletAdapter(),
     new SolongWalletAdapter(),
     new TorusWalletAdapter()
   ]

@@ -616,6 +616,11 @@
   padding-right: 0.5em;
   color: black;
   z-index: inherit;
+  width: 9.5em;
+}
+.kima-card .kima-card-content .single-form .network-dropdown .network-wrapper span {
+  text-align: center;
+  width: 100%;
 }
 .kima-card .kima-card-content .single-form .network-dropdown .network-wrapper svg {
   width: 1.8em;
