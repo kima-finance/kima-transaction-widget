@@ -24,7 +24,8 @@ jobs:
       - name: Build the npm module and publish to npmjs.org
         run: |
 
-          npm install
+          npm i yarn -g
+          yarn install
           npm run build
           npm publish --provenance
 

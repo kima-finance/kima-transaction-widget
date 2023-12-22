@@ -52,14 +52,14 @@ function useIsWalletReady(enableNetworkAutoswitch: boolean = false): {
   const correctEvmNetwork = CHAIN_NAMES_TO_IDS[correctChain]
   const hasCorrectEvmNetwork = evmChainId === correctEvmNetwork
 
-  const forceNetworkSwitch = useCallback(() => {
+  const forceNetworkSwitch = useCallback(async () => {
     if (provider && correctEvmNetwork) {
       if (!isEVMChain(correctChain)) {
         return
       }
 
       try {
-        provider.send('wallet_switchEthereumChain', [
+        await provider.send('wallet_switchEthereumChain', [
           { chainId: hexStripZeros(hexlify(correctEvmNetwork)) }
         ])
       } catch (e) {

@@ -15,6 +15,21 @@ module.exports = function override(config, env) {
         {
           test: /\.wasm$/,
           type: 'webassembly/async'
+        },
+        {
+          test: /\.m?js/,
+          type: 'javascript/auto'
+        },
+        {
+          test: /\.m?js/,
+          resolve: {
+            fullySpecified: false
+          }
+        },
+        {
+          test: /\.json$/,
+          use: 'json-loader',
+          type: 'javascript/auto' // This is important to prevent Webpack 5 from treating JSON as ESM
         }
       ]
     },
