@@ -1,8 +1,8 @@
 import React from 'react'
 
 interface Loading180RingProps {
-  width: number
-  height: number
+  width?: number
+  height?: number
   fill?: string
 }
 
@@ -17,8 +17,8 @@ interface Loading180RingProps {
  */
 
 const Loading180Ring = ({
-  width,
-  height,
+  width = 24,
+  height = 24,
   fill = 'white'
 }: Loading180RingProps) => {
   return (
