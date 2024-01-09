@@ -251,7 +251,7 @@ export const TransferWidget = ({
         dAppOption === DAppOptions.LPDrain ||
         dAppOption === DAppOptions.LPAdd
       ) {
-        keplrHandler()
+        keplrHandler(walletAddress)
         return
       }
 
@@ -456,8 +456,8 @@ export const TransferWidget = ({
                   ? titleOption?.confirmTitle
                   : 'Transfer Details'
                 : titleOption?.initialTitle
-                ? titleOption?.initialTitle
-                : 'New Transfer'}
+                  ? titleOption?.initialTitle
+                  : 'New Transfer'}
             </h3>
           </div>
           <div className='control-buttons'>

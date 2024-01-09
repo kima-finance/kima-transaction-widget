@@ -17,7 +17,7 @@ import {
   setTargetChainFetching
 } from '../../store/optionSlice'
 import useNetworkOptions from '../../hooks/useNetworkOptions'
-import { ModeOptions } from '../../interface'
+import { DAppOptions, ModeOptions } from '../../interface'
 import { fetchWrapper } from '../../helpers/fetch-wrapper'
 
 const NetworkDropdown = React.memo(
@@ -114,21 +114,28 @@ const NetworkDropdown = React.memo(
       if (!nodeProviderQuery || mode !== ModeOptions.payment) return
       ;(async function () {
         try {
-          if (targetNetwork === ChainName.FIAT) {
-            setAvailableNetworks([ChainName.ETHEREUM, ChainName.POLYGON])
-            return
+          if (
+            dAppOption === DAppOptions.LPAdd ||
+            dAppOption === DAppOptions.LPDrain
+          ) {
+            setAvailableNetworks([targetNetwork as ChainName])
+          } else {
+            if (targetNetwork === ChainName.FIAT) {
+              setAvailableNetworks([ChainName.ETHEREUM, ChainName.POLYGON])
+              return
+            }
+
+            const networks: any = await fetchWrapper.get(
+              `${nodeProviderQuery}/kima-finance/kima-blockchain/kima/get_available_chains/${targetNetwork}`
+            )
+
+            setAvailableNetworks(networks.Chains)
           }
-
-          const networks: any = await fetchWrapper.get(
-            `${nodeProviderQuery}/kima-finance/kima-blockchain/kima/get_available_chains/${targetNetwork}`
-          )
-
-          setAvailableNetworks(networks.Chains)
         } catch (e) {
           console.log('rpc disconnected', e)
         }
       })()
-    }, [nodeProviderQuery, mode, targetNetwork])
+    }, [nodeProviderQuery, mode, targetNetwork, dAppOption])
 
     useEffect(() => {
       const bodyMouseDowntHandler = (e: any) => {
