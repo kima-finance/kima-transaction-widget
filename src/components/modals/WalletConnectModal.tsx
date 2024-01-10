@@ -19,6 +19,7 @@ const WalletConnectModal = () => {
   const { select, connect } = useWallet()
 
   const handleConnect = () => {
+    console.log(selectedProvider)
     select(selectedProvider)
     connect()
     dispatch(setConnectModal(false))

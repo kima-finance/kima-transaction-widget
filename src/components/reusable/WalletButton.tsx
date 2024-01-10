@@ -44,6 +44,9 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
       return
     }
 
+    if (selectedNetwork === ChainName.TRON) {
+    }
+
     connect()
   }
 

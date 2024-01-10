@@ -9,7 +9,8 @@ import {
   ArbitriumIcon,
   OptimismIcon,
   BankIcon,
-  KEURICON
+  KEURICON,
+  TronIcon
 } from '../assets/icons'
 import {
   AVAX_USDK_ADDRESS,
@@ -21,7 +22,8 @@ import {
   ARBITRIUM_USDK_ADDRESS,
   POLYGON_ZKEVM_ADDRESS,
   POLYGON_KEUR_ADDRESS,
-  ETHEREUM_KEUR_ADDRESS
+  ETHEREUM_KEUR_ADDRESS,
+  TRON_USDK_ADDRESS
 } from './config'
 
 export enum ChainName {
@@ -33,6 +35,7 @@ export enum ChainName {
   ARBITRIUM = 'ARB',
   OPTIMISM = 'OPT',
   POLYGON_ZKEVM = 'ZKE',
+  TRON = 'TRX',
   FIAT = 'FIAT'
 }
 
@@ -65,6 +68,7 @@ export const CHAIN_NAMES_TO_STRING: { [chainName: string]: string } = {
   [ChainName.OPTIMISM]: 'Optimism',
   [ChainName.ARBITRIUM]: 'Arbitrium',
   [ChainName.POLYGON_ZKEVM]: 'Polygon zkEVM',
+  [ChainName.TRON]: 'Tron',
   [ChainName.FIAT]: 'Pay with FIAT'
 }
 
@@ -77,6 +81,7 @@ export const CHAIN_STRING_TO_NAME: { [chainName: string]: ChainName } = {
   ['Optimism']: ChainName.OPTIMISM,
   ['Arbitrium']: ChainName.ARBITRIUM,
   ['Polygon zkEVM']: ChainName.POLYGON_ZKEVM,
+  ['Tron']: ChainName.TRON,
   ['Pay with FIAT']: ChainName.FIAT
 }
 
@@ -88,7 +93,8 @@ export const CHAIN_NAMES_TO_EXPLORER: { [chainName: string]: string } = {
   [ChainName.BSC]: 'testnet.bscscan.com',
   [ChainName.OPTIMISM]: 'goerli-optimism.etherscan.io',
   [ChainName.ARBITRIUM]: 'goerli.arbiscan.io',
-  [ChainName.POLYGON_ZKEVM]: 'explorer.public.zkevm-test.net'
+  [ChainName.POLYGON_ZKEVM]: 'explorer.public.zkevm-test.net',
+  [ChainName.TRON]: 'https://nile.tronscan.org/#'
 }
 
 export const CHAIN_NAMES_TO_GECKO_ID: { [chainName: string]: string } = {
@@ -99,7 +105,8 @@ export const CHAIN_NAMES_TO_GECKO_ID: { [chainName: string]: string } = {
   [ChainName.BSC]: 'binancecoin',
   [ChainName.OPTIMISM]: 'ethereum',
   [ChainName.ARBITRIUM]: 'ethereum',
-  [ChainName.POLYGON_ZKEVM]: 'matic-network'
+  [ChainName.POLYGON_ZKEVM]: 'matic-network',
+  [ChainName.TRON]: 'tron'
 }
 
 export const CHAIN_IDS_TO_NAMES: { [chainId: number]: string } = {
@@ -159,6 +166,11 @@ export const networkOptions = [
     icon: PolygonIcon
   },
   {
+    id: ChainName.TRON,
+    label: 'Tron',
+    icon: TronIcon
+  },
+  {
     id: ChainName.FIAT,
     label: 'Pay with FIAT',
     icon: BankIcon
@@ -199,7 +211,8 @@ export const COIN_LIST: CoinOptions = {
       BSC: BSC_USDK_ADDRESS,
       OPT: OPTIMISM_USDK_ADDRESS,
       ARB: ARBITRIUM_USDK_ADDRESS,
-      ZKE: POLYGON_ZKEVM_ADDRESS
+      ZKE: POLYGON_ZKEVM_ADDRESS,
+      TRX: TRON_USDK_ADDRESS
     },
     decimals: 6
   },
