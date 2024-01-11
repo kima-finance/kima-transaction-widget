@@ -23,7 +23,6 @@ import {
   WalletConnectAdapterConfig
 } from '@tronweb3/tronwallet-adapter-walletconnect'
 import { WalletProvider as TronWalletProvider } from '@tronweb3/tronwallet-adapter-react-hooks'
-import { WalletModalProvider } from '@tronweb3/tronwallet-adapter-react-ui'
 import {
   WalletDisconnectedError,
   WalletError,
@@ -111,11 +110,11 @@ export const KimaProvider = ({ children }: any) => {
           <SolanaWalletProvider wallets={wallets}>
             <TronWalletProvider
               onError={onError}
-              autoConnect={true}
+              autoConnect={false}
               disableAutoConnectOnLoad={true}
               adapters={adapters}
             >
-              <WalletModalProvider>{children}</WalletModalProvider>
+              {children}
             </TronWalletProvider>
           </SolanaWalletProvider>
         </ConnectionProvider>

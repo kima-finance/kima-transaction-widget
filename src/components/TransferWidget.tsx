@@ -56,13 +56,14 @@ import useServiceFee from '../hooks/useServiceFee'
 import useAllowance from '../hooks/useAllowance'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 import AddressInputWizard from './reusable/AddressInputWizard'
-import { HelpPopup, BankPopup, WalletConnectModal } from './modals'
+import { HelpPopup, BankPopup, SolanaWalletConnectModal } from './modals'
 import useCurrencyOptions from '../hooks/useCurrencyOptions'
 import { ChainName, CHAIN_NAMES_TO_STRING } from '../utils/constants'
 import { toast, Toaster } from 'react-hot-toast'
 import useBalance from '../hooks/useBalance'
 import useWidth from '../hooks/useWidth'
 import useSign from '../hooks/useSign'
+import TronWalletConnectModal from './modals/TronWalletConnectModal'
 
 interface Props {
   theme: ThemeOptions
@@ -548,7 +549,8 @@ export const TransferWidget = ({
           </PrimaryButton>
         </div>
       </div>
-      <WalletConnectModal />
+      <SolanaWalletConnectModal />
+      <TronWalletConnectModal />
       <HelpPopup />
       {sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT ? (
         <BankPopup setVerifying={setVerifying} isVerifying={isVerifying} />

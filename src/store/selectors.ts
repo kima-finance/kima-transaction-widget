@@ -9,8 +9,10 @@ export const selectSourceChain = (state: RootState) => state.option.sourceChain
 export const selectTargetChain = (state: RootState) => state.option.targetChain
 export const selectTargetAddress = (state: RootState) =>
   state.option.targetAddress
-export const selectConnectModal = (state: RootState) =>
-  state.option.connectModal
+export const selectSolanaConnectModal = (state: RootState) =>
+  state.option.solanaConnectModal
+export const selectTronConnectModal = (state: RootState) =>
+  state.option.tronConnectModal
 export const selectHelpPopup = (state: RootState) => state.option.helpPopup
 export const selectHashPopup = (state: RootState) => state.option.hashPopup
 export const selectBankPopup = (state: RootState) => state.option.bankPopup

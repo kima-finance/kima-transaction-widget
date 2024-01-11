@@ -1,28 +1,31 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { CrossIcon } from '../../assets/icons'
-import { setConnectModal } from '../../store/optionSlice'
+import { setTronConnectModal } from '../../store/optionSlice'
 import {
-  selectConnectModal,
+  selectTronConnectModal,
   selectSolanaProvider,
   selectTheme
 } from '../../store/selectors'
 
-import { useWallet } from '@solana/wallet-adapter-react'
-import { PrimaryButton, SecondaryButton, WalletSelect } from '../reusable'
+import { useWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
+import { PrimaryButton, SecondaryButton, TronWalletSelect } from '../reusable'
 
-const WalletConnectModal = () => {
+const TronWalletConnectModal = () => {
   const dispatch = useDispatch()
   const theme = useSelector(selectTheme)
-  const connectModal = useSelector(selectConnectModal)
+  const connectModal = useSelector(selectTronConnectModal)
   const selectedProvider = useSelector(selectSolanaProvider)
   const { select, connect } = useWallet()
 
-  const handleConnect = () => {
-    console.log(selectedProvider)
-    select(selectedProvider)
-    connect()
-    dispatch(setConnectModal(false))
+  const handleConnect = async () => {
+    try {
+      select(selectedProvider)
+      await connect()
+      dispatch(setTronConnectModal(false))
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   return (
@@ -41,7 +44,7 @@ const WalletConnectModal = () => {
             <div className='control-buttons'>
               <button
                 className='icon-button'
-                onClick={() => dispatch(setConnectModal(false))}
+                onClick={() => dispatch(setTronConnectModal(false))}
               >
                 <CrossIcon
                   fill={theme.colorMode === 'light' ? 'black' : 'white'}
@@ -51,14 +54,14 @@ const WalletConnectModal = () => {
           </div>
         </div>
         <div className='modal-content'>
-          <WalletSelect />
+          <TronWalletSelect />
         </div>
         <div
           className='kima-card-footer'
           style={{ justifyContent: 'flex-end', marginTop: '2em' }}
         >
           <SecondaryButton
-            clickHandler={() => dispatch(setConnectModal(false))}
+            clickHandler={() => dispatch(setTronConnectModal(false))}
             theme={theme.colorMode}
           >
             Cancel
@@ -70,4 +73,4 @@ const WalletConnectModal = () => {
   )
 }
 
-export default WalletConnectModal
+export default TronWalletConnectModal

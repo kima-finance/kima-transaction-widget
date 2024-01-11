@@ -37,7 +37,11 @@ export default function useBalance() {
   const selectedNetwork = useSelector(selectSourceChain)
   const errorHandler = useSelector(selectErrorHandler)
   const sourceChain = useMemo(() => {
-    if (selectedNetwork === ChainName.SOLANA) return selectedNetwork
+    if (
+      selectedNetwork === ChainName.SOLANA ||
+      selectedNetwork === ChainName.TRON
+    )
+      return selectedNetwork
     if (CHAIN_NAMES_TO_IDS[selectedNetwork] !== evmChainId) {
       return CHAIN_IDS_TO_NAMES[evmChainId as number]
     }
