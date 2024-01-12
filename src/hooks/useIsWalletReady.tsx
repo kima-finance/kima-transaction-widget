@@ -86,7 +86,6 @@ function useIsWalletReady(enableNetworkAutoswitch: boolean = false): {
         ''
       )
     } else if (correctChain === ChainName.TRON) {
-      console.log(tronAddress)
       if (tronAddress) {
         return createWalletStatus(
           true,

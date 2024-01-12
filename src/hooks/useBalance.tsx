@@ -21,6 +21,8 @@ import {
 } from '../store/selectors'
 import { getOrCreateAssociatedTokenAccount } from '../utils/solana/getOrCreateAssociatedTokenAccount'
 import { PublicKey } from '@solana/web3.js'
+import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
+import useTronWeb from './useTronWeb'
 
 type ParsedAccountData = {
   /** Name of the program that owns this account */
@@ -48,45 +50,58 @@ export default function useBalance() {
 
     return selectedNetwork
   }, [selectedNetwork, evmChainId])
-  const { publicKey, signTransaction } = useSolanaWallet()
+  const { publicKey: solanaAddress, signTransaction } = useSolanaWallet()
+  const { address: tronAddress } = useTronWallet()
   const { connection } = useConnection()
   const selectedCoin = useSelector(selectCurrencyOptions)
   const tokenAddress = useMemo(() => {
     return selectedCoin.address[sourceChain]
   }, [selectedCoin, sourceChain])
+  const tronWeb = useTronWeb()
 
   useEffect(() => {
     ;(async () => {
       try {
-        if (
-          !isEVMChain(sourceChain) &&
-          publicKey &&
-          tokenAddress &&
-          connection
-        ) {
-          const mint = new PublicKey(tokenAddress)
-          const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
-            connection,
-            publicKey as PublicKey,
-            mint,
-            publicKey as PublicKey,
-            signTransaction /* as SignerWalletAdapterProps['signTransaction']*/
-          )
-
-          const accountInfo = await connection.getParsedAccountInfo(
-            fromTokenAccount.address
-          )
-
-          const parsedAccountInfo = accountInfo?.value
-            ?.data as ParsedAccountData
-
-          setBalance(
-            +formatUnits(
-              parsedAccountInfo.parsed?.info?.tokenAmount?.amount,
-              parsedAccountInfo.parsed?.info?.tokenAmount?.decimals
+        if (!isEVMChain(sourceChain)) {
+          if (solanaAddress && tokenAddress && connection) {
+            const mint = new PublicKey(tokenAddress)
+            const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
+              connection,
+              solanaAddress as PublicKey,
+              mint,
+              solanaAddress as PublicKey,
+              signTransaction /* as SignerWalletAdapterProps['signTransaction']*/
             )
-          )
-          return
+
+            const accountInfo = await connection.getParsedAccountInfo(
+              fromTokenAccount.address
+            )
+
+            const parsedAccountInfo = accountInfo?.value
+              ?.data as ParsedAccountData
+
+            setBalance(
+              +formatUnits(
+                parsedAccountInfo.parsed?.info?.tokenAmount?.amount,
+                parsedAccountInfo.parsed?.info?.tokenAmount?.decimals
+              )
+            )
+            return
+          }
+
+          if (tronAddress && tokenAddress) {
+            let trc20Contract = await tronWeb.contract(
+              ERC20ABI.abi,
+              tokenAddress
+            )
+
+            const decimals = await trc20Contract.decimals().call()
+            const userBalance = await trc20Contract
+              .balanceOf(tronAddress)
+              .call()
+            setBalance(+formatUnits(userBalance.balance, decimals))
+            return
+          }
         }
         if (!tokenAddress || !signer || !signerAddress) return
 
@@ -99,7 +114,7 @@ export default function useBalance() {
         errorHandler(error)
       }
     })()
-  }, [signerAddress, tokenAddress, sourceChain, publicKey])
+  }, [signerAddress, tokenAddress, sourceChain, solanaAddress, tronAddress])
 
   return useMemo(
     () => ({
