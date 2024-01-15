@@ -26,10 +26,11 @@ import {
 } from '../store/selectors'
 import { getOrCreateAssociatedTokenAccount } from '../utils/solana/getOrCreateAssociatedTokenAccount'
 import { PublicKey, Transaction } from '@solana/web3.js'
-// import { SignerWalletAdapterProps } from '@solana/wallet-adapter-base'
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import { createApproveTransferInstruction } from '../utils/solana/createTransferInstruction'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
+import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
+import { tronWeb } from '../tronweb'
 
 type ParsedAccountData = {
   /** Name of the program that owns this account */
@@ -59,7 +60,10 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
   const serviceFee = useSelector(selectServiceFee)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
   const { connection } = useConnection()
-  const { publicKey, signTransaction } = useSolanaWallet()
+  const { publicKey: solanaAddress, signTransaction: signSolanaTransaction } =
+    useSolanaWallet()
+  const { address: tronAddress, signTransaction: signTronTransaction } =
+    useTronWallet()
   const selectedCoin = useSelector(selectCurrencyOptions)
   const tokenAddress = useMemo(() => {
     return selectedCoin.address[sourceChain]
@@ -84,7 +88,9 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
       setTargetAddress(
         sourceChain === ChainName.SOLANA
           ? result.tssPubkey[0].eddsa
-          : result.tssPubkey[0].ecdsa
+          : sourceChain === ChainName.TRON
+            ? 'TQmnQpCmEFMqTUGigvu7o2VUFHumZDFYyy'
+            : result.tssPubkey[0].ecdsa
       )
     } catch (e) {
       console.log('rpc disconnected', e)
@@ -99,35 +105,45 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
   useEffect(() => {
     ;(async () => {
       try {
-        if (
-          !isEVMChain(sourceChain) &&
-          publicKey &&
-          tokenAddress &&
-          connection
-        ) {
-          const mint = new PublicKey(tokenAddress)
-          const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
-            connection,
-            publicKey as PublicKey,
-            mint,
-            publicKey as PublicKey,
-            signTransaction /* as SignerWalletAdapterProps['signTransaction']*/
-          )
+        if (!isEVMChain(sourceChain)) {
+          if (solanaAddress && tokenAddress && connection) {
+            const mint = new PublicKey(tokenAddress)
+            const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
+              connection,
+              solanaAddress as PublicKey,
+              mint,
+              solanaAddress as PublicKey,
+              signSolanaTransaction /* as SignerWalletAdapterProps['signTransaction']*/
+            )
 
-          const accountInfo = await connection.getParsedAccountInfo(
-            fromTokenAccount.address
-          )
-          console.log('solana token account: ', accountInfo)
+            const accountInfo = await connection.getParsedAccountInfo(
+              fromTokenAccount.address
+            )
+            console.log('solana token account: ', accountInfo)
 
-          setDecimals(COIN_LIST['USDK'].decimals)
-          const parsedAccountInfo = accountInfo?.value
-            ?.data as ParsedAccountData
+            setDecimals(COIN_LIST['USDK'].decimals)
+            const parsedAccountInfo = accountInfo?.value
+              ?.data as ParsedAccountData
 
-          setAllowance(
-            parsedAccountInfo.parsed?.info?.delegate === targetAddress
-              ? parsedAccountInfo.parsed?.info?.delegatedAmount?.uiAmount
-              : 0
-          )
+            setAllowance(
+              parsedAccountInfo.parsed?.info?.delegate === targetAddress
+                ? parsedAccountInfo.parsed?.info?.delegatedAmount?.uiAmount
+                : 0
+            )
+          } else if (tronAddress && tokenAddress) {
+            let trc20Contract = await tronWeb.contract(
+              ERC20ABI.abi,
+              tokenAddress
+            )
+
+            const decimals = await trc20Contract.decimals().call()
+            const userAllowance = await trc20Contract
+              .allowance(tronAddress, targetAddress)
+              .call()
+
+            setDecimals(+decimals)
+            setAllowance(+formatUnits(userAllowance, decimals))
+          }
           return
         }
 
@@ -146,7 +162,14 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
         errorHandler(error)
       }
     })()
-  }, [signerAddress, tokenAddress, targetAddress, sourceChain, publicKey])
+  }, [
+    signerAddress,
+    tokenAddress,
+    targetAddress,
+    sourceChain,
+    solanaAddress,
+    tronAddress
+  ])
 
   const approve = useCallback(async () => {
     if (isEVMChain(sourceChain)) {
@@ -172,7 +195,43 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
       return
     }
 
-    if (!signTransaction) return
+    if (sourceChain === ChainName.TRON) {
+      if (!decimals || !tokenAddress || !targetAddress || !signTronTransaction)
+        return
+
+      try {
+        setApproving(true)
+        const functionSelector = 'approve(address,uint256)'
+        const parameter = [
+          { type: 'address', value: targetAddress },
+          {
+            type: 'uint256',
+            value: parseUnits((amount + serviceFee).toString(), decimals)
+          }
+        ]
+
+        const tx = await tronWeb.transactionBuilder.triggerSmartContract(
+          tronWeb.address.toHex(tokenAddress),
+          functionSelector,
+          {},
+          parameter,
+          tronWeb.address.toHex(tronAddress)
+        )
+        const signedTx = await signTronTransaction(tx.transaction)
+        const result = await tronWeb.trx.sendRawTransaction(signedTx)
+        console.log(result)
+
+        setApproving(false)
+        setAllowance(amount + serviceFee)
+      } catch (error) {
+        errorHandler(error)
+        setApproving(false)
+      }
+      return
+    }
+
+    // Solana
+    if (!signSolanaTransaction) return
 
     try {
       setApproving(true)
@@ -180,17 +239,17 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
       const toPublicKey = new PublicKey(targetAddress as string)
       const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
         connection,
-        publicKey as PublicKey,
+        solanaAddress as PublicKey,
         mint,
-        publicKey as PublicKey,
-        signTransaction /* as SignerWalletAdapterProps['signTransaction']*/
+        solanaAddress as PublicKey,
+        signSolanaTransaction /* as SignerWalletAdapterProps['signTransaction']*/
       )
 
       const transaction = new Transaction().add(
         createApproveTransferInstruction(
           fromTokenAccount.address, // source
           toPublicKey, // dest
-          publicKey as PublicKey,
+          solanaAddress as PublicKey,
           +(amount + serviceFee).toFixed(2) *
             Math.pow(10, COIN_LIST['USDK'].decimals), // amount * LAMPORTS_PER_SOL,
           [],
@@ -199,9 +258,9 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
       )
 
       const blockHash = await connection.getLatestBlockhash()
-      transaction.feePayer = publicKey as PublicKey
+      transaction.feePayer = solanaAddress as PublicKey
       transaction.recentBlockhash = await blockHash.blockhash
-      const signed = await signTransaction(transaction)
+      const signed = await signSolanaTransaction(transaction)
 
       await connection.sendRawTransaction(signed.serialize())
       setAllowance(amount + serviceFee)
@@ -216,7 +275,9 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
     signer,
     amount,
     targetAddress,
-    signTransaction,
+    tronAddress,
+    signSolanaTransaction,
+    signTronTransaction,
     serviceFee
   ])
 
