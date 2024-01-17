@@ -4,4 +4,3 @@ export const tronWeb: any = new TronWeb({
   fullHost: 'https://api.nileex.io'
 })
 tronWeb.setAddress(TRON_USDK_OWNER_ADDRESS)
-;(window as any).tronWeb = tronWeb

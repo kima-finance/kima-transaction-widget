@@ -31,8 +31,7 @@ export default function useNetworkOptions() {
               (network) =>
                 networks.Chains.findIndex((id: any) => id === network.id) >=
                   0 ||
-                (network.id === ChainName.FIAT && useFIAT) ||
-                network.id === ChainName.TRON
+                (network.id === ChainName.FIAT && useFIAT)
             )
           )
         } catch (e) {
