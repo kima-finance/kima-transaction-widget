@@ -16,7 +16,8 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "allowSyntheticDefaultImports": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "types": ["node", "uuid"]
   },
   "include": ["./src/**/*.ts", "src/custom.d.ts"],
   "exclude": ["node_modules", "dist", "example"]
