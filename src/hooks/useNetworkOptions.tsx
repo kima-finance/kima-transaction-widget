@@ -23,7 +23,7 @@ export default function useNetworkOptions() {
       ;(async function () {
         try {
           const networks: any = await fetchWrapper.get(
-            `${nodeProviderQuery}/kima-finance/kima-blockchain/kima/get_chains`
+            `${nodeProviderQuery}/kima-finance/kima-blockchain/chains/get_chains`
           )
 
           setOptions(
@@ -31,7 +31,8 @@ export default function useNetworkOptions() {
               (network) =>
                 networks.Chains.findIndex((id: any) => id === network.id) >=
                   0 ||
-                (network.id === ChainName.FIAT && useFIAT)
+                (network.id === ChainName.FIAT && useFIAT) ||
+                network.id === ChainName.TRON
             )
           )
         } catch (e) {

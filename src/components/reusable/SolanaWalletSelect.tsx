@@ -7,7 +7,7 @@ import { selectSolanaProvider, selectTheme } from '../../store/selectors'
 import ExternalLink from './ExternalLink'
 import { setSolanaProvider } from '../../store/optionSlice'
 
-const WalletSelect = () => {
+const TronWalletSelect = () => {
   const theme = useSelector(selectTheme)
   const selectedProvider = useSelector(selectSolanaProvider)
   const sliderRef = useRef<any>()
@@ -121,4 +121,4 @@ const WalletSelect = () => {
   )
 }
 
-export default WalletSelect
+export default TronWalletSelect

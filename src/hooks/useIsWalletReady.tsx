@@ -1,8 +1,8 @@
 import { hexlify, hexStripZeros } from '@ethersproject/bytes'
 import { useCallback, useMemo } from 'react'
 import { useEthereumProvider } from '../contexts/EthereumProviderContext'
-import { useWallet } from '@solana/wallet-adapter-react'
-
+import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
+import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import {
   isEVMChain,
   ChainName,
@@ -37,7 +37,8 @@ function useIsWalletReady(enableNetworkAutoswitch: boolean = false): {
   forceNetworkSwitch: () => void
 } {
   const autoSwitch = enableNetworkAutoswitch
-  const { publicKey: solPK } = useWallet()
+  const { publicKey: solanaAddress } = useSolanaWallet()
+  const { address: tronAddress } = useTronWallet()
   const { provider, signerAddress, chainId: evmChainId } = useEthereumProvider()
   const sourceChain = useSelector(selectSourceChain)
   const targetChain = useSelector(selectTargetChain)
@@ -70,12 +71,12 @@ function useIsWalletReady(enableNetworkAutoswitch: boolean = false): {
 
   return useMemo(() => {
     if (correctChain === ChainName.SOLANA) {
-      if (solPK) {
+      if (solanaAddress) {
         return createWalletStatus(
           true,
           undefined,
           forceNetworkSwitch,
-          solPK.toBase58()
+          solanaAddress.toBase58()
         )
       }
       return createWalletStatus(
@@ -84,8 +85,22 @@ function useIsWalletReady(enableNetworkAutoswitch: boolean = false): {
         forceNetworkSwitch,
         ''
       )
-    }
-    if (isEVMChain(correctChain) && hasEthInfo && signerAddress) {
+    } else if (correctChain === ChainName.TRON) {
+      if (tronAddress) {
+        return createWalletStatus(
+          true,
+          undefined,
+          forceNetworkSwitch,
+          tronAddress
+        )
+      }
+      return createWalletStatus(
+        false,
+        'Wallet not connected',
+        forceNetworkSwitch,
+        ''
+      )
+    } else if (isEVMChain(correctChain) && hasEthInfo && signerAddress) {
       if (hasCorrectEvmNetwork) {
         return createWalletStatus(
           true,
@@ -115,7 +130,8 @@ function useIsWalletReady(enableNetworkAutoswitch: boolean = false): {
     correctChain,
     autoSwitch,
     forceNetworkSwitch,
-    solPK,
+    solanaAddress,
+    tronAddress,
     hasEthInfo,
     correctEvmNetwork,
     hasCorrectEvmNetwork,

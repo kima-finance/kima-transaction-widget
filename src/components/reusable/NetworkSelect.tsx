@@ -60,7 +60,7 @@ const Network = ({ isOriginChain = true }: Props) => {
     ;(async function () {
       try {
         const networks: any = await fetchWrapper.get(
-          `${nodeProviderQuery}/kima-finance/kima-blockchain/kima/get_available_chains/${originNetwork}`
+          `${nodeProviderQuery}/kima-finance/kima-blockchain/chains/get_available_chains/${originNetwork}`
         )
 
         setAvailableNetworks(networks.Chains)

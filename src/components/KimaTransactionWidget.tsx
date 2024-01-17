@@ -123,32 +123,42 @@ export const KimaTransactionWidget = ({
       dispatch(
         setTargetChain(transactionOption?.targetChain || ChainName.ETHEREUM)
       )
-      ;(async function () {
-        try {
-          const networks: any = await fetchWrapper.get(
-            `${kimaNodeProviderQuery}/kima-finance/kima-blockchain/kima/get_available_chains/${
-              transactionOption?.targetChain || ChainName.ETHEREUM
-            }`
-          )
-          dispatch(setSourceChain(networks.Chains[0]))
-        } catch (e) {
-          console.log('rpc disconnected', e)
-        }
 
-        try {
-          if (transactionOption?.targetAddress) {
-            const compliantRes = await fetchWrapper.post(
-              `${kimaBackendUrl}/compliant`,
-              JSON.stringify({
-                address: transactionOption?.targetAddress
-              })
+      if (
+        dAppOption === DAppOptions.LPAdd ||
+        dAppOption === DAppOptions.LPDrain
+      ) {
+        dispatch(
+          setSourceChain(transactionOption?.targetChain || ChainName.ETHEREUM)
+        )
+      } else {
+        ;(async function () {
+          try {
+            const networks: any = await fetchWrapper.get(
+              `${kimaNodeProviderQuery}/kima-finance/kima-blockchain/chains/get_available_chains/${
+                transactionOption?.targetChain || ChainName.ETHEREUM
+              }`
             )
-            dispatch(setTargetCompliant(compliantRes))
+            dispatch(setSourceChain(networks.Chains[0]))
+          } catch (e) {
+            console.log('rpc disconnected', e)
           }
-        } catch (e) {
-          console.log('xplorisk check failed', e)
-        }
-      })()
+
+          try {
+            if (transactionOption?.targetAddress) {
+              const compliantRes = await fetchWrapper.post(
+                `${kimaBackendUrl}/compliant`,
+                JSON.stringify({
+                  address: transactionOption?.targetAddress
+                })
+              )
+              dispatch(setTargetCompliant(compliantRes))
+            }
+          } catch (e) {
+            console.log('xplorisk check failed', e)
+          }
+        })()
+      }
       dispatch(setTargetAddress(transactionOption?.targetAddress || ''))
       dispatch(setAmount(transactionOption?.amount || 0))
     } else if (mode === ModeOptions.status) {

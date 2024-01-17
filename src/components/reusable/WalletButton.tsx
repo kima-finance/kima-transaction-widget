@@ -1,8 +1,10 @@
 import React, { useEffect, useMemo } from 'react'
 import { toast } from 'react-hot-toast'
 import { useDispatch, useSelector } from 'react-redux'
-// import { useWallet } from '@solana/wallet-adapter-react'
-import { setConnectModal } from '../../store/optionSlice'
+import {
+  setSolanaConnectModal,
+  setTronConnectModal
+} from '../../store/optionSlice'
 import {
   selectCompliantOption,
   selectCurrencyOptions,
@@ -40,7 +42,12 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
 
   const handleClick = () => {
     if (selectedNetwork === ChainName.SOLANA) {
-      dispatch(setConnectModal(true))
+      dispatch(setSolanaConnectModal(true))
+      return
+    }
+
+    if (selectedNetwork === ChainName.TRON) {
+      dispatch(setTronConnectModal(true))
       return
     }
 

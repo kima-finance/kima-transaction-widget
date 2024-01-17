@@ -19,7 +19,8 @@ export interface OptionState {
   sourceChain: string // origin network on UI
   targetChain: string // target network on UI
   targetAddress: string // target address on UI
-  connectModal: boolean // solana wallet connection modal state - open or closed
+  solanaConnectModal: boolean // solana wallet connection modal state - open or closed
+  tronConnectModal: boolean // tron wallet connection modal state - open or closed
   helpPopup: boolean // shows popup to show help instructions
   hashPopup: boolean // shows popup to show hashes of transactions (kima tx, pull & release hashes)
   bankPopup: boolean // shows popup to simulate bank transfer
@@ -59,7 +60,8 @@ const initialState: OptionState = {
   sourceChain: '',
   targetChain: '',
   targetAddress: '',
-  connectModal: false,
+  solanaConnectModal: false,
+  tronConnectModal: false,
   helpPopup: false,
   hashPopup: false,
   bankPopup: false,
@@ -129,8 +131,11 @@ export const optionSlice = createSlice({
     setTargetAddress: (state, action: PayloadAction<string>) => {
       state.targetAddress = action.payload
     },
-    setConnectModal: (state, action: PayloadAction<boolean>) => {
-      state.connectModal = action.payload
+    setSolanaConnectModal: (state, action: PayloadAction<boolean>) => {
+      state.solanaConnectModal = action.payload
+    },
+    setTronConnectModal: (state, action: PayloadAction<boolean>) => {
+      state.tronConnectModal = action.payload
     },
     setHelpPopup: (state, action: PayloadAction<boolean>) => {
       state.helpPopup = action.payload
@@ -237,7 +242,8 @@ export const {
   setSourceChain,
   setTargetChain,
   setTargetAddress,
-  setConnectModal,
+  setSolanaConnectModal,
+  setTronConnectModal,
   setHelpPopup,
   setHashPopup,
   setBankPopup,
