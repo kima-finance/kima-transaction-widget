@@ -22,7 +22,7 @@ import {
 import { getOrCreateAssociatedTokenAccount } from '../utils/solana/getOrCreateAssociatedTokenAccount'
 import { PublicKey } from '@solana/web3.js'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
-import useTronWeb from './useTronWeb'
+import { tronWeb } from '../tronweb'
 
 type ParsedAccountData = {
   /** Name of the program that owns this account */
@@ -57,7 +57,6 @@ export default function useBalance() {
   const tokenAddress = useMemo(() => {
     return selectedCoin.address[sourceChain]
   }, [selectedCoin, sourceChain])
-  const tronWeb = useTronWeb()
 
   useEffect(() => {
     ;(async () => {
@@ -99,6 +98,7 @@ export default function useBalance() {
             const userBalance = await trc20Contract
               .balanceOf(tronAddress)
               .call()
+            console.log(userBalance)
             setBalance(+formatUnits(userBalance.balance, decimals))
             return
           }
