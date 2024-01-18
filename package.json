@@ -1,6 +1,6 @@
 {
   "name": "@kimafinance/kima-transaction-widget",
-  "version": "1.1.61-beta.1",
+  "version": "1.1.68-beta.1",
   "description": "Kima Transaction Widget",
   "author": "",
   "license": "MIT",
@@ -12,8 +12,8 @@
     "node": ">=10"
   },
   "scripts": {
-    "build": "microbundle-crl --no-compress --format modern,cjs --css-modules false",
-    "start": "microbundle-crl watch --no-compress --format modern,cjs --css-modules false",
+    "build": "microbundle-crl --no-compress --format es --css-modules false",
+    "start": "microbundle-crl watch --no-compress --format es --css-modules false",
     "sass": "sass src/styles/main.scss src/index.css -w",
     "test": "react-scripts test --coverage --watchAll",
     "docs": "typedoc --options tsdoc.conf.json",
@@ -73,11 +73,6 @@
     "@solana/wallet-adapter-react": "^0.15.20",
     "@solana/wallet-adapter-wallets": "^0.19.3",
     "@solana/web3.js": "^1.66.1",
-    "@tronweb3/tronwallet-abstract-adapter": "^1.1.0",
-    "@tronweb3/tronwallet-adapter-ledger": "^1.1.1",
-    "@tronweb3/tronwallet-adapter-react-hooks": "^1.0.0",
-    "@tronweb3/tronwallet-adapter-walletconnect": "^1.0.0",
-    "@tronweb3/tronwallet-adapters": "^1.1.1",
     "@types/bn.js": "^5.1.1",
     "@types/crypto-js": "^4.1.1",
     "animated-number-react": "^0.1.2",
@@ -98,7 +93,6 @@
     "sass": "^1.58.1",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
-    "tronweb": "^5.3.1",
     "typedoc": "^0.25.4",
     "url": "^0.11.0"
   }

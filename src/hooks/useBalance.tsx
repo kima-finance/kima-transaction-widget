@@ -21,8 +21,8 @@ import {
 } from '../store/selectors'
 import { getOrCreateAssociatedTokenAccount } from '../utils/solana/getOrCreateAssociatedTokenAccount'
 import { PublicKey } from '@solana/web3.js'
-import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
-import { tronWeb } from '../tronweb'
+// import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
+// import { tronWeb } from '../tronweb'
 
 type ParsedAccountData = {
   /** Name of the program that owns this account */
@@ -40,8 +40,8 @@ export default function useBalance() {
   const errorHandler = useSelector(selectErrorHandler)
   const sourceChain = useMemo(() => {
     if (
-      selectedNetwork === ChainName.SOLANA ||
-      selectedNetwork === ChainName.TRON
+      selectedNetwork === ChainName.SOLANA
+      //  || selectedNetwork === ChainName.TRON
     )
       return selectedNetwork
     if (CHAIN_NAMES_TO_IDS[selectedNetwork] !== evmChainId) {
@@ -51,7 +51,7 @@ export default function useBalance() {
     return selectedNetwork
   }, [selectedNetwork, evmChainId])
   const { publicKey: solanaAddress, signTransaction } = useSolanaWallet()
-  const { address: tronAddress } = useTronWallet()
+  // const { address: tronAddress } = useTronWallet()
   const { connection } = useConnection()
   const selectedCoin = useSelector(selectCurrencyOptions)
   const tokenAddress = useMemo(() => {
@@ -88,20 +88,20 @@ export default function useBalance() {
             return
           }
 
-          if (tronAddress && tokenAddress) {
-            let trc20Contract = await tronWeb.contract(
-              ERC20ABI.abi,
-              tokenAddress
-            )
+          // if (tronAddress && tokenAddress) {
+          //   let trc20Contract = await tronWeb.contract(
+          //     ERC20ABI.abi,
+          //     tokenAddress
+          //   )
 
-            const decimals = await trc20Contract.decimals().call()
-            const userBalance = await trc20Contract
-              .balanceOf(tronAddress)
-              .call()
-            console.log(userBalance)
-            setBalance(+formatUnits(userBalance.balance, decimals))
-            return
-          }
+          //   const decimals = await trc20Contract.decimals().call()
+          //   const userBalance = await trc20Contract
+          //     .balanceOf(tronAddress)
+          //     .call()
+          //   console.log(userBalance)
+          //   setBalance(+formatUnits(userBalance.balance, decimals))
+          //   return
+          // }
         }
         if (!tokenAddress || !signer || !signerAddress) return
 
@@ -114,7 +114,12 @@ export default function useBalance() {
         errorHandler(error)
       }
     })()
-  }, [signerAddress, tokenAddress, sourceChain, solanaAddress, tronAddress])
+  }, [
+    signerAddress,
+    tokenAddress,
+    sourceChain,
+    solanaAddress /*, tronAddress*/
+  ])
 
   return useMemo(
     () => ({
