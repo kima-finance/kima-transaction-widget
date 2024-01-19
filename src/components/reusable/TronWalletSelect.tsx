@@ -90,23 +90,23 @@ const WalletSelect = () => {
       </div>
       <div className='slide-area hide-scrollbar' ref={sliderRef}>
         <div className='wallet-container'>
-          {detected.map((wallet) => (
+          {detected.map((wallet, index) => (
             <div
               className={`card-item ${theme.colorMode} ${
                 wallet.adapter.name === selectedProvider ? 'active' : ''
               }`}
               onClick={() => dispatch(setSolanaProvider(wallet.adapter.name))}
-              key={wallet.adapter.name}
+              key={`${wallet.adapter.name}-${index}`}
             >
               <img src={wallet.adapter.icon} alt={wallet.adapter.name} />
               <span>{wallet.adapter.name}</span>
             </div>
           ))}
-          {undetected.map((wallet) => (
+          {undetected.map((wallet, index) => (
             <ExternalLink
               to={wallet.adapter.url}
               className={`card-item ${theme.colorMode}`}
-              key={wallet.adapter.name}
+              key={`${wallet.adapter.name}-${index}`}
             >
               <img src={wallet.adapter.icon} alt={wallet.adapter.name} />
               <span>

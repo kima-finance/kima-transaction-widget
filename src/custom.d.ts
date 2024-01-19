@@ -5,6 +5,8 @@ declare module '*.jpeg'
 declare module '*.gif'
 declare module '*.json'
 declare module 'animated-number-react'
+declare module 'buffer-layout'
 declare module '@solana/wallet-adapter-react'
 declare module '@solana/wallet-adapter-base'
 declare module 'tronweb'
+declare module '@tronweb3/tronwallet-adapters/lib/esm/index.js';

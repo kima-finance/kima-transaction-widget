@@ -7,7 +7,7 @@ import { selectSolanaProvider, selectTheme } from '../../store/selectors'
 import ExternalLink from './ExternalLink'
 import { setSolanaProvider } from '../../store/optionSlice'
 
-const TronWalletSelect = () => {
+const SolanaWalletSelect = () => {
   const theme = useSelector(selectTheme)
   const selectedProvider = useSelector(selectSolanaProvider)
   const sliderRef = useRef<any>()
@@ -89,23 +89,23 @@ const TronWalletSelect = () => {
       </div>
       <div className='slide-area hide-scrollbar' ref={sliderRef}>
         <div className='wallet-container'>
-          {detected.map((wallet) => (
+          {detected.map((wallet, index) => (
             <div
               className={`card-item ${theme.colorMode} ${
                 wallet.adapter.name === selectedProvider ? 'active' : ''
               }`}
               onClick={() => dispatch(setSolanaProvider(wallet.adapter.name))}
-              key={wallet.adapter.name}
+              key={`${wallet.adapter.name}-${index}`}
             >
               <img src={wallet.adapter.icon} alt={wallet.adapter.name} />
               <span>{wallet.adapter.name}</span>
             </div>
           ))}
-          {undetected.map((wallet) => (
+          {undetected.map((wallet, index) => (
             <ExternalLink
               to={wallet.adapter.url}
               className={`card-item ${theme.colorMode}`}
-              key={wallet.adapter.name}
+              key={`${wallet.adapter.name}-${index}`}
             >
               <img src={wallet.adapter.icon} alt={wallet.adapter.name} />
               <span>
@@ -121,4 +121,4 @@ const TronWalletSelect = () => {
   )
 }
 
-export default TronWalletSelect
+export default SolanaWalletSelect
