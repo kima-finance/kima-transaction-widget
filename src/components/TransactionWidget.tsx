@@ -5,7 +5,12 @@ import { CrossIcon, FooterLogo, MinimizeIcon } from '../assets/icons'
 import Progressbar from './reusable/Progressbar'
 import { ExternalLink, NetworkLabel, StepBox } from './reusable'
 import '../index.css'
-import { ColorModeOptions, ThemeOptions, TransactionData } from '../interface'
+import {
+  ColorModeOptions,
+  DAppOptions,
+  ThemeOptions,
+  TransactionData
+} from '../interface'
 import { Provider } from 'react-redux'
 import { store } from '../store'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
@@ -14,6 +19,7 @@ import { formatterFloat, formatterInt } from '../helpers/functions'
 import { useSelector } from 'react-redux'
 import {
   selectCloseHandler,
+  selectDappOption,
   selectNodeProviderQuery,
   selectSuccessHandler,
   selectTxId
@@ -34,6 +40,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [data, setData] = useState<TransactionData>()
   const dispatch = useDispatch()
   const txId = useSelector(selectTxId)
+  const dAppOption = useSelector(selectDappOption)
   const closeHandler = useSelector(selectCloseHandler)
   const successHandler = useSelector(selectSuccessHandler)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
@@ -43,26 +50,53 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
     const timerId = setInterval(async () => {
       // Monitor last transaction for now until transaction_data endpoint is ready
       try {
-        const result: any = await fetchWrapper.get(
-          `${nodeProviderQuery}/kima-finance/kima-blockchain/transaction/transaction_data/${txId}`
-        )
+        let data
+        let result: any
+        const isLP =
+          dAppOption === DAppOptions.LPAdd || dAppOption === DAppOptions.LPDrain
 
-        const data = result?.transactionData
+        if (isLP) {
+          result = await fetchWrapper.get(
+            `${nodeProviderQuery}/kima-finance/kima-blockchain/transaction/liquidity_transaction_data/${txId}`
+          )
+          data = result?.LiquidityTransactionData
+        } else {
+          result = await fetchWrapper.get(
+            `${nodeProviderQuery}/kima-finance/kima-blockchain/transaction/transaction_data/${txId}`
+          )
+          data = result?.transactionData
+        }
 
         if (!data) return
 
         // Status of last transaction
-        setData({
-          status: data.status,
-          sourceChain: data.originChain,
-          targetChain: data.targetChain,
-          tssPullHash: data.tssPullHash,
-          tssReleaseHash: data.tssReleaseHash,
-          failReason: data.failReason,
-          amount: +data.amount,
-          symbol: data.symbol,
-          kimaTxHash: data.kimaTxHash
-        })
+        if (isLP) {
+          setData({
+            status: data.status,
+            sourceChain: data.chain,
+            targetChain: data.chain,
+            tssPullHash:
+              dAppOption === DAppOptions.LPAdd ? data.tssReleaseHash : '',
+            tssReleaseHash:
+              dAppOption === DAppOptions.LPDrain ? data.tssReleaseHash : '',
+            failReason: data.failReason,
+            amount: +data.amount,
+            symbol: data.symbol,
+            kimaTxHash: data.kimaTxHash
+          })
+        } else {
+          setData({
+            status: data.status,
+            sourceChain: data.originChain,
+            targetChain: data.targetChain,
+            tssPullHash: data.tssPullHash,
+            tssReleaseHash: data.tssReleaseHash,
+            failReason: data.failReason,
+            amount: +data.amount,
+            symbol: data.symbol,
+            kimaTxHash: data.kimaTxHash
+          })
+        }
 
         if (data.status === TransactionStatus.COMPLETED) {
           clearInterval(timerId)
@@ -80,7 +114,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
     return () => {
       clearInterval(timerId)
     }
-  }, [nodeProviderQuery, txId])
+  }, [nodeProviderQuery, txId, dAppOption])
 
   useEffect(() => {
     if (!data) {
