@@ -4256,7 +4256,7 @@
     "@tronweb3/tronwallet-abstract-adapter" "^1.1.6"
     "@tronweb3/tronwallet-adapter-tronlink" "^1.1.9"
 
-"@tronweb3/tronwallet-adapter-ledger@^1.1.1", "@tronweb3/tronwallet-adapter-ledger@^1.1.8":
+"@tronweb3/tronwallet-adapter-ledger@^1.1.8":
   version "1.1.8"
   resolved "https://registry.yarnpkg.com/@tronweb3/tronwallet-adapter-ledger/-/tronwallet-adapter-ledger-1.1.8.tgz#bbf6e428036b8463cd37bf144230d4187e165756"
   integrity sha512-Tg8plalHNErkp9o+AOCjzlFcWzzI4ewBljaZYc6ue/5W83PNzRHSmUqlwGIDScJD/oSU9gZ/avYPCfJI1MPKtQ==
@@ -4277,7 +4277,7 @@
     "@tronweb3/tronwallet-abstract-adapter" "^1.1.6"
     "@tronweb3/tronwallet-adapter-tronlink" "^1.1.9"
 
-"@tronweb3/tronwallet-adapter-react-hooks@^1.0.0":
+"@tronweb3/tronwallet-adapter-react-hooks@^1.1.7":
   version "1.1.7"
   resolved "https://registry.yarnpkg.com/@tronweb3/tronwallet-adapter-react-hooks/-/tronwallet-adapter-react-hooks-1.1.7.tgz#69d776f40363b21924778a7c9e3014e8751f5c10"
   integrity sha512-nW0FnS0N6523EjNYx8WGmob22bEG6V+N3vZa+EaaJLJ1toKJBDPpktFaldSq14czc6Q8N1banUmftUl2/RyASA==
@@ -4300,7 +4300,7 @@
   dependencies:
     "@tronweb3/tronwallet-abstract-adapter" "^1.1.6"
 
-"@tronweb3/tronwallet-adapter-walletconnect@^1.0.0", "@tronweb3/tronwallet-adapter-walletconnect@^1.0.5":
+"@tronweb3/tronwallet-adapter-walletconnect@^1.0.0":
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/@tronweb3/tronwallet-adapter-walletconnect/-/tronwallet-adapter-walletconnect-1.0.5.tgz#ea72cfe806f0815988c21ac4a1044ee0c96fdcf0"
   integrity sha512-Aw3qZjE29+W6P0YLqsvjQ4vmfxon1adp4VgVqke1UL//gPs6gFi3CtTgIuunMbfl58T7YWn1oWucpNKxrdRPjw==
@@ -4312,18 +4312,6 @@
     "@walletconnect/types" "^2.1.4"
     "@web3modal/ethereum" "^2.4.2"
     viem "^0.3.50"
-
-"@tronweb3/tronwallet-adapters@^1.1.1":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@tronweb3/tronwallet-adapters/-/tronwallet-adapters-1.2.0.tgz#8fc06ffb4d86464d436aabc7dfed12b76efb881f"
-  integrity sha512-eYU0meipg5Ptbdu7AD3iiHK58IRAGgO6cILxQ3h27hDF6yqehC+iFwQqcJpqrWP0IxCz4fno35yijgLYsVe8KQ==
-  dependencies:
-    "@tronweb3/tronwallet-adapter-bitkeep" "^1.1.0"
-    "@tronweb3/tronwallet-adapter-ledger" "^1.1.8"
-    "@tronweb3/tronwallet-adapter-okxwallet" "^1.0.2"
-    "@tronweb3/tronwallet-adapter-tokenpocket" "^1.0.2"
-    "@tronweb3/tronwallet-adapter-tronlink" "^1.1.9"
-    "@tronweb3/tronwallet-adapter-walletconnect" "^1.0.5"
 
 "@tronweb3/walletconnect-tron@2.0.0":
   version "2.0.0"

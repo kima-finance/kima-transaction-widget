@@ -47,7 +47,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
           `${nodeProviderQuery}/kima-finance/kima-blockchain/transaction/transaction_data/${txId}`
         )
 
-        const data = result?.TransactionData
+        const data = result?.transactionData
 
         if (!data) return
 

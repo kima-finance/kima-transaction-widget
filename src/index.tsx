@@ -11,14 +11,11 @@ import {
   SolongWalletAdapter,
   TorusWalletAdapter
 } from '@solana/wallet-adapter-wallets'
-import {
-  BitKeepAdapter,
-  LedgerAdapter,
-  OkxWalletAdapter,
-  TokenPocketAdapter,
-  TronLinkAdapter
-} from '@tronweb3/tronwallet-adapters'
-
+import { LedgerAdapter } from '@tronweb3/tronwallet-adapter-ledger'
+import { TronLinkAdapter } from '@tronweb3/tronwallet-adapter-tronlink'
+import { BitKeepAdapter } from '@tronweb3/tronwallet-adapter-bitkeep'
+import { OkxWalletAdapter } from '@tronweb3/tronwallet-adapter-okxwallet'
+import { TokenPocketAdapter } from '@tronweb3/tronwallet-adapter-tokenpocket'
 import { WalletProvider as TronWalletProvider } from '@tronweb3/tronwallet-adapter-react-hooks'
 import {
   WalletDisconnectedError,

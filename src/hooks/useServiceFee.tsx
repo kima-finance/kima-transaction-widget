@@ -116,7 +116,7 @@ export default function useServiceFee(isConfirming: boolean = false) {
         return
       }
       const gasFeeData: any = await fetchWrapper.get(
-        `${nodeProviderQuery}/kima-finance/kima-blockchain/kima/gas_fee`
+        `${nodeProviderQuery}/kima-finance/kima-blockchain/chains/gas_fee`
       )
 
       gasFeeData.gasFee.forEach((data: any) => {
