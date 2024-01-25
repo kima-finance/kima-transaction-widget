@@ -33,7 +33,8 @@ import {
   setDappOption,
   setSwitchChainHandler,
   setUuid,
-  setKeplrHandler
+  setKeplrHandler,
+  setKimaExplorer
 } from '../store/optionSlice'
 import '../index.css'
 import { selectSubmitted } from '../store/selectors'
@@ -58,6 +59,7 @@ interface Props {
   paymentTitleOption?: PaymentTitleOption
   kimaBackendUrl: string
   kimaNodeProviderQuery: string
+  kimaExplorer: string
   errorHandler?: (e: any) => void
   closeHandler?: (e: any) => void
   successHandler?: (e: any) => void
@@ -80,6 +82,7 @@ export const KimaTransactionWidget = ({
   transactionOption,
   kimaBackendUrl,
   kimaNodeProviderQuery,
+  kimaExplorer,
   errorHandler = () => void 0,
   closeHandler = () => void 0,
   successHandler = () => void 0,
@@ -93,6 +96,7 @@ export const KimaTransactionWidget = ({
     dispatch(setTheme(theme))
     if (transactionOption) dispatch(setTransactionOption(transactionOption))
 
+    dispatch(setKimaExplorer(kimaExplorer))
     dispatch(setCompliantOption(compliantOption))
     dispatch(setErrorHandler(errorHandler))
     dispatch(setKeplrHandler(keplrHandler))

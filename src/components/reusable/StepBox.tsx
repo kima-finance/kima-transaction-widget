@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux'
 import { CheckIcon, WarningIcon } from '../../assets/icons'
 import { Loading180Ring } from '../../assets/loading'
 import { TransactionData } from '../../interface'
-import { selectTheme } from '../../store/selectors'
+import { selectKimaExplorer, selectTheme } from '../../store/selectors'
 import {
   ChainName,
   CHAIN_NAMES_TO_EXPLORER,
@@ -40,6 +40,7 @@ const stepInfo = [
 
 const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
   const theme = useSelector(selectTheme)
+  const explorerUrl = useSelector(selectKimaExplorer)
 
   return (
     <div className='kima-stepbox'>
@@ -65,7 +66,7 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                 <p>
                   Kima TX ID:{' '}
                   <ExternalLink
-                    to={`https://explorer.kima.finance/transactions/${data?.kimaTxHash}`}
+                    to={`https://${explorerUrl}/transactions/${data?.kimaTxHash}`}
                   >
                     {getShortenedAddress(data?.kimaTxHash || '')}
                   </ExternalLink>
