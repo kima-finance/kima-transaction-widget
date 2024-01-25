@@ -41,6 +41,7 @@ export interface OptionState {
   serviceFee: number // service fee from kima node
   backendUrl: string // URL for kima-transaction-backend component
   nodeProviderQuery: string // REST API endpoint to query kima node
+  kimaExplorerUrl: string // URL for kima explore (testnet, staging or demo)
   txId: number // transaction id to monitor it's status
   currencyOptions: any // Currency options available between source and target chains
   compliantOption: boolean // option to check compliant addresses
@@ -56,6 +57,7 @@ export interface OptionState {
 
 const initialState: OptionState = {
   theme: {},
+  kimaExplorerUrl: "explorer.kima.finance",
   mode: ModeOptions.bridge,
   sourceChain: '',
   targetChain: '',
@@ -121,6 +123,9 @@ export const optionSlice = createSlice({
     },
     setTheme: (state, action: PayloadAction<ThemeOptions>) => {
       state.theme = action.payload
+    },
+    setKimaExplorer: (state, action: PayloadAction<string>) => {
+      state.kimaExplorerUrl = action.payload;
     },
     setSourceChain: (state, action: PayloadAction<string>) => {
       state.sourceChain = action.payload
@@ -238,6 +243,7 @@ export const optionSlice = createSlice({
 
 export const {
   initialize,
+  setKimaExplorer,
   setTheme,
   setSourceChain,
   setTargetChain,
