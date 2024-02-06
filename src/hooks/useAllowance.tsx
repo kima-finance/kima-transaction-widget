@@ -29,8 +29,9 @@ import { PublicKey, Transaction } from '@solana/web3.js'
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import { createApproveTransferInstruction } from '../utils/solana/createTransferInstruction'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
-// import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
-// import { tronWeb } from '../tronweb'
+import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
+import { tronWeb } from '../tronweb'
+import { fromHex } from '../utils/fuctions'
 
 type ParsedAccountData = {
   /** Name of the program that owns this account */
@@ -49,7 +50,11 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
   const errorHandler = useSelector(selectErrorHandler)
   const dAppOption = useSelector(selectDappOption)
   const sourceChain = useMemo(() => {
-    if (selectedNetwork === ChainName.SOLANA) return selectedNetwork
+    if (
+      selectedNetwork === ChainName.SOLANA ||
+      selectedNetwork === ChainName.TRON
+    )
+      return selectedNetwork
     if (CHAIN_NAMES_TO_IDS[selectedNetwork] !== evmChainId) {
       return CHAIN_IDS_TO_NAMES[evmChainId as number]
     }
@@ -62,14 +67,15 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
   const { connection } = useConnection()
   const { publicKey: solanaAddress, signTransaction: signSolanaTransaction } =
     useSolanaWallet()
-  // const { address: tronAddress, signTransaction: signTronTransaction } =
-  //   useTronWallet()
+  const { address: tronAddress, signTransaction: signTronTransaction } =
+    useTronWallet()
   const selectedCoin = useSelector(selectCurrencyOptions)
   const tokenAddress = useMemo(() => {
     return selectedCoin.address[sourceChain]
   }, [selectedCoin, sourceChain])
   const [targetAddress, setTargetAddress] = useState<string>()
   const isApproved = useMemo(() => {
+    console.log(allowance, amount, serviceFee)
     return allowance >= amount + serviceFee
   }, [allowance, amount, serviceFee, dAppOption])
 
@@ -89,7 +95,7 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
         sourceChain === ChainName.SOLANA
           ? result.tssPubkey[0].eddsa
           : sourceChain === ChainName.TRON
-            ? 'TQmnQpCmEFMqTUGigvu7o2VUFHumZDFYyy'
+            ? fromHex(result.tssPubkey[0].ecdsa)
             : result.tssPubkey[0].ecdsa
       )
     } catch (e) {
@@ -130,21 +136,22 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
                 ? parsedAccountInfo.parsed?.info?.delegatedAmount?.uiAmount
                 : 0
             )
+          } else if (tronAddress && tokenAddress) {
+            let trc20Contract = await tronWeb.contract(
+              ERC20ABI.abi,
+              tokenAddress
+            )
+
+            const decimals = await trc20Contract.decimals().call()
+            const userAllowance = await trc20Contract
+              .allowance(tronAddress, targetAddress)
+              .call()
+
+            setDecimals(+decimals)
+            setAllowance(+formatUnits(userAllowance, decimals))
+          } else {
+            setAllowance(0)
           }
-          //  else if (tronAddress && tokenAddress) {
-          //   let trc20Contract = await tronWeb.contract(
-          //     ERC20ABI.abi,
-          //     tokenAddress
-          //   )
-
-          //   const decimals = await trc20Contract.decimals().call()
-          //   const userAllowance = await trc20Contract
-          //     .allowance(tronAddress, targetAddress)
-          //     .call()
-
-          //   setDecimals(+decimals)
-          //   setAllowance(+formatUnits(userAllowance, decimals))
-          // }
           return
         }
 
@@ -168,8 +175,8 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
     tokenAddress,
     targetAddress,
     sourceChain,
-    solanaAddress
-    // tronAddress
+    solanaAddress,
+    tronAddress
   ])
 
   const approve = useCallback(async () => {
@@ -196,40 +203,40 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
       return
     }
 
-    // if (sourceChain === ChainName.TRON) {
-    //   if (!decimals || !tokenAddress || !targetAddress || !signTronTransaction)
-    //     return
+    if (sourceChain === ChainName.TRON) {
+      if (!decimals || !tokenAddress || !targetAddress || !signTronTransaction)
+        return
 
-    //   try {
-    //     setApproving(true)
-    //     const functionSelector = 'approve(address,uint256)'
-    //     const parameter = [
-    //       { type: 'address', value: targetAddress },
-    //       {
-    //         type: 'uint256',
-    //         value: parseUnits((amount + serviceFee).toString(), decimals)
-    //       }
-    //     ]
+      try {
+        setApproving(true)
+        const functionSelector = 'approve(address,uint256)'
+        const parameter = [
+          { type: 'address', value: targetAddress },
+          {
+            type: 'uint256',
+            value: parseUnits((amount + serviceFee).toString(), decimals)
+          }
+        ]
 
-    //     const tx = await tronWeb.transactionBuilder.triggerSmartContract(
-    //       tronWeb.address.toHex(tokenAddress),
-    //       functionSelector,
-    //       {},
-    //       parameter,
-    //       tronWeb.address.toHex(tronAddress)
-    //     )
-    //     const signedTx = await signTronTransaction(tx.transaction)
-    //     const result = await tronWeb.trx.sendRawTransaction(signedTx)
-    //     console.log(result)
+        const tx = await tronWeb.transactionBuilder.triggerSmartContract(
+          tronWeb.address.toHex(tokenAddress),
+          functionSelector,
+          {},
+          parameter,
+          tronWeb.address.toHex(tronAddress)
+        )
+        const signedTx = await signTronTransaction(tx.transaction)
+        const result = await tronWeb.trx.sendRawTransaction(signedTx)
+        console.log(result)
 
-    //     setApproving(false)
-    //     setAllowance(amount + serviceFee)
-    //   } catch (error) {
-    //     errorHandler(error)
-    //     setApproving(false)
-    //   }
-    //   return
-    // }
+        setApproving(false)
+        setAllowance(amount + serviceFee)
+      } catch (error) {
+        errorHandler(error)
+        setApproving(false)
+      }
+      return
+    }
 
     // Solana
     if (!signSolanaTransaction) return
@@ -276,9 +283,9 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
     signer,
     amount,
     targetAddress,
-    // tronAddress,
+    tronAddress,
     signSolanaTransaction,
-    // signTronTransaction,
+    signTronTransaction,
     serviceFee
   ])
 
