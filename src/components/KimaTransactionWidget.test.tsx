@@ -1,5 +1,4 @@
 import { act, render } from '@testing-library/react'
-import { ethers } from 'ethers'
 import React from 'react'
 
 import {
@@ -8,10 +7,8 @@ import {
   FontSizeOptions,
   ModeOptions,
   SupportNetworks,
-  ColorModeOptions,
-  DAppOptions
-} from '../'
-import { Web3Provider } from '@ethersproject/providers'
+  ColorModeOptions
+} from '..'
 
 describe('KimaTransactionWidget test', function () {
   it('Bridge scenario', async function () {

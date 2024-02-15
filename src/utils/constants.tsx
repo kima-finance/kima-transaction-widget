@@ -6,7 +6,7 @@ import {
   USDTIcon,
   SolanaIcon,
   BSCIcon,
-  ArbitriumIcon,
+  ArbitrumIcon,
   OptimismIcon,
   BankIcon,
   KEURICON,
@@ -19,7 +19,7 @@ import {
   POLYGON_USDK_ADDRESS,
   SOLANA_USDK_ADDRESS,
   OPTIMISM_USDK_ADDRESS,
-  ARBITRIUM_USDK_ADDRESS,
+  ARBITRUM_USDK_ADDRESS,
   POLYGON_ZKEVM_ADDRESS,
   POLYGON_KEUR_ADDRESS,
   ETHEREUM_KEUR_ADDRESS,
@@ -32,7 +32,7 @@ export enum ChainName {
   AVALANCHE = 'AVX',
   SOLANA = 'SOL',
   BSC = 'BSC',
-  ARBITRIUM = 'ARB',
+  ARBITRUM = 'ARB',
   OPTIMISM = 'OPT',
   POLYGON_ZKEVM = 'ZKE',
   TRON = 'TRX',
@@ -44,7 +44,7 @@ export enum SupportedChainId {
   POLYGON = 80001,
   AVALANCHE = 43113,
   BSC = 97,
-  ARBITRIUM = 421613,
+  ARBITRUM = 421613,
   OPTIMISM = 420,
   POLYGON_ZKEM = 1442
 }
@@ -55,7 +55,7 @@ export const CHAIN_NAMES_TO_IDS: { [chainName: string]: SupportedChainId } = {
   [ChainName.AVALANCHE]: SupportedChainId.AVALANCHE,
   [ChainName.BSC]: SupportedChainId.BSC,
   [ChainName.OPTIMISM]: SupportedChainId.OPTIMISM,
-  [ChainName.ARBITRIUM]: SupportedChainId.ARBITRIUM,
+  [ChainName.ARBITRUM]: SupportedChainId.ARBITRUM,
   [ChainName.POLYGON_ZKEVM]: SupportedChainId.POLYGON_ZKEM
 }
 
@@ -66,7 +66,7 @@ export const CHAIN_NAMES_TO_STRING: { [chainName: string]: string } = {
   [ChainName.SOLANA]: 'Solana',
   [ChainName.BSC]: 'Binance',
   [ChainName.OPTIMISM]: 'Optimism',
-  [ChainName.ARBITRIUM]: 'Arbitrium',
+  [ChainName.ARBITRUM]: 'Arbitrim',
   [ChainName.POLYGON_ZKEVM]: 'Polygon zkEVM',
   [ChainName.TRON]: 'Tron',
   [ChainName.FIAT]: 'Pay with FIAT'
@@ -79,7 +79,7 @@ export const CHAIN_STRING_TO_NAME: { [chainName: string]: ChainName } = {
   ['Solana']: ChainName.SOLANA,
   ['Binance']: ChainName.BSC,
   ['Optimism']: ChainName.OPTIMISM,
-  ['Arbitrium']: ChainName.ARBITRIUM,
+  ['Arbitrim']: ChainName.ARBITRUM,
   ['Polygon zkEVM']: ChainName.POLYGON_ZKEVM,
   ['Tron']: ChainName.TRON,
   ['Pay with FIAT']: ChainName.FIAT
@@ -92,7 +92,7 @@ export const CHAIN_NAMES_TO_EXPLORER: { [chainName: string]: string } = {
   [ChainName.SOLANA]: 'solscan.io',
   [ChainName.BSC]: 'testnet.bscscan.com',
   [ChainName.OPTIMISM]: 'goerli-optimism.etherscan.io',
-  [ChainName.ARBITRIUM]: 'goerli.arbiscan.io',
+  [ChainName.ARBITRUM]: 'goerli.arbiscan.io',
   [ChainName.POLYGON_ZKEVM]: 'explorer.public.zkevm-test.net',
   [ChainName.TRON]: 'https://nile.tronscan.org/#'
 }
@@ -104,7 +104,7 @@ export const CHAIN_NAMES_TO_GECKO_ID: { [chainName: string]: string } = {
   [ChainName.SOLANA]: 'solana',
   [ChainName.BSC]: 'binancecoin',
   [ChainName.OPTIMISM]: 'ethereum',
-  [ChainName.ARBITRIUM]: 'ethereum',
+  [ChainName.ARBITRUM]: 'ethereum',
   [ChainName.POLYGON_ZKEVM]: 'matic-network',
   [ChainName.TRON]: 'tron'
 }
@@ -115,7 +115,7 @@ export const CHAIN_IDS_TO_NAMES: { [chainId: number]: string } = {
   [SupportedChainId.AVALANCHE]: ChainName.AVALANCHE,
   [SupportedChainId.BSC]: ChainName.BSC,
   [SupportedChainId.OPTIMISM]: ChainName.OPTIMISM,
-  [SupportedChainId.ARBITRIUM]: ChainName.ARBITRIUM,
+  [SupportedChainId.ARBITRUM]: ChainName.ARBITRUM,
   [SupportedChainId.POLYGON_ZKEM]: ChainName.POLYGON_ZKEVM
 }
 
@@ -151,9 +151,9 @@ export const networkOptions = [
     icon: SolanaIcon
   },
   {
-    id: ChainName.ARBITRIUM,
-    label: 'Arbitrium',
-    icon: ArbitriumIcon
+    id: ChainName.ARBITRUM,
+    label: 'Arbitrum',
+    icon: ArbitrumIcon
   },
   {
     id: ChainName.OPTIMISM,
@@ -191,7 +191,7 @@ export const isEVMChain = (chainId: string) =>
   chainId === ChainName.AVALANCHE ||
   chainId === ChainName.BSC ||
   chainId === ChainName.OPTIMISM ||
-  chainId === ChainName.ARBITRIUM ||
+  chainId === ChainName.ARBITRUM ||
   chainId === ChainName.POLYGON_ZKEVM
 
 type CoinOptions = {
@@ -210,7 +210,7 @@ export const COIN_LIST: CoinOptions = {
       AVX: AVAX_USDK_ADDRESS,
       BSC: BSC_USDK_ADDRESS,
       OPT: OPTIMISM_USDK_ADDRESS,
-      ARB: ARBITRIUM_USDK_ADDRESS,
+      ARB: ARBITRUM_USDK_ADDRESS,
       ZKE: POLYGON_ZKEVM_ADDRESS,
       TRX: TRON_USDK_ADDRESS
     },

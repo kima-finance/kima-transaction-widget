@@ -485,7 +485,7 @@ exports[`KimaTransactionWidget test Bridge scenario 1`] = `
                   </g>
                 </svg>
                 <p>
-                  Arbitrium
+                  Arbitrum
                 </p>
               </div>
               <div
@@ -1610,7 +1610,7 @@ exports[`KimaTransactionWidget test Payment scenario 1`] = `
                   </g>
                 </svg>
                 <p>
-                  Arbitrium
+                  Arbitrum
                 </p>
               </div>
               <div
