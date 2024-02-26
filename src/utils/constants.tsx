@@ -91,9 +91,9 @@ export const CHAIN_NAMES_TO_EXPLORER: { [chainName: string]: string } = {
   [ChainName.AVALANCHE]: 'testnet.snowtrace.io',
   [ChainName.SOLANA]: 'solscan.io',
   [ChainName.BSC]: 'testnet.bscscan.com',
-  [ChainName.OPTIMISM]: 'goerli-optimism.etherscan.io',
-  [ChainName.ARBITRUM]: 'goerli.arbiscan.io',
-  [ChainName.POLYGON_ZKEVM]: 'explorer.public.zkevm-test.net',
+  [ChainName.OPTIMISM]: 'sepolia-optimism.etherscan.io',
+  [ChainName.ARBITRUM]: 'sepolia.arbiscan.io',
+  [ChainName.POLYGON_ZKEVM]: 'testnet-zkevm.polygonscan.com',
   [ChainName.TRON]: 'https://nile.tronscan.org/#'
 }
 
@@ -124,21 +124,16 @@ export const networkOptions = [
     id: ChainName.ETHEREUM,
     label: 'Ethereum',
     icon: EthereumIcon,
-    providerUrl: 'https://sepolia.infura.io/v3/bf666ea7001545acbc960bc0ad380d57'
   },
   {
     id: ChainName.POLYGON,
     label: 'Polygon',
     icon: PolygonIcon,
-    providerUrl:
-      'https://polygon-mumbai.infura.io/v3/bf666ea7001545acbc960bc0ad380d57'
   },
   {
     id: ChainName.AVALANCHE,
     label: 'Avalanche',
     icon: AvalancheIcon,
-    providerUrl:
-      'https://avalanche-fuji.infura.io/v3/bf666ea7001545acbc960bc0ad380d57'
   },
   {
     id: ChainName.BSC,
