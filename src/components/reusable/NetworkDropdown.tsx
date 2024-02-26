@@ -78,8 +78,8 @@ const NetworkDropdown = React.memo(
             chains = networks.Chains
             if (useFIAT) chains.push(ChainName.FIAT)
 
-            // if (originNetwork === ChainName.TRON)
-            //   chains = [ChainName.ETHEREUM, ChainName.POLYGON]
+            if (originNetwork === ChainName.TRON)
+              chains = [ChainName.ETHEREUM, ChainName.POLYGON]
           }
 
           setAvailableNetworks(chains)

@@ -2,8 +2,8 @@ import React, { useEffect, useMemo } from 'react'
 import { toast } from 'react-hot-toast'
 import { useDispatch, useSelector } from 'react-redux'
 import {
-  setSolanaConnectModal
-  // setTronConnectModal
+  setSolanaConnectModal,
+  setTronConnectModal
 } from '../../store/optionSlice'
 import {
   selectCompliantOption,
@@ -46,10 +46,10 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
       return
     }
 
-    // if (selectedNetwork === ChainName.TRON) {
-    //   dispatch(setTronConnectModal(true))
-    //   return
-    // }
+    if (selectedNetwork === ChainName.TRON) {
+      dispatch(setTronConnectModal(true))
+      return
+    }
 
     connect()
   }

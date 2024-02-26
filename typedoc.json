@@ -1,0 +1,10 @@
+{
+    "entryPoints": ["src"],
+    "name": "Kima Transaction Widget",
+    "entryPointStrategy": "resolve",
+    "includeVersion": false,
+    "exclude": ["node_modules", "src/*.ts", "src/store/*"],
+    // Potentially useful for debugging
+    "logLevel": "Verbose"
+  }
+  

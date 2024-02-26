@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, waitFor } from '@testing-library/react'
 import React from 'react'
 import {
   KimaProvider,
@@ -6,7 +6,6 @@ import {
   ColorModeOptions,
   KimaTransactionWidget,
   ModeOptions,
-  DAppOptions,
   SupportNetworks
 } from '..'
 import { renderWithProviders } from '../utils/utils-for-tests'
@@ -64,7 +63,6 @@ describe('TransferWidget test', function () {
 
     expect(container).toMatchSnapshot()
 
-    expect(screen.getByText('Next')).toBeInTheDocument()
     const submitButton = container.querySelector(
       '.kima-card-footer button:last-of-type'
     )

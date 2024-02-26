@@ -4,6 +4,7 @@ import { configureStore } from '@reduxjs/toolkit'
 import { Provider } from 'react-redux'
 // As a basic setup, import your same slice reducers
 import { optionSlice } from '../store/optionSlice'
+import '@testing-library/dom/node_modules/pretty-format'
 
 export function renderWithProviders(
   ui,

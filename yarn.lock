@@ -4543,10 +4543,18 @@
   dependencies:
     "@types/istanbul-lib-report" "*"
 
-"@types/jest@*", "@types/jest@^29.1.2":
+"@types/jest@*":
   version "29.5.11"
   resolved "https://registry.yarnpkg.com/@types/jest/-/jest-29.5.11.tgz#0c13aa0da7d0929f078ab080ae5d4ced80fa2f2c"
   integrity sha512-S2mHmYIVe13vrm6q4kN6fLYYAka15ALQki/vgDC3mIukEOx8WJlv0kQPM+d4w8Gp6u0uSdKND04IlTXBv0rwnQ==
+  dependencies:
+    expect "^29.0.0"
+    pretty-format "^29.0.0"
+
+"@types/jest@^29.5.12":
+  version "29.5.12"
+  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-29.5.12.tgz#7f7dc6eb4cf246d2474ed78744b05d06ce025544"
+  integrity sha512-eDC8bTvT/QhYdxJAulQikueigY5AsdBRH2yDKW3yveW7svY3+DzN84/2NUgkw10RTiJbWqZrTtoGVdYlvFJdLw==
   dependencies:
     expect "^29.0.0"
     pretty-format "^29.0.0"
@@ -4584,6 +4592,11 @@
   version "1.3.5"
   resolved "https://registry.yarnpkg.com/@types/mime/-/mime-1.3.5.tgz#1ef302e01cf7d2b5a0fa526790c9123bf1d06690"
   integrity sha512-/pyBZWSLD2n0dcHE3hq8s8ZvcETHtEuF+3E7XVt0Ig2nvsVQXdghHVcEkIWjy9A0wKfTn97a/PSDYohKIlnP/w==
+
+"@types/mocha@^10.0.6":
+  version "10.0.6"
+  resolved "https://registry.yarnpkg.com/@types/mocha/-/mocha-10.0.6.tgz#818551d39113081048bdddbef96701b4e8bb9d1b"
+  integrity sha512-dJvrYWxP/UcXm36Qn36fxhUKu8A/xMRXVT2cliFF1Z7UA9liG5Psj3ezNSZw+5puH2czDXRLcXQxf8JbJt0ejg==
 
 "@types/ms@*":
   version "0.7.34"
@@ -9749,6 +9762,18 @@ handle-thing@^2.0.0:
   resolved "https://registry.yarnpkg.com/handle-thing/-/handle-thing-2.0.1.tgz#857f79ce359580c340d43081cc648970d0bb234e"
   integrity sha512-9Qn4yBxelxoh2Ow62nP+Ka/kMnOXRi8BXnRaUwezLNhqelnN49xKz4F/dPP8OYLxLxq6JDtZb2i9XznUQbNPTg==
 
+handlebars@^4.7.7:
+  version "4.7.8"
+  resolved "https://registry.yarnpkg.com/handlebars/-/handlebars-4.7.8.tgz#41c42c18b1be2365439188c77c6afae71c0cd9e9"
+  integrity sha512-vafaFqs8MZkRrSX7sFVUdo3ap/eNiLnb4IakshzvP56X5Nr1iGKAIqdX6tMlm6HcNRIkr6AxO5jFEoJzzpT8aQ==
+  dependencies:
+    minimist "^1.2.5"
+    neo-async "^2.6.2"
+    source-map "^0.6.1"
+    wordwrap "^1.0.0"
+  optionalDependencies:
+    uglify-js "^3.1.4"
+
 harmony-reflect@^1.4.6:
   version "1.6.2"
   resolved "https://registry.yarnpkg.com/harmony-reflect/-/harmony-reflect-1.6.2.tgz#31ecbd32e648a34d030d86adb67d4d47547fe710"
@@ -12523,7 +12548,7 @@ minimatch@^9.0.1, minimatch@^9.0.3:
   dependencies:
     brace-expansion "^2.0.1"
 
-minimist@^1.2.0, minimist@^1.2.6:
+minimist@^1.2.0, minimist@^1.2.5, minimist@^1.2.6:
   version "1.2.8"
   resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.8.tgz#c1a464e7693302e082a075cee0c057741ac4772c"
   integrity sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==
@@ -17023,6 +17048,13 @@ typedarray-to-buffer@3.1.5, typedarray-to-buffer@^3.1.5:
   dependencies:
     is-typedarray "^1.0.0"
 
+typedoc-plugin-markdown@^3.17.1:
+  version "3.17.1"
+  resolved "https://registry.yarnpkg.com/typedoc-plugin-markdown/-/typedoc-plugin-markdown-3.17.1.tgz#c33f42363c185adf842f4699166015f7fe0ed02b"
+  integrity sha512-QzdU3fj0Kzw2XSdoL15ExLASt2WPqD7FbLeaqwT70+XjKyTshBnUlQA5nNREO1C2P8Uen0CDjsBLMsCQ+zd0lw==
+  dependencies:
+    handlebars "^4.7.7"
+
 typedoc@^0.25.4:
   version "0.25.7"
   resolved "https://registry.yarnpkg.com/typedoc/-/typedoc-0.25.7.tgz#11e3f527ca80ca3c029cb8e15f362e6d9f715e25"
@@ -17067,6 +17099,11 @@ uglify-js@^2.6.1:
     yargs "~3.10.0"
   optionalDependencies:
     uglify-to-browserify "~1.0.0"
+
+uglify-js@^3.1.4:
+  version "3.17.4"
+  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.17.4.tgz#61678cf5fa3f5b7eb789bb345df29afb8257c22c"
+  integrity sha512-T9q82TJI9e/C1TAxYvfb16xO120tMVFZrGA3f9/P4424DNu6ypK103y0GPFVa17yotwSyZW5iYXgjYHkGrJW/g==
 
 uglify-to-browserify@~1.0.0:
   version "1.0.2"
@@ -17881,6 +17918,11 @@ wordwrap@0.0.2:
   version "0.0.2"
   resolved "https://registry.yarnpkg.com/wordwrap/-/wordwrap-0.0.2.tgz#b79669bb42ecb409f83d583cad52ca17eaa1643f"
   integrity sha512-xSBsCeh+g+dinoBv3GAOWM4LcVVO68wLXRanibtBSdUvkGWQRGeE9P7IwU9EmDDi4jA6L44lz15CGMwdw9N5+Q==
+
+wordwrap@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/wordwrap/-/wordwrap-1.0.0.tgz#27584810891456a4171c8d0226441ade90cbcaeb"
+  integrity sha512-gvVzJFlPycKc5dZN4yPkP8w7Dc37BtP1yczEneOb4uq34pXZcvrtRTmWV8W+Ume+XCxKgbjM+nevkyFPMybd4Q==
 
 workbox-background-sync@6.6.1:
   version "6.6.1"

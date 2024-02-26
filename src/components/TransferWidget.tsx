@@ -63,7 +63,7 @@ import { toast, Toaster } from 'react-hot-toast'
 import useBalance from '../hooks/useBalance'
 import useWidth from '../hooks/useWidth'
 import useSign from '../hooks/useSign'
-// import TronWalletConnectModal from './modals/TronWalletConnectModal'
+import TronWalletConnectModal from './modals/TronWalletConnectModal'
 
 interface Props {
   theme: ThemeOptions
@@ -550,7 +550,7 @@ export const TransferWidget = ({
         </div>
       </div>
       <SolanaWalletConnectModal />
-      {/* <TronWalletConnectModal /> */}
+      <TronWalletConnectModal />
       <HelpPopup />
       {sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT ? (
         <BankPopup setVerifying={setVerifying} isVerifying={isVerifying} />

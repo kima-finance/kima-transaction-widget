@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react'
+import '@testing-library/jest-dom/vitest'
 import React from 'react'
 import { BankPopup } from '.'
 import { KimaProvider } from '../..'
@@ -10,12 +11,12 @@ describe('Bank modal test', function () {
         <BankPopup />
       </KimaProvider>
     )
-    expect(screen.getByText('Submit')).toBeInTheDocument()
+    expect(screen.getByText('Submit')).toBeDefined()
 
     const submitButton = container.querySelector('.bank-simulation button')
     fireEvent.click(submitButton as Element)
 
-    expect(screen.getByText('Transferring funds ...')).toBeInTheDocument()
+    expect(screen.getByText('Transferring funds ...')).toBeDefined()
     expect(container).toMatchSnapshot()
   })
 

@@ -77,6 +77,13 @@ export const KimaProvider = ({ children }: any) => {
     } else toast.error(e.message)
   }
 
+  const onChainChanged = (chainData: any) => {
+    toast.error('Please switch to Tron Nile Testnet!')
+    if (chainData.chainId !== '0xcd8690dc') {
+      adapters[0].switchChain('0xcd8690dc')
+    }
+  }
+
   return (
     <Provider store={store}>
       <EthereumProvider>
@@ -87,6 +94,7 @@ export const KimaProvider = ({ children }: any) => {
               autoConnect={false}
               disableAutoConnectOnLoad={true}
               adapters={adapters}
+              onChainChanged={onChainChanged}
             >
               {children}
             </TronWalletProvider>
