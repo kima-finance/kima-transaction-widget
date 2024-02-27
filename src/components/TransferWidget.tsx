@@ -300,9 +300,9 @@ export const TransferWidget = ({
       }
 
       console.log(txId)
+      setSubmitting(false)
       dispatch(setTxId(txId))
       dispatch(setSubmitted(true))
-      setSubmitting(false)
     } catch (e) {
       errorHandler(e)
       setSubmitting(false)
