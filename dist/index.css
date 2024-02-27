@@ -1,0 +1,1526 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import 'react-tooltip/dist/react-tooltip.css';
+.kima-card {
+  position: relative;
+}
+.kima-card .kima-card-header .topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-header .topbar {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+  }
+}
+.kima-card .kima-card-header .topbar .title {
+  display: flex;
+  align-items: center;
+  font-size: 1.2em;
+}
+.kima-card .kima-card-header .topbar .title h3 {
+  margin: 0;
+}
+.kima-card .kima-card-header .topbar .title span {
+  color: #5aa0db;
+  font-weight: bold;
+  margin: 0 0 0 1em;
+}
+.kima-card .kima-card-header .topbar .control-buttons {
+  display: flex;
+  align-items: center;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-header .topbar .control-buttons {
+    margin-left: auto;
+  }
+}
+.kima-card .kima-card-header .topbar .control-buttons .icon-button {
+  background: transparent;
+  border: none;
+  font-size: 1em;
+  padding: 1px 6px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.kima-card .kima-card-header .topbar .control-buttons .icon-button:hover, .kima-card .kima-card-header .topbar .control-buttons .icon-button:disabled {
+  opacity: 0.6;
+}
+.kima-card .kima-card-header .topbar .control-buttons .icon-button:disabled {
+  cursor: default;
+}
+.kima-card .kima-card-header .topbar .control-buttons .icon-button svg {
+  width: 1em;
+  height: 1em;
+}
+.kima-card .kima-card-header .topbar .control-buttons .icon-button:first-of-type svg {
+  margin-top: 0.5em;
+}
+.kima-card .kima-card-header .topbar .control-buttons a, .kima-card .kima-card-header .topbar .control-buttons .menu-button {
+  margin-left: auto;
+  margin-right: 1em;
+  margin-top: 0.3em;
+  color: #5aa0db;
+  text-decoration: none;
+  cursor: pointer;
+}
+.kima-card .kima-card-header .topbar .control-buttons .maximize {
+  color: #5aa0db;
+  cursor: pointer;
+}
+.kima-card .kima-card-footer {
+  display: flex;
+  align-items: center;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  max-height: 3em;
+  padding-top: 2em;
+  opacity: 1;
+  box-sizing: content-box;
+}
+.kima-card .kima-card-footer .button-group {
+  display: flex;
+  align-items: center;
+  box-sizing: content-box;
+  margin-left: auto;
+}
+.kima-card .kima-card-footer svg {
+  width: 10em;
+  height: 2.5em;
+}
+.kima-card .kima-card-footer p {
+  font-size: 0.8em;
+  margin: 0 0 0 1em;
+}
+.kima-card .kima-card-footer button {
+  margin-left: 1em;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-footer p {
+    display: none;
+  }
+  .kima-card .kima-card-footer .button-group button:first-of-type {
+    display: none;
+  }
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-footer {
+    flex-direction: column;
+    max-height: unset;
+    padding-top: 0em;
+  }
+  .kima-card .kima-card-footer .button-group {
+    margin-left: unset;
+  }
+}
+
+.kima-card .kima-card-content .kima-progressbar {
+  height: 1em;
+  width: 100%;
+  position: relative;
+  border-radius: 1em;
+  margin-bottom: 4em;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-content .kima-progressbar {
+    font-size: 1.5em;
+  }
+}
+.kima-card .kima-card-content .kima-progressbar .value {
+  position: absolute;
+  z-index: 10;
+  height: 100%;
+  width: 100%;
+  border-radius: 1em;
+  background: linear-gradient(90deg, #85d2dd 8.08%, #579dda 96.15%);
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transition-duration: 1000ms;
+}
+.kima-card .kima-card-content .kima-progressbar .step-indicators {
+  position: relative;
+  z-index: 20;
+  display: flex;
+  justify-content: space-between;
+  margin: 0 -0.2em;
+  padding-bottom: 4em;
+}
+.kima-card .kima-card-content .kima-progressbar .step-indicators .step {
+  width: 1.4em;
+  height: 1.4em;
+  margin-top: -0.2em;
+  position: relative;
+}
+.kima-card .kima-card-content .kima-progressbar .step-indicators .step:before {
+  content: "";
+  border-radius: 100%;
+  position: absolute;
+  left: 0.3em;
+  top: 0.3em;
+  width: 0.8em;
+  height: 0.8em;
+  background: white;
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.15);
+  box-sizing: content-box;
+}
+.kima-card .kima-card-content .kima-progressbar .step-indicators .step.active:before {
+  width: 1em;
+  height: 1em;
+  left: 0;
+  top: 0;
+  background: #5aa0db;
+  border: 0.2em solid white;
+}
+.kima-card .kima-card-content .kima-progressbar .step-indicators .step .step-info {
+  position: absolute;
+  width: 10em;
+  left: -4em;
+  top: 2em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.kima-card .kima-card-content .kima-progressbar .step-indicators .step .step-info > svg {
+  width: 1em;
+  height: 1em;
+}
+.kima-card .kima-card-content .kima-progressbar .step-indicators .step .step-info span {
+  text-align: center;
+  margin-left: 0.5em;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-content .kima-progressbar .step-indicators .step .step-info {
+    width: 3em;
+    left: -0.5em;
+    flex-direction: column;
+    position: relative;
+    margin-left: -0.3em;
+  }
+  .kima-card .kima-card-content .kima-progressbar .step-indicators .step .step-info span {
+    font-size: 0.66em;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    margin-left: 0;
+    margin-top: 1em;
+    width: 100%;
+  }
+  .kima-card .kima-card-content .kima-progressbar .step-indicators .step .step-info svg {
+    position: absolute;
+    top: 0;
+    width: 0.8em;
+    height: 0.8em;
+  }
+  .kima-card .kima-card-content .kima-progressbar .step-indicators .step .step-info:hover {
+    align-items: center;
+  }
+  .kima-card .kima-card-content .kima-progressbar .step-indicators .step .step-info:hover span {
+    overflow: visible !important;
+    text-overflow: inherit !important;
+    white-space: inherit !important;
+    display: flex;
+    justify-content: center;
+  }
+}
+.kima-card .kima-card-content .kima-progressbar .step-indicators .step:first-of-type .step-info {
+  left: 0;
+  justify-content: flex-start;
+}
+.kima-card .kima-card-content .kima-progressbar .step-indicators .step:last-of-type .step-info {
+  left: unset;
+  right: 0;
+  justify-content: flex-end;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-content .kima-progressbar .step-indicators .step:last-of-type .step-info {
+    right: 1em;
+  }
+}
+.kima-card .kima-card-content .kima-tooltip {
+  padding-top: 2em;
+  width: 100%;
+  position: relative;
+}
+.kima-card .kima-card-content .kima-tooltip > div {
+  position: relative;
+  height: -moz-fit-content;
+  height: fit-content;
+  width: 50%;
+  display: flex;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.kima-card .kima-card-content .kima-tooltip > div.position-first {
+  left: -1em !important;
+  justify-content: flex-start;
+}
+.kima-card .kima-card-content .kima-tooltip > div.position-first .content-wrapper:before {
+  left: 1em;
+}
+.kima-card .kima-card-content .kima-tooltip > div.position-last {
+  left: calc(50% + 1em) !important;
+  justify-content: flex-end;
+}
+.kima-card .kima-card-content .kima-tooltip > div.position-last .content-wrapper:before {
+  left: calc(100% - 3em) !important;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-content .kima-tooltip > div {
+    width: 100%;
+    left: 0 !important;
+  }
+  .kima-card .kima-card-content .kima-tooltip > div.position-last {
+    left: 1em !important;
+  }
+}
+.kima-card .kima-card-content .kima-tooltip > div .content-wrapper {
+  width: 22em;
+  border: 1px solid #66aae5;
+  border-radius: 1em;
+  padding: 1.5em;
+  position: relative;
+}
+.kima-card .kima-card-content .kima-tooltip > div .content-wrapper:before {
+  position: absolute;
+  content: "";
+  width: 2em;
+  height: 1.5em;
+  left: calc(50% - 1em);
+  top: -1.5em;
+  background: #66aae5;
+  -webkit-clip-path: polygon(50% 0, 100% 100%, 0 100%);
+          clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.kima-card .kima-card-content .kima-tooltip > div .content-wrapper .info-item {
+  position: relative;
+}
+.kima-card .kima-card-content .kima-tooltip > div .content-wrapper .info-item:not(:first-of-type) {
+  margin-top: 0.8em;
+}
+.kima-card .kima-card-content .kima-tooltip > div .content-wrapper .info-item p {
+  margin-left: 1.5em;
+}
+.kima-card .kima-card-content .kima-tooltip > div .content-wrapper .info-item p a {
+  margin-left: 0.5em;
+}
+.kima-card .kima-card-content .kima-tooltip > div .content-wrapper .info-item p .copy-btn {
+  display: inline;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.kima-card .kima-card-content .kima-tooltip > div .content-wrapper .info-item p .copy-btn:hover {
+  opacity: 0.7;
+}
+.kima-card .kima-card-content .kima-tooltip > div .content-wrapper .info-item p .copy-btn svg {
+  width: 1em;
+  height: 1em;
+  margin-left: 0.5em;
+}
+.kima-card .kima-card-content .kima-tooltip > div .content-wrapper .info-item svg {
+  position: absolute;
+  margin-top: 0.3em;
+  width: 1em;
+  height: 1em;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-content .kima-tooltip > div .content-wrapper {
+    width: 100%;
+  }
+  .kima-card .kima-card-content .kima-tooltip > div .content-wrapper:before {
+    opacity: 0;
+  }
+  .kima-card .kima-card-content .kima-tooltip > div .content-wrapper .arrow {
+    position: absolute;
+    position: absolute;
+    content: "";
+    width: 2em;
+    height: 1.5em;
+    top: -1.5em;
+    background: #66aae5;
+    -webkit-clip-path: polygon(50% 0, 100% 100%, 0 100%);
+            clip-path: polygon(50% 0, 100% 100%, 0 100%);
+    transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+}
+.kima-card .kima-card-content .network-select {
+  position: relative;
+}
+.kima-card .kima-card-content .network-select p {
+  font-size: 1.2em;
+  font-weight: 500;
+  text-align: center;
+}
+.kima-card .kima-card-content .network-select .network-container {
+  display: flex;
+  -moz-column-gap: 1em;
+       column-gap: 1em;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2em;
+  width: -moz-max-content;
+  width: max-content;
+  margin: 0 auto;
+}
+.kima-card .kima-card-content .single-form {
+  padding-left: 5em;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-content .single-form {
+    padding-left: 0;
+  }
+}
+.kima-card .kima-card-content .single-form .bank-input {
+  margin-top: 2em;
+}
+.kima-card .kima-card-content .single-form .form-item {
+  display: flex;
+  align-items: center;
+}
+.kima-card .kima-card-content .single-form .form-item:not(:first-of-type) {
+  margin-top: 2em;
+}
+.kima-card .kima-card-content .single-form .form-item > span {
+  font-size: 1.16em;
+  width: 10em;
+}
+.kima-card .kima-card-content .single-form .form-item .network-item {
+  display: flex;
+  align-items: center;
+  width: 9em;
+  height: 3.5em;
+  border-radius: 0.8em;
+  padding: 0 0.8em;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.kima-card .kima-card-content .single-form .form-item .network-item svg {
+  width: 2em;
+  height: 2em;
+  border-radius: 100%;
+}
+.kima-card .kima-card-content .single-form .form-item .network-item p {
+  width: 100%;
+  text-align: center;
+  font-weight: bold;
+}
+.kima-card .kima-card-content .single-form .form-item .network-item:not(:first-of-type) {
+  margin-left: 0.5em;
+}
+.kima-card .kima-card-content .single-form .form-item .network-item.light {
+  background: #e3e3e3;
+}
+.kima-card .kima-card-content .single-form .form-item .network-item.dark {
+  background: #4f5156;
+}
+.kima-card .kima-card-content .single-form .form-item .network-item.active {
+  background: #66aae5;
+}
+.kima-card .kima-card-content .single-form .form-item .network-item.active p {
+  color: white;
+}
+.kima-card .kima-card-content .single-form .form-item .network-item:hover {
+  opacity: 0.7;
+}
+.kima-card .kima-card-content .single-form .form-item .amount-label-container {
+  display: flex;
+  align-items: center;
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .single-form .form-item .amount-label-container {
+    width: 13.7em;
+  }
+  .kima-card .kima-card-content .single-form .form-item .amount-label-container input {
+    width: 100%;
+  }
+}
+.kima-card .kima-card-content .single-form .form-item .amount-label {
+  display: flex;
+  align-items: center;
+  background-color: #e3e3e3;
+  padding: 1em;
+  border-radius: 1em;
+}
+.kima-card .kima-card-content .single-form .form-item .amount-label.dark {
+  background-color: #4f5156;
+}
+.kima-card .kima-card-content .single-form .form-item .amount-label.dark .coin-wrapper {
+  background: #979797;
+  color: white;
+}
+.kima-card .kima-card-content .single-form .form-item .amount-label span {
+  font-size: 1.1em;
+  font-weight: 500;
+}
+.kima-card .kima-card-content .single-form .form-item .amount-label .coin-wrapper {
+  display: flex;
+  align-items: center;
+  border-radius: 1em;
+  font-size: 1em;
+  font-weight: 500;
+  padding: 0.2em;
+  padding-right: 0.5em;
+  background: white;
+  color: black;
+  margin-left: 1em;
+}
+.kima-card .kima-card-content .single-form .form-item .amount-label .coin-wrapper svg {
+  width: 1.5em;
+  height: 1.5em;
+  margin-right: 0.5em;
+}
+.kima-card .kima-card-content .single-form .form-item input {
+  border: 1px solid #979797;
+  border-radius: 0.8em;
+  height: 3em;
+  background: transparent;
+  color: white;
+  outline: none;
+  font: unset;
+  width: 10em;
+  padding: 0.3em 0.5em 0.3em 1em;
+  box-sizing: content-box;
+}
+.kima-card .kima-card-content .single-form .form-item input.kima-address-input {
+  width: 20em;
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .single-form .form-item input.kima-address-input {
+    width: 12em;
+  }
+}
+.kima-card .kima-card-content .single-form .form-item.light input {
+  color: black;
+}
+.kima-card .kima-card-content .single-form .form-item .error {
+  color: red;
+  font-size: 0.8em;
+  margin-left: 1em;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-content .single-form .form-item.wallet-button-item {
+    align-items: flex-start;
+  }
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .single-form .form-item.wallet-button-item .wallet-button {
+    align-items: flex-end;
+  }
+  .kima-card .kima-card-content .single-form .form-item.wallet-button-item .wallet-button button {
+    width: 12em;
+  }
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .single-form .form-item {
+    justify-content: space-between;
+  }
+}
+.kima-card .kima-card-content .single-form .coin-dropdown {
+  position: relative;
+  border-radius: 1em;
+  padding: 0.5em;
+  height: 2.8em;
+  display: flex;
+  align-items: center;
+  margin-left: 0.5em;
+  cursor: pointer;
+  box-sizing: content-box;
+}
+.kima-card .kima-card-content .single-form .coin-dropdown .coin-wrapper {
+  display: flex;
+  align-items: center;
+  border-radius: 1em;
+  font-size: 1em;
+  font-weight: 500;
+  padding: 0.2em;
+  padding-right: 0.5em;
+  background: white;
+  color: black;
+}
+.kima-card .kima-card-content .single-form .coin-dropdown .coin-wrapper svg {
+  width: 1.5em;
+  height: 1.5em;
+  margin-right: 0.5em;
+}
+.kima-card .kima-card-content .single-form .coin-dropdown.dark .coin-wrapper {
+  background: #979797;
+  color: white;
+}
+.kima-card .kima-card-content .single-form .coin-dropdown .coin-menu {
+  box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+  position: absolute;
+  z-index: 100;
+  max-height: 10em;
+  width: 100%;
+  top: 100%;
+  left: 0;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  padding: 0.5em 0;
+}
+.kima-card .kima-card-content .single-form .coin-dropdown .coin-menu .coin-item {
+  padding: 0em 1em;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  display: flex;
+  align-items: center;
+}
+.kima-card .kima-card-content .single-form .coin-dropdown .coin-menu .coin-item svg {
+  width: 2.5em;
+  height: 2.5em;
+}
+.kima-card .kima-card-content .single-form .coin-dropdown .coin-menu .coin-item p {
+  width: 100%;
+  text-align: center;
+  margin: 0;
+}
+.kima-card .kima-card-content .single-form .coin-dropdown .coin-menu .coin-item:hover {
+  background: rgba(90, 160, 219, 0.5019607843);
+}
+.kima-card .kima-card-content .single-form .coin-dropdown .coin-menu.light {
+  background: white;
+}
+.kima-card .kima-card-content .single-form .coin-dropdown .coin-menu.dark {
+  background: #4f5156;
+}
+.kima-card .kima-card-content .single-form .coin-dropdown .coin-menu.collapsed {
+  max-height: 0;
+  opacity: 0;
+}
+.kima-card .kima-card-content .single-form .coin-dropdown.light {
+  background: #e3e3e3;
+}
+.kima-card .kima-card-content .single-form .coin-dropdown.light:before {
+  border-color: black;
+}
+.kima-card .kima-card-content .single-form .coin-dropdown.collapsed:before {
+  transform: rotate(135deg);
+  top: 1.2em;
+}
+.kima-card .kima-card-content .single-form .coin-dropdown.dark {
+  background: #4f5156;
+}
+.kima-card .kima-card-content .single-form .network-dropdown {
+  position: relative;
+  border-radius: 1em;
+  padding-left: 1em;
+  padding-right: 3em;
+  height: 4em;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  box-sizing: content-box;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.kima-card .kima-card-content .single-form .network-dropdown .network-wrapper {
+  display: flex;
+  align-items: center;
+  border-radius: 1em;
+  font-size: 1.2em;
+  font-weight: 500;
+  padding: 0.2em;
+  padding-right: 0.5em;
+  color: black;
+  z-index: inherit;
+  width: 9.5em;
+}
+.kima-card .kima-card-content .single-form .network-dropdown .network-wrapper span {
+  text-align: center;
+  width: 100%;
+}
+.kima-card .kima-card-content .single-form .network-dropdown .network-wrapper svg {
+  width: 1.8em;
+  height: 1.8em;
+  margin-right: 0.5em;
+}
+.kima-card .kima-card-content .single-form .network-dropdown.dark .network-wrapper {
+  color: white;
+}
+.kima-card .kima-card-content .single-form .network-dropdown:before {
+  box-sizing: content-box;
+  position: absolute;
+  content: "";
+  width: 0.8em;
+  height: 0.8em;
+  right: 1.1em;
+  top: 1.7em;
+  border-top: 2px solid;
+  border-right: 2px solid;
+  border-color: white;
+  transform: rotate(-45deg);
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.kima-card .kima-card-content .single-form .network-dropdown .network-menu {
+  box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+  position: absolute;
+  z-index: 100;
+  max-height: 12em;
+  width: 100%;
+  top: calc(100% - 0.5em);
+  left: 0;
+  padding: 0.5em 0;
+  overflow-x: clip;
+  overflow-y: scroll;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.kima-card .kima-card-content .single-form .network-dropdown .network-menu-item {
+  padding: 0.5em 1em;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  display: flex;
+  align-items: center;
+}
+.kima-card .kima-card-content .single-form .network-dropdown .network-menu-item svg {
+  width: 2em;
+  height: 2em;
+}
+.kima-card .kima-card-content .single-form .network-dropdown .network-menu-item p {
+  width: 100%;
+  text-align: center;
+  margin: 0;
+  font-size: 1.2em;
+}
+.kima-card .kima-card-content .single-form .network-dropdown .network-menu-item:hover {
+  background: rgba(90, 160, 219, 0.5019607843);
+}
+.kima-card .kima-card-content .single-form .network-dropdown .network-menu.light {
+  background: white;
+}
+.kima-card .kima-card-content .single-form .network-dropdown .network-menu.dark {
+  background: #4f5156;
+}
+.kima-card .kima-card-content .single-form .network-dropdown .network-menu.collapsed {
+  max-height: 0;
+  opacity: 0;
+}
+.kima-card .kima-card-content .single-form .network-dropdown.light {
+  background: #e3e3e3;
+}
+.kima-card .kima-card-content .single-form .network-dropdown.light:before {
+  border-color: black;
+}
+.kima-card .kima-card-content .single-form .network-dropdown.collapsed:before {
+  transform: rotate(135deg);
+  top: 1.2em;
+}
+.kima-card .kima-card-content .single-form .network-dropdown.dark {
+  background: #4f5156;
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .single-form .network-dropdown {
+    width: 10em;
+  }
+}
+.kima-card .kima-card-content .single-form .dynamic-area {
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.kima-card .kima-card-content .single-form .dynamic-area.reverse {
+  flex-direction: column-reverse;
+}
+.kima-card .kima-card-content .single-form .dynamic-area .form-item {
+  margin-top: 2em;
+}
+.kima-card .kima-card-content .wallet-button {
+  font-size: 1.16em;
+  display: flex;
+  align-items: center;
+}
+.kima-card .kima-card-content .wallet-button button {
+  width: 14em;
+  height: 3.5em;
+}
+.kima-card .kima-card-content .wallet-button .provider-error {
+  color: red;
+  font-size: 0.8em;
+  margin-left: 1em;
+}
+.kima-card .kima-card-content .wallet-button.error-below {
+  flex-direction: column;
+}
+.kima-card .kima-card-content .wallet-button.error-below .provider-error {
+  margin-left: 0;
+  margin-top: 1em;
+}
+.kima-card .kima-card-content .wallet-button .balance-info {
+  margin-left: 1em;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-content .wallet-button {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .kima-card .kima-card-content .wallet-button .balance-info {
+    margin-left: 0;
+  }
+}
+.kima-card .kima-card-content .account-dropdown {
+  display: flex;
+  align-items: center;
+}
+.kima-card .kima-card-content .account-dropdown .balance-info {
+  margin-left: 1em;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-content .account-dropdown {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .kima-card .kima-card-content .account-dropdown .balance-info {
+    margin-left: 0;
+  }
+}
+.kima-card .kima-card-content .connect-wallet-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.kima-card .kima-card-content .connect-wallet-step p {
+  font-size: 1.2em;
+  font-weight: 500;
+  margin-bottom: 2em;
+}
+.kima-card .kima-card-content .coin-select p {
+  font-size: 1.2em;
+  font-weight: 500;
+  text-align: center;
+}
+.kima-card .kima-card-content .coin-select .coin-list-container {
+  display: flex;
+  -moz-column-gap: 1em;
+       column-gap: 1em;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2em;
+}
+.kima-card .kima-card-content .coin-select .amount-input,
+.kima-card .kima-card-content .coin-select .address-input {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2em;
+}
+.kima-card .kima-card-content .coin-select .amount-input > span,
+.kima-card .kima-card-content .coin-select .address-input > span {
+  margin-right: 1.5em;
+  font-size: 1.2em;
+}
+.kima-card .kima-card-content .coin-select .amount-input .input-wrapper,
+.kima-card .kima-card-content .coin-select .address-input .input-wrapper {
+  position: relative;
+}
+.kima-card .kima-card-content .coin-select .amount-input .input-wrapper input,
+.kima-card .kima-card-content .coin-select .address-input .input-wrapper input {
+  border: 1px solid #979797;
+  border-radius: 0.8em;
+  height: 3em;
+  background: transparent;
+  color: white;
+  outline: none;
+  font: unset;
+  width: 12em;
+  padding: 0.3em 0.5em 0.3em 1em;
+  box-sizing: content-box;
+}
+.kima-card .kima-card-content .coin-select .amount-input .input-wrapper .coin-label,
+.kima-card .kima-card-content .coin-select .address-input .input-wrapper .coin-label {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  padding: 0.3em 0.5em 0.3em 0.3em;
+  border-radius: 1em;
+  right: 0.8em;
+  top: 0.8em;
+}
+.kima-card .kima-card-content .coin-select .amount-input .input-wrapper .coin-label svg,
+.kima-card .kima-card-content .coin-select .address-input .input-wrapper .coin-label svg {
+  width: 1.5em;
+  height: 1.5em;
+}
+.kima-card .kima-card-content .coin-select .amount-input .input-wrapper .coin-label span,
+.kima-card .kima-card-content .coin-select .address-input .input-wrapper .coin-label span {
+  margin-left: 0.5em;
+}
+.kima-card .kima-card-content .coin-select .amount-input > input,
+.kima-card .kima-card-content .coin-select .address-input > input {
+  border: 1px solid #979797;
+  border-radius: 0.8em;
+  height: 3em;
+  background: transparent;
+  color: white;
+  outline: none;
+  font: unset;
+  width: 10em;
+  padding: 0.3em 0.5em 0.3em 1em;
+  box-sizing: content-box;
+}
+.kima-card .kima-card-content .coin-select .amount-input > input.kima-address-input,
+.kima-card .kima-card-content .coin-select .address-input > input.kima-address-input {
+  width: 20em;
+}
+.kima-card .kima-card-content .coin-select .amount-input.light input,
+.kima-card .kima-card-content .coin-select .address-input.light input {
+  color: black;
+}
+.kima-card .kima-card-content .coin-select .amount-input.light .coin-label,
+.kima-card .kima-card-content .coin-select .address-input.light .coin-label {
+  background: #e3e3e3;
+}
+.kima-card .kima-card-content .coin-select .amount-input.dark .coin-label,
+.kima-card .kima-card-content .coin-select .address-input.dark .coin-label {
+  background: #4f5156;
+}
+.kima-card .kima-card-content .confirm-details {
+  padding: 0 8em;
+  font-size: 1.2em;
+}
+.kima-card .kima-card-content .confirm-details > p {
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.3em;
+}
+.kima-card .kima-card-content .confirm-details .detail-item {
+  padding: 1em 2em;
+  display: flex;
+  align-items: center;
+  border-top: 1px solid #e3e3e3;
+}
+.kima-card .kima-card-content .confirm-details .detail-item p {
+  margin: 0;
+}
+.kima-card .kima-card-content .confirm-details .detail-item .label {
+  font-weight: bold;
+  width: 10em;
+}
+.kima-card .kima-card-content .confirm-details .detail-item .kima-card-network-label {
+  display: flex;
+  padding: 0.3em 0.5em 0.3em 0.5em;
+  border-radius: 1em;
+  margin-left: 1em;
+}
+.kima-card .kima-card-content .confirm-details .detail-item:last-of-type {
+  border-bottom: 1px solid #e3e3e3;
+}
+.kima-card .kima-card-content .confirm-details .detail-item .signature {
+  max-width: 65%;
+  word-wrap: break-word;
+}
+.kima-card .kima-card-content .confirm-details.light .kima-card-network-label {
+  background: #e3e3e3;
+}
+.kima-card .kima-card-content .confirm-details.dark .kima-card-network-label {
+  background: #4f5156;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-content .confirm-details {
+    padding: 0 2em;
+  }
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .confirm-details {
+    padding: 0;
+  }
+  .kima-card .kima-card-content .confirm-details .detail-item {
+    padding: 1em 1em 1em 0;
+  }
+  .kima-card .kima-card-content .confirm-details .detail-item .label {
+    width: 8em;
+  }
+}
+.kima-card .kima-card-content .kima-custom-checkbox {
+  margin-left: 2em;
+  display: flex;
+  align-items: center;
+}
+.kima-card .kima-card-content .kima-custom-checkbox .icon-wrapper {
+  border: 1px solid #ffffff;
+  height: 1em;
+  width: 1em;
+  border-radius: 0.2em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+.kima-card .kima-card-content .kima-custom-checkbox .icon-wrapper.light {
+  border-color: #4f5156;
+}
+.kima-card .kima-card-content .kima-custom-checkbox .icon-wrapper svg {
+  margin-top: 0.2em;
+  margin-left: 1px;
+}
+.kima-card .kima-card-content .kima-custom-checkbox > span {
+  margin-left: 0.5em;
+}
+.kima-card .kima-card-content .kima-stepbox {
+  display: flex;
+  justify-content: center;
+}
+.kima-card .kima-card-content .kima-stepbox .content-wrapper {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #66aae5;
+  border-radius: 1em;
+  padding: 1.5em 2em;
+}
+.kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item {
+  display: flex;
+  align-items: center;
+  margin: 0.3em 0;
+}
+.kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item {
+  position: relative;
+}
+.kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item a {
+  text-decoration: underline;
+}
+.kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item p {
+  display: flex;
+  align-items: center;
+}
+.kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item:first-of-type {
+  width: 11em;
+}
+.kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item:first-of-type p {
+  margin: 0 0 0 1.5em;
+}
+.kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item:first-of-type svg {
+  position: absolute;
+  margin-top: 0.3em;
+  width: 1em;
+  height: 1em;
+}
+.kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item:not(:first-of-type) p {
+  margin: 0;
+}
+.kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item:not(:first-of-type) p a {
+  margin-left: 0.5em;
+}
+.kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item:not(:first-of-type) p .copy-btn {
+  display: inline;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item:not(:first-of-type) p .copy-btn:hover {
+  opacity: 0.7;
+}
+.kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item:not(:first-of-type) p .copy-btn svg {
+  width: 1em;
+  height: 1em;
+  margin-left: 0.5em;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item:first-of-type {
+    padding-left: 0;
+  }
+  .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item:not(:first-of-type) {
+    padding-left: 1.5em;
+    padding-top: 0.2em;
+  }
+}
+.kima-card .card-item {
+  width: 10em;
+  height: 9em;
+  border-radius: 1em;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.kima-card .card-item svg,
+.kima-card .card-item img {
+  width: 3em;
+  height: 3em;
+  border-radius: 100%;
+}
+.kima-card .card-item span {
+  font-weight: bold;
+  margin-top: 1em;
+  text-align: center;
+}
+.kima-card .card-item.light {
+  background: #e3e3e3;
+}
+.kima-card .card-item.dark {
+  background: #4f5156;
+}
+.kima-card .card-item.active {
+  background: #66aae5;
+}
+.kima-card .card-item.active span {
+  color: white;
+}
+.kima-card .card-item:hover {
+  opacity: 0.7;
+}
+.kima-card .kima-card-network-label {
+  display: flex;
+  align-items: center;
+  -moz-column-gap: 0.5em;
+       column-gap: 0.5em;
+  padding-top: 1em;
+}
+.kima-card .kima-card-network-label > svg {
+  width: 1em;
+  height: 1em;
+}
+.kima-card .kima-card-network-label .label {
+  display: flex;
+  border-radius: 1em;
+  font-size: 1em;
+  -moz-column-gap: 0.3em;
+       column-gap: 0.3em;
+  align-items: center;
+  padding: 0.2em 0.4em;
+}
+.kima-card .kima-card-network-label .label .icon-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 1.2em;
+  height: 1.2em;
+}
+.kima-card .kima-card-network-label .label .icon-wrapper svg {
+  width: 100%;
+  height: 100%;
+}
+.kima-card .kima-card-network-label .warning-container {
+  margin-left: 1em;
+  display: flex;
+  align-items: center;
+  -moz-column-gap: 0.5em;
+       column-gap: 0.5em;
+  cursor: pointer;
+}
+.kima-card .primary-button {
+  background: #66aae5;
+  border-radius: 0.8em;
+  width: 10em;
+  height: 3em;
+  cursor: pointer;
+  color: white;
+  font-size: 1em;
+  font-weight: bold;
+  font-family: inherit;
+  border: none;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0;
+}
+.kima-card .primary-button:hover, .kima-card .primary-button:disabled {
+  opacity: 0.7;
+}
+.kima-card .primary-button:disabled {
+  cursor: default;
+}
+.kima-card .primary-button .loading-indicator {
+  margin-right: 0.5em;
+}
+.kima-card .primary-button .loading-indicator svg {
+  width: 1.5em;
+  height: 1.5em;
+  margin-top: 0.3em;
+  fill: white !important;
+}
+@media (max-width: 500px) {
+  .kima-card .primary-button {
+    width: 8em;
+  }
+  .kima-card .primary-button:hover {
+    opacity: 1;
+  }
+  .kima-card .primary-button:hover:focus:active {
+    opacity: 0.7;
+  }
+}
+.kima-card .secondary-button {
+  border-radius: 0.8em;
+  width: 10em;
+  height: 3em;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: bold;
+  font-family: inherit;
+  border: none;
+  letter-spacing: 0;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.kima-card .secondary-button.dark {
+  color: white;
+  background: #4f5156;
+}
+.kima-card .secondary-button.light {
+  color: black;
+  background: #e3e3e3;
+}
+.kima-card .secondary-button:hover, .kima-card .secondary-button:disabled {
+  opacity: 0.7;
+}
+.kima-card .secondary-button:disabled {
+  cursor: default;
+}
+@media (max-width: 500px) {
+  .kima-card .secondary-button {
+    width: 8em;
+  }
+  .kima-card .secondary-button:hover {
+    opacity: 1;
+  }
+  .kima-card .secondary-button:hover:focus:active {
+    opacity: 0.7;
+  }
+}
+.kima-card .dropdown-menu {
+  box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+  position: absolute;
+  z-index: 100;
+  padding: 0.5em 0;
+  max-height: 10em;
+  width: -moz-max-content;
+  width: max-content;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.kima-card .dropdown-menu .menu-item {
+  padding: 0.5em 1em;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.kima-card .dropdown-menu .menu-item:hover {
+  background: rgba(90, 160, 219, 0.5019607843);
+}
+.kima-card .dropdown-menu.light {
+  background: white;
+}
+.kima-card .dropdown-menu.dark {
+  background: #1b1e25;
+}
+.kima-card .dropdown-menu.closed {
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.kima-card .error-tooltip.dark {
+  color: black;
+  background-color: white;
+}
+
+.kima-card .kima-modal {
+  position: absolute;
+  z-index: 100;
+  width: 100%;
+  height: 0;
+  opacity: 0;
+  left: 0;
+  top: 0;
+  overflow: hidden;
+  border-radius: 1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-modal {
+    border-radius: 0;
+  }
+}
+.kima-card .kima-modal .modal-content-container {
+  position: relative;
+  width: calc(100% - 8em);
+  height: calc(100% - 8em);
+  padding: 2em;
+  border-radius: 1em;
+  border: 1px solid #66aae5;
+  box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  overflow: hidden;
+  box-sizing: content-box;
+}
+.kima-card .kima-modal .modal-content-container .kima-card-footer {
+  flex-direction: row;
+}
+.kima-card .kima-modal .modal-overlay {
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(179, 179, 179, 0.3294117647);
+  -webkit-backdrop-filter: blur(2px);
+          backdrop-filter: blur(2px);
+}
+.kima-card .kima-modal.light .modal-content-container {
+  background: white;
+  color: black;
+}
+.kima-card .kima-modal.dark .modal-content-container {
+  background: #1b1e25;
+  color: white;
+}
+.kima-card .kima-modal.open {
+  pointer-events: auto;
+  height: 100%;
+  opacity: 1;
+}
+.kima-card .kima-modal .modal-content {
+  width: 100%;
+  height: calc(100% - 10em);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.kima-card .kima-modal .modal-content .wallet-select {
+  width: 100%;
+  position: relative;
+}
+.kima-card .kima-modal .modal-content .wallet-select p {
+  font-size: 1.2em;
+  font-weight: 500;
+  text-align: center;
+}
+.kima-card .kima-modal .modal-content .wallet-select .slide-area .wallet-container {
+  display: flex;
+  width: -moz-max-content;
+  width: max-content;
+  -moz-column-gap: 1em;
+       column-gap: 1em;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2em;
+}
+.kima-card .kima-modal.help-popup .modal-content-container {
+  width: 30em;
+  height: 20em;
+}
+.kima-card .kima-modal.help-popup .modal-content {
+  height: calc(100% - 4em);
+}
+.kima-card .kima-modal.hash-popup .modal-content-container {
+  width: 20em;
+  height: 12em;
+}
+.kima-card .kima-modal.hash-popup .modal-content {
+  height: calc(100% - 2em);
+}
+.kima-card .kima-modal.hash-popup .modal-content .hash-container {
+  width: 100%;
+  padding: 0 2em;
+}
+.kima-card .kima-modal.hash-popup .modal-content .hash-container .hash-item {
+  display: flex;
+  align-items: center;
+  -moz-column-gap: 1em;
+       column-gap: 1em;
+}
+.kima-card .kima-modal.hash-popup .modal-content .hash-container .hash-item span {
+  width: 5em;
+}
+.kima-card .kima-modal.bank-popup .modal-content-container {
+  width: 100%;
+  height: calc(100% - 3em);
+  margin: 0 1.5em;
+  padding: 0;
+  position: relative;
+}
+.kima-card .kima-modal.bank-popup .topbar {
+  position: absolute;
+  top: 2em;
+  right: 2em;
+  width: 100%;
+}
+.kima-card .kima-modal.bank-popup .modal-content {
+  height: 100%;
+}
+.kima-card .kima-modal.bank-popup .modal-content .bank-simulation h1 {
+  font-size: 1.5em;
+  margin-bottom: 1em;
+}
+.kima-card .kima-modal.bank-popup .modal-content .bank-simulation .content-item {
+  display: flex;
+  align-items: enter;
+  margin: 0.5em 0;
+  padding: 0 3em;
+}
+.kima-card .kima-modal.bank-popup .modal-content .bank-simulation .content-item > span {
+  width: 10em;
+  text-align: left;
+}
+.kima-card .kima-modal.bank-popup .modal-content .bank-simulation .content-item p {
+  margin: 0;
+}
+.kima-card .kima-modal.bank-popup .modal-content .bank-simulation button {
+  margin: 2em auto 0;
+  width: 16em;
+}
+
+.kima-card {
+  border-radius: 1em;
+  width: 100%;
+  padding: 2em;
+  box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+  font-family: "Poppins", sans-serif;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transition-delay: 0.2s;
+  /* Firefox */
+}
+.kima-card.light {
+  background: white;
+  color: black;
+  border: 1px solid #66aae5;
+}
+.kima-card.light .kima-card-header .kima-card-network-label .label {
+  background: #e3e3e3;
+}
+.kima-card.light .kima-card-content .kima-progressbar {
+  background: #e3e3e3;
+}
+.kima-card.light .kima-card-content .kima-tooltip .content-wrapper {
+  background: white;
+}
+.kima-card.dark {
+  background: #1b1e25;
+  color: white;
+  border: 1px solid #2c4963;
+}
+.kima-card.dark .kima-card-header .kima-card-network-label .label {
+  background: #4f5156;
+}
+.kima-card.dark .kima-card-content .kima-progressbar {
+  background: #4f5156;
+}
+.kima-card.dark .kima-card-content .kima-tooltip .content-wrapper {
+  background: #0c0f17;
+}
+.kima-card.font-large {
+  font-size: 18px;
+  max-width: 1100px;
+}
+.kima-card.font-medium {
+  font-size: 14px;
+  max-width: 900px;
+}
+.kima-card.font-small {
+  font-size: 10px;
+  max-width: 700px;
+}
+@media (max-width: 768px) {
+  .kima-card {
+    max-width: 100vh !important;
+    font-size: 12px !important;
+    padding: 1.5em;
+    border-radius: 0;
+  }
+}
+@media (max-width: 500px) {
+  .kima-card {
+    padding: 1em;
+  }
+}
+.kima-card-content {
+  width: 100%;
+  margin: 2em 0;
+  opacity: 1;
+  max-height: 40em;
+  min-height: 25em;
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.kima-card.transaction-card .kima-card-content {
+  display: block;
+  min-height: 17em;
+  margin: 2em 0 2em;
+}
+.kima-card.minimized {
+  max-width: 30em;
+}
+.kima-card.minimized .kima-card-content {
+  opacity: 0;
+  max-height: 0;
+  min-height: 0;
+  margin: 0;
+  pointer-events: none;
+}
+.kima-card.minimized .kima-card-footer {
+  opacity: 0;
+  max-height: 0;
+  pointer-events: none;
+}
+.kima-card input::-webkit-outer-spin-button,
+.kima-card input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.kima-card input[type=number] {
+  -moz-appearance: textfield;
+}
+.kima-card .hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.kima-card .hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.kima-card .custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.kima-card .custom-scrollbar::-webkit-scrollbar-track {
+  background: white;
+  border-radius: 3px;
+}
+.kima-card .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #a19f9f;
+  border-radius: 3px;
+}
+.kima-card .slide-area {
+  width: 40em;
+  padding: 2em;
+  margin: 0 auto;
+  overflow: hidden;
+  overflow-x: scroll;
+  -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.1254901961) 0%, black 5%, black 95%, rgba(0, 0, 0, 0.1254901961) 100%);
+          mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.1254901961) 0%, black 5%, black 95%, rgba(0, 0, 0, 0.1254901961) 100%);
+  position: relative;
+}
+@media (max-width: 768px) {
+  .kima-card .slide-area {
+    width: calc(100% - 4em);
+  }
+}
+.kima-card .scroll-button {
+  position: absolute;
+  width: 100%;
+  bottom: 8em;
+}
+.kima-card .scroll-button svg {
+  width: 2em;
+  height: 4em;
+  cursor: pointer;
+  position: absolute;
+}
+.kima-card .scroll-button svg:first-of-type {
+  left: 4em;
+}
+.kima-card .scroll-button svg:last-of-type {
+  right: 4em;
+  transform: rotate(180deg);
+}
+@media (max-width: 768px) {
+  .kima-card .scroll-button {
+    display: none;
+  }
+}

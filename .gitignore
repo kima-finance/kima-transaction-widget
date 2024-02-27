@@ -7,7 +7,6 @@
 .pnp.js
 
 # build
-/dist
 */build
 
 # testing

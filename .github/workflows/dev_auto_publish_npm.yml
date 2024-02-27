@@ -26,7 +26,8 @@ jobs:
 
           npm i yarn -g
           yarn install
-          npm run build
+          yarn run build
+          yarn run sass
           npm publish --provenance
 
         env:
