@@ -26,7 +26,7 @@ const App = () => {
             mode={ModeOptions.bridge}
             // useFIAT={true}
             kimaBackendUrl='http://localhost:3001'
-            kimaNodeProviderQuery='https://api-demo.kima.finance'
+            kimaNodeProviderQuery='https://api-staging.kima.finance'
             // titleOption={{
             //   initialTitle: 'New Purchase'
             // }}

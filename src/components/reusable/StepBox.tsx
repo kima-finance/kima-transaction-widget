@@ -88,7 +88,7 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                       CHAIN_NAMES_TO_EXPLORER[
                         data?.sourceChain || ChainName.ETHEREUM
                       ]
-                    }/tx/${data?.tssPullHash}${
+                    }/${data?.sourceChain === ChainName.TRON ? 'transaction' : 'tx'}/${data?.tssPullHash}${
                       data?.sourceChain === ChainName.SOLANA
                         ? '?cluster=devnet'
                         : ''
@@ -114,7 +114,7 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                       CHAIN_NAMES_TO_EXPLORER[
                         data?.targetChain || ChainName.ETHEREUM
                       ]
-                    }/tx/${data?.tssReleaseHash}${
+                    }/${data?.targetChain === ChainName.TRON ? 'transaction' : 'tx'}/${data?.tssReleaseHash}${
                       data?.targetChain === ChainName.SOLANA
                         ? '?cluster=devnet'
                         : ''

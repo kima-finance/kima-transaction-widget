@@ -632,7 +632,7 @@ const Celo = ({
   }));
 };
 
-const SOLANA_USDK_ADDRESS = 'GkbnUDkymDTF4U6Z5wM5kKJn3GmGndMn2rN5typmyUHY';
+const SOLANA_USDK_ADDRESS = '9YSFWfU9Ram6mAo2QP9zsTnA8yFkkkFGEs3kGgjtQKvp';
 const ETHEREUM_USDK_ADDRESS = '0x5FF59Bf2277A1e6bA9bB8A38Ea3F9ABfd3d9345a';
 const POLYGON_USDK_ADDRESS = '0x95A94Fc761F98fcC60DA07C55F8ECDDD8B381CfF';
 const AVAX_USDK_ADDRESS = '0x5d8598Ce65f15f14c58aD3a4CD285223c8e76a2E';
@@ -710,7 +710,7 @@ const CHAIN_NAMES_TO_EXPLORER = {
   [ChainName.OPTIMISM]: 'sepolia-optimism.etherscan.io',
   [ChainName.ARBITRUM]: 'sepolia.arbiscan.io',
   [ChainName.POLYGON_ZKEVM]: 'testnet-zkevm.polygonscan.com',
-  [ChainName.TRON]: 'https://nile.tronscan.org/#'
+  [ChainName.TRON]: 'nile.tronscan.org/#'
 };
 const CHAIN_IDS_TO_NAMES = {
   [SupportedChainId.ETHEREUM]: ChainName.ETHEREUM,
@@ -1416,7 +1416,7 @@ function useNetworkOptions() {
       (async function () {
         try {
           const networks = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/get_chains`);
-          setOptions(networkOptions.filter(network => networks.Chains.findIndex(id => id === network.id) >= 0 || network.id === ChainName.FIAT && useFIAT || network.id === ChainName.TRON));
+          setOptions(networkOptions.filter(network => networks.Chains.findIndex(id => id === network.id) >= 0 || network.id === ChainName.FIAT && useFIAT));
         } catch (e) {
           console.log('rpc disconnected', e);
         }
@@ -2784,7 +2784,6 @@ const NetworkDropdown = React.memo(({
           const networks = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/get_available_chains/${originNetwork}`);
           chains = networks.Chains;
           if (useFIAT) chains.push(ChainName.FIAT);
-          if (originNetwork === ChainName.TRON) chains = [ChainName.ETHEREUM, ChainName.POLYGON];
         }
         setAvailableNetworks(chains);
         if (_isOriginChain && !targetNetwork) {
@@ -3005,13 +3004,13 @@ const StepBox = ({
   }))) : null, index === 1 && data !== null && data !== void 0 && data.tssPullHash ? React.createElement("div", {
     className: 'info-item'
   }, React.createElement("p", null, CHAIN_NAMES_TO_STRING[(data === null || data === void 0 ? void 0 : data.sourceChain) || ChainName.ETHEREUM], ' ', "TX ID:", React.createElement(ExternalLink, {
-    to: `https://${CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.sourceChain) || ChainName.ETHEREUM]}/tx/${data === null || data === void 0 ? void 0 : data.tssPullHash}${(data === null || data === void 0 ? void 0 : data.sourceChain) === ChainName.SOLANA ? '?cluster=devnet' : ''}`
+    to: `https://${CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.sourceChain) || ChainName.ETHEREUM]}/${(data === null || data === void 0 ? void 0 : data.sourceChain) === ChainName.TRON ? 'transaction' : 'tx'}/${data === null || data === void 0 ? void 0 : data.tssPullHash}${(data === null || data === void 0 ? void 0 : data.sourceChain) === ChainName.SOLANA ? '?cluster=devnet' : ''}`
   }, getShortenedAddress((data === null || data === void 0 ? void 0 : data.tssPullHash) || '')), React.createElement(CopyButton, {
     text: (data === null || data === void 0 ? void 0 : data.tssPullHash) || ''
   }))) : null, index === 3 && data !== null && data !== void 0 && data.tssReleaseHash ? React.createElement("div", {
     className: 'info-item'
   }, React.createElement("p", null, CHAIN_NAMES_TO_STRING[(data === null || data === void 0 ? void 0 : data.targetChain) || ChainName.ETHEREUM], ' ', "TX ID:", React.createElement(ExternalLink, {
-    to: `https://${CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.targetChain) || ChainName.ETHEREUM]}/tx/${data === null || data === void 0 ? void 0 : data.tssReleaseHash}${(data === null || data === void 0 ? void 0 : data.targetChain) === ChainName.SOLANA ? '?cluster=devnet' : ''}`
+    to: `https://${CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.targetChain) || ChainName.ETHEREUM]}/${(data === null || data === void 0 ? void 0 : data.targetChain) === ChainName.TRON ? 'transaction' : 'tx'}/${data === null || data === void 0 ? void 0 : data.tssReleaseHash}${(data === null || data === void 0 ? void 0 : data.targetChain) === ChainName.SOLANA ? '?cluster=devnet' : ''}`
   }, getShortenedAddress((data === null || data === void 0 ? void 0 : data.tssReleaseHash) || '')), React.createElement(CopyButton, {
     text: (data === null || data === void 0 ? void 0 : data.tssReleaseHash) || ''
   }))) : null))));

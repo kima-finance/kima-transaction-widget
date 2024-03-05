@@ -94,7 +94,7 @@ export const CHAIN_NAMES_TO_EXPLORER: { [chainName: string]: string } = {
   [ChainName.OPTIMISM]: 'sepolia-optimism.etherscan.io',
   [ChainName.ARBITRUM]: 'sepolia.arbiscan.io',
   [ChainName.POLYGON_ZKEVM]: 'testnet-zkevm.polygonscan.com',
-  [ChainName.TRON]: 'https://nile.tronscan.org/#'
+  [ChainName.TRON]: 'nile.tronscan.org/#'
 }
 
 export const CHAIN_NAMES_TO_GECKO_ID: { [chainName: string]: string } = {
@@ -123,17 +123,17 @@ export const networkOptions = [
   {
     id: ChainName.ETHEREUM,
     label: 'Ethereum',
-    icon: EthereumIcon,
+    icon: EthereumIcon
   },
   {
     id: ChainName.POLYGON,
     label: 'Polygon',
-    icon: PolygonIcon,
+    icon: PolygonIcon
   },
   {
     id: ChainName.AVALANCHE,
     label: 'Avalanche',
-    icon: AvalancheIcon,
+    icon: AvalancheIcon
   },
   {
     id: ChainName.BSC,
