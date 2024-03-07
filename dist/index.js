@@ -15,8 +15,7 @@ var tronwalletAdapterTokenpocket = require('@tronweb3/tronwallet-adapter-tokenpo
 var tronwalletAdapterReactHooks = require('@tronweb3/tronwallet-adapter-react-hooks');
 var tronwalletAbstractAdapter = require('@tronweb3/tronwallet-abstract-adapter');
 var reactHotToast = require('react-hot-toast');
-var detectEthereumProvider = _interopDefault(require('@metamask/detect-provider'));
-var ethers = require('ethers');
+var react = require('@web3modal/ethers5/react');
 var reactTooltip = require('react-tooltip');
 var AnimatedNumber = _interopDefault(require('animated-number-react'));
 var walletAdapterBase = require('@solana/wallet-adapter-base');
@@ -24,6 +23,7 @@ var contracts = require('@ethersproject/contracts');
 var units = require('@ethersproject/units');
 var splToken = require('@solana/spl-token');
 var TronWeb = _interopDefault(require('tronweb'));
+var ethers = require('ethers');
 var BufferLayout = _interopDefault(require('buffer-layout'));
 var sha256 = _interopDefault(require('crypto-js/sha256.js'));
 var Base64 = _interopDefault(require('crypto-js/enc-base64.js'));
@@ -1146,6 +1146,25 @@ var store = toolkit.configureStore({
   }
 });
 
+// A type of promise-like that resolves synchronously and supports only one observer
+
+const _iteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.iterator || (Symbol.iterator = Symbol("Symbol.iterator"))) : "@@iterator";
+
+const _asyncIteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.asyncIterator || (Symbol.asyncIterator = Symbol("Symbol.asyncIterator"))) : "@@asyncIterator";
+
+// Asynchronously call a function and send errors to recovery continuation
+function _catch(body, recover) {
+	try {
+		var result = body();
+	} catch(e) {
+		return recover(e);
+	}
+	if (result && result.then) {
+		return result.then(void 0, recover);
+	}
+	return result;
+}
+
 var selectTheme = function selectTheme(state) {
   return state.option.theme;
 };
@@ -1178,9 +1197,6 @@ var selectBankPopup = function selectBankPopup(state) {
 };
 var selectSolanaProvider = function selectSolanaProvider(state) {
   return state.option.solanaProvider;
-};
-var selectProvider = function selectProvider(state) {
-  return state.option.provider;
 };
 var selectDappOption = function selectDappOption(state) {
   return state.option.dAppOption;
@@ -1257,145 +1273,6 @@ var selectUuid = function selectUuid(state) {
 var selectKycStatus = function selectKycStatus(state) {
   return state.option.kycStatus;
 };
-
-var EthereumProviderContext = React__default.createContext({
-  connect: function connect() {},
-  disconnect: function disconnect() {},
-  provider: undefined,
-  chainId: undefined,
-  signer: undefined,
-  signerAddress: undefined,
-  providerError: null
-});
-var EthereumProvider = function EthereumProvider(_ref) {
-  var children = _ref.children;
-  var dAppOption = reactRedux.useSelector(selectDappOption);
-  var errorHandler = reactRedux.useSelector(selectErrorHandler);
-  var autoConnect = reactRedux.useSelector(selectWalletAutoConnect);
-  var _useState = React.useState(null),
-    providerError = _useState[0],
-    setProviderError = _useState[1];
-  var _useState2 = React.useState(undefined),
-    provider = _useState2[0],
-    setProvider = _useState2[1];
-  var _useState3 = React.useState(undefined),
-    chainId = _useState3[0],
-    setChainId = _useState3[1];
-  var _useState4 = React.useState(undefined),
-    signer = _useState4[0],
-    setSigner = _useState4[1];
-  var _useState5 = React.useState(undefined),
-    signerAddress = _useState5[0],
-    setSignerAddress = _useState5[1];
-  var ethereumProvider = reactRedux.useSelector(selectProvider);
-  var connect = React.useCallback(function () {
-    setProviderError(null);
-    var handleProvider = function handleProvider(web3Provider, detectedProvider) {
-      web3Provider.send('eth_requestAccounts', []).then(function () {
-        setProviderError(null);
-        setProvider(web3Provider);
-        web3Provider.getNetwork().then(function (network) {
-          setChainId(network.chainId);
-        })["catch"](function (e) {
-          errorHandler(e);
-          setProviderError('An error occurred while getting the network');
-        });
-        var signer = web3Provider.getSigner();
-        setSigner(signer);
-        signer.getAddress().then(function (address) {
-          setSignerAddress(address);
-        })["catch"](function (e) {
-          errorHandler(e);
-          setProviderError('An error occurred while getting the signer address');
-        });
-        if (detectedProvider && detectedProvider.on) {
-          detectedProvider.on('chainChanged', function (chainId) {
-            try {
-              setChainId(ethers.BigNumber.from(chainId).toNumber());
-            } catch (e) {
-              errorHandler(e);
-            }
-          });
-          detectedProvider.on('accountsChanged', function (accounts) {
-            try {
-              var _signer = web3Provider.getSigner();
-              setSigner(_signer);
-              _signer.getAddress().then(function (address) {
-                setSignerAddress(address);
-              })["catch"](function (e) {
-                errorHandler(e);
-                setProviderError('An error occurred while getting the signer address');
-              });
-            } catch (e) {
-              errorHandler(e);
-            }
-          });
-        }
-      })["catch"](function (e) {
-        errorHandler(e);
-        setProviderError('An error occurred while requesting eth accounts');
-      });
-    };
-    if (ethereumProvider) {
-      handleProvider(ethereumProvider, ethereumProvider);
-    } else if (autoConnect) {
-      detectEthereumProvider().then(function (detectedProvider) {
-        if (detectedProvider) {
-          var _provider = new ethers.ethers.providers.Web3Provider(detectedProvider, 'any');
-          handleProvider(_provider, detectedProvider);
-        } else {
-          setProviderError('Please install MetaMask');
-        }
-      })["catch"](function (e) {
-        errorHandler(e);
-        setProviderError('Please install MetaMask');
-      });
-    }
-  }, [ethereumProvider, autoConnect, dAppOption]);
-  var disconnect = React.useCallback(function () {
-    setProviderError(null);
-    setProvider(undefined);
-    setChainId(undefined);
-    setSigner(undefined);
-    setSignerAddress(undefined);
-  }, []);
-  var contextValue = React.useMemo(function () {
-    return {
-      connect: connect,
-      disconnect: disconnect,
-      provider: provider,
-      chainId: chainId,
-      signer: signer,
-      signerAddress: signerAddress,
-      providerError: providerError
-    };
-  }, [connect, disconnect, provider, chainId, signer, signerAddress, providerError]);
-  return React__default.createElement(EthereumProviderContext.Provider, {
-    value: contextValue
-  }, children);
-};
-var useEthereumProvider = function useEthereumProvider() {
-  return React.useContext(EthereumProviderContext);
-};
-
-// A type of promise-like that resolves synchronously and supports only one observer
-
-const _iteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.iterator || (Symbol.iterator = Symbol("Symbol.iterator"))) : "@@iterator";
-
-const _asyncIteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.asyncIterator || (Symbol.asyncIterator = Symbol("Symbol.asyncIterator"))) : "@@asyncIterator";
-
-// Asynchronously call a function and send errors to recovery continuation
-function _catch(body, recover) {
-	try {
-		var result = body();
-	} catch(e) {
-		return recover(e);
-	}
-	if (result && result.then) {
-		return result.then(void 0, recover);
-	}
-	return result;
-}
 
 var Loading180Ring = function Loading180Ring(_ref) {
   var _ref$width = _ref.width,
@@ -1958,469 +1835,6 @@ var WalletSelect = function WalletSelect() {
   }))));
 };
 
-const version = "logger/5.7.0";
-
-let _permanentCensorErrors = false;
-let _censorErrors = false;
-const LogLevels = { debug: 1, "default": 2, info: 2, warning: 3, error: 4, off: 5 };
-let _logLevel = LogLevels["default"];
-let _globalLogger = null;
-function _checkNormalize() {
-    try {
-        const missing = [];
-        // Make sure all forms of normalization are supported
-        ["NFD", "NFC", "NFKD", "NFKC"].forEach((form) => {
-            try {
-                if ("test".normalize(form) !== "test") {
-                    throw new Error("bad normalize");
-                }
-                ;
-            }
-            catch (error) {
-                missing.push(form);
-            }
-        });
-        if (missing.length) {
-            throw new Error("missing " + missing.join(", "));
-        }
-        if (String.fromCharCode(0xe9).normalize("NFD") !== String.fromCharCode(0x65, 0x0301)) {
-            throw new Error("broken implementation");
-        }
-    }
-    catch (error) {
-        return error.message;
-    }
-    return null;
-}
-const _normalizeError = _checkNormalize();
-var LogLevel;
-(function (LogLevel) {
-    LogLevel["DEBUG"] = "DEBUG";
-    LogLevel["INFO"] = "INFO";
-    LogLevel["WARNING"] = "WARNING";
-    LogLevel["ERROR"] = "ERROR";
-    LogLevel["OFF"] = "OFF";
-})(LogLevel || (LogLevel = {}));
-var ErrorCode;
-(function (ErrorCode) {
-    ///////////////////
-    // Generic Errors
-    // Unknown Error
-    ErrorCode["UNKNOWN_ERROR"] = "UNKNOWN_ERROR";
-    // Not Implemented
-    ErrorCode["NOT_IMPLEMENTED"] = "NOT_IMPLEMENTED";
-    // Unsupported Operation
-    //   - operation
-    ErrorCode["UNSUPPORTED_OPERATION"] = "UNSUPPORTED_OPERATION";
-    // Network Error (i.e. Ethereum Network, such as an invalid chain ID)
-    //   - event ("noNetwork" is not re-thrown in provider.ready; otherwise thrown)
-    ErrorCode["NETWORK_ERROR"] = "NETWORK_ERROR";
-    // Some sort of bad response from the server
-    ErrorCode["SERVER_ERROR"] = "SERVER_ERROR";
-    // Timeout
-    ErrorCode["TIMEOUT"] = "TIMEOUT";
-    ///////////////////
-    // Operational  Errors
-    // Buffer Overrun
-    ErrorCode["BUFFER_OVERRUN"] = "BUFFER_OVERRUN";
-    // Numeric Fault
-    //   - operation: the operation being executed
-    //   - fault: the reason this faulted
-    ErrorCode["NUMERIC_FAULT"] = "NUMERIC_FAULT";
-    ///////////////////
-    // Argument Errors
-    // Missing new operator to an object
-    //  - name: The name of the class
-    ErrorCode["MISSING_NEW"] = "MISSING_NEW";
-    // Invalid argument (e.g. value is incompatible with type) to a function:
-    //   - argument: The argument name that was invalid
-    //   - value: The value of the argument
-    ErrorCode["INVALID_ARGUMENT"] = "INVALID_ARGUMENT";
-    // Missing argument to a function:
-    //   - count: The number of arguments received
-    //   - expectedCount: The number of arguments expected
-    ErrorCode["MISSING_ARGUMENT"] = "MISSING_ARGUMENT";
-    // Too many arguments
-    //   - count: The number of arguments received
-    //   - expectedCount: The number of arguments expected
-    ErrorCode["UNEXPECTED_ARGUMENT"] = "UNEXPECTED_ARGUMENT";
-    ///////////////////
-    // Blockchain Errors
-    // Call exception
-    //  - transaction: the transaction
-    //  - address?: the contract address
-    //  - args?: The arguments passed into the function
-    //  - method?: The Solidity method signature
-    //  - errorSignature?: The EIP848 error signature
-    //  - errorArgs?: The EIP848 error parameters
-    //  - reason: The reason (only for EIP848 "Error(string)")
-    ErrorCode["CALL_EXCEPTION"] = "CALL_EXCEPTION";
-    // Insufficient funds (< value + gasLimit * gasPrice)
-    //   - transaction: the transaction attempted
-    ErrorCode["INSUFFICIENT_FUNDS"] = "INSUFFICIENT_FUNDS";
-    // Nonce has already been used
-    //   - transaction: the transaction attempted
-    ErrorCode["NONCE_EXPIRED"] = "NONCE_EXPIRED";
-    // The replacement fee for the transaction is too low
-    //   - transaction: the transaction attempted
-    ErrorCode["REPLACEMENT_UNDERPRICED"] = "REPLACEMENT_UNDERPRICED";
-    // The gas limit could not be estimated
-    //   - transaction: the transaction passed to estimateGas
-    ErrorCode["UNPREDICTABLE_GAS_LIMIT"] = "UNPREDICTABLE_GAS_LIMIT";
-    // The transaction was replaced by one with a higher gas price
-    //   - reason: "cancelled", "replaced" or "repriced"
-    //   - cancelled: true if reason == "cancelled" or reason == "replaced")
-    //   - hash: original transaction hash
-    //   - replacement: the full TransactionsResponse for the replacement
-    //   - receipt: the receipt of the replacement
-    ErrorCode["TRANSACTION_REPLACED"] = "TRANSACTION_REPLACED";
-    ///////////////////
-    // Interaction Errors
-    // The user rejected the action, such as signing a message or sending
-    // a transaction
-    ErrorCode["ACTION_REJECTED"] = "ACTION_REJECTED";
-})(ErrorCode || (ErrorCode = {}));
-const HEX = "0123456789abcdef";
-class Logger {
-    constructor(version) {
-        Object.defineProperty(this, "version", {
-            enumerable: true,
-            value: version,
-            writable: false
-        });
-    }
-    _log(logLevel, args) {
-        const level = logLevel.toLowerCase();
-        if (LogLevels[level] == null) {
-            this.throwArgumentError("invalid log level name", "logLevel", logLevel);
-        }
-        if (_logLevel > LogLevels[level]) {
-            return;
-        }
-        console.log.apply(console, args);
-    }
-    debug(...args) {
-        this._log(Logger.levels.DEBUG, args);
-    }
-    info(...args) {
-        this._log(Logger.levels.INFO, args);
-    }
-    warn(...args) {
-        this._log(Logger.levels.WARNING, args);
-    }
-    makeError(message, code, params) {
-        // Errors are being censored
-        if (_censorErrors) {
-            return this.makeError("censored error", code, {});
-        }
-        if (!code) {
-            code = Logger.errors.UNKNOWN_ERROR;
-        }
-        if (!params) {
-            params = {};
-        }
-        const messageDetails = [];
-        Object.keys(params).forEach((key) => {
-            const value = params[key];
-            try {
-                if (value instanceof Uint8Array) {
-                    let hex = "";
-                    for (let i = 0; i < value.length; i++) {
-                        hex += HEX[value[i] >> 4];
-                        hex += HEX[value[i] & 0x0f];
-                    }
-                    messageDetails.push(key + "=Uint8Array(0x" + hex + ")");
-                }
-                else {
-                    messageDetails.push(key + "=" + JSON.stringify(value));
-                }
-            }
-            catch (error) {
-                messageDetails.push(key + "=" + JSON.stringify(params[key].toString()));
-            }
-        });
-        messageDetails.push(`code=${code}`);
-        messageDetails.push(`version=${this.version}`);
-        const reason = message;
-        let url = "";
-        switch (code) {
-            case ErrorCode.NUMERIC_FAULT: {
-                url = "NUMERIC_FAULT";
-                const fault = message;
-                switch (fault) {
-                    case "overflow":
-                    case "underflow":
-                    case "division-by-zero":
-                        url += "-" + fault;
-                        break;
-                    case "negative-power":
-                    case "negative-width":
-                        url += "-unsupported";
-                        break;
-                    case "unbound-bitwise-result":
-                        url += "-unbound-result";
-                        break;
-                }
-                break;
-            }
-            case ErrorCode.CALL_EXCEPTION:
-            case ErrorCode.INSUFFICIENT_FUNDS:
-            case ErrorCode.MISSING_NEW:
-            case ErrorCode.NONCE_EXPIRED:
-            case ErrorCode.REPLACEMENT_UNDERPRICED:
-            case ErrorCode.TRANSACTION_REPLACED:
-            case ErrorCode.UNPREDICTABLE_GAS_LIMIT:
-                url = code;
-                break;
-        }
-        if (url) {
-            message += " [ See: https:/\/links.ethers.org/v5-errors-" + url + " ]";
-        }
-        if (messageDetails.length) {
-            message += " (" + messageDetails.join(", ") + ")";
-        }
-        // @TODO: Any??
-        const error = new Error(message);
-        error.reason = reason;
-        error.code = code;
-        Object.keys(params).forEach(function (key) {
-            error[key] = params[key];
-        });
-        return error;
-    }
-    throwError(message, code, params) {
-        throw this.makeError(message, code, params);
-    }
-    throwArgumentError(message, name, value) {
-        return this.throwError(message, Logger.errors.INVALID_ARGUMENT, {
-            argument: name,
-            value: value
-        });
-    }
-    assert(condition, message, code, params) {
-        if (!!condition) {
-            return;
-        }
-        this.throwError(message, code, params);
-    }
-    assertArgument(condition, message, name, value) {
-        if (!!condition) {
-            return;
-        }
-        this.throwArgumentError(message, name, value);
-    }
-    checkNormalize(message) {
-        if (_normalizeError) {
-            this.throwError("platform missing String.prototype.normalize", Logger.errors.UNSUPPORTED_OPERATION, {
-                operation: "String.prototype.normalize", form: _normalizeError
-            });
-        }
-    }
-    checkSafeUint53(value, message) {
-        if (typeof (value) !== "number") {
-            return;
-        }
-        if (message == null) {
-            message = "value not safe";
-        }
-        if (value < 0 || value >= 0x1fffffffffffff) {
-            this.throwError(message, Logger.errors.NUMERIC_FAULT, {
-                operation: "checkSafeInteger",
-                fault: "out-of-safe-range",
-                value: value
-            });
-        }
-        if (value % 1) {
-            this.throwError(message, Logger.errors.NUMERIC_FAULT, {
-                operation: "checkSafeInteger",
-                fault: "non-integer",
-                value: value
-            });
-        }
-    }
-    checkArgumentCount(count, expectedCount, message) {
-        if (message) {
-            message = ": " + message;
-        }
-        else {
-            message = "";
-        }
-        if (count < expectedCount) {
-            this.throwError("missing argument" + message, Logger.errors.MISSING_ARGUMENT, {
-                count: count,
-                expectedCount: expectedCount
-            });
-        }
-        if (count > expectedCount) {
-            this.throwError("too many arguments" + message, Logger.errors.UNEXPECTED_ARGUMENT, {
-                count: count,
-                expectedCount: expectedCount
-            });
-        }
-    }
-    checkNew(target, kind) {
-        if (target === Object || target == null) {
-            this.throwError("missing new", Logger.errors.MISSING_NEW, { name: kind.name });
-        }
-    }
-    checkAbstract(target, kind) {
-        if (target === kind) {
-            this.throwError("cannot instantiate abstract class " + JSON.stringify(kind.name) + " directly; use a sub-class", Logger.errors.UNSUPPORTED_OPERATION, { name: target.name, operation: "new" });
-        }
-        else if (target === Object || target == null) {
-            this.throwError("missing new", Logger.errors.MISSING_NEW, { name: kind.name });
-        }
-    }
-    static globalLogger() {
-        if (!_globalLogger) {
-            _globalLogger = new Logger(version);
-        }
-        return _globalLogger;
-    }
-    static setCensorship(censorship, permanent) {
-        if (!censorship && permanent) {
-            this.globalLogger().throwError("cannot permanently disable censorship", Logger.errors.UNSUPPORTED_OPERATION, {
-                operation: "setCensorship"
-            });
-        }
-        if (_permanentCensorErrors) {
-            if (!censorship) {
-                return;
-            }
-            this.globalLogger().throwError("error censorship permanent", Logger.errors.UNSUPPORTED_OPERATION, {
-                operation: "setCensorship"
-            });
-        }
-        _censorErrors = !!censorship;
-        _permanentCensorErrors = !!permanent;
-    }
-    static setLogLevel(logLevel) {
-        const level = LogLevels[logLevel.toLowerCase()];
-        if (level == null) {
-            Logger.globalLogger().warn("invalid log level - " + logLevel);
-            return;
-        }
-        _logLevel = level;
-    }
-    static from(version) {
-        return new Logger(version);
-    }
-}
-Logger.errors = ErrorCode;
-Logger.levels = LogLevel;
-
-const version$1 = "bytes/5.7.0";
-
-const logger = new Logger(version$1);
-///////////////////////////////
-function isHexable(value) {
-    return !!(value.toHexString);
-}
-function isInteger(value) {
-    return (typeof (value) === "number" && value == value && (value % 1) === 0);
-}
-function isBytes(value) {
-    if (value == null) {
-        return false;
-    }
-    if (value.constructor === Uint8Array) {
-        return true;
-    }
-    if (typeof (value) === "string") {
-        return false;
-    }
-    if (!isInteger(value.length) || value.length < 0) {
-        return false;
-    }
-    for (let i = 0; i < value.length; i++) {
-        const v = value[i];
-        if (!isInteger(v) || v < 0 || v >= 256) {
-            return false;
-        }
-    }
-    return true;
-}
-function isHexString(value, length) {
-    if (typeof (value) !== "string" || !value.match(/^0x[0-9A-Fa-f]*$/)) {
-        return false;
-    }
-    if (length && value.length !== 2 + 2 * length) {
-        return false;
-    }
-    return true;
-}
-const HexCharacters = "0123456789abcdef";
-function hexlify(value, options) {
-    if (!options) {
-        options = {};
-    }
-    if (typeof (value) === "number") {
-        logger.checkSafeUint53(value, "invalid hexlify value");
-        let hex = "";
-        while (value) {
-            hex = HexCharacters[value & 0xf] + hex;
-            value = Math.floor(value / 16);
-        }
-        if (hex.length) {
-            if (hex.length % 2) {
-                hex = "0" + hex;
-            }
-            return "0x" + hex;
-        }
-        return "0x00";
-    }
-    if (typeof (value) === "bigint") {
-        value = value.toString(16);
-        if (value.length % 2) {
-            return ("0x0" + value);
-        }
-        return "0x" + value;
-    }
-    if (options.allowMissingPrefix && typeof (value) === "string" && value.substring(0, 2) !== "0x") {
-        value = "0x" + value;
-    }
-    if (isHexable(value)) {
-        return value.toHexString();
-    }
-    if (isHexString(value)) {
-        if (value.length % 2) {
-            if (options.hexPad === "left") {
-                value = "0x0" + value.substring(2);
-            }
-            else if (options.hexPad === "right") {
-                value += "0";
-            }
-            else {
-                logger.throwArgumentError("hex data is odd-length", "value", value);
-            }
-        }
-        return value.toLowerCase();
-    }
-    if (isBytes(value)) {
-        let result = "0x";
-        for (let i = 0; i < value.length; i++) {
-            let v = value[i];
-            result += HexCharacters[(v & 0xf0) >> 4] + HexCharacters[v & 0x0f];
-        }
-        return result;
-    }
-    return logger.throwArgumentError("invalid hexlify value", "value", value);
-}
-function hexStripZeros(value) {
-    if (typeof (value) !== "string") {
-        value = hexlify(value);
-    }
-    if (!isHexString(value)) {
-        logger.throwArgumentError("invalid hex string", "value", value);
-    }
-    value = value.substring(2);
-    let offset = 0;
-    while (offset < value.length && value[offset] === "0") {
-        offset++;
-    }
-    return "0x" + value.substring(offset);
-}
-
 var createWalletStatus = function createWalletStatus(isReady, statusMessage, forceNetworkSwitch, walletAddress) {
   if (statusMessage === void 0) {
     statusMessage = '';
@@ -2441,10 +1855,19 @@ function useIsWalletReady(enableNetworkAutoswitch) {
     solanaAddress = _useSolanaWallet.publicKey;
   var _useTronWallet = tronwalletAdapterReactHooks.useWallet(),
     tronAddress = _useTronWallet.address;
-  var _useEthereumProvider = useEthereumProvider(),
-    provider = _useEthereumProvider.provider,
-    signerAddress = _useEthereumProvider.signerAddress,
-    evmChainId = _useEthereumProvider.chainId;
+  var _useWeb3ModalProvider = react.useWeb3ModalProvider(),
+    evmProvider = _useWeb3ModalProvider.walletProvider;
+  var _useSwitchNetwork = react.useSwitchNetwork(),
+    switchNetwork = _useSwitchNetwork.switchNetwork;
+  var web3ModalAccountInfo = react.useWeb3ModalAccount();
+  var _ref = web3ModalAccountInfo || {
+      address: null,
+      chainId: null,
+      isConnected: null
+    },
+    evmAddress = _ref.address,
+    evmChainId = _ref.chainId,
+    isConnected = _ref.isConnected;
   var sourceChain = reactRedux.useSelector(selectSourceChain);
   var targetChain = reactRedux.useSelector(selectTargetChain);
   var targetNetworkFetching = reactRedux.useSelector(selectTargetChainFetching);
@@ -2452,31 +1875,38 @@ function useIsWalletReady(enableNetworkAutoswitch) {
     if (sourceChain === exports.SupportNetworks.FIAT && !targetNetworkFetching) return targetChain;
     return sourceChain;
   }, [sourceChain, targetChain, targetNetworkFetching]);
-  var hasEthInfo = !!provider && !!signerAddress;
+  var hasEthInfo = isConnected && !!evmAddress;
   var errorHandler = reactRedux.useSelector(selectErrorHandler);
   var correctEvmNetwork = CHAIN_NAMES_TO_IDS[correctChain];
   var hasCorrectEvmNetwork = evmChainId === correctEvmNetwork;
+  var events = react.useWeb3ModalEvents();
+  React.useEffect(function () {
+    var _events$data, _events$data2;
+    if (((_events$data = events.data) === null || _events$data === void 0 ? void 0 : _events$data.event) === 'SELECT_WALLET' || ((_events$data2 = events.data) === null || _events$data2 === void 0 ? void 0 : _events$data2.event) === 'CONNECT_SUCCESS') {
+      var _events$data3, _events$data3$propert;
+      localStorage.setItem('wallet', (_events$data3 = events.data) === null || _events$data3 === void 0 ? void 0 : (_events$data3$propert = _events$data3.properties) === null || _events$data3$propert === void 0 ? void 0 : _events$data3$propert.name);
+    }
+  }, [events]);
   var forceNetworkSwitch = React.useCallback(function () {
     try {
       return Promise.resolve(function () {
-        if (provider && correctEvmNetwork) {
+        if (evmProvider && correctEvmNetwork) {
           if (!isEVMChain(correctChain)) {
             return;
           }
-          var _temp = _catch(function () {
-            return Promise.resolve(provider.send('wallet_switchEthereumChain', [{
-              chainId: hexStripZeros(hexlify(correctEvmNetwork))
-            }])).then(function () {});
+          return _catch(function () {
+            var wallet = localStorage.getItem('wallet');
+            if (wallet === 'Phantom' && correctEvmNetwork !== 11155111) return;
+            return Promise.resolve(switchNetwork(correctEvmNetwork)).then(function () {});
           }, function (e) {
             errorHandler(e);
           });
-          if (_temp && _temp.then) return _temp.then(function () {});
         }
       }());
     } catch (e) {
       return Promise.reject(e);
     }
-  }, [provider, correctEvmNetwork, correctChain]);
+  }, [evmProvider, correctEvmNetwork, correctChain]);
   return React.useMemo(function () {
     if (correctChain === exports.SupportNetworks.SOLANA) {
       if (solanaAddress) {
@@ -2488,18 +1918,18 @@ function useIsWalletReady(enableNetworkAutoswitch) {
         return createWalletStatus(true, undefined, forceNetworkSwitch, tronAddress);
       }
       return createWalletStatus(false, 'Wallet not connected', forceNetworkSwitch, '');
-    } else if (isEVMChain(correctChain) && hasEthInfo && signerAddress) {
+    } else if (isEVMChain(correctChain) && hasEthInfo && evmAddress) {
       if (hasCorrectEvmNetwork) {
-        return createWalletStatus(true, undefined, forceNetworkSwitch, signerAddress);
+        return createWalletStatus(true, undefined, forceNetworkSwitch, evmAddress);
       } else {
-        if (provider && correctEvmNetwork) {
+        if (evmProvider && correctEvmNetwork) {
           if (autoSwitch) forceNetworkSwitch();
         }
-        if (evmChainId) return createWalletStatus(false, "Wallet not connected to " + CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[correctEvmNetwork]], forceNetworkSwitch, signerAddress);
+        if (evmChainId) return createWalletStatus(false, "Wallet not connected to " + CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[correctEvmNetwork]], forceNetworkSwitch, evmAddress);
       }
     }
     return createWalletStatus(false, '', forceNetworkSwitch, undefined);
-  }, [correctChain, autoSwitch, forceNetworkSwitch, solanaAddress, tronAddress, hasEthInfo, correctEvmNetwork, hasCorrectEvmNetwork, provider, signerAddress]);
+  }, [correctChain, autoSwitch, forceNetworkSwitch, solanaAddress, tronAddress, hasEthInfo, correctEvmNetwork, hasCorrectEvmNetwork, evmProvider, evmAddress, evmChainId]);
 }
 
 var getShortenedAddress = function getShortenedAddress(address) {
@@ -2911,10 +2341,16 @@ function useBalance() {
   var _useState = React.useState(0),
     balance = _useState[0],
     setBalance = _useState[1];
-  var _useEthereumProvider = useEthereumProvider(),
-    signerAddress = _useEthereumProvider.signerAddress,
-    signer = _useEthereumProvider.signer,
-    evmChainId = _useEthereumProvider.chainId;
+  var web3ModalAccountInfo = react.useWeb3ModalAccount();
+  var _ref = web3ModalAccountInfo || {
+      address: null,
+      chainId: null,
+      isConnected: null
+    },
+    signerAddress = _ref.address,
+    evmChainId = _ref.chainId;
+  var _useWeb3ModalProvider = react.useWeb3ModalProvider(),
+    walletProvider = _useWeb3ModalProvider.walletProvider;
   var selectedNetwork = reactRedux.useSelector(selectSourceChain);
   var errorHandler = reactRedux.useSelector(selectErrorHandler);
   var sourceChain = React.useMemo(function () {
@@ -2942,6 +2378,8 @@ function useBalance() {
         return _catch(function () {
           function _temp4(_result3) {
             if (_exit) return _result3;
+            var provider = new ethers.ethers.providers.Web3Provider(walletProvider);
+            var signer = provider === null || provider === void 0 ? void 0 : provider.getSigner();
             if (!tokenAddress || !signer || !signerAddress) return;
             var erc20Contract = new contracts.Contract(tokenAddress, ERC20ABI.abi, signer);
             return Promise.resolve(erc20Contract.decimals()).then(function (decimals) {
@@ -2990,7 +2428,7 @@ function useBalance() {
         Promise.reject(e);
       }
     })();
-  }, [signerAddress, tokenAddress, sourceChain, solanaAddress, tronAddress]);
+  }, [signerAddress, tokenAddress, sourceChain, solanaAddress, tronAddress, walletProvider]);
   return React.useMemo(function () {
     return {
       balance: balance
@@ -3015,18 +2453,14 @@ var WalletButton = function WalletButton(_ref) {
   var compliantOption = reactRedux.useSelector(selectCompliantOption);
   var selectedNetwork = reactRedux.useSelector(selectSourceChain);
   var walletAutoConnect = reactRedux.useSelector(selectWalletAutoConnect);
-  var _useEthereumProvider = useEthereumProvider(),
-    connect = _useEthereumProvider.connect;
   var _useIsWalletReady = useIsWalletReady(walletAutoConnect),
     isReady = _useIsWalletReady.isReady,
     statusMessage = _useIsWalletReady.statusMessage,
     walletAddress = _useIsWalletReady.walletAddress;
   var _useBalance = useBalance(),
     balance = _useBalance.balance;
-  React.useEffect(function () {
-    if (!connect) return;
-    connect();
-  }, [connect]);
+  var _useWeb3Modal = react.useWeb3Modal(),
+    open = _useWeb3Modal.open;
   var handleClick = function handleClick() {
     if (selectedNetwork === exports.SupportNetworks.SOLANA) {
       dispatch(setSolanaConnectModal(true));
@@ -3036,7 +2470,7 @@ var WalletButton = function WalletButton(_ref) {
       dispatch(setTronConnectModal(true));
       return;
     }
-    connect();
+    open();
   };
   var errorMessage = React.useMemo(function () {
     if (!isReady) return statusMessage;
@@ -7697,10 +7131,16 @@ function useAllowance(_ref) {
   var _useState2 = React.useState(null),
     decimals = _useState2[0],
     setDecimals = _useState2[1];
-  var _useEthereumProvider = useEthereumProvider(),
-    signerAddress = _useEthereumProvider.signerAddress,
-    signer = _useEthereumProvider.signer,
-    evmChainId = _useEthereumProvider.chainId;
+  var web3ModalAccountInfo = react.useWeb3ModalAccount();
+  var _ref2 = web3ModalAccountInfo || {
+      address: null,
+      chainId: null,
+      isConnected: null
+    },
+    signerAddress = _ref2.address,
+    evmChainId = _ref2.chainId;
+  var _useWeb3ModalProvider = react.useWeb3ModalProvider(),
+    walletProvider = _useWeb3ModalProvider.walletProvider;
   var selectedNetwork = reactRedux.useSelector(selectSourceChain);
   var errorHandler = reactRedux.useSelector(selectErrorHandler);
   var dAppOption = reactRedux.useSelector(selectDappOption);
@@ -7764,6 +7204,8 @@ function useAllowance(_ref) {
         return _catch(function () {
           function _temp5(_result2) {
             if (_exit) return _result2;
+            var provider = new ethers.ethers.providers.Web3Provider(walletProvider);
+            var signer = provider === null || provider === void 0 ? void 0 : provider.getSigner();
             if (!tokenAddress || !targetAddress || !signer || !signerAddress) return;
             var erc20Contract = new contracts.Contract(tokenAddress, ERC20ABI.abi, signer);
             return Promise.resolve(erc20Contract.decimals()).then(function (decimals) {
@@ -7819,7 +7261,7 @@ function useAllowance(_ref) {
         Promise.reject(e);
       }
     })();
-  }, [signerAddress, tokenAddress, targetAddress, sourceChain, solanaAddress, tronAddress]);
+  }, [signerAddress, tokenAddress, targetAddress, sourceChain, solanaAddress, tronAddress, walletProvider]);
   var approve = React.useCallback(function () {
     try {
       var _temp15 = function _temp15(_result4) {
@@ -7896,6 +7338,8 @@ function useAllowance(_ref) {
           var _temp8 = function _temp8() {
             _exit2 = true;
           };
+          var provider = new ethers.ethers.providers.Web3Provider(walletProvider);
+          var signer = provider.getSigner();
           if (!decimals || !tokenAddress || !signer || !targetAddress) {
             _exit2 = true;
             return;
@@ -7920,7 +7364,7 @@ function useAllowance(_ref) {
     } catch (e) {
       return Promise.reject(e);
     }
-  }, [decimals, tokenAddress, signer, amount, targetAddress, tronAddress, signSolanaTransaction, signTronTransaction, serviceFee]);
+  }, [decimals, tokenAddress, walletProvider, amount, targetAddress, tronAddress, signSolanaTransaction, signTronTransaction, serviceFee]);
   return React.useMemo(function () {
     return {
       isApproved: isApproved,
@@ -7995,9 +7439,15 @@ function useSign(_ref) {
   var _useState = React.useState(false),
     isSigned = _useState[0],
     setIsSigned = _useState[1];
-  var _useEthereumProvider = useEthereumProvider(),
-    signerAddress = _useEthereumProvider.signerAddress,
-    signer = _useEthereumProvider.signer;
+  var web3ModalAccountInfo = react.useWeb3ModalAccount();
+  var _ref2 = web3ModalAccountInfo || {
+      address: null,
+      chainId: null,
+      isConnected: null
+    },
+    signerAddress = _ref2.address;
+  var _useWeb3ModalProvider = react.useWeb3ModalProvider(),
+    walletProvider = _useWeb3ModalProvider.walletProvider;
   var sourceNetwork = reactRedux.useSelector(selectSourceChain);
   var errorHandler = reactRedux.useSelector(selectErrorHandler);
   var amount = reactRedux.useSelector(selectAmount);
@@ -8009,6 +7459,8 @@ function useSign(_ref) {
       }
       var _temp = _catch(function () {
         setSigning(true);
+        var provider = new ethers.ethers.providers.Web3Provider(walletProvider);
+        var signer = provider === null || provider === void 0 ? void 0 : provider.getSigner();
         var message = amount + " | " + signerAddress;
         return Promise.resolve(signer === null || signer === void 0 ? void 0 : signer.signMessage(message)).then(function (signature) {
           var hash = Base64.stringify(sha256(signature || ''));
@@ -8024,7 +7476,7 @@ function useSign(_ref) {
     } catch (e) {
       return Promise.reject(e);
     }
-  }, [signer, amount, sourceNetwork, signerAddress]);
+  }, [walletProvider, amount, sourceNetwork, signerAddress]);
   return React.useMemo(function () {
     return {
       isSigned: isSigned,
@@ -8529,8 +7981,11 @@ var KimaTransactionWidget = function KimaTransactionWidget(_ref) {
     } : _ref$keplrHandler;
   var submitted = reactRedux.useSelector(selectSubmitted);
   var dispatch = reactRedux.useDispatch();
+  var _useWeb3ModalTheme = react.useWeb3ModalTheme(),
+    setThemeMode = _useWeb3ModalTheme.setThemeMode;
   React.useEffect(function () {
     dispatch(setTheme(theme));
+    setThemeMode(theme.colorMode === exports.ColorModeOptions.light ? 'light' : 'dark');
     if (transactionOption) dispatch(setTransactionOption(transactionOption));
     dispatch(setKimaExplorer(kimaExplorer));
     dispatch(setCompliantOption(compliantOption));
@@ -8625,6 +8080,64 @@ var KimaTransactionWidget = function KimaTransactionWidget(_ref) {
 
 var ConnectionProvider = SolanaAdapter.ConnectionProvider,
   SolanaWalletProvider = SolanaAdapter.WalletProvider;
+var projectId = '90c9315fb25e62e202ce09985f70bcf3';
+var ethereum = {
+  chainId: 11155111,
+  name: 'Ethereum Sepolia',
+  currency: 'ETH',
+  explorerUrl: 'https://sepolia.etherscan.io',
+  rpcUrl: 'https://ethereum-sepolia-rpc.publicnode.com'
+};
+var bsc = {
+  chainId: 97,
+  name: 'BNB Smart Chain Testnet',
+  currency: 'tBNB',
+  explorerUrl: 'https://testnet.bscscan.com',
+  rpcUrl: 'https://endpoints.omniatech.io/v1/bsc/testnet/public'
+};
+var polygon = {
+  chainId: 80001,
+  name: 'Mumbai',
+  currency: 'MATIC',
+  explorerUrl: 'https://mumbai.polygonscan.com',
+  rpcUrl: 'https://rpc-mumbai.maticvigil.com'
+};
+var arbitrum = {
+  chainId: 421614,
+  name: 'Arbitrum Sepolia Testnet',
+  currency: 'ETH',
+  explorerUrl: 'https://sepolia.arbiscan.io/',
+  rpcUrl: 'https://sepolia-rollup.arbitrum.io/rpc'
+};
+var optimism = {
+  chainId: 11155420,
+  name: 'OP Sepolia',
+  currency: 'ETH',
+  explorerUrl: 'https://sepolia-optimism.etherscan.io',
+  rpcUrl: 'https://sepolia.optimism.io'
+};
+var avalanche = {
+  chainId: 43113,
+  name: 'Avalanche Fuji Testnet',
+  currency: 'AVAX',
+  explorerUrl: 'https://testnet.snowtrace.io',
+  rpcUrl: 'https://api.avax-test.network/ext/bc/C/rpc'
+};
+var metadata = {
+  name: 'Kima Transaction Widget',
+  description: 'Frontend widget for Kima integration for dApps',
+  url: 'https://kima.finance',
+  icons: ['https://avatars.githubusercontent.com/u/37784886']
+};
+react.createWeb3Modal({
+  ethersConfig: react.defaultConfig({
+    metadata: metadata
+  }),
+  chains: [ethereum, bsc, polygon, arbitrum, optimism, avalanche],
+  projectId: projectId,
+  enableAnalytics: false,
+  featuredWalletIds: ['c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96', 'a797aa35c0fadbfc1a53e7f675162ed5226968b44a19ee3d24385c64d1d3c393', '4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0']
+});
 var KimaProvider = function KimaProvider(_ref) {
   var children = _ref.children;
   var wallets = [new walletAdapterWallets.PhantomWalletAdapter(), new walletAdapterWallets.SolflareWalletAdapter(), new walletAdapterWallets.CloverWalletAdapter(), new walletAdapterWallets.Coin98WalletAdapter(), new walletAdapterWallets.SolongWalletAdapter(), new walletAdapterWallets.TorusWalletAdapter()];
@@ -8653,7 +8166,7 @@ var KimaProvider = function KimaProvider(_ref) {
   };
   return React__default.createElement(reactRedux.Provider, {
     store: store
-  }, React__default.createElement(EthereumProvider, null, React__default.createElement(ConnectionProvider, {
+  }, React__default.createElement(ConnectionProvider, {
     endpoint: SOLANA_HOST
   }, React__default.createElement(SolanaWalletProvider, {
     wallets: wallets
@@ -8663,7 +8176,7 @@ var KimaProvider = function KimaProvider(_ref) {
     disableAutoConnectOnLoad: true,
     adapters: adapters,
     onChainChanged: onChainChanged
-  }, children)))));
+  }, children))));
 };
 
 exports.CHAIN_NAMES_TO_STRING = CHAIN_NAMES_TO_STRING;

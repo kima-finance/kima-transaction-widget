@@ -24,7 +24,7 @@ import {
 } from '@tronweb3/tronwallet-abstract-adapter'
 import { toast } from 'react-hot-toast'
 import { SOLANA_HOST } from './utils/constants'
-import { EthereumProvider } from './contexts/EthereumProviderContext'
+import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react'
 
 const { ConnectionProvider, WalletProvider: SolanaWalletProvider } =
   SolanaAdapter
@@ -41,6 +41,79 @@ export {
   CHAIN_NAMES_TO_STRING
 } from './interface'
 export { KimaTransactionWidget } from './components/KimaTransactionWidget'
+
+// 1. Get projectId
+const projectId = '90c9315fb25e62e202ce09985f70bcf3'
+
+// 2. Set chains
+const ethereum = {
+  chainId: 11155111,
+  name: 'Ethereum Sepolia',
+  currency: 'ETH',
+  explorerUrl: 'https://sepolia.etherscan.io',
+  rpcUrl: 'https://ethereum-sepolia-rpc.publicnode.com'
+}
+
+const bsc = {
+  chainId: 97,
+  name: 'BNB Smart Chain Testnet',
+  currency: 'tBNB',
+  explorerUrl: 'https://testnet.bscscan.com',
+  rpcUrl: 'https://endpoints.omniatech.io/v1/bsc/testnet/public'
+}
+
+const polygon = {
+  chainId: 80001,
+  name: 'Mumbai',
+  currency: 'MATIC',
+  explorerUrl: 'https://mumbai.polygonscan.com',
+  rpcUrl: 'https://rpc-mumbai.maticvigil.com'
+}
+
+const arbitrum = {
+  chainId: 421614,
+  name: 'Arbitrum Sepolia Testnet',
+  currency: 'ETH',
+  explorerUrl: 'https://sepolia.arbiscan.io/',
+  rpcUrl: 'https://sepolia-rollup.arbitrum.io/rpc'
+}
+
+const optimism = {
+  chainId: 11155420,
+  name: 'OP Sepolia',
+  currency: 'ETH',
+  explorerUrl: 'https://sepolia-optimism.etherscan.io',
+  rpcUrl: 'https://sepolia.optimism.io'
+}
+
+const avalanche = {
+  chainId: 43113,
+  name: 'Avalanche Fuji Testnet',
+  currency: 'AVAX',
+  explorerUrl: 'https://testnet.snowtrace.io',
+  rpcUrl: 'https://api.avax-test.network/ext/bc/C/rpc'
+}
+
+// 3. Create modal
+const metadata = {
+  name: 'Kima Transaction Widget',
+  description: 'Frontend widget for Kima integration for dApps',
+  url: 'https://kima.finance',
+  icons: ['https://avatars.githubusercontent.com/u/37784886']
+}
+
+createWeb3Modal({
+  ethersConfig: defaultConfig({ metadata }),
+  chains: [ethereum, bsc, polygon, arbitrum, optimism, avalanche],
+  projectId,
+  enableAnalytics: false,
+  featuredWalletIds: [
+    'c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96',
+    'a797aa35c0fadbfc1a53e7f675162ed5226968b44a19ee3d24385c64d1d3c393',
+    '4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0'
+  ]
+})
+
 export const KimaProvider = ({ children }: any) => {
   const wallets = [
     new PhantomWalletAdapter(),
@@ -86,21 +159,19 @@ export const KimaProvider = ({ children }: any) => {
 
   return (
     <Provider store={store}>
-      <EthereumProvider>
-        <ConnectionProvider endpoint={SOLANA_HOST}>
-          <SolanaWalletProvider wallets={wallets}>
-            <TronWalletProvider
-              onError={onError}
-              autoConnect={false}
-              disableAutoConnectOnLoad={true}
-              adapters={adapters}
-              onChainChanged={onChainChanged}
-            >
-              {children}
-            </TronWalletProvider>
-          </SolanaWalletProvider>
-        </ConnectionProvider>
-      </EthereumProvider>
+      <ConnectionProvider endpoint={SOLANA_HOST}>
+        <SolanaWalletProvider wallets={wallets}>
+          <TronWalletProvider
+            onError={onError}
+            autoConnect={false}
+            disableAutoConnectOnLoad={true}
+            adapters={adapters}
+            onChainChanged={onChainChanged}
+          >
+            {children}
+          </TronWalletProvider>
+        </SolanaWalletProvider>
+      </ConnectionProvider>
     </Provider>
   )
 }

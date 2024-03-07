@@ -6,7 +6,8 @@ import {
   ModeOptions,
   TitleOption,
   PaymentTitleOption,
-  DAppOptions
+  DAppOptions,
+  ColorModeOptions
 } from '../interface'
 
 // store
@@ -43,6 +44,7 @@ import { TransferWidget } from './TransferWidget'
 import { ChainName } from '../utils/constants'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 import { Web3Provider } from '@ethersproject/providers'
+import { useWeb3ModalTheme } from '@web3modal/ethers5/react'
 
 interface Props {
   theme: ThemeOptions
@@ -104,9 +106,12 @@ export const KimaTransactionWidget = ({
 }: Props) => {
   const submitted = useSelector(selectSubmitted)
   const dispatch = useDispatch()
+  const { setThemeMode } = useWeb3ModalTheme()
 
   useEffect(() => {
     dispatch(setTheme(theme))
+    setThemeMode(theme.colorMode === ColorModeOptions.light ? 'light' : 'dark')
+
     if (transactionOption) dispatch(setTransactionOption(transactionOption))
 
     dispatch(setKimaExplorer(kimaExplorer))
