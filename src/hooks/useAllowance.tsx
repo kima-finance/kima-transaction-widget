@@ -6,7 +6,6 @@ import {
   useConnection,
   useWallet as useSolanaWallet
 } from '@solana/wallet-adapter-react'
-import { useEthereumProvider } from '../contexts/EthereumProviderContext'
 import {
   ChainName,
   CHAIN_IDS_TO_NAMES,
@@ -32,6 +31,13 @@ import { fetchWrapper } from '../helpers/fetch-wrapper'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import { tronWeb } from '../tronweb'
 import { fromHex } from '../utils/fuctions'
+import { Web3ModalAccountInfo } from '../interface'
+import {
+  useWeb3ModalAccount,
+  useWeb3ModalProvider
+} from '@web3modal/ethers5/react'
+import { ethers } from 'ethers'
+import { ExternalProvider, JsonRpcFetchFunc } from '@ethersproject/providers'
 
 type ParsedAccountData = {
   /** Name of the program that owns this account */
@@ -58,7 +64,16 @@ type ParsedAccountData = {
 export default function useAllowance({ setApproving }: { setApproving: any }) {
   const [allowance, setAllowance] = useState<number>(0)
   const [decimals, setDecimals] = useState<number | null>(null)
-  const { signerAddress, signer, chainId: evmChainId } = useEthereumProvider()
+  const web3ModalAccountInfo: Web3ModalAccountInfo = useWeb3ModalAccount()
+
+  const { address: signerAddress, chainId: evmChainId } =
+    web3ModalAccountInfo || {
+      address: null,
+      chainId: null,
+      isConnected: null
+    }
+
+  const { walletProvider } = useWeb3ModalProvider()
   const selectedNetwork = useSelector(selectSourceChain)
   const errorHandler = useSelector(selectErrorHandler)
   const dAppOption = useSelector(selectDappOption)
@@ -168,6 +183,10 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
           return
         }
 
+        const provider = new ethers.providers.Web3Provider(
+          walletProvider as ExternalProvider | JsonRpcFetchFunc
+        )
+        const signer = provider?.getSigner()
         if (!tokenAddress || !targetAddress || !signer || !signerAddress) return
 
         const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer)
@@ -189,11 +208,16 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
     targetAddress,
     sourceChain,
     solanaAddress,
-    tronAddress
+    tronAddress,
+    walletProvider
   ])
 
   const approve = useCallback(async () => {
     if (isEVMChain(sourceChain)) {
+      const provider = new ethers.providers.Web3Provider(
+        walletProvider as ExternalProvider | JsonRpcFetchFunc
+      )
+      const signer = provider.getSigner()
       if (!decimals || !tokenAddress || !signer || !targetAddress) return
 
       try {
@@ -293,7 +317,7 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
   }, [
     decimals,
     tokenAddress,
-    signer,
+    walletProvider,
     amount,
     targetAddress,
     tronAddress,

@@ -74,3 +74,9 @@ export interface TransactionData {
   kimaTxHash?: string
   failReason?: string
 }
+
+export interface Web3ModalAccountInfo {
+  address?: string | undefined
+  isConnected?: boolean | undefined
+  chainId?: number | undefined
+}

@@ -6,7 +6,6 @@ import {
   useConnection,
   useWallet as useSolanaWallet
 } from '@solana/wallet-adapter-react'
-import { useEthereumProvider } from '../contexts/EthereumProviderContext'
 import {
   ChainName,
   CHAIN_IDS_TO_NAMES,
@@ -23,6 +22,13 @@ import { getOrCreateAssociatedTokenAccount } from '../utils/solana/getOrCreateAs
 import { PublicKey } from '@solana/web3.js'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import { tronWeb } from '../tronweb'
+import {
+  useWeb3ModalAccount,
+  useWeb3ModalProvider
+} from '@web3modal/ethers5/react'
+import { ethers } from 'ethers'
+import { ExternalProvider, JsonRpcFetchFunc } from '@ethersproject/providers'
+import { Web3ModalAccountInfo } from '../interface'
 
 type ParsedAccountData = {
   /** Name of the program that owns this account */
@@ -35,7 +41,16 @@ type ParsedAccountData = {
 
 export default function useBalance() {
   const [balance, setBalance] = useState<number>(0)
-  const { signerAddress, signer, chainId: evmChainId } = useEthereumProvider()
+  const web3ModalAccountInfo: Web3ModalAccountInfo = useWeb3ModalAccount()
+
+  const { address: signerAddress, chainId: evmChainId } =
+    web3ModalAccountInfo || {
+      address: null,
+      chainId: null,
+      isConnected: null
+    }
+
+  const { walletProvider } = useWeb3ModalProvider()
   const selectedNetwork = useSelector(selectSourceChain)
   const errorHandler = useSelector(selectErrorHandler)
   const sourceChain = useMemo(() => {
@@ -102,6 +117,10 @@ export default function useBalance() {
             return
           }
         }
+        const provider = new ethers.providers.Web3Provider(
+          walletProvider as ExternalProvider | JsonRpcFetchFunc
+        )
+        const signer = provider?.getSigner()
         if (!tokenAddress || !signer || !signerAddress) return
 
         const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer)
@@ -113,7 +132,14 @@ export default function useBalance() {
         errorHandler(error)
       }
     })()
-  }, [signerAddress, tokenAddress, sourceChain, solanaAddress, tronAddress])
+  }, [
+    signerAddress,
+    tokenAddress,
+    sourceChain,
+    solanaAddress,
+    tronAddress,
+    walletProvider
+  ])
 
   return useMemo(
     () => ({
