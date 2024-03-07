@@ -15,12 +15,12 @@ import {
 } from '../../store/selectors'
 import PrimaryButton from './PrimaryButton'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
-import { useEthereumProvider } from '../../contexts/EthereumProviderContext'
 import { ChainName } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 import { connectWalletBtn } from '../../utils/testId'
 import useBalance from '../../hooks/useBalance'
 import { formatterFloat } from '../../helpers/functions'
+import { useWeb3Modal } from '@web3modal/ethers5/react'
 
 const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const dispatch = useDispatch()
@@ -30,15 +30,10 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const compliantOption = useSelector(selectCompliantOption)
   const selectedNetwork = useSelector(selectSourceChain)
   const walletAutoConnect = useSelector(selectWalletAutoConnect)
-  const { connect } = useEthereumProvider()
   const { isReady, statusMessage, walletAddress } =
     useIsWalletReady(walletAutoConnect)
   const { balance } = useBalance()
-
-  useEffect(() => {
-    if (!connect) return
-    connect()
-  }, [connect])
+  const { open } = useWeb3Modal()
 
   const handleClick = () => {
     if (selectedNetwork === ChainName.SOLANA) {
@@ -51,7 +46,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
       return
     }
 
-    connect()
+    open()
   }
 
   const errorMessage = useMemo(() => {
