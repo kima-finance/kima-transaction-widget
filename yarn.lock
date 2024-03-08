@@ -1203,15 +1203,6 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@bitget-wallet/web3-sdk@^0.0.8":
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/@bitget-wallet/web3-sdk/-/web3-sdk-0.0.8.tgz#1510b0b379654ff0de5e10ae19bef93fa86e46c3"
-  integrity sha512-WFk6URUxTCukKrU3YpTdWTCScrj6/wwd/0O7eSANeQl1KDbDs+yj/fAkN1Wy6ebI3NMcW6sqN9mrmfwz53dPMQ==
-  dependencies:
-    "@metamask/safe-event-emitter" "^3.0.0"
-    "@solana/web3.js" "^1.78.0"
-    eventemitter3 "^5.0.1"
-
 "@coinbase/wallet-sdk@3.9.1":
   version "3.9.1"
   resolved "https://registry.yarnpkg.com/@coinbase/wallet-sdk/-/wallet-sdk-3.9.1.tgz#503a14671bb392d653623ef2340934e213ac971f"
@@ -3677,7 +3668,7 @@
     "@wallet-standard/app" "^1.0.1"
     "@wallet-standard/base" "^1.0.1"
 
-"@solana/web3.js@^1.32.0", "@solana/web3.js@^1.36.0", "@solana/web3.js@^1.63.1", "@solana/web3.js@^1.66.1", "@solana/web3.js@^1.70.1", "@solana/web3.js@^1.78.0", "@solana/web3.js@^1.87.6":
+"@solana/web3.js@^1.32.0", "@solana/web3.js@^1.36.0", "@solana/web3.js@^1.63.1", "@solana/web3.js@^1.66.1", "@solana/web3.js@^1.70.1", "@solana/web3.js@^1.87.6":
   version "1.89.1"
   resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-1.89.1.tgz#52df6820f2d088c4558aa359af40580a03d10ec9"
   integrity sha512-t9TTLtPQxtQB3SAf/5E8xPXfVDsC6WGOsgKY02l2cbe0HLymT7ynE8Hu48Lk5qynHCquj6nhISfEHcjMkYpu/A==
@@ -4318,15 +4309,6 @@
   integrity sha512-3T2ojxzSKIAw4ucEcg4p5Nwr4lN1g1Om8s1ty77DOHIa0oS1YDvZmlRQekptWEppKOoRDYFWST1ERCvt2Xxm0A==
   dependencies:
     eventemitter3 "^4.0.0"
-
-"@tronweb3/tronwallet-adapter-bitkeep@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@tronweb3/tronwallet-adapter-bitkeep/-/tronwallet-adapter-bitkeep-1.1.0.tgz#d1cf35da0047eef1426f367314d6d5853df6bb4f"
-  integrity sha512-0qBBClDeV5NBXc3N6C7jaEg+ikcCo039+0vlAM/5KNAd9tsSlJYN2TPfpqRQQfh6tYojQyPkK24lgtt7UPhzYA==
-  dependencies:
-    "@bitget-wallet/web3-sdk" "^0.0.8"
-    "@tronweb3/tronwallet-abstract-adapter" "^1.1.6"
-    "@tronweb3/tronwallet-adapter-tronlink" "^1.1.9"
 
 "@tronweb3/tronwallet-adapter-ledger@^1.1.8":
   version "1.1.8"
