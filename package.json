@@ -8,8 +8,25 @@
   "main": "dist/index.js",
   "module": "dist/index.modern.js",
   "source": "src/index.tsx",
+  "types": "./dist/index.d.ts",
+  "type": "module",
   "engines": {
     "node": ">=10"
+  },
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.modern.js"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    },
+    "./dist/index.css": {
+      "default": "./dist/index.css"
+    }
   },
   "scripts": {
     "build": "microbundle-crl --no-compress --format modern,cjs --css-modules false",
@@ -74,7 +91,6 @@
     "@solana/wallet-adapter-wallets": "^0.19.3",
     "@solana/web3.js": "^1.66.1",
     "@tronweb3/tronwallet-abstract-adapter": "^1.1.0",
-    "@tronweb3/tronwallet-adapter-bitkeep": "^1.1.0",
     "@tronweb3/tronwallet-adapter-ledger": "^1.1.8",
     "@tronweb3/tronwallet-adapter-okxwallet": "^1.0.2",
     "@tronweb3/tronwallet-adapter-react-hooks": "^1.1.7",
