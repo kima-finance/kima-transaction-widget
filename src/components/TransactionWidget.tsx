@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { Tooltip } from 'react-tooltip'
-import AnimatedNumber from 'animated-number-react'
 import { CrossIcon, FooterLogo, MinimizeIcon } from '../assets/icons'
 import Progressbar from './reusable/Progressbar'
 import { ExternalLink, NetworkLabel, StepBox } from './reusable'
@@ -15,7 +14,7 @@ import { Provider } from 'react-redux'
 import { store } from '../store'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 import { COIN_LIST, TransactionStatus } from '../utils/constants'
-import { formatterFloat, formatterInt } from '../helpers/functions'
+import { formatterFloat } from '../helpers/functions'
 import { useSelector } from 'react-redux'
 import {
   selectCloseHandler,
@@ -193,15 +192,9 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
             <div className='title'>
               <h3>
                 Transferring {formatterFloat.format(data?.amount || 0)}{' '}
-                {COIN_LIST[data?.symbol || 'USDK'].symbol}
+                {COIN_LIST[data?.symbol || 'USDK'].symbol}&nbsp;&nbsp;
+                {`(${percent}%)`}
               </h3>
-              <AnimatedNumber
-                component='p'
-                value={percent}
-                duration={1000}
-                formatValue={(n: any) => `${formatterInt.format(n)}%`}
-              />
-              {/* <p>{percent}%</p> */}
             </div>
 
             {!minimized ? (

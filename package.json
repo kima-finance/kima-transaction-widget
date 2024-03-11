@@ -1,6 +1,6 @@
 {
   "name": "@kimafinance/kima-transaction-widget",
-  "version": "1.1.89-beta.1",
+  "version": "1.1.90-beta.1",
   "description": "Kima Transaction Widget",
   "author": "",
   "license": "MIT",
@@ -101,7 +101,6 @@
     "@types/crypto-js": "^4.1.1",
     "@types/mocha": "^10.0.6",
     "@web3modal/ethers5": "^4.0.13",
-    "animated-number-react": "^0.1.2",
     "better-docs": "^2.7.3",
     "browserify-zlib": "^0.2.0",
     "buffer-layout": "^1.2.2",
@@ -111,7 +110,6 @@
     "https-browserify": "^1.0.0",
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
-    "puppeteer": "18.1.0",
     "react-hot-toast": "^2.4.0",
     "react-redux": "^8.0.4",
     "react-tooltip": "^5.25.0",
