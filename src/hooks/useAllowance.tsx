@@ -313,6 +313,7 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
 
       let accountInfo
       let allowAmount = 0
+      let retryCount = 0
 
       do {
         accountInfo = await connection.getParsedAccountInfo(
@@ -327,7 +328,7 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
 
         console.log('sleep')
         await sleep(1000)
-      } while (allowAmount < amount + serviceFee)
+      } while (allowAmount < amount + serviceFee || retryCount++ < 5)
 
       setAllowance(amount + serviceFee)
       setApproving(false)

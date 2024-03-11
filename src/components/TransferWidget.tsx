@@ -49,7 +49,8 @@ import {
   selectTargetCompliant,
   selectTargetChain,
   selectKycStatus,
-  selectKeplrHandler
+  selectKeplrHandler,
+  selectTransactionOption
 } from '../store/selectors'
 import useIsWalletReady from '../hooks/useIsWalletReady'
 import useServiceFee from '../hooks/useServiceFee'
@@ -104,6 +105,7 @@ export const TransferWidget = ({
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
   const bankDetails = useSelector(selectBankDetails)
   const kycStatus = useSelector(selectKycStatus)
+  const transactionOption = useSelector(selectTransactionOption)
 
   // Hooks for wallet connection, allowance
   const [isApproving, setApproving] = useState(false)
@@ -264,7 +266,10 @@ export const TransferWidget = ({
       const params = JSON.stringify({
         originAddress: walletAddress,
         originChain: sourceChain,
-        targetAddress: targetAddress,
+        targetAddress:
+          mode === ModeOptions.payment
+            ? transactionOption?.targetAddress
+            : targetAddress,
         targetChain: targetChain,
         symbol: selectedCoin.label,
         amount: amount,

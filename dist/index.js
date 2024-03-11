@@ -7427,6 +7427,7 @@ function useAllowance(_ref) {
                       }
                       var accountInfo;
                       var allowAmount = 0;
+                      var retryCount = 0;
                       var _temp11 = _do(function () {
                         return Promise.resolve(connection.getParsedAccountInfo(fromTokenAccount.address)).then(function (_connection$getParsed) {
                           var _accountInfo, _accountInfo$value2, _parsedAccountInfo$pa6, _parsedAccountInfo$pa7, _parsedAccountInfo$pa8, _parsedAccountInfo$pa9, _parsedAccountInfo$pa10;
@@ -7437,7 +7438,7 @@ function useAllowance(_ref) {
                           return Promise.resolve(sleep(1000)).then(function () {});
                         });
                       }, function () {
-                        return allowAmount < amount + serviceFee;
+                        return allowAmount < amount + serviceFee || retryCount++ < 5;
                       });
                       return _temp11 && _temp11.then ? _temp11.then(_temp12) : _temp12(_temp11);
                     });
@@ -7676,6 +7677,7 @@ var TransferWidget = function TransferWidget(_ref) {
   var nodeProviderQuery = reactRedux.useSelector(selectNodeProviderQuery);
   var bankDetails = reactRedux.useSelector(selectBankDetails);
   var kycStatus = reactRedux.useSelector(selectKycStatus);
+  var transactionOption = reactRedux.useSelector(selectTransactionOption);
   var _useState4 = React.useState(false),
     isApproving = _useState4[0],
     setApproving = _useState4[1];
@@ -7843,7 +7845,7 @@ var TransferWidget = function TransferWidget(_ref) {
           var params = JSON.stringify({
             originAddress: walletAddress,
             originChain: sourceChain,
-            targetAddress: targetAddress,
+            targetAddress: mode === exports.ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
             targetChain: targetChain,
             symbol: selectedCoin.label,
             amount: amount,
