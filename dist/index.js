@@ -16,7 +16,6 @@ var tronwalletAbstractAdapter = require('@tronweb3/tronwallet-abstract-adapter')
 var reactHotToast = require('react-hot-toast');
 var react = require('@web3modal/ethers5/react');
 var reactTooltip = require('react-tooltip');
-var AnimatedNumber = _interopDefault(require('animated-number-react'));
 var walletAdapterBase = require('@solana/wallet-adapter-base');
 var contracts = require('@ethersproject/contracts');
 var units = require('@ethersproject/units');
@@ -2435,9 +2434,6 @@ function useBalance() {
   }, [balance]);
 }
 
-var formatterInt = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 0
-});
 var formatterFloat = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 2
 });
@@ -3303,14 +3299,7 @@ var TransactionWidget = function TransactionWidget(_ref) {
     className: 'topbar'
   }, React__default.createElement("div", {
     className: 'title'
-  }, React__default.createElement("h3", null, "Transferring ", formatterFloat.format((data === null || data === void 0 ? void 0 : data.amount) || 0), ' ', COIN_LIST[(data === null || data === void 0 ? void 0 : data.symbol) || 'USDK'].symbol), React__default.createElement(AnimatedNumber, {
-    component: 'p',
-    value: percent,
-    duration: 1000,
-    formatValue: function formatValue(n) {
-      return formatterInt.format(n) + "%";
-    }
-  })), !minimized ? React__default.createElement("div", {
+  }, React__default.createElement("h3", null, "Transferring ", formatterFloat.format((data === null || data === void 0 ? void 0 : data.amount) || 0), ' ', COIN_LIST[(data === null || data === void 0 ? void 0 : data.symbol) || 'USDK'].symbol, "\xA0\xA0", "(" + percent + "%)")), !minimized ? React__default.createElement("div", {
     className: 'control-buttons'
   }, React__default.createElement("button", {
     className: 'icon-button',

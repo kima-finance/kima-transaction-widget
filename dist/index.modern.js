@@ -14,7 +14,6 @@ import { AdapterState, WalletNotFoundError, WalletDisconnectedError } from '@tro
 import { toast, Toaster } from 'react-hot-toast';
 import { useWeb3ModalProvider, useSwitchNetwork, useWeb3ModalAccount, useWeb3ModalEvents, useWeb3Modal, useWeb3ModalTheme, createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react';
 import { Tooltip } from 'react-tooltip';
-import AnimatedNumber from 'animated-number-react';
 import { WalletReadyState } from '@solana/wallet-adapter-base';
 import { Contract } from '@ethersproject/contracts';
 import { formatUnits, parseUnits } from '@ethersproject/units';
@@ -2124,9 +2123,6 @@ function useBalance() {
   }), [balance]);
 }
 
-const formatterInt = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 0
-});
 const formatterFloat = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 2
 });
@@ -2889,12 +2885,7 @@ const TransactionWidget = ({
     className: 'topbar'
   }, React.createElement("div", {
     className: 'title'
-  }, React.createElement("h3", null, "Transferring ", formatterFloat.format((data === null || data === void 0 ? void 0 : data.amount) || 0), ' ', COIN_LIST[(data === null || data === void 0 ? void 0 : data.symbol) || 'USDK'].symbol), React.createElement(AnimatedNumber, {
-    component: 'p',
-    value: percent,
-    duration: 1000,
-    formatValue: n => `${formatterInt.format(n)}%`
-  })), !minimized ? React.createElement("div", {
+  }, React.createElement("h3", null, "Transferring ", formatterFloat.format((data === null || data === void 0 ? void 0 : data.amount) || 0), ' ', COIN_LIST[(data === null || data === void 0 ? void 0 : data.symbol) || 'USDK'].symbol, "\u00A0\u00A0", `(${percent}%)`)), !minimized ? React.createElement("div", {
     className: 'control-buttons'
   }, React.createElement("button", {
     className: 'icon-button',

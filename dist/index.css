@@ -27,6 +27,10 @@
   font-weight: bold;
   margin: 0 0 0 1em;
 }
+.kima-card .kima-card-header .topbar .title .percent {
+  margin-left: 0.5em;
+  font-weight: bold;
+}
 .kima-card .kima-card-header .topbar .control-buttons {
   display: flex;
   align-items: center;

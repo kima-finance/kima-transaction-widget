@@ -26,6 +26,11 @@
           margin: 0 0 0 1em;
         }
 
+        .percent {
+          margin-left: 0.5em;
+          font-weight: bold;
+        }
+
         // @include breakpoint(phablet) {
         //   flex-direction: column;
         //   align-items: flex-start;
