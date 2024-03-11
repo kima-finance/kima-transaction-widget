@@ -6824,6 +6824,7 @@ function useAllowance({
       await connection.sendRawTransaction(signed.serialize());
       let accountInfo;
       let allowAmount = 0;
+      let retryCount = 0;
       do {
         var _accountInfo, _accountInfo$value2, _parsedAccountInfo$pa6, _parsedAccountInfo$pa7, _parsedAccountInfo$pa8, _parsedAccountInfo$pa9, _parsedAccountInfo$pa10;
         accountInfo = await connection.getParsedAccountInfo(fromTokenAccount.address);
@@ -6831,7 +6832,7 @@ function useAllowance({
         allowAmount = ((_parsedAccountInfo$pa6 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa6 === void 0 ? void 0 : (_parsedAccountInfo$pa7 = _parsedAccountInfo$pa6.info) === null || _parsedAccountInfo$pa7 === void 0 ? void 0 : _parsedAccountInfo$pa7.delegate) === targetAddress ? (_parsedAccountInfo$pa8 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa8 === void 0 ? void 0 : (_parsedAccountInfo$pa9 = _parsedAccountInfo$pa8.info) === null || _parsedAccountInfo$pa9 === void 0 ? void 0 : (_parsedAccountInfo$pa10 = _parsedAccountInfo$pa9.delegatedAmount) === null || _parsedAccountInfo$pa10 === void 0 ? void 0 : _parsedAccountInfo$pa10.uiAmount : 0;
         console.log('sleep');
         await sleep(1000);
-      } while (allowAmount < amount + serviceFee);
+      } while (allowAmount < amount + serviceFee || retryCount++ < 5);
       setAllowance(amount + serviceFee);
       setApproving(false);
     } catch (e) {
@@ -6967,6 +6968,7 @@ const TransferWidget = ({
   const nodeProviderQuery = useSelector(selectNodeProviderQuery);
   const bankDetails = useSelector(selectBankDetails);
   const kycStatus = useSelector(selectKycStatus);
+  const transactionOption = useSelector(selectTransactionOption);
   const [isApproving, setApproving] = useState(false);
   const [isSubmitting, setSubmitting] = useState(false);
   const [isSigning, setSigning] = useState(false);
@@ -7102,7 +7104,7 @@ const TransferWidget = ({
       const params = JSON.stringify({
         originAddress: walletAddress,
         originChain: sourceChain,
-        targetAddress: targetAddress,
+        targetAddress: mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
         targetChain: targetChain,
         symbol: selectedCoin.label,
         amount: amount,
