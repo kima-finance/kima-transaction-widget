@@ -1,4 +1,5 @@
-import { configureStore } from '@reduxjs/toolkit'
+import * as toolkitRaw from '@reduxjs/toolkit'
+const { configureStore } = toolkitRaw
 import optionReducer from './optionSlice'
 
 export const store = configureStore({

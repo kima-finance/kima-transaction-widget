@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { createSlice, configureStore } from '@reduxjs/toolkit';
+import * as toolkitRaw from '@reduxjs/toolkit';
 import { clusterApiUrl, TransactionInstruction, SystemProgram, SYSVAR_RENT_PUBKEY, PublicKey, Transaction } from '@solana/web3.js';
 import { useSelector, useDispatch, Provider } from 'react-redux';
 import * as SolanaAdapter from '@solana/wallet-adapter-react';
@@ -837,9 +837,12 @@ var DAppOptions;
   DAppOptions["LPDrain"] = "LPDrain";
 })(DAppOptions || (DAppOptions = {}));
 
+const {
+  createSlice
+} = toolkitRaw;
 const initialState = {
   theme: {},
-  kimaExplorerUrl: "explorer.kima.finance",
+  kimaExplorerUrl: 'explorer.kima.finance',
   mode: ModeOptions.bridge,
   sourceChain: '',
   targetChain: '',
@@ -1065,6 +1068,9 @@ const {
 } = optionSlice.actions;
 var optionReducer = optionSlice.reducer;
 
+const {
+  configureStore
+} = toolkitRaw;
 const store = configureStore({
   reducer: {
     option: optionReducer

@@ -1,4 +1,6 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import * as toolkitRaw from '@reduxjs/toolkit'
+import { PayloadAction } from '@reduxjs/toolkit'
+const { createSlice } = toolkitRaw
 // import { WalletName } from '@solana/wallet-adapter-base'
 import {
   DAppOptions,
@@ -57,7 +59,7 @@ export interface OptionState {
 
 const initialState: OptionState = {
   theme: {},
-  kimaExplorerUrl: "explorer.kima.finance",
+  kimaExplorerUrl: 'explorer.kima.finance',
   mode: ModeOptions.bridge,
   sourceChain: '',
   targetChain: '',
@@ -125,7 +127,7 @@ export const optionSlice = createSlice({
       state.theme = action.payload
     },
     setKimaExplorer: (state, action: PayloadAction<string>) => {
-      state.kimaExplorerUrl = action.payload;
+      state.kimaExplorerUrl = action.payload
     },
     setSourceChain: (state, action: PayloadAction<string>) => {
       state.sourceChain = action.payload

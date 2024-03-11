@@ -1,6 +1,7 @@
 import React from 'react'
 import { render } from '@testing-library/react'
-import { configureStore } from '@reduxjs/toolkit'
+import * as toolkitRaw from '@reduxjs/toolkit'
+const { configureStore } = toolkitRaw
 import { Provider } from 'react-redux'
 // As a basic setup, import your same slice reducers
 import { optionSlice } from '../store/optionSlice'
