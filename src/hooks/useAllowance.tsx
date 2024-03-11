@@ -61,6 +61,8 @@ type ParsedAccountData = {
  * @beta
  */
 
+const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
+
 export default function useAllowance({ setApproving }: { setApproving: any }) {
   const [allowance, setAllowance] = useState<number>(0)
   const [decimals, setDecimals] = useState<number | null>(null)
@@ -308,6 +310,25 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
       const signed = await signSolanaTransaction(transaction)
 
       await connection.sendRawTransaction(signed.serialize())
+
+      let accountInfo
+      let allowAmount = 0
+
+      do {
+        accountInfo = await connection.getParsedAccountInfo(
+          fromTokenAccount.address
+        )
+
+        const parsedAccountInfo = accountInfo?.value?.data as ParsedAccountData
+        allowAmount =
+          parsedAccountInfo.parsed?.info?.delegate === targetAddress
+            ? parsedAccountInfo.parsed?.info?.delegatedAmount?.uiAmount
+            : 0
+
+        console.log('sleep')
+        await sleep(1000)
+      } while (allowAmount < amount + serviceFee)
+
       setAllowance(amount + serviceFee)
       setApproving(false)
     } catch (e) {

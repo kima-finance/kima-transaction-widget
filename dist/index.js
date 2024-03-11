@@ -1145,10 +1145,156 @@ var store = toolkit.configureStore({
 });
 
 // A type of promise-like that resolves synchronously and supports only one observer
+const _Pact = /*#__PURE__*/(function() {
+	function _Pact() {}
+	_Pact.prototype.then = function(onFulfilled, onRejected) {
+		const result = new _Pact();
+		const state = this.s;
+		if (state) {
+			const callback = state & 1 ? onFulfilled : onRejected;
+			if (callback) {
+				try {
+					_settle(result, 1, callback(this.v));
+				} catch (e) {
+					_settle(result, 2, e);
+				}
+				return result;
+			} else {
+				return this;
+			}
+		}
+		this.o = function(_this) {
+			try {
+				const value = _this.v;
+				if (_this.s & 1) {
+					_settle(result, 1, onFulfilled ? onFulfilled(value) : value);
+				} else if (onRejected) {
+					_settle(result, 1, onRejected(value));
+				} else {
+					_settle(result, 2, value);
+				}
+			} catch (e) {
+				_settle(result, 2, e);
+			}
+		};
+		return result;
+	};
+	return _Pact;
+})();
+
+// Settles a pact synchronously
+function _settle(pact, state, value) {
+	if (!pact.s) {
+		if (value instanceof _Pact) {
+			if (value.s) {
+				if (state & 1) {
+					state = value.s;
+				}
+				value = value.v;
+			} else {
+				value.o = _settle.bind(null, pact, state);
+				return;
+			}
+		}
+		if (value && value.then) {
+			value.then(_settle.bind(null, pact, state), _settle.bind(null, pact, 2));
+			return;
+		}
+		pact.s = state;
+		pact.v = value;
+		const observer = pact.o;
+		if (observer) {
+			observer(pact);
+		}
+	}
+}
+
+function _isSettledPact(thenable) {
+	return thenable instanceof _Pact && thenable.s & 1;
+}
 
 const _iteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.iterator || (Symbol.iterator = Symbol("Symbol.iterator"))) : "@@iterator";
 
 const _asyncIteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.asyncIterator || (Symbol.asyncIterator = Symbol("Symbol.asyncIterator"))) : "@@asyncIterator";
+
+// Asynchronously implement a do ... while loop
+function _do(body, test) {
+	var awaitBody;
+	do {
+		var result = body();
+		if (result && result.then) {
+			if (_isSettledPact(result)) {
+				result = result.v;
+			} else {
+				awaitBody = true;
+				break;
+			}
+		}
+		var shouldContinue = test();
+		if (_isSettledPact(shouldContinue)) {
+			shouldContinue = shouldContinue.v;
+		}
+		if (!shouldContinue) {
+			return result;
+		}
+	} while (!shouldContinue.then);
+	const pact = new _Pact();
+	const reject = _settle.bind(null, pact, 2);
+	(awaitBody ? result.then(_resumeAfterBody) : shouldContinue.then(_resumeAfterTest)).then(void 0, reject);
+	return pact;
+	function _resumeAfterBody(value) {
+		result = value;
+		for (;;) {
+			shouldContinue = test();
+			if (_isSettledPact(shouldContinue)) {
+				shouldContinue = shouldContinue.v;
+			}
+			if (!shouldContinue) {
+				break;
+			}
+			if (shouldContinue.then) {
+				shouldContinue.then(_resumeAfterTest).then(void 0, reject);
+				return;
+			}
+			result = body();
+			if (result && result.then) {
+				if (_isSettledPact(result)) {
+					result = result.v;
+				} else {
+					result.then(_resumeAfterBody).then(void 0, reject);
+					return;
+				}
+			}
+		}
+		_settle(pact, 1, result);
+	}
+	function _resumeAfterTest(shouldContinue) {
+		if (shouldContinue) {
+			do {
+				result = body();
+				if (result && result.then) {
+					if (_isSettledPact(result)) {
+						result = result.v;
+					} else {
+						result.then(_resumeAfterBody).then(void 0, reject);
+						return;
+					}
+				}
+				shouldContinue = test();
+				if (_isSettledPact(shouldContinue)) {
+					shouldContinue = shouldContinue.v;
+				}
+				if (!shouldContinue) {
+					_settle(pact, 1, result);
+					return;
+				}
+			} while (!shouldContinue.then);
+			shouldContinue.then(_resumeAfterTest).then(void 0, reject);
+		} else {
+			_settle(pact, 1, result);
+		}
+	}
+}
 
 // Asynchronously call a function and send errors to recovery continuation
 function _catch(body, recover) {
@@ -7111,6 +7257,11 @@ function fromHex(address) {
   return getBase58CheckAddress(hexStr2byteArray(address.replace(/^0x/, ADDRESS_PREFIX)));
 }
 
+var sleep = function sleep(delay) {
+  return new Promise(function (resolve) {
+    return setTimeout(resolve, delay);
+  });
+};
 function useAllowance(_ref) {
   var setApproving = _ref.setApproving;
   var _useState = React.useState(0),
@@ -7252,13 +7403,13 @@ function useAllowance(_ref) {
   }, [signerAddress, tokenAddress, targetAddress, sourceChain, solanaAddress, tronAddress, walletProvider]);
   var approve = React.useCallback(function () {
     try {
-      var _temp15 = function _temp15(_result4) {
+      var _temp17 = function _temp17(_result4) {
         var _exit3 = false;
         if (_exit2) return _result4;
-        function _temp13(_result5) {
+        function _temp15(_result5) {
           if (_exit3) return _result5;
           if (!signSolanaTransaction) return;
-          var _temp11 = _catch(function () {
+          var _temp13 = _catch(function () {
             setApproving(true);
             var mint = new web3_js.PublicKey(tokenAddress);
             var toPublicKey = new web3_js.PublicKey(targetAddress);
@@ -7270,8 +7421,25 @@ function useAllowance(_ref) {
                   transaction.recentBlockhash = _blockHash$blockhash;
                   return Promise.resolve(signSolanaTransaction(transaction)).then(function (signed) {
                     return Promise.resolve(connection.sendRawTransaction(signed.serialize())).then(function () {
-                      setAllowance(amount + serviceFee);
-                      setApproving(false);
+                      function _temp12() {
+                        setAllowance(amount + serviceFee);
+                        setApproving(false);
+                      }
+                      var accountInfo;
+                      var allowAmount = 0;
+                      var _temp11 = _do(function () {
+                        return Promise.resolve(connection.getParsedAccountInfo(fromTokenAccount.address)).then(function (_connection$getParsed) {
+                          var _accountInfo, _accountInfo$value2, _parsedAccountInfo$pa6, _parsedAccountInfo$pa7, _parsedAccountInfo$pa8, _parsedAccountInfo$pa9, _parsedAccountInfo$pa10;
+                          accountInfo = _connection$getParsed;
+                          var parsedAccountInfo = (_accountInfo = accountInfo) === null || _accountInfo === void 0 ? void 0 : (_accountInfo$value2 = _accountInfo.value) === null || _accountInfo$value2 === void 0 ? void 0 : _accountInfo$value2.data;
+                          allowAmount = ((_parsedAccountInfo$pa6 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa6 === void 0 ? void 0 : (_parsedAccountInfo$pa7 = _parsedAccountInfo$pa6.info) === null || _parsedAccountInfo$pa7 === void 0 ? void 0 : _parsedAccountInfo$pa7.delegate) === targetAddress ? (_parsedAccountInfo$pa8 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa8 === void 0 ? void 0 : (_parsedAccountInfo$pa9 = _parsedAccountInfo$pa8.info) === null || _parsedAccountInfo$pa9 === void 0 ? void 0 : (_parsedAccountInfo$pa10 = _parsedAccountInfo$pa9.delegatedAmount) === null || _parsedAccountInfo$pa10 === void 0 ? void 0 : _parsedAccountInfo$pa10.uiAmount : 0;
+                          console.log('sleep');
+                          return Promise.resolve(sleep(1000)).then(function () {});
+                        });
+                      }, function () {
+                        return allowAmount < amount + serviceFee;
+                      });
+                      return _temp11 && _temp11.then ? _temp11.then(_temp12) : _temp12(_temp11);
                     });
                   });
                 });
@@ -7281,9 +7449,9 @@ function useAllowance(_ref) {
             errorHandler(e);
             setApproving(false);
           });
-          if (_temp11 && _temp11.then) return _temp11.then(function () {});
+          if (_temp13 && _temp13.then) return _temp13.then(function () {});
         }
-        var _temp12 = function () {
+        var _temp14 = function () {
           if (sourceChain === exports.SupportNetworks.TRON) {
             var _temp10 = function _temp10() {
               _exit3 = true;
@@ -7318,10 +7486,10 @@ function useAllowance(_ref) {
             return _temp9 && _temp9.then ? _temp9.then(_temp10) : _temp10(_temp9);
           }
         }();
-        return _temp12 && _temp12.then ? _temp12.then(_temp13) : _temp13(_temp12);
+        return _temp14 && _temp14.then ? _temp14.then(_temp15) : _temp15(_temp14);
       };
       var _exit2 = false;
-      var _temp14 = function () {
+      var _temp16 = function () {
         if (isEVMChain(sourceChain)) {
           var _temp8 = function _temp8() {
             _exit2 = true;
@@ -7348,7 +7516,7 @@ function useAllowance(_ref) {
           return _temp7 && _temp7.then ? _temp7.then(_temp8) : _temp8(_temp7);
         }
       }();
-      return Promise.resolve(_temp14 && _temp14.then ? _temp14.then(_temp15) : _temp15(_temp14));
+      return Promise.resolve(_temp16 && _temp16.then ? _temp16.then(_temp17) : _temp17(_temp16));
     } catch (e) {
       return Promise.reject(e);
     }
