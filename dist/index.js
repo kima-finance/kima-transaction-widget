@@ -2,7 +2,7 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 
 var React = require('react');
 var React__default = _interopDefault(React);
-var toolkit = require('@reduxjs/toolkit');
+var toolkitRaw = require('@reduxjs/toolkit');
 var web3_js = require('@solana/web3.js');
 var reactRedux = require('react-redux');
 var SolanaAdapter = require('@solana/wallet-adapter-react');
@@ -898,9 +898,10 @@ var TransactionStatus;
   DAppOptions["LPDrain"] = "LPDrain";
 })(exports.DAppOptions || (exports.DAppOptions = {}));
 
+var createSlice = toolkitRaw.createSlice;
 var initialState = {
   theme: {},
-  kimaExplorerUrl: "explorer.kima.finance",
+  kimaExplorerUrl: 'explorer.kima.finance',
   mode: exports.ModeOptions.bridge,
   sourceChain: '',
   targetChain: '',
@@ -951,7 +952,7 @@ var initialState = {
   uuid: '',
   kycStatus: ''
 };
-var optionSlice = toolkit.createSlice({
+var optionSlice = createSlice({
   name: 'option',
   initialState: initialState,
   reducers: {
@@ -1133,7 +1134,8 @@ var _optionSlice$actions = optionSlice.actions,
   setKYCStatus = _optionSlice$actions.setKYCStatus;
 var optionReducer = optionSlice.reducer;
 
-var store = toolkit.configureStore({
+var configureStore = toolkitRaw.configureStore;
+var store = configureStore({
   reducer: {
     option: optionReducer
   },
