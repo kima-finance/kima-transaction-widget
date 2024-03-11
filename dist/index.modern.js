@@ -6661,6 +6661,7 @@ function fromHex(address) {
   return getBase58CheckAddress(hexStr2byteArray(address.replace(/^0x/, ADDRESS_PREFIX)));
 }
 
+const sleep = delay => new Promise(resolve => setTimeout(resolve, delay));
 function useAllowance({
   setApproving
 }) {
@@ -6821,6 +6822,16 @@ function useAllowance({
       transaction.recentBlockhash = await blockHash.blockhash;
       const signed = await signSolanaTransaction(transaction);
       await connection.sendRawTransaction(signed.serialize());
+      let accountInfo;
+      let allowAmount = 0;
+      do {
+        var _accountInfo, _accountInfo$value2, _parsedAccountInfo$pa6, _parsedAccountInfo$pa7, _parsedAccountInfo$pa8, _parsedAccountInfo$pa9, _parsedAccountInfo$pa10;
+        accountInfo = await connection.getParsedAccountInfo(fromTokenAccount.address);
+        const parsedAccountInfo = (_accountInfo = accountInfo) === null || _accountInfo === void 0 ? void 0 : (_accountInfo$value2 = _accountInfo.value) === null || _accountInfo$value2 === void 0 ? void 0 : _accountInfo$value2.data;
+        allowAmount = ((_parsedAccountInfo$pa6 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa6 === void 0 ? void 0 : (_parsedAccountInfo$pa7 = _parsedAccountInfo$pa6.info) === null || _parsedAccountInfo$pa7 === void 0 ? void 0 : _parsedAccountInfo$pa7.delegate) === targetAddress ? (_parsedAccountInfo$pa8 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa8 === void 0 ? void 0 : (_parsedAccountInfo$pa9 = _parsedAccountInfo$pa8.info) === null || _parsedAccountInfo$pa9 === void 0 ? void 0 : (_parsedAccountInfo$pa10 = _parsedAccountInfo$pa9.delegatedAmount) === null || _parsedAccountInfo$pa10 === void 0 ? void 0 : _parsedAccountInfo$pa10.uiAmount : 0;
+        console.log('sleep');
+        await sleep(1000);
+      } while (allowAmount < amount + serviceFee);
       setAllowance(amount + serviceFee);
       setApproving(false);
     } catch (e) {
