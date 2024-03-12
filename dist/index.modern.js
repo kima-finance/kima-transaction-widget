@@ -6802,7 +6802,7 @@ function useAllowance({
           value: targetAddress
         }, {
           type: 'uint256',
-          value: parseUnits((amount + serviceFee).toString(), decimals)
+          value: parseUnits((amount + serviceFee).toString(), decimals).toString()
         }];
         const tx = await tronWeb.transactionBuilder.triggerSmartContract(tronWeb.address.toHex(tokenAddress), functionSelector, {}, parameter, tronWeb.address.toHex(tronAddress));
         const signedTx = await signTronTransaction(tx.transaction);

@@ -6,7 +6,8 @@ import {
   FontSizeOptions,
   ModeOptions,
   ColorModeOptions,
-  SupportNetworks
+  SupportNetworks,
+  DAppOptions
 } from 'kima-transaction-widget'
 import 'kima-transaction-widget/dist/index.css'
 
@@ -25,6 +26,7 @@ const App = () => {
               fontSize: FontSizeOptions.medium
             }}
             mode={ModeOptions.payment}
+            dAppOption={DAppOptions.LPAdd}
             // useFIAT={true}
             kimaBackendUrl='http://localhost:3001'
             kimaNodeProviderQuery='https://api-testnet.kima.finance'
@@ -40,8 +42,8 @@ const App = () => {
             //   }
             // }}
             transactionOption={{
-              targetChain: SupportNetworks.POLYGON,
-              targetAddress: '0x10c033E050e10510a951a56e4A14B4CD3de6CA67',
+              targetChain: SupportNetworks.TRON,
+              targetAddress: 'TQfYistjV6aMKSC1jxUfkvnsRnjG2KEoFv',
               amount: 5
             }}
             // txId={-1}
