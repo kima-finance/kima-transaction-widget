@@ -5755,6 +5755,14 @@
     lit "3.1.0"
     qrcode "1.5.3"
 
+"@web3modal/ui@^4.1.0":
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/@web3modal/ui/-/ui-4.1.0.tgz#0e182f22130b16c0958c43608320266ac2e859b4"
+  integrity sha512-Cz2bWrLz0yMjxq1IrHFlLcpdHEqFuo52KYPPgvKqfILj57JRsaPyjzGUYn3OU5g6VMm4rxTJJGyntFanRuuuiA==
+  dependencies:
+    lit "3.1.0"
+    qrcode "1.5.3"
+
 "@web3modal/wallet@4.0.13":
   version "4.0.13"
   resolved "https://registry.yarnpkg.com/@web3modal/wallet/-/wallet-4.0.13.tgz#c33ddc8031ced0ea892828851276c0835b7e17d5"
