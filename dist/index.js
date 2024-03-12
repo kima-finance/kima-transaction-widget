@@ -20,7 +20,7 @@ var walletAdapterBase = require('@solana/wallet-adapter-base');
 var contracts = require('@ethersproject/contracts');
 var units = require('@ethersproject/units');
 var splToken = require('@solana/spl-token');
-var TronWeb = _interopDefault(require('tronweb'));
+var tronweb = require('tronweb');
 var ethers = require('ethers');
 var BufferLayout = _interopDefault(require('buffer-layout'));
 var sha256 = _interopDefault(require('crypto-js/sha256.js'));
@@ -2478,7 +2478,7 @@ var getOrCreateAssociatedTokenAccount = function getOrCreateAssociatedTokenAccou
   }
 };
 
-var tronWeb = new TronWeb({
+var tronWeb = new tronweb.TronWeb({
   fullHost: 'https://api.nileex.io'
 });
 tronWeb.setAddress(TRON_USDK_OWNER_ADDRESS);
