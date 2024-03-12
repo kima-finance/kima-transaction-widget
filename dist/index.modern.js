@@ -18,7 +18,7 @@ import { WalletReadyState } from '@solana/wallet-adapter-base';
 import { Contract } from '@ethersproject/contracts';
 import { formatUnits, parseUnits } from '@ethersproject/units';
 import { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, AccountLayout } from '@solana/spl-token';
-import TronWeb from 'tronweb';
+import { TronWeb } from 'tronweb';
 import { ethers, utils } from 'ethers';
 import BufferLayout from 'buffer-layout';
 import sha256 from 'crypto-js/sha256.js';
