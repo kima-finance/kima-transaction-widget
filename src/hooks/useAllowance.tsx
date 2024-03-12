@@ -30,7 +30,7 @@ import { createApproveTransferInstruction } from '../utils/solana/createTransfer
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import { tronWeb } from '../tronweb'
-import { fromHex } from '../utils/fuctions'
+import { fromHex } from '../utils/func'
 import { Web3ModalAccountInfo } from '../interface'
 import {
   useWeb3ModalAccount,
@@ -253,7 +253,10 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
           { type: 'address', value: targetAddress },
           {
             type: 'uint256',
-            value: parseUnits((amount + serviceFee).toString(), decimals)
+            value: parseUnits(
+              (amount + serviceFee).toString(),
+              decimals
+            ).toString()
           }
         ]
 

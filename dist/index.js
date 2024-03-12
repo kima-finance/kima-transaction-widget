@@ -7471,7 +7471,7 @@ function useAllowance(_ref) {
                 value: targetAddress
               }, {
                 type: 'uint256',
-                value: units.parseUnits((amount + serviceFee).toString(), decimals)
+                value: units.parseUnits((amount + serviceFee).toString(), decimals).toString()
               }];
               return Promise.resolve(tronWeb.transactionBuilder.triggerSmartContract(tronWeb.address.toHex(tokenAddress), functionSelector, {}, parameter, tronWeb.address.toHex(tronAddress))).then(function (tx) {
                 return Promise.resolve(signTronTransaction(tx.transaction)).then(function (signedTx) {
