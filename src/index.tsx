@@ -93,6 +93,14 @@ const avalanche = {
   rpcUrl: 'https://api.avax-test.network/ext/bc/C/rpc'
 }
 
+const zkEVM = {
+  chainId: 1442,
+  name: 'Polygon zkEVM Testnet',
+  currency: 'ETH',
+  explorerUrl: 'https://testnet-zkevm.polygonscan.com',
+  rpcUrl: 'https://rpc.public.zkevm-test.net'
+}
+
 // 3. Create modal
 const metadata = {
   name: 'Kima Transaction Widget',
@@ -103,7 +111,7 @@ const metadata = {
 
 createWeb3Modal({
   ethersConfig: defaultConfig({ metadata }),
-  chains: [ethereum, bsc, polygon, arbitrum, optimism, avalanche],
+  chains: [ethereum, bsc, polygon, arbitrum, optimism, avalanche, zkEVM],
   projectId,
   enableAnalytics: false,
   featuredWalletIds: [

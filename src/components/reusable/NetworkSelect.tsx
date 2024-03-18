@@ -42,7 +42,7 @@ const Network = ({ isOriginChain = true }: Props) => {
       (option) => option.id === (isOriginChain ? originNetwork : targetNetwork)
     )
     if (index >= 0) return networkOptions[index]
-    return networkOptions[0]
+    return networkOptions[3]
   }, [originNetwork, targetNetwork, networkOptions])
   const networks = useMemo(() => {
     if (isOriginChain && mode === ModeOptions.bridge) {
