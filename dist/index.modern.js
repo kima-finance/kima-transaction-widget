@@ -680,9 +680,9 @@ const CHAIN_NAMES_TO_STRING = {
   [ChainName.POLYGON]: 'Polygon',
   [ChainName.AVALANCHE]: 'Avalanche',
   [ChainName.SOLANA]: 'Solana',
-  [ChainName.BSC]: 'Binance',
+  [ChainName.BSC]: 'BNB Smart Chain',
   [ChainName.OPTIMISM]: 'Optimism',
-  [ChainName.ARBITRUM]: 'Arbitrim',
+  [ChainName.ARBITRUM]: 'Arbitrum',
   [ChainName.POLYGON_ZKEVM]: 'Polygon zkEVM',
   [ChainName.TRON]: 'Tron',
   [ChainName.FIAT]: 'Pay with FIAT'
@@ -694,7 +694,7 @@ const CHAIN_STRING_TO_NAME = {
   ['Solana']: ChainName.SOLANA,
   ['Binance']: ChainName.BSC,
   ['Optimism']: ChainName.OPTIMISM,
-  ['Arbitrim']: ChainName.ARBITRUM,
+  ['Arbitrum']: ChainName.ARBITRUM,
   ['Polygon zkEVM']: ChainName.POLYGON_ZKEVM,
   ['Tron']: ChainName.TRON,
   ['Pay with FIAT']: ChainName.FIAT
@@ -720,13 +720,9 @@ const CHAIN_IDS_TO_NAMES = {
   [SupportedChainId.POLYGON_ZKEM]: ChainName.POLYGON_ZKEVM
 };
 const networkOptions = [{
-  id: ChainName.ETHEREUM,
-  label: 'Ethereum',
-  icon: Ethereum
-}, {
-  id: ChainName.POLYGON,
-  label: 'Polygon',
-  icon: Ethereum$1
+  id: ChainName.ARBITRUM,
+  label: 'Arbitrum',
+  icon: Arbitrum
 }, {
   id: ChainName.AVALANCHE,
   label: 'Avalanche',
@@ -736,29 +732,33 @@ const networkOptions = [{
   label: 'Binance',
   icon: BNB
 }, {
-  id: ChainName.SOLANA,
-  label: 'Solana',
-  icon: Solana
+  id: ChainName.ETHEREUM,
+  label: 'Ethereum',
+  icon: Ethereum
 }, {
-  id: ChainName.ARBITRUM,
-  label: 'Arbitrum',
-  icon: Arbitrum
+  id: ChainName.FIAT,
+  label: 'Pay with FIAT',
+  icon: Bank
 }, {
   id: ChainName.OPTIMISM,
   label: 'Optimism',
   icon: Optimism
 }, {
+  id: ChainName.POLYGON,
+  label: 'Polygon',
+  icon: Ethereum$1
+}, {
   id: ChainName.POLYGON_ZKEVM,
   label: 'Polygon zkEVM',
   icon: Ethereum$1
 }, {
+  id: ChainName.SOLANA,
+  label: 'Solana',
+  icon: Solana
+}, {
   id: ChainName.TRON,
   label: 'Tron',
   icon: Celo
-}, {
-  id: ChainName.FIAT,
-  label: 'Pay with FIAT',
-  icon: Bank
 }];
 const getNetworkOption = id => {
   const index = networkOptions.findIndex(item => item.id === id);
@@ -1341,7 +1341,7 @@ const Network = ({
   const selectedNetwork = useMemo(() => {
     const index = networkOptions.findIndex(option => option.id === (_isOriginChain ? originNetwork : targetNetwork));
     if (index >= 0) return networkOptions[index];
-    return networkOptions[0];
+    return networkOptions[3];
   }, [originNetwork, targetNetwork, networkOptions]);
   const networks = useMemo(() => {
     if (_isOriginChain && mode === ModeOptions.bridge) {
@@ -2215,7 +2215,7 @@ const NetworkDropdown = React.memo(({
   const selectedNetwork = useMemo(() => {
     const index = networkOptions.findIndex(option => option.id === (_isOriginChain ? originNetwork : targetNetwork));
     if (index >= 0) return networkOptions[index];
-    return networkOptions[0];
+    return networkOptions[3];
   }, [originNetwork, targetNetwork, networkOptions]);
   const networks = useMemo(() => {
     if (_isOriginChain && mode === ModeOptions.bridge) {
@@ -7497,6 +7497,13 @@ const avalanche = {
   explorerUrl: 'https://testnet.snowtrace.io',
   rpcUrl: 'https://api.avax-test.network/ext/bc/C/rpc'
 };
+const zkEVM = {
+  chainId: 1442,
+  name: 'Polygon zkEVM Testnet',
+  currency: 'ETH',
+  explorerUrl: 'https://testnet-zkevm.polygonscan.com',
+  rpcUrl: 'https://rpc.public.zkevm-test.net'
+};
 const metadata = {
   name: 'Kima Transaction Widget',
   description: 'Frontend widget for Kima integration for dApps',
@@ -7507,7 +7514,7 @@ createWeb3Modal({
   ethersConfig: defaultConfig({
     metadata
   }),
-  chains: [ethereum, bsc, polygon, arbitrum, optimism, avalanche],
+  chains: [ethereum, bsc, polygon, arbitrum, optimism, avalanche, zkEVM],
   projectId,
   enableAnalytics: false,
   featuredWalletIds: ['c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96', 'a797aa35c0fadbfc1a53e7f675162ed5226968b44a19ee3d24385c64d1d3c393', '4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0']

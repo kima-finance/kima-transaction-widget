@@ -776,19 +776,15 @@ var SupportedChainId;
   SupportedChainId[SupportedChainId["POLYGON_ZKEM"] = 1442] = "POLYGON_ZKEM";
 })(SupportedChainId || (SupportedChainId = {}));
 var CHAIN_NAMES_TO_IDS = (_CHAIN_NAMES_TO_IDS = {}, _CHAIN_NAMES_TO_IDS[exports.SupportNetworks.ETHEREUM] = SupportedChainId.ETHEREUM, _CHAIN_NAMES_TO_IDS[exports.SupportNetworks.POLYGON] = SupportedChainId.POLYGON, _CHAIN_NAMES_TO_IDS[exports.SupportNetworks.AVALANCHE] = SupportedChainId.AVALANCHE, _CHAIN_NAMES_TO_IDS[exports.SupportNetworks.BSC] = SupportedChainId.BSC, _CHAIN_NAMES_TO_IDS[exports.SupportNetworks.OPTIMISM] = SupportedChainId.OPTIMISM, _CHAIN_NAMES_TO_IDS[exports.SupportNetworks.ARBITRUM] = SupportedChainId.ARBITRUM, _CHAIN_NAMES_TO_IDS[exports.SupportNetworks.POLYGON_ZKEVM] = SupportedChainId.POLYGON_ZKEM, _CHAIN_NAMES_TO_IDS);
-var CHAIN_NAMES_TO_STRING = (_CHAIN_NAMES_TO_STRIN = {}, _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.ETHEREUM] = 'Ethereum', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.POLYGON] = 'Polygon', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.AVALANCHE] = 'Avalanche', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.SOLANA] = 'Solana', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.BSC] = 'Binance', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.OPTIMISM] = 'Optimism', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.ARBITRUM] = 'Arbitrim', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.POLYGON_ZKEVM] = 'Polygon zkEVM', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.TRON] = 'Tron', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.FIAT] = 'Pay with FIAT', _CHAIN_NAMES_TO_STRIN);
-var CHAIN_STRING_TO_NAME = (_CHAIN_STRING_TO_NAME = {}, _CHAIN_STRING_TO_NAME['Ethereum'] = exports.SupportNetworks.ETHEREUM, _CHAIN_STRING_TO_NAME['Polygon'] = exports.SupportNetworks.POLYGON, _CHAIN_STRING_TO_NAME['Avalanche'] = exports.SupportNetworks.AVALANCHE, _CHAIN_STRING_TO_NAME['Solana'] = exports.SupportNetworks.SOLANA, _CHAIN_STRING_TO_NAME['Binance'] = exports.SupportNetworks.BSC, _CHAIN_STRING_TO_NAME['Optimism'] = exports.SupportNetworks.OPTIMISM, _CHAIN_STRING_TO_NAME['Arbitrim'] = exports.SupportNetworks.ARBITRUM, _CHAIN_STRING_TO_NAME['Polygon zkEVM'] = exports.SupportNetworks.POLYGON_ZKEVM, _CHAIN_STRING_TO_NAME['Tron'] = exports.SupportNetworks.TRON, _CHAIN_STRING_TO_NAME['Pay with FIAT'] = exports.SupportNetworks.FIAT, _CHAIN_STRING_TO_NAME);
+var CHAIN_NAMES_TO_STRING = (_CHAIN_NAMES_TO_STRIN = {}, _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.ETHEREUM] = 'Ethereum', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.POLYGON] = 'Polygon', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.AVALANCHE] = 'Avalanche', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.SOLANA] = 'Solana', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.BSC] = 'BNB Smart Chain', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.OPTIMISM] = 'Optimism', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.ARBITRUM] = 'Arbitrum', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.POLYGON_ZKEVM] = 'Polygon zkEVM', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.TRON] = 'Tron', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.FIAT] = 'Pay with FIAT', _CHAIN_NAMES_TO_STRIN);
+var CHAIN_STRING_TO_NAME = (_CHAIN_STRING_TO_NAME = {}, _CHAIN_STRING_TO_NAME['Ethereum'] = exports.SupportNetworks.ETHEREUM, _CHAIN_STRING_TO_NAME['Polygon'] = exports.SupportNetworks.POLYGON, _CHAIN_STRING_TO_NAME['Avalanche'] = exports.SupportNetworks.AVALANCHE, _CHAIN_STRING_TO_NAME['Solana'] = exports.SupportNetworks.SOLANA, _CHAIN_STRING_TO_NAME['Binance'] = exports.SupportNetworks.BSC, _CHAIN_STRING_TO_NAME['Optimism'] = exports.SupportNetworks.OPTIMISM, _CHAIN_STRING_TO_NAME['Arbitrum'] = exports.SupportNetworks.ARBITRUM, _CHAIN_STRING_TO_NAME['Polygon zkEVM'] = exports.SupportNetworks.POLYGON_ZKEVM, _CHAIN_STRING_TO_NAME['Tron'] = exports.SupportNetworks.TRON, _CHAIN_STRING_TO_NAME['Pay with FIAT'] = exports.SupportNetworks.FIAT, _CHAIN_STRING_TO_NAME);
 var CHAIN_NAMES_TO_EXPLORER = (_CHAIN_NAMES_TO_EXPLO = {}, _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.ETHEREUM] = 'sepolia.etherscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.POLYGON] = 'mumbai.polygonscan.com', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.AVALANCHE] = 'testnet.snowtrace.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.SOLANA] = 'solscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.BSC] = 'testnet.bscscan.com', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.OPTIMISM] = 'sepolia-optimism.etherscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.ARBITRUM] = 'sepolia.arbiscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.POLYGON_ZKEVM] = 'testnet-zkevm.polygonscan.com', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.TRON] = 'nile.tronscan.org/#', _CHAIN_NAMES_TO_EXPLO);
 var CHAIN_NAMES_TO_GECKO_ID = (_CHAIN_NAMES_TO_GECKO = {}, _CHAIN_NAMES_TO_GECKO[exports.SupportNetworks.ETHEREUM] = 'ethereum', _CHAIN_NAMES_TO_GECKO[exports.SupportNetworks.POLYGON] = 'matic-network', _CHAIN_NAMES_TO_GECKO[exports.SupportNetworks.AVALANCHE] = 'avalanche-2', _CHAIN_NAMES_TO_GECKO[exports.SupportNetworks.SOLANA] = 'solana', _CHAIN_NAMES_TO_GECKO[exports.SupportNetworks.BSC] = 'binancecoin', _CHAIN_NAMES_TO_GECKO[exports.SupportNetworks.OPTIMISM] = 'ethereum', _CHAIN_NAMES_TO_GECKO[exports.SupportNetworks.ARBITRUM] = 'ethereum', _CHAIN_NAMES_TO_GECKO[exports.SupportNetworks.POLYGON_ZKEVM] = 'matic-network', _CHAIN_NAMES_TO_GECKO[exports.SupportNetworks.TRON] = 'tron', _CHAIN_NAMES_TO_GECKO);
 var CHAIN_IDS_TO_NAMES = (_CHAIN_IDS_TO_NAMES = {}, _CHAIN_IDS_TO_NAMES[SupportedChainId.ETHEREUM] = exports.SupportNetworks.ETHEREUM, _CHAIN_IDS_TO_NAMES[SupportedChainId.POLYGON] = exports.SupportNetworks.POLYGON, _CHAIN_IDS_TO_NAMES[SupportedChainId.AVALANCHE] = exports.SupportNetworks.AVALANCHE, _CHAIN_IDS_TO_NAMES[SupportedChainId.BSC] = exports.SupportNetworks.BSC, _CHAIN_IDS_TO_NAMES[SupportedChainId.OPTIMISM] = exports.SupportNetworks.OPTIMISM, _CHAIN_IDS_TO_NAMES[SupportedChainId.ARBITRUM] = exports.SupportNetworks.ARBITRUM, _CHAIN_IDS_TO_NAMES[SupportedChainId.POLYGON_ZKEM] = exports.SupportNetworks.POLYGON_ZKEVM, _CHAIN_IDS_TO_NAMES);
 var networkOptions = [{
-  id: exports.SupportNetworks.ETHEREUM,
-  label: 'Ethereum',
-  icon: Ethereum
-}, {
-  id: exports.SupportNetworks.POLYGON,
-  label: 'Polygon',
-  icon: Ethereum$1
+  id: exports.SupportNetworks.ARBITRUM,
+  label: 'Arbitrum',
+  icon: Arbitrum
 }, {
   id: exports.SupportNetworks.AVALANCHE,
   label: 'Avalanche',
@@ -798,29 +794,33 @@ var networkOptions = [{
   label: 'Binance',
   icon: BNB
 }, {
-  id: exports.SupportNetworks.SOLANA,
-  label: 'Solana',
-  icon: Solana
+  id: exports.SupportNetworks.ETHEREUM,
+  label: 'Ethereum',
+  icon: Ethereum
 }, {
-  id: exports.SupportNetworks.ARBITRUM,
-  label: 'Arbitrum',
-  icon: Arbitrum
+  id: exports.SupportNetworks.FIAT,
+  label: 'Pay with FIAT',
+  icon: Bank
 }, {
   id: exports.SupportNetworks.OPTIMISM,
   label: 'Optimism',
   icon: Optimism
 }, {
+  id: exports.SupportNetworks.POLYGON,
+  label: 'Polygon',
+  icon: Ethereum$1
+}, {
   id: exports.SupportNetworks.POLYGON_ZKEVM,
   label: 'Polygon zkEVM',
   icon: Ethereum$1
 }, {
+  id: exports.SupportNetworks.SOLANA,
+  label: 'Solana',
+  icon: Solana
+}, {
   id: exports.SupportNetworks.TRON,
   label: 'Tron',
   icon: Celo
-}, {
-  id: exports.SupportNetworks.FIAT,
-  label: 'Pay with FIAT',
-  icon: Bank
 }];
 var getNetworkOption = function getNetworkOption(id) {
   var index = networkOptions.findIndex(function (item) {
@@ -1667,7 +1667,7 @@ var Network = function Network(_ref) {
       return option.id === (isOriginChain ? originNetwork : targetNetwork);
     });
     if (index >= 0) return networkOptions[index];
-    return networkOptions[0];
+    return networkOptions[3];
   }, [originNetwork, targetNetwork, networkOptions]);
   var networks = React.useMemo(function () {
     if (isOriginChain && mode === exports.ModeOptions.bridge) {
@@ -2676,7 +2676,7 @@ var NetworkDropdown = React__default.memo(function (_ref) {
       return option.id === (isOriginChain ? originNetwork : targetNetwork);
     });
     if (index >= 0) return networkOptions[index];
-    return networkOptions[0];
+    return networkOptions[3];
   }, [originNetwork, targetNetwork, networkOptions]);
   var networks = React.useMemo(function () {
     if (isOriginChain && mode === exports.ModeOptions.bridge) {
@@ -8283,6 +8283,13 @@ var avalanche = {
   explorerUrl: 'https://testnet.snowtrace.io',
   rpcUrl: 'https://api.avax-test.network/ext/bc/C/rpc'
 };
+var zkEVM = {
+  chainId: 1442,
+  name: 'Polygon zkEVM Testnet',
+  currency: 'ETH',
+  explorerUrl: 'https://testnet-zkevm.polygonscan.com',
+  rpcUrl: 'https://rpc.public.zkevm-test.net'
+};
 var metadata = {
   name: 'Kima Transaction Widget',
   description: 'Frontend widget for Kima integration for dApps',
@@ -8293,7 +8300,7 @@ react.createWeb3Modal({
   ethersConfig: react.defaultConfig({
     metadata: metadata
   }),
-  chains: [ethereum, bsc, polygon, arbitrum, optimism, avalanche],
+  chains: [ethereum, bsc, polygon, arbitrum, optimism, avalanche, zkEVM],
   projectId: projectId,
   enableAnalytics: false,
   featuredWalletIds: ['c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96', 'a797aa35c0fadbfc1a53e7f675162ed5226968b44a19ee3d24385c64d1d3c393', '4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0']

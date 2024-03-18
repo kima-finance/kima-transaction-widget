@@ -64,9 +64,9 @@ export const CHAIN_NAMES_TO_STRING: { [chainName: string]: string } = {
   [ChainName.POLYGON]: 'Polygon',
   [ChainName.AVALANCHE]: 'Avalanche',
   [ChainName.SOLANA]: 'Solana',
-  [ChainName.BSC]: 'Binance',
+  [ChainName.BSC]: 'BNB Smart Chain',
   [ChainName.OPTIMISM]: 'Optimism',
-  [ChainName.ARBITRUM]: 'Arbitrim',
+  [ChainName.ARBITRUM]: 'Arbitrum',
   [ChainName.POLYGON_ZKEVM]: 'Polygon zkEVM',
   [ChainName.TRON]: 'Tron',
   [ChainName.FIAT]: 'Pay with FIAT'
@@ -79,7 +79,7 @@ export const CHAIN_STRING_TO_NAME: { [chainName: string]: ChainName } = {
   ['Solana']: ChainName.SOLANA,
   ['Binance']: ChainName.BSC,
   ['Optimism']: ChainName.OPTIMISM,
-  ['Arbitrim']: ChainName.ARBITRUM,
+  ['Arbitrum']: ChainName.ARBITRUM,
   ['Polygon zkEVM']: ChainName.POLYGON_ZKEVM,
   ['Tron']: ChainName.TRON,
   ['Pay with FIAT']: ChainName.FIAT
@@ -121,14 +121,9 @@ export const CHAIN_IDS_TO_NAMES: { [chainId: number]: string } = {
 
 export const networkOptions = [
   {
-    id: ChainName.ETHEREUM,
-    label: 'Ethereum',
-    icon: EthereumIcon
-  },
-  {
-    id: ChainName.POLYGON,
-    label: 'Polygon',
-    icon: PolygonIcon
+    id: ChainName.ARBITRUM,
+    label: 'Arbitrum',
+    icon: ArbitrumIcon
   },
   {
     id: ChainName.AVALANCHE,
@@ -141,14 +136,14 @@ export const networkOptions = [
     icon: BSCIcon
   },
   {
-    id: ChainName.SOLANA,
-    label: 'Solana',
-    icon: SolanaIcon
+    id: ChainName.ETHEREUM,
+    label: 'Ethereum',
+    icon: EthereumIcon
   },
   {
-    id: ChainName.ARBITRUM,
-    label: 'Arbitrum',
-    icon: ArbitrumIcon
+    id: ChainName.FIAT,
+    label: 'Pay with FIAT',
+    icon: BankIcon
   },
   {
     id: ChainName.OPTIMISM,
@@ -156,19 +151,24 @@ export const networkOptions = [
     icon: OptimismIcon
   },
   {
+    id: ChainName.POLYGON,
+    label: 'Polygon',
+    icon: PolygonIcon
+  },
+  {
     id: ChainName.POLYGON_ZKEVM,
     label: 'Polygon zkEVM',
     icon: PolygonIcon
   },
   {
+    id: ChainName.SOLANA,
+    label: 'Solana',
+    icon: SolanaIcon
+  },
+  {
     id: ChainName.TRON,
     label: 'Tron',
     icon: TronIcon
-  },
-  {
-    id: ChainName.FIAT,
-    label: 'Pay with FIAT',
-    icon: BankIcon
   }
 ]
 export const getNetworkOption = (id: string) => {
