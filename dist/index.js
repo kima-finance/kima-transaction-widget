@@ -1609,7 +1609,7 @@ function useNetworkOptions() {
             return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/chains/chain")).then(function (networks) {
               setOptions(networkOptions.filter(function (network) {
                 return networks.Chain.findIndex(function (chain) {
-                  return chain.symbol === network.id;
+                  return chain.symbol === network.id && !chain.disabled;
                 }) >= 0 || network.id === exports.SupportNetworks.FIAT && useFIAT;
               }));
               var tokenOptions = {};
@@ -7783,7 +7783,6 @@ var TransferWidget = function TransferWidget(_ref) {
     }
   }, [nodeProviderQuery]);
   React.useEffect(function () {
-    console.log('dispatch(setSelectedToken(selectedToken))', selectedToken);
     dispatch(setSelectedToken(selectedToken));
   }, [selectedToken]);
   React.useEffect(function () {

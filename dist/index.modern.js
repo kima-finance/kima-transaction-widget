@@ -1293,7 +1293,7 @@ function useNetworkOptions() {
       (async function () {
         try {
           const networks = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/chain`);
-          setOptions(networkOptions.filter(network => networks.Chain.findIndex(chain => chain.symbol === network.id) >= 0 || network.id === ChainName.FIAT && useFIAT));
+          setOptions(networkOptions.filter(network => networks.Chain.findIndex(chain => chain.symbol === network.id && !chain.disabled) >= 0 || network.id === ChainName.FIAT && useFIAT));
           let tokenOptions = {};
           for (const network of networks.Chain) {
             for (const token of network.tokens) {
@@ -7052,7 +7052,6 @@ const TransferWidget = ({
     })();
   }, [nodeProviderQuery]);
   useEffect(() => {
-    console.log('dispatch(setSelectedToken(selectedToken))', selectedToken);
     dispatch(setSelectedToken(selectedToken));
   }, [selectedToken]);
   useEffect(() => {

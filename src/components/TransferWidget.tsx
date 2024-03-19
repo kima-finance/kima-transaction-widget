@@ -180,7 +180,6 @@ export const TransferWidget = ({
   }, [nodeProviderQuery])
 
   useEffect(() => {
-    console.log('dispatch(setSelectedToken(selectedToken))', selectedToken)
     dispatch(setSelectedToken(selectedToken))
   }, [selectedToken])
 

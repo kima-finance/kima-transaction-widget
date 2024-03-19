@@ -33,7 +33,7 @@ export default function useNetworkOptions() {
             networkOptions.filter(
               (network) =>
                 networks.Chain.findIndex(
-                  (chain: any) => chain.symbol === network.id
+                  (chain: any) => chain.symbol === network.id && !chain.disabled
                 ) >= 0 ||
                 (network.id === ChainName.FIAT && useFIAT)
             )
