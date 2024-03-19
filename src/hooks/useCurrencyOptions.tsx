@@ -6,10 +6,10 @@ import {
   selectSourceChain,
   selectTargetChain
 } from '../store/selectors'
-import { COIN_LIST, ChainName } from '../utils/constants'
+import { ChainName } from '../utils/constants'
 
 export default function useCurrencyOptions() {
-  const [options, setOptions] = useState(COIN_LIST['USDK'])
+  const [options, setOptions] = useState('USDK')
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
   const originNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
@@ -22,16 +22,14 @@ export default function useCurrencyOptions() {
           originNetwork === ChainName.FIAT ||
           targetNetwork === ChainName.FIAT
         ) {
-          setOptions(COIN_LIST['KEUR'])
+          setOptions('KEUR')
           return
         }
         const coins: any = await fetchWrapper.get(
           `${nodeProviderQuery}/kima-finance/kima-blockchain/chains/get_currencies/${originNetwork}/${targetNetwork}`
         )
 
-        setOptions(
-          COIN_LIST[coins.Currencies?.length ? coins.Currencies[0] : 'USDK']
-        )
+        setOptions(coins.Currencies?.length ? coins.Currencies[0] : 'USDK')
       } catch (e) {
         console.log('rpc disconnected', e)
       }

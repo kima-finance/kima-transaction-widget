@@ -5,12 +5,19 @@ declare type BankDetails = {
     iban: string;
     recipient: string;
 };
+export declare type AddressOption = {
+    [key: string]: string;
+};
+export declare type TokenOptions = {
+    [key: string]: AddressOption;
+};
 export interface OptionState {
     theme: ThemeOptions;
     mode: ModeOptions;
     sourceChain: string;
     targetChain: string;
     targetAddress: string;
+    tokenOptions: TokenOptions;
     solanaConnectModal: boolean;
     tronConnectModal: boolean;
     helpPopup: boolean;
@@ -35,7 +42,7 @@ export interface OptionState {
     nodeProviderQuery: string;
     kimaExplorerUrl: string;
     txId: number;
-    currencyOptions: any;
+    selectedToken: string;
     compliantOption: boolean;
     sourceCompliant: string;
     targetCompliant: string;
@@ -59,6 +66,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -87,7 +99,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -101,7 +113,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         uuid: string;
         kycStatus: string;
     }) => void;
-    setTheme: (state: {
+    setTokenOptions: (state: {
         theme: {
             colorMode?: import("../interface").ColorModeOptions | undefined;
             fontSize?: import("../interface").FontSizeOptions | undefined;
@@ -113,6 +125,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -141,7 +158,66 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
+        compliantOption: boolean;
+        sourceCompliant: string;
+        targetCompliant: string;
+        useFIAT: boolean;
+        bankDetails: {
+            iban: string;
+            recipient: string;
+        };
+        targetNetworkFetching: boolean;
+        signature: string;
+        uuid: string;
+        kycStatus: string;
+    }, action: PayloadAction<TokenOptions>) => void;
+    setTheme: (state: {
+        theme: {
+            colorMode?: import("../interface").ColorModeOptions | undefined;
+            fontSize?: import("../interface").FontSizeOptions | undefined;
+            fontFamily?: string | undefined;
+            backgroundColorLight?: string | undefined;
+            backgroundColorDark?: string | undefined;
+        };
+        mode: ModeOptions;
+        sourceChain: string;
+        targetChain: string;
+        targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
+        solanaConnectModal: boolean;
+        tronConnectModal: boolean;
+        helpPopup: boolean;
+        hashPopup: boolean;
+        bankPopup: boolean;
+        walletAutoConnect: boolean;
+        provider: any;
+        dAppOption: DAppOptions;
+        solanaProvider: any;
+        submitted: boolean;
+        amount: number;
+        feeDeduct: boolean;
+        transactionOption?: {
+            targetChain: import("../interface").SupportNetworks;
+            targetAddress: string;
+            amount: number;
+        } | undefined;
+        errorHandler: Function;
+        keplrHandler: Function;
+        closeHandler: Function;
+        successHandler: Function;
+        switchChainHandler: Function;
+        initChainFromProvider: boolean;
+        serviceFee: number;
+        backendUrl: string;
+        nodeProviderQuery: string;
+        kimaExplorerUrl: string;
+        txId: number;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -167,6 +243,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -195,7 +276,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -221,6 +302,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -249,7 +335,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -275,6 +361,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -303,7 +394,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -329,6 +420,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -357,7 +453,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -383,6 +479,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -411,7 +512,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -437,6 +538,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -465,7 +571,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -491,6 +597,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -519,7 +630,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -545,6 +656,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -573,7 +689,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -599,6 +715,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -627,7 +748,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -653,6 +774,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -681,7 +807,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -707,6 +833,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -735,7 +866,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -761,6 +892,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -789,7 +925,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -815,6 +951,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -843,7 +984,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -869,6 +1010,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -897,7 +1043,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -923,6 +1069,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -951,7 +1102,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -977,6 +1128,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -1005,7 +1161,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1031,6 +1187,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -1059,7 +1220,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1085,6 +1246,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -1113,7 +1279,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1139,6 +1305,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -1167,7 +1338,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1193,6 +1364,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -1221,7 +1397,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1247,6 +1423,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -1275,7 +1456,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1301,6 +1482,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -1329,7 +1515,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1355,6 +1541,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -1383,7 +1574,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1409,6 +1600,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -1437,7 +1633,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1463,6 +1659,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -1491,7 +1692,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1517,6 +1718,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -1545,7 +1751,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1571,6 +1777,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -1599,7 +1810,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1625,6 +1836,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -1653,7 +1869,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1667,7 +1883,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         uuid: string;
         kycStatus: string;
     }, action: PayloadAction<number>) => void;
-    setCurrencyOptions: (state: {
+    setSelectedToken: (state: {
         theme: {
             colorMode?: import("../interface").ColorModeOptions | undefined;
             fontSize?: import("../interface").FontSizeOptions | undefined;
@@ -1679,6 +1895,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -1707,7 +1928,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1720,7 +1941,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         signature: string;
         uuid: string;
         kycStatus: string;
-    }, action: PayloadAction<any>) => void;
+    }, action: PayloadAction<string>) => void;
     setCompliantOption: (state: {
         theme: {
             colorMode?: import("../interface").ColorModeOptions | undefined;
@@ -1733,6 +1954,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -1761,7 +1987,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1787,6 +2013,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -1815,7 +2046,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1841,6 +2072,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -1869,7 +2105,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1895,6 +2131,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -1923,7 +2164,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1949,6 +2190,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -1977,7 +2223,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -2003,6 +2249,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -2031,7 +2282,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -2057,6 +2308,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -2085,7 +2341,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -2111,6 +2367,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -2139,7 +2400,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -2165,6 +2426,11 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         sourceChain: string;
         targetChain: string;
         targetAddress: string;
+        tokenOptions: {
+            [x: string]: {
+                [x: string]: string;
+            };
+        };
         solanaConnectModal: boolean;
         tronConnectModal: boolean;
         helpPopup: boolean;
@@ -2193,7 +2459,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         nodeProviderQuery: string;
         kimaExplorerUrl: string;
         txId: number;
-        currencyOptions: any;
+        selectedToken: string;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -2208,6 +2474,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         kycStatus: string;
     }, action: PayloadAction<string>) => void;
 }, "option", "option", toolkitRaw.SliceSelectors<OptionState>>;
-export declare const initialize: toolkitRaw.ActionCreatorWithoutPayload<any>, setKimaExplorer: toolkitRaw.ActionCreatorWithPayload<string, any>, setTheme: toolkitRaw.ActionCreatorWithPayload<ThemeOptions, any>, setSourceChain: toolkitRaw.ActionCreatorWithPayload<string, any>, setTargetChain: toolkitRaw.ActionCreatorWithPayload<string, any>, setTargetAddress: toolkitRaw.ActionCreatorWithPayload<string, any>, setSolanaConnectModal: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setTronConnectModal: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setHelpPopup: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setHashPopup: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setBankPopup: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setSolanaProvider: toolkitRaw.ActionCreatorWithPayload<any, any>, setProvider: toolkitRaw.ActionCreatorWithPayload<any, any>, setDappOption: toolkitRaw.ActionCreatorWithPayload<DAppOptions, any>, setWalletAutoConnect: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setSubmitted: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setTransactionOption: toolkitRaw.ActionCreatorWithPayload<TransactionOption, any>, setAmount: toolkitRaw.ActionCreatorWithPayload<number, any>, setErrorHandler: toolkitRaw.ActionCreatorWithPayload<Function, any>, setKeplrHandler: toolkitRaw.ActionCreatorWithPayload<Function, any>, setCloseHandler: toolkitRaw.ActionCreatorWithPayload<Function, any>, setSuccessHandler: toolkitRaw.ActionCreatorWithPayload<Function, any>, setSwitchChainHandler: toolkitRaw.ActionCreatorWithPayload<Function, any>, setInitChainFromProvider: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setServiceFee: toolkitRaw.ActionCreatorWithPayload<number, any>, setMode: toolkitRaw.ActionCreatorWithPayload<ModeOptions, any>, setFeeDeduct: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setBackendUrl: toolkitRaw.ActionCreatorWithPayload<string, any>, setNodeProviderQuery: toolkitRaw.ActionCreatorWithPayload<string, any>, setTxId: toolkitRaw.ActionCreatorWithPayload<number, any>, setCurrencyOptions: toolkitRaw.ActionCreatorWithPayload<any, any>, setCompliantOption: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setSourceCompliant: toolkitRaw.ActionCreatorWithPayload<string, any>, setTargetCompliant: toolkitRaw.ActionCreatorWithPayload<string, any>, setUseFIAT: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setBankDetails: toolkitRaw.ActionCreatorWithPayload<BankDetails, any>, setTargetChainFetching: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setSignature: toolkitRaw.ActionCreatorWithPayload<string, any>, setUuid: toolkitRaw.ActionCreatorWithPayload<string, any>, setKYCStatus: toolkitRaw.ActionCreatorWithPayload<string, any>;
+export declare const initialize: toolkitRaw.ActionCreatorWithoutPayload<any>, setTokenOptions: toolkitRaw.ActionCreatorWithPayload<TokenOptions, any>, setKimaExplorer: toolkitRaw.ActionCreatorWithPayload<string, any>, setTheme: toolkitRaw.ActionCreatorWithPayload<ThemeOptions, any>, setSourceChain: toolkitRaw.ActionCreatorWithPayload<string, any>, setTargetChain: toolkitRaw.ActionCreatorWithPayload<string, any>, setTargetAddress: toolkitRaw.ActionCreatorWithPayload<string, any>, setSolanaConnectModal: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setTronConnectModal: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setHelpPopup: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setHashPopup: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setBankPopup: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setSolanaProvider: toolkitRaw.ActionCreatorWithPayload<any, any>, setProvider: toolkitRaw.ActionCreatorWithPayload<any, any>, setDappOption: toolkitRaw.ActionCreatorWithPayload<DAppOptions, any>, setWalletAutoConnect: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setSubmitted: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setTransactionOption: toolkitRaw.ActionCreatorWithPayload<TransactionOption, any>, setAmount: toolkitRaw.ActionCreatorWithPayload<number, any>, setErrorHandler: toolkitRaw.ActionCreatorWithPayload<Function, any>, setKeplrHandler: toolkitRaw.ActionCreatorWithPayload<Function, any>, setCloseHandler: toolkitRaw.ActionCreatorWithPayload<Function, any>, setSuccessHandler: toolkitRaw.ActionCreatorWithPayload<Function, any>, setSwitchChainHandler: toolkitRaw.ActionCreatorWithPayload<Function, any>, setInitChainFromProvider: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setServiceFee: toolkitRaw.ActionCreatorWithPayload<number, any>, setMode: toolkitRaw.ActionCreatorWithPayload<ModeOptions, any>, setFeeDeduct: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setBackendUrl: toolkitRaw.ActionCreatorWithPayload<string, any>, setNodeProviderQuery: toolkitRaw.ActionCreatorWithPayload<string, any>, setTxId: toolkitRaw.ActionCreatorWithPayload<number, any>, setSelectedToken: toolkitRaw.ActionCreatorWithPayload<string, any>, setCompliantOption: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setSourceCompliant: toolkitRaw.ActionCreatorWithPayload<string, any>, setTargetCompliant: toolkitRaw.ActionCreatorWithPayload<string, any>, setUseFIAT: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setBankDetails: toolkitRaw.ActionCreatorWithPayload<BankDetails, any>, setTargetChainFetching: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setSignature: toolkitRaw.ActionCreatorWithPayload<string, any>, setUuid: toolkitRaw.ActionCreatorWithPayload<string, any>, setKYCStatus: toolkitRaw.ActionCreatorWithPayload<string, any>;
 declare const _default: toolkitRaw.Reducer<OptionState, toolkitRaw.UnknownAction, OptionState>;
 export default _default;

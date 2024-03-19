@@ -630,17 +630,8 @@ const Celo = ({
   }));
 };
 
-const SOLANA_USDK_ADDRESS = '9YSFWfU9Ram6mAo2QP9zsTnA8yFkkkFGEs3kGgjtQKvp';
-const ETHEREUM_USDK_ADDRESS = '0x5FF59Bf2277A1e6bA9bB8A38Ea3F9ABfd3d9345a';
-const POLYGON_USDK_ADDRESS = '0x95A94Fc761F98fcC60DA07C55F8ECDDD8B381CfF';
-const AVAX_USDK_ADDRESS = '0x5d8598Ce65f15f14c58aD3a4CD285223c8e76a2E';
-const BSC_USDK_ADDRESS = '0x3eb36be2c3FD244139756F681420637a2a9464e3';
-const OPTIMISM_USDK_ADDRESS = '0x2cf79df2879902a2fc06329b1760e0f2ad9a3a47';
-const ARBITRUM_USDK_ADDRESS = '0x2cf79df2879902a2fc06329b1760e0f2ad9a3a47';
-const POLYGON_ZKEVM_ADDRESS = '0x3eb36be2c3FD244139756F681420637a2a9464e3';
 const ETHEREUM_KEUR_ADDRESS = '0xAFc823fcbe5945f5f38f144314663c87dA713E06';
 const POLYGON_KEUR_ADDRESS = '0x7D4325eE3A80778Af01498ca32E0C30e233ffB0d';
-const TRON_USDK_ADDRESS = 'TEuRmCALTUY2syY1EE6mMYnyfmNfFfMpYz';
 const TRON_USDK_OWNER_ADDRESS = 'TBVn4bsBN4DhtZ7D3vEVpAyqkvdFn7zmpU';
 
 var ChainName;
@@ -770,25 +761,10 @@ const SOLANA_HOST = clusterApiUrl(CLUSTER);
 const isEVMChain = chainId => chainId === ChainName.ETHEREUM || chainId === ChainName.POLYGON || chainId === ChainName.AVALANCHE || chainId === ChainName.BSC || chainId === ChainName.OPTIMISM || chainId === ChainName.ARBITRUM || chainId === ChainName.POLYGON_ZKEVM;
 const COIN_LIST = {
   USDK: {
-    symbol: 'USDK',
-    label: 'USDK',
-    icon: USDT,
-    address: {
-      SOL: SOLANA_USDK_ADDRESS,
-      ETH: ETHEREUM_USDK_ADDRESS,
-      POL: POLYGON_USDK_ADDRESS,
-      AVX: AVAX_USDK_ADDRESS,
-      BSC: BSC_USDK_ADDRESS,
-      OPT: OPTIMISM_USDK_ADDRESS,
-      ARB: ARBITRUM_USDK_ADDRESS,
-      ZKE: POLYGON_ZKEVM_ADDRESS,
-      TRX: TRON_USDK_ADDRESS
-    },
-    decimals: 6
+    icon: USDT
   },
   KEUR: {
     symbol: 'KEUR',
-    label: 'KEUR',
     icon: KEUR,
     address: {
       ETH: ETHEREUM_KEUR_ADDRESS,
@@ -842,6 +818,7 @@ const {
 } = toolkitRaw;
 const initialState = {
   theme: {},
+  tokenOptions: {},
   kimaExplorerUrl: 'explorer.kima.finance',
   mode: ModeOptions.bridge,
   sourceChain: '',
@@ -869,7 +846,7 @@ const initialState = {
   backendUrl: '',
   nodeProviderQuery: '',
   txId: -1,
-  currencyOptions: COIN_LIST['USDK'],
+  selectedToken: 'USDK',
   compliantOption: true,
   sourceCompliant: 'low',
   targetCompliant: 'low',
@@ -897,13 +874,16 @@ const optionSlice = createSlice({
       state.sourceCompliant = 'low';
       state.targetCompliant = 'low';
       state.useFIAT = false;
-      state.bankDetails = {
+      state.tokenOptions = {}, state.bankDetails = {
         iban: '',
         recipient: ''
       };
       state.initChainFromProvider = false;
       state.targetNetworkFetching = false;
       state.signature = '';
+    },
+    setTokenOptions: (state, action) => {
+      state.tokenOptions = action.payload;
     },
     setTheme: (state, action) => {
       state.theme = action.payload;
@@ -992,8 +972,8 @@ const optionSlice = createSlice({
     setTxId: (state, action) => {
       state.txId = action.payload;
     },
-    setCurrencyOptions: (state, action) => {
-      state.currencyOptions = action.payload;
+    setSelectedToken: (state, action) => {
+      state.selectedToken = action.payload;
     },
     setCompliantOption: (state, action) => {
       state.compliantOption = action.payload;
@@ -1026,6 +1006,7 @@ const optionSlice = createSlice({
 });
 const {
   initialize,
+  setTokenOptions,
   setKimaExplorer,
   setTheme,
   setSourceChain,
@@ -1055,7 +1036,7 @@ const {
   setBackendUrl,
   setNodeProviderQuery,
   setTxId,
-  setCurrencyOptions,
+  setSelectedToken,
   setCompliantOption,
   setSourceCompliant,
   setTargetCompliant,
@@ -1080,6 +1061,7 @@ const store = configureStore({
   })
 });
 
+const selectTokenOptions = state => state.option.tokenOptions;
 const selectTheme = state => state.option.theme;
 const selectKimaExplorer = state => state.option.kimaExplorerUrl;
 const selectSourceChain = state => state.option.sourceChain;
@@ -1106,7 +1088,7 @@ const selectFeeDeduct = state => state.option.feeDeduct;
 const selectBackendUrl = state => state.option.backendUrl;
 const selectNodeProviderQuery = state => state.option.nodeProviderQuery;
 const selectTxId = state => state.option.txId;
-const selectCurrencyOptions = state => state.option.currencyOptions;
+const selectSelectedToken = state => state.option.selectedToken;
 const selectCompliantOption = state => state.option.compliantOption;
 const selectSourceCompliant = state => state.option.sourceCompliant;
 const selectTargetCompliant = state => state.option.targetCompliant;
@@ -1299,6 +1281,7 @@ function handleResponse(response) {
 }
 
 function useNetworkOptions() {
+  const dispatch = useDispatch();
   const mode = useSelector(selectMode);
   const dAppOption = useSelector(selectDappOption);
   const useFIAT = useSelector(selectUseFIAT);
@@ -1309,8 +1292,18 @@ function useNetworkOptions() {
     if (dAppOption === DAppOptions.None) {
       (async function () {
         try {
-          const networks = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/get_chains`);
-          setOptions(networkOptions.filter(network => networks.Chains.findIndex(id => id === network.id) >= 0 || network.id === ChainName.FIAT && useFIAT));
+          const networks = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/chain`);
+          setOptions(networkOptions.filter(network => networks.Chain.findIndex(chain => chain.symbol === network.id) >= 0 || network.id === ChainName.FIAT && useFIAT));
+          let tokenOptions = {};
+          for (const network of networks.Chain) {
+            for (const token of network.tokens) {
+              if (!tokenOptions[token.symbol]) {
+                tokenOptions[token.symbol] = {};
+              }
+              tokenOptions[token.symbol][network.symbol] = token.address;
+            }
+          }
+          dispatch(setTokenOptions(tokenOptions));
         } catch (e) {
           console.log('rpc disconnected', e);
         }
@@ -2054,6 +2047,13 @@ const tronWeb = new TronWeb({
 });
 tronWeb.setAddress(TRON_USDK_OWNER_ADDRESS);
 
+const formatterFloat = new Intl.NumberFormat('en-US', {
+  maximumFractionDigits: 2
+});
+function isEmptyObject(arg) {
+  return typeof arg === 'object' && Object.keys(arg).length === 0;
+}
+
 function useBalance() {
   const [balance, setBalance] = useState(0);
   const web3ModalAccountInfo = useWeb3ModalAccount();
@@ -2087,10 +2087,12 @@ function useBalance() {
   const {
     connection
   } = useConnection();
-  const selectedCoin = useSelector(selectCurrencyOptions);
+  const selectedCoin = useSelector(selectSelectedToken);
+  const tokenOptions = useSelector(selectTokenOptions);
   const tokenAddress = useMemo(() => {
-    return selectedCoin.address[sourceChain];
-  }, [selectedCoin, sourceChain]);
+    if (isEmptyObject(tokenOptions)) return '';
+    return tokenOptions[selectedCoin][sourceChain];
+  }, [selectedCoin, sourceChain, tokenOptions]);
   useEffect(() => {
     (async () => {
       try {
@@ -2129,16 +2131,12 @@ function useBalance() {
   }), [balance]);
 }
 
-const formatterFloat = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 2
-});
-
 const WalletButton = ({
   errorBelow: _errorBelow = false
 }) => {
   const dispatch = useDispatch();
   const theme = useSelector(selectTheme);
-  const selectedCoin = useSelector(selectCurrencyOptions);
+  const selectedCoin = useSelector(selectSelectedToken);
   const sourceCompliant = useSelector(selectSourceCompliant);
   const compliantOption = useSelector(selectCompliantOption);
   const selectedNetwork = useSelector(selectSourceChain);
@@ -2181,19 +2179,20 @@ const WalletButton = ({
     clickHandler: handleClick
   }, isReady ? `${getShortenedAddress(walletAddress || '')}` : 'Wallet'), isReady ? React.createElement("p", {
     className: 'balance-info'
-  }, formatterFloat.format(balance), " ", selectedCoin.symbol, " available") : null);
+  }, formatterFloat.format(balance), " ", selectedCoin, " available") : null);
 };
 
 const CoinDropdown = () => {
   const [collapsed, setCollapsed] = useState(true);
-  const selectedCoin = useSelector(selectCurrencyOptions);
+  const selectedCoin = useSelector(selectSelectedToken);
   const theme = useSelector(selectTheme);
+  const Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
   return React.createElement("div", {
     className: `coin-dropdown ${theme.colorMode} ${collapsed ? 'collapsed' : ''}`,
     onClick: () => setCollapsed(prev => !prev)
   }, React.createElement("div", {
     className: 'coin-wrapper'
-  }, React.createElement(selectedCoin.icon, null), selectedCoin.symbol));
+  }, React.createElement(Icon, null), selectedCoin));
 };
 
 const NetworkDropdown = React.memo(({
@@ -2325,7 +2324,7 @@ const ConfirmDetails = ({
   } = useIsWalletReady();
   const originNetworkOption = useMemo(() => networkOptions.filter(network => network.id === originNetwork)[0], [networkOptions, originNetwork]);
   const targetNetworkOption = useMemo(() => networkOptions.filter(network => network.id === (mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetChain : targetNetwork))[0], [networkOptions, originNetwork]);
-  const selectedCoin = useSelector(selectCurrencyOptions);
+  const selectedCoin = useSelector(selectSelectedToken);
   const sourceWalletAddress = useMemo(() => {
     return getShortenedAddress(walletAddress || '');
   }, [walletAddress]);
@@ -2364,7 +2363,7 @@ const ConfirmDetails = ({
     className: 'detail-item'
   }, React.createElement("span", {
     className: 'label'
-  }, "Amount:"), React.createElement("p", null, formatterFloat.format(feeDeduct ? amount : amount + serviceFee), ' ', selectedCoin.symbol)), targetNetwork === ChainName.FIAT ? React.createElement("div", null, React.createElement("div", {
+  }, "Amount:"), React.createElement("p", null, formatterFloat.format(feeDeduct ? amount : amount + serviceFee), ' ', selectedCoin)), targetNetwork === ChainName.FIAT ? React.createElement("div", null, React.createElement("div", {
     className: 'detail-item'
   }, React.createElement("span", {
     className: 'label'
@@ -2891,7 +2890,7 @@ const TransactionWidget = ({
     className: 'topbar'
   }, React.createElement("div", {
     className: 'title'
-  }, React.createElement("h3", null, "Transferring ", formatterFloat.format((data === null || data === void 0 ? void 0 : data.amount) || 0), ' ', COIN_LIST[(data === null || data === void 0 ? void 0 : data.symbol) || 'USDK'].symbol, "\u00A0\u00A0", `(${percent}%)`)), !minimized ? React.createElement("div", {
+  }, React.createElement("h3", null, "Transferring ", formatterFloat.format((data === null || data === void 0 ? void 0 : data.amount) || 0), ' ', (data === null || data === void 0 ? void 0 : data.symbol) || 'USDK', "\u00A0\u00A0", `(${percent}%)`)), !minimized ? React.createElement("div", {
     className: 'control-buttons'
   }, React.createElement("button", {
     className: 'icon-button',
@@ -2979,9 +2978,10 @@ const SingleForm = ({
   const compliantOption = useSelector(selectCompliantOption);
   const targetCompliant = useSelector(selectTargetCompliant);
   const transactionOption = useSelector(selectTransactionOption);
-  const selectedCoin = useSelector(selectCurrencyOptions);
+  const selectedCoin = useSelector(selectSelectedToken);
   const sourceNetwork = useSelector(selectSourceChain);
   const targetNetwork = useSelector(selectTargetChain);
+  const Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
   const errorMessage = useMemo(() => compliantOption && targetCompliant !== 'low' ? `Target address has ${targetCompliant} risk` : '', [compliantOption, targetCompliant]);
   useEffect(() => {
     if (!errorMessage) return;
@@ -3033,7 +3033,7 @@ const SingleForm = ({
     className: `amount-label ${theme.colorMode}`
   }, React.createElement("span", null, (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount) || ''), React.createElement("div", {
     className: 'coin-wrapper'
-  }, React.createElement(selectedCoin.icon, null), selectedCoin.symbol))));
+  }, React.createElement(Icon, null), selectedCoin))));
 };
 
 const CoinSelect = () => {
@@ -3041,7 +3041,8 @@ const CoinSelect = () => {
   const theme = useSelector(selectTheme);
   const mode = useSelector(selectMode);
   const amount = useSelector(selectAmount);
-  const selectedCoin = useSelector(selectCurrencyOptions);
+  const selectedCoin = useSelector(selectSelectedToken);
+  const Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
   return React.createElement("div", {
     className: `coin-select`
   }, React.createElement("p", null, "Select Amount of Token for Funding"), React.createElement("div", {
@@ -3058,7 +3059,7 @@ const CoinSelect = () => {
     }
   }), React.createElement("div", {
     className: 'coin-label'
-  }, React.createElement(selectedCoin.icon, null), React.createElement("span", null, selectedCoin.symbol)))));
+  }, React.createElement(Icon, null), React.createElement("span", null, selectedCoin)))));
 };
 
 function useServiceFee(isConfirming = false) {
@@ -6709,10 +6710,12 @@ function useAllowance({
     address: tronAddress,
     signTransaction: signTronTransaction
   } = useWallet$1();
-  const selectedCoin = useSelector(selectCurrencyOptions);
+  const selectedCoin = useSelector(selectSelectedToken);
+  const tokenOptions = useSelector(selectTokenOptions);
   const tokenAddress = useMemo(() => {
-    return selectedCoin.address[sourceChain];
-  }, [selectedCoin, sourceChain]);
+    if (isEmptyObject(tokenOptions)) return '';
+    return tokenOptions[selectedCoin][sourceChain];
+  }, [selectedCoin, sourceChain, tokenOptions]);
   const [targetAddress, setTargetAddress] = useState();
   const isApproved = useMemo(() => {
     console.log(allowance, amount, serviceFee);
@@ -6742,14 +6745,14 @@ function useAllowance({
       try {
         if (!isEVMChain(sourceChain)) {
           if (solanaAddress && tokenAddress && connection) {
-            var _accountInfo$value, _parsedAccountInfo$pa, _parsedAccountInfo$pa2, _parsedAccountInfo$pa3, _parsedAccountInfo$pa4, _parsedAccountInfo$pa5;
+            var _accountInfo$value, _parsedAccountInfo$pa, _parsedAccountInfo$pa2, _parsedAccountInfo$pa3, _parsedAccountInfo$pa4, _parsedAccountInfo$pa5, _parsedAccountInfo$pa6, _parsedAccountInfo$pa7, _parsedAccountInfo$pa8;
             const mint = new PublicKey(tokenAddress);
             const fromTokenAccount = await getOrCreateAssociatedTokenAccount(connection, solanaAddress, mint, solanaAddress, signSolanaTransaction);
             const accountInfo = await connection.getParsedAccountInfo(fromTokenAccount.address);
             console.log('solana token account: ', accountInfo);
-            setDecimals(COIN_LIST['USDK'].decimals);
             const parsedAccountInfo = accountInfo === null || accountInfo === void 0 ? void 0 : (_accountInfo$value = accountInfo.value) === null || _accountInfo$value === void 0 ? void 0 : _accountInfo$value.data;
-            setAllowance(((_parsedAccountInfo$pa = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa === void 0 ? void 0 : (_parsedAccountInfo$pa2 = _parsedAccountInfo$pa.info) === null || _parsedAccountInfo$pa2 === void 0 ? void 0 : _parsedAccountInfo$pa2.delegate) === targetAddress ? (_parsedAccountInfo$pa3 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa3 === void 0 ? void 0 : (_parsedAccountInfo$pa4 = _parsedAccountInfo$pa3.info) === null || _parsedAccountInfo$pa4 === void 0 ? void 0 : (_parsedAccountInfo$pa5 = _parsedAccountInfo$pa4.delegatedAmount) === null || _parsedAccountInfo$pa5 === void 0 ? void 0 : _parsedAccountInfo$pa5.uiAmount : 0);
+            setDecimals((_parsedAccountInfo$pa = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa === void 0 ? void 0 : (_parsedAccountInfo$pa2 = _parsedAccountInfo$pa.info) === null || _parsedAccountInfo$pa2 === void 0 ? void 0 : (_parsedAccountInfo$pa3 = _parsedAccountInfo$pa2.tokenAmount) === null || _parsedAccountInfo$pa3 === void 0 ? void 0 : _parsedAccountInfo$pa3.decimals);
+            setAllowance(((_parsedAccountInfo$pa4 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa4 === void 0 ? void 0 : (_parsedAccountInfo$pa5 = _parsedAccountInfo$pa4.info) === null || _parsedAccountInfo$pa5 === void 0 ? void 0 : _parsedAccountInfo$pa5.delegate) === targetAddress ? (_parsedAccountInfo$pa6 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa6 === void 0 ? void 0 : (_parsedAccountInfo$pa7 = _parsedAccountInfo$pa6.info) === null || _parsedAccountInfo$pa7 === void 0 ? void 0 : (_parsedAccountInfo$pa8 = _parsedAccountInfo$pa7.delegatedAmount) === null || _parsedAccountInfo$pa8 === void 0 ? void 0 : _parsedAccountInfo$pa8.uiAmount : 0);
           } else if (tronAddress && tokenAddress) {
             let trc20Contract = await tronWeb.contract(ERC20ABI.abi, tokenAddress);
             const _decimals = await trc20Contract.decimals().call();
@@ -6822,7 +6825,7 @@ function useAllowance({
       const mint = new PublicKey(tokenAddress);
       const toPublicKey = new PublicKey(targetAddress);
       const fromTokenAccount = await getOrCreateAssociatedTokenAccount(connection, solanaAddress, mint, solanaAddress, signSolanaTransaction);
-      const transaction = new Transaction().add(createApproveTransferInstruction(fromTokenAccount.address, toPublicKey, solanaAddress, +(amount + serviceFee).toFixed(2) * Math.pow(10, COIN_LIST['USDK'].decimals), [], TOKEN_PROGRAM_ID));
+      const transaction = new Transaction().add(createApproveTransferInstruction(fromTokenAccount.address, toPublicKey, solanaAddress, +(amount + serviceFee).toFixed(2) * Math.pow(10, decimals ?? 6), [], TOKEN_PROGRAM_ID));
       const blockHash = await connection.getLatestBlockhash();
       transaction.feePayer = solanaAddress;
       transaction.recentBlockhash = await blockHash.blockhash;
@@ -6832,10 +6835,10 @@ function useAllowance({
       let allowAmount = 0;
       let retryCount = 0;
       do {
-        var _accountInfo, _accountInfo$value2, _parsedAccountInfo$pa6, _parsedAccountInfo$pa7, _parsedAccountInfo$pa8, _parsedAccountInfo$pa9, _parsedAccountInfo$pa10;
+        var _accountInfo, _accountInfo$value2, _parsedAccountInfo$pa9, _parsedAccountInfo$pa10, _parsedAccountInfo$pa11, _parsedAccountInfo$pa12, _parsedAccountInfo$pa13;
         accountInfo = await connection.getParsedAccountInfo(fromTokenAccount.address);
         const parsedAccountInfo = (_accountInfo = accountInfo) === null || _accountInfo === void 0 ? void 0 : (_accountInfo$value2 = _accountInfo.value) === null || _accountInfo$value2 === void 0 ? void 0 : _accountInfo$value2.data;
-        allowAmount = ((_parsedAccountInfo$pa6 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa6 === void 0 ? void 0 : (_parsedAccountInfo$pa7 = _parsedAccountInfo$pa6.info) === null || _parsedAccountInfo$pa7 === void 0 ? void 0 : _parsedAccountInfo$pa7.delegate) === targetAddress ? (_parsedAccountInfo$pa8 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa8 === void 0 ? void 0 : (_parsedAccountInfo$pa9 = _parsedAccountInfo$pa8.info) === null || _parsedAccountInfo$pa9 === void 0 ? void 0 : (_parsedAccountInfo$pa10 = _parsedAccountInfo$pa9.delegatedAmount) === null || _parsedAccountInfo$pa10 === void 0 ? void 0 : _parsedAccountInfo$pa10.uiAmount : 0;
+        allowAmount = ((_parsedAccountInfo$pa9 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa9 === void 0 ? void 0 : (_parsedAccountInfo$pa10 = _parsedAccountInfo$pa9.info) === null || _parsedAccountInfo$pa10 === void 0 ? void 0 : _parsedAccountInfo$pa10.delegate) === targetAddress ? (_parsedAccountInfo$pa11 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa11 === void 0 ? void 0 : (_parsedAccountInfo$pa12 = _parsedAccountInfo$pa11.info) === null || _parsedAccountInfo$pa12 === void 0 ? void 0 : (_parsedAccountInfo$pa13 = _parsedAccountInfo$pa12.delegatedAmount) === null || _parsedAccountInfo$pa13 === void 0 ? void 0 : _parsedAccountInfo$pa13.uiAmount : 0;
         console.log('sleep');
         await sleep(1000);
       } while (allowAmount < amount + serviceFee || retryCount++ < 5);
@@ -6862,7 +6865,7 @@ const AddressInputWizard = () => {
 };
 
 function useCurrencyOptions() {
-  const [options, setOptions] = useState(COIN_LIST['USDK']);
+  const [options, setOptions] = useState('USDK');
   const nodeProviderQuery = useSelector(selectNodeProviderQuery);
   const originNetwork = useSelector(selectSourceChain);
   const targetNetwork = useSelector(selectTargetChain);
@@ -6872,11 +6875,11 @@ function useCurrencyOptions() {
       try {
         var _coins$Currencies;
         if (originNetwork === ChainName.FIAT || targetNetwork === ChainName.FIAT) {
-          setOptions(COIN_LIST['KEUR']);
+          setOptions('KEUR');
           return;
         }
         const coins = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/get_currencies/${originNetwork}/${targetNetwork}`);
-        setOptions(COIN_LIST[(_coins$Currencies = coins.Currencies) !== null && _coins$Currencies !== void 0 && _coins$Currencies.length ? coins.Currencies[0] : 'USDK']);
+        setOptions((_coins$Currencies = coins.Currencies) !== null && _coins$Currencies !== void 0 && _coins$Currencies.length ? coins.Currencies[0] : 'USDK');
       } catch (e) {
         console.log('rpc disconnected', e);
       }
@@ -6968,7 +6971,7 @@ const TransferWidget = ({
   const keplrHandler = useSelector(selectKeplrHandler);
   const closeHandler = useSelector(selectCloseHandler);
   const {
-    options: selectedCoin
+    options: selectedToken
   } = useCurrencyOptions();
   const backendUrl = useSelector(selectBackendUrl);
   const nodeProviderQuery = useSelector(selectNodeProviderQuery);
@@ -7035,15 +7038,23 @@ const TransferWidget = ({
     if (!nodeProviderQuery) return;
     (async function () {
       const res = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/pool_balance`);
-      console.table(res.poolBalance.map(item => ({
-        chain: CHAIN_NAMES_TO_STRING[item.chainName],
-        balance: +item.balance
-      })));
+      let poolsTable = [];
+      for (const pool of res.poolBalance) {
+        for (const token of pool.balance) {
+          poolsTable.push({
+            chain: CHAIN_NAMES_TO_STRING[pool.chainName],
+            symbol: token.tokenSymbol,
+            balance: +token.amount
+          });
+        }
+      }
+      console.table(poolsTable);
     })();
   }, [nodeProviderQuery]);
   useEffect(() => {
-    dispatch(setCurrencyOptions(selectedCoin));
-  }, [selectedCoin]);
+    console.log('dispatch(setSelectedToken(selectedToken))', selectedToken);
+    dispatch(setSelectedToken(selectedToken));
+  }, [selectedToken]);
   useEffect(() => {
     if (!isReady) {
       if (formStep > 0) setFormStep(0);
@@ -7055,14 +7066,18 @@ const TransferWidget = ({
     const poolBalance = res.poolBalance;
     for (let i = 0; i < poolBalance.length; i++) {
       if (poolBalance[i].chainName === targetChain) {
-        if (+poolBalance[i].balance >= amount + fee) {
-          return true;
+        for (let j = 0; j < poolBalance[i].balance.length; j++) {
+          if (poolBalance[i].balance[j].tokenSymbol !== selectedToken) continue;
+          if (+poolBalance[i].balance[j].amount >= amount + fee) {
+            return true;
+          }
+          const symbol = selectedToken;
+          const errorString = `Tried to transfer ${amount} ${symbol}, but ${CHAIN_NAMES_TO_STRING[targetChain]} pool has only ${+poolBalance[i].balance[j].amount} ${symbol}`;
+          console.log(errorString);
+          toast.error(`${CHAIN_NAMES_TO_STRING[targetChain]} pool has insufficient balance!`);
+          errorHandler(errorString);
+          return false;
         }
-        const symbol = 'USDK';
-        const errorString = `Tried to transfer ${amount} ${symbol}, but ${CHAIN_NAMES_TO_STRING[targetChain]} pool has only ${+poolBalance[i].balance} ${symbol}`;
-        console.log(errorString);
-        toast.error(`${CHAIN_NAMES_TO_STRING[targetChain]} pool has insufficient balance!`);
-        errorHandler(errorString);
         return false;
       }
     }
@@ -7112,7 +7127,7 @@ const TransferWidget = ({
         originChain: sourceChain,
         targetAddress: mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
         targetChain: targetChain,
-        symbol: selectedCoin.label,
+        symbol: selectedToken,
         amount: amount,
         fee
       });

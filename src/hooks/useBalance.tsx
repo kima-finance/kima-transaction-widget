@@ -14,9 +14,10 @@ import {
 } from '../utils/constants'
 import ERC20ABI from '../utils/ethereum/erc20ABI.json'
 import {
-  selectCurrencyOptions,
+  selectSelectedToken,
   selectErrorHandler,
-  selectSourceChain
+  selectSourceChain,
+  selectTokenOptions
 } from '../store/selectors'
 import { getOrCreateAssociatedTokenAccount } from '../utils/solana/getOrCreateAssociatedTokenAccount'
 import { PublicKey } from '@solana/web3.js'
@@ -29,6 +30,7 @@ import {
 import { ethers } from 'ethers'
 import { ExternalProvider, JsonRpcFetchFunc } from '@ethersproject/providers'
 import { Web3ModalAccountInfo } from '../interface'
+import { isEmptyObject } from '../helpers/functions'
 
 type ParsedAccountData = {
   /** Name of the program that owns this account */
@@ -68,10 +70,12 @@ export default function useBalance() {
   const { publicKey: solanaAddress, signTransaction } = useSolanaWallet()
   const { address: tronAddress } = useTronWallet()
   const { connection } = useConnection()
-  const selectedCoin = useSelector(selectCurrencyOptions)
+  const selectedCoin = useSelector(selectSelectedToken)
+  const tokenOptions = useSelector(selectTokenOptions)
   const tokenAddress = useMemo(() => {
-    return selectedCoin.address[sourceChain]
-  }, [selectedCoin, sourceChain])
+    if (isEmptyObject(tokenOptions)) return ''
+    return tokenOptions[selectedCoin][sourceChain]
+  }, [selectedCoin, sourceChain, tokenOptions])
 
   useEffect(() => {
     ;(async () => {

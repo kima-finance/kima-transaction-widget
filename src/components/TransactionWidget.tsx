@@ -13,7 +13,7 @@ import {
 import { Provider } from 'react-redux'
 import { store } from '../store'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
-import { COIN_LIST, TransactionStatus } from '../utils/constants'
+import { TransactionStatus } from '../utils/constants'
 import { formatterFloat } from '../helpers/functions'
 import { useSelector } from 'react-redux'
 import {
@@ -192,7 +192,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
             <div className='title'>
               <h3>
                 Transferring {formatterFloat.format(data?.amount || 0)}{' '}
-                {COIN_LIST[data?.symbol || 'USDK'].symbol}&nbsp;&nbsp;
+                {data?.symbol || 'USDK'}&nbsp;&nbsp;
                 {`(${percent}%)`}
               </h3>
             </div>

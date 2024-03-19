@@ -12,19 +12,7 @@ import {
   KEURICON,
   TronIcon
 } from '../assets/icons'
-import {
-  AVAX_USDK_ADDRESS,
-  ETHEREUM_USDK_ADDRESS,
-  BSC_USDK_ADDRESS,
-  POLYGON_USDK_ADDRESS,
-  SOLANA_USDK_ADDRESS,
-  OPTIMISM_USDK_ADDRESS,
-  ARBITRUM_USDK_ADDRESS,
-  POLYGON_ZKEVM_ADDRESS,
-  POLYGON_KEUR_ADDRESS,
-  ETHEREUM_KEUR_ADDRESS,
-  TRON_USDK_ADDRESS
-} from './config'
+import { POLYGON_KEUR_ADDRESS, ETHEREUM_KEUR_ADDRESS } from './config'
 
 export enum ChainName {
   ETHEREUM = 'ETH',
@@ -195,25 +183,10 @@ type CoinOptions = {
 
 export const COIN_LIST: CoinOptions = {
   USDK: {
-    symbol: 'USDK',
-    label: 'USDK',
-    icon: USDTIcon,
-    address: {
-      SOL: SOLANA_USDK_ADDRESS,
-      ETH: ETHEREUM_USDK_ADDRESS,
-      POL: POLYGON_USDK_ADDRESS,
-      AVX: AVAX_USDK_ADDRESS,
-      BSC: BSC_USDK_ADDRESS,
-      OPT: OPTIMISM_USDK_ADDRESS,
-      ARB: ARBITRUM_USDK_ADDRESS,
-      ZKE: POLYGON_ZKEVM_ADDRESS,
-      TRX: TRON_USDK_ADDRESS
-    },
-    decimals: 6
+    icon: USDTIcon
   },
   KEUR: {
     symbol: 'KEUR',
-    label: 'KEUR',
     icon: KEURICON,
     address: {
       ETH: ETHEREUM_KEUR_ADDRESS,

@@ -4,20 +4,20 @@ import { useDispatch, useSelector } from 'react-redux'
 import {
   selectAmount,
   selectCompliantOption,
-  selectCurrencyOptions,
   selectMode,
   selectSourceChain,
   selectTargetCompliant,
   selectTargetChain,
   selectTheme,
-  selectTransactionOption
+  selectTransactionOption,
+  selectSelectedToken
 } from '../../store/selectors'
 import { BankInput, CoinDropdown, WalletButton } from './'
 import { setAmount } from '../../store/optionSlice'
 import { ModeOptions, PaymentTitleOption } from '../../interface'
 import AddressInput from './AddressInput'
 import NetworkDropdown from './NetworkDropdown'
-import { ChainName } from '../../utils/constants'
+import { COIN_LIST, ChainName } from '../../utils/constants'
 
 const SingleForm = ({
   paymentTitleOption
@@ -31,9 +31,10 @@ const SingleForm = ({
   const compliantOption = useSelector(selectCompliantOption)
   const targetCompliant = useSelector(selectTargetCompliant)
   const transactionOption = useSelector(selectTransactionOption)
-  const selectedCoin = useSelector(selectCurrencyOptions)
+  const selectedCoin = useSelector(selectSelectedToken)
   const sourceNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
+  const Icon = COIN_LIST[selectedCoin || 'USDK'].icon
 
   const errorMessage = useMemo(
     () =>
@@ -110,8 +111,8 @@ const SingleForm = ({
           <div className={`amount-label ${theme.colorMode}`}>
             <span>{transactionOption?.amount || ''}</span>
             <div className='coin-wrapper'>
-              {<selectedCoin.icon />}
-              {selectedCoin.symbol}
+              {<Icon />}
+              {selectedCoin}
             </div>
           </div>
         </div>
