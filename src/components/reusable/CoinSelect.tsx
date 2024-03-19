@@ -1,7 +1,7 @@
 import React from 'react'
 import {
   selectAmount,
-  selectCurrencyOptions,
+  selectSelectedToken,
   selectMode,
   selectTheme
 } from '../../store/selectors'
@@ -9,13 +9,15 @@ import { useSelector } from 'react-redux'
 import { ModeOptions } from '../../interface'
 import { setAmount } from '../../store/optionSlice'
 import { useDispatch } from 'react-redux'
+import { COIN_LIST } from '../../utils/constants'
 
 const CoinSelect = () => {
   const dispatch = useDispatch()
   const theme = useSelector(selectTheme)
   const mode = useSelector(selectMode)
   const amount = useSelector(selectAmount)
-  const selectedCoin = useSelector(selectCurrencyOptions)
+  const selectedCoin = useSelector(selectSelectedToken)
+  const Icon = COIN_LIST[selectedCoin || 'USDK'].icon
 
   return (
     <div className={`coin-select`}>
@@ -47,8 +49,8 @@ const CoinSelect = () => {
             }}
           />
           <div className='coin-label'>
-            {<selectedCoin.icon />}
-            <span>{selectedCoin.symbol}</span>
+            {<Icon />}
+            <span>{selectedCoin}</span>
           </div>
         </div>
       </div>

@@ -739,17 +739,8 @@ var Celo = function Celo(_ref) {
   }));
 };
 
-var SOLANA_USDK_ADDRESS = '9YSFWfU9Ram6mAo2QP9zsTnA8yFkkkFGEs3kGgjtQKvp';
-var ETHEREUM_USDK_ADDRESS = '0x5FF59Bf2277A1e6bA9bB8A38Ea3F9ABfd3d9345a';
-var POLYGON_USDK_ADDRESS = '0x95A94Fc761F98fcC60DA07C55F8ECDDD8B381CfF';
-var AVAX_USDK_ADDRESS = '0x5d8598Ce65f15f14c58aD3a4CD285223c8e76a2E';
-var BSC_USDK_ADDRESS = '0x3eb36be2c3FD244139756F681420637a2a9464e3';
-var OPTIMISM_USDK_ADDRESS = '0x2cf79df2879902a2fc06329b1760e0f2ad9a3a47';
-var ARBITRUM_USDK_ADDRESS = '0x2cf79df2879902a2fc06329b1760e0f2ad9a3a47';
-var POLYGON_ZKEVM_ADDRESS = '0x3eb36be2c3FD244139756F681420637a2a9464e3';
 var ETHEREUM_KEUR_ADDRESS = '0xAFc823fcbe5945f5f38f144314663c87dA713E06';
 var POLYGON_KEUR_ADDRESS = '0x7D4325eE3A80778Af01498ca32E0C30e233ffB0d';
-var TRON_USDK_ADDRESS = 'TEuRmCALTUY2syY1EE6mMYnyfmNfFfMpYz';
 var TRON_USDK_OWNER_ADDRESS = 'TBVn4bsBN4DhtZ7D3vEVpAyqkvdFn7zmpU';
 
 var _CHAIN_NAMES_TO_IDS, _CHAIN_NAMES_TO_STRIN, _CHAIN_STRING_TO_NAME, _CHAIN_NAMES_TO_EXPLO, _CHAIN_NAMES_TO_GECKO, _CHAIN_IDS_TO_NAMES;
@@ -836,25 +827,10 @@ var isEVMChain = function isEVMChain(chainId) {
 };
 var COIN_LIST = {
   USDK: {
-    symbol: 'USDK',
-    label: 'USDK',
-    icon: USDT,
-    address: {
-      SOL: SOLANA_USDK_ADDRESS,
-      ETH: ETHEREUM_USDK_ADDRESS,
-      POL: POLYGON_USDK_ADDRESS,
-      AVX: AVAX_USDK_ADDRESS,
-      BSC: BSC_USDK_ADDRESS,
-      OPT: OPTIMISM_USDK_ADDRESS,
-      ARB: ARBITRUM_USDK_ADDRESS,
-      ZKE: POLYGON_ZKEVM_ADDRESS,
-      TRX: TRON_USDK_ADDRESS
-    },
-    decimals: 6
+    icon: USDT
   },
   KEUR: {
     symbol: 'KEUR',
-    label: 'KEUR',
     icon: KEUR,
     address: {
       ETH: ETHEREUM_KEUR_ADDRESS,
@@ -901,6 +877,7 @@ var TransactionStatus;
 var createSlice = toolkitRaw.createSlice;
 var initialState = {
   theme: {},
+  tokenOptions: {},
   kimaExplorerUrl: 'explorer.kima.finance',
   mode: exports.ModeOptions.bridge,
   sourceChain: '',
@@ -938,7 +915,7 @@ var initialState = {
   backendUrl: '',
   nodeProviderQuery: '',
   txId: -1,
-  currencyOptions: COIN_LIST['USDK'],
+  selectedToken: 'USDK',
   compliantOption: true,
   sourceCompliant: 'low',
   targetCompliant: 'low',
@@ -966,13 +943,16 @@ var optionSlice = createSlice({
       state.sourceCompliant = 'low';
       state.targetCompliant = 'low';
       state.useFIAT = false;
-      state.bankDetails = {
+      state.tokenOptions = {}, state.bankDetails = {
         iban: '',
         recipient: ''
       };
       state.initChainFromProvider = false;
       state.targetNetworkFetching = false;
       state.signature = '';
+    },
+    setTokenOptions: function setTokenOptions(state, action) {
+      state.tokenOptions = action.payload;
     },
     setTheme: function setTheme(state, action) {
       state.theme = action.payload;
@@ -1061,8 +1041,8 @@ var optionSlice = createSlice({
     setTxId: function setTxId(state, action) {
       state.txId = action.payload;
     },
-    setCurrencyOptions: function setCurrencyOptions(state, action) {
-      state.currencyOptions = action.payload;
+    setSelectedToken: function setSelectedToken(state, action) {
+      state.selectedToken = action.payload;
     },
     setCompliantOption: function setCompliantOption(state, action) {
       state.compliantOption = action.payload;
@@ -1095,6 +1075,7 @@ var optionSlice = createSlice({
 });
 var _optionSlice$actions = optionSlice.actions,
   initialize = _optionSlice$actions.initialize,
+  setTokenOptions = _optionSlice$actions.setTokenOptions,
   setKimaExplorer = _optionSlice$actions.setKimaExplorer,
   setTheme = _optionSlice$actions.setTheme,
   setSourceChain = _optionSlice$actions.setSourceChain,
@@ -1122,7 +1103,7 @@ var _optionSlice$actions = optionSlice.actions,
   setBackendUrl = _optionSlice$actions.setBackendUrl,
   setNodeProviderQuery = _optionSlice$actions.setNodeProviderQuery,
   setTxId = _optionSlice$actions.setTxId,
-  setCurrencyOptions = _optionSlice$actions.setCurrencyOptions,
+  setSelectedToken = _optionSlice$actions.setSelectedToken,
   setCompliantOption = _optionSlice$actions.setCompliantOption,
   setSourceCompliant = _optionSlice$actions.setSourceCompliant,
   setTargetCompliant = _optionSlice$actions.setTargetCompliant,
@@ -1311,6 +1292,9 @@ function _catch(body, recover) {
 	return result;
 }
 
+var selectTokenOptions = function selectTokenOptions(state) {
+  return state.option.tokenOptions;
+};
 var selectTheme = function selectTheme(state) {
   return state.option.theme;
 };
@@ -1389,8 +1373,8 @@ var selectNodeProviderQuery = function selectNodeProviderQuery(state) {
 var selectTxId = function selectTxId(state) {
   return state.option.txId;
 };
-var selectCurrencyOptions = function selectCurrencyOptions(state) {
-  return state.option.currencyOptions;
+var selectSelectedToken = function selectSelectedToken(state) {
+  return state.option.selectedToken;
 };
 var selectCompliantOption = function selectCompliantOption(state) {
   return state.option.compliantOption;
@@ -1608,6 +1592,7 @@ function handleResponse(response) {
 }
 
 function useNetworkOptions() {
+  var dispatch = reactRedux.useDispatch();
   var mode = reactRedux.useSelector(selectMode);
   var dAppOption = reactRedux.useSelector(selectDappOption);
   var useFIAT = reactRedux.useSelector(selectUseFIAT);
@@ -1621,12 +1606,24 @@ function useNetworkOptions() {
       (function () {
         try {
           var _temp = _catch(function () {
-            return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/chains/get_chains")).then(function (networks) {
+            return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/chains/chain")).then(function (networks) {
               setOptions(networkOptions.filter(function (network) {
-                return networks.Chains.findIndex(function (id) {
-                  return id === network.id;
+                return networks.Chain.findIndex(function (chain) {
+                  return chain.symbol === network.id;
                 }) >= 0 || network.id === exports.SupportNetworks.FIAT && useFIAT;
               }));
+              var tokenOptions = {};
+              for (var _iterator = _createForOfIteratorHelperLoose(networks.Chain), _step; !(_step = _iterator()).done;) {
+                var network = _step.value;
+                for (var _iterator2 = _createForOfIteratorHelperLoose(network.tokens), _step2; !(_step2 = _iterator2()).done;) {
+                  var token = _step2.value;
+                  if (!tokenOptions[token.symbol]) {
+                    tokenOptions[token.symbol] = {};
+                  }
+                  tokenOptions[token.symbol][network.symbol] = token.address;
+                }
+              }
+              dispatch(setTokenOptions(tokenOptions));
             });
           }, function (e) {
             console.log('rpc disconnected', e);
@@ -2483,6 +2480,13 @@ var tronWeb = new tronweb.TronWeb({
 });
 tronWeb.setAddress(TRON_USDK_OWNER_ADDRESS);
 
+var formatterFloat = new Intl.NumberFormat('en-US', {
+  maximumFractionDigits: 2
+});
+function isEmptyObject(arg) {
+  return typeof arg === 'object' && Object.keys(arg).length === 0;
+}
+
 function useBalance() {
   var _useState = React.useState(0),
     balance = _useState[0],
@@ -2513,10 +2517,12 @@ function useBalance() {
     tronAddress = _useTronWallet.address;
   var _useConnection = SolanaAdapter.useConnection(),
     connection = _useConnection.connection;
-  var selectedCoin = reactRedux.useSelector(selectCurrencyOptions);
+  var selectedCoin = reactRedux.useSelector(selectSelectedToken);
+  var tokenOptions = reactRedux.useSelector(selectTokenOptions);
   var tokenAddress = React.useMemo(function () {
-    return selectedCoin.address[sourceChain];
-  }, [selectedCoin, sourceChain]);
+    if (isEmptyObject(tokenOptions)) return '';
+    return tokenOptions[selectedCoin][sourceChain];
+  }, [selectedCoin, sourceChain, tokenOptions]);
   React.useEffect(function () {
     (function () {
       try {
@@ -2582,16 +2588,12 @@ function useBalance() {
   }, [balance]);
 }
 
-var formatterFloat = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 2
-});
-
 var WalletButton = function WalletButton(_ref) {
   var _ref$errorBelow = _ref.errorBelow,
     errorBelow = _ref$errorBelow === void 0 ? false : _ref$errorBelow;
   var dispatch = reactRedux.useDispatch();
   var theme = reactRedux.useSelector(selectTheme);
-  var selectedCoin = reactRedux.useSelector(selectCurrencyOptions);
+  var selectedCoin = reactRedux.useSelector(selectSelectedToken);
   var sourceCompliant = reactRedux.useSelector(selectSourceCompliant);
   var compliantOption = reactRedux.useSelector(selectCompliantOption);
   var selectedNetwork = reactRedux.useSelector(selectSourceChain);
@@ -2631,15 +2633,16 @@ var WalletButton = function WalletButton(_ref) {
     clickHandler: handleClick
   }, isReady ? "" + getShortenedAddress(walletAddress || '') : 'Wallet'), isReady ? React__default.createElement("p", {
     className: 'balance-info'
-  }, formatterFloat.format(balance), " ", selectedCoin.symbol, " available") : null);
+  }, formatterFloat.format(balance), " ", selectedCoin, " available") : null);
 };
 
 var CoinDropdown = function CoinDropdown() {
   var _useState = React.useState(true),
     collapsed = _useState[0],
     setCollapsed = _useState[1];
-  var selectedCoin = reactRedux.useSelector(selectCurrencyOptions);
+  var selectedCoin = reactRedux.useSelector(selectSelectedToken);
   var theme = reactRedux.useSelector(selectTheme);
+  var Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
   return React__default.createElement("div", {
     className: "coin-dropdown " + theme.colorMode + " " + (collapsed ? 'collapsed' : ''),
     onClick: function onClick() {
@@ -2649,7 +2652,7 @@ var CoinDropdown = function CoinDropdown() {
     }
   }, React__default.createElement("div", {
     className: 'coin-wrapper'
-  }, React__default.createElement(selectedCoin.icon, null), selectedCoin.symbol));
+  }, React__default.createElement(Icon, null), selectedCoin));
 };
 
 var NetworkDropdown = React__default.memo(function (_ref) {
@@ -2825,7 +2828,7 @@ var ConfirmDetails = function ConfirmDetails(_ref) {
       return network.id === (mode === exports.ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetChain : targetNetwork);
     })[0];
   }, [networkOptions, originNetwork]);
-  var selectedCoin = reactRedux.useSelector(selectCurrencyOptions);
+  var selectedCoin = reactRedux.useSelector(selectSelectedToken);
   var sourceWalletAddress = React.useMemo(function () {
     return getShortenedAddress(walletAddress || '');
   }, [walletAddress]);
@@ -2864,7 +2867,7 @@ var ConfirmDetails = function ConfirmDetails(_ref) {
     className: 'detail-item'
   }, React__default.createElement("span", {
     className: 'label'
-  }, "Amount:"), React__default.createElement("p", null, formatterFloat.format(feeDeduct ? amount : amount + serviceFee), ' ', selectedCoin.symbol)), targetNetwork === exports.SupportNetworks.FIAT ? React__default.createElement("div", null, React__default.createElement("div", {
+  }, "Amount:"), React__default.createElement("p", null, formatterFloat.format(feeDeduct ? amount : amount + serviceFee), ' ', selectedCoin)), targetNetwork === exports.SupportNetworks.FIAT ? React__default.createElement("div", null, React__default.createElement("div", {
     className: 'detail-item'
   }, React__default.createElement("span", {
     className: 'label'
@@ -3447,7 +3450,7 @@ var TransactionWidget = function TransactionWidget(_ref) {
     className: 'topbar'
   }, React__default.createElement("div", {
     className: 'title'
-  }, React__default.createElement("h3", null, "Transferring ", formatterFloat.format((data === null || data === void 0 ? void 0 : data.amount) || 0), ' ', COIN_LIST[(data === null || data === void 0 ? void 0 : data.symbol) || 'USDK'].symbol, "\xA0\xA0", "(" + percent + "%)")), !minimized ? React__default.createElement("div", {
+  }, React__default.createElement("h3", null, "Transferring ", formatterFloat.format((data === null || data === void 0 ? void 0 : data.amount) || 0), ' ', (data === null || data === void 0 ? void 0 : data.symbol) || 'USDK', "\xA0\xA0", "(" + percent + "%)")), !minimized ? React__default.createElement("div", {
     className: 'control-buttons'
   }, React__default.createElement("button", {
     className: 'icon-button',
@@ -3536,9 +3539,10 @@ var SingleForm = function SingleForm(_ref) {
   var compliantOption = reactRedux.useSelector(selectCompliantOption);
   var targetCompliant = reactRedux.useSelector(selectTargetCompliant);
   var transactionOption = reactRedux.useSelector(selectTransactionOption);
-  var selectedCoin = reactRedux.useSelector(selectCurrencyOptions);
+  var selectedCoin = reactRedux.useSelector(selectSelectedToken);
   var sourceNetwork = reactRedux.useSelector(selectSourceChain);
   var targetNetwork = reactRedux.useSelector(selectTargetChain);
+  var Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
   var errorMessage = React.useMemo(function () {
     return compliantOption && targetCompliant !== 'low' ? "Target address has " + targetCompliant + " risk" : '';
   }, [compliantOption, targetCompliant]);
@@ -3592,7 +3596,7 @@ var SingleForm = function SingleForm(_ref) {
     className: "amount-label " + theme.colorMode
   }, React__default.createElement("span", null, (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount) || ''), React__default.createElement("div", {
     className: 'coin-wrapper'
-  }, React__default.createElement(selectedCoin.icon, null), selectedCoin.symbol))));
+  }, React__default.createElement(Icon, null), selectedCoin))));
 };
 
 var CoinSelect = function CoinSelect() {
@@ -3600,7 +3604,8 @@ var CoinSelect = function CoinSelect() {
   var theme = reactRedux.useSelector(selectTheme);
   var mode = reactRedux.useSelector(selectMode);
   var amount = reactRedux.useSelector(selectAmount);
-  var selectedCoin = reactRedux.useSelector(selectCurrencyOptions);
+  var selectedCoin = reactRedux.useSelector(selectSelectedToken);
+  var Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
   return React__default.createElement("div", {
     className: "coin-select"
   }, React__default.createElement("p", null, "Select Amount of Token for Funding"), React__default.createElement("div", {
@@ -3617,7 +3622,7 @@ var CoinSelect = function CoinSelect() {
     }
   }), React__default.createElement("div", {
     className: 'coin-label'
-  }, React__default.createElement(selectedCoin.icon, null), React__default.createElement("span", null, selectedCoin.symbol)))));
+  }, React__default.createElement(Icon, null), React__default.createElement("span", null, selectedCoin)))));
 };
 
 function useServiceFee(isConfirming) {
@@ -7303,10 +7308,12 @@ function useAllowance(_ref) {
   var _useTronWallet = tronwalletAdapterReactHooks.useWallet(),
     tronAddress = _useTronWallet.address,
     signTronTransaction = _useTronWallet.signTransaction;
-  var selectedCoin = reactRedux.useSelector(selectCurrencyOptions);
+  var selectedCoin = reactRedux.useSelector(selectSelectedToken);
+  var tokenOptions = reactRedux.useSelector(selectTokenOptions);
   var tokenAddress = React.useMemo(function () {
-    return selectedCoin.address[sourceChain];
-  }, [selectedCoin, sourceChain]);
+    if (isEmptyObject(tokenOptions)) return '';
+    return tokenOptions[selectedCoin][sourceChain];
+  }, [selectedCoin, sourceChain, tokenOptions]);
   var _useState3 = React.useState(),
     targetAddress = _useState3[0],
     setTargetAddress = _useState3[1];
@@ -7366,11 +7373,11 @@ function useAllowance(_ref) {
                   var mint = new web3_js.PublicKey(tokenAddress);
                   return Promise.resolve(getOrCreateAssociatedTokenAccount(connection, solanaAddress, mint, solanaAddress, signSolanaTransaction)).then(function (fromTokenAccount) {
                     return Promise.resolve(connection.getParsedAccountInfo(fromTokenAccount.address)).then(function (accountInfo) {
-                      var _accountInfo$value, _parsedAccountInfo$pa, _parsedAccountInfo$pa2, _parsedAccountInfo$pa3, _parsedAccountInfo$pa4, _parsedAccountInfo$pa5;
+                      var _accountInfo$value, _parsedAccountInfo$pa, _parsedAccountInfo$pa2, _parsedAccountInfo$pa3, _parsedAccountInfo$pa4, _parsedAccountInfo$pa5, _parsedAccountInfo$pa6, _parsedAccountInfo$pa7, _parsedAccountInfo$pa8;
                       console.log('solana token account: ', accountInfo);
-                      setDecimals(COIN_LIST['USDK'].decimals);
                       var parsedAccountInfo = accountInfo === null || accountInfo === void 0 ? void 0 : (_accountInfo$value = accountInfo.value) === null || _accountInfo$value === void 0 ? void 0 : _accountInfo$value.data;
-                      setAllowance(((_parsedAccountInfo$pa = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa === void 0 ? void 0 : (_parsedAccountInfo$pa2 = _parsedAccountInfo$pa.info) === null || _parsedAccountInfo$pa2 === void 0 ? void 0 : _parsedAccountInfo$pa2.delegate) === targetAddress ? (_parsedAccountInfo$pa3 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa3 === void 0 ? void 0 : (_parsedAccountInfo$pa4 = _parsedAccountInfo$pa3.info) === null || _parsedAccountInfo$pa4 === void 0 ? void 0 : (_parsedAccountInfo$pa5 = _parsedAccountInfo$pa4.delegatedAmount) === null || _parsedAccountInfo$pa5 === void 0 ? void 0 : _parsedAccountInfo$pa5.uiAmount : 0);
+                      setDecimals((_parsedAccountInfo$pa = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa === void 0 ? void 0 : (_parsedAccountInfo$pa2 = _parsedAccountInfo$pa.info) === null || _parsedAccountInfo$pa2 === void 0 ? void 0 : (_parsedAccountInfo$pa3 = _parsedAccountInfo$pa2.tokenAmount) === null || _parsedAccountInfo$pa3 === void 0 ? void 0 : _parsedAccountInfo$pa3.decimals);
+                      setAllowance(((_parsedAccountInfo$pa4 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa4 === void 0 ? void 0 : (_parsedAccountInfo$pa5 = _parsedAccountInfo$pa4.info) === null || _parsedAccountInfo$pa5 === void 0 ? void 0 : _parsedAccountInfo$pa5.delegate) === targetAddress ? (_parsedAccountInfo$pa6 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa6 === void 0 ? void 0 : (_parsedAccountInfo$pa7 = _parsedAccountInfo$pa6.info) === null || _parsedAccountInfo$pa7 === void 0 ? void 0 : (_parsedAccountInfo$pa8 = _parsedAccountInfo$pa7.delegatedAmount) === null || _parsedAccountInfo$pa8 === void 0 ? void 0 : _parsedAccountInfo$pa8.uiAmount : 0);
                     });
                   });
                 } else {
@@ -7416,7 +7423,7 @@ function useAllowance(_ref) {
             var mint = new web3_js.PublicKey(tokenAddress);
             var toPublicKey = new web3_js.PublicKey(targetAddress);
             return Promise.resolve(getOrCreateAssociatedTokenAccount(connection, solanaAddress, mint, solanaAddress, signSolanaTransaction)).then(function (fromTokenAccount) {
-              var transaction = new web3_js.Transaction().add(createApproveTransferInstruction(fromTokenAccount.address, toPublicKey, solanaAddress, +(amount + serviceFee).toFixed(2) * Math.pow(10, COIN_LIST['USDK'].decimals), [], splToken.TOKEN_PROGRAM_ID));
+              var transaction = new web3_js.Transaction().add(createApproveTransferInstruction(fromTokenAccount.address, toPublicKey, solanaAddress, +(amount + serviceFee).toFixed(2) * Math.pow(10, decimals != null ? decimals : 6), [], splToken.TOKEN_PROGRAM_ID));
               return Promise.resolve(connection.getLatestBlockhash()).then(function (blockHash) {
                 transaction.feePayer = solanaAddress;
                 return Promise.resolve(blockHash.blockhash).then(function (_blockHash$blockhash) {
@@ -7432,10 +7439,10 @@ function useAllowance(_ref) {
                       var retryCount = 0;
                       var _temp11 = _do(function () {
                         return Promise.resolve(connection.getParsedAccountInfo(fromTokenAccount.address)).then(function (_connection$getParsed) {
-                          var _accountInfo, _accountInfo$value2, _parsedAccountInfo$pa6, _parsedAccountInfo$pa7, _parsedAccountInfo$pa8, _parsedAccountInfo$pa9, _parsedAccountInfo$pa10;
+                          var _accountInfo, _accountInfo$value2, _parsedAccountInfo$pa9, _parsedAccountInfo$pa10, _parsedAccountInfo$pa11, _parsedAccountInfo$pa12, _parsedAccountInfo$pa13;
                           accountInfo = _connection$getParsed;
                           var parsedAccountInfo = (_accountInfo = accountInfo) === null || _accountInfo === void 0 ? void 0 : (_accountInfo$value2 = _accountInfo.value) === null || _accountInfo$value2 === void 0 ? void 0 : _accountInfo$value2.data;
-                          allowAmount = ((_parsedAccountInfo$pa6 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa6 === void 0 ? void 0 : (_parsedAccountInfo$pa7 = _parsedAccountInfo$pa6.info) === null || _parsedAccountInfo$pa7 === void 0 ? void 0 : _parsedAccountInfo$pa7.delegate) === targetAddress ? (_parsedAccountInfo$pa8 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa8 === void 0 ? void 0 : (_parsedAccountInfo$pa9 = _parsedAccountInfo$pa8.info) === null || _parsedAccountInfo$pa9 === void 0 ? void 0 : (_parsedAccountInfo$pa10 = _parsedAccountInfo$pa9.delegatedAmount) === null || _parsedAccountInfo$pa10 === void 0 ? void 0 : _parsedAccountInfo$pa10.uiAmount : 0;
+                          allowAmount = ((_parsedAccountInfo$pa9 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa9 === void 0 ? void 0 : (_parsedAccountInfo$pa10 = _parsedAccountInfo$pa9.info) === null || _parsedAccountInfo$pa10 === void 0 ? void 0 : _parsedAccountInfo$pa10.delegate) === targetAddress ? (_parsedAccountInfo$pa11 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa11 === void 0 ? void 0 : (_parsedAccountInfo$pa12 = _parsedAccountInfo$pa11.info) === null || _parsedAccountInfo$pa12 === void 0 ? void 0 : (_parsedAccountInfo$pa13 = _parsedAccountInfo$pa12.delegatedAmount) === null || _parsedAccountInfo$pa13 === void 0 ? void 0 : _parsedAccountInfo$pa13.uiAmount : 0;
                           console.log('sleep');
                           return Promise.resolve(sleep(1000)).then(function () {});
                         });
@@ -7542,7 +7549,7 @@ var AddressInputWizard = function AddressInputWizard() {
 };
 
 function useCurrencyOptions() {
-  var _useState = React.useState(COIN_LIST['USDK']),
+  var _useState = React.useState('USDK'),
     options = _useState[0],
     setOptions = _useState[1];
   var nodeProviderQuery = reactRedux.useSelector(selectNodeProviderQuery);
@@ -7554,12 +7561,12 @@ function useCurrencyOptions() {
       try {
         return _catch(function () {
           if (originNetwork === exports.SupportNetworks.FIAT || targetNetwork === exports.SupportNetworks.FIAT) {
-            setOptions(COIN_LIST['KEUR']);
+            setOptions('KEUR');
             return;
           }
           return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/chains/get_currencies/" + originNetwork + "/" + targetNetwork)).then(function (coins) {
             var _coins$Currencies;
-            setOptions(COIN_LIST[(_coins$Currencies = coins.Currencies) !== null && _coins$Currencies !== void 0 && _coins$Currencies.length ? coins.Currencies[0] : 'USDK']);
+            setOptions((_coins$Currencies = coins.Currencies) !== null && _coins$Currencies !== void 0 && _coins$Currencies.length ? coins.Currencies[0] : 'USDK');
           });
         }, function (e) {
           console.log('rpc disconnected', e);
@@ -7674,7 +7681,7 @@ var TransferWidget = function TransferWidget(_ref) {
   var keplrHandler = reactRedux.useSelector(selectKeplrHandler);
   var closeHandler = reactRedux.useSelector(selectCloseHandler);
   var _useCurrencyOptions = useCurrencyOptions(),
-    selectedCoin = _useCurrencyOptions.options;
+    selectedToken = _useCurrencyOptions.options;
   var backendUrl = reactRedux.useSelector(selectBackendUrl);
   var nodeProviderQuery = reactRedux.useSelector(selectNodeProviderQuery);
   var bankDetails = reactRedux.useSelector(selectBankDetails);
@@ -7757,20 +7764,28 @@ var TransferWidget = function TransferWidget(_ref) {
     if (!nodeProviderQuery) return;
     try {
       return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/chains/pool_balance")).then(function (res) {
-        console.table(res.poolBalance.map(function (item) {
-          return {
-            chain: CHAIN_NAMES_TO_STRING[item.chainName],
-            balance: +item.balance
-          };
-        }));
+        var poolsTable = [];
+        for (var _iterator = _createForOfIteratorHelperLoose(res.poolBalance), _step; !(_step = _iterator()).done;) {
+          var pool = _step.value;
+          for (var _iterator2 = _createForOfIteratorHelperLoose(pool.balance), _step2; !(_step2 = _iterator2()).done;) {
+            var token = _step2.value;
+            poolsTable.push({
+              chain: CHAIN_NAMES_TO_STRING[pool.chainName],
+              symbol: token.tokenSymbol,
+              balance: +token.amount
+            });
+          }
+        }
+        console.table(poolsTable);
       });
     } catch (e) {
       Promise.reject(e);
     }
   }, [nodeProviderQuery]);
   React.useEffect(function () {
-    dispatch(setCurrencyOptions(selectedCoin));
-  }, [selectedCoin]);
+    console.log('dispatch(setSelectedToken(selectedToken))', selectedToken);
+    dispatch(setSelectedToken(selectedToken));
+  }, [selectedToken]);
   React.useEffect(function () {
     if (!isReady) {
       if (formStep > 0) setFormStep(0);
@@ -7783,14 +7798,18 @@ var TransferWidget = function TransferWidget(_ref) {
         var poolBalance = res.poolBalance;
         for (var i = 0; i < poolBalance.length; i++) {
           if (poolBalance[i].chainName === targetChain) {
-            if (+poolBalance[i].balance >= amount + fee) {
-              return true;
+            for (var j = 0; j < poolBalance[i].balance.length; j++) {
+              if (poolBalance[i].balance[j].tokenSymbol !== selectedToken) continue;
+              if (+poolBalance[i].balance[j].amount >= amount + fee) {
+                return true;
+              }
+              var symbol = selectedToken;
+              var errorString = "Tried to transfer " + amount + " " + symbol + ", but " + CHAIN_NAMES_TO_STRING[targetChain] + " pool has only " + +poolBalance[i].balance[j].amount + " " + symbol;
+              console.log(errorString);
+              reactHotToast.toast.error(CHAIN_NAMES_TO_STRING[targetChain] + " pool has insufficient balance!");
+              errorHandler(errorString);
+              return false;
             }
-            var symbol = 'USDK';
-            var errorString = "Tried to transfer " + amount + " " + symbol + ", but " + CHAIN_NAMES_TO_STRING[targetChain] + " pool has only " + +poolBalance[i].balance + " " + symbol;
-            console.log(errorString);
-            reactHotToast.toast.error(CHAIN_NAMES_TO_STRING[targetChain] + " pool has insufficient balance!");
-            errorHandler(errorString);
             return false;
           }
         }
@@ -7849,7 +7868,7 @@ var TransferWidget = function TransferWidget(_ref) {
             originChain: sourceChain,
             targetAddress: mode === exports.ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
             targetChain: targetChain,
-            symbol: selectedCoin.label,
+            symbol: selectedToken,
             amount: amount,
             fee: fee
           });
@@ -7864,11 +7883,11 @@ var TransferWidget = function TransferWidget(_ref) {
                 return;
               }
               var txId = -1;
-              for (var _iterator = _createForOfIteratorHelperLoose(result.events), _step; !(_step = _iterator()).done;) {
-                var event = _step.value;
+              for (var _iterator3 = _createForOfIteratorHelperLoose(result.events), _step3; !(_step3 = _iterator3()).done;) {
+                var event = _step3.value;
                 if (event.type === 'transaction_requested') {
-                  for (var _iterator2 = _createForOfIteratorHelperLoose(event.attributes), _step2; !(_step2 = _iterator2()).done;) {
-                    var attr = _step2.value;
+                  for (var _iterator4 = _createForOfIteratorHelperLoose(event.attributes), _step4; !(_step4 = _iterator4()).done;) {
+                    var attr = _step4.value;
                     if (attr.key === 'txId') {
                       txId = attr.value;
                     }

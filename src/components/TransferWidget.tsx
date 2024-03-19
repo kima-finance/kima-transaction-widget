@@ -24,7 +24,7 @@ import CoinSelect from './reusable/CoinSelect'
 import {
   initialize,
   setBankPopup,
-  setCurrencyOptions,
+  setSelectedToken,
   setSourceCompliant,
   setSubmitted,
   setTargetAddress,
@@ -100,7 +100,7 @@ export const TransferWidget = ({
   const errorHandler = useSelector(selectErrorHandler)
   const keplrHandler = useSelector(selectKeplrHandler)
   const closeHandler = useSelector(selectCloseHandler)
-  const { options: selectedCoin } = useCurrencyOptions()
+  const { options: selectedToken } = useCurrencyOptions()
   const backendUrl = useSelector(selectBackendUrl)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
   const bankDetails = useSelector(selectBankDetails)
@@ -164,18 +164,25 @@ export const TransferWidget = ({
         `${nodeProviderQuery}/kima-finance/kima-blockchain/chains/pool_balance`
       )
 
-      console.table(
-        res.poolBalance.map((item: any) => ({
-          chain: CHAIN_NAMES_TO_STRING[item.chainName],
-          balance: +item.balance
-        }))
-      )
+      let poolsTable: any = []
+
+      for (const pool of res.poolBalance) {
+        for (const token of pool.balance) {
+          poolsTable.push({
+            chain: CHAIN_NAMES_TO_STRING[pool.chainName],
+            symbol: token.tokenSymbol,
+            balance: +token.amount
+          })
+        }
+      }
+      console.table(poolsTable)
     })()
   }, [nodeProviderQuery])
 
   useEffect(() => {
-    dispatch(setCurrencyOptions(selectedCoin))
-  }, [selectedCoin])
+    console.log('dispatch(setSelectedToken(selectedToken))', selectedToken)
+    dispatch(setSelectedToken(selectedToken))
+  }, [selectedToken])
 
   useEffect(() => {
     if (!isReady) {
@@ -192,20 +199,24 @@ export const TransferWidget = ({
     const poolBalance = res.poolBalance
     for (let i = 0; i < poolBalance.length; i++) {
       if (poolBalance[i].chainName === targetChain) {
-        if (+poolBalance[i].balance >= amount + fee) {
-          return true
+        for (let j = 0; j < poolBalance[i].balance.length; j++) {
+          if (poolBalance[i].balance[j].tokenSymbol !== selectedToken) continue
+          if (+poolBalance[i].balance[j].amount >= amount + fee) {
+            return true
+          }
+
+          const symbol = selectedToken
+          const errorString = `Tried to transfer ${amount} ${symbol}, but ${
+            CHAIN_NAMES_TO_STRING[targetChain]
+          } pool has only ${+poolBalance[i].balance[j].amount} ${symbol}`
+          console.log(errorString)
+
+          toast.error(
+            `${CHAIN_NAMES_TO_STRING[targetChain]} pool has insufficient balance!`
+          )
+          errorHandler(errorString)
+          return false
         }
-
-        const symbol = 'USDK'
-        const errorString = `Tried to transfer ${amount} ${symbol}, but ${
-          CHAIN_NAMES_TO_STRING[targetChain]
-        } pool has only ${+poolBalance[i].balance} ${symbol}`
-        console.log(errorString)
-
-        toast.error(
-          `${CHAIN_NAMES_TO_STRING[targetChain]} pool has insufficient balance!`
-        )
-        errorHandler(errorString)
         return false
       }
     }
@@ -271,7 +282,7 @@ export const TransferWidget = ({
             ? transactionOption?.targetAddress
             : targetAddress,
         targetChain: targetChain,
-        symbol: selectedCoin.label,
+        symbol: selectedToken,
         amount: amount,
         fee
       })

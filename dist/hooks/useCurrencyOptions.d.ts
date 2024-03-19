@@ -1,3 +1,3 @@
 export default function useCurrencyOptions(): {
-    options: any;
+    options: string;
 };

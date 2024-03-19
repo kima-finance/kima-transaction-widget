@@ -10,18 +10,18 @@ import {
   ChainName,
   CHAIN_IDS_TO_NAMES,
   CHAIN_NAMES_TO_IDS,
-  COIN_LIST,
   isEVMChain
 } from '../utils/constants'
 import ERC20ABI from '../utils/ethereum/erc20ABI.json'
 import {
   selectAmount,
-  selectCurrencyOptions,
+  selectSelectedToken,
   selectDappOption,
   selectErrorHandler,
   selectNodeProviderQuery,
   selectSourceChain,
-  selectServiceFee
+  selectServiceFee,
+  selectTokenOptions
 } from '../store/selectors'
 import { getOrCreateAssociatedTokenAccount } from '../utils/solana/getOrCreateAssociatedTokenAccount'
 import { PublicKey, Transaction } from '@solana/web3.js'
@@ -38,6 +38,7 @@ import {
 } from '@web3modal/ethers5/react'
 import { ethers } from 'ethers'
 import { ExternalProvider, JsonRpcFetchFunc } from '@ethersproject/providers'
+import { isEmptyObject } from '../helpers/functions'
 
 type ParsedAccountData = {
   /** Name of the program that owns this account */
@@ -47,19 +48,6 @@ type ParsedAccountData = {
   /** Space used by account data */
   space: number
 }
-
-/**
- * Returns the average of two numbers.
- *
- * @remarks
- * This method is part of the {@link core-library#Statistics | Statistics subsystem}.
- *
- * @param x - The first input number
- * @param y - The second input number
- * @returns The arithmetic mean of `x` and `y`
- *
- * @beta
- */
 
 const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 
@@ -99,10 +87,13 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
     useSolanaWallet()
   const { address: tronAddress, signTransaction: signTronTransaction } =
     useTronWallet()
-  const selectedCoin = useSelector(selectCurrencyOptions)
+  const selectedCoin = useSelector(selectSelectedToken)
+  const tokenOptions = useSelector(selectTokenOptions)
   const tokenAddress = useMemo(() => {
-    return selectedCoin.address[sourceChain]
-  }, [selectedCoin, sourceChain])
+    if (isEmptyObject(tokenOptions)) return ''
+
+    return tokenOptions[selectedCoin][sourceChain]
+  }, [selectedCoin, sourceChain, tokenOptions])
   const [targetAddress, setTargetAddress] = useState<string>()
   const isApproved = useMemo(() => {
     console.log(allowance, amount, serviceFee)
@@ -157,10 +148,10 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
             )
             console.log('solana token account: ', accountInfo)
 
-            setDecimals(COIN_LIST['USDK'].decimals)
             const parsedAccountInfo = accountInfo?.value
               ?.data as ParsedAccountData
 
+            setDecimals(parsedAccountInfo.parsed?.info?.tokenAmount?.decimals)
             setAllowance(
               parsedAccountInfo.parsed?.info?.delegate === targetAddress
                 ? parsedAccountInfo.parsed?.info?.delegatedAmount?.uiAmount
@@ -300,8 +291,7 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
           fromTokenAccount.address, // source
           toPublicKey, // dest
           solanaAddress as PublicKey,
-          +(amount + serviceFee).toFixed(2) *
-            Math.pow(10, COIN_LIST['USDK'].decimals), // amount * LAMPORTS_PER_SOL,
+          +(amount + serviceFee).toFixed(2) * Math.pow(10, decimals ?? 6), // amount * LAMPORTS_PER_SOL,
           [],
           TOKEN_PROGRAM_ID
         )

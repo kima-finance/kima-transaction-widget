@@ -6,7 +6,6 @@ import { DAppOptions, ModeOptions } from '../../interface'
 import {
   selectAmount,
   selectBankDetails,
-  selectCurrencyOptions,
   selectFeeDeduct,
   selectMode,
   selectSourceChain,
@@ -16,7 +15,8 @@ import {
   selectTargetChain,
   selectTheme,
   selectTransactionOption,
-  selectDappOption
+  selectDappOption,
+  selectSelectedToken
 } from '../../store/selectors'
 import { ChainName, networkOptions } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
@@ -50,7 +50,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
       )[0],
     [networkOptions, originNetwork]
   )
-  const selectedCoin = useSelector(selectCurrencyOptions)
+  const selectedCoin = useSelector(selectSelectedToken)
 
   const sourceWalletAddress = useMemo(() => {
     return getShortenedAddress(walletAddress || '')
@@ -71,8 +71,8 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
         {isApproved
           ? 'Submit transaction'
           : originNetwork === ChainName.FIAT
-          ? 'Bank Details'
-          : 'Approval'}
+            ? 'Bank Details'
+            : 'Approval'}
       </p>
       {originNetwork === ChainName.FIAT ? (
         <div>
@@ -115,7 +115,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
         <span className='label'>Amount:</span>
         <p>
           {formatterFloat.format(feeDeduct ? amount : amount + serviceFee)}{' '}
-          {selectedCoin.symbol}
+          {selectedCoin}
         </p>
       </div>
       {targetNetwork === ChainName.FIAT ? (

@@ -4,8 +4,11 @@ import { RootState } from '.'
  * Option
  */
 
+export const selectTokenOptions = (state: RootState) =>
+  state.option.tokenOptions
 export const selectTheme = (state: RootState) => state.option.theme
-export const selectKimaExplorer = (state: RootState) => state.option.kimaExplorerUrl
+export const selectKimaExplorer = (state: RootState) =>
+  state.option.kimaExplorerUrl
 export const selectSourceChain = (state: RootState) => state.option.sourceChain
 export const selectTargetChain = (state: RootState) => state.option.targetChain
 export const selectTargetAddress = (state: RootState) =>
@@ -46,8 +49,8 @@ export const selectBackendUrl = (state: RootState) => state.option.backendUrl
 export const selectNodeProviderQuery = (state: RootState) =>
   state.option.nodeProviderQuery
 export const selectTxId = (state: RootState) => state.option.txId
-export const selectCurrencyOptions = (state: RootState) =>
-  state.option.currencyOptions
+export const selectSelectedToken = (state: RootState) =>
+  state.option.selectedToken
 export const selectCompliantOption = (state: RootState) =>
   state.option.compliantOption
 export const selectSourceCompliant = (state: RootState) =>

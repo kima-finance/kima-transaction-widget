@@ -8,11 +8,18 @@ import {
   ThemeOptions,
   TransactionOption
 } from '../interface'
-import { COIN_LIST } from '../utils/constants'
 
 type BankDetails = {
   iban: string
   recipient: string
+}
+
+export type AddressOption = {
+  [key: string]: string
+}
+
+export type TokenOptions = {
+  [key: string]: AddressOption
 }
 
 export interface OptionState {
@@ -21,6 +28,7 @@ export interface OptionState {
   sourceChain: string // origin network on UI
   targetChain: string // target network on UI
   targetAddress: string // target address on UI
+  tokenOptions: TokenOptions // token options from blockchain endpoint
   solanaConnectModal: boolean // solana wallet connection modal state - open or closed
   tronConnectModal: boolean // tron wallet connection modal state - open or closed
   helpPopup: boolean // shows popup to show help instructions
@@ -45,7 +53,7 @@ export interface OptionState {
   nodeProviderQuery: string // REST API endpoint to query kima node
   kimaExplorerUrl: string // URL for kima explore (testnet, staging or demo)
   txId: number // transaction id to monitor it's status
-  currencyOptions: any // Currency options available between source and target chains
+  selectedToken: string // Currently selected token
   compliantOption: boolean // option to check compliant addresses
   sourceCompliant: string // source address is compliant or not
   targetCompliant: string // target address is compliant or not
@@ -59,6 +67,7 @@ export interface OptionState {
 
 const initialState: OptionState = {
   theme: {},
+  tokenOptions: {},
   kimaExplorerUrl: 'explorer.kima.finance',
   mode: ModeOptions.bridge,
   sourceChain: '',
@@ -86,7 +95,7 @@ const initialState: OptionState = {
   backendUrl: '',
   nodeProviderQuery: '',
   txId: -1,
-  currencyOptions: COIN_LIST['USDK'],
+  selectedToken: 'USDK',
   compliantOption: true,
   sourceCompliant: 'low',
   targetCompliant: 'low',
@@ -115,13 +124,17 @@ export const optionSlice = createSlice({
       state.sourceCompliant = 'low'
       state.targetCompliant = 'low'
       state.useFIAT = false
-      state.bankDetails = {
-        iban: '',
-        recipient: ''
-      }
+      ;(state.tokenOptions = {}),
+        (state.bankDetails = {
+          iban: '',
+          recipient: ''
+        })
       state.initChainFromProvider = false
       state.targetNetworkFetching = false
       state.signature = ''
+    },
+    setTokenOptions: (state, action: PayloadAction<TokenOptions>) => {
+      state.tokenOptions = action.payload
     },
     setTheme: (state, action: PayloadAction<ThemeOptions>) => {
       state.theme = action.payload
@@ -210,8 +223,8 @@ export const optionSlice = createSlice({
     setTxId: (state, action: PayloadAction<number>) => {
       state.txId = action.payload
     },
-    setCurrencyOptions: (state, action: PayloadAction<any>) => {
-      state.currencyOptions = action.payload
+    setSelectedToken: (state, action: PayloadAction<string>) => {
+      state.selectedToken = action.payload
     },
     setCompliantOption: (state, action: PayloadAction<boolean>) => {
       state.compliantOption = action.payload
@@ -245,6 +258,7 @@ export const optionSlice = createSlice({
 
 export const {
   initialize,
+  setTokenOptions,
   setKimaExplorer,
   setTheme,
   setSourceChain,
@@ -274,7 +288,7 @@ export const {
   setBackendUrl,
   setNodeProviderQuery,
   setTxId,
-  setCurrencyOptions,
+  setSelectedToken,
   setCompliantOption,
   setSourceCompliant,
   setTargetCompliant,
