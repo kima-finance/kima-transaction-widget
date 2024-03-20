@@ -1593,8 +1593,6 @@ function handleResponse(response) {
 
 function useNetworkOptions() {
   var dispatch = reactRedux.useDispatch();
-  var mode = reactRedux.useSelector(selectMode);
-  var dAppOption = reactRedux.useSelector(selectDappOption);
   var useFIAT = reactRedux.useSelector(selectUseFIAT);
   var nodeProviderQuery = reactRedux.useSelector(selectNodeProviderQuery);
   var _useState = React.useState(networkOptions),
@@ -1602,39 +1600,37 @@ function useNetworkOptions() {
     setOptions = _useState[1];
   React.useEffect(function () {
     if (!nodeProviderQuery) return;
-    if (dAppOption === exports.DAppOptions.None) {
-      (function () {
-        try {
-          var _temp = _catch(function () {
-            return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/chains/chain")).then(function (networks) {
-              setOptions(networkOptions.filter(function (network) {
-                return networks.Chain.findIndex(function (chain) {
-                  return chain.symbol === network.id && !chain.disabled;
-                }) >= 0 || network.id === exports.SupportNetworks.FIAT && useFIAT;
-              }));
-              var tokenOptions = {};
-              for (var _iterator = _createForOfIteratorHelperLoose(networks.Chain), _step; !(_step = _iterator()).done;) {
-                var network = _step.value;
-                for (var _iterator2 = _createForOfIteratorHelperLoose(network.tokens), _step2; !(_step2 = _iterator2()).done;) {
-                  var token = _step2.value;
-                  if (!tokenOptions[token.symbol]) {
-                    tokenOptions[token.symbol] = {};
-                  }
-                  tokenOptions[token.symbol][network.symbol] = token.address;
+    (function () {
+      try {
+        var _temp = _catch(function () {
+          return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/chains/chain")).then(function (networks) {
+            setOptions(networkOptions.filter(function (network) {
+              return networks.Chain.findIndex(function (chain) {
+                return chain.symbol === network.id && !chain.disabled;
+              }) >= 0 || network.id === exports.SupportNetworks.FIAT && useFIAT;
+            }));
+            var tokenOptions = {};
+            for (var _iterator = _createForOfIteratorHelperLoose(networks.Chain), _step; !(_step = _iterator()).done;) {
+              var network = _step.value;
+              for (var _iterator2 = _createForOfIteratorHelperLoose(network.tokens), _step2; !(_step2 = _iterator2()).done;) {
+                var token = _step2.value;
+                if (!tokenOptions[token.symbol]) {
+                  tokenOptions[token.symbol] = {};
                 }
+                tokenOptions[token.symbol][network.symbol] = token.address;
               }
-              dispatch(setTokenOptions(tokenOptions));
-            });
-          }, function (e) {
-            console.log('rpc disconnected', e);
+            }
+            dispatch(setTokenOptions(tokenOptions));
           });
-          return _temp && _temp.then ? _temp.then(function () {}) : void 0;
-        } catch (e) {
-          Promise.reject(e);
-        }
-      })();
-    }
-  }, [nodeProviderQuery, dAppOption, mode]);
+        }, function (e) {
+          console.log('rpc disconnected', e);
+        });
+        return _temp && _temp.then ? _temp.then(function () {}) : void 0;
+      } catch (e) {
+        Promise.reject(e);
+      }
+    })();
+  }, [nodeProviderQuery]);
   return React.useMemo(function () {
     return {
       options: options
