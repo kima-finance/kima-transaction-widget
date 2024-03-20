@@ -1282,34 +1282,30 @@ function handleResponse(response) {
 
 function useNetworkOptions() {
   const dispatch = useDispatch();
-  const mode = useSelector(selectMode);
-  const dAppOption = useSelector(selectDappOption);
   const useFIAT = useSelector(selectUseFIAT);
   const nodeProviderQuery = useSelector(selectNodeProviderQuery);
   const [options, setOptions] = useState(networkOptions);
   useEffect(() => {
     if (!nodeProviderQuery) return;
-    if (dAppOption === DAppOptions.None) {
-      (async function () {
-        try {
-          const networks = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/chain`);
-          setOptions(networkOptions.filter(network => networks.Chain.findIndex(chain => chain.symbol === network.id && !chain.disabled) >= 0 || network.id === ChainName.FIAT && useFIAT));
-          let tokenOptions = {};
-          for (const network of networks.Chain) {
-            for (const token of network.tokens) {
-              if (!tokenOptions[token.symbol]) {
-                tokenOptions[token.symbol] = {};
-              }
-              tokenOptions[token.symbol][network.symbol] = token.address;
+    (async function () {
+      try {
+        const networks = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/chain`);
+        setOptions(networkOptions.filter(network => networks.Chain.findIndex(chain => chain.symbol === network.id && !chain.disabled) >= 0 || network.id === ChainName.FIAT && useFIAT));
+        let tokenOptions = {};
+        for (const network of networks.Chain) {
+          for (const token of network.tokens) {
+            if (!tokenOptions[token.symbol]) {
+              tokenOptions[token.symbol] = {};
             }
+            tokenOptions[token.symbol][network.symbol] = token.address;
           }
-          dispatch(setTokenOptions(tokenOptions));
-        } catch (e) {
-          console.log('rpc disconnected', e);
         }
-      })();
-    }
-  }, [nodeProviderQuery, dAppOption, mode]);
+        dispatch(setTokenOptions(tokenOptions));
+      } catch (e) {
+        console.log('rpc disconnected', e);
+      }
+    })();
+  }, [nodeProviderQuery]);
   return useMemo(() => ({
     options
   }), [options]);
