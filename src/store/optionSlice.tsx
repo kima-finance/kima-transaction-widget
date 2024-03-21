@@ -78,7 +78,7 @@ const initialState: OptionState = {
   helpPopup: false,
   hashPopup: false,
   bankPopup: false,
-  walletAutoConnect: false,
+  walletAutoConnect: true,
   provider: undefined,
   dAppOption: DAppOptions.None,
   solanaProvider: undefined,

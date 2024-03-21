@@ -577,7 +577,7 @@ export const TransferWidget = ({
           position: 'absolute'
         }}
         toastOptions={{
-          duration: 10 * 1000,
+          duration: 3 * 1000,
           style: {
             position: 'relative',
             top: windowWidth > 768 ? '3rem' : '1.5rem',

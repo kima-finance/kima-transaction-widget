@@ -66,7 +66,7 @@ const polygon = {
   name: 'Mumbai',
   currency: 'MATIC',
   explorerUrl: 'https://mumbai.polygonscan.com',
-  rpcUrl: 'https://rpc-mumbai.maticvigil.com'
+  rpcUrl: 'https://polygon-mumbai-bor-rpc.publicnode.com'
 }
 
 const arbitrum = {

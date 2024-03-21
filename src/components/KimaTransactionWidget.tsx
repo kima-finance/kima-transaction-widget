@@ -51,7 +51,7 @@ interface Props {
   mode: ModeOptions
   txId?: number
   useFIAT?: boolean
-  autoConnect?: boolean
+  autoSwitchChain?: boolean
   dAppOption?: DAppOptions
   provider?: Web3Provider
   titleOption?: TitleOption
@@ -85,7 +85,7 @@ interface Props {
 export const KimaTransactionWidget = ({
   mode,
   txId,
-  autoConnect = true,
+  autoSwitchChain = true,
   provider,
   dAppOption = DAppOptions.None,
   theme,
@@ -126,7 +126,7 @@ export const KimaTransactionWidget = ({
     dispatch(setMode(mode))
     dispatch(setProvider(provider))
     dispatch(setDappOption(dAppOption))
-    dispatch(setWalletAutoConnect(autoConnect))
+    dispatch(setWalletAutoConnect(autoSwitchChain))
     dispatch(setUseFIAT(useFIAT))
     if (useFIAT) {
       dispatch(setTxId(txId || -1))

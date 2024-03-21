@@ -11,7 +11,7 @@ import { OkxWalletAdapter } from '@tronweb3/tronwallet-adapter-okxwallet';
 import { TokenPocketAdapter } from '@tronweb3/tronwallet-adapter-tokenpocket';
 import { useWallet as useWallet$1, WalletProvider } from '@tronweb3/tronwallet-adapter-react-hooks';
 import { AdapterState, WalletNotFoundError, WalletDisconnectedError } from '@tronweb3/tronwallet-abstract-adapter';
-import { toast, Toaster } from 'react-hot-toast';
+import toast, { toast as toast$1, Toaster } from 'react-hot-toast';
 import { useWeb3ModalProvider, useSwitchNetwork, useWeb3ModalAccount, useWeb3ModalEvents, useWeb3Modal, useWeb3ModalTheme, createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react';
 import { Tooltip } from 'react-tooltip';
 import { WalletReadyState } from '@solana/wallet-adapter-base';
@@ -829,7 +829,7 @@ const initialState = {
   helpPopup: false,
   hashPopup: false,
   bankPopup: false,
-  walletAutoConnect: false,
+  walletAutoConnect: true,
   provider: undefined,
   dAppOption: DAppOptions.None,
   solanaProvider: undefined,
@@ -1622,8 +1622,9 @@ const createWalletStatus = (isReady, statusMessage = '', forceNetworkSwitch, wal
   forceNetworkSwitch,
   walletAddress
 });
-function useIsWalletReady(enableNetworkAutoswitch = false) {
-  const autoSwitch = enableNetworkAutoswitch;
+function useIsWalletReady() {
+  const dispatch = useDispatch();
+  const autoSwitch = useSelector(selectWalletAutoConnect);
   const {
     publicKey: solanaAddress
   } = useWallet();
@@ -1695,9 +1696,15 @@ function useIsWalletReady(enableNetworkAutoswitch = false) {
         return createWalletStatus(true, undefined, forceNetworkSwitch, evmAddress);
       } else {
         if (evmProvider && correctEvmNetwork) {
-          if (autoSwitch) forceNetworkSwitch();
+          if (autoSwitch) {
+            forceNetworkSwitch();
+          } else {
+            console.log('autoSwitch', autoSwitch, evmChainId);
+            dispatch(setSourceChain(CHAIN_IDS_TO_NAMES[evmChainId || SupportedChainId.ETHEREUM]));
+            toast.success(`Wallet connected to ${CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[evmChainId || SupportedChainId.ETHEREUM]]}`);
+          }
         }
-        if (evmChainId) return createWalletStatus(false, `Wallet not connected to ${CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[correctEvmNetwork]]}`, forceNetworkSwitch, evmAddress);
+        if (evmChainId && autoSwitch) return createWalletStatus(false, `Wallet not connected to ${CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[correctEvmNetwork]]}`, forceNetworkSwitch, evmAddress);
       }
     }
     return createWalletStatus(false, '', forceNetworkSwitch, undefined);
@@ -2136,12 +2143,11 @@ const WalletButton = ({
   const sourceCompliant = useSelector(selectSourceCompliant);
   const compliantOption = useSelector(selectCompliantOption);
   const selectedNetwork = useSelector(selectSourceChain);
-  const walletAutoConnect = useSelector(selectWalletAutoConnect);
   const {
     isReady,
     statusMessage,
     walletAddress
-  } = useIsWalletReady(walletAutoConnect);
+  } = useIsWalletReady();
   const {
     balance
   } = useBalance();
@@ -2166,7 +2172,7 @@ const WalletButton = ({
   }, [isReady, statusMessage, sourceCompliant, compliantOption]);
   useEffect(() => {
     if (!errorMessage) return;
-    toast.error(errorMessage);
+    toast$1.error(errorMessage);
   }, [errorMessage]);
   return React.createElement("div", {
     className: `wallet-button ${theme.colorMode} ${_errorBelow ? 'error-below' : ''}`,
@@ -2199,6 +2205,7 @@ const NetworkDropdown = React.memo(({
   const ref = useRef();
   const sourceChangeRef = useRef(false);
   const mode = useSelector(selectMode);
+  const autoSwitchChain = useSelector(selectWalletAutoConnect);
   const useFIAT = useSelector(selectUseFIAT);
   const dAppOption = useSelector(selectDappOption);
   const originNetwork = useSelector(selectSourceChain);
@@ -2278,7 +2285,10 @@ const NetworkDropdown = React.memo(({
   }, [setCollapsed]);
   return React.createElement("div", {
     className: `network-dropdown ${theme.colorMode} ${collapsed ? 'collapsed' : ''}`,
-    onClick: () => setCollapsed(prev => !prev),
+    onClick: () => {
+      if (!autoSwitchChain && _isOriginChain) return;
+      setCollapsed(prev => !prev);
+    },
     ref: ref
   }, React.createElement("div", {
     className: 'network-wrapper'
@@ -2699,7 +2709,7 @@ const BankPopup = ({
         } else if (kycResult[0].status === 'approved') {
           setVerifying(false);
           dispatch(setKYCStatus('approved'));
-          toast.success('KYC is verified');
+          toast$1.success('KYC is verified');
         }
       } catch (e) {
         console.log('failed to check kyc status');
@@ -2840,7 +2850,7 @@ const TransactionWidget = ({
       setErrorStep(1);
       setLoadingStep(-1);
       console.error(data.failReason);
-      toast.error('Unavailable');
+      toast$1.error('Unavailable');
       setErrorMessage('Unavailable');
     } else if (status === TransactionStatus.KEYSIGNED) {
       setStep(3);
@@ -2856,7 +2866,7 @@ const TransactionWidget = ({
       setErrorStep(3);
       setLoadingStep(-1);
       console.error(data.failReason);
-      toast.error('Failed to release tokens to target!');
+      toast$1.error('Failed to release tokens to target!');
       setErrorMessage('Failed to release tokens to target!');
     } else if (status === TransactionStatus.FAILEDTOPULL) {
       setStep(1);
@@ -2864,7 +2874,7 @@ const TransactionWidget = ({
       setErrorStep(1);
       setLoadingStep(-1);
       console.error(data.failReason);
-      toast.error('Failed to pull tokens from source!');
+      toast$1.error('Failed to pull tokens from source!');
       setErrorMessage('Failed to pull tokens from source!');
     } else if (status === TransactionStatus.COMPLETED) {
       setStep(4);
@@ -2981,7 +2991,7 @@ const SingleForm = ({
   const errorMessage = useMemo(() => compliantOption && targetCompliant !== 'low' ? `Target address has ${targetCompliant} risk` : '', [compliantOption, targetCompliant]);
   useEffect(() => {
     if (!errorMessage) return;
-    toast.error(errorMessage);
+    toast$1.error(errorMessage);
   }, [errorMessage]);
   return React.createElement("div", {
     className: 'single-form'
@@ -7069,7 +7079,7 @@ const TransferWidget = ({
           const symbol = selectedToken;
           const errorString = `Tried to transfer ${amount} ${symbol}, but ${CHAIN_NAMES_TO_STRING[targetChain]} pool has only ${+poolBalance[i].balance[j].amount} ${symbol}`;
           console.log(errorString);
-          toast.error(`${CHAIN_NAMES_TO_STRING[targetChain]} pool has insufficient balance!`);
+          toast$1.error(`${CHAIN_NAMES_TO_STRING[targetChain]} pool has insufficient balance!`);
           errorHandler(errorString);
           return false;
         }
@@ -7081,12 +7091,12 @@ const TransferWidget = ({
   };
   const handleSubmit = async () => {
     if (fee < 0) {
-      toast.error('Fee is not calculated!');
+      toast$1.error('Fee is not calculated!');
       errorHandler('Fee is not calculated!');
       return;
     }
     if (dAppOption !== DAppOptions.LPDrain && balance < amount) {
-      toast.error('Insufficient balance!');
+      toast$1.error('Insufficient balance!');
       errorHandler('Insufficient balance!');
       return;
     }
@@ -7132,7 +7142,7 @@ const TransferWidget = ({
       console.log(result);
       if ((result === null || result === void 0 ? void 0 : result.code) !== 0) {
         errorHandler(result);
-        toast.error('Failed to submit transaction!');
+        toast$1.error('Failed to submit transaction!');
         setSubmitting(false);
         return;
       }
@@ -7154,14 +7164,14 @@ const TransferWidget = ({
       errorHandler(e);
       setSubmitting(false);
       console.log((e === null || e === void 0 ? void 0 : e.status) !== 500 ? 'rpc disconnected' : '', e);
-      toast.error('Failed to submit transaction');
+      toast$1.error('Failed to submit transaction');
     }
   };
   const onNext = () => {
     var _mainRef$current;
     if (isWizard && wizardStep < 5) {
       if (wizardStep === 1 && !isReady) {
-        toast.error('Wallet is not connected!');
+        toast$1.error('Wallet is not connected!');
         errorHandler('Wallet is not connected!');
         return;
       }
@@ -7186,23 +7196,23 @@ const TransferWidget = ({
       if (isReady) {
         if (targetChain === ChainName.FIAT) {
           if (!bankDetails.iban) {
-            toast.error('Invalid IBAN!');
+            toast$1.error('Invalid IBAN!');
             errorHandler('Invalid IBAN!');
             return;
           }
           if (!bankDetails.recipient) {
-            toast.error('Invalid Recipient Address!');
+            toast$1.error('Invalid Recipient Address!');
             errorHandler('Invalid Recipient Address!');
             return;
           }
         }
         if (amount <= 0) {
-          toast.error('Invalid amount!');
+          toast$1.error('Invalid amount!');
           errorHandler('Invalid amount!');
           return;
         }
         if (fee < 0) {
-          toast.error('Fee is not calculated!');
+          toast$1.error('Fee is not calculated!');
           errorHandler('Fee is not calculated!');
           return;
         }
@@ -7213,7 +7223,7 @@ const TransferWidget = ({
         }
         return;
       } else {
-        toast.error('Wallet is not connected!');
+        toast$1.error('Wallet is not connected!');
         errorHandler('Wallet is not connected!');
       }
     }
@@ -7339,7 +7349,7 @@ const TransferWidget = ({
       position: 'absolute'
     },
     toastOptions: {
-      duration: 10 * 1000,
+      duration: 3 * 1000,
       style: {
         position: 'relative',
         top: windowWidth > 768 ? '3rem' : '1.5rem',
@@ -7359,7 +7369,7 @@ const TransferWidget = ({
 const KimaTransactionWidget = ({
   mode,
   txId,
-  autoConnect: _autoConnect = true,
+  autoSwitchChain: _autoSwitchChain = true,
   provider,
   dAppOption: _dAppOption = DAppOptions.None,
   theme,
@@ -7399,7 +7409,7 @@ const KimaTransactionWidget = ({
     dispatch(setMode(mode));
     dispatch(setProvider(provider));
     dispatch(setDappOption(_dAppOption));
-    dispatch(setWalletAutoConnect(_autoConnect));
+    dispatch(setWalletAutoConnect(_autoSwitchChain));
     dispatch(setUseFIAT(_useFIAT));
     if (_useFIAT) {
       dispatch(setTxId(txId || -1));
@@ -7484,7 +7494,7 @@ const polygon = {
   name: 'Mumbai',
   currency: 'MATIC',
   explorerUrl: 'https://mumbai.polygonscan.com',
-  rpcUrl: 'https://rpc-mumbai.maticvigil.com'
+  rpcUrl: 'https://polygon-mumbai-bor-rpc.publicnode.com'
 };
 const arbitrum = {
   chainId: 421614,
@@ -7544,13 +7554,13 @@ const KimaProvider = ({
   }, []);
   function onError(e) {
     if (e instanceof WalletNotFoundError) {
-      toast.error(e.message);
+      toast$1.error(e.message);
     } else if (e instanceof WalletDisconnectedError) {
-      toast.error(e.message);
-    } else toast.error(e.message);
+      toast$1.error(e.message);
+    } else toast$1.error(e.message);
   }
   const onChainChanged = chainData => {
-    toast.error('Please switch to Tron Nile Testnet!');
+    toast$1.error('Please switch to Tron Nile Testnet!');
     if (chainData.chainId !== '0xcd8690dc') {
       adapters[0].switchChain('0xcd8690dc');
     }
