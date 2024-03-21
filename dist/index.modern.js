@@ -761,6 +761,7 @@ const SOLANA_HOST = clusterApiUrl(CLUSTER);
 const isEVMChain = chainId => chainId === ChainName.ETHEREUM || chainId === ChainName.POLYGON || chainId === ChainName.AVALANCHE || chainId === ChainName.BSC || chainId === ChainName.OPTIMISM || chainId === ChainName.ARBITRUM || chainId === ChainName.POLYGON_ZKEVM;
 const COIN_LIST = {
   USDK: {
+    symbol: 'USDK',
     icon: USDT
   },
   KEUR: {
@@ -847,6 +848,7 @@ const initialState = {
   nodeProviderQuery: '',
   txId: -1,
   selectedToken: 'USDK',
+  avilableTokenList: ['USDK'],
   compliantOption: true,
   sourceCompliant: 'low',
   targetCompliant: 'low',
@@ -975,6 +977,9 @@ const optionSlice = createSlice({
     setSelectedToken: (state, action) => {
       state.selectedToken = action.payload;
     },
+    setAvailableTokenList: (state, action) => {
+      state.avilableTokenList = action.payload;
+    },
     setCompliantOption: (state, action) => {
       state.compliantOption = action.payload;
     },
@@ -1037,6 +1042,7 @@ const {
   setNodeProviderQuery,
   setTxId,
   setSelectedToken,
+  setAvailableTokenList,
   setCompliantOption,
   setSourceCompliant,
   setTargetCompliant,
@@ -1089,6 +1095,7 @@ const selectBackendUrl = state => state.option.backendUrl;
 const selectNodeProviderQuery = state => state.option.nodeProviderQuery;
 const selectTxId = state => state.option.txId;
 const selectSelectedToken = state => state.option.selectedToken;
+const selectAvailableTokenList = state => state.option.avilableTokenList;
 const selectCompliantOption = state => state.option.compliantOption;
 const selectSourceCompliant = state => state.option.sourceCompliant;
 const selectTargetCompliant = state => state.option.targetCompliant;
@@ -2185,16 +2192,38 @@ const WalletButton = ({
 };
 
 const CoinDropdown = () => {
+  const ref = useRef();
   const [collapsed, setCollapsed] = useState(true);
   const selectedCoin = useSelector(selectSelectedToken);
+  const tokenList = useSelector(selectAvailableTokenList);
   const theme = useSelector(selectTheme);
   const Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
+  useEffect(() => {
+    const bodyMouseDowntHandler = e => {
+      if (ref !== null && ref !== void 0 && ref.current && !ref.current.contains(e.target)) {
+        setCollapsed(true);
+      }
+    };
+    document.addEventListener('mousedown', bodyMouseDowntHandler);
+    return () => {
+      document.removeEventListener('mousedown', bodyMouseDowntHandler);
+    };
+  }, [setCollapsed]);
   return React.createElement("div", {
     className: `coin-dropdown ${theme.colorMode} ${collapsed ? 'collapsed' : ''}`,
-    onClick: () => setCollapsed(prev => !prev)
+    onClick: () => setCollapsed(prev => !prev),
+    ref: ref
   }, React.createElement("div", {
     className: 'coin-wrapper'
-  }, React.createElement(Icon, null), selectedCoin));
+  }, React.createElement(Icon, null), selectedCoin), React.createElement("div", {
+    className: `coin-menu ${theme.colorMode} ${collapsed ? 'collapsed' : ''}`
+  }, tokenList.map(token => {
+    const CoinIcon = COIN_LIST[token].icon;
+    return React.createElement("div", {
+      className: 'coin-item',
+      key: COIN_LIST[token].symbol
+    }, React.createElement(CoinIcon, null), React.createElement("p", null, COIN_LIST[token].symbol));
+  })));
 };
 
 const NetworkDropdown = React.memo(({
@@ -6871,6 +6900,7 @@ const AddressInputWizard = () => {
 };
 
 function useCurrencyOptions() {
+  const dispatch = useDispatch();
   const [options, setOptions] = useState('USDK');
   const nodeProviderQuery = useSelector(selectNodeProviderQuery);
   const originNetwork = useSelector(selectSourceChain);
@@ -6885,6 +6915,7 @@ function useCurrencyOptions() {
           return;
         }
         const coins = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/get_currencies/${originNetwork}/${targetNetwork}`);
+        dispatch(setAvailableTokenList(coins.Currencies || ['USDK']));
         setOptions((_coins$Currencies = coins.Currencies) !== null && _coins$Currencies !== void 0 && _coins$Currencies.length ? coins.Currencies[0] : 'USDK');
       } catch (e) {
         console.log('rpc disconnected', e);
@@ -7370,6 +7401,7 @@ const KimaTransactionWidget = ({
   mode,
   txId,
   autoSwitchChain: _autoSwitchChain = true,
+  defaultToken: _defaultToken = 'USDK',
   provider,
   dAppOption: _dAppOption = DAppOptions.None,
   theme,
@@ -7410,6 +7442,7 @@ const KimaTransactionWidget = ({
     dispatch(setProvider(provider));
     dispatch(setDappOption(_dAppOption));
     dispatch(setWalletAutoConnect(_autoSwitchChain));
+    dispatch(setSelectedToken(_defaultToken));
     dispatch(setUseFIAT(_useFIAT));
     if (_useFIAT) {
       dispatch(setTxId(txId || -1));

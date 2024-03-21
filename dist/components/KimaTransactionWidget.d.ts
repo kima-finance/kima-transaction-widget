@@ -7,6 +7,7 @@ interface Props {
     mode: ModeOptions;
     txId?: number;
     useFIAT?: boolean;
+    defaultToken?: string;
     autoSwitchChain?: boolean;
     dAppOption?: DAppOptions;
     provider?: Web3Provider;
@@ -36,5 +37,5 @@ interface Props {
  *
  * @beta
  */
-export declare const KimaTransactionWidget: ({ mode, txId, autoSwitchChain, provider, dAppOption, theme, titleOption, paymentTitleOption, useFIAT, helpURL, compliantOption, transactionOption, kimaBackendUrl, kimaNodeProviderQuery, kimaExplorer, errorHandler, closeHandler, successHandler, switchChainHandler, keplrHandler }: Props) => React.JSX.Element;
+export declare const KimaTransactionWidget: ({ mode, txId, autoSwitchChain, defaultToken, provider, dAppOption, theme, titleOption, paymentTitleOption, useFIAT, helpURL, compliantOption, transactionOption, kimaBackendUrl, kimaNodeProviderQuery, kimaExplorer, errorHandler, closeHandler, successHandler, switchChainHandler, keplrHandler }: Props) => React.JSX.Element;
 export {};

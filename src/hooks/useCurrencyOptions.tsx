@@ -7,8 +7,11 @@ import {
   selectTargetChain
 } from '../store/selectors'
 import { ChainName } from '../utils/constants'
+import { useDispatch } from 'react-redux'
+import { setAvailableTokenList } from '../store/optionSlice'
 
 export default function useCurrencyOptions() {
+  const dispatch = useDispatch()
   const [options, setOptions] = useState('USDK')
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
   const originNetwork = useSelector(selectSourceChain)
@@ -29,6 +32,7 @@ export default function useCurrencyOptions() {
           `${nodeProviderQuery}/kima-finance/kima-blockchain/chains/get_currencies/${originNetwork}/${targetNetwork}`
         )
 
+        dispatch(setAvailableTokenList(coins.Currencies || ['USDK']))
         setOptions(coins.Currencies?.length ? coins.Currencies[0] : 'USDK')
       } catch (e) {
         console.log('rpc disconnected', e)

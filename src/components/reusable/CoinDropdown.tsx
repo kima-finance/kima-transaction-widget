@@ -1,13 +1,32 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { selectSelectedToken, selectTheme } from '../../store/selectors'
+import {
+  selectAvailableTokenList,
+  selectSelectedToken,
+  selectTheme
+} from '../../store/selectors'
 import { COIN_LIST } from '../../utils/constants'
 
 const CoinDropdown = () => {
+  const ref = useRef<any>()
   const [collapsed, setCollapsed] = useState(true)
   const selectedCoin = useSelector(selectSelectedToken)
+  const tokenList = useSelector(selectAvailableTokenList)
   const theme = useSelector(selectTheme)
   const Icon = COIN_LIST[selectedCoin || 'USDK'].icon
+
+  useEffect(() => {
+    const bodyMouseDowntHandler = (e: any) => {
+      if (ref?.current && !ref.current.contains(e.target)) {
+        setCollapsed(true)
+      }
+    }
+
+    document.addEventListener('mousedown', bodyMouseDowntHandler)
+    return () => {
+      document.removeEventListener('mousedown', bodyMouseDowntHandler)
+    }
+  }, [setCollapsed])
 
   return (
     <div
@@ -15,19 +34,25 @@ const CoinDropdown = () => {
         collapsed ? 'collapsed' : ''
       }`}
       onClick={() => setCollapsed((prev) => !prev)}
+      ref={ref}
     >
       <div className='coin-wrapper'>
         {<Icon />}
         {selectedCoin}
       </div>
-      {/* <div className={`coin-menu ${theme} ${collapsed ? 'collapsed' : ''}`}>
-        {coinList.map((coin) => (
-        <div className='coin-item' key={selectedCoin.symbol}>
-          {<selectedCoin.icon />}
-          <p>{selectedCoin.symbol}</p>
-        </div>
-        ))}
-      </div> */}
+      <div
+        className={`coin-menu ${theme.colorMode} ${collapsed ? 'collapsed' : ''}`}
+      >
+        {tokenList.map((token) => {
+          const CoinIcon = COIN_LIST[token].icon
+          return (
+            <div className='coin-item' key={COIN_LIST[token].symbol}>
+              {<CoinIcon />}
+              <p>{COIN_LIST[token].symbol}</p>
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }

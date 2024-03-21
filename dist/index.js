@@ -828,6 +828,7 @@ var isEVMChain = function isEVMChain(chainId) {
 };
 var COIN_LIST = {
   USDK: {
+    symbol: 'USDK',
     icon: USDT
   },
   KEUR: {
@@ -917,6 +918,7 @@ var initialState = {
   nodeProviderQuery: '',
   txId: -1,
   selectedToken: 'USDK',
+  avilableTokenList: ['USDK'],
   compliantOption: true,
   sourceCompliant: 'low',
   targetCompliant: 'low',
@@ -1045,6 +1047,9 @@ var optionSlice = createSlice({
     setSelectedToken: function setSelectedToken(state, action) {
       state.selectedToken = action.payload;
     },
+    setAvailableTokenList: function setAvailableTokenList(state, action) {
+      state.avilableTokenList = action.payload;
+    },
     setCompliantOption: function setCompliantOption(state, action) {
       state.compliantOption = action.payload;
     },
@@ -1105,6 +1110,7 @@ var _optionSlice$actions = optionSlice.actions,
   setNodeProviderQuery = _optionSlice$actions.setNodeProviderQuery,
   setTxId = _optionSlice$actions.setTxId,
   setSelectedToken = _optionSlice$actions.setSelectedToken,
+  setAvailableTokenList = _optionSlice$actions.setAvailableTokenList,
   setCompliantOption = _optionSlice$actions.setCompliantOption,
   setSourceCompliant = _optionSlice$actions.setSourceCompliant,
   setTargetCompliant = _optionSlice$actions.setTargetCompliant,
@@ -1376,6 +1382,9 @@ var selectTxId = function selectTxId(state) {
 };
 var selectSelectedToken = function selectSelectedToken(state) {
   return state.option.selectedToken;
+};
+var selectAvailableTokenList = function selectAvailableTokenList(state) {
+  return state.option.avilableTokenList;
 };
 var selectCompliantOption = function selectCompliantOption(state) {
   return state.option.compliantOption;
@@ -2637,22 +2646,44 @@ var WalletButton = function WalletButton(_ref) {
 };
 
 var CoinDropdown = function CoinDropdown() {
+  var ref = React.useRef();
   var _useState = React.useState(true),
     collapsed = _useState[0],
     setCollapsed = _useState[1];
   var selectedCoin = reactRedux.useSelector(selectSelectedToken);
+  var tokenList = reactRedux.useSelector(selectAvailableTokenList);
   var theme = reactRedux.useSelector(selectTheme);
   var Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
+  React.useEffect(function () {
+    var bodyMouseDowntHandler = function bodyMouseDowntHandler(e) {
+      if (ref !== null && ref !== void 0 && ref.current && !ref.current.contains(e.target)) {
+        setCollapsed(true);
+      }
+    };
+    document.addEventListener('mousedown', bodyMouseDowntHandler);
+    return function () {
+      document.removeEventListener('mousedown', bodyMouseDowntHandler);
+    };
+  }, [setCollapsed]);
   return React__default.createElement("div", {
     className: "coin-dropdown " + theme.colorMode + " " + (collapsed ? 'collapsed' : ''),
     onClick: function onClick() {
       return setCollapsed(function (prev) {
         return !prev;
       });
-    }
+    },
+    ref: ref
   }, React__default.createElement("div", {
     className: 'coin-wrapper'
-  }, React__default.createElement(Icon, null), selectedCoin));
+  }, React__default.createElement(Icon, null), selectedCoin), React__default.createElement("div", {
+    className: "coin-menu " + theme.colorMode + " " + (collapsed ? 'collapsed' : '')
+  }, tokenList.map(function (token) {
+    var CoinIcon = COIN_LIST[token].icon;
+    return React__default.createElement("div", {
+      className: 'coin-item',
+      key: COIN_LIST[token].symbol
+    }, React__default.createElement(CoinIcon, null), React__default.createElement("p", null, COIN_LIST[token].symbol));
+  })));
 };
 
 var NetworkDropdown = React__default.memo(function (_ref) {
@@ -7551,6 +7582,7 @@ var AddressInputWizard = function AddressInputWizard() {
 };
 
 function useCurrencyOptions() {
+  var dispatch = reactRedux.useDispatch();
   var _useState = React.useState('USDK'),
     options = _useState[0],
     setOptions = _useState[1];
@@ -7568,6 +7600,7 @@ function useCurrencyOptions() {
           }
           return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/chains/get_currencies/" + originNetwork + "/" + targetNetwork)).then(function (coins) {
             var _coins$Currencies;
+            dispatch(setAvailableTokenList(coins.Currencies || ['USDK']));
             setOptions((_coins$Currencies = coins.Currencies) !== null && _coins$Currencies !== void 0 && _coins$Currencies.length ? coins.Currencies[0] : 'USDK');
           });
         }, function (e) {
@@ -8122,6 +8155,8 @@ var KimaTransactionWidget = function KimaTransactionWidget(_ref) {
     txId = _ref.txId,
     _ref$autoSwitchChain = _ref.autoSwitchChain,
     autoSwitchChain = _ref$autoSwitchChain === void 0 ? true : _ref$autoSwitchChain,
+    _ref$defaultToken = _ref.defaultToken,
+    defaultToken = _ref$defaultToken === void 0 ? 'USDK' : _ref$defaultToken,
     provider = _ref.provider,
     _ref$dAppOption = _ref.dAppOption,
     dAppOption = _ref$dAppOption === void 0 ? exports.DAppOptions.None : _ref$dAppOption,
@@ -8180,6 +8215,7 @@ var KimaTransactionWidget = function KimaTransactionWidget(_ref) {
     dispatch(setProvider(provider));
     dispatch(setDappOption(dAppOption));
     dispatch(setWalletAutoConnect(autoSwitchChain));
+    dispatch(setSelectedToken(defaultToken));
     dispatch(setUseFIAT(useFIAT));
     if (useFIAT) {
       dispatch(setTxId(txId || -1));
