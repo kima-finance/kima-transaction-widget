@@ -183,6 +183,7 @@ type CoinOptions = {
 
 export const COIN_LIST: CoinOptions = {
   USDK: {
+    symbol: 'USDK',
     icon: USDTIcon
   },
   KEUR: {

@@ -1,4 +1,4 @@
-declare function useIsWalletReady(enableNetworkAutoswitch?: boolean): {
+declare function useIsWalletReady(): {
     isReady: boolean;
     statusMessage: string;
     walletAddress?: string;

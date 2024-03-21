@@ -10,8 +10,7 @@ import {
   selectSelectedToken,
   selectSourceChain,
   selectSourceCompliant,
-  selectTheme,
-  selectWalletAutoConnect
+  selectTheme
 } from '../../store/selectors'
 import PrimaryButton from './PrimaryButton'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
@@ -29,9 +28,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const sourceCompliant = useSelector(selectSourceCompliant)
   const compliantOption = useSelector(selectCompliantOption)
   const selectedNetwork = useSelector(selectSourceChain)
-  const walletAutoConnect = useSelector(selectWalletAutoConnect)
-  const { isReady, statusMessage, walletAddress } =
-    useIsWalletReady(walletAutoConnect)
+  const { isReady, statusMessage, walletAddress } = useIsWalletReady()
   const { balance } = useBalance()
   const { open } = useWeb3Modal()
 

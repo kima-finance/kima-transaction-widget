@@ -54,6 +54,7 @@ export interface OptionState {
   kimaExplorerUrl: string // URL for kima explore (testnet, staging or demo)
   txId: number // transaction id to monitor it's status
   selectedToken: string // Currently selected token
+  avilableTokenList: Array<string> // Available token list by source, target chain
   compliantOption: boolean // option to check compliant addresses
   sourceCompliant: string // source address is compliant or not
   targetCompliant: string // target address is compliant or not
@@ -78,7 +79,7 @@ const initialState: OptionState = {
   helpPopup: false,
   hashPopup: false,
   bankPopup: false,
-  walletAutoConnect: false,
+  walletAutoConnect: true,
   provider: undefined,
   dAppOption: DAppOptions.None,
   solanaProvider: undefined,
@@ -96,6 +97,7 @@ const initialState: OptionState = {
   nodeProviderQuery: '',
   txId: -1,
   selectedToken: 'USDK',
+  avilableTokenList: ['USDK'],
   compliantOption: true,
   sourceCompliant: 'low',
   targetCompliant: 'low',
@@ -226,6 +228,9 @@ export const optionSlice = createSlice({
     setSelectedToken: (state, action: PayloadAction<string>) => {
       state.selectedToken = action.payload
     },
+    setAvailableTokenList: (state, action: PayloadAction<Array<string>>) => {
+      state.avilableTokenList = action.payload
+    },
     setCompliantOption: (state, action: PayloadAction<boolean>) => {
       state.compliantOption = action.payload
     },
@@ -289,6 +294,7 @@ export const {
   setNodeProviderQuery,
   setTxId,
   setSelectedToken,
+  setAvailableTokenList,
   setCompliantOption,
   setSourceCompliant,
   setTargetCompliant,

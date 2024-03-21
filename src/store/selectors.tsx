@@ -51,6 +51,8 @@ export const selectNodeProviderQuery = (state: RootState) =>
 export const selectTxId = (state: RootState) => state.option.txId
 export const selectSelectedToken = (state: RootState) =>
   state.option.selectedToken
+export const selectAvailableTokenList = (state: RootState) =>
+  state.option.avilableTokenList
 export const selectCompliantOption = (state: RootState) =>
   state.option.compliantOption
 export const selectSourceCompliant = (state: RootState) =>

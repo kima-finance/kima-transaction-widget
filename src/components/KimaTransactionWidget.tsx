@@ -35,7 +35,8 @@ import {
   setSwitchChainHandler,
   setUuid,
   setKeplrHandler,
-  setKimaExplorer
+  setKimaExplorer,
+  setSelectedToken
 } from '../store/optionSlice'
 import '../index.css'
 import { selectSubmitted } from '../store/selectors'
@@ -51,7 +52,8 @@ interface Props {
   mode: ModeOptions
   txId?: number
   useFIAT?: boolean
-  autoConnect?: boolean
+  defaultToken?: string
+  autoSwitchChain?: boolean
   dAppOption?: DAppOptions
   provider?: Web3Provider
   titleOption?: TitleOption
@@ -85,7 +87,8 @@ interface Props {
 export const KimaTransactionWidget = ({
   mode,
   txId,
-  autoConnect = true,
+  autoSwitchChain = true,
+  defaultToken = 'USDK',
   provider,
   dAppOption = DAppOptions.None,
   theme,
@@ -126,7 +129,8 @@ export const KimaTransactionWidget = ({
     dispatch(setMode(mode))
     dispatch(setProvider(provider))
     dispatch(setDappOption(dAppOption))
-    dispatch(setWalletAutoConnect(autoConnect))
+    dispatch(setWalletAutoConnect(autoSwitchChain))
+    dispatch(setSelectedToken(defaultToken))
     dispatch(setUseFIAT(useFIAT))
     if (useFIAT) {
       dispatch(setTxId(txId || -1))

@@ -8,7 +8,8 @@ import {
   selectSourceChain,
   selectTargetChain,
   selectTheme,
-  selectUseFIAT
+  selectUseFIAT,
+  selectWalletAutoConnect
 } from '../../store/selectors'
 import {
   setSourceChain,
@@ -29,6 +30,7 @@ const NetworkDropdown = React.memo(
     const ref = useRef<any>()
     const sourceChangeRef = useRef<boolean>(false)
     const mode = useSelector(selectMode)
+    const autoSwitchChain = useSelector(selectWalletAutoConnect)
     const useFIAT = useSelector(selectUseFIAT)
     const dAppOption = useSelector(selectDappOption)
     const originNetwork = useSelector(selectSourceChain)
@@ -155,7 +157,10 @@ const NetworkDropdown = React.memo(
         className={`network-dropdown ${theme.colorMode} ${
           collapsed ? 'collapsed' : ''
         }`}
-        onClick={() => setCollapsed((prev) => !prev)}
+        onClick={() => {
+          if (!autoSwitchChain && isOriginChain) return
+          setCollapsed((prev) => !prev)
+        }}
         ref={ref}
       >
         <div className='network-wrapper'>

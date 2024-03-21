@@ -6,14 +6,16 @@ import {
   ChainName,
   CHAIN_NAMES_TO_IDS,
   CHAIN_IDS_TO_NAMES,
-  CHAIN_NAMES_TO_STRING
+  CHAIN_NAMES_TO_STRING,
+  SupportedChainId
 } from '../utils/constants'
 import { useSelector } from 'react-redux'
 import {
   selectErrorHandler,
   selectSourceChain,
   selectTargetChain,
-  selectTargetChainFetching
+  selectTargetChainFetching,
+  selectWalletAutoConnect
 } from '../store/selectors'
 import {
   useSwitchNetwork,
@@ -22,6 +24,9 @@ import {
   useWeb3ModalEvents
 } from '@web3modal/ethers5/react'
 import { Web3ModalAccountInfo } from '../interface'
+import { useDispatch } from 'react-redux'
+import { setSourceChain } from '../store/optionSlice'
+import toast from 'react-hot-toast'
 
 const createWalletStatus = (
   isReady: boolean,
@@ -35,13 +40,14 @@ const createWalletStatus = (
   walletAddress
 })
 
-function useIsWalletReady(enableNetworkAutoswitch: boolean = false): {
+function useIsWalletReady(): {
   isReady: boolean
   statusMessage: string
   walletAddress?: string
   forceNetworkSwitch: () => void
 } {
-  const autoSwitch = enableNetworkAutoswitch
+  const dispatch = useDispatch()
+  const autoSwitch = useSelector(selectWalletAutoConnect)
   const { publicKey: solanaAddress } = useSolanaWallet()
   const { address: tronAddress } = useTronWallet()
   const { walletProvider: evmProvider } = useWeb3ModalProvider()
@@ -139,10 +145,26 @@ function useIsWalletReady(enableNetworkAutoswitch: boolean = false): {
         )
       } else {
         if (evmProvider && correctEvmNetwork) {
-          if (autoSwitch) forceNetworkSwitch()
+          if (autoSwitch) {
+            forceNetworkSwitch()
+          } else {
+            console.log('autoSwitch', autoSwitch, evmChainId)
+            dispatch(
+              setSourceChain(
+                CHAIN_IDS_TO_NAMES[evmChainId || SupportedChainId.ETHEREUM]
+              )
+            )
+            toast.success(
+              `Wallet connected to ${
+                CHAIN_NAMES_TO_STRING[
+                  CHAIN_IDS_TO_NAMES[evmChainId || SupportedChainId.ETHEREUM]
+                ]
+              }`
+            )
+          }
         }
 
-        if (evmChainId)
+        if (evmChainId && autoSwitch)
           return createWalletStatus(
             false,
             `Wallet not connected to ${
