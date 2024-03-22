@@ -28,8 +28,8 @@ const App = () => {
             mode={ModeOptions.bridge}
             // dAppOption={DAppOptions.LPAdd}
             kimaBackendUrl='http://localhost:3001'
-            kimaNodeProviderQuery='https://api-staging.kima.finance'
-            autoSwitchChain={false}
+            kimaNodeProviderQuery='https://api-testnet.kima.finance'
+            // autoSwitchChain={false}
             // defaultToken={'USDK'}
             // useFIAT={true}
             // titleOption={{
