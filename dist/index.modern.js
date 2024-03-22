@@ -655,7 +655,7 @@ var SupportedChainId;
   SupportedChainId[SupportedChainId["BSC"] = 97] = "BSC";
   SupportedChainId[SupportedChainId["ARBITRUM"] = 421614] = "ARBITRUM";
   SupportedChainId[SupportedChainId["OPTIMISM"] = 11155420] = "OPTIMISM";
-  SupportedChainId[SupportedChainId["POLYGON_ZKEM"] = 1442] = "POLYGON_ZKEM";
+  SupportedChainId[SupportedChainId["POLYGON_ZKEM"] = 2442] = "POLYGON_ZKEM";
 })(SupportedChainId || (SupportedChainId = {}));
 const CHAIN_NAMES_TO_IDS = {
   [ChainName.ETHEREUM]: SupportedChainId.ETHEREUM,
