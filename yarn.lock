@@ -17168,7 +17168,7 @@ tr46@~0.0.3:
   resolved "https://registry.yarnpkg.com/tr46/-/tr46-0.0.3.tgz#8184fd347dac9cdc185992f3a6622e14b9d9ab6a"
   integrity sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==
 
-tronweb@^6.0.0-beta.1:
+tronweb@^6.0.0-beta.0:
   version "6.0.0-beta.1"
   resolved "https://registry.yarnpkg.com/tronweb/-/tronweb-6.0.0-beta.1.tgz#a3cd5a716409fb0581e3671103c4d5e10bd4bd78"
   integrity sha512-BDPfX5lIRsc24sKU/htY7Ro6zPIs8ATfl1+SgTxCyb5SxtTCCdBFcElSbIG3ia1dJw1X0WfLbLEbohIx28NNIA==
