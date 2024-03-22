@@ -13,6 +13,10 @@ module.exports = function override(config, env) {
           use: ['source-map-loader']
         },
         {
+          test: /\.cjs$/,
+          type: 'javascript/auto'
+        },
+        {
           test: /\.wasm$/,
           type: 'webassembly/async'
         },
