@@ -7551,11 +7551,11 @@ const avalanche = {
   rpcUrl: 'https://api.avax-test.network/ext/bc/C/rpc'
 };
 const zkEVM = {
-  chainId: 1442,
-  name: 'Polygon zkEVM Testnet',
+  chainId: 2442,
+  name: 'Polygon zkEVM Cardona Testnet',
   currency: 'ETH',
-  explorerUrl: 'https://testnet-zkevm.polygonscan.com',
-  rpcUrl: 'https://rpc.public.zkevm-test.net'
+  explorerUrl: 'https://cardona-zkevm.polygonscan.com',
+  rpcUrl: 'https://polygon-zkevm-cardona.blockpi.network/v1/rpc/public'
 };
 const metadata = {
   name: 'Kima Transaction Widget',
