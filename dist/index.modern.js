@@ -698,7 +698,7 @@ const CHAIN_NAMES_TO_EXPLORER = {
   [ChainName.BSC]: 'testnet.bscscan.com',
   [ChainName.OPTIMISM]: 'sepolia-optimism.etherscan.io',
   [ChainName.ARBITRUM]: 'sepolia.arbiscan.io',
-  [ChainName.POLYGON_ZKEVM]: 'testnet-zkevm.polygonscan.com',
+  [ChainName.POLYGON_ZKEVM]: 'cardona-zkevm.polygonscan.com',
   [ChainName.TRON]: 'nile.tronscan.org/#'
 };
 const CHAIN_IDS_TO_NAMES = {
