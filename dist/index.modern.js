@@ -650,7 +650,7 @@ var ChainName;
 var SupportedChainId;
 (function (SupportedChainId) {
   SupportedChainId[SupportedChainId["ETHEREUM"] = 11155111] = "ETHEREUM";
-  SupportedChainId[SupportedChainId["POLYGON"] = 80001] = "POLYGON";
+  SupportedChainId[SupportedChainId["POLYGON"] = 80002] = "POLYGON";
   SupportedChainId[SupportedChainId["AVALANCHE"] = 43113] = "AVALANCHE";
   SupportedChainId[SupportedChainId["BSC"] = 97] = "BSC";
   SupportedChainId[SupportedChainId["ARBITRUM"] = 421614] = "ARBITRUM";
