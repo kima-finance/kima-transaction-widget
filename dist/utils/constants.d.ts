@@ -13,7 +13,7 @@ export declare enum ChainName {
 }
 export declare enum SupportedChainId {
     ETHEREUM = 11155111,
-    POLYGON = 80001,
+    POLYGON = 80002,
     AVALANCHE = 43113,
     BSC = 97,
     ARBITRUM = 421614,

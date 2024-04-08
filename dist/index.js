@@ -760,7 +760,7 @@ var _CHAIN_NAMES_TO_IDS, _CHAIN_NAMES_TO_STRIN, _CHAIN_STRING_TO_NAME, _CHAIN_NA
 var SupportedChainId;
 (function (SupportedChainId) {
   SupportedChainId[SupportedChainId["ETHEREUM"] = 11155111] = "ETHEREUM";
-  SupportedChainId[SupportedChainId["POLYGON"] = 80001] = "POLYGON";
+  SupportedChainId[SupportedChainId["POLYGON"] = 80002] = "POLYGON";
   SupportedChainId[SupportedChainId["AVALANCHE"] = 43113] = "AVALANCHE";
   SupportedChainId[SupportedChainId["BSC"] = 97] = "BSC";
   SupportedChainId[SupportedChainId["ARBITRUM"] = 421614] = "ARBITRUM";
