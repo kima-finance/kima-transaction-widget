@@ -62,11 +62,11 @@ const bsc = {
 }
 
 const polygon = {
-  chainId: 80001,
-  name: 'Mumbai',
+  chainId: 80002,
+  name: 'Amoy',
   currency: 'MATIC',
-  explorerUrl: 'https://mumbai.polygonscan.com',
-  rpcUrl: 'https://polygon-mumbai-bor-rpc.publicnode.com'
+  explorerUrl: 'https://www.oklink.com/amoy',
+  rpcUrl: 'https://rpc-amoy.polygon.technology'
 }
 
 const arbitrum = {
