@@ -692,7 +692,7 @@ const CHAIN_STRING_TO_NAME = {
 };
 const CHAIN_NAMES_TO_EXPLORER = {
   [ChainName.ETHEREUM]: 'sepolia.etherscan.io',
-  [ChainName.POLYGON]: 'mumbai.polygonscan.com',
+  [ChainName.POLYGON]: 'www.oklink.com/amoy',
   [ChainName.AVALANCHE]: 'testnet.snowtrace.io',
   [ChainName.SOLANA]: 'solscan.io',
   [ChainName.BSC]: 'testnet.bscscan.com',
@@ -7523,11 +7523,11 @@ const bsc = {
   rpcUrl: 'https://endpoints.omniatech.io/v1/bsc/testnet/public'
 };
 const polygon = {
-  chainId: 80001,
-  name: 'Mumbai',
+  chainId: 80002,
+  name: 'Amoy',
   currency: 'MATIC',
-  explorerUrl: 'https://mumbai.polygonscan.com',
-  rpcUrl: 'https://polygon-mumbai-bor-rpc.publicnode.com'
+  explorerUrl: 'https://www.oklink.com/amoy',
+  rpcUrl: 'https://rpc-amoy.polygon.technology'
 };
 const arbitrum = {
   chainId: 421614,

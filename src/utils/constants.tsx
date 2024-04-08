@@ -75,7 +75,7 @@ export const CHAIN_STRING_TO_NAME: { [chainName: string]: ChainName } = {
 
 export const CHAIN_NAMES_TO_EXPLORER: { [chainName: string]: string } = {
   [ChainName.ETHEREUM]: 'sepolia.etherscan.io',
-  [ChainName.POLYGON]: 'mumbai.polygonscan.com',
+  [ChainName.POLYGON]: 'www.oklink.com/amoy',
   [ChainName.AVALANCHE]: 'testnet.snowtrace.io',
   [ChainName.SOLANA]: 'solscan.io',
   [ChainName.BSC]: 'testnet.bscscan.com',
