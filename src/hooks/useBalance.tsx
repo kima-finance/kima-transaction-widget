@@ -74,7 +74,9 @@ export default function useBalance() {
   const tokenOptions = useSelector(selectTokenOptions)
   const tokenAddress = useMemo(() => {
     if (isEmptyObject(tokenOptions)) return ''
-    return tokenOptions[selectedCoin][sourceChain]
+    return tokenOptions[selectedCoin]
+      ? tokenOptions[selectedCoin][sourceChain]
+      : ''
   }, [selectedCoin, sourceChain, tokenOptions])
 
   useEffect(() => {

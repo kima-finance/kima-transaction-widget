@@ -20,6 +20,7 @@ import { formatUnits, parseUnits } from '@ethersproject/units';
 import { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, AccountLayout } from '@solana/spl-token';
 import { TronWeb } from 'tronweb';
 import { ethers, utils } from 'ethers';
+import { FIOSDK } from '@fioprotocol/fiosdk';
 import BufferLayout from 'buffer-layout';
 import sha256 from 'crypto-js/sha256.js';
 import Base64 from 'crypto-js/enc-base64.js';
@@ -384,9 +385,9 @@ const Optimism = ({
     fill: "#000000",
     stroke: "none"
   }, React.createElement("path", {
-    d: "M109 372 c-43 -22 -59 -38 -81 -81 -36 -68 -36 -114 0 -182 22 -43\r\n    38 -59 81 -81 68 -36 114 -36 182 0 43 22 59 38 81 81 36 68 36 114 0 182 -22\r\n    43 -38 59 -81 81 -31 16 -69 28 -91 28 -22 0 -60 -12 -91 -28z m79 -124 c16\r\n    -16 15 -60 -1 -82 -9 -12 -23 -17 -42 -14 -26 3 -30 8 -33 36 -5 54 44 92 76\r\n    60z m96 -1 c26 -19 13 -54 -24 -62 -17 -4 -30 -13 -30 -21 0 -8 -6 -14 -14\r\n    -14 -10 0 -12 9 -5 43 4 23 8 48 9 55 0 16 41 16 64 -1z"
+    d: "M109 372 c-43 -22 -59 -38 -81 -81 -36 -68 -36 -114 0 -182 22 -43\n    38 -59 81 -81 68 -36 114 -36 182 0 43 22 59 38 81 81 36 68 36 114 0 182 -22\n    43 -38 59 -81 81 -31 16 -69 28 -91 28 -22 0 -60 -12 -91 -28z m79 -124 c16\n    -16 15 -60 -1 -82 -9 -12 -23 -17 -42 -14 -26 3 -30 8 -33 36 -5 54 44 92 76\n    60z m96 -1 c26 -19 13 -54 -24 -62 -17 -4 -30 -13 -30 -21 0 -8 -6 -14 -14\n    -14 -10 0 -12 9 -5 43 4 23 8 48 9 55 0 16 41 16 64 -1z"
   }), React.createElement("path", {
-    d: "M140 219 c-14 -24 -7 -49 14 -49 15 0 28 34 19 56 -7 20 -21 17 -33\r\n    -7z"
+    d: "M140 219 c-14 -24 -7 -49 14 -49 15 0 28 34 19 56 -7 20 -21 17 -33\n    -7z"
   }), React.createElement("path", {
     d: "M247 233 c-12 -11 -8 -23 8 -23 8 0 15 7 15 15 0 16 -12 20 -23 8z"
   })));
@@ -436,13 +437,13 @@ const Copy = ({
     xmlns: 'http://www.w3.org/2000/svg',
     fill: _fill
   }, rest), React.createElement("g", null, React.createElement("path", {
-    d: 'M35,270h45v45c0,8.284,6.716,15,15,15h200c8.284,0,15-6.716,15-15V75c0-8.284-6.716-15-15-15h-45V15\r\n     c0-8.284-6.716-15-15-15H35c-8.284,0-15,6.716-15,15v240C20,263.284,26.716,270,35,270z M280,300H110V90h170V300z M50,30h170v30H95\r\n     c-8.284,0-15,6.716-15,15v165H50V30z'
+    d: 'M35,270h45v45c0,8.284,6.716,15,15,15h200c8.284,0,15-6.716,15-15V75c0-8.284-6.716-15-15-15h-45V15\n     c0-8.284-6.716-15-15-15H35c-8.284,0-15,6.716-15,15v240C20,263.284,26.716,270,35,270z M280,300H110V90h170V300z M50,30h170v30H95\n     c-8.284,0-15,6.716-15,15v165H50V30z'
   }), React.createElement("path", {
     d: 'M155,120c-8.284,0-15,6.716-15,15s6.716,15,15,15h80c8.284,0,15-6.716,15-15s-6.716-15-15-15H155z'
   }), React.createElement("path", {
     d: 'M235,180h-80c-8.284,0-15,6.716-15,15s6.716,15,15,15h80c8.284,0,15-6.716,15-15S243.284,180,235,180z'
   }), React.createElement("path", {
-    d: 'M235,240h-80c-8.284,0-15,6.716-15,15c0,8.284,6.716,15,15,15h80c8.284,0,15-6.716,15-15C250,246.716,243.284,240,235,240z\r\n     '
+    d: 'M235,240h-80c-8.284,0-15,6.716-15,15c0,8.284,6.716,15,15,15h80c8.284,0,15-6.716,15-15C250,246.716,243.284,240,235,240z\n     '
   })));
 };
 
@@ -824,6 +825,7 @@ const initialState = {
   mode: ModeOptions.bridge,
   sourceChain: '',
   targetChain: '',
+  targetAddressHandle: '',
   targetAddress: '',
   solanaConnectModal: false,
   tronConnectModal: false,
@@ -860,7 +862,9 @@ const initialState = {
   targetNetworkFetching: false,
   signature: '',
   uuid: '',
-  kycStatus: ''
+  kycStatus: '',
+  isTestnet: true,
+  isFioAllowed: true
 };
 const optionSlice = createSlice({
   name: 'option',
@@ -871,6 +875,7 @@ const optionSlice = createSlice({
       state.txId = -1;
       state.serviceFee = -1;
       state.amount = 0;
+      state.targetAddressHandle = '';
       state.targetAddress = '';
       state.compliantOption = true;
       state.sourceCompliant = 'low';
@@ -898,6 +903,9 @@ const optionSlice = createSlice({
     },
     setTargetChain: (state, action) => {
       state.targetChain = action.payload;
+    },
+    setTargetAddressHandle: (state, action) => {
+      state.targetAddressHandle = action.payload;
     },
     setTargetAddress: (state, action) => {
       state.targetAddress = action.payload;
@@ -1006,6 +1014,12 @@ const optionSlice = createSlice({
     },
     setKYCStatus: (state, action) => {
       state.kycStatus = action.payload;
+    },
+    setIsTestnet: (state, action) => {
+      state.isTestnet = action.payload;
+    },
+    setIsFioAllowed: (state, action) => {
+      state.isFioAllowed = action.payload;
     }
   }
 });
@@ -1016,6 +1030,7 @@ const {
   setTheme,
   setSourceChain,
   setTargetChain,
+  setTargetAddressHandle,
   setTargetAddress,
   setSolanaConnectModal,
   setTronConnectModal,
@@ -1051,7 +1066,9 @@ const {
   setTargetChainFetching,
   setSignature,
   setUuid,
-  setKYCStatus
+  setKYCStatus,
+  setIsTestnet,
+  setIsFioAllowed
 } = optionSlice.actions;
 var optionReducer = optionSlice.reducer;
 
@@ -1072,6 +1089,7 @@ const selectTheme = state => state.option.theme;
 const selectKimaExplorer = state => state.option.kimaExplorerUrl;
 const selectSourceChain = state => state.option.sourceChain;
 const selectTargetChain = state => state.option.targetChain;
+const selectTargetAddressHandle = state => state.option.targetAddressHandle;
 const selectTargetAddress = state => state.option.targetAddress;
 const selectSolanaConnectModal = state => state.option.solanaConnectModal;
 const selectTronConnectModal = state => state.option.tronConnectModal;
@@ -1105,6 +1123,8 @@ const selectTargetChainFetching = state => state.option.targetNetworkFetching;
 const selectSignature = state => state.option.signature;
 const selectUuid = state => state.option.uuid;
 const selectKycStatus = state => state.option.kycStatus;
+const selectIsTestnet = state => state.option.isTestnet;
+const selectIsFioAllowed = state => state.option.isFioAllowed;
 
 const Loading180Ring = ({
   width: _width = 24,
@@ -2101,7 +2121,7 @@ function useBalance() {
   const tokenOptions = useSelector(selectTokenOptions);
   const tokenAddress = useMemo(() => {
     if (isEmptyObject(tokenOptions)) return '';
-    return tokenOptions[selectedCoin][sourceChain];
+    return tokenOptions[selectedCoin] ? tokenOptions[selectedCoin][sourceChain] : '';
   }, [selectedCoin, sourceChain, tokenOptions]);
   useEffect(() => {
     (async () => {
@@ -2417,14 +2437,155 @@ const ConfirmDetails = ({
   }, React.createElement(targetNetworkOption.icon, null), targetNetworkOption.label)));
 };
 
+const fetchWrapper$1 = {
+  get: get$1,
+  post: post$1
+};
+function get$1(url) {
+  const requestOptions = {
+    method: 'GET'
+  };
+  requestOptions.headers = {
+    'Content-Type': 'application/json'
+  };
+  return fetch(url, requestOptions).then(handleResponse$1);
+}
+function post$1(url, body) {
+  const requestOptions = {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: body
+  };
+  return fetch(url, requestOptions).then(handleResponse$1);
+}
+function handleResponse$1(response) {
+  return response.text().then(text => {
+    let data = text;
+    try {
+      data = JSON.parse(text);
+    } catch (error) {
+      data = text;
+    }
+    if (!response.ok) {
+      const error = data || response.statusText;
+      return Promise.reject({
+        status: response.status,
+        error
+      });
+    }
+    return data;
+  });
+}
+
+const fioLinks = {
+  testnet: 'https://test.fio.eosusa.io/v1/chain',
+  mainnet: 'https://fio.blockpane.com/v1/chain',
+  testnet2: 'https://testnet.fioprotocol.io/v1/',
+  mainnet2: 'https://fio.eosphere.io/v1/'
+};
+const customChainCodes = {
+  [ChainName.SOLANA]: 'solana'
+};
+const getFioLink = isTestnet => isTestnet ? fioLinks.testnet : fioLinks.mainnet;
+const getPubAddresses = async (fioHandle, isTestnet) => {
+  const providerLink = getFioLink(isTestnet);
+  const body = {
+    fio_address: fioHandle
+  };
+  try {
+    const data = await fetchWrapper$1.post(`${providerLink}/get_pub_addresses`, JSON.stringify(body));
+    return data.public_addresses.map(item => {
+      var _item$chain_code, _item$token_code;
+      return {
+        chainCode: (_item$chain_code = item.chain_code) === null || _item$chain_code === void 0 ? void 0 : _item$chain_code.toLowerCase(),
+        tokenCode: (_item$token_code = item.token_code) === null || _item$token_code === void 0 ? void 0 : _item$token_code.toLowerCase(),
+        address: item.public_address
+      };
+    });
+  } catch (e) {
+    console.error('Failed to get pub addresses by fio', e);
+    return [];
+  }
+};
+const getAddressByFio = async (fioHandle, chainCode, tokenCode, isTestnet) => {
+  const addresses = await getPubAddresses(fioHandle, isTestnet);
+  console.log('FioLogs => getPubAddresses', {
+    fioHandle,
+    chainCode,
+    tokenCode
+  }, addresses);
+  if (addresses.length) {
+    const byChain = addresses.filter(adr => {
+      var _chainCode$trim;
+      return (chainCode === null || chainCode === void 0 ? void 0 : (_chainCode$trim = chainCode.trim()) === null || _chainCode$trim === void 0 ? void 0 : _chainCode$trim.toLowerCase()) === adr.chainCode || customChainCodes[chainCode] === adr.chainCode;
+    });
+    if (byChain.length > 0) {
+      const byToken = byChain.find(adr => {
+        var _tokenCode$trim;
+        return adr.tokenCode === (tokenCode === null || tokenCode === void 0 ? void 0 : (_tokenCode$trim = tokenCode.trim()) === null || _tokenCode$trim === void 0 ? void 0 : _tokenCode$trim.toLowerCase());
+      });
+      return byToken ? byToken.address : byChain[0].address;
+    }
+  }
+  return '';
+};
+const isValidFioHandle = fioHandle => {
+  if (typeof fioHandle === 'string' && fioHandle.includes('@')) {
+    try {
+      return FIOSDK.isFioAddressValid(fioHandle);
+    } catch (_) {
+      return false;
+    }
+  }
+  return false;
+};
+
+function debounce(func, delay) {
+  let timer;
+  return function (...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => func.apply(this, args), delay);
+  };
+}
+
 const AddressInput = () => {
   const dispatch = useDispatch();
-  const targetAddress = useSelector(selectTargetAddress);
+  const targetNetwork = useSelector(selectTargetChain);
+  const selectedCoin = useSelector(selectSelectedToken);
+  const isTestnet = useSelector(selectIsTestnet);
+  const isFioAllowed = useSelector(selectIsFioAllowed);
+  const targetAddressHandle = useSelector(selectTargetAddressHandle);
+  const updateTargetAddress = useCallback(async newAddress => {
+    const isFio = isValidFioHandle(newAddress);
+    if (isFio) {
+      getAddressByFio(newAddress, targetNetwork, selectedCoin, isTestnet).then(fioAddress => {
+        dispatch(setTargetAddress(fioAddress || newAddress));
+      });
+    } else {
+      dispatch(setTargetAddress(newAddress));
+    }
+  }, [dispatch, targetNetwork, selectedCoin, isTestnet]);
+  const debouncedUpdateTarget = useCallback(debounce(updateTargetAddress, 200), [updateTargetAddress]);
+  useEffect(() => {
+    if (isFioAllowed) {
+      debouncedUpdateTarget(targetAddressHandle);
+    }
+  }, [debouncedUpdateTarget, targetAddressHandle]);
+  const onChange = e => {
+    const newAddress = e.target.value;
+    dispatch(setTargetAddressHandle(newAddress));
+    if (!isFioAllowed) {
+      dispatch(setTargetAddress(newAddress));
+    }
+  };
   return React.createElement("input", {
     className: 'kima-address-input',
     type: 'text',
-    value: targetAddress,
-    onChange: e => dispatch(setTargetAddress(e.target.value))
+    value: targetAddressHandle,
+    onChange: onChange
   });
 };
 
@@ -3016,6 +3177,7 @@ const SingleForm = ({
   const selectedCoin = useSelector(selectSelectedToken);
   const sourceNetwork = useSelector(selectSourceChain);
   const targetNetwork = useSelector(selectTargetChain);
+  const isFioAllowed = useSelector(selectIsFioAllowed);
   const Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
   const errorMessage = useMemo(() => compliantOption && targetCompliant !== 'low' ? `Target address has ${targetCompliant} risk` : '', [compliantOption, targetCompliant]);
   useEffect(() => {
@@ -3047,7 +3209,7 @@ const SingleForm = ({
     className: `form-item ${theme.colorMode}`
   }, React.createElement("span", {
     className: 'label'
-  }, "Target Address:"), React.createElement(AddressInput, null)) : null, mode === ModeOptions.bridge ? React.createElement("div", {
+  }, isFioAllowed ? 'Target Address (or FIO handle):' : 'Target Address:'), React.createElement(AddressInput, null)) : null, mode === ModeOptions.bridge ? React.createElement("div", {
     className: `form-item ${theme.colorMode}`
   }, React.createElement("span", {
     className: 'label'
@@ -3068,7 +3230,14 @@ const SingleForm = ({
     className: `amount-label ${theme.colorMode}`
   }, React.createElement("span", null, (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount) || ''), React.createElement("div", {
     className: 'coin-wrapper'
-  }, React.createElement(Icon, null), selectedCoin))));
+  }, React.createElement(Icon, null), selectedCoin))), isFioAllowed && React.createElement("div", {
+    className: `form-item ${theme.colorMode}`
+  }, React.createElement("div", {
+    className: 'get-fio'
+  }, React.createElement(ExternalLink, {
+    to: 'https://app.fio.net/ref/kima',
+    className: `link ${theme.colorMode}`
+  }, "Get a Kima branded FIO handle"))));
 };
 
 const CoinSelect = () => {
@@ -6749,7 +6918,7 @@ function useAllowance({
   const tokenOptions = useSelector(selectTokenOptions);
   const tokenAddress = useMemo(() => {
     if (isEmptyObject(tokenOptions)) return '';
-    return tokenOptions[selectedCoin][sourceChain];
+    return tokenOptions[selectedCoin] ? tokenOptions[selectedCoin][sourceChain] : '';
   }, [selectedCoin, sourceChain, tokenOptions]);
   const [targetAddress, setTargetAddress] = useState();
   const isApproved = useMemo(() => {
@@ -7418,7 +7587,9 @@ const KimaTransactionWidget = ({
   closeHandler: _closeHandler = () => void 0,
   successHandler: _successHandler = () => void 0,
   switchChainHandler: _switchChainHandler = () => void 0,
-  keplrHandler: _keplrHandler = () => void 0
+  keplrHandler: _keplrHandler = () => void 0,
+  isTestnet: _isTestnet = true,
+  isFioAllowed: _isFioAllowed = true
 }) => {
   const submitted = useSelector(selectSubmitted);
   const dispatch = useDispatch();
@@ -7444,6 +7615,8 @@ const KimaTransactionWidget = ({
     dispatch(setWalletAutoConnect(_autoSwitchChain));
     dispatch(setSelectedToken(_defaultToken));
     dispatch(setUseFIAT(_useFIAT));
+    dispatch(setIsTestnet(_isTestnet));
+    dispatch(setIsFioAllowed(_isFioAllowed));
     if (_useFIAT) {
       dispatch(setTxId(txId || -1));
       (async function () {

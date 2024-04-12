@@ -27,6 +27,7 @@ export interface OptionState {
   mode: ModeOptions // payment or bridge
   sourceChain: string // origin network on UI
   targetChain: string // target network on UI
+  targetAddressHandle: string // target address on UI or FIO handle
   targetAddress: string // target address on UI
   tokenOptions: TokenOptions // token options from blockchain endpoint
   solanaConnectModal: boolean // solana wallet connection modal state - open or closed
@@ -64,6 +65,8 @@ export interface OptionState {
   signature: string // off-chain proof of target address for on-ramping fiat transaction
   uuid: string // uuid for depasify KYC
   kycStatus: string // kyc status from depasify
+  isTestnet: boolean
+  isFioAllowed: boolean
 }
 
 const initialState: OptionState = {
@@ -73,6 +76,7 @@ const initialState: OptionState = {
   mode: ModeOptions.bridge,
   sourceChain: '',
   targetChain: '',
+  targetAddressHandle: '',
   targetAddress: '',
   solanaConnectModal: false,
   tronConnectModal: false,
@@ -109,7 +113,9 @@ const initialState: OptionState = {
   targetNetworkFetching: false,
   signature: '',
   uuid: '',
-  kycStatus: ''
+  kycStatus: '',
+  isTestnet: true,
+  isFioAllowed: true
 }
 
 export const optionSlice = createSlice({
@@ -121,6 +127,7 @@ export const optionSlice = createSlice({
       state.txId = -1
       state.serviceFee = -1
       state.amount = 0
+      state.targetAddressHandle = ''
       state.targetAddress = ''
       state.compliantOption = true
       state.sourceCompliant = 'low'
@@ -149,6 +156,9 @@ export const optionSlice = createSlice({
     },
     setTargetChain: (state, action: PayloadAction<string>) => {
       state.targetChain = action.payload
+    },
+    setTargetAddressHandle: (state, action: PayloadAction<string>) => {
+      state.targetAddressHandle = action.payload
     },
     setTargetAddress: (state, action: PayloadAction<string>) => {
       state.targetAddress = action.payload
@@ -257,6 +267,12 @@ export const optionSlice = createSlice({
     },
     setKYCStatus: (state, action: PayloadAction<string>) => {
       state.kycStatus = action.payload
+    },
+    setIsTestnet: (state, action: PayloadAction<boolean>) => {
+      state.isTestnet = action.payload
+    },
+    setIsFioAllowed: (state, action: PayloadAction<boolean>) => {
+      state.isFioAllowed = action.payload
     }
   }
 })
@@ -268,6 +284,7 @@ export const {
   setTheme,
   setSourceChain,
   setTargetChain,
+  setTargetAddressHandle,
   setTargetAddress,
   setSolanaConnectModal,
   setTronConnectModal,
@@ -303,7 +320,9 @@ export const {
   setTargetChainFetching,
   setSignature,
   setUuid,
-  setKYCStatus
+  setKYCStatus,
+  setIsTestnet,
+  setIsFioAllowed
 } = optionSlice.actions
 
 export default optionSlice.reducer

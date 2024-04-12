@@ -24,6 +24,8 @@ interface Props {
     successHandler?: (e: any) => void;
     switchChainHandler?: (chainId: number) => void;
     keplrHandler?: (e: any) => void;
+    isTestnet?: boolean;
+    isFioAllowed?: boolean;
 }
 /**
  * Returns the average of two numbers.
@@ -37,5 +39,5 @@ interface Props {
  *
  * @beta
  */
-export declare const KimaTransactionWidget: ({ mode, txId, autoSwitchChain, defaultToken, provider, dAppOption, theme, titleOption, paymentTitleOption, useFIAT, helpURL, compliantOption, transactionOption, kimaBackendUrl, kimaNodeProviderQuery, kimaExplorer, errorHandler, closeHandler, successHandler, switchChainHandler, keplrHandler }: Props) => React.JSX.Element;
+export declare const KimaTransactionWidget: ({ mode, txId, autoSwitchChain, defaultToken, provider, dAppOption, theme, titleOption, paymentTitleOption, useFIAT, helpURL, compliantOption, transactionOption, kimaBackendUrl, kimaNodeProviderQuery, kimaExplorer, errorHandler, closeHandler, successHandler, switchChainHandler, keplrHandler, isTestnet, isFioAllowed }: Props) => React.JSX.Element;
 export {};

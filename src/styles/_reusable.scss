@@ -452,6 +452,15 @@
           }
         }
 
+        .get-fio {
+          font-size: 1.16em;
+          .link {
+            &.dark {
+              color: white;
+            }
+          }
+        }
+
         @include breakpoint(mobile) {
           justify-content: space-between;
         }

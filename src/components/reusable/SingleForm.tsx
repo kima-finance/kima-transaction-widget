@@ -10,9 +10,10 @@ import {
   selectTargetChain,
   selectTheme,
   selectTransactionOption,
-  selectSelectedToken
+  selectSelectedToken,
+  selectIsFioAllowed
 } from '../../store/selectors'
-import { BankInput, CoinDropdown, WalletButton } from './'
+import { BankInput, CoinDropdown, ExternalLink, WalletButton } from './'
 import { setAmount } from '../../store/optionSlice'
 import { ModeOptions, PaymentTitleOption } from '../../interface'
 import AddressInput from './AddressInput'
@@ -34,6 +35,7 @@ const SingleForm = ({
   const selectedCoin = useSelector(selectSelectedToken)
   const sourceNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
+  const isFioAllowed = useSelector(selectIsFioAllowed)
   const Icon = COIN_LIST[selectedCoin || 'USDK'].icon
 
   const errorMessage = useMemo(
@@ -84,7 +86,11 @@ const SingleForm = ({
           <BankInput />
         ) : (
           <div className={`form-item ${theme.colorMode}`}>
-            <span className='label'>Target Address:</span>
+            <span className='label'>
+              {isFioAllowed
+                ? 'Target Address (or FIO handle):'
+                : 'Target Address:'}
+            </span>
             <AddressInput />
           </div>
         )
@@ -114,6 +120,19 @@ const SingleForm = ({
               {<Icon />}
               {selectedCoin}
             </div>
+          </div>
+        </div>
+      )}
+
+      {isFioAllowed && (
+        <div className={`form-item ${theme.colorMode}`}>
+          <div className='get-fio'>
+            <ExternalLink
+              to='https://app.fio.net/ref/kima'
+              className={`link ${theme.colorMode}`}
+            >
+              Get a Kima branded FIO handle
+            </ExternalLink>
           </div>
         </div>
       )}

@@ -23,6 +23,7 @@ var units = require('@ethersproject/units');
 var splToken = require('@solana/spl-token');
 var tronweb = require('tronweb');
 var ethers = require('ethers');
+var fiosdk = require('@fioprotocol/fiosdk');
 var BufferLayout = _interopDefault(require('buffer-layout'));
 var sha256 = _interopDefault(require('crypto-js/sha256.js'));
 var Base64 = _interopDefault(require('crypto-js/enc-base64.js'));
@@ -481,9 +482,9 @@ var Optimism = function Optimism(_ref) {
     fill: "#000000",
     stroke: "none"
   }, React__default.createElement("path", {
-    d: "M109 372 c-43 -22 -59 -38 -81 -81 -36 -68 -36 -114 0 -182 22 -43\r\n    38 -59 81 -81 68 -36 114 -36 182 0 43 22 59 38 81 81 36 68 36 114 0 182 -22\r\n    43 -38 59 -81 81 -31 16 -69 28 -91 28 -22 0 -60 -12 -91 -28z m79 -124 c16\r\n    -16 15 -60 -1 -82 -9 -12 -23 -17 -42 -14 -26 3 -30 8 -33 36 -5 54 44 92 76\r\n    60z m96 -1 c26 -19 13 -54 -24 -62 -17 -4 -30 -13 -30 -21 0 -8 -6 -14 -14\r\n    -14 -10 0 -12 9 -5 43 4 23 8 48 9 55 0 16 41 16 64 -1z"
+    d: "M109 372 c-43 -22 -59 -38 -81 -81 -36 -68 -36 -114 0 -182 22 -43\n    38 -59 81 -81 68 -36 114 -36 182 0 43 22 59 38 81 81 36 68 36 114 0 182 -22\n    43 -38 59 -81 81 -31 16 -69 28 -91 28 -22 0 -60 -12 -91 -28z m79 -124 c16\n    -16 15 -60 -1 -82 -9 -12 -23 -17 -42 -14 -26 3 -30 8 -33 36 -5 54 44 92 76\n    60z m96 -1 c26 -19 13 -54 -24 -62 -17 -4 -30 -13 -30 -21 0 -8 -6 -14 -14\n    -14 -10 0 -12 9 -5 43 4 23 8 48 9 55 0 16 41 16 64 -1z"
   }), React__default.createElement("path", {
-    d: "M140 219 c-14 -24 -7 -49 14 -49 15 0 28 34 19 56 -7 20 -21 17 -33\r\n    -7z"
+    d: "M140 219 c-14 -24 -7 -49 14 -49 15 0 28 34 19 56 -7 20 -21 17 -33\n    -7z"
   }), React__default.createElement("path", {
     d: "M247 233 c-12 -11 -8 -23 8 -23 8 0 15 7 15 15 0 16 -12 20 -23 8z"
   })));
@@ -538,13 +539,13 @@ var Copy = function Copy(_ref) {
     xmlns: 'http://www.w3.org/2000/svg',
     fill: fill
   }, rest), React__default.createElement("g", null, React__default.createElement("path", {
-    d: 'M35,270h45v45c0,8.284,6.716,15,15,15h200c8.284,0,15-6.716,15-15V75c0-8.284-6.716-15-15-15h-45V15\r\n     c0-8.284-6.716-15-15-15H35c-8.284,0-15,6.716-15,15v240C20,263.284,26.716,270,35,270z M280,300H110V90h170V300z M50,30h170v30H95\r\n     c-8.284,0-15,6.716-15,15v165H50V30z'
+    d: 'M35,270h45v45c0,8.284,6.716,15,15,15h200c8.284,0,15-6.716,15-15V75c0-8.284-6.716-15-15-15h-45V15\n     c0-8.284-6.716-15-15-15H35c-8.284,0-15,6.716-15,15v240C20,263.284,26.716,270,35,270z M280,300H110V90h170V300z M50,30h170v30H95\n     c-8.284,0-15,6.716-15,15v165H50V30z'
   }), React__default.createElement("path", {
     d: 'M155,120c-8.284,0-15,6.716-15,15s6.716,15,15,15h80c8.284,0,15-6.716,15-15s-6.716-15-15-15H155z'
   }), React__default.createElement("path", {
     d: 'M235,180h-80c-8.284,0-15,6.716-15,15s6.716,15,15,15h80c8.284,0,15-6.716,15-15S243.284,180,235,180z'
   }), React__default.createElement("path", {
-    d: 'M235,240h-80c-8.284,0-15,6.716-15,15c0,8.284,6.716,15,15,15h80c8.284,0,15-6.716,15-15C250,246.716,243.284,240,235,240z\r\n     '
+    d: 'M235,240h-80c-8.284,0-15,6.716-15,15c0,8.284,6.716,15,15,15h80c8.284,0,15-6.716,15-15C250,246.716,243.284,240,235,240z\n     '
   })));
 };
 
@@ -884,6 +885,7 @@ var initialState = {
   mode: exports.ModeOptions.bridge,
   sourceChain: '',
   targetChain: '',
+  targetAddressHandle: '',
   targetAddress: '',
   solanaConnectModal: false,
   tronConnectModal: false,
@@ -930,7 +932,9 @@ var initialState = {
   targetNetworkFetching: false,
   signature: '',
   uuid: '',
-  kycStatus: ''
+  kycStatus: '',
+  isTestnet: true,
+  isFioAllowed: true
 };
 var optionSlice = createSlice({
   name: 'option',
@@ -941,6 +945,7 @@ var optionSlice = createSlice({
       state.txId = -1;
       state.serviceFee = -1;
       state.amount = 0;
+      state.targetAddressHandle = '';
       state.targetAddress = '';
       state.compliantOption = true;
       state.sourceCompliant = 'low';
@@ -968,6 +973,9 @@ var optionSlice = createSlice({
     },
     setTargetChain: function setTargetChain(state, action) {
       state.targetChain = action.payload;
+    },
+    setTargetAddressHandle: function setTargetAddressHandle(state, action) {
+      state.targetAddressHandle = action.payload;
     },
     setTargetAddress: function setTargetAddress(state, action) {
       state.targetAddress = action.payload;
@@ -1076,6 +1084,12 @@ var optionSlice = createSlice({
     },
     setKYCStatus: function setKYCStatus(state, action) {
       state.kycStatus = action.payload;
+    },
+    setIsTestnet: function setIsTestnet(state, action) {
+      state.isTestnet = action.payload;
+    },
+    setIsFioAllowed: function setIsFioAllowed(state, action) {
+      state.isFioAllowed = action.payload;
     }
   }
 });
@@ -1086,6 +1100,7 @@ var _optionSlice$actions = optionSlice.actions,
   setTheme = _optionSlice$actions.setTheme,
   setSourceChain = _optionSlice$actions.setSourceChain,
   setTargetChain = _optionSlice$actions.setTargetChain,
+  setTargetAddressHandle = _optionSlice$actions.setTargetAddressHandle,
   setTargetAddress = _optionSlice$actions.setTargetAddress,
   setSolanaConnectModal = _optionSlice$actions.setSolanaConnectModal,
   setTronConnectModal = _optionSlice$actions.setTronConnectModal,
@@ -1119,7 +1134,9 @@ var _optionSlice$actions = optionSlice.actions,
   setTargetChainFetching = _optionSlice$actions.setTargetChainFetching,
   setSignature = _optionSlice$actions.setSignature,
   setUuid = _optionSlice$actions.setUuid,
-  setKYCStatus = _optionSlice$actions.setKYCStatus;
+  setKYCStatus = _optionSlice$actions.setKYCStatus,
+  setIsTestnet = _optionSlice$actions.setIsTestnet,
+  setIsFioAllowed = _optionSlice$actions.setIsFioAllowed;
 var optionReducer = optionSlice.reducer;
 
 var configureStore = toolkitRaw.configureStore;
@@ -1314,6 +1331,9 @@ var selectSourceChain = function selectSourceChain(state) {
 var selectTargetChain = function selectTargetChain(state) {
   return state.option.targetChain;
 };
+var selectTargetAddressHandle = function selectTargetAddressHandle(state) {
+  return state.option.targetAddressHandle;
+};
 var selectTargetAddress = function selectTargetAddress(state) {
   return state.option.targetAddress;
 };
@@ -1412,6 +1432,12 @@ var selectUuid = function selectUuid(state) {
 };
 var selectKycStatus = function selectKycStatus(state) {
   return state.option.kycStatus;
+};
+var selectIsTestnet = function selectIsTestnet(state) {
+  return state.option.isTestnet;
+};
+var selectIsFioAllowed = function selectIsFioAllowed(state) {
+  return state.option.isFioAllowed;
 };
 
 var Loading180Ring = function Loading180Ring(_ref) {
@@ -2531,7 +2557,7 @@ function useBalance() {
   var tokenOptions = reactRedux.useSelector(selectTokenOptions);
   var tokenAddress = React.useMemo(function () {
     if (isEmptyObject(tokenOptions)) return '';
-    return tokenOptions[selectedCoin][sourceChain];
+    return tokenOptions[selectedCoin] ? tokenOptions[selectedCoin][sourceChain] : '';
   }, [selectedCoin, sourceChain, tokenOptions]);
   React.useEffect(function () {
     (function () {
@@ -2919,16 +2945,173 @@ var ConfirmDetails = function ConfirmDetails(_ref) {
   }, React__default.createElement(targetNetworkOption.icon, null), targetNetworkOption.label)));
 };
 
+var fetchWrapper$1 = {
+  get: get$1,
+  post: post$1
+};
+function get$1(url) {
+  var requestOptions = {
+    method: 'GET'
+  };
+  requestOptions.headers = {
+    'Content-Type': 'application/json'
+  };
+  return fetch(url, requestOptions).then(handleResponse$1);
+}
+function post$1(url, body) {
+  var requestOptions = {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: body
+  };
+  return fetch(url, requestOptions).then(handleResponse$1);
+}
+function handleResponse$1(response) {
+  return response.text().then(function (text) {
+    var data = text;
+    try {
+      data = JSON.parse(text);
+    } catch (error) {
+      data = text;
+    }
+    if (!response.ok) {
+      var error = data || response.statusText;
+      return Promise.reject({
+        status: response.status,
+        error: error
+      });
+    }
+    return data;
+  });
+}
+
+var _customChainCodes;
+var fioLinks = {
+  testnet: 'https://test.fio.eosusa.io/v1/chain',
+  mainnet: 'https://fio.blockpane.com/v1/chain',
+  testnet2: 'https://testnet.fioprotocol.io/v1/',
+  mainnet2: 'https://fio.eosphere.io/v1/'
+};
+var customChainCodes = (_customChainCodes = {}, _customChainCodes[exports.SupportNetworks.SOLANA] = 'solana', _customChainCodes);
+var getFioLink = function getFioLink(isTestnet) {
+  return isTestnet ? fioLinks.testnet : fioLinks.mainnet;
+};
+var getPubAddresses = function getPubAddresses(fioHandle, isTestnet) {
+  try {
+    var providerLink = getFioLink(isTestnet);
+    var body = {
+      fio_address: fioHandle
+    };
+    return Promise.resolve(_catch(function () {
+      return Promise.resolve(fetchWrapper$1.post(providerLink + "/get_pub_addresses", JSON.stringify(body))).then(function (data) {
+        return data.public_addresses.map(function (item) {
+          var _item$chain_code, _item$token_code;
+          return {
+            chainCode: (_item$chain_code = item.chain_code) === null || _item$chain_code === void 0 ? void 0 : _item$chain_code.toLowerCase(),
+            tokenCode: (_item$token_code = item.token_code) === null || _item$token_code === void 0 ? void 0 : _item$token_code.toLowerCase(),
+            address: item.public_address
+          };
+        });
+      });
+    }, function (e) {
+      console.error('Failed to get pub addresses by fio', e);
+      return [];
+    }));
+  } catch (e) {
+    return Promise.reject(e);
+  }
+};
+var getAddressByFio = function getAddressByFio(fioHandle, chainCode, tokenCode, isTestnet) {
+  return Promise.resolve(getPubAddresses(fioHandle, isTestnet)).then(function (addresses) {
+    console.log('FioLogs => getPubAddresses', {
+      fioHandle: fioHandle,
+      chainCode: chainCode,
+      tokenCode: tokenCode
+    }, addresses);
+    if (addresses.length) {
+      var byChain = addresses.filter(function (adr) {
+        var _chainCode$trim;
+        return (chainCode === null || chainCode === void 0 ? void 0 : (_chainCode$trim = chainCode.trim()) === null || _chainCode$trim === void 0 ? void 0 : _chainCode$trim.toLowerCase()) === adr.chainCode || customChainCodes[chainCode] === adr.chainCode;
+      });
+      if (byChain.length > 0) {
+        var byToken = byChain.find(function (adr) {
+          var _tokenCode$trim;
+          return adr.tokenCode === (tokenCode === null || tokenCode === void 0 ? void 0 : (_tokenCode$trim = tokenCode.trim()) === null || _tokenCode$trim === void 0 ? void 0 : _tokenCode$trim.toLowerCase());
+        });
+        return byToken ? byToken.address : byChain[0].address;
+      }
+    }
+    return '';
+  });
+};
+var isValidFioHandle = function isValidFioHandle(fioHandle) {
+  if (typeof fioHandle === 'string' && fioHandle.includes('@')) {
+    try {
+      return fiosdk.FIOSDK.isFioAddressValid(fioHandle);
+    } catch (_) {
+      return false;
+    }
+  }
+  return false;
+};
+
+function debounce(func, delay) {
+  var timer;
+  return function () {
+    var _this = this;
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      return func.apply(_this, args);
+    }, delay);
+  };
+}
+
 var AddressInput = function AddressInput() {
   var dispatch = reactRedux.useDispatch();
-  var targetAddress = reactRedux.useSelector(selectTargetAddress);
+  var targetNetwork = reactRedux.useSelector(selectTargetChain);
+  var selectedCoin = reactRedux.useSelector(selectSelectedToken);
+  var isTestnet = reactRedux.useSelector(selectIsTestnet);
+  var isFioAllowed = reactRedux.useSelector(selectIsFioAllowed);
+  var targetAddressHandle = reactRedux.useSelector(selectTargetAddressHandle);
+  var updateTargetAddress = React.useCallback(function (newAddress) {
+    try {
+      var isFio = isValidFioHandle(newAddress);
+      if (isFio) {
+        getAddressByFio(newAddress, targetNetwork, selectedCoin, isTestnet).then(function (fioAddress) {
+          dispatch(setTargetAddress(fioAddress || newAddress));
+        });
+      } else {
+        dispatch(setTargetAddress(newAddress));
+      }
+      return Promise.resolve();
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }, [dispatch, targetNetwork, selectedCoin, isTestnet]);
+  var debouncedUpdateTarget = React.useCallback(debounce(updateTargetAddress, 200), [updateTargetAddress]);
+  React.useEffect(function () {
+    if (isFioAllowed) {
+      debouncedUpdateTarget(targetAddressHandle);
+    }
+  }, [debouncedUpdateTarget, targetAddressHandle]);
+  var onChange = function onChange(e) {
+    var newAddress = e.target.value;
+    dispatch(setTargetAddressHandle(newAddress));
+    if (!isFioAllowed) {
+      dispatch(setTargetAddress(newAddress));
+    }
+  };
   return React__default.createElement("input", {
     className: 'kima-address-input',
     type: 'text',
-    value: targetAddress,
-    onChange: function onChange(e) {
-      return dispatch(setTargetAddress(e.target.value));
-    }
+    value: targetAddressHandle,
+    onChange: onChange
   });
 };
 
@@ -3575,6 +3758,7 @@ var SingleForm = function SingleForm(_ref) {
   var selectedCoin = reactRedux.useSelector(selectSelectedToken);
   var sourceNetwork = reactRedux.useSelector(selectSourceChain);
   var targetNetwork = reactRedux.useSelector(selectTargetChain);
+  var isFioAllowed = reactRedux.useSelector(selectIsFioAllowed);
   var Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
   var errorMessage = React.useMemo(function () {
     return compliantOption && targetCompliant !== 'low' ? "Target address has " + targetCompliant + " risk" : '';
@@ -3608,7 +3792,7 @@ var SingleForm = function SingleForm(_ref) {
     className: "form-item " + theme.colorMode
   }, React__default.createElement("span", {
     className: 'label'
-  }, "Target Address:"), React__default.createElement(AddressInput, null)) : null, mode === exports.ModeOptions.bridge ? React__default.createElement("div", {
+  }, isFioAllowed ? 'Target Address (or FIO handle):' : 'Target Address:'), React__default.createElement(AddressInput, null)) : null, mode === exports.ModeOptions.bridge ? React__default.createElement("div", {
     className: "form-item " + theme.colorMode
   }, React__default.createElement("span", {
     className: 'label'
@@ -3629,7 +3813,14 @@ var SingleForm = function SingleForm(_ref) {
     className: "amount-label " + theme.colorMode
   }, React__default.createElement("span", null, (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount) || ''), React__default.createElement("div", {
     className: 'coin-wrapper'
-  }, React__default.createElement(Icon, null), selectedCoin))));
+  }, React__default.createElement(Icon, null), selectedCoin))), isFioAllowed && React__default.createElement("div", {
+    className: "form-item " + theme.colorMode
+  }, React__default.createElement("div", {
+    className: 'get-fio'
+  }, React__default.createElement(ExternalLink, {
+    to: 'https://app.fio.net/ref/kima',
+    className: "link " + theme.colorMode
+  }, "Get a Kima branded FIO handle"))));
 };
 
 var CoinSelect = function CoinSelect() {
@@ -7345,7 +7536,7 @@ function useAllowance(_ref) {
   var tokenOptions = reactRedux.useSelector(selectTokenOptions);
   var tokenAddress = React.useMemo(function () {
     if (isEmptyObject(tokenOptions)) return '';
-    return tokenOptions[selectedCoin][sourceChain];
+    return tokenOptions[selectedCoin] ? tokenOptions[selectedCoin][sourceChain] : '';
   }, [selectedCoin, sourceChain, tokenOptions]);
   var _useState3 = React.useState(),
     targetAddress = _useState3[0],
@@ -8193,7 +8384,11 @@ var KimaTransactionWidget = function KimaTransactionWidget(_ref) {
     _ref$keplrHandler = _ref.keplrHandler,
     keplrHandler = _ref$keplrHandler === void 0 ? function () {
       return void 0;
-    } : _ref$keplrHandler;
+    } : _ref$keplrHandler,
+    _ref$isTestnet = _ref.isTestnet,
+    isTestnet = _ref$isTestnet === void 0 ? true : _ref$isTestnet,
+    _ref$isFioAllowed = _ref.isFioAllowed,
+    isFioAllowed = _ref$isFioAllowed === void 0 ? true : _ref$isFioAllowed;
   var submitted = reactRedux.useSelector(selectSubmitted);
   var dispatch = reactRedux.useDispatch();
   var _useWeb3ModalTheme = react.useWeb3ModalTheme(),
@@ -8217,6 +8412,8 @@ var KimaTransactionWidget = function KimaTransactionWidget(_ref) {
     dispatch(setWalletAutoConnect(autoSwitchChain));
     dispatch(setSelectedToken(defaultToken));
     dispatch(setUseFIAT(useFIAT));
+    dispatch(setIsTestnet(isTestnet));
+    dispatch(setIsFioAllowed(isFioAllowed));
     if (useFIAT) {
       dispatch(setTxId(txId || -1));
       (function () {
