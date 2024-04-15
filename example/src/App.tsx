@@ -29,8 +29,8 @@ const App = () => {
             // dAppOption={DAppOptions.LPAdd}
             kimaBackendUrl='http://localhost:3001'
             kimaNodeProviderQuery='https://api-staging.kima.finance'
-            autoSwitchChain={false}
-            compliantOption={false}
+            // autoSwitchChain={false}
+            // compliantOption={false}
             isFioAllowed={true}
             isTestnet={false}
             // defaultToken={'USDK'}
