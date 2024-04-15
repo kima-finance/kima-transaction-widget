@@ -30,6 +30,9 @@ const App = () => {
             kimaBackendUrl='http://localhost:3001'
             kimaNodeProviderQuery='https://api-staging.kima.finance'
             // autoSwitchChain={false}
+            // compliantOption={false}
+            isFioAllowed={true}
+            isTestnet={false}
             // defaultToken={'USDK'}
             // useFIAT={true}
             // titleOption={{

@@ -36,7 +36,9 @@ import {
   setUuid,
   setKeplrHandler,
   setKimaExplorer,
-  setSelectedToken
+  setSelectedToken,
+  setIsTestnet,
+  setIsFioAllowed
 } from '../store/optionSlice'
 import '../index.css'
 import { selectSubmitted } from '../store/selectors'
@@ -69,6 +71,8 @@ interface Props {
   successHandler?: (e: any) => void
   switchChainHandler?: (chainId: number) => void
   keplrHandler?: (e: any) => void
+  isTestnet?: boolean
+  isFioAllowed?: boolean
 }
 
 /**
@@ -105,7 +109,9 @@ export const KimaTransactionWidget = ({
   closeHandler = () => void 0,
   successHandler = () => void 0,
   switchChainHandler = () => void 0,
-  keplrHandler = () => void 0
+  keplrHandler = () => void 0,
+  isTestnet = true,
+  isFioAllowed = true
 }: Props) => {
   const submitted = useSelector(selectSubmitted)
   const dispatch = useDispatch()
@@ -132,6 +138,8 @@ export const KimaTransactionWidget = ({
     dispatch(setWalletAutoConnect(autoSwitchChain))
     dispatch(setSelectedToken(defaultToken))
     dispatch(setUseFIAT(useFIAT))
+    dispatch(setIsTestnet(isTestnet))
+    dispatch(setIsFioAllowed(isFioAllowed))
     if (useFIAT) {
       dispatch(setTxId(txId || -1))
       ;(async function () {

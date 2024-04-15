@@ -514,6 +514,12 @@
     width: 12em;
   }
 }
+.kima-card .kima-card-content .single-form .form-item .get-fio {
+  font-size: 1.16em;
+}
+.kima-card .kima-card-content .single-form .form-item .get-fio .link.dark {
+  color: white;
+}
 @media (max-width: 500px) {
   .kima-card .kima-card-content .single-form .form-item {
     justify-content: space-between;

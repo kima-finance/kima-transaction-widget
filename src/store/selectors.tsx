@@ -11,6 +11,8 @@ export const selectKimaExplorer = (state: RootState) =>
   state.option.kimaExplorerUrl
 export const selectSourceChain = (state: RootState) => state.option.sourceChain
 export const selectTargetChain = (state: RootState) => state.option.targetChain
+export const selectTargetAddressHandle = (state: RootState) =>
+  state.option.targetAddressHandle
 export const selectTargetAddress = (state: RootState) =>
   state.option.targetAddress
 export const selectSolanaConnectModal = (state: RootState) =>
@@ -66,3 +68,6 @@ export const selectTargetChainFetching = (state: RootState) =>
 export const selectSignature = (state: RootState) => state.option.signature
 export const selectUuid = (state: RootState) => state.option.uuid
 export const selectKycStatus = (state: RootState) => state.option.kycStatus
+export const selectIsTestnet = (state: RootState) => state.option.isTestnet
+export const selectIsFioAllowed = (state: RootState) =>
+  state.option.isFioAllowed

@@ -91,8 +91,9 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
   const tokenOptions = useSelector(selectTokenOptions)
   const tokenAddress = useMemo(() => {
     if (isEmptyObject(tokenOptions)) return ''
-
-    return tokenOptions[selectedCoin][sourceChain]
+    return tokenOptions[selectedCoin]
+      ? tokenOptions[selectedCoin][sourceChain]
+      : ''
   }, [selectedCoin, sourceChain, tokenOptions])
   const [targetAddress, setTargetAddress] = useState<string>()
   const isApproved = useMemo(() => {
