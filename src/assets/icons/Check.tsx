@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Check = ({ width = 15, height = 11, fill = '#33EA66', ...rest }) => {
+const Check = ({ width = 15, height = 11, fill = '#03a932', ...rest }) => {
   return (
     <svg
       width={width}

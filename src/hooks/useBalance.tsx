@@ -121,10 +121,12 @@ export default function useBalance() {
             return
           }
         }
+
         const provider = new ethers.providers.Web3Provider(
           walletProvider as ExternalProvider | JsonRpcFetchFunc
         )
         const signer = provider?.getSigner()
+
         if (!tokenAddress || !signer || !signerAddress) return
 
         const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer)

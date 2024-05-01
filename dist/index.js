@@ -177,7 +177,7 @@ var Check = function Check(_ref) {
     _ref$height = _ref.height,
     height = _ref$height === void 0 ? 11 : _ref$height,
     _ref$fill = _ref.fill,
-    fill = _ref$fill === void 0 ? '#33EA66' : _ref$fill,
+    fill = _ref$fill === void 0 ? '#03a932' : _ref$fill,
     rest = _objectWithoutPropertiesLoose(_ref, _excluded$3);
   return React__default.createElement("svg", Object.assign({
     width: width,
@@ -1106,6 +1106,7 @@ var _optionSlice$actions = optionSlice.actions,
   setSwitchChainHandler = _optionSlice$actions.setSwitchChainHandler,
   setServiceFee = _optionSlice$actions.setServiceFee,
   setMode = _optionSlice$actions.setMode,
+  setFeeDeduct = _optionSlice$actions.setFeeDeduct,
   setBackendUrl = _optionSlice$actions.setBackendUrl,
   setNodeProviderQuery = _optionSlice$actions.setNodeProviderQuery,
   setTxId = _optionSlice$actions.setTxId,
@@ -2932,6 +2933,23 @@ var AddressInput = function AddressInput() {
   });
 };
 
+var CustomCheckbox = function CustomCheckbox(_ref) {
+  var text = _ref.text,
+    checked = _ref.checked,
+    setCheck = _ref.setCheck;
+  var theme = reactRedux.useSelector(selectTheme);
+  return React__default.createElement("div", {
+    className: 'kima-custom-checkbox'
+  }, React__default.createElement("div", {
+    className: 'content',
+    onClick: function onClick() {
+      return setCheck(!checked);
+    }
+  }, React__default.createElement("div", {
+    className: "icon-wrapper " + theme.colorMode
+  }, checked && React__default.createElement(Check, null)), React__default.createElement("span", null, text)));
+};
+
 var CopyButton = function CopyButton(_ref) {
   var text = _ref.text;
   var _useState = React.useState(false),
@@ -3569,6 +3587,8 @@ var SingleForm = function SingleForm(_ref) {
   var mode = reactRedux.useSelector(selectMode);
   var theme = reactRedux.useSelector(selectTheme);
   var amount = reactRedux.useSelector(selectAmount);
+  var feeDeduct = reactRedux.useSelector(selectFeeDeduct);
+  var serviceFee = reactRedux.useSelector(selectServiceFee);
   var compliantOption = reactRedux.useSelector(selectCompliantOption);
   var targetCompliant = reactRedux.useSelector(selectTargetCompliant);
   var transactionOption = reactRedux.useSelector(selectTransactionOption);
@@ -3629,7 +3649,13 @@ var SingleForm = function SingleForm(_ref) {
     className: "amount-label " + theme.colorMode
   }, React__default.createElement("span", null, (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount) || ''), React__default.createElement("div", {
     className: 'coin-wrapper'
-  }, React__default.createElement(Icon, null), selectedCoin))));
+  }, React__default.createElement(Icon, null), selectedCoin))), mode === exports.ModeOptions.bridge && serviceFee > 0 ? React__default.createElement(CustomCheckbox, {
+    text: "Deduct " + formatterFloat.format(serviceFee) + " USDK fee",
+    checked: feeDeduct,
+    setCheck: function setCheck(value) {
+      return dispatch(setFeeDeduct(value));
+    }
+  }) : null);
 };
 
 var CoinSelect = function CoinSelect() {
@@ -3658,7 +3684,7 @@ var CoinSelect = function CoinSelect() {
   }, React__default.createElement(Icon, null), React__default.createElement("span", null, selectedCoin)))));
 };
 
-function useServiceFee(isConfirming) {
+function useServiceFee(isConfirming, feeURL) {
   if (isConfirming === void 0) {
     isConfirming = false;
   }
@@ -3673,7 +3699,6 @@ function useServiceFee(isConfirming) {
   var targetNetwork = reactRedux.useSelector(selectTargetChain);
   var targetAddress_ = reactRedux.useSelector(selectTargetAddress);
   var transactionOption = reactRedux.useSelector(selectTransactionOption);
-  var nodeProviderQuery = reactRedux.useSelector(selectNodeProviderQuery);
   var targetChain = React.useMemo(function () {
     return mode === exports.ModeOptions.payment ? (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetChain) || '' : targetNetwork;
   }, [transactionOption, mode, targetNetwork]);
@@ -3685,19 +3710,19 @@ function useServiceFee(isConfirming) {
   }, [transactionOption, mode, amount_]);
   var getServiceFee = function getServiceFee() {
     try {
-      if (!sourceChain || !targetChain || !isReady || !walletAddress || !targetAddress || !nodeProviderQuery || !amount) return Promise.resolve();
-      var gasFee = {};
+      if (!sourceChain || !targetChain || !isReady || !walletAddress || !targetAddress || !amount) return Promise.resolve();
       return Promise.resolve(_catch(function () {
         if (sourceChain === exports.SupportNetworks.FIAT || targetChain === exports.SupportNetworks.FIAT) {
           dispatch(setServiceFee(0));
           return;
         }
-        return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/chains/gas_fee")).then(function (gasFeeData) {
-          gasFeeData.gasFee.forEach(function (data) {
-            gasFee[data.chainId] = data.fee;
+        return Promise.resolve(fetchWrapper.get(feeURL + "/fee/" + sourceChain)).then(function (sourceChainResult) {
+          var sourceFee = sourceChainResult.fee.split('-')[0];
+          return Promise.resolve(fetchWrapper.get(feeURL + "/fee/" + targetChain)).then(function (targetChainResult) {
+            var targetFee = targetChainResult.fee.split('-')[0];
+            var fee = +sourceFee + +targetFee;
+            dispatch(setServiceFee(parseFloat(fee.toFixed(2))));
           });
-          var fee = 0;
-          dispatch(setServiceFee(parseFloat(fee.toFixed(2))));
         });
       }, function (e) {
         dispatch(setServiceFee(0));
@@ -3716,7 +3741,7 @@ function useServiceFee(isConfirming) {
     return function () {
       clearInterval(timerId);
     };
-  }, [sourceChain, targetChain, isReady, walletAddress, isConfirming, targetAddress, nodeProviderQuery, amount]);
+  }, [sourceChain, targetChain, isReady, walletAddress, isConfirming, targetAddress, amount]);
   return React.useMemo(function () {
     return {
       serviceFee: serviceFee
@@ -7351,7 +7376,6 @@ function useAllowance(_ref) {
     targetAddress = _useState3[0],
     setTargetAddress = _useState3[1];
   var isApproved = React.useMemo(function () {
-    console.log(allowance, amount, serviceFee);
     return allowance >= amount + serviceFee;
   }, [allowance, amount, serviceFee, dAppOption]);
   var updatePoolAddress = function updatePoolAddress() {
@@ -7689,6 +7713,7 @@ function useSign(_ref) {
 var TransferWidget = function TransferWidget(_ref) {
   var _theme$backgroundColo;
   var theme = _ref.theme,
+    feeURL = _ref.feeURL,
     helpURL = _ref.helpURL,
     titleOption = _ref.titleOption,
     paymentTitleOption = _ref.paymentTitleOption;
@@ -7706,6 +7731,7 @@ var TransferWidget = function TransferWidget(_ref) {
   var mode = reactRedux.useSelector(selectMode);
   var dAppOption = reactRedux.useSelector(selectDappOption);
   var amount = reactRedux.useSelector(selectAmount);
+  var feeDeduct = reactRedux.useSelector(selectFeeDeduct);
   var sourceChain = reactRedux.useSelector(selectSourceChain);
   var targetAddress = reactRedux.useSelector(selectTargetAddress);
   var targetChain = reactRedux.useSelector(selectTargetChain);
@@ -7750,7 +7776,7 @@ var TransferWidget = function TransferWidget(_ref) {
     }),
     isSigned = _useSign.isSigned,
     sign = _useSign.sign;
-  var _useServiceFee = useServiceFee(isConfirming),
+  var _useServiceFee = useServiceFee(isConfirming, feeURL),
     fee = _useServiceFee.serviceFee;
   var _useBalance = useBalance(),
     balance = _useBalance.balance;
@@ -7862,6 +7888,7 @@ var TransferWidget = function TransferWidget(_ref) {
         errorHandler('Fee is not calculated!');
         return Promise.resolve();
       }
+      console.log(fee, amount, feeDeduct);
       if (dAppOption !== exports.DAppOptions.LPDrain && balance < amount) {
         toast.toast.error('Insufficient balance!');
         errorHandler('Insufficient balance!');
@@ -7965,6 +7992,11 @@ var TransferWidget = function TransferWidget(_ref) {
         }
         return;
       }
+      if (fee > 0 && fee > amount && feeDeduct) {
+        toast.toast.error('Fee is greater than amount to transfer!');
+        errorHandler('Fee is greater than amount to transfer!');
+        return;
+      }
       if (mode === exports.ModeOptions.payment && wizardStep === 1 && fee >= 0 && (!compliantOption || sourceCompliant === 'low' && targetCompliant === 'low')) {
         setConfirming(true);
         setWizardStep(5);
@@ -7997,6 +8029,11 @@ var TransferWidget = function TransferWidget(_ref) {
           return;
         }
         if (compliantOption && (sourceCompliant !== 'low' || targetCompliant !== 'low')) return;
+        if (fee > 0 && fee > amount && feeDeduct) {
+          toast.toast.error('Fee is greater than amount to transfer!');
+          errorHandler('Fee is greater than amount to transfer!');
+          return;
+        }
         if (mode === exports.ModeOptions.payment || targetAddress && amount > 0) {
           setConfirming(true);
           setFormStep(1);
@@ -8174,6 +8211,8 @@ var KimaTransactionWidget = function KimaTransactionWidget(_ref) {
     kimaNodeProviderQuery = _ref.kimaNodeProviderQuery,
     _ref$kimaExplorer = _ref.kimaExplorer,
     kimaExplorer = _ref$kimaExplorer === void 0 ? 'explorer.kima.finance' : _ref$kimaExplorer,
+    _ref$feeURL = _ref.feeURL,
+    feeURL = _ref$feeURL === void 0 ? 'https://fee.kima.finance' : _ref$feeURL,
     _ref$errorHandler = _ref.errorHandler,
     errorHandler = _ref$errorHandler === void 0 ? function () {
       return void 0;
@@ -8288,6 +8327,7 @@ var KimaTransactionWidget = function KimaTransactionWidget(_ref) {
     theme: theme
   }) : React__default.createElement(TransferWidget, {
     theme: theme,
+    feeURL: feeURL,
     helpURL: helpURL,
     titleOption: titleOption,
     paymentTitleOption: paymentTitleOption

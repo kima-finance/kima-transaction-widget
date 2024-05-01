@@ -91,7 +91,7 @@ const FooterLogo = ({
 const Check = ({
   width: _width = 15,
   height: _height = 11,
-  fill: _fill = '#33EA66',
+  fill: _fill = '#03a932',
   ...rest
 }) => {
   return React.createElement("svg", Object.assign({
@@ -2428,6 +2428,22 @@ const AddressInput = () => {
   });
 };
 
+const CustomCheckbox = ({
+  text,
+  checked,
+  setCheck
+}) => {
+  const theme = useSelector(selectTheme);
+  return React.createElement("div", {
+    className: 'kima-custom-checkbox'
+  }, React.createElement("div", {
+    className: 'content',
+    onClick: () => setCheck(!checked)
+  }, React.createElement("div", {
+    className: `icon-wrapper ${theme.colorMode}`
+  }, checked && React.createElement(Check, null)), React.createElement("span", null, text)));
+};
+
 const CopyButton = ({
   text
 }) => {
@@ -3010,6 +3026,8 @@ const SingleForm = ({
   const mode = useSelector(selectMode);
   const theme = useSelector(selectTheme);
   const amount = useSelector(selectAmount);
+  const feeDeduct = useSelector(selectFeeDeduct);
+  const serviceFee = useSelector(selectServiceFee);
   const compliantOption = useSelector(selectCompliantOption);
   const targetCompliant = useSelector(selectTargetCompliant);
   const transactionOption = useSelector(selectTransactionOption);
@@ -3068,7 +3086,11 @@ const SingleForm = ({
     className: `amount-label ${theme.colorMode}`
   }, React.createElement("span", null, (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount) || ''), React.createElement("div", {
     className: 'coin-wrapper'
-  }, React.createElement(Icon, null), selectedCoin))));
+  }, React.createElement(Icon, null), selectedCoin))), mode === ModeOptions.bridge && serviceFee > 0 ? React.createElement(CustomCheckbox, {
+    text: `Deduct ${formatterFloat.format(serviceFee)} USDK fee`,
+    checked: feeDeduct,
+    setCheck: value => dispatch(setFeeDeduct(value))
+  }) : null);
 };
 
 const CoinSelect = () => {
@@ -3097,7 +3119,7 @@ const CoinSelect = () => {
   }, React.createElement(Icon, null), React.createElement("span", null, selectedCoin)))));
 };
 
-function useServiceFee(isConfirming = false) {
+function useServiceFee(isConfirming = false, feeURL) {
   const {
     walletAddress,
     isReady
@@ -3110,23 +3132,21 @@ function useServiceFee(isConfirming = false) {
   const targetNetwork = useSelector(selectTargetChain);
   const targetAddress_ = useSelector(selectTargetAddress);
   const transactionOption = useSelector(selectTransactionOption);
-  const nodeProviderQuery = useSelector(selectNodeProviderQuery);
   const targetChain = useMemo(() => mode === ModeOptions.payment ? (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetChain) || '' : targetNetwork, [transactionOption, mode, targetNetwork]);
   const targetAddress = useMemo(() => mode === ModeOptions.payment ? (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress) || '' : targetAddress_, [transactionOption, mode, targetAddress_]);
   const amount = useMemo(() => mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount : amount_, [transactionOption, mode, amount_]);
   const getServiceFee = async () => {
-    if (!sourceChain || !targetChain || !isReady || !walletAddress || !targetAddress || !nodeProviderQuery || !amount) return;
-    let gasFee = {};
+    if (!sourceChain || !targetChain || !isReady || !walletAddress || !targetAddress || !amount) return;
     try {
       if (sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT) {
         dispatch(setServiceFee(0));
         return;
       }
-      const gasFeeData = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/gas_fee`);
-      gasFeeData.gasFee.forEach(data => {
-        gasFee[data.chainId] = data.fee;
-      });
-      let fee = 0;
+      const sourceChainResult = await fetchWrapper.get(`${feeURL}/fee/${sourceChain}`);
+      const sourceFee = sourceChainResult.fee.split('-')[0];
+      const targetChainResult = await fetchWrapper.get(`${feeURL}/fee/${targetChain}`);
+      const targetFee = targetChainResult.fee.split('-')[0];
+      let fee = +sourceFee + +targetFee;
       dispatch(setServiceFee(parseFloat(fee.toFixed(2))));
     } catch (e) {
       dispatch(setServiceFee(0));
@@ -3142,7 +3162,7 @@ function useServiceFee(isConfirming = false) {
     return () => {
       clearInterval(timerId);
     };
-  }, [sourceChain, targetChain, isReady, walletAddress, isConfirming, targetAddress, nodeProviderQuery, amount]);
+  }, [sourceChain, targetChain, isReady, walletAddress, isConfirming, targetAddress, amount]);
   return useMemo(() => ({
     serviceFee
   }), [serviceFee]);
@@ -6753,7 +6773,6 @@ function useAllowance({
   }, [selectedCoin, sourceChain, tokenOptions]);
   const [targetAddress, setTargetAddress] = useState();
   const isApproved = useMemo(() => {
-    console.log(allowance, amount, serviceFee);
     return allowance >= amount + serviceFee;
   }, [allowance, amount, serviceFee, dAppOption]);
   const updatePoolAddress = async () => {
@@ -6986,6 +7005,7 @@ function useSign({
 
 const TransferWidget = ({
   theme,
+  feeURL,
   helpURL,
   titleOption,
   paymentTitleOption
@@ -6998,6 +7018,7 @@ const TransferWidget = ({
   const mode = useSelector(selectMode);
   const dAppOption = useSelector(selectDappOption);
   const amount = useSelector(selectAmount);
+  const feeDeduct = useSelector(selectFeeDeduct);
   const sourceChain = useSelector(selectSourceChain);
   const targetAddress = useSelector(selectTargetAddress);
   const targetChain = useSelector(selectTargetChain);
@@ -7038,7 +7059,7 @@ const TransferWidget = ({
   });
   const {
     serviceFee: fee
-  } = useServiceFee(isConfirming);
+  } = useServiceFee(isConfirming, feeURL);
   const {
     balance
   } = useBalance();
@@ -7126,6 +7147,7 @@ const TransferWidget = ({
       errorHandler('Fee is not calculated!');
       return;
     }
+    console.log(fee, amount, feeDeduct);
     if (dAppOption !== DAppOptions.LPDrain && balance < amount) {
       toast$1.error('Insufficient balance!');
       errorHandler('Insufficient balance!');
@@ -7218,6 +7240,11 @@ const TransferWidget = ({
         }
         return;
       }
+      if (fee > 0 && fee > amount && feeDeduct) {
+        toast$1.error('Fee is greater than amount to transfer!');
+        errorHandler('Fee is greater than amount to transfer!');
+        return;
+      }
       if (mode === ModeOptions.payment && wizardStep === 1 && fee >= 0 && (!compliantOption || sourceCompliant === 'low' && targetCompliant === 'low')) {
         setConfirming(true);
         setWizardStep(5);
@@ -7248,6 +7275,11 @@ const TransferWidget = ({
           return;
         }
         if (compliantOption && (sourceCompliant !== 'low' || targetCompliant !== 'low')) return;
+        if (fee > 0 && fee > amount && feeDeduct) {
+          toast$1.error('Fee is greater than amount to transfer!');
+          errorHandler('Fee is greater than amount to transfer!');
+          return;
+        }
         if (mode === ModeOptions.payment || targetAddress && amount > 0) {
           setConfirming(true);
           setFormStep(1);
@@ -7414,6 +7446,7 @@ const KimaTransactionWidget = ({
   kimaBackendUrl,
   kimaNodeProviderQuery,
   kimaExplorer: _kimaExplorer = 'explorer.kima.finance',
+  feeURL: _feeURL = 'https://fee.kima.finance',
   errorHandler: _errorHandler = () => void 0,
   closeHandler: _closeHandler = () => void 0,
   successHandler: _successHandler = () => void 0,
@@ -7497,6 +7530,7 @@ const KimaTransactionWidget = ({
     theme: theme
   }) : React.createElement(TransferWidget, {
     theme: theme,
+    feeURL: _feeURL,
     helpURL: _helpURL,
     titleOption: titleOption,
     paymentTitleOption: paymentTitleOption

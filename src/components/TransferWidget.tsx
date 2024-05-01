@@ -50,7 +50,8 @@ import {
   selectTargetChain,
   selectKycStatus,
   selectKeplrHandler,
-  selectTransactionOption
+  selectTransactionOption,
+  selectFeeDeduct
 } from '../store/selectors'
 import useIsWalletReady from '../hooks/useIsWalletReady'
 import useServiceFee from '../hooks/useServiceFee'
@@ -68,6 +69,7 @@ import TronWalletConnectModal from './modals/TronWalletConnectModal'
 
 interface Props {
   theme: ThemeOptions
+  feeURL: string
   helpURL?: string
   titleOption?: TitleOption
   paymentTitleOption?: PaymentTitleOption
@@ -75,6 +77,7 @@ interface Props {
 
 export const TransferWidget = ({
   theme,
+  feeURL,
   helpURL,
   titleOption,
   paymentTitleOption
@@ -91,6 +94,7 @@ export const TransferWidget = ({
   const mode = useSelector(selectMode)
   const dAppOption = useSelector(selectDappOption)
   const amount = useSelector(selectAmount)
+  const feeDeduct = useSelector(selectFeeDeduct)
   const sourceChain = useSelector(selectSourceChain)
   const targetAddress = useSelector(selectTargetAddress)
   const targetChain = useSelector(selectTargetChain)
@@ -116,7 +120,7 @@ export const TransferWidget = ({
   const { walletAddress, isReady } = useIsWalletReady()
   const { isApproved, approve } = useAllowance({ setApproving })
   const { isSigned, sign } = useSign({ setSigning })
-  const { serviceFee: fee } = useServiceFee(isConfirming)
+  const { serviceFee: fee } = useServiceFee(isConfirming, feeURL)
   const { balance } = useBalance()
   const windowWidth = useWidth()
 
@@ -229,6 +233,8 @@ export const TransferWidget = ({
       errorHandler('Fee is not calculated!')
       return
     }
+
+    console.log(fee, amount, feeDeduct)
 
     if (dAppOption !== DAppOptions.LPDrain && balance < amount) {
       toast.error('Insufficient balance!')
@@ -346,6 +352,12 @@ export const TransferWidget = ({
         return
       }
 
+      if (fee > 0 && fee > amount && feeDeduct) {
+        toast.error('Fee is greater than amount to transfer!')
+        errorHandler('Fee is greater than amount to transfer!')
+        return
+      }
+
       if (
         mode === ModeOptions.payment &&
         wizardStep === 1 &&
@@ -388,6 +400,13 @@ export const TransferWidget = ({
           (sourceCompliant !== 'low' || targetCompliant !== 'low')
         )
           return
+
+        if (fee > 0 && fee > amount && feeDeduct) {
+          toast.error('Fee is greater than amount to transfer!')
+          errorHandler('Fee is greater than amount to transfer!')
+          return
+        }
+
         if (mode === ModeOptions.payment || (targetAddress && amount > 0)) {
           setConfirming(true)
           setFormStep(1)

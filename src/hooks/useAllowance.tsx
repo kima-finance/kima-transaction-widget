@@ -96,7 +96,6 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
   }, [selectedCoin, sourceChain, tokenOptions])
   const [targetAddress, setTargetAddress] = useState<string>()
   const isApproved = useMemo(() => {
-    console.log(allowance, amount, serviceFee)
     return allowance >= amount + serviceFee
   }, [allowance, amount, serviceFee, dAppOption])
 

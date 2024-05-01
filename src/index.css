@@ -938,11 +938,18 @@
   }
 }
 .kima-card .kima-card-content .kima-custom-checkbox {
-  margin-left: 2em;
+  margin-left: 11.5em;
+  margin-top: 1em;
   display: flex;
   align-items: center;
 }
-.kima-card .kima-card-content .kima-custom-checkbox .icon-wrapper {
+.kima-card .kima-card-content .kima-custom-checkbox .content {
+  display: flex;
+  align-items: center;
+  column-gap: 0.5em;
+  cursor: pointer;
+}
+.kima-card .kima-card-content .kima-custom-checkbox .content .icon-wrapper {
   border: 1px solid #ffffff;
   height: 1em;
   width: 1em;
@@ -950,12 +957,11 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  cursor: pointer;
 }
-.kima-card .kima-card-content .kima-custom-checkbox .icon-wrapper.light {
+.kima-card .kima-card-content .kima-custom-checkbox .content .icon-wrapper.light {
   border-color: #4f5156;
 }
-.kima-card .kima-card-content .kima-custom-checkbox .icon-wrapper svg {
+.kima-card .kima-card-content .kima-custom-checkbox .content .icon-wrapper svg {
   margin-top: 0.2em;
   margin-left: 1px;
 }
