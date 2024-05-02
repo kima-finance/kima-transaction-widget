@@ -15,6 +15,7 @@ import {
 } from '../store/selectors'
 import { ChainName } from '../utils/constants'
 import useIsWalletReady from './useIsWalletReady'
+import toast from 'react-hot-toast'
 
 export default function useServiceFee(
   isConfirming: boolean = false,
@@ -79,6 +80,7 @@ export default function useServiceFee(
     } catch (e) {
       dispatch(setServiceFee(0))
       console.log('rpc disconnected', e)
+      toast.error('rpc disconnected')
     }
   }
 

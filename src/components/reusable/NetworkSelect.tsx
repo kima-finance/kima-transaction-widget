@@ -18,6 +18,7 @@ import {
 import { ChainName } from '../../utils/constants'
 import { ModeOptions } from '../../interface'
 import { fetchWrapper } from '../../helpers/fetch-wrapper'
+import toast from 'react-hot-toast'
 
 interface Props {
   isOriginChain?: boolean
@@ -73,6 +74,7 @@ const Network = ({ isOriginChain = true }: Props) => {
         }
       } catch (e) {
         console.log('rpc disconnected', e)
+        toast.error('rpc disconnected')
       }
     })()
   }, [nodeProviderQuery, originNetwork, targetNetwork, mode, isOriginChain])

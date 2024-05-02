@@ -49,6 +49,7 @@ const BankPopup = ({
 
         if (!kycResult.length) {
           console.log('failed to check kyc status')
+          toast.error('failed to check kyc status')
         } else if (kycResult[0].status === 'approved') {
           setVerifying(false)
           dispatch(setKYCStatus('approved'))
@@ -56,6 +57,7 @@ const BankPopup = ({
         }
       } catch (e) {
         console.log('failed to check kyc status')
+        toast.error('failed to check kyc status')
       }
     }, 3000)
 

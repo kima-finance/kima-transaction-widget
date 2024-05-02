@@ -20,6 +20,7 @@ import {
 import useNetworkOptions from '../../hooks/useNetworkOptions'
 import { DAppOptions, ModeOptions } from '../../interface'
 import { fetchWrapper } from '../../helpers/fetch-wrapper'
+import toast from 'react-hot-toast'
 
 const NetworkDropdown = React.memo(
   ({ isOriginChain = true }: { isOriginChain?: boolean }) => {
@@ -101,6 +102,7 @@ const NetworkDropdown = React.memo(
           }
         } catch (e) {
           console.log('rpc disconnected', e)
+          toast.error('rpc disconnected')
         }
       })()
     }, [
@@ -135,6 +137,7 @@ const NetworkDropdown = React.memo(
           }
         } catch (e) {
           console.log('rpc disconnected', e)
+          toast.error('rpc disconnected')
         }
       })()
     }, [nodeProviderQuery, mode, targetNetwork, dAppOption])

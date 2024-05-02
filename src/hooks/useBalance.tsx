@@ -73,8 +73,21 @@ export default function useBalance() {
   const selectedCoin = useSelector(selectSelectedToken)
   const tokenOptions = useSelector(selectTokenOptions)
   const tokenAddress = useMemo(() => {
-    if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT) return ''
-    return tokenOptions[selectedCoin][sourceChain]
+    if (
+      isEmptyObject(tokenOptions) ||
+      sourceChain === ChainName.FIAT ||
+      tokenOptions
+    )
+      return ''
+
+    if (tokenOptions && typeof tokenOptions === 'object') {
+      const coinOptions = tokenOptions[selectedCoin]
+      if (coinOptions && typeof coinOptions === 'object') {
+        return tokenOptions[selectedCoin][sourceChain]
+      }
+    }
+
+    return ''
   }, [selectedCoin, sourceChain, tokenOptions])
 
   useEffect(() => {

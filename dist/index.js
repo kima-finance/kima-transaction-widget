@@ -1635,6 +1635,7 @@ function useNetworkOptions() {
           });
         }, function (e) {
           console.log('rpc disconnected', e);
+          toast__default.error('rpc disconnected');
         });
         return _temp && _temp.then ? _temp.then(function () {}) : void 0;
       } catch (e) {
@@ -1700,6 +1701,7 @@ var Network = function Network(_ref) {
           });
         }, function (e) {
           console.log('rpc disconnected', e);
+          toast__default.error('rpc disconnected');
         });
         return _temp && _temp.then ? _temp.then(function () {}) : void 0;
       } catch (e) {
@@ -2074,7 +2076,6 @@ function useIsWalletReady() {
           if (autoSwitch) {
             forceNetworkSwitch();
           } else {
-            console.log('autoSwitch', autoSwitch, evmChainId);
             dispatch(setSourceChain(CHAIN_IDS_TO_NAMES[evmChainId || SupportedChainId.ETHEREUM]));
             toast__default.success("Wallet connected to " + CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[evmChainId || SupportedChainId.ETHEREUM]]);
           }
@@ -2531,8 +2532,14 @@ function useBalance() {
   var selectedCoin = reactRedux.useSelector(selectSelectedToken);
   var tokenOptions = reactRedux.useSelector(selectTokenOptions);
   var tokenAddress = React.useMemo(function () {
-    if (isEmptyObject(tokenOptions) || sourceChain === exports.SupportNetworks.FIAT) return '';
-    return tokenOptions[selectedCoin][sourceChain];
+    if (isEmptyObject(tokenOptions) || sourceChain === exports.SupportNetworks.FIAT || tokenOptions) return '';
+    if (tokenOptions && typeof tokenOptions === 'object') {
+      var coinOptions = tokenOptions[selectedCoin];
+      if (coinOptions && typeof coinOptions === 'object') {
+        return tokenOptions[selectedCoin][sourceChain];
+      }
+    }
+    return '';
   }, [selectedCoin, sourceChain, tokenOptions]);
   React.useEffect(function () {
     (function () {
@@ -2758,6 +2765,7 @@ var NetworkDropdown = React__default.memo(function (_ref) {
           return _temp && _temp.then ? _temp.then(_temp2) : _temp2(_temp);
         }, function (e) {
           console.log('rpc disconnected', e);
+          toast__default.error('rpc disconnected');
         });
         return _temp3 && _temp3.then ? _temp3.then(function () {}) : void 0;
       } catch (e) {
@@ -2783,6 +2791,7 @@ var NetworkDropdown = React__default.memo(function (_ref) {
           }
         }, function (e) {
           console.log('rpc disconnected', e);
+          toast__default.error('rpc disconnected');
         });
       } catch (e) {
         Promise.reject(e);
@@ -3276,6 +3285,7 @@ var BankPopup = function BankPopup(_ref) {
             console.log(kycResult);
             if (!kycResult.length) {
               console.log('failed to check kyc status');
+              toast.toast.error('failed to check kyc status');
             } else if (kycResult[0].status === 'approved') {
               setVerifying(false);
               dispatch(setKYCStatus('approved'));
@@ -3284,6 +3294,7 @@ var BankPopup = function BankPopup(_ref) {
           });
         }, function () {
           console.log('failed to check kyc status');
+          toast.toast.error('failed to check kyc status');
         });
         return Promise.resolve(_temp && _temp.then ? _temp.then(function () {}) : void 0);
       } catch (e) {
@@ -3422,6 +3433,7 @@ var TransactionWidget = function TransactionWidget(_ref) {
           }();
           return _temp && _temp.then ? _temp.then(_temp2) : _temp2(_temp);
         }, function (e) {
+          toast.toast.error('rpc disconnected');
           console.log('rpc disconnected', e);
         }));
       } catch (e) {
@@ -3727,6 +3739,7 @@ function useServiceFee(isConfirming, feeURL) {
       }, function (e) {
         dispatch(setServiceFee(0));
         console.log('rpc disconnected', e);
+        toast__default.error('rpc disconnected');
       }));
     } catch (e) {
       return Promise.reject(e);
@@ -7369,8 +7382,14 @@ function useAllowance(_ref) {
   var selectedCoin = reactRedux.useSelector(selectSelectedToken);
   var tokenOptions = reactRedux.useSelector(selectTokenOptions);
   var tokenAddress = React.useMemo(function () {
-    if (isEmptyObject(tokenOptions) || sourceChain === exports.SupportNetworks.FIAT) return '';
-    return tokenOptions[selectedCoin][sourceChain];
+    if (isEmptyObject(tokenOptions) || sourceChain === exports.SupportNetworks.FIAT || tokenOptions) return '';
+    if (tokenOptions && typeof tokenOptions === 'object') {
+      var coinOptions = tokenOptions[selectedCoin];
+      if (coinOptions && typeof coinOptions === 'object') {
+        return tokenOptions[selectedCoin][sourceChain];
+      }
+    }
+    return '';
   }, [selectedCoin, sourceChain, tokenOptions]);
   var _useState3 = React.useState(),
     targetAddress = _useState3[0],
@@ -7388,11 +7407,13 @@ function useAllowance(_ref) {
           }
           if (sourceChain === exports.SupportNetworks.SOLANA && !result.tssPubkey[0].eddsa) {
             console.log('solana pool address is missing');
+            toast__default.error('solana pool address is missing');
           }
           setTargetAddress(sourceChain === exports.SupportNetworks.SOLANA ? result.tssPubkey[0].eddsa : sourceChain === exports.SupportNetworks.TRON ? fromHex(result.tssPubkey[0].ecdsa) : result.tssPubkey[0].ecdsa);
         });
       }, function (e) {
         console.log('rpc disconnected', e);
+        toast__default.error('rpc disconnected');
       }));
     } catch (e) {
       return Promise.reject(e);
@@ -7500,7 +7521,6 @@ function useAllowance(_ref) {
                           accountInfo = _connection$getParsed;
                           var parsedAccountInfo = (_accountInfo = accountInfo) === null || _accountInfo === void 0 ? void 0 : (_accountInfo$value2 = _accountInfo.value) === null || _accountInfo$value2 === void 0 ? void 0 : _accountInfo$value2.data;
                           allowAmount = ((_parsedAccountInfo$pa9 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa9 === void 0 ? void 0 : (_parsedAccountInfo$pa10 = _parsedAccountInfo$pa9.info) === null || _parsedAccountInfo$pa10 === void 0 ? void 0 : _parsedAccountInfo$pa10.delegate) === targetAddress ? (_parsedAccountInfo$pa11 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa11 === void 0 ? void 0 : (_parsedAccountInfo$pa12 = _parsedAccountInfo$pa11.info) === null || _parsedAccountInfo$pa12 === void 0 ? void 0 : (_parsedAccountInfo$pa13 = _parsedAccountInfo$pa12.delegatedAmount) === null || _parsedAccountInfo$pa13 === void 0 ? void 0 : _parsedAccountInfo$pa13.uiAmount : 0;
-                          console.log('sleep');
                           return Promise.resolve(sleep(1000)).then(function () {});
                         });
                       }, function () {
@@ -7629,6 +7649,7 @@ function useCurrencyOptions() {
           });
         }, function (e) {
           console.log('rpc disconnected', e);
+          toast__default.error('rpc disconnected');
         });
       } catch (e) {
         Promise.reject(e);
@@ -7792,6 +7813,7 @@ var TransferWidget = function TransferWidget(_ref) {
             address: walletAddress
           }))).then(function (res) {
             dispatch(setSourceCompliant(res));
+            toast.toast.error('xplorisk check failed');
           });
         }, function (e) {
           console.log('xplorisk check failed', e);
@@ -7811,6 +7833,7 @@ var TransferWidget = function TransferWidget(_ref) {
             address: targetAddress
           }))).then(function (res) {
             dispatch(setTargetCompliant(res));
+            toast.toast.error('xplorisk check failed');
           });
         }, function (e) {
           console.log('xplorisk check failed', e);
@@ -7866,6 +7889,7 @@ var TransferWidget = function TransferWidget(_ref) {
               var symbol = selectedToken;
               var errorString = "Tried to transfer " + amount + " " + symbol + ", but " + CHAIN_NAMES_TO_STRING[targetChain] + " pool has only " + +poolBalance[i].balance[j].amount + " " + symbol;
               console.log(errorString);
+              toast.toast.error(errorString);
               toast.toast.error(CHAIN_NAMES_TO_STRING[targetChain] + " pool has insufficient balance!");
               errorHandler(errorString);
               return false;
@@ -7888,7 +7912,6 @@ var TransferWidget = function TransferWidget(_ref) {
         errorHandler('Fee is not calculated!');
         return Promise.resolve();
       }
-      console.log(fee, amount, feeDeduct);
       if (dAppOption !== exports.DAppOptions.LPDrain && balance < amount) {
         toast.toast.error('Insufficient balance!');
         errorHandler('Insufficient balance!');
@@ -7966,6 +7989,7 @@ var TransferWidget = function TransferWidget(_ref) {
         errorHandler(e);
         setSubmitting(false);
         console.log((e === null || e === void 0 ? void 0 : e.status) !== 500 ? 'rpc disconnected' : '', e);
+        toast.toast.error('rpc disconnected');
         toast.toast.error('Failed to submit transaction');
       }));
     } catch (e) {
@@ -8263,7 +8287,7 @@ var KimaTransactionWidget = function KimaTransactionWidget(_ref) {
           var _temp = _catch(function () {
             return Promise.resolve(fetchWrapper.get(kimaBackendUrl + "/uuid")).then(function (uuid) {
               dispatch(setUuid(uuid));
-              console.log('uuid: ', uuid);
+              console.log('depasify uuid: ', uuid);
             });
           }, function (e) {
             console.log('uuid generate failed', e);
@@ -8289,6 +8313,7 @@ var KimaTransactionWidget = function KimaTransactionWidget(_ref) {
                       address: transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress
                     }))).then(function (compliantRes) {
                       dispatch(setTargetCompliant(compliantRes));
+                      toast__default.error('xplorisk check failed');
                     });
                   }
                 }();
@@ -8302,6 +8327,7 @@ var KimaTransactionWidget = function KimaTransactionWidget(_ref) {
                 dispatch(setSourceChain(networks.Chains[0]));
               });
             }, function (e) {
+              toast__default.error('rpc disconnected!');
               console.log('rpc disconnected', e);
             });
             return _temp3 && _temp3.then ? _temp3.then(_temp4) : _temp4(_temp3);

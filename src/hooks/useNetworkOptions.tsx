@@ -5,6 +5,7 @@ import { selectNodeProviderQuery, selectUseFIAT } from '../store/selectors'
 import { ChainName, networkOptions } from '../utils/constants'
 import { useDispatch } from 'react-redux'
 import { TokenOptions, setTokenOptions } from '../store/optionSlice'
+import toast from 'react-hot-toast'
 
 export default function useNetworkOptions() {
   const dispatch = useDispatch()
@@ -44,6 +45,7 @@ export default function useNetworkOptions() {
         dispatch(setTokenOptions(tokenOptions))
       } catch (e) {
         console.log('rpc disconnected', e)
+        toast.error('rpc disconnected')
       }
     })()
   }, [nodeProviderQuery])

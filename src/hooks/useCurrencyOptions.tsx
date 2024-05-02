@@ -9,6 +9,7 @@ import {
 import { ChainName } from '../utils/constants'
 import { useDispatch } from 'react-redux'
 import { setAvailableTokenList } from '../store/optionSlice'
+import toast from 'react-hot-toast'
 
 export default function useCurrencyOptions() {
   const dispatch = useDispatch()
@@ -36,6 +37,7 @@ export default function useCurrencyOptions() {
         setOptions(coins.Currencies?.length ? coins.Currencies[0] : 'USDK')
       } catch (e) {
         console.log('rpc disconnected', e)
+        toast.error('rpc disconnected')
       }
     })()
   }, [nodeProviderQuery, originNetwork, targetNetwork])

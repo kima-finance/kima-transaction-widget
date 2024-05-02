@@ -106,6 +106,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
           }, 3000)
         }
       } catch (e) {
+        toast.error('rpc disconnected')
         console.log('rpc disconnected', e)
       }
     }, 1000)

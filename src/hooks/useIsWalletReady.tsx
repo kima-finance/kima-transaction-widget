@@ -148,7 +148,6 @@ function useIsWalletReady(): {
           if (autoSwitch) {
             forceNetworkSwitch()
           } else {
-            console.log('autoSwitch', autoSwitch, evmChainId)
             dispatch(
               setSourceChain(
                 CHAIN_IDS_TO_NAMES[evmChainId || SupportedChainId.ETHEREUM]

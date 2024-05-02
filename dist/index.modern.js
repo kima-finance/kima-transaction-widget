@@ -1310,6 +1310,7 @@ function useNetworkOptions() {
         dispatch(setTokenOptions(tokenOptions));
       } catch (e) {
         console.log('rpc disconnected', e);
+        toast.error('rpc disconnected');
       }
     })();
   }, [nodeProviderQuery]);
@@ -1360,6 +1361,7 @@ const Network = ({
         }
       } catch (e) {
         console.log('rpc disconnected', e);
+        toast.error('rpc disconnected');
       }
     })();
   }, [nodeProviderQuery, originNetwork, targetNetwork, mode, _isOriginChain]);
@@ -1706,7 +1708,6 @@ function useIsWalletReady() {
           if (autoSwitch) {
             forceNetworkSwitch();
           } else {
-            console.log('autoSwitch', autoSwitch, evmChainId);
             dispatch(setSourceChain(CHAIN_IDS_TO_NAMES[evmChainId || SupportedChainId.ETHEREUM]));
             toast.success(`Wallet connected to ${CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[evmChainId || SupportedChainId.ETHEREUM]]}`);
           }
@@ -2100,8 +2101,14 @@ function useBalance() {
   const selectedCoin = useSelector(selectSelectedToken);
   const tokenOptions = useSelector(selectTokenOptions);
   const tokenAddress = useMemo(() => {
-    if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT) return '';
-    return tokenOptions[selectedCoin][sourceChain];
+    if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT || tokenOptions) return '';
+    if (tokenOptions && typeof tokenOptions === 'object') {
+      const coinOptions = tokenOptions[selectedCoin];
+      if (coinOptions && typeof coinOptions === 'object') {
+        return tokenOptions[selectedCoin][sourceChain];
+      }
+    }
+    return '';
   }, [selectedCoin, sourceChain, tokenOptions]);
   useEffect(() => {
     (async () => {
@@ -2279,6 +2286,7 @@ const NetworkDropdown = React.memo(({
         }
       } catch (e) {
         console.log('rpc disconnected', e);
+        toast.error('rpc disconnected');
       }
     })();
   }, [nodeProviderQuery, originNetwork, targetNetwork, mode, _isOriginChain, useFIAT]);
@@ -2298,6 +2306,7 @@ const NetworkDropdown = React.memo(({
         }
       } catch (e) {
         console.log('rpc disconnected', e);
+        toast.error('rpc disconnected');
       }
     })();
   }, [nodeProviderQuery, mode, targetNetwork, dAppOption]);
@@ -2751,6 +2760,7 @@ const BankPopup = ({
         console.log(kycResult);
         if (!kycResult.length) {
           console.log('failed to check kyc status');
+          toast$1.error('failed to check kyc status');
         } else if (kycResult[0].status === 'approved') {
           setVerifying(false);
           dispatch(setKYCStatus('approved'));
@@ -2758,6 +2768,7 @@ const BankPopup = ({
         }
       } catch (e) {
         console.log('failed to check kyc status');
+        toast$1.error('failed to check kyc status');
       }
     }, 3000);
     return () => {
@@ -2865,6 +2876,7 @@ const TransactionWidget = ({
           }, 3000);
         }
       } catch (e) {
+        toast$1.error('rpc disconnected');
         console.log('rpc disconnected', e);
       }
     }, 1000);
@@ -3151,6 +3163,7 @@ function useServiceFee(isConfirming = false, feeURL) {
     } catch (e) {
       dispatch(setServiceFee(0));
       console.log('rpc disconnected', e);
+      toast.error('rpc disconnected');
     }
   };
   useEffect(() => {
@@ -6768,8 +6781,14 @@ function useAllowance({
   const selectedCoin = useSelector(selectSelectedToken);
   const tokenOptions = useSelector(selectTokenOptions);
   const tokenAddress = useMemo(() => {
-    if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT) return '';
-    return tokenOptions[selectedCoin][sourceChain];
+    if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT || tokenOptions) return '';
+    if (tokenOptions && typeof tokenOptions === 'object') {
+      const coinOptions = tokenOptions[selectedCoin];
+      if (coinOptions && typeof coinOptions === 'object') {
+        return tokenOptions[selectedCoin][sourceChain];
+      }
+    }
+    return '';
   }, [selectedCoin, sourceChain, tokenOptions]);
   const [targetAddress, setTargetAddress] = useState();
   const isApproved = useMemo(() => {
@@ -6784,10 +6803,12 @@ function useAllowance({
       }
       if (sourceChain === ChainName.SOLANA && !result.tssPubkey[0].eddsa) {
         console.log('solana pool address is missing');
+        toast.error('solana pool address is missing');
       }
       setTargetAddress(sourceChain === ChainName.SOLANA ? result.tssPubkey[0].eddsa : sourceChain === ChainName.TRON ? fromHex(result.tssPubkey[0].ecdsa) : result.tssPubkey[0].ecdsa);
     } catch (e) {
       console.log('rpc disconnected', e);
+      toast.error('rpc disconnected');
     }
   };
   useEffect(() => {
@@ -6893,7 +6914,6 @@ function useAllowance({
         accountInfo = await connection.getParsedAccountInfo(fromTokenAccount.address);
         const parsedAccountInfo = (_accountInfo = accountInfo) === null || _accountInfo === void 0 ? void 0 : (_accountInfo$value2 = _accountInfo.value) === null || _accountInfo$value2 === void 0 ? void 0 : _accountInfo$value2.data;
         allowAmount = ((_parsedAccountInfo$pa9 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa9 === void 0 ? void 0 : (_parsedAccountInfo$pa10 = _parsedAccountInfo$pa9.info) === null || _parsedAccountInfo$pa10 === void 0 ? void 0 : _parsedAccountInfo$pa10.delegate) === targetAddress ? (_parsedAccountInfo$pa11 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa11 === void 0 ? void 0 : (_parsedAccountInfo$pa12 = _parsedAccountInfo$pa11.info) === null || _parsedAccountInfo$pa12 === void 0 ? void 0 : (_parsedAccountInfo$pa13 = _parsedAccountInfo$pa12.delegatedAmount) === null || _parsedAccountInfo$pa13 === void 0 ? void 0 : _parsedAccountInfo$pa13.uiAmount : 0;
-        console.log('sleep');
         await sleep(1000);
       } while (allowAmount < amount + serviceFee || retryCount++ < 5);
       setAllowance(amount + serviceFee);
@@ -6938,6 +6958,7 @@ function useCurrencyOptions() {
         setOptions((_coins$Currencies = coins.Currencies) !== null && _coins$Currencies !== void 0 && _coins$Currencies.length ? coins.Currencies[0] : 'USDK');
       } catch (e) {
         console.log('rpc disconnected', e);
+        toast.error('rpc disconnected');
       }
     })();
   }, [nodeProviderQuery, originNetwork, targetNetwork]);
@@ -7074,6 +7095,7 @@ const TransferWidget = ({
           address: walletAddress
         }));
         dispatch(setSourceCompliant(res));
+        toast$1.error('xplorisk check failed');
       } catch (e) {
         console.log('xplorisk check failed', e);
       }
@@ -7087,6 +7109,7 @@ const TransferWidget = ({
           address: targetAddress
         }));
         dispatch(setTargetCompliant(res));
+        toast$1.error('xplorisk check failed');
       } catch (e) {
         console.log('xplorisk check failed', e);
       }
@@ -7131,6 +7154,7 @@ const TransferWidget = ({
           const symbol = selectedToken;
           const errorString = `Tried to transfer ${amount} ${symbol}, but ${CHAIN_NAMES_TO_STRING[targetChain]} pool has only ${+poolBalance[i].balance[j].amount} ${symbol}`;
           console.log(errorString);
+          toast$1.error(errorString);
           toast$1.error(`${CHAIN_NAMES_TO_STRING[targetChain]} pool has insufficient balance!`);
           errorHandler(errorString);
           return false;
@@ -7147,7 +7171,6 @@ const TransferWidget = ({
       errorHandler('Fee is not calculated!');
       return;
     }
-    console.log(fee, amount, feeDeduct);
     if (dAppOption !== DAppOptions.LPDrain && balance < amount) {
       toast$1.error('Insufficient balance!');
       errorHandler('Insufficient balance!');
@@ -7217,6 +7240,7 @@ const TransferWidget = ({
       errorHandler(e);
       setSubmitting(false);
       console.log((e === null || e === void 0 ? void 0 : e.status) !== 500 ? 'rpc disconnected' : '', e);
+      toast$1.error('rpc disconnected');
       toast$1.error('Failed to submit transaction');
     }
   };
@@ -7483,7 +7507,7 @@ const KimaTransactionWidget = ({
         try {
           const uuid = await fetchWrapper.get(`${kimaBackendUrl}/uuid`);
           dispatch(setUuid(uuid));
-          console.log('uuid: ', uuid);
+          console.log('depasify uuid: ', uuid);
         } catch (e) {
           console.log('uuid generate failed', e);
         }
@@ -7499,6 +7523,7 @@ const KimaTransactionWidget = ({
             const networks = await fetchWrapper.get(`${kimaNodeProviderQuery}/kima-finance/kima-blockchain/chains/get_available_chains/${(transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetChain) || ChainName.ETHEREUM}`);
             dispatch(setSourceChain(networks.Chains[0]));
           } catch (e) {
+            toast.error('rpc disconnected!');
             console.log('rpc disconnected', e);
           }
           try {
@@ -7507,6 +7532,7 @@ const KimaTransactionWidget = ({
                 address: transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress
               }));
               dispatch(setTargetCompliant(compliantRes));
+              toast.error('xplorisk check failed');
             }
           } catch (e) {
             console.log('xplorisk check failed', e);

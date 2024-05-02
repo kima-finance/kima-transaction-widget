@@ -138,6 +138,7 @@ export const TransferWidget = ({
           })
         )
         dispatch(setSourceCompliant(res))
+        toast.error('xplorisk check failed')
       } catch (e) {
         console.log('xplorisk check failed', e)
       }
@@ -155,6 +156,7 @@ export const TransferWidget = ({
           })
         )
         dispatch(setTargetCompliant(res))
+        toast.error('xplorisk check failed')
       } catch (e) {
         console.log('xplorisk check failed', e)
       }
@@ -213,6 +215,7 @@ export const TransferWidget = ({
             CHAIN_NAMES_TO_STRING[targetChain]
           } pool has only ${+poolBalance[i].balance[j].amount} ${symbol}`
           console.log(errorString)
+          toast.error(errorString)
 
           toast.error(
             `${CHAIN_NAMES_TO_STRING[targetChain]} pool has insufficient balance!`
@@ -233,8 +236,6 @@ export const TransferWidget = ({
       errorHandler('Fee is not calculated!')
       return
     }
-
-    console.log(fee, amount, feeDeduct)
 
     if (dAppOption !== DAppOptions.LPDrain && balance < amount) {
       toast.error('Insufficient balance!')
@@ -328,6 +329,7 @@ export const TransferWidget = ({
       errorHandler(e)
       setSubmitting(false)
       console.log(e?.status !== 500 ? 'rpc disconnected' : '', e)
+      toast.error('rpc disconnected')
       toast.error('Failed to submit transaction')
     }
   }
