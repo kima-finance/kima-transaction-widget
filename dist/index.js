@@ -7812,9 +7812,9 @@ var TransferWidget = function TransferWidget(_ref) {
             address: walletAddress
           }))).then(function (res) {
             dispatch(setSourceCompliant(res));
-            toast.toast.error('xplorisk check failed');
           });
         }, function (e) {
+          toast.toast.error('xplorisk check failed');
           console.log('xplorisk check failed', e);
         });
         return _temp && _temp.then ? _temp.then(function () {}) : void 0;
@@ -7832,9 +7832,9 @@ var TransferWidget = function TransferWidget(_ref) {
             address: targetAddress
           }))).then(function (res) {
             dispatch(setTargetCompliant(res));
-            toast.toast.error('xplorisk check failed');
           });
         }, function (e) {
+          toast.toast.error('xplorisk check failed');
           console.log('xplorisk check failed', e);
         });
         return _temp2 && _temp2.then ? _temp2.then(function () {}) : void 0;
@@ -8312,12 +8312,12 @@ var KimaTransactionWidget = function KimaTransactionWidget(_ref) {
                       address: transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress
                     }))).then(function (compliantRes) {
                       dispatch(setTargetCompliant(compliantRes));
-                      toast__default.error('xplorisk check failed');
                     });
                   }
                 }();
                 if (_temp2 && _temp2.then) return _temp2.then(function () {});
               }, function (e) {
+                toast__default.error('xplorisk check failed');
                 console.log('xplorisk check failed', e);
               });
             };

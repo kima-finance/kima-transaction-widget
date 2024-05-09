@@ -138,8 +138,8 @@ export const TransferWidget = ({
           })
         )
         dispatch(setSourceCompliant(res))
-        toast.error('xplorisk check failed')
       } catch (e) {
+        toast.error('xplorisk check failed')
         console.log('xplorisk check failed', e)
       }
     })()
@@ -156,8 +156,8 @@ export const TransferWidget = ({
           })
         )
         dispatch(setTargetCompliant(res))
-        toast.error('xplorisk check failed')
       } catch (e) {
+        toast.error('xplorisk check failed')
         console.log('xplorisk check failed', e)
       }
     })()

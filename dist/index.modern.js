@@ -7095,8 +7095,8 @@ const TransferWidget = ({
           address: walletAddress
         }));
         dispatch(setSourceCompliant(res));
-        toast$1.error('xplorisk check failed');
       } catch (e) {
+        toast$1.error('xplorisk check failed');
         console.log('xplorisk check failed', e);
       }
     })();
@@ -7109,8 +7109,8 @@ const TransferWidget = ({
           address: targetAddress
         }));
         dispatch(setTargetCompliant(res));
-        toast$1.error('xplorisk check failed');
       } catch (e) {
+        toast$1.error('xplorisk check failed');
         console.log('xplorisk check failed', e);
       }
     })();
@@ -7532,9 +7532,9 @@ const KimaTransactionWidget = ({
                 address: transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress
               }));
               dispatch(setTargetCompliant(compliantRes));
-              toast.error('xplorisk check failed');
             }
           } catch (e) {
+            toast.error('xplorisk check failed');
             console.log('xplorisk check failed', e);
           }
         })();
