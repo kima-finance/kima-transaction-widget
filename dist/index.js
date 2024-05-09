@@ -2531,7 +2531,8 @@ function useBalance() {
   var selectedCoin = reactRedux.useSelector(selectSelectedToken);
   var tokenOptions = reactRedux.useSelector(selectTokenOptions);
   var tokenAddress = React.useMemo(function () {
-    if (isEmptyObject(tokenOptions) || sourceChain === exports.SupportNetworks.FIAT || tokenOptions) return '';
+    if (isEmptyObject(tokenOptions) || sourceChain === exports.SupportNetworks.FIAT) return '';
+    console.log(tokenOptions);
     if (tokenOptions && typeof tokenOptions === 'object') {
       var coinOptions = tokenOptions[selectedCoin];
       if (coinOptions && typeof coinOptions === 'object') {
@@ -7381,7 +7382,7 @@ function useAllowance(_ref) {
   var selectedCoin = reactRedux.useSelector(selectSelectedToken);
   var tokenOptions = reactRedux.useSelector(selectTokenOptions);
   var tokenAddress = React.useMemo(function () {
-    if (isEmptyObject(tokenOptions) || sourceChain === exports.SupportNetworks.FIAT || tokenOptions) return '';
+    if (isEmptyObject(tokenOptions) || sourceChain === exports.SupportNetworks.FIAT) return '';
     if (tokenOptions && typeof tokenOptions === 'object') {
       var coinOptions = tokenOptions[selectedCoin];
       if (coinOptions && typeof coinOptions === 'object') {
