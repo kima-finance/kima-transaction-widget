@@ -2532,7 +2532,6 @@ function useBalance() {
   var tokenOptions = reactRedux.useSelector(selectTokenOptions);
   var tokenAddress = React.useMemo(function () {
     if (isEmptyObject(tokenOptions) || sourceChain === exports.SupportNetworks.FIAT) return '';
-    console.log(tokenOptions);
     if (tokenOptions && typeof tokenOptions === 'object') {
       var coinOptions = tokenOptions[selectedCoin];
       if (coinOptions && typeof coinOptions === 'object') {
