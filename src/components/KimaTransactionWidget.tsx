@@ -183,9 +183,9 @@ export const KimaTransactionWidget = ({
                 })
               )
               dispatch(setTargetCompliant(compliantRes))
-              toast.error('xplorisk check failed')
             }
           } catch (e) {
+            toast.error('xplorisk check failed')
             console.log('xplorisk check failed', e)
           }
         })()
