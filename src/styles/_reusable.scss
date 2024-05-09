@@ -969,13 +969,13 @@
       display: flex;
       align-items: center;
 
-      .content {
+      .custom-checkbox-content {
         display: flex;
         align-items: center;
         column-gap: 0.5em;
         cursor: pointer;
 
-        .icon-wrapper {
+        .custom-checkbox-icon-wrapper {
           border: 1px solid #ffffff;
           height: 1em;
           width: 1em;
