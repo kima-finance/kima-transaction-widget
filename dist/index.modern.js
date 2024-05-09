@@ -2446,10 +2446,10 @@ const CustomCheckbox = ({
   return React.createElement("div", {
     className: 'kima-custom-checkbox'
   }, React.createElement("div", {
-    className: 'content',
+    className: 'custom-checkbox-content',
     onClick: () => setCheck(!checked)
   }, React.createElement("div", {
-    className: `icon-wrapper ${theme.colorMode}`
+    className: `custom-checkbox-icon-wrapper ${theme.colorMode}`
   }, checked && React.createElement(Check, null)), React.createElement("span", null, text)));
 };
 
