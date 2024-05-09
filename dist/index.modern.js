@@ -2101,7 +2101,8 @@ function useBalance() {
   const selectedCoin = useSelector(selectSelectedToken);
   const tokenOptions = useSelector(selectTokenOptions);
   const tokenAddress = useMemo(() => {
-    if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT || tokenOptions) return '';
+    if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT) return '';
+    console.log(tokenOptions);
     if (tokenOptions && typeof tokenOptions === 'object') {
       const coinOptions = tokenOptions[selectedCoin];
       if (coinOptions && typeof coinOptions === 'object') {
@@ -6781,7 +6782,7 @@ function useAllowance({
   const selectedCoin = useSelector(selectSelectedToken);
   const tokenOptions = useSelector(selectTokenOptions);
   const tokenAddress = useMemo(() => {
-    if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT || tokenOptions) return '';
+    if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT) return '';
     if (tokenOptions && typeof tokenOptions === 'object') {
       const coinOptions = tokenOptions[selectedCoin];
       if (coinOptions && typeof coinOptions === 'object') {
