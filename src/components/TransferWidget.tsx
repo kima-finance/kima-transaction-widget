@@ -50,7 +50,8 @@ import {
   selectTargetChain,
   selectKycStatus,
   selectKeplrHandler,
-  selectTransactionOption
+  selectTransactionOption,
+  selectFeeDeduct
 } from '../store/selectors'
 import useIsWalletReady from '../hooks/useIsWalletReady'
 import useServiceFee from '../hooks/useServiceFee'
@@ -68,6 +69,7 @@ import TronWalletConnectModal from './modals/TronWalletConnectModal'
 
 interface Props {
   theme: ThemeOptions
+  feeURL: string
   helpURL?: string
   titleOption?: TitleOption
   paymentTitleOption?: PaymentTitleOption
@@ -75,6 +77,7 @@ interface Props {
 
 export const TransferWidget = ({
   theme,
+  feeURL,
   helpURL,
   titleOption,
   paymentTitleOption
@@ -91,6 +94,7 @@ export const TransferWidget = ({
   const mode = useSelector(selectMode)
   const dAppOption = useSelector(selectDappOption)
   const amount = useSelector(selectAmount)
+  const feeDeduct = useSelector(selectFeeDeduct)
   const sourceChain = useSelector(selectSourceChain)
   const targetAddress = useSelector(selectTargetAddress)
   const targetChain = useSelector(selectTargetChain)
@@ -116,7 +120,7 @@ export const TransferWidget = ({
   const { walletAddress, isReady } = useIsWalletReady()
   const { isApproved, approve } = useAllowance({ setApproving })
   const { isSigned, sign } = useSign({ setSigning })
-  const { serviceFee: fee } = useServiceFee(isConfirming)
+  const { serviceFee: fee } = useServiceFee(isConfirming, feeURL)
   const { balance } = useBalance()
   const windowWidth = useWidth()
 
@@ -134,6 +138,7 @@ export const TransferWidget = ({
           })
         )
         dispatch(setSourceCompliant(res))
+        toast.error('xplorisk check failed')
       } catch (e) {
         console.log('xplorisk check failed', e)
       }
@@ -151,6 +156,7 @@ export const TransferWidget = ({
           })
         )
         dispatch(setTargetCompliant(res))
+        toast.error('xplorisk check failed')
       } catch (e) {
         console.log('xplorisk check failed', e)
       }
@@ -209,6 +215,7 @@ export const TransferWidget = ({
             CHAIN_NAMES_TO_STRING[targetChain]
           } pool has only ${+poolBalance[i].balance[j].amount} ${symbol}`
           console.log(errorString)
+          toast.error(errorString)
 
           toast.error(
             `${CHAIN_NAMES_TO_STRING[targetChain]} pool has insufficient balance!`
@@ -322,6 +329,7 @@ export const TransferWidget = ({
       errorHandler(e)
       setSubmitting(false)
       console.log(e?.status !== 500 ? 'rpc disconnected' : '', e)
+      toast.error('rpc disconnected')
       toast.error('Failed to submit transaction')
     }
   }
@@ -343,6 +351,12 @@ export const TransferWidget = ({
         if (fee >= 0 && amount > 0) {
           setWizardStep(5)
         }
+        return
+      }
+
+      if (fee > 0 && fee > amount && feeDeduct) {
+        toast.error('Fee is greater than amount to transfer!')
+        errorHandler('Fee is greater than amount to transfer!')
         return
       }
 
@@ -388,6 +402,13 @@ export const TransferWidget = ({
           (sourceCompliant !== 'low' || targetCompliant !== 'low')
         )
           return
+
+        if (fee > 0 && fee > amount && feeDeduct) {
+          toast.error('Fee is greater than amount to transfer!')
+          errorHandler('Fee is greater than amount to transfer!')
+          return
+        }
+
         if (mode === ModeOptions.payment || (targetAddress && amount > 0)) {
           setConfirming(true)
           setFormStep(1)

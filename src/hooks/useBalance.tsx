@@ -73,8 +73,21 @@ export default function useBalance() {
   const selectedCoin = useSelector(selectSelectedToken)
   const tokenOptions = useSelector(selectTokenOptions)
   const tokenAddress = useMemo(() => {
-    if (isEmptyObject(tokenOptions)) return ''
-    return tokenOptions[selectedCoin][sourceChain]
+    if (
+      isEmptyObject(tokenOptions) ||
+      sourceChain === ChainName.FIAT ||
+      tokenOptions
+    )
+      return ''
+
+    if (tokenOptions && typeof tokenOptions === 'object') {
+      const coinOptions = tokenOptions[selectedCoin]
+      if (coinOptions && typeof coinOptions === 'object') {
+        return tokenOptions[selectedCoin][sourceChain]
+      }
+    }
+
+    return ''
   }, [selectedCoin, sourceChain, tokenOptions])
 
   useEffect(() => {
@@ -121,10 +134,12 @@ export default function useBalance() {
             return
           }
         }
+
         const provider = new ethers.providers.Web3Provider(
           walletProvider as ExternalProvider | JsonRpcFetchFunc
         )
         const signer = provider?.getSigner()
+
         if (!tokenAddress || !signer || !signerAddress) return
 
         const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer)

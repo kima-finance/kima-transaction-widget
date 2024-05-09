@@ -39,6 +39,7 @@ import {
 import { ethers } from 'ethers'
 import { ExternalProvider, JsonRpcFetchFunc } from '@ethersproject/providers'
 import { isEmptyObject } from '../helpers/functions'
+import toast from 'react-hot-toast'
 
 type ParsedAccountData = {
   /** Name of the program that owns this account */
@@ -90,13 +91,24 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
   const selectedCoin = useSelector(selectSelectedToken)
   const tokenOptions = useSelector(selectTokenOptions)
   const tokenAddress = useMemo(() => {
-    if (isEmptyObject(tokenOptions)) return ''
+    if (
+      isEmptyObject(tokenOptions) ||
+      sourceChain === ChainName.FIAT ||
+      tokenOptions
+    )
+      return ''
 
-    return tokenOptions[selectedCoin][sourceChain]
+    if (tokenOptions && typeof tokenOptions === 'object') {
+      const coinOptions = tokenOptions[selectedCoin]
+      if (coinOptions && typeof coinOptions === 'object') {
+        return tokenOptions[selectedCoin][sourceChain]
+      }
+    }
+
+    return ''
   }, [selectedCoin, sourceChain, tokenOptions])
   const [targetAddress, setTargetAddress] = useState<string>()
   const isApproved = useMemo(() => {
-    console.log(allowance, amount, serviceFee)
     return allowance >= amount + serviceFee
   }, [allowance, amount, serviceFee, dAppOption])
 
@@ -111,6 +123,7 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
 
       if (sourceChain === ChainName.SOLANA && !result.tssPubkey[0].eddsa) {
         console.log('solana pool address is missing')
+        toast.error('solana pool address is missing')
       }
       setTargetAddress(
         sourceChain === ChainName.SOLANA
@@ -121,6 +134,7 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
       )
     } catch (e) {
       console.log('rpc disconnected', e)
+      toast.error('rpc disconnected')
     }
   }
 
@@ -319,7 +333,6 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
             ? parsedAccountInfo.parsed?.info?.delegatedAmount?.uiAmount
             : 0
 
-        console.log('sleep')
         await sleep(1000)
       } while (allowAmount < amount + serviceFee || retryCount++ < 5)
 

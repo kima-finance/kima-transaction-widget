@@ -10,14 +10,17 @@ import {
   selectTargetChain,
   selectTheme,
   selectTransactionOption,
-  selectSelectedToken
+  selectSelectedToken,
+  selectServiceFee,
+  selectFeeDeduct
 } from '../../store/selectors'
-import { BankInput, CoinDropdown, WalletButton } from './'
-import { setAmount } from '../../store/optionSlice'
+import { BankInput, CoinDropdown, CustomCheckbox, WalletButton } from './'
+import { setAmount, setFeeDeduct } from '../../store/optionSlice'
 import { ModeOptions, PaymentTitleOption } from '../../interface'
 import AddressInput from './AddressInput'
 import NetworkDropdown from './NetworkDropdown'
 import { COIN_LIST, ChainName } from '../../utils/constants'
+import { formatterFloat } from '../../helpers/functions'
 
 const SingleForm = ({
   paymentTitleOption
@@ -28,6 +31,8 @@ const SingleForm = ({
   const mode = useSelector(selectMode)
   const theme = useSelector(selectTheme)
   const amount = useSelector(selectAmount)
+  const feeDeduct = useSelector(selectFeeDeduct)
+  const serviceFee = useSelector(selectServiceFee)
   const compliantOption = useSelector(selectCompliantOption)
   const targetCompliant = useSelector(selectTargetCompliant)
   const transactionOption = useSelector(selectTransactionOption)
@@ -118,13 +123,13 @@ const SingleForm = ({
         </div>
       )}
 
-      {/* {mode === ModeOptions.bridge && serviceFee ? (
+      {mode === ModeOptions.bridge && serviceFee > 0? (
           <CustomCheckbox
             text={`Deduct ${formatterFloat.format(serviceFee)} USDK fee`}
             checked={feeDeduct}
             setCheck={(value: boolean) => dispatch(setFeeDeduct(value))}
           />
-        ) : null} */}
+        ) : null}
     </div>
   )
 }

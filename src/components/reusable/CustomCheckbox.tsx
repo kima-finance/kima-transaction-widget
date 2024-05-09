@@ -14,13 +14,15 @@ const CustomCheckbox = ({ text, checked, setCheck }: Props) => {
 
   return (
     <div className='kima-custom-checkbox'>
-      <div
-        className={`icon-wrapper ${theme.colorMode}`}
-        onClick={() => setCheck(!checked)}
-      >
-        {checked && <CheckIcon />}
+      <div className='content' onClick={() => setCheck(!checked)}>
+        <div
+          className={`icon-wrapper ${theme.colorMode}`}
+
+        >
+          {checked && <CheckIcon />}
+        </div>
+        <span>{text}</span>
       </div>
-      <span>{text}</span>
     </div>
   )
 }

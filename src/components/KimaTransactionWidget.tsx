@@ -46,6 +46,7 @@ import { ChainName } from '../utils/constants'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 import { Web3Provider } from '@ethersproject/providers'
 import { useWeb3ModalTheme } from '@web3modal/ethers5/react'
+import toast from 'react-hot-toast'
 
 interface Props {
   theme: ThemeOptions
@@ -59,6 +60,7 @@ interface Props {
   titleOption?: TitleOption
   compliantOption?: boolean
   helpURL?: string
+  feeURL?: string
   transactionOption?: TransactionOption
   paymentTitleOption?: PaymentTitleOption
   kimaBackendUrl: string
@@ -101,6 +103,7 @@ export const KimaTransactionWidget = ({
   kimaBackendUrl,
   kimaNodeProviderQuery,
   kimaExplorer = 'explorer.kima.finance',
+  feeURL = 'https://fee.kima.finance',
   errorHandler = () => void 0,
   closeHandler = () => void 0,
   successHandler = () => void 0,
@@ -138,7 +141,7 @@ export const KimaTransactionWidget = ({
         try {
           const uuid = await fetchWrapper.get(`${kimaBackendUrl}/uuid`)
           dispatch(setUuid(uuid))
-          console.log('uuid: ', uuid)
+          console.log('depasify uuid: ', uuid)
         } catch (e) {
           console.log('uuid generate failed', e)
         }
@@ -167,6 +170,7 @@ export const KimaTransactionWidget = ({
             )
             dispatch(setSourceChain(networks.Chains[0]))
           } catch (e) {
+            toast.error('rpc disconnected!')
             console.log('rpc disconnected', e)
           }
 
@@ -179,6 +183,7 @@ export const KimaTransactionWidget = ({
                 })
               )
               dispatch(setTargetCompliant(compliantRes))
+              toast.error('xplorisk check failed')
             }
           } catch (e) {
             console.log('xplorisk check failed', e)
@@ -205,6 +210,7 @@ export const KimaTransactionWidget = ({
   ) : (
     <TransferWidget
       theme={theme}
+      feeURL={feeURL}
       helpURL={helpURL}
       titleOption={titleOption}
       paymentTitleOption={paymentTitleOption}

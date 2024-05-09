@@ -7,7 +7,6 @@ import { setServiceFee } from '../store/optionSlice'
 import {
   selectAmount,
   selectMode,
-  selectNodeProviderQuery,
   selectSourceChain,
   selectServiceFee,
   selectTargetAddress,
@@ -16,57 +15,12 @@ import {
 } from '../store/selectors'
 import { ChainName } from '../utils/constants'
 import useIsWalletReady from './useIsWalletReady'
+import toast from 'react-hot-toast'
 
-// async function getPrice(sourceChain: string, targetChain: string) {
-//   try {
-//     const res = await fetch(
-//       `https://api.coingecko.com/api/v3/simple/price?ids=${CHAIN_NAMES_TO_GECKO_ID[sourceChain]},${CHAIN_NAMES_TO_GECKO_ID[targetChain]}&vs_currencies=usd`
-//     )
-
-//     const price = await res.json()
-//     return Object.keys(price).length
-//       ? [
-//           price[CHAIN_NAMES_TO_GECKO_ID[sourceChain]].usd,
-//           price[CHAIN_NAMES_TO_GECKO_ID[targetChain]].usd
-//         ]
-//       : [0, 0]
-//   } catch (e) {
-//     console.log(e)
-//   }
-
-//   return [0, 0]
-// }
-
-// async function getFeeInUSD(
-//   sourceChain: string,
-//   targetChain: string,
-//   gasFee: any
-// ) {
-//   const max_gas = 50000
-//   const [sourceTokenPrice, targetTokenPrice] = await getPrice(
-//     sourceChain,
-//     targetChain
-//   )
-//   let sourceFee, targetFee
-
-//   if (sourceChain === ChainName.SOLANA) {
-//     sourceFee = +gasFee[sourceChain] * +sourceTokenPrice
-//   } else
-//     sourceFee = gasFee[sourceChain]
-//       ? (+gasFee[sourceChain] * max_gas * +sourceTokenPrice) / 1e9
-//       : 0
-
-//   if (targetChain === ChainName.SOLANA) {
-//     targetFee = +gasFee[targetChain] * +targetTokenPrice
-//   } else
-//     targetFee = gasFee[targetChain]
-//       ? (+gasFee[targetChain] * max_gas * +targetTokenPrice) / 1e9
-//       : 0
-
-//   return [isNaN(sourceFee) ? 0 : sourceFee, isNaN(targetFee) ? 0 : targetFee]
-// }
-
-export default function useServiceFee(isConfirming: boolean = false) {
+export default function useServiceFee(
+  isConfirming: boolean = false,
+  feeURL: string
+) {
   const { walletAddress, isReady } = useIsWalletReady()
   const dispatch = useDispatch()
   const serviceFee = useSelector(selectServiceFee)
@@ -76,7 +30,6 @@ export default function useServiceFee(isConfirming: boolean = false) {
   const targetNetwork = useSelector(selectTargetChain)
   const targetAddress_ = useSelector(selectTargetAddress)
   const transactionOption = useSelector(selectTransactionOption)
-  const nodeProviderQuery = useSelector(selectNodeProviderQuery)
   const targetChain = useMemo(
     () =>
       mode === ModeOptions.payment
@@ -103,53 +56,31 @@ export default function useServiceFee(isConfirming: boolean = false) {
       !isReady ||
       !walletAddress ||
       !targetAddress ||
-      !nodeProviderQuery ||
       !amount
     )
       return
-
-    let gasFee: any = {}
 
     try {
       if (sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT) {
         dispatch(setServiceFee(0))
         return
       }
-      const gasFeeData: any = await fetchWrapper.get(
-        `${nodeProviderQuery}/kima-finance/kima-blockchain/chains/gas_fee`
+
+      const sourceChainResult: any = await fetchWrapper.get(
+        `${feeURL}/fee/${sourceChain}`
       )
+      const sourceFee = sourceChainResult.fee.split('-')[0]
+      const targetChainResult: any = await fetchWrapper.get(
+        `${feeURL}/fee/${targetChain}`
+      )
+      const targetFee = targetChainResult.fee.split('-')[0]
 
-      gasFeeData.gasFee.forEach((data: any) => {
-        gasFee[data.chainId] = data.fee
-      })
-
-      // const estimation: any = await fetchWrapper.get(
-      //   `${nodeProviderQuery}/kima-finance/kima-blockchain/kima/estimate_transfer/${sourceChain}/${walletAddress}/${targetChain}/${targetAddress}/${amount}`
-      // )
-
-      // const [originFee, targetFee] = await getFeeInUSD(
-      //   sourceChain,
-      //   targetChain,
-      //   gasFee
-      // )
-
-      // let delta =
-      //   parseFloat(estimation.estimateTransfer.TakerPenalty ?? '0') +
-      //   parseFloat(estimation.estimateTransfer.MakerPenalty ?? '0') -
-      //   parseFloat(estimation.estimateTransfer.TakerBounty ?? '0') -
-      //   parseFloat(estimation.estimateTransfer.MakerBounty ?? '0') +
-      //   parseFloat(estimation.estimateTransfer.NetworkFee ?? '0')
-
-      // if (isNaN(delta)) delta = 0
-      // let fee = delta + originFee + targetFee
-
-      // fee = fee < 0 ? 0 : fee
-
-      let fee = 0
+      let fee = +sourceFee + +targetFee
       dispatch(setServiceFee(parseFloat(fee.toFixed(2))))
     } catch (e) {
       dispatch(setServiceFee(0))
       console.log('rpc disconnected', e)
+      toast.error('rpc disconnected')
     }
   }
 
@@ -172,7 +103,6 @@ export default function useServiceFee(isConfirming: boolean = false) {
     walletAddress,
     isConfirming,
     targetAddress,
-    nodeProviderQuery,
     amount
   ])
 

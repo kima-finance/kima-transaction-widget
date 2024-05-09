@@ -91,7 +91,7 @@ const FooterLogo = ({
 const Check = ({
   width: _width = 15,
   height: _height = 11,
-  fill: _fill = '#33EA66',
+  fill: _fill = '#03a932',
   ...rest
 }) => {
   return React.createElement("svg", Object.assign({
@@ -1310,6 +1310,7 @@ function useNetworkOptions() {
         dispatch(setTokenOptions(tokenOptions));
       } catch (e) {
         console.log('rpc disconnected', e);
+        toast.error('rpc disconnected');
       }
     })();
   }, [nodeProviderQuery]);
@@ -1360,6 +1361,7 @@ const Network = ({
         }
       } catch (e) {
         console.log('rpc disconnected', e);
+        toast.error('rpc disconnected');
       }
     })();
   }, [nodeProviderQuery, originNetwork, targetNetwork, mode, _isOriginChain]);
@@ -1706,7 +1708,6 @@ function useIsWalletReady() {
           if (autoSwitch) {
             forceNetworkSwitch();
           } else {
-            console.log('autoSwitch', autoSwitch, evmChainId);
             dispatch(setSourceChain(CHAIN_IDS_TO_NAMES[evmChainId || SupportedChainId.ETHEREUM]));
             toast.success(`Wallet connected to ${CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[evmChainId || SupportedChainId.ETHEREUM]]}`);
           }
@@ -2100,8 +2101,14 @@ function useBalance() {
   const selectedCoin = useSelector(selectSelectedToken);
   const tokenOptions = useSelector(selectTokenOptions);
   const tokenAddress = useMemo(() => {
-    if (isEmptyObject(tokenOptions)) return '';
-    return tokenOptions[selectedCoin][sourceChain];
+    if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT || tokenOptions) return '';
+    if (tokenOptions && typeof tokenOptions === 'object') {
+      const coinOptions = tokenOptions[selectedCoin];
+      if (coinOptions && typeof coinOptions === 'object') {
+        return tokenOptions[selectedCoin][sourceChain];
+      }
+    }
+    return '';
   }, [selectedCoin, sourceChain, tokenOptions]);
   useEffect(() => {
     (async () => {
@@ -2279,6 +2286,7 @@ const NetworkDropdown = React.memo(({
         }
       } catch (e) {
         console.log('rpc disconnected', e);
+        toast.error('rpc disconnected');
       }
     })();
   }, [nodeProviderQuery, originNetwork, targetNetwork, mode, _isOriginChain, useFIAT]);
@@ -2298,6 +2306,7 @@ const NetworkDropdown = React.memo(({
         }
       } catch (e) {
         console.log('rpc disconnected', e);
+        toast.error('rpc disconnected');
       }
     })();
   }, [nodeProviderQuery, mode, targetNetwork, dAppOption]);
@@ -2426,6 +2435,22 @@ const AddressInput = () => {
     value: targetAddress,
     onChange: e => dispatch(setTargetAddress(e.target.value))
   });
+};
+
+const CustomCheckbox = ({
+  text,
+  checked,
+  setCheck
+}) => {
+  const theme = useSelector(selectTheme);
+  return React.createElement("div", {
+    className: 'kima-custom-checkbox'
+  }, React.createElement("div", {
+    className: 'content',
+    onClick: () => setCheck(!checked)
+  }, React.createElement("div", {
+    className: `icon-wrapper ${theme.colorMode}`
+  }, checked && React.createElement(Check, null)), React.createElement("span", null, text)));
 };
 
 const CopyButton = ({
@@ -2735,6 +2760,7 @@ const BankPopup = ({
         console.log(kycResult);
         if (!kycResult.length) {
           console.log('failed to check kyc status');
+          toast$1.error('failed to check kyc status');
         } else if (kycResult[0].status === 'approved') {
           setVerifying(false);
           dispatch(setKYCStatus('approved'));
@@ -2742,6 +2768,7 @@ const BankPopup = ({
         }
       } catch (e) {
         console.log('failed to check kyc status');
+        toast$1.error('failed to check kyc status');
       }
     }, 3000);
     return () => {
@@ -2849,6 +2876,7 @@ const TransactionWidget = ({
           }, 3000);
         }
       } catch (e) {
+        toast$1.error('rpc disconnected');
         console.log('rpc disconnected', e);
       }
     }, 1000);
@@ -3010,6 +3038,8 @@ const SingleForm = ({
   const mode = useSelector(selectMode);
   const theme = useSelector(selectTheme);
   const amount = useSelector(selectAmount);
+  const feeDeduct = useSelector(selectFeeDeduct);
+  const serviceFee = useSelector(selectServiceFee);
   const compliantOption = useSelector(selectCompliantOption);
   const targetCompliant = useSelector(selectTargetCompliant);
   const transactionOption = useSelector(selectTransactionOption);
@@ -3068,7 +3098,11 @@ const SingleForm = ({
     className: `amount-label ${theme.colorMode}`
   }, React.createElement("span", null, (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount) || ''), React.createElement("div", {
     className: 'coin-wrapper'
-  }, React.createElement(Icon, null), selectedCoin))));
+  }, React.createElement(Icon, null), selectedCoin))), mode === ModeOptions.bridge && serviceFee > 0 ? React.createElement(CustomCheckbox, {
+    text: `Deduct ${formatterFloat.format(serviceFee)} USDK fee`,
+    checked: feeDeduct,
+    setCheck: value => dispatch(setFeeDeduct(value))
+  }) : null);
 };
 
 const CoinSelect = () => {
@@ -3097,7 +3131,7 @@ const CoinSelect = () => {
   }, React.createElement(Icon, null), React.createElement("span", null, selectedCoin)))));
 };
 
-function useServiceFee(isConfirming = false) {
+function useServiceFee(isConfirming = false, feeURL) {
   const {
     walletAddress,
     isReady
@@ -3110,27 +3144,26 @@ function useServiceFee(isConfirming = false) {
   const targetNetwork = useSelector(selectTargetChain);
   const targetAddress_ = useSelector(selectTargetAddress);
   const transactionOption = useSelector(selectTransactionOption);
-  const nodeProviderQuery = useSelector(selectNodeProviderQuery);
   const targetChain = useMemo(() => mode === ModeOptions.payment ? (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetChain) || '' : targetNetwork, [transactionOption, mode, targetNetwork]);
   const targetAddress = useMemo(() => mode === ModeOptions.payment ? (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress) || '' : targetAddress_, [transactionOption, mode, targetAddress_]);
   const amount = useMemo(() => mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount : amount_, [transactionOption, mode, amount_]);
   const getServiceFee = async () => {
-    if (!sourceChain || !targetChain || !isReady || !walletAddress || !targetAddress || !nodeProviderQuery || !amount) return;
-    let gasFee = {};
+    if (!sourceChain || !targetChain || !isReady || !walletAddress || !targetAddress || !amount) return;
     try {
       if (sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT) {
         dispatch(setServiceFee(0));
         return;
       }
-      const gasFeeData = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/gas_fee`);
-      gasFeeData.gasFee.forEach(data => {
-        gasFee[data.chainId] = data.fee;
-      });
-      let fee = 0;
+      const sourceChainResult = await fetchWrapper.get(`${feeURL}/fee/${sourceChain}`);
+      const sourceFee = sourceChainResult.fee.split('-')[0];
+      const targetChainResult = await fetchWrapper.get(`${feeURL}/fee/${targetChain}`);
+      const targetFee = targetChainResult.fee.split('-')[0];
+      let fee = +sourceFee + +targetFee;
       dispatch(setServiceFee(parseFloat(fee.toFixed(2))));
     } catch (e) {
       dispatch(setServiceFee(0));
       console.log('rpc disconnected', e);
+      toast.error('rpc disconnected');
     }
   };
   useEffect(() => {
@@ -3142,7 +3175,7 @@ function useServiceFee(isConfirming = false) {
     return () => {
       clearInterval(timerId);
     };
-  }, [sourceChain, targetChain, isReady, walletAddress, isConfirming, targetAddress, nodeProviderQuery, amount]);
+  }, [sourceChain, targetChain, isReady, walletAddress, isConfirming, targetAddress, amount]);
   return useMemo(() => ({
     serviceFee
   }), [serviceFee]);
@@ -6748,12 +6781,17 @@ function useAllowance({
   const selectedCoin = useSelector(selectSelectedToken);
   const tokenOptions = useSelector(selectTokenOptions);
   const tokenAddress = useMemo(() => {
-    if (isEmptyObject(tokenOptions)) return '';
-    return tokenOptions[selectedCoin][sourceChain];
+    if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT || tokenOptions) return '';
+    if (tokenOptions && typeof tokenOptions === 'object') {
+      const coinOptions = tokenOptions[selectedCoin];
+      if (coinOptions && typeof coinOptions === 'object') {
+        return tokenOptions[selectedCoin][sourceChain];
+      }
+    }
+    return '';
   }, [selectedCoin, sourceChain, tokenOptions]);
   const [targetAddress, setTargetAddress] = useState();
   const isApproved = useMemo(() => {
-    console.log(allowance, amount, serviceFee);
     return allowance >= amount + serviceFee;
   }, [allowance, amount, serviceFee, dAppOption]);
   const updatePoolAddress = async () => {
@@ -6765,10 +6803,12 @@ function useAllowance({
       }
       if (sourceChain === ChainName.SOLANA && !result.tssPubkey[0].eddsa) {
         console.log('solana pool address is missing');
+        toast.error('solana pool address is missing');
       }
       setTargetAddress(sourceChain === ChainName.SOLANA ? result.tssPubkey[0].eddsa : sourceChain === ChainName.TRON ? fromHex(result.tssPubkey[0].ecdsa) : result.tssPubkey[0].ecdsa);
     } catch (e) {
       console.log('rpc disconnected', e);
+      toast.error('rpc disconnected');
     }
   };
   useEffect(() => {
@@ -6874,7 +6914,6 @@ function useAllowance({
         accountInfo = await connection.getParsedAccountInfo(fromTokenAccount.address);
         const parsedAccountInfo = (_accountInfo = accountInfo) === null || _accountInfo === void 0 ? void 0 : (_accountInfo$value2 = _accountInfo.value) === null || _accountInfo$value2 === void 0 ? void 0 : _accountInfo$value2.data;
         allowAmount = ((_parsedAccountInfo$pa9 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa9 === void 0 ? void 0 : (_parsedAccountInfo$pa10 = _parsedAccountInfo$pa9.info) === null || _parsedAccountInfo$pa10 === void 0 ? void 0 : _parsedAccountInfo$pa10.delegate) === targetAddress ? (_parsedAccountInfo$pa11 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa11 === void 0 ? void 0 : (_parsedAccountInfo$pa12 = _parsedAccountInfo$pa11.info) === null || _parsedAccountInfo$pa12 === void 0 ? void 0 : (_parsedAccountInfo$pa13 = _parsedAccountInfo$pa12.delegatedAmount) === null || _parsedAccountInfo$pa13 === void 0 ? void 0 : _parsedAccountInfo$pa13.uiAmount : 0;
-        console.log('sleep');
         await sleep(1000);
       } while (allowAmount < amount + serviceFee || retryCount++ < 5);
       setAllowance(amount + serviceFee);
@@ -6919,6 +6958,7 @@ function useCurrencyOptions() {
         setOptions((_coins$Currencies = coins.Currencies) !== null && _coins$Currencies !== void 0 && _coins$Currencies.length ? coins.Currencies[0] : 'USDK');
       } catch (e) {
         console.log('rpc disconnected', e);
+        toast.error('rpc disconnected');
       }
     })();
   }, [nodeProviderQuery, originNetwork, targetNetwork]);
@@ -6986,6 +7026,7 @@ function useSign({
 
 const TransferWidget = ({
   theme,
+  feeURL,
   helpURL,
   titleOption,
   paymentTitleOption
@@ -6998,6 +7039,7 @@ const TransferWidget = ({
   const mode = useSelector(selectMode);
   const dAppOption = useSelector(selectDappOption);
   const amount = useSelector(selectAmount);
+  const feeDeduct = useSelector(selectFeeDeduct);
   const sourceChain = useSelector(selectSourceChain);
   const targetAddress = useSelector(selectTargetAddress);
   const targetChain = useSelector(selectTargetChain);
@@ -7038,7 +7080,7 @@ const TransferWidget = ({
   });
   const {
     serviceFee: fee
-  } = useServiceFee(isConfirming);
+  } = useServiceFee(isConfirming, feeURL);
   const {
     balance
   } = useBalance();
@@ -7053,6 +7095,7 @@ const TransferWidget = ({
           address: walletAddress
         }));
         dispatch(setSourceCompliant(res));
+        toast$1.error('xplorisk check failed');
       } catch (e) {
         console.log('xplorisk check failed', e);
       }
@@ -7066,6 +7109,7 @@ const TransferWidget = ({
           address: targetAddress
         }));
         dispatch(setTargetCompliant(res));
+        toast$1.error('xplorisk check failed');
       } catch (e) {
         console.log('xplorisk check failed', e);
       }
@@ -7110,6 +7154,7 @@ const TransferWidget = ({
           const symbol = selectedToken;
           const errorString = `Tried to transfer ${amount} ${symbol}, but ${CHAIN_NAMES_TO_STRING[targetChain]} pool has only ${+poolBalance[i].balance[j].amount} ${symbol}`;
           console.log(errorString);
+          toast$1.error(errorString);
           toast$1.error(`${CHAIN_NAMES_TO_STRING[targetChain]} pool has insufficient balance!`);
           errorHandler(errorString);
           return false;
@@ -7195,6 +7240,7 @@ const TransferWidget = ({
       errorHandler(e);
       setSubmitting(false);
       console.log((e === null || e === void 0 ? void 0 : e.status) !== 500 ? 'rpc disconnected' : '', e);
+      toast$1.error('rpc disconnected');
       toast$1.error('Failed to submit transaction');
     }
   };
@@ -7216,6 +7262,11 @@ const TransferWidget = ({
         if (fee >= 0 && amount > 0) {
           setWizardStep(5);
         }
+        return;
+      }
+      if (fee > 0 && fee > amount && feeDeduct) {
+        toast$1.error('Fee is greater than amount to transfer!');
+        errorHandler('Fee is greater than amount to transfer!');
         return;
       }
       if (mode === ModeOptions.payment && wizardStep === 1 && fee >= 0 && (!compliantOption || sourceCompliant === 'low' && targetCompliant === 'low')) {
@@ -7248,6 +7299,11 @@ const TransferWidget = ({
           return;
         }
         if (compliantOption && (sourceCompliant !== 'low' || targetCompliant !== 'low')) return;
+        if (fee > 0 && fee > amount && feeDeduct) {
+          toast$1.error('Fee is greater than amount to transfer!');
+          errorHandler('Fee is greater than amount to transfer!');
+          return;
+        }
         if (mode === ModeOptions.payment || targetAddress && amount > 0) {
           setConfirming(true);
           setFormStep(1);
@@ -7414,6 +7470,7 @@ const KimaTransactionWidget = ({
   kimaBackendUrl,
   kimaNodeProviderQuery,
   kimaExplorer: _kimaExplorer = 'explorer.kima.finance',
+  feeURL: _feeURL = 'https://fee.kima.finance',
   errorHandler: _errorHandler = () => void 0,
   closeHandler: _closeHandler = () => void 0,
   successHandler: _successHandler = () => void 0,
@@ -7450,7 +7507,7 @@ const KimaTransactionWidget = ({
         try {
           const uuid = await fetchWrapper.get(`${kimaBackendUrl}/uuid`);
           dispatch(setUuid(uuid));
-          console.log('uuid: ', uuid);
+          console.log('depasify uuid: ', uuid);
         } catch (e) {
           console.log('uuid generate failed', e);
         }
@@ -7466,6 +7523,7 @@ const KimaTransactionWidget = ({
             const networks = await fetchWrapper.get(`${kimaNodeProviderQuery}/kima-finance/kima-blockchain/chains/get_available_chains/${(transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetChain) || ChainName.ETHEREUM}`);
             dispatch(setSourceChain(networks.Chains[0]));
           } catch (e) {
+            toast.error('rpc disconnected!');
             console.log('rpc disconnected', e);
           }
           try {
@@ -7474,6 +7532,7 @@ const KimaTransactionWidget = ({
                 address: transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress
               }));
               dispatch(setTargetCompliant(compliantRes));
+              toast.error('xplorisk check failed');
             }
           } catch (e) {
             console.log('xplorisk check failed', e);
@@ -7497,6 +7556,7 @@ const KimaTransactionWidget = ({
     theme: theme
   }) : React.createElement(TransferWidget, {
     theme: theme,
+    feeURL: _feeURL,
     helpURL: _helpURL,
     titleOption: titleOption,
     paymentTitleOption: paymentTitleOption
