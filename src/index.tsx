@@ -24,6 +24,7 @@ import {
 import { toast } from 'react-hot-toast'
 import { SOLANA_HOST } from './utils/constants'
 import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react'
+import * as btc from '@scure/btc-signer'
 
 const { ConnectionProvider, WalletProvider: SolanaWalletProvider } =
   SolanaAdapter
@@ -108,6 +109,8 @@ const metadata = {
   url: 'https://kima.finance',
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 }
+
+console.log(btc.SigHash.SINGLE_ANYONECANPAY)
 
 createWeb3Modal({
   ethersConfig: defaultConfig({ metadata }),

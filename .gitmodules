@@ -1,0 +1,4 @@
+[submodule "src/scure-btc-signer"]
+	path = src/scure-btc-signer
+	url = git@github.com:kima-finance/scure-btc-signer.git
+	branch = feature/htlc

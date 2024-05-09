@@ -16,6 +16,7 @@ var tronwalletAbstractAdapter = require('@tronweb3/tronwallet-abstract-adapter')
 var toast = require('react-hot-toast');
 var toast__default = _interopDefault(toast);
 var react = require('@web3modal/ethers5/react');
+var btc = require('@scure/btc-signer');
 var reactTooltip = require('react-tooltip');
 var walletAdapterBase = require('@solana/wallet-adapter-base');
 var contracts = require('@ethersproject/contracts');
@@ -56,12 +57,11 @@ function _setPrototypeOf(o, p) {
 function _objectWithoutPropertiesLoose(source, excluded) {
   if (source == null) return {};
   var target = {};
-  var sourceKeys = Object.keys(source);
-  var key, i;
-  for (i = 0; i < sourceKeys.length; i++) {
-    key = sourceKeys[i];
-    if (excluded.indexOf(key) >= 0) continue;
-    target[key] = source[key];
+  for (var key in source) {
+    if (Object.prototype.hasOwnProperty.call(source, key)) {
+      if (excluded.indexOf(key) >= 0) continue;
+      target[key] = source[key];
+    }
   }
   return target;
 }
@@ -8418,6 +8418,7 @@ var metadata = {
   url: 'https://kima.finance',
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 };
+console.log(btc.SigHash.SINGLE_ANYONECANPAY);
 react.createWeb3Modal({
   ethersConfig: react.defaultConfig({
     metadata: metadata
