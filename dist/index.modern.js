@@ -13,7 +13,7 @@ import { useWallet as useWallet$1, WalletProvider } from '@tronweb3/tronwallet-a
 import { AdapterState, WalletNotFoundError, WalletDisconnectedError } from '@tronweb3/tronwallet-abstract-adapter';
 import toast, { toast as toast$1, Toaster } from 'react-hot-toast';
 import { useWeb3ModalProvider, useSwitchNetwork, useWeb3ModalAccount, useWeb3ModalEvents, useWeb3Modal, useWeb3ModalTheme, createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react';
-import { SigHash } from '@scure/btc-signer';
+import { SigHash } from '@kimafinance/btc-signer';
 import { Tooltip } from 'react-tooltip';
 import { WalletReadyState } from '@solana/wallet-adapter-base';
 import { Contract } from '@ethersproject/contracts';

@@ -24,7 +24,7 @@ import {
 import { toast } from 'react-hot-toast'
 import { SOLANA_HOST } from './utils/constants'
 import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react'
-import * as btc from '@scure/btc-signer'
+import * as btc from '@kimafinance/btc-signer'
 
 const { ConnectionProvider, WalletProvider: SolanaWalletProvider } =
   SolanaAdapter
