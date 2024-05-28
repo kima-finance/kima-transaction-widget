@@ -2059,7 +2059,7 @@ const tronWeb = new TronWeb({
 tronWeb.setAddress(TRON_USDK_OWNER_ADDRESS);
 
 const formatterFloat = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 2
+  maximumFractionDigits: 9
 });
 function isEmptyObject(arg) {
   return typeof arg === 'object' && Object.keys(arg).length === 0;
@@ -3088,7 +3088,8 @@ const SingleForm = ({
     value: amount || '',
     onChange: e => {
       let _amount = +e.target.value;
-      dispatch(setAmount(parseFloat(_amount.toFixed(2))));
+      console.log(_amount);
+      dispatch(setAmount(_amount));
     }
   }), React.createElement(CoinDropdown, null))) : React.createElement("div", {
     className: `form-item ${theme.colorMode}`
@@ -3124,7 +3125,7 @@ const CoinSelect = () => {
     readOnly: mode === ModeOptions.payment,
     onChange: e => {
       const _amount = +e.target.value;
-      dispatch(setAmount(parseFloat(_amount.toFixed(2))));
+      dispatch(setAmount(_amount));
     }
   }), React.createElement("div", {
     className: 'coin-label'
@@ -3159,7 +3160,7 @@ function useServiceFee(isConfirming = false, feeURL) {
       const targetChainResult = await fetchWrapper.get(`${feeURL}/fee/${targetChain}`);
       const targetFee = targetChainResult.fee.split('-')[0];
       let fee = +sourceFee + +targetFee;
-      dispatch(setServiceFee(parseFloat(fee.toFixed(2))));
+      dispatch(setServiceFee(fee));
     } catch (e) {
       dispatch(setServiceFee(0));
       console.log('rpc disconnected', e);
@@ -6900,7 +6901,7 @@ function useAllowance({
       const mint = new PublicKey(tokenAddress);
       const toPublicKey = new PublicKey(targetAddress);
       const fromTokenAccount = await getOrCreateAssociatedTokenAccount(connection, solanaAddress, mint, solanaAddress, signSolanaTransaction);
-      const transaction = new Transaction().add(createApproveTransferInstruction(fromTokenAccount.address, toPublicKey, solanaAddress, +(amount + serviceFee).toFixed(2) * Math.pow(10, decimals ?? 6), [], TOKEN_PROGRAM_ID));
+      const transaction = new Transaction().add(createApproveTransferInstruction(fromTokenAccount.address, toPublicKey, solanaAddress, +(amount + serviceFee).toFixed(decimals || 9) * Math.pow(10, decimals ?? 6), [], TOKEN_PROGRAM_ID));
       const blockHash = await connection.getLatestBlockhash();
       transaction.feePayer = solanaAddress;
       transaction.recentBlockhash = await blockHash.blockhash;

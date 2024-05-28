@@ -76,7 +76,7 @@ export default function useServiceFee(
       const targetFee = targetChainResult.fee.split('-')[0]
 
       let fee = +sourceFee + +targetFee
-      dispatch(setServiceFee(parseFloat(fee.toFixed(2))))
+      dispatch(setServiceFee(fee))
     } catch (e) {
       dispatch(setServiceFee(0))
       console.log('rpc disconnected', e)

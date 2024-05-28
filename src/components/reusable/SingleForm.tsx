@@ -104,7 +104,8 @@ const SingleForm = ({
               value={amount || ''}
               onChange={(e) => {
                 let _amount = +e.target.value
-                dispatch(setAmount(parseFloat(_amount.toFixed(2))))
+                console.log(_amount)
+                dispatch(setAmount(_amount))
               }}
             />
             <CoinDropdown />
@@ -123,13 +124,13 @@ const SingleForm = ({
         </div>
       )}
 
-      {mode === ModeOptions.bridge && serviceFee > 0? (
-          <CustomCheckbox
-            text={`Deduct ${formatterFloat.format(serviceFee)} USDK fee`}
-            checked={feeDeduct}
-            setCheck={(value: boolean) => dispatch(setFeeDeduct(value))}
-          />
-        ) : null}
+      {mode === ModeOptions.bridge && serviceFee > 0 ? (
+        <CustomCheckbox
+          text={`Deduct ${formatterFloat.format(serviceFee)} USDK fee`}
+          checked={feeDeduct}
+          setCheck={(value: boolean) => dispatch(setFeeDeduct(value))}
+        />
+      ) : null}
     </div>
   )
 }

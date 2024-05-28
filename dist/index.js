@@ -56,11 +56,12 @@ function _setPrototypeOf(o, p) {
 function _objectWithoutPropertiesLoose(source, excluded) {
   if (source == null) return {};
   var target = {};
-  for (var key in source) {
-    if (Object.prototype.hasOwnProperty.call(source, key)) {
-      if (excluded.indexOf(key) >= 0) continue;
-      target[key] = source[key];
-    }
+  var sourceKeys = Object.keys(source);
+  var key, i;
+  for (i = 0; i < sourceKeys.length; i++) {
+    key = sourceKeys[i];
+    if (excluded.indexOf(key) >= 0) continue;
+    target[key] = source[key];
   }
   return target;
 }
@@ -2492,7 +2493,7 @@ var tronWeb = new tronweb.TronWeb({
 tronWeb.setAddress(TRON_USDK_OWNER_ADDRESS);
 
 var formatterFloat = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 2
+  maximumFractionDigits: 9
 });
 function isEmptyObject(arg) {
   return typeof arg === 'object' && Object.keys(arg).length === 0;
@@ -3650,7 +3651,8 @@ var SingleForm = function SingleForm(_ref) {
     value: amount || '',
     onChange: function onChange(e) {
       var _amount = +e.target.value;
-      dispatch(setAmount(parseFloat(_amount.toFixed(2))));
+      console.log(_amount);
+      dispatch(setAmount(_amount));
     }
   }), React__default.createElement(CoinDropdown, null))) : React__default.createElement("div", {
     className: "form-item " + theme.colorMode
@@ -3688,7 +3690,7 @@ var CoinSelect = function CoinSelect() {
     readOnly: mode === exports.ModeOptions.payment,
     onChange: function onChange(e) {
       var _amount = +e.target.value;
-      dispatch(setAmount(parseFloat(_amount.toFixed(2))));
+      dispatch(setAmount(_amount));
     }
   }), React__default.createElement("div", {
     className: 'coin-label'
@@ -3732,7 +3734,7 @@ function useServiceFee(isConfirming, feeURL) {
           return Promise.resolve(fetchWrapper.get(feeURL + "/fee/" + targetChain)).then(function (targetChainResult) {
             var targetFee = targetChainResult.fee.split('-')[0];
             var fee = +sourceFee + +targetFee;
-            dispatch(setServiceFee(parseFloat(fee.toFixed(2))));
+            dispatch(setServiceFee(fee));
           });
         });
       }, function (e) {
@@ -7500,7 +7502,7 @@ function useAllowance(_ref) {
             var mint = new web3_js.PublicKey(tokenAddress);
             var toPublicKey = new web3_js.PublicKey(targetAddress);
             return Promise.resolve(getOrCreateAssociatedTokenAccount(connection, solanaAddress, mint, solanaAddress, signSolanaTransaction)).then(function (fromTokenAccount) {
-              var transaction = new web3_js.Transaction().add(createApproveTransferInstruction(fromTokenAccount.address, toPublicKey, solanaAddress, +(amount + serviceFee).toFixed(2) * Math.pow(10, decimals != null ? decimals : 6), [], splToken.TOKEN_PROGRAM_ID));
+              var transaction = new web3_js.Transaction().add(createApproveTransferInstruction(fromTokenAccount.address, toPublicKey, solanaAddress, +(amount + serviceFee).toFixed(decimals || 9) * Math.pow(10, decimals != null ? decimals : 6), [], splToken.TOKEN_PROGRAM_ID));
               return Promise.resolve(connection.getLatestBlockhash()).then(function (blockHash) {
                 transaction.feePayer = solanaAddress;
                 return Promise.resolve(blockHash.blockhash).then(function (_blockHash$blockhash) {

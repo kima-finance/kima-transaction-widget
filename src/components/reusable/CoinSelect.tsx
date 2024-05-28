@@ -45,7 +45,7 @@ const CoinSelect = () => {
             readOnly={mode === ModeOptions.payment}
             onChange={(e) => {
               const _amount = +e.target.value
-              dispatch(setAmount(parseFloat(_amount.toFixed(2))))
+              dispatch(setAmount(_amount))
             }}
           />
           <div className='coin-label'>

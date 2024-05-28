@@ -300,7 +300,8 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
           fromTokenAccount.address, // source
           toPublicKey, // dest
           solanaAddress as PublicKey,
-          +(amount + serviceFee).toFixed(2) * Math.pow(10, decimals ?? 6), // amount * LAMPORTS_PER_SOL,
+          +(amount + serviceFee).toFixed(decimals || 9) *
+            Math.pow(10, decimals ?? 6), // amount * LAMPORTS_PER_SOL,
           [],
           TOKEN_PROGRAM_ID
         )
