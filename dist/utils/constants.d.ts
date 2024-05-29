@@ -1,4 +1,3 @@
-/// <reference types="react" />
 export declare enum ChainName {
     ETHEREUM = "ETH",
     POLYGON = "POL",
@@ -9,7 +8,8 @@ export declare enum ChainName {
     OPTIMISM = "OPT",
     POLYGON_ZKEVM = "ZKE",
     TRON = "TRX",
-    FIAT = "FIAT"
+    FIAT = "FIAT",
+    BTC = "BTC"
 }
 export declare enum SupportedChainId {
     ETHEREUM = 11155111,
@@ -30,9 +30,6 @@ export declare const CHAIN_STRING_TO_NAME: {
     [chainName: string]: ChainName;
 };
 export declare const CHAIN_NAMES_TO_EXPLORER: {
-    [chainName: string]: string;
-};
-export declare const CHAIN_NAMES_TO_GECKO_ID: {
     [chainName: string]: string;
 };
 export declare const CHAIN_IDS_TO_NAMES: {
