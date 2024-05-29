@@ -91,12 +91,7 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
   const selectedCoin = useSelector(selectSelectedToken)
   const tokenOptions = useSelector(selectTokenOptions)
   const tokenAddress = useMemo(() => {
-    if (
-      isEmptyObject(tokenOptions) ||
-      sourceChain === ChainName.FIAT ||
-      tokenOptions
-    )
-      return ''
+    if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT) return ''
 
     if (tokenOptions && typeof tokenOptions === 'object') {
       const coinOptions = tokenOptions[selectedCoin]
@@ -305,7 +300,7 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
           fromTokenAccount.address, // source
           toPublicKey, // dest
           solanaAddress as PublicKey,
-          +(amount + serviceFee).toFixed(2) * Math.pow(10, decimals ?? 6), // amount * LAMPORTS_PER_SOL,
+          (amount + serviceFee) * Math.pow(10, decimals ?? 6), // amount * LAMPORTS_PER_SOL,
           [],
           TOKEN_PROGRAM_ID
         )

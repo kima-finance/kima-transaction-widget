@@ -2102,7 +2102,7 @@ function useBalance() {
   const selectedCoin = useSelector(selectSelectedToken);
   const tokenOptions = useSelector(selectTokenOptions);
   const tokenAddress = useMemo(() => {
-    if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT || tokenOptions) return '';
+    if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT) return '';
     if (tokenOptions && typeof tokenOptions === 'object') {
       const coinOptions = tokenOptions[selectedCoin];
       if (coinOptions && typeof coinOptions === 'object') {
@@ -6782,7 +6782,7 @@ function useAllowance({
   const selectedCoin = useSelector(selectSelectedToken);
   const tokenOptions = useSelector(selectTokenOptions);
   const tokenAddress = useMemo(() => {
-    if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT || tokenOptions) return '';
+    if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT) return '';
     if (tokenOptions && typeof tokenOptions === 'object') {
       const coinOptions = tokenOptions[selectedCoin];
       if (coinOptions && typeof coinOptions === 'object') {
@@ -6901,7 +6901,7 @@ function useAllowance({
       const mint = new PublicKey(tokenAddress);
       const toPublicKey = new PublicKey(targetAddress);
       const fromTokenAccount = await getOrCreateAssociatedTokenAccount(connection, solanaAddress, mint, solanaAddress, signSolanaTransaction);
-      const transaction = new Transaction().add(createApproveTransferInstruction(fromTokenAccount.address, toPublicKey, solanaAddress, +(amount + serviceFee).toFixed(2) * Math.pow(10, decimals ?? 6), [], TOKEN_PROGRAM_ID));
+      const transaction = new Transaction().add(createApproveTransferInstruction(fromTokenAccount.address, toPublicKey, solanaAddress, (amount + serviceFee) * Math.pow(10, decimals ?? 6), [], TOKEN_PROGRAM_ID));
       const blockHash = await connection.getLatestBlockhash();
       transaction.feePayer = solanaAddress;
       transaction.recentBlockhash = await blockHash.blockhash;

@@ -2532,7 +2532,7 @@ function useBalance() {
   var selectedCoin = reactRedux.useSelector(selectSelectedToken);
   var tokenOptions = reactRedux.useSelector(selectTokenOptions);
   var tokenAddress = React.useMemo(function () {
-    if (isEmptyObject(tokenOptions) || sourceChain === exports.SupportNetworks.FIAT || tokenOptions) return '';
+    if (isEmptyObject(tokenOptions) || sourceChain === exports.SupportNetworks.FIAT) return '';
     if (tokenOptions && typeof tokenOptions === 'object') {
       var coinOptions = tokenOptions[selectedCoin];
       if (coinOptions && typeof coinOptions === 'object') {
@@ -7382,7 +7382,7 @@ function useAllowance(_ref) {
   var selectedCoin = reactRedux.useSelector(selectSelectedToken);
   var tokenOptions = reactRedux.useSelector(selectTokenOptions);
   var tokenAddress = React.useMemo(function () {
-    if (isEmptyObject(tokenOptions) || sourceChain === exports.SupportNetworks.FIAT || tokenOptions) return '';
+    if (isEmptyObject(tokenOptions) || sourceChain === exports.SupportNetworks.FIAT) return '';
     if (tokenOptions && typeof tokenOptions === 'object') {
       var coinOptions = tokenOptions[selectedCoin];
       if (coinOptions && typeof coinOptions === 'object') {
@@ -7501,7 +7501,7 @@ function useAllowance(_ref) {
             var mint = new web3_js.PublicKey(tokenAddress);
             var toPublicKey = new web3_js.PublicKey(targetAddress);
             return Promise.resolve(getOrCreateAssociatedTokenAccount(connection, solanaAddress, mint, solanaAddress, signSolanaTransaction)).then(function (fromTokenAccount) {
-              var transaction = new web3_js.Transaction().add(createApproveTransferInstruction(fromTokenAccount.address, toPublicKey, solanaAddress, +(amount + serviceFee).toFixed(2) * Math.pow(10, decimals != null ? decimals : 6), [], splToken.TOKEN_PROGRAM_ID));
+              var transaction = new web3_js.Transaction().add(createApproveTransferInstruction(fromTokenAccount.address, toPublicKey, solanaAddress, (amount + serviceFee) * Math.pow(10, decimals != null ? decimals : 6), [], splToken.TOKEN_PROGRAM_ID));
               return Promise.resolve(connection.getLatestBlockhash()).then(function (blockHash) {
                 transaction.feePayer = solanaAddress;
                 return Promise.resolve(blockHash.blockhash).then(function (_blockHash$blockhash) {
