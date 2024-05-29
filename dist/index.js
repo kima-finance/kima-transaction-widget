@@ -19,6 +19,7 @@ var react = require('@web3modal/ethers5/react');
 var btc = require('@kimafinance/btc-signer');
 var reactTooltip = require('react-tooltip');
 var walletAdapterBase = require('@solana/wallet-adapter-base');
+var satsConnect = require('sats-connect');
 var contracts = require('@ethersproject/contracts');
 var units = require('@ethersproject/units');
 var splToken = require('@solana/spl-token');
@@ -1258,6 +1259,93 @@ const _iteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.it
 
 const _asyncIteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.asyncIterator || (Symbol.asyncIterator = Symbol("Symbol.asyncIterator"))) : "@@asyncIterator";
 
+// Asynchronously implement a generic for loop
+function _for(test, update, body) {
+	var stage;
+	for (;;) {
+		var shouldContinue = test();
+		if (_isSettledPact(shouldContinue)) {
+			shouldContinue = shouldContinue.v;
+		}
+		if (!shouldContinue) {
+			return result;
+		}
+		if (shouldContinue.then) {
+			stage = 0;
+			break;
+		}
+		var result = body();
+		if (result && result.then) {
+			if (_isSettledPact(result)) {
+				result = result.s;
+			} else {
+				stage = 1;
+				break;
+			}
+		}
+		if (update) {
+			var updateValue = update();
+			if (updateValue && updateValue.then && !_isSettledPact(updateValue)) {
+				stage = 2;
+				break;
+			}
+		}
+	}
+	var pact = new _Pact();
+	var reject = _settle.bind(null, pact, 2);
+	(stage === 0 ? shouldContinue.then(_resumeAfterTest) : stage === 1 ? result.then(_resumeAfterBody) : updateValue.then(_resumeAfterUpdate)).then(void 0, reject);
+	return pact;
+	function _resumeAfterBody(value) {
+		result = value;
+		do {
+			if (update) {
+				updateValue = update();
+				if (updateValue && updateValue.then && !_isSettledPact(updateValue)) {
+					updateValue.then(_resumeAfterUpdate).then(void 0, reject);
+					return;
+				}
+			}
+			shouldContinue = test();
+			if (!shouldContinue || (_isSettledPact(shouldContinue) && !shouldContinue.v)) {
+				_settle(pact, 1, result);
+				return;
+			}
+			if (shouldContinue.then) {
+				shouldContinue.then(_resumeAfterTest).then(void 0, reject);
+				return;
+			}
+			result = body();
+			if (_isSettledPact(result)) {
+				result = result.v;
+			}
+		} while (!result || !result.then);
+		result.then(_resumeAfterBody).then(void 0, reject);
+	}
+	function _resumeAfterTest(shouldContinue) {
+		if (shouldContinue) {
+			result = body();
+			if (result && result.then) {
+				result.then(_resumeAfterBody).then(void 0, reject);
+			} else {
+				_resumeAfterBody(result);
+			}
+		} else {
+			_settle(pact, 1, result);
+		}
+	}
+	function _resumeAfterUpdate() {
+		if (shouldContinue = test()) {
+			if (shouldContinue.then) {
+				shouldContinue.then(_resumeAfterTest).then(void 0, reject);
+			} else {
+				_resumeAfterTest(shouldContinue);
+			}
+		} else {
+			_settle(pact, 1, result);
+		}
+	}
+}
+
 // Asynchronously implement a do ... while loop
 function _do(body, test) {
 	var awaitBody;
@@ -2037,14 +2125,14 @@ var WalletSelect = function WalletSelect() {
   }))));
 };
 
-var createWalletStatus = function createWalletStatus(isReady, statusMessage, forceNetworkSwitch, walletAddress) {
+var createWalletStatus = function createWalletStatus(isReady, statusMessage, connectBitcoinWallet, walletAddress) {
   if (statusMessage === void 0) {
     statusMessage = '';
   }
   return {
     isReady: isReady,
     statusMessage: statusMessage,
-    forceNetworkSwitch: forceNetworkSwitch,
+    connectBitcoinWallet: connectBitcoinWallet,
     walletAddress: walletAddress
   };
 };
@@ -2080,6 +2168,19 @@ function useIsWalletReady() {
   var correctEvmNetwork = CHAIN_NAMES_TO_IDS[correctChain];
   var hasCorrectEvmNetwork = evmChainId === correctEvmNetwork;
   var events = react.useWeb3ModalEvents();
+  var _useState = React.useState(''),
+    bitcoinAddress = _useState[0],
+    setBitcoinAddress = _useState[1];
+  var _useState2 = React.useState(''),
+    bitcoinPubkey = _useState2[0],
+    setBitcoinPubkey = _useState2[1];
+  var _useState3 = React.useState('loading'),
+    capabilityState = _useState3[0],
+    setCapabilityState = _useState3[1];
+  var _useState4 = React.useState(),
+    capabilities = _useState4[0],
+    setCapabilities = _useState4[1];
+  var capabilityMessage = capabilityState === 'loading' ? 'Checking capabilities...' : capabilityState === 'cancelled' ? 'Capability check cancelled by wallet. Please refresh the page and try again.' : capabilityState === 'missing' ? 'Could not find an installed Sats Connect capable wallet. Please install a wallet and try again.' : !capabilities ? 'Something went wrong with getting capabilities' : undefined;
   React.useEffect(function () {
     var _events$data, _events$data2;
     if (((_events$data = events.data) === null || _events$data === void 0 ? void 0 : _events$data.event) === 'SELECT_WALLET' || ((_events$data2 = events.data) === null || _events$data2 === void 0 ? void 0 : _events$data2.event) === 'CONNECT_SUCCESS') {
@@ -2087,6 +2188,75 @@ function useIsWalletReady() {
       localStorage.setItem('wallet', (_events$data3 = events.data) === null || _events$data3 === void 0 ? void 0 : (_events$data3$propert = _events$data3.properties) === null || _events$data3$propert === void 0 ? void 0 : _events$data3$propert.name);
     }
   }, [events]);
+  React.useEffect(function () {
+    var runCapabilityCheck = function runCapabilityCheck() {
+      try {
+        var runs = 0;
+        var MAX_RUNS = 20;
+        setCapabilityState('loading');
+        var _temp3 = _for(function () {
+          return runs < MAX_RUNS;
+        }, void 0, function () {
+          function _temp2() {
+            return Promise.resolve(new Promise(function (resolve) {
+              return setTimeout(resolve, 100);
+            })).then(function () {});
+          }
+          var _temp = _catch(function () {
+            return Promise.resolve(satsConnect.getCapabilities({
+              onFinish: function onFinish(response) {
+                setCapabilities(new Set(response));
+                setCapabilityState('loaded');
+              },
+              onCancel: function onCancel() {
+                setCapabilityState('cancelled');
+              },
+              payload: {
+                network: {
+                  type: satsConnect.BitcoinNetworkType.Testnet
+                }
+              }
+            })).then(function () {});
+          }, function () {
+            runs++;
+            if (runs === MAX_RUNS) {
+              setCapabilityState('missing');
+            }
+          });
+          return _temp && _temp.then ? _temp.then(_temp2) : _temp2(_temp);
+        });
+        return Promise.resolve(_temp3 && _temp3.then ? _temp3.then(function () {}) : void 0);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    };
+    runCapabilityCheck();
+  }, []);
+  var connectBitcoinWallet = function connectBitcoinWallet() {
+    try {
+      return Promise.resolve(satsConnect.getAddress({
+        payload: {
+          purposes: [satsConnect.AddressPurpose.Ordinals, satsConnect.AddressPurpose.Payment, satsConnect.AddressPurpose.Stacks],
+          message: 'SATS Connect Demo',
+          network: {
+            type: satsConnect.BitcoinNetworkType.Testnet
+          }
+        },
+        onFinish: function onFinish(response) {
+          var paymentAddressItem = response.addresses.find(function (address) {
+            return address.purpose === satsConnect.AddressPurpose.Payment;
+          });
+          setBitcoinAddress((paymentAddressItem === null || paymentAddressItem === void 0 ? void 0 : paymentAddressItem.address) || '');
+          setBitcoinPubkey((paymentAddressItem === null || paymentAddressItem === void 0 ? void 0 : paymentAddressItem.publicKey) || '');
+        },
+        onCancel: function onCancel() {
+          return alert('Request canceled');
+        }
+      })).then(function () {});
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  };
   var forceNetworkSwitch = React.useCallback(function () {
     try {
       return Promise.resolve(function () {
@@ -2110,17 +2280,22 @@ function useIsWalletReady() {
   return React.useMemo(function () {
     if (correctChain === exports.SupportNetworks.SOLANA) {
       if (solanaAddress) {
-        return createWalletStatus(true, undefined, forceNetworkSwitch, solanaAddress.toBase58());
+        return createWalletStatus(true, undefined, connectBitcoinWallet, solanaAddress.toBase58());
       }
-      return createWalletStatus(false, 'Wallet not connected', forceNetworkSwitch, '');
+      return createWalletStatus(false, 'Wallet not connected', connectBitcoinWallet, '');
     } else if (correctChain === exports.SupportNetworks.TRON) {
       if (tronAddress) {
-        return createWalletStatus(true, undefined, forceNetworkSwitch, tronAddress);
+        return createWalletStatus(true, undefined, connectBitcoinWallet, tronAddress);
       }
-      return createWalletStatus(false, 'Wallet not connected', forceNetworkSwitch, '');
+      return createWalletStatus(false, 'Wallet not connected', connectBitcoinWallet, '');
+    } else if (correctChain === exports.SupportNetworks.BTC) {
+      if (bitcoinAddress) {
+        return createWalletStatus(true, undefined, connectBitcoinWallet, bitcoinAddress);
+      }
+      return createWalletStatus(false, capabilityMessage, connectBitcoinWallet, '');
     } else if (isEVMChain(correctChain) && hasEthInfo && evmAddress) {
       if (hasCorrectEvmNetwork) {
-        return createWalletStatus(true, undefined, forceNetworkSwitch, evmAddress);
+        return createWalletStatus(true, undefined, connectBitcoinWallet, evmAddress);
       } else {
         if (evmProvider && correctEvmNetwork) {
           if (autoSwitch) {
@@ -2130,11 +2305,11 @@ function useIsWalletReady() {
             toast__default.success("Wallet connected to " + CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[evmChainId || SupportedChainId.ETHEREUM]]);
           }
         }
-        if (evmChainId && autoSwitch) return createWalletStatus(false, "Wallet not connected to " + CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[correctEvmNetwork]], forceNetworkSwitch, evmAddress);
+        if (evmChainId && autoSwitch) return createWalletStatus(false, "Wallet not connected to " + CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[correctEvmNetwork]], connectBitcoinWallet, evmAddress);
       }
     }
-    return createWalletStatus(false, '', forceNetworkSwitch, undefined);
-  }, [correctChain, autoSwitch, forceNetworkSwitch, solanaAddress, tronAddress, hasEthInfo, correctEvmNetwork, hasCorrectEvmNetwork, evmProvider, evmAddress, evmChainId]);
+    return createWalletStatus(false, '', connectBitcoinWallet, undefined);
+  }, [correctChain, autoSwitch, forceNetworkSwitch, connectBitcoinWallet, solanaAddress, tronAddress, hasEthInfo, correctEvmNetwork, hasCorrectEvmNetwork, bitcoinAddress, bitcoinPubkey, evmProvider, evmAddress, evmChainId]);
 }
 
 var getShortenedAddress = function getShortenedAddress(address) {
@@ -2670,7 +2845,8 @@ var WalletButton = function WalletButton(_ref) {
   var _useIsWalletReady = useIsWalletReady(),
     isReady = _useIsWalletReady.isReady,
     statusMessage = _useIsWalletReady.statusMessage,
-    walletAddress = _useIsWalletReady.walletAddress;
+    walletAddress = _useIsWalletReady.walletAddress,
+    connectBitcoinWallet = _useIsWalletReady.connectBitcoinWallet;
   var _useBalance = useBalance(),
     balance = _useBalance.balance;
   var _useWeb3Modal = react.useWeb3Modal(),
@@ -2682,6 +2858,10 @@ var WalletButton = function WalletButton(_ref) {
     }
     if (selectedNetwork === exports.SupportNetworks.TRON) {
       dispatch(setTronConnectModal(true));
+      return;
+    }
+    if (selectedNetwork === exports.SupportNetworks.BTC) {
+      connectBitcoinWallet();
       return;
     }
     open();

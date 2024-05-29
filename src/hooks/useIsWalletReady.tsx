@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import type { Capability } from 'sats-connect'
+import {
+  AddressPurpose,
+  BitcoinNetworkType,
+  getAddress,
+  getCapabilities
+} from 'sats-connect'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import {
@@ -31,12 +38,12 @@ import toast from 'react-hot-toast'
 const createWalletStatus = (
   isReady: boolean,
   statusMessage: string = '',
-  forceNetworkSwitch: () => void,
+  connectBitcoinWallet: () => void,
   walletAddress?: string
 ) => ({
   isReady,
   statusMessage,
-  forceNetworkSwitch,
+  connectBitcoinWallet,
   walletAddress
 })
 
@@ -44,7 +51,7 @@ function useIsWalletReady(): {
   isReady: boolean
   statusMessage: string
   walletAddress?: string
-  forceNetworkSwitch: () => void
+  connectBitcoinWallet: () => void
 } {
   const dispatch = useDispatch()
   const autoSwitch = useSelector(selectWalletAutoConnect)
@@ -78,6 +85,24 @@ function useIsWalletReady(): {
   const correctEvmNetwork = CHAIN_NAMES_TO_IDS[correctChain]
   const hasCorrectEvmNetwork = evmChainId === correctEvmNetwork
   const events = useWeb3ModalEvents()
+  const [bitcoinAddress, setBitcoinAddress] = useState<string>('')
+  const [bitcoinPubkey, setBitcoinPubkey] = useState<string>('')
+
+  const [capabilityState, setCapabilityState] = useState<
+    'loading' | 'loaded' | 'missing' | 'cancelled'
+  >('loading')
+  const [capabilities, setCapabilities] = useState<Set<Capability>>()
+
+  const capabilityMessage =
+    capabilityState === 'loading'
+      ? 'Checking capabilities...'
+      : capabilityState === 'cancelled'
+        ? 'Capability check cancelled by wallet. Please refresh the page and try again.'
+        : capabilityState === 'missing'
+          ? 'Could not find an installed Sats Connect capable wallet. Please install a wallet and try again.'
+          : !capabilities
+            ? 'Something went wrong with getting capabilities'
+            : undefined
 
   useEffect(() => {
     if (
@@ -87,6 +112,66 @@ function useIsWalletReady(): {
       localStorage.setItem('wallet', events.data?.properties?.name)
     }
   }, [events])
+
+  useEffect(() => {
+    const runCapabilityCheck = async () => {
+      let runs = 0
+      const MAX_RUNS = 20
+      setCapabilityState('loading')
+
+      // the wallet's in-page script may not be loaded yet, so we'll try a few times
+      while (runs < MAX_RUNS) {
+        try {
+          await getCapabilities({
+            onFinish(response) {
+              setCapabilities(new Set(response))
+              setCapabilityState('loaded')
+            },
+            onCancel() {
+              setCapabilityState('cancelled')
+            },
+            payload: {
+              network: {
+                type: BitcoinNetworkType.Testnet
+              }
+            }
+          })
+        } catch (e) {
+          runs++
+          if (runs === MAX_RUNS) {
+            setCapabilityState('missing')
+          }
+        }
+        await new Promise((resolve) => setTimeout(resolve, 100))
+      }
+    }
+
+    runCapabilityCheck()
+  }, [])
+
+  const connectBitcoinWallet = async () => {
+    await getAddress({
+      payload: {
+        purposes: [
+          AddressPurpose.Ordinals,
+          AddressPurpose.Payment,
+          AddressPurpose.Stacks
+        ],
+        message: 'SATS Connect Demo',
+        network: {
+          type: BitcoinNetworkType.Testnet
+        }
+      },
+      onFinish: (response) => {
+        const paymentAddressItem = response.addresses.find(
+          (address) => address.purpose === AddressPurpose.Payment
+        )
+        setBitcoinAddress(paymentAddressItem?.address || '')
+        setBitcoinPubkey(paymentAddressItem?.publicKey || '')
+      },
+      onCancel: () => alert('Request canceled')
+    })
+  }
 
   const forceNetworkSwitch = useCallback(async () => {
     if (evmProvider && correctEvmNetwork) {
@@ -110,14 +195,14 @@ function useIsWalletReady(): {
         return createWalletStatus(
           true,
           undefined,
-          forceNetworkSwitch,
+          connectBitcoinWallet,
           solanaAddress.toBase58()
         )
       }
       return createWalletStatus(
         false,
         'Wallet not connected',
-        forceNetworkSwitch,
+        connectBitcoinWallet,
         ''
       )
     } else if (correctChain === ChainName.TRON) {
@@ -125,14 +210,29 @@ function useIsWalletReady(): {
         return createWalletStatus(
           true,
           undefined,
-          forceNetworkSwitch,
+          connectBitcoinWallet,
           tronAddress
         )
       }
       return createWalletStatus(
         false,
         'Wallet not connected',
-        forceNetworkSwitch,
+        connectBitcoinWallet,
+        ''
+      )
+    } else if (correctChain === ChainName.BTC) {
+      if (bitcoinAddress) {
+        return createWalletStatus(
+          true,
+          undefined,
+          connectBitcoinWallet,
+          bitcoinAddress
+        )
+      }
+      return createWalletStatus(
+        false,
+        capabilityMessage,
+        connectBitcoinWallet,
         ''
       )
     } else if (isEVMChain(correctChain) && hasEthInfo && evmAddress) {
@@ -140,7 +240,7 @@ function useIsWalletReady(): {
         return createWalletStatus(
           true,
           undefined,
-          forceNetworkSwitch,
+          connectBitcoinWallet,
           evmAddress
         )
       } else {
@@ -169,22 +269,25 @@ function useIsWalletReady(): {
             `Wallet not connected to ${
               CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[correctEvmNetwork]]
             }`,
-            forceNetworkSwitch,
+            connectBitcoinWallet,
             evmAddress
           )
       }
     }
 
-    return createWalletStatus(false, '', forceNetworkSwitch, undefined)
+    return createWalletStatus(false, '', connectBitcoinWallet, undefined)
   }, [
     correctChain,
     autoSwitch,
     forceNetworkSwitch,
+    connectBitcoinWallet,
     solanaAddress,
     tronAddress,
     hasEthInfo,
     correctEvmNetwork,
     hasCorrectEvmNetwork,
+    bitcoinAddress,
+    bitcoinPubkey,
     evmProvider,
     evmAddress,
     evmChainId

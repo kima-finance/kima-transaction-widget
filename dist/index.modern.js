@@ -16,6 +16,7 @@ import { useWeb3ModalProvider, useSwitchNetwork, useWeb3ModalAccount, useWeb3Mod
 import { SigHash } from '@kimafinance/btc-signer';
 import { Tooltip } from 'react-tooltip';
 import { WalletReadyState } from '@solana/wallet-adapter-base';
+import { getAddress, AddressPurpose, BitcoinNetworkType, getCapabilities } from 'sats-connect';
 import { Contract } from '@ethersproject/contracts';
 import { formatUnits, parseUnits } from '@ethersproject/units';
 import { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, AccountLayout } from '@solana/spl-token';
@@ -1678,10 +1679,10 @@ const WalletSelect = () => {
   }), React.createElement("span", null, "Install", React.createElement("br", null), wallet.adapter.name))))));
 };
 
-const createWalletStatus = (isReady, statusMessage = '', forceNetworkSwitch, walletAddress) => ({
+const createWalletStatus = (isReady, statusMessage = '', connectBitcoinWallet, walletAddress) => ({
   isReady,
   statusMessage,
-  forceNetworkSwitch,
+  connectBitcoinWallet,
   walletAddress
 });
 function useIsWalletReady() {
@@ -1721,6 +1722,11 @@ function useIsWalletReady() {
   const correctEvmNetwork = CHAIN_NAMES_TO_IDS[correctChain];
   const hasCorrectEvmNetwork = evmChainId === correctEvmNetwork;
   const events = useWeb3ModalEvents();
+  const [bitcoinAddress, setBitcoinAddress] = useState('');
+  const [bitcoinPubkey, setBitcoinPubkey] = useState('');
+  const [capabilityState, setCapabilityState] = useState('loading');
+  const [capabilities, setCapabilities] = useState();
+  const capabilityMessage = capabilityState === 'loading' ? 'Checking capabilities...' : capabilityState === 'cancelled' ? 'Capability check cancelled by wallet. Please refresh the page and try again.' : capabilityState === 'missing' ? 'Could not find an installed Sats Connect capable wallet. Please install a wallet and try again.' : !capabilities ? 'Something went wrong with getting capabilities' : undefined;
   useEffect(() => {
     var _events$data, _events$data2;
     if (((_events$data = events.data) === null || _events$data === void 0 ? void 0 : _events$data.event) === 'SELECT_WALLET' || ((_events$data2 = events.data) === null || _events$data2 === void 0 ? void 0 : _events$data2.event) === 'CONNECT_SUCCESS') {
@@ -1728,6 +1734,55 @@ function useIsWalletReady() {
       localStorage.setItem('wallet', (_events$data3 = events.data) === null || _events$data3 === void 0 ? void 0 : (_events$data3$propert = _events$data3.properties) === null || _events$data3$propert === void 0 ? void 0 : _events$data3$propert.name);
     }
   }, [events]);
+  useEffect(() => {
+    const runCapabilityCheck = async () => {
+      let runs = 0;
+      const MAX_RUNS = 20;
+      setCapabilityState('loading');
+      while (runs < MAX_RUNS) {
+        try {
+          await getCapabilities({
+            onFinish(response) {
+              setCapabilities(new Set(response));
+              setCapabilityState('loaded');
+            },
+            onCancel() {
+              setCapabilityState('cancelled');
+            },
+            payload: {
+              network: {
+                type: BitcoinNetworkType.Testnet
+              }
+            }
+          });
+        } catch (e) {
+          runs++;
+          if (runs === MAX_RUNS) {
+            setCapabilityState('missing');
+          }
+        }
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+    };
+    runCapabilityCheck();
+  }, []);
+  const connectBitcoinWallet = async () => {
+    await getAddress({
+      payload: {
+        purposes: [AddressPurpose.Ordinals, AddressPurpose.Payment, AddressPurpose.Stacks],
+        message: 'SATS Connect Demo',
+        network: {
+          type: BitcoinNetworkType.Testnet
+        }
+      },
+      onFinish: response => {
+        const paymentAddressItem = response.addresses.find(address => address.purpose === AddressPurpose.Payment);
+        setBitcoinAddress((paymentAddressItem === null || paymentAddressItem === void 0 ? void 0 : paymentAddressItem.address) || '');
+        setBitcoinPubkey((paymentAddressItem === null || paymentAddressItem === void 0 ? void 0 : paymentAddressItem.publicKey) || '');
+      },
+      onCancel: () => alert('Request canceled')
+    });
+  };
   const forceNetworkSwitch = useCallback(async () => {
     if (evmProvider && correctEvmNetwork) {
       if (!isEVMChain(correctChain)) {
@@ -1745,17 +1800,22 @@ function useIsWalletReady() {
   return useMemo(() => {
     if (correctChain === ChainName.SOLANA) {
       if (solanaAddress) {
-        return createWalletStatus(true, undefined, forceNetworkSwitch, solanaAddress.toBase58());
+        return createWalletStatus(true, undefined, connectBitcoinWallet, solanaAddress.toBase58());
       }
-      return createWalletStatus(false, 'Wallet not connected', forceNetworkSwitch, '');
+      return createWalletStatus(false, 'Wallet not connected', connectBitcoinWallet, '');
     } else if (correctChain === ChainName.TRON) {
       if (tronAddress) {
-        return createWalletStatus(true, undefined, forceNetworkSwitch, tronAddress);
+        return createWalletStatus(true, undefined, connectBitcoinWallet, tronAddress);
       }
-      return createWalletStatus(false, 'Wallet not connected', forceNetworkSwitch, '');
+      return createWalletStatus(false, 'Wallet not connected', connectBitcoinWallet, '');
+    } else if (correctChain === ChainName.BTC) {
+      if (bitcoinAddress) {
+        return createWalletStatus(true, undefined, connectBitcoinWallet, bitcoinAddress);
+      }
+      return createWalletStatus(false, capabilityMessage, connectBitcoinWallet, '');
     } else if (isEVMChain(correctChain) && hasEthInfo && evmAddress) {
       if (hasCorrectEvmNetwork) {
-        return createWalletStatus(true, undefined, forceNetworkSwitch, evmAddress);
+        return createWalletStatus(true, undefined, connectBitcoinWallet, evmAddress);
       } else {
         if (evmProvider && correctEvmNetwork) {
           if (autoSwitch) {
@@ -1765,11 +1825,11 @@ function useIsWalletReady() {
             toast.success(`Wallet connected to ${CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[evmChainId || SupportedChainId.ETHEREUM]]}`);
           }
         }
-        if (evmChainId && autoSwitch) return createWalletStatus(false, `Wallet not connected to ${CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[correctEvmNetwork]]}`, forceNetworkSwitch, evmAddress);
+        if (evmChainId && autoSwitch) return createWalletStatus(false, `Wallet not connected to ${CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[correctEvmNetwork]]}`, connectBitcoinWallet, evmAddress);
       }
     }
-    return createWalletStatus(false, '', forceNetworkSwitch, undefined);
-  }, [correctChain, autoSwitch, forceNetworkSwitch, solanaAddress, tronAddress, hasEthInfo, correctEvmNetwork, hasCorrectEvmNetwork, evmProvider, evmAddress, evmChainId]);
+    return createWalletStatus(false, '', connectBitcoinWallet, undefined);
+  }, [correctChain, autoSwitch, forceNetworkSwitch, connectBitcoinWallet, solanaAddress, tronAddress, hasEthInfo, correctEvmNetwork, hasCorrectEvmNetwork, bitcoinAddress, bitcoinPubkey, evmProvider, evmAddress, evmChainId]);
 }
 
 const getShortenedAddress = address => {
@@ -2215,7 +2275,8 @@ const WalletButton = ({
   const {
     isReady,
     statusMessage,
-    walletAddress
+    walletAddress,
+    connectBitcoinWallet
   } = useIsWalletReady();
   const {
     balance
@@ -2230,6 +2291,10 @@ const WalletButton = ({
     }
     if (selectedNetwork === ChainName.TRON) {
       dispatch(setTronConnectModal(true));
+      return;
+    }
+    if (selectedNetwork === ChainName.BTC) {
+      connectBitcoinWallet();
       return;
     }
     open();

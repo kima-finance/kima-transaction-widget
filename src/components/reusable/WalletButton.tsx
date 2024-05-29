@@ -28,7 +28,8 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const sourceCompliant = useSelector(selectSourceCompliant)
   const compliantOption = useSelector(selectCompliantOption)
   const selectedNetwork = useSelector(selectSourceChain)
-  const { isReady, statusMessage, walletAddress } = useIsWalletReady()
+  const { isReady, statusMessage, walletAddress, connectBitcoinWallet } =
+    useIsWalletReady()
   const { balance } = useBalance()
   const { open } = useWeb3Modal()
 
@@ -40,6 +41,11 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
 
     if (selectedNetwork === ChainName.TRON) {
       dispatch(setTronConnectModal(true))
+      return
+    }
+
+    if (selectedNetwork === ChainName.BTC) {
+      connectBitcoinWallet()
       return
     }
 
