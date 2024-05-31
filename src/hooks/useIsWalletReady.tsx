@@ -18,6 +18,7 @@ import {
 } from '../utils/constants'
 import { useSelector } from 'react-redux'
 import {
+  selectBitcoinAddress,
   selectErrorHandler,
   selectSourceChain,
   selectTargetChain,
@@ -32,7 +33,7 @@ import {
 } from '@web3modal/ethers5/react'
 import { Web3ModalAccountInfo } from '../interface'
 import { useDispatch } from 'react-redux'
-import { setSourceChain } from '../store/optionSlice'
+import { setBitcoinAddress, setSourceChain } from '../store/optionSlice'
 import toast from 'react-hot-toast'
 
 const createWalletStatus = (
@@ -59,7 +60,7 @@ function useIsWalletReady(): {
   const { address: tronAddress } = useTronWallet()
   const { walletProvider: evmProvider } = useWeb3ModalProvider()
   const { switchNetwork } = useSwitchNetwork()
-
+  const bitcoinAddress = useSelector(selectBitcoinAddress)
   const web3ModalAccountInfo: Web3ModalAccountInfo = useWeb3ModalAccount()
 
   const {
@@ -85,8 +86,7 @@ function useIsWalletReady(): {
   const correctEvmNetwork = CHAIN_NAMES_TO_IDS[correctChain]
   const hasCorrectEvmNetwork = evmChainId === correctEvmNetwork
   const events = useWeb3ModalEvents()
-  const [bitcoinAddress, setBitcoinAddress] = useState<string>('')
-  const [bitcoinPubkey, setBitcoinPubkey] = useState<string>('')
+  // const [bitcoinPubkey, setBitcoinPubkey] = useState<string>('')
 
   const [capabilityState, setCapabilityState] = useState<
     'loading' | 'loaded' | 'missing' | 'cancelled'
@@ -149,14 +149,10 @@ function useIsWalletReady(): {
     runCapabilityCheck()
   }, [])
 
-  const connectBitcoinWallet = async () => {
+  const connectBitcoinWallet = useCallback(async () => {
     await getAddress({
       payload: {
-        purposes: [
-          AddressPurpose.Ordinals,
-          AddressPurpose.Payment,
-          AddressPurpose.Stacks
-        ],
+        purposes: [AddressPurpose.Payment],
         message: 'SATS Connect Demo',
         network: {
           type: BitcoinNetworkType.Testnet
@@ -166,12 +162,12 @@ function useIsWalletReady(): {
         const paymentAddressItem = response.addresses.find(
           (address) => address.purpose === AddressPurpose.Payment
         )
-        setBitcoinAddress(paymentAddressItem?.address || '')
-        setBitcoinPubkey(paymentAddressItem?.publicKey || '')
+        dispatch(setBitcoinAddress(paymentAddressItem?.address || ''))
+        // setBitcoinPubkey(paymentAddressItem?.publicKey || '')
       },
       onCancel: () => alert('Request canceled')
     })
-  }
+  }, [getAddress])
 
   const forceNetworkSwitch = useCallback(async () => {
     if (evmProvider && correctEvmNetwork) {
@@ -287,7 +283,6 @@ function useIsWalletReady(): {
     correctEvmNetwork,
     hasCorrectEvmNetwork,
     bitcoinAddress,
-    bitcoinPubkey,
     evmProvider,
     evmAddress,
     evmChainId

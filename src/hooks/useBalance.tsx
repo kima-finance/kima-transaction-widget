@@ -130,18 +130,20 @@ export default function useBalance() {
           }
         }
 
-        const provider = new ethers.providers.Web3Provider(
-          walletProvider as ExternalProvider | JsonRpcFetchFunc
-        )
-        const signer = provider?.getSigner()
+        if (walletProvider) {
+          const provider = new ethers.providers.Web3Provider(
+            walletProvider as ExternalProvider | JsonRpcFetchFunc
+          )
+          const signer = provider?.getSigner()
 
-        if (!tokenAddress || !signer || !signerAddress) return
+          if (!tokenAddress || !signer || !signerAddress) return
 
-        const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer)
-        const decimals = await erc20Contract.decimals()
-        const userBalance = await erc20Contract.balanceOf(signerAddress)
+          const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer)
+          const decimals = await erc20Contract.decimals()
+          const userBalance = await erc20Contract.balanceOf(signerAddress)
 
-        setBalance(+formatUnits(userBalance, decimals))
+          setBalance(+formatUnits(userBalance, decimals))
+        }
       } catch (error) {
         errorHandler(error)
       }

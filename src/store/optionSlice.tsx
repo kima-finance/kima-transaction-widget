@@ -28,6 +28,7 @@ export interface OptionState {
   sourceChain: string // origin network on UI
   targetChain: string // target network on UI
   targetAddress: string // target address on UI
+  bitcoinAddress: string // bitcoin address from xverse wallet
   tokenOptions: TokenOptions // token options from blockchain endpoint
   solanaConnectModal: boolean // solana wallet connection modal state - open or closed
   tronConnectModal: boolean // tron wallet connection modal state - open or closed
@@ -74,6 +75,7 @@ const initialState: OptionState = {
   sourceChain: '',
   targetChain: '',
   targetAddress: '',
+  bitcoinAddress: '',
   solanaConnectModal: false,
   tronConnectModal: false,
   helpPopup: false,
@@ -125,7 +127,7 @@ export const optionSlice = createSlice({
       state.compliantOption = true
       state.sourceCompliant = 'low'
       state.targetCompliant = 'low'
-      state.useFIAT = false
+      ;(state.bitcoinAddress = ''), (state.useFIAT = false)
       ;(state.tokenOptions = {}),
         (state.bankDetails = {
           iban: '',
@@ -152,6 +154,9 @@ export const optionSlice = createSlice({
     },
     setTargetAddress: (state, action: PayloadAction<string>) => {
       state.targetAddress = action.payload
+    },
+    setBitcoinAddress: (state, action: PayloadAction<string>) => {
+      state.bitcoinAddress = action.payload
     },
     setSolanaConnectModal: (state, action: PayloadAction<boolean>) => {
       state.solanaConnectModal = action.payload
@@ -269,6 +274,7 @@ export const {
   setSourceChain,
   setTargetChain,
   setTargetAddress,
+  setBitcoinAddress,
   setSolanaConnectModal,
   setTronConnectModal,
   setHelpPopup,

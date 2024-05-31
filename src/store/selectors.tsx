@@ -13,6 +13,8 @@ export const selectSourceChain = (state: RootState) => state.option.sourceChain
 export const selectTargetChain = (state: RootState) => state.option.targetChain
 export const selectTargetAddress = (state: RootState) =>
   state.option.targetAddress
+export const selectBitcoinAddress = (state: RootState) =>
+  state.option.bitcoinAddress
 export const selectSolanaConnectModal = (state: RootState) =>
   state.option.solanaConnectModal
 export const selectTronConnectModal = (state: RootState) =>
