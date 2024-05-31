@@ -826,6 +826,7 @@ const COIN_LIST = {
     icon: BTC
   }
 };
+const ExpireTimeOptions = ['1 hour', '2 hours', '3 hours'];
 var TransactionStatus;
 (function (TransactionStatus) {
   TransactionStatus["AVAILABLE"] = "Available";
@@ -914,7 +915,8 @@ const initialState = {
   targetNetworkFetching: false,
   signature: '',
   uuid: '',
-  kycStatus: ''
+  kycStatus: '',
+  expireTime: '1 hour'
 };
 const optionSlice = createSlice({
   name: 'option',
@@ -1063,6 +1065,9 @@ const optionSlice = createSlice({
     },
     setKYCStatus: (state, action) => {
       state.kycStatus = action.payload;
+    },
+    setExpireTime: (state, action) => {
+      state.expireTime = action.payload;
     }
   }
 });
@@ -1109,7 +1114,8 @@ const {
   setTargetChainFetching,
   setSignature,
   setUuid,
-  setKYCStatus
+  setKYCStatus,
+  setExpireTime
 } = optionSlice.actions;
 var optionReducer = optionSlice.reducer;
 
@@ -1164,6 +1170,7 @@ const selectTargetChainFetching = state => state.option.targetNetworkFetching;
 const selectSignature = state => state.option.signature;
 const selectUuid = state => state.option.uuid;
 const selectKycStatus = state => state.option.kycStatus;
+const selectExpireTime = state => state.option.expireTime;
 
 const Loading180Ring = ({
   width: _width = 24,
@@ -1783,7 +1790,9 @@ function useIsWalletReady() {
         const paymentAddressItem = response.addresses.find(address => address.purpose === AddressPurpose.Payment);
         dispatch(setBitcoinAddress((paymentAddressItem === null || paymentAddressItem === void 0 ? void 0 : paymentAddressItem.address) || ''));
       },
-      onCancel: () => alert('Request canceled')
+      onCancel: () => {
+        toast.error('Request cancelled');
+      }
     });
   }, [getAddress]);
   const forceNetworkSwitch = useCallback(async () => {
@@ -3156,6 +3165,39 @@ const TransactionWidget = ({
   })));
 };
 
+const ExpireTimeDropdown = () => {
+  const ref = useRef();
+  const dispatch = useDispatch();
+  const [collapsed, setCollapsed] = useState(true);
+  const expireTime = useSelector(selectExpireTime);
+  const theme = useSelector(selectTheme);
+  useEffect(() => {
+    const bodyMouseDowntHandler = e => {
+      if (ref !== null && ref !== void 0 && ref.current && !ref.current.contains(e.target)) {
+        setCollapsed(true);
+      }
+    };
+    document.addEventListener('mousedown', bodyMouseDowntHandler);
+    return () => {
+      document.removeEventListener('mousedown', bodyMouseDowntHandler);
+    };
+  }, [setCollapsed]);
+  return React.createElement("div", {
+    className: `expire-time-dropdown ${theme.colorMode} ${collapsed ? 'collapsed' : ''}`,
+    onClick: () => setCollapsed(prev => !prev),
+    ref: ref
+  }, React.createElement("div", {
+    className: 'expire-time-wrapper'
+  }, React.createElement("p", null, expireTime)), React.createElement("div", {
+    className: `expire-time-menu ${theme.colorMode} ${collapsed ? 'collapsed' : ''}`
+  }, ExpireTimeOptions.map(option => React.createElement("p", {
+    className: 'expire-time-item',
+    onClick: () => {
+      dispatch(setExpireTime(option));
+    }
+  }, option))));
+};
+
 const SingleForm = ({
   paymentTitleOption
 }) => {
@@ -3210,10 +3252,11 @@ const SingleForm = ({
     className: 'amount-label-container'
   }, React.createElement("input", {
     type: 'number',
-    value: amount || '',
+    value: amount >= 0 ? amount : '',
     onChange: e => {
       let _amount = +e.target.value;
-      dispatch(setAmount(parseFloat(_amount.toFixed(2))));
+      const decimal = sourceNetwork === ChainName.BTC || targetNetwork === ChainName.BTC ? 8 : 2;
+      dispatch(setAmount(parseFloat(_amount.toFixed(decimal))));
     }
   }), React.createElement(CoinDropdown, null))) : React.createElement("div", {
     className: `form-item ${theme.colorMode}`
@@ -3224,10 +3267,14 @@ const SingleForm = ({
   }, React.createElement("span", null, (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount) || ''), React.createElement("div", {
     className: 'coin-wrapper'
   }, React.createElement(Icon, null), selectedCoin))), mode === ModeOptions.bridge && serviceFee > 0 ? React.createElement(CustomCheckbox, {
-    text: `Deduct ${formatterFloat.format(serviceFee)} USDK fee`,
+    text: `Deduct $${formatterFloat.format(serviceFee)} fee`,
     checked: feeDeduct,
     setCheck: value => dispatch(setFeeDeduct(value))
-  }) : null);
+  }) : null, sourceNetwork === ChainName.BTC || targetNetwork === ChainName.BTC ? React.createElement("div", {
+    className: `form-item ${theme.colorMode}`
+  }, React.createElement("span", {
+    className: 'label'
+  }, "Expire Time:"), React.createElement(ExpireTimeDropdown, null)) : null);
 };
 
 const CoinSelect = () => {
@@ -3236,6 +3283,8 @@ const CoinSelect = () => {
   const mode = useSelector(selectMode);
   const amount = useSelector(selectAmount);
   const selectedCoin = useSelector(selectSelectedToken);
+  const sourceNetwork = useSelector(selectSourceChain);
+  const targetNetwork = useSelector(selectTargetChain);
   const Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
   return React.createElement("div", {
     className: `coin-select`
@@ -3249,7 +3298,8 @@ const CoinSelect = () => {
     readOnly: mode === ModeOptions.payment,
     onChange: e => {
       const _amount = +e.target.value;
-      dispatch(setAmount(parseFloat(_amount.toFixed(2))));
+      const decimal = sourceNetwork === ChainName.BTC || targetNetwork === ChainName.BTC ? 8 : 2;
+      dispatch(setAmount(parseFloat(_amount.toFixed(decimal))));
     }
   }), React.createElement("div", {
     className: 'coin-label'
@@ -3279,10 +3329,20 @@ function useServiceFee(isConfirming = false, feeURL) {
         dispatch(setServiceFee(0));
         return;
       }
-      const sourceChainResult = await fetchWrapper.get(`${feeURL}/fee/${sourceChain}`);
-      const sourceFee = sourceChainResult.fee.split('-')[0];
-      const targetChainResult = await fetchWrapper.get(`${feeURL}/fee/${targetChain}`);
-      const targetFee = targetChainResult.fee.split('-')[0];
+      let sourceFee = 0;
+      let targetFee = 0;
+      if (sourceChain === ChainName.BTC) {
+        sourceFee = 0;
+      } else {
+        const sourceChainResult = await fetchWrapper.get(`${feeURL}/fee/${sourceChain}`);
+        sourceFee = sourceChainResult.fee.split('-')[0];
+      }
+      if (targetChain === ChainName.BTC) {
+        targetFee = 0;
+      } else {
+        const targetChainResult = await fetchWrapper.get(`${feeURL}/fee/${targetChain}`);
+        targetFee = targetChainResult.fee.split('-')[0];
+      }
       let fee = +sourceFee + +targetFee;
       dispatch(setServiceFee(parseFloat(fee.toFixed(2))));
     } catch (e) {

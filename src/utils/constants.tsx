@@ -206,6 +206,8 @@ export const COIN_LIST: CoinOptions = {
   }
 }
 
+export const ExpireTimeOptions = ['1 hour', '2 hours', '3 hours']
+
 export enum TransactionStatus {
   AVAILABLE = 'Available',
   CONFIRMED = 'Confirmed',

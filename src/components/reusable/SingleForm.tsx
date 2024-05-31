@@ -21,6 +21,7 @@ import AddressInput from './AddressInput'
 import NetworkDropdown from './NetworkDropdown'
 import { COIN_LIST, ChainName } from '../../utils/constants'
 import { formatterFloat } from '../../helpers/functions'
+import ExpireTimeDropdown from './ExpireTimeDropdown'
 
 const SingleForm = ({
   paymentTitleOption
@@ -101,10 +102,15 @@ const SingleForm = ({
           <div className='amount-label-container'>
             <input
               type='number'
-              value={amount || ''}
+              value={amount >= 0 ? amount : ''}
               onChange={(e) => {
                 let _amount = +e.target.value
-                dispatch(setAmount(parseFloat(_amount.toFixed(2))))
+                const decimal =
+                  sourceNetwork === ChainName.BTC ||
+                  targetNetwork === ChainName.BTC
+                    ? 8
+                    : 2
+                dispatch(setAmount(parseFloat(_amount.toFixed(decimal))))
               }}
             />
             <CoinDropdown />
@@ -123,13 +129,20 @@ const SingleForm = ({
         </div>
       )}
 
-      {mode === ModeOptions.bridge && serviceFee > 0? (
-          <CustomCheckbox
-            text={`Deduct ${formatterFloat.format(serviceFee)} USDK fee`}
-            checked={feeDeduct}
-            setCheck={(value: boolean) => dispatch(setFeeDeduct(value))}
-          />
-        ) : null}
+      {mode === ModeOptions.bridge && serviceFee > 0 ? (
+        <CustomCheckbox
+          text={`Deduct $${formatterFloat.format(serviceFee)} fee`}
+          checked={feeDeduct}
+          setCheck={(value: boolean) => dispatch(setFeeDeduct(value))}
+        />
+      ) : null}
+
+      {sourceNetwork === ChainName.BTC || targetNetwork === ChainName.BTC ? (
+        <div className={`form-item ${theme.colorMode}`}>
+          <span className='label'>Expire Time:</span>
+          <ExpireTimeDropdown />
+        </div>
+      ) : null}
     </div>
   )
 }

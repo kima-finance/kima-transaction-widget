@@ -890,6 +890,7 @@ var COIN_LIST = {
     icon: BTC
   }
 };
+var ExpireTimeOptions = ['1 hour', '2 hours', '3 hours'];
 var TransactionStatus;
 (function (TransactionStatus) {
   TransactionStatus["AVAILABLE"] = "Available";
@@ -981,7 +982,8 @@ var initialState = {
   targetNetworkFetching: false,
   signature: '',
   uuid: '',
-  kycStatus: ''
+  kycStatus: '',
+  expireTime: '1 hour'
 };
 var optionSlice = createSlice({
   name: 'option',
@@ -1130,6 +1132,9 @@ var optionSlice = createSlice({
     },
     setKYCStatus: function setKYCStatus(state, action) {
       state.kycStatus = action.payload;
+    },
+    setExpireTime: function setExpireTime(state, action) {
+      state.expireTime = action.payload;
     }
   }
 });
@@ -1175,7 +1180,8 @@ var _optionSlice$actions = optionSlice.actions,
   setTargetChainFetching = _optionSlice$actions.setTargetChainFetching,
   setSignature = _optionSlice$actions.setSignature,
   setUuid = _optionSlice$actions.setUuid,
-  setKYCStatus = _optionSlice$actions.setKYCStatus;
+  setKYCStatus = _optionSlice$actions.setKYCStatus,
+  setExpireTime = _optionSlice$actions.setExpireTime;
 var optionReducer = optionSlice.reducer;
 
 var configureStore = toolkitRaw.configureStore;
@@ -1558,6 +1564,9 @@ var selectUuid = function selectUuid(state) {
 };
 var selectKycStatus = function selectKycStatus(state) {
   return state.option.kycStatus;
+};
+var selectExpireTime = function selectExpireTime(state) {
+  return state.option.expireTime;
 };
 
 var Loading180Ring = function Loading180Ring(_ref) {
@@ -2251,7 +2260,7 @@ function useIsWalletReady() {
           dispatch(setBitcoinAddress((paymentAddressItem === null || paymentAddressItem === void 0 ? void 0 : paymentAddressItem.address) || ''));
         },
         onCancel: function onCancel() {
-          return alert('Request canceled');
+          toast__default.error('Request cancelled');
         }
       })).then(function () {});
     } catch (e) {
@@ -3829,6 +3838,47 @@ var TransactionWidget = function TransactionWidget(_ref) {
   })));
 };
 
+var ExpireTimeDropdown = function ExpireTimeDropdown() {
+  var ref = React.useRef();
+  var dispatch = reactRedux.useDispatch();
+  var _useState = React.useState(true),
+    collapsed = _useState[0],
+    setCollapsed = _useState[1];
+  var expireTime = reactRedux.useSelector(selectExpireTime);
+  var theme = reactRedux.useSelector(selectTheme);
+  React.useEffect(function () {
+    var bodyMouseDowntHandler = function bodyMouseDowntHandler(e) {
+      if (ref !== null && ref !== void 0 && ref.current && !ref.current.contains(e.target)) {
+        setCollapsed(true);
+      }
+    };
+    document.addEventListener('mousedown', bodyMouseDowntHandler);
+    return function () {
+      document.removeEventListener('mousedown', bodyMouseDowntHandler);
+    };
+  }, [setCollapsed]);
+  return React__default.createElement("div", {
+    className: "expire-time-dropdown " + theme.colorMode + " " + (collapsed ? 'collapsed' : ''),
+    onClick: function onClick() {
+      return setCollapsed(function (prev) {
+        return !prev;
+      });
+    },
+    ref: ref
+  }, React__default.createElement("div", {
+    className: 'expire-time-wrapper'
+  }, React__default.createElement("p", null, expireTime)), React__default.createElement("div", {
+    className: "expire-time-menu " + theme.colorMode + " " + (collapsed ? 'collapsed' : '')
+  }, ExpireTimeOptions.map(function (option) {
+    return React__default.createElement("p", {
+      className: 'expire-time-item',
+      onClick: function onClick() {
+        dispatch(setExpireTime(option));
+      }
+    }, option);
+  })));
+};
+
 var SingleForm = function SingleForm(_ref) {
   var paymentTitleOption = _ref.paymentTitleOption;
   var dispatch = reactRedux.useDispatch();
@@ -3884,10 +3934,11 @@ var SingleForm = function SingleForm(_ref) {
     className: 'amount-label-container'
   }, React__default.createElement("input", {
     type: 'number',
-    value: amount || '',
+    value: amount >= 0 ? amount : '',
     onChange: function onChange(e) {
       var _amount = +e.target.value;
-      dispatch(setAmount(parseFloat(_amount.toFixed(2))));
+      var decimal = sourceNetwork === exports.SupportNetworks.BTC || targetNetwork === exports.SupportNetworks.BTC ? 8 : 2;
+      dispatch(setAmount(parseFloat(_amount.toFixed(decimal))));
     }
   }), React__default.createElement(CoinDropdown, null))) : React__default.createElement("div", {
     className: "form-item " + theme.colorMode
@@ -3898,12 +3949,16 @@ var SingleForm = function SingleForm(_ref) {
   }, React__default.createElement("span", null, (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount) || ''), React__default.createElement("div", {
     className: 'coin-wrapper'
   }, React__default.createElement(Icon, null), selectedCoin))), mode === exports.ModeOptions.bridge && serviceFee > 0 ? React__default.createElement(CustomCheckbox, {
-    text: "Deduct " + formatterFloat.format(serviceFee) + " USDK fee",
+    text: "Deduct $" + formatterFloat.format(serviceFee) + " fee",
     checked: feeDeduct,
     setCheck: function setCheck(value) {
       return dispatch(setFeeDeduct(value));
     }
-  }) : null);
+  }) : null, sourceNetwork === exports.SupportNetworks.BTC || targetNetwork === exports.SupportNetworks.BTC ? React__default.createElement("div", {
+    className: "form-item " + theme.colorMode
+  }, React__default.createElement("span", {
+    className: 'label'
+  }, "Expire Time:"), React__default.createElement(ExpireTimeDropdown, null)) : null);
 };
 
 var CoinSelect = function CoinSelect() {
@@ -3912,6 +3967,8 @@ var CoinSelect = function CoinSelect() {
   var mode = reactRedux.useSelector(selectMode);
   var amount = reactRedux.useSelector(selectAmount);
   var selectedCoin = reactRedux.useSelector(selectSelectedToken);
+  var sourceNetwork = reactRedux.useSelector(selectSourceChain);
+  var targetNetwork = reactRedux.useSelector(selectTargetChain);
   var Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
   return React__default.createElement("div", {
     className: "coin-select"
@@ -3925,7 +3982,8 @@ var CoinSelect = function CoinSelect() {
     readOnly: mode === exports.ModeOptions.payment,
     onChange: function onChange(e) {
       var _amount = +e.target.value;
-      dispatch(setAmount(parseFloat(_amount.toFixed(2))));
+      var decimal = sourceNetwork === exports.SupportNetworks.BTC || targetNetwork === exports.SupportNetworks.BTC ? 8 : 2;
+      dispatch(setAmount(parseFloat(_amount.toFixed(decimal))));
     }
   }), React__default.createElement("div", {
     className: 'coin-label'
@@ -3960,18 +4018,38 @@ function useServiceFee(isConfirming, feeURL) {
     try {
       if (!sourceChain || !targetChain || !isReady || !walletAddress || !targetAddress || !amount) return Promise.resolve();
       return Promise.resolve(_catch(function () {
+        function _temp4() {
+          function _temp2() {
+            var fee = +sourceFee + +targetFee;
+            dispatch(setServiceFee(parseFloat(fee.toFixed(2))));
+          }
+          var _temp = function () {
+            if (targetChain === exports.SupportNetworks.BTC) {
+              targetFee = 0;
+            } else {
+              return Promise.resolve(fetchWrapper.get(feeURL + "/fee/" + targetChain)).then(function (targetChainResult) {
+                targetFee = targetChainResult.fee.split('-')[0];
+              });
+            }
+          }();
+          return _temp && _temp.then ? _temp.then(_temp2) : _temp2(_temp);
+        }
         if (sourceChain === exports.SupportNetworks.FIAT || targetChain === exports.SupportNetworks.FIAT) {
           dispatch(setServiceFee(0));
           return;
         }
-        return Promise.resolve(fetchWrapper.get(feeURL + "/fee/" + sourceChain)).then(function (sourceChainResult) {
-          var sourceFee = sourceChainResult.fee.split('-')[0];
-          return Promise.resolve(fetchWrapper.get(feeURL + "/fee/" + targetChain)).then(function (targetChainResult) {
-            var targetFee = targetChainResult.fee.split('-')[0];
-            var fee = +sourceFee + +targetFee;
-            dispatch(setServiceFee(parseFloat(fee.toFixed(2))));
-          });
-        });
+        var sourceFee = 0;
+        var targetFee = 0;
+        var _temp3 = function () {
+          if (sourceChain === exports.SupportNetworks.BTC) {
+            sourceFee = 0;
+          } else {
+            return Promise.resolve(fetchWrapper.get(feeURL + "/fee/" + sourceChain)).then(function (sourceChainResult) {
+              sourceFee = sourceChainResult.fee.split('-')[0];
+            });
+          }
+        }();
+        return _temp3 && _temp3.then ? _temp3.then(_temp4) : _temp4(_temp3);
       }, function (e) {
         dispatch(setServiceFee(0));
         console.log('rpc disconnected', e);

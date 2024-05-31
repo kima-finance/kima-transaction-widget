@@ -165,7 +165,9 @@ function useIsWalletReady(): {
         dispatch(setBitcoinAddress(paymentAddressItem?.address || ''))
         // setBitcoinPubkey(paymentAddressItem?.publicKey || '')
       },
-      onCancel: () => alert('Request canceled')
+      onCancel: () => {
+        toast.error('Request cancelled')
+      }
     })
   }, [getAddress])
 

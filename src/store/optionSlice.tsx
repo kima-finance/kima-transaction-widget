@@ -55,6 +55,7 @@ export interface OptionState {
   kimaExplorerUrl: string // URL for kima explore (testnet, staging or demo)
   txId: number // transaction id to monitor it's status
   selectedToken: string // Currently selected token
+  expireTime: string // Bitcoi HTLC expiration time
   avilableTokenList: Array<string> // Available token list by source, target chain
   compliantOption: boolean // option to check compliant addresses
   sourceCompliant: string // source address is compliant or not
@@ -111,7 +112,8 @@ const initialState: OptionState = {
   targetNetworkFetching: false,
   signature: '',
   uuid: '',
-  kycStatus: ''
+  kycStatus: '',
+  expireTime: '1 hour'
 }
 
 export const optionSlice = createSlice({
@@ -262,6 +264,9 @@ export const optionSlice = createSlice({
     },
     setKYCStatus: (state, action: PayloadAction<string>) => {
       state.kycStatus = action.payload
+    },
+    setExpireTime: (state, action: PayloadAction<string>) => {
+      state.expireTime = action.payload
     }
   }
 })
@@ -309,7 +314,8 @@ export const {
   setTargetChainFetching,
   setSignature,
   setUuid,
-  setKYCStatus
+  setKYCStatus,
+  setExpireTime
 } = optionSlice.actions
 
 export default optionSlice.reducer

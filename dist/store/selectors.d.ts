@@ -41,3 +41,4 @@ export declare const selectTargetChainFetching: (state: RootState) => any;
 export declare const selectSignature: (state: RootState) => any;
 export declare const selectUuid: (state: RootState) => any;
 export declare const selectKycStatus: (state: RootState) => any;
+export declare const selectExpireTime: (state: RootState) => any;
