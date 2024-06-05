@@ -102,7 +102,7 @@ const SingleForm = ({
           <div className='amount-label-container'>
             <input
               type='number'
-              value={amount >= 0 ? amount : ''}
+              value={amount}
               onChange={(e) => {
                 let _amount = +e.target.value
                 const decimal =

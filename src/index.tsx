@@ -42,7 +42,7 @@ export {
 export { KimaTransactionWidget } from './components/KimaTransactionWidget'
 
 // 1. Get projectId
-const projectId = '90c9315fb25e62e202ce09985f70bcf3'
+const projectId = 'e579511a495b5c312b572b036e60555a'
 
 // 2. Set chains
 const ethereum = {

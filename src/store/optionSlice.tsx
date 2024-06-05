@@ -29,6 +29,7 @@ export interface OptionState {
   targetChain: string // target network on UI
   targetAddress: string // target address on UI
   bitcoinAddress: string // bitcoin address from xverse wallet
+  bitcoinPubkey: string // bitcoin pubkey from xverse wallet
   tokenOptions: TokenOptions // token options from blockchain endpoint
   solanaConnectModal: boolean // solana wallet connection modal state - open or closed
   tronConnectModal: boolean // tron wallet connection modal state - open or closed
@@ -77,6 +78,7 @@ const initialState: OptionState = {
   targetChain: '',
   targetAddress: '',
   bitcoinAddress: '',
+  bitcoinPubkey: '',
   solanaConnectModal: false,
   tronConnectModal: false,
   helpPopup: false,
@@ -159,6 +161,9 @@ export const optionSlice = createSlice({
     },
     setBitcoinAddress: (state, action: PayloadAction<string>) => {
       state.bitcoinAddress = action.payload
+    },
+    setBitcoinPubkey: (state, action: PayloadAction<string>) => {
+      state.bitcoinPubkey = action.payload
     },
     setSolanaConnectModal: (state, action: PayloadAction<boolean>) => {
       state.solanaConnectModal = action.payload
@@ -280,6 +285,7 @@ export const {
   setTargetChain,
   setTargetAddress,
   setBitcoinAddress,
+  setBitcoinPubkey,
   setSolanaConnectModal,
   setTronConnectModal,
   setHelpPopup,

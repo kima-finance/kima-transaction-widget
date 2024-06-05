@@ -15,7 +15,7 @@ import toast, { toast as toast$1, Toaster } from 'react-hot-toast';
 import { useWeb3ModalProvider, useSwitchNetwork, useWeb3ModalAccount, useWeb3ModalEvents, useWeb3Modal, useWeb3ModalTheme, createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react';
 import { Tooltip } from 'react-tooltip';
 import { WalletReadyState } from '@solana/wallet-adapter-base';
-import { getAddress, AddressPurpose, BitcoinNetworkType, getCapabilities } from 'sats-connect';
+import { getAddress, AddressPurpose, BitcoinNetworkType, getCapabilities, sendBtcTransaction } from 'sats-connect';
 import { Contract } from '@ethersproject/contracts';
 import { formatUnits, parseUnits } from '@ethersproject/units';
 import { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, AccountLayout } from '@solana/spl-token';
@@ -24,6 +24,10 @@ import { ethers, utils } from 'ethers';
 import BufferLayout from 'buffer-layout';
 import sha256 from 'crypto-js/sha256.js';
 import Base64 from 'crypto-js/enc-base64.js';
+import { Buffer as Buffer$1 } from 'buffer';
+import { address, script, opcodes, payments, crypto, networks } from 'bitcoinjs-lib';
+import '@scure/base';
+import '@kimafinance/btc-signer';
 
 const Cross = ({
   width: _width = 32,
@@ -880,6 +884,7 @@ const initialState = {
   targetChain: '',
   targetAddress: '',
   bitcoinAddress: '',
+  bitcoinPubkey: '',
   solanaConnectModal: false,
   tronConnectModal: false,
   helpPopup: false,
@@ -960,6 +965,9 @@ const optionSlice = createSlice({
     },
     setBitcoinAddress: (state, action) => {
       state.bitcoinAddress = action.payload;
+    },
+    setBitcoinPubkey: (state, action) => {
+      state.bitcoinPubkey = action.payload;
     },
     setSolanaConnectModal: (state, action) => {
       state.solanaConnectModal = action.payload;
@@ -1080,6 +1088,7 @@ const {
   setTargetChain,
   setTargetAddress,
   setBitcoinAddress,
+  setBitcoinPubkey,
   setSolanaConnectModal,
   setTronConnectModal,
   setHelpPopup,
@@ -1138,6 +1147,7 @@ const selectSourceChain = state => state.option.sourceChain;
 const selectTargetChain = state => state.option.targetChain;
 const selectTargetAddress = state => state.option.targetAddress;
 const selectBitcoinAddress = state => state.option.bitcoinAddress;
+const selectBitcoinPubkey = state => state.option.bitcoinPubkey;
 const selectSolanaConnectModal = state => state.option.solanaConnectModal;
 const selectTronConnectModal = state => state.option.tronConnectModal;
 const selectHelpPopup = state => state.option.helpPopup;
@@ -1789,6 +1799,7 @@ function useIsWalletReady() {
       onFinish: response => {
         const paymentAddressItem = response.addresses.find(address => address.purpose === AddressPurpose.Payment);
         dispatch(setBitcoinAddress((paymentAddressItem === null || paymentAddressItem === void 0 ? void 0 : paymentAddressItem.address) || ''));
+        dispatch(setBitcoinPubkey((paymentAddressItem === null || paymentAddressItem === void 0 ? void 0 : paymentAddressItem.publicKey) || ''));
       },
       onCancel: () => {
         toast.error('Request cancelled');
@@ -2509,6 +2520,12 @@ const ConfirmDetails = ({
   const targetWalletAddress = useMemo(() => {
     return getShortenedAddress((mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress) || '');
   }, [mode, transactionOption, targetAddress]);
+  const amountToShow = useMemo(() => {
+    if (originNetwork === ChainName.BTC || targetNetwork === ChainName.BTC) {
+      return formatterFloat.format(amount);
+    }
+    return formatterFloat.format(feeDeduct ? amount : amount + serviceFee);
+  }, [amount, serviceFee, originNetwork, targetNetwork, feeDeduct]);
   return React.createElement("div", {
     className: `confirm-details ${theme.colorMode}`
   }, React.createElement("p", null, "Step ", isApproved ? '2' : '1', "\u00A0of 2\u00A0\u00A0\u00A0", isApproved ? 'Submit transaction' : originNetwork === ChainName.FIAT ? 'Bank Details' : 'Approval'), originNetwork === ChainName.FIAT ? React.createElement("div", null, React.createElement("div", {
@@ -2541,7 +2558,7 @@ const ConfirmDetails = ({
     className: 'detail-item'
   }, React.createElement("span", {
     className: 'label'
-  }, "Amount:"), React.createElement("p", null, formatterFloat.format(feeDeduct ? amount : amount + serviceFee), ' ', selectedCoin)), targetNetwork === ChainName.FIAT ? React.createElement("div", null, React.createElement("div", {
+  }, "Amount:"), React.createElement("p", null, amountToShow, " ", selectedCoin)), targetNetwork === ChainName.FIAT ? React.createElement("div", null, React.createElement("div", {
     className: 'detail-item'
   }, React.createElement("span", {
     className: 'label'
@@ -3191,6 +3208,7 @@ const ExpireTimeDropdown = () => {
   }, React.createElement("p", null, expireTime)), React.createElement("div", {
     className: `expire-time-menu ${theme.colorMode} ${collapsed ? 'collapsed' : ''}`
   }, ExpireTimeOptions.map(option => React.createElement("p", {
+    key: option,
     className: 'expire-time-item',
     onClick: () => {
       dispatch(setExpireTime(option));
@@ -3252,7 +3270,7 @@ const SingleForm = ({
     className: 'amount-label-container'
   }, React.createElement("input", {
     type: 'number',
-    value: amount >= 0 ? amount : '',
+    value: amount,
     onChange: e => {
       let _amount = +e.target.value;
       const decimal = sourceNetwork === ChainName.BTC || targetNetwork === ChainName.BTC ? 8 : 2;
@@ -3294,7 +3312,7 @@ const CoinSelect = () => {
     className: 'input-wrapper'
   }, React.createElement("input", {
     type: 'number',
-    value: amount || '',
+    value: amount,
     readOnly: mode === ModeOptions.payment,
     onChange: e => {
       const _amount = +e.target.value;
@@ -7213,6 +7231,44 @@ function useSign({
   }), [isSigned, sign]);
 }
 
+function hash160(publicKey) {
+  const publicKeyBuffer = Buffer$1.from(publicKey, 'hex');
+  const hash160Buffer = crypto.hash160(publicKeyBuffer);
+  return hash160Buffer;
+}
+function createHTLCScript(senderAddress, senderPublicKey, recipientAddress, timeout, network) {
+  console.log('senderAddress = ' + senderAddress);
+  console.log('senderPublicKey = ' + senderPublicKey);
+  console.log('recipientAddress = ' + recipientAddress);
+  console.log('timeout = ' + timeout);
+  console.log('network = ' + network);
+  let recipientAddressCheck;
+  try {
+    recipientAddressCheck = address.fromBech32(recipientAddress);
+  } catch (error) {
+    throw new Error(`Failed to decode recipient address: ${error.message}`);
+  }
+  if (!recipientAddressCheck) {
+    throw new Error('Failed to decode recipient address');
+  }
+  const senderPKH = hash160(senderPublicKey);
+  console.log('senderPKH:', senderPKH.toString('hex'));
+  const recipientPKH = recipientAddressCheck.data;
+  console.log('recipientPKH:', recipientPKH.toString('hex'));
+  const script$1 = script.compile([opcodes.OP_DUP, opcodes.OP_HASH160, recipientAddressCheck.data, opcodes.OP_EQUAL, opcodes.OP_IF, opcodes.OP_DUP, opcodes.OP_HASH160, recipientPKH, opcodes.OP_EQUALVERIFY, opcodes.OP_CHECKSIG, opcodes.OP_ELSE, script.number.encode(timeout), opcodes.OP_CHECKLOCKTIMEVERIFY, opcodes.OP_DROP, opcodes.OP_DUP, opcodes.OP_HASH160, senderPKH, opcodes.OP_EQUALVERIFY, opcodes.OP_CHECKSIG, opcodes.OP_ENDIF, Buffer$1.from(senderPublicKey, 'hex'), opcodes.OP_DROP]);
+  return script$1;
+}
+function htlcP2WSHAddress(htlcScript, network) {
+  const p2wsh = payments.p2wsh({
+    redeem: {
+      output: htlcScript,
+      network
+    },
+    network
+  });
+  return p2wsh.address;
+}
+
 const TransferWidget = ({
   theme,
   feeURL,
@@ -7245,10 +7301,14 @@ const TransferWidget = ({
   const nodeProviderQuery = useSelector(selectNodeProviderQuery);
   const bankDetails = useSelector(selectBankDetails);
   const kycStatus = useSelector(selectKycStatus);
+  const expireTime = useSelector(selectExpireTime);
+  const bitcoinAddress = useSelector(selectBitcoinAddress);
+  const bitcoinPubkey = useSelector(selectBitcoinPubkey);
   const transactionOption = useSelector(selectTransactionOption);
   const [isApproving, setApproving] = useState(false);
   const [isSubmitting, setSubmitting] = useState(false);
   const [isSigning, setSigning] = useState(false);
+  const [isBTCSigning, setBTCSigning] = useState(false);
   const [isConfirming, setConfirming] = useState(false);
   const [isVerifying, setVerifying] = useState(false);
   const {
@@ -7363,7 +7423,6 @@ const TransferWidget = ({
     if (dAppOption !== DAppOptions.LPDrain && balance < amount) {
       toast$1.error('Insufficient balance!');
       errorHandler('Insufficient balance!');
-      return;
     }
     if (sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT) {
       if (kycStatus !== 'approved') {
@@ -7379,6 +7438,30 @@ const TransferWidget = ({
       }
     } else if (!isApproved && dAppOption !== DAppOptions.LPDrain) {
       approve();
+      return;
+    }
+    if (sourceChain === ChainName.BTC) {
+      setBTCSigning(true);
+      const unixTimestamp = Math.floor(Date.now() / 1000) + (expireTime === '1 hour' ? 3600 : expireTime === '2 hours' ? 7200 : 10800);
+      const poolAddress = 'tb1qxcfpzll5hjzjrm5sfwp3jpkf2edu2ywy3lr2zn';
+      const htlcScript = createHTLCScript(bitcoinAddress, bitcoinPubkey, poolAddress, unixTimestamp, networks.testnet);
+      const htlcAddress = htlcP2WSHAddress(htlcScript, networks.testnet);
+      await sendBtcTransaction({
+        payload: {
+          network: {
+            type: BitcoinNetworkType.Testnet
+          },
+          recipients: [{
+            address: htlcAddress,
+            amountSats: BigInt(Math.round(amount * 100000000))
+          }],
+          senderAddress: bitcoinAddress
+        },
+        onFinish: response => {
+          alert(response);
+        },
+        onCancel: () => alert('Canceled')
+      });
       return;
     }
     try {
@@ -7529,6 +7612,9 @@ const TransferWidget = ({
         if (kycStatus !== 'approved') {
           return 'KYC Verify';
         }
+      }
+      if (sourceChain === ChainName.BTC) {
+        return isBTCSigning ? 'Signing...' : 'Sign';
       }
       if (sourceChain !== ChainName.FIAT && isApproved || dAppOption === DAppOptions.LPDrain || sourceChain === ChainName.FIAT && isSigned) {
         return isSubmitting ? 'Submitting...' : 'Submit';
@@ -7756,7 +7842,7 @@ const {
   ConnectionProvider,
   WalletProvider: SolanaWalletProvider
 } = SolanaAdapter;
-const projectId = '90c9315fb25e62e202ce09985f70bcf3';
+const projectId = 'e579511a495b5c312b572b036e60555a';
 const ethereum = {
   chainId: 11155111,
   name: 'Ethereum Sepolia',

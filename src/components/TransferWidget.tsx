@@ -51,7 +51,10 @@ import {
   selectKycStatus,
   selectKeplrHandler,
   selectTransactionOption,
-  selectFeeDeduct
+  selectFeeDeduct,
+  selectExpireTime,
+  selectBitcoinAddress,
+  selectBitcoinPubkey
 } from '../store/selectors'
 import useIsWalletReady from '../hooks/useIsWalletReady'
 import useServiceFee from '../hooks/useServiceFee'
@@ -66,6 +69,9 @@ import useBalance from '../hooks/useBalance'
 import useWidth from '../hooks/useWidth'
 import useSign from '../hooks/useSign'
 import TronWalletConnectModal from './modals/TronWalletConnectModal'
+import { createHTLCScript, htlcP2WSHAddress } from '../utils/btc/htlc'
+import { BitcoinNetworkType, sendBtcTransaction } from 'sats-connect'
+import * as bitcoin from 'bitcoinjs-lib' // you may comment this out during development to use the Node.js library so that you can get intellisense
 
 interface Props {
   theme: ThemeOptions
@@ -109,12 +115,16 @@ export const TransferWidget = ({
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
   const bankDetails = useSelector(selectBankDetails)
   const kycStatus = useSelector(selectKycStatus)
+  const expireTime = useSelector(selectExpireTime)
+  const bitcoinAddress = useSelector(selectBitcoinAddress)
+  const bitcoinPubkey = useSelector(selectBitcoinPubkey)
   const transactionOption = useSelector(selectTransactionOption)
 
   // Hooks for wallet connection, allowance
   const [isApproving, setApproving] = useState(false)
   const [isSubmitting, setSubmitting] = useState(false)
   const [isSigning, setSigning] = useState(false)
+  const [isBTCSigning, setBTCSigning] = useState(false)
   const [isConfirming, setConfirming] = useState(false)
   const [isVerifying, setVerifying] = useState(false)
   const { isReady, walletAddress } = useIsWalletReady()
@@ -240,7 +250,8 @@ export const TransferWidget = ({
     if (dAppOption !== DAppOptions.LPDrain && balance < amount) {
       toast.error('Insufficient balance!')
       errorHandler('Insufficient balance!')
-      return
+
+      // return
     }
 
     if (sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT) {
@@ -258,6 +269,50 @@ export const TransferWidget = ({
       }
     } else if (!isApproved && dAppOption !== DAppOptions.LPDrain) {
       approve()
+      return
+    }
+
+    if (sourceChain === ChainName.BTC) {
+      setBTCSigning(true)
+      const unixTimestamp =
+        Math.floor(Date.now() / 1000) +
+        (expireTime === '1 hour'
+          ? 3600
+          : expireTime === '2 hours'
+            ? 7200
+            : 10800)
+
+      const poolAddress = 'tb1qxcfpzll5hjzjrm5sfwp3jpkf2edu2ywy3lr2zn'
+      const htlcScript = createHTLCScript(
+        bitcoinAddress,
+        bitcoinPubkey,
+        poolAddress,
+        unixTimestamp,
+        bitcoin.networks.testnet
+      )
+
+      const htlcAddress = htlcP2WSHAddress(htlcScript, bitcoin.networks.testnet)
+
+      await sendBtcTransaction({
+        payload: {
+          network: {
+            type: BitcoinNetworkType.Testnet
+          },
+          recipients: [
+            {
+              address: htlcAddress!,
+              amountSats: BigInt(Math.round(amount * 100000000))
+            }
+            // you can add more recipients here
+          ],
+          senderAddress: bitcoinAddress!
+        },
+        onFinish: (response) => {
+          alert(response)
+        },
+        onCancel: () => alert('Canceled')
+      })
+
       return
     }
 
@@ -452,6 +507,9 @@ export const TransferWidget = ({
         if (kycStatus !== 'approved') {
           return 'KYC Verify'
         }
+      }
+      if (sourceChain === ChainName.BTC) {
+        return isBTCSigning ? 'Signing...' : 'Sign'
       }
       if (
         (sourceChain !== ChainName.FIAT && isApproved) ||

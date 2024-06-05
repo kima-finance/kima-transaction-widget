@@ -6,6 +6,7 @@ export declare const selectSourceChain: (state: RootState) => any;
 export declare const selectTargetChain: (state: RootState) => any;
 export declare const selectTargetAddress: (state: RootState) => any;
 export declare const selectBitcoinAddress: (state: RootState) => any;
+export declare const selectBitcoinPubkey: (state: RootState) => any;
 export declare const selectSolanaConnectModal: (state: RootState) => any;
 export declare const selectTronConnectModal: (state: RootState) => any;
 export declare const selectHelpPopup: (state: RootState) => any;

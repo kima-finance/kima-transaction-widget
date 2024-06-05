@@ -45,7 +45,7 @@ const CoinSelect = () => {
         <div className='input-wrapper'>
           <input
             type='number'
-            value={amount || ''}
+            value={amount}
             readOnly={mode === ModeOptions.payment}
             onChange={(e) => {
               const _amount = +e.target.value

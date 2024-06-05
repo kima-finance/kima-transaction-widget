@@ -15,6 +15,8 @@ export const selectTargetAddress = (state: RootState) =>
   state.option.targetAddress
 export const selectBitcoinAddress = (state: RootState) =>
   state.option.bitcoinAddress
+export const selectBitcoinPubkey = (state: RootState) =>
+  state.option.bitcoinPubkey
 export const selectSolanaConnectModal = (state: RootState) =>
   state.option.solanaConnectModal
 export const selectTronConnectModal = (state: RootState) =>

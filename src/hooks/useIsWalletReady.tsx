@@ -33,7 +33,11 @@ import {
 } from '@web3modal/ethers5/react'
 import { Web3ModalAccountInfo } from '../interface'
 import { useDispatch } from 'react-redux'
-import { setBitcoinAddress, setSourceChain } from '../store/optionSlice'
+import {
+  setBitcoinAddress,
+  setBitcoinPubkey,
+  setSourceChain
+} from '../store/optionSlice'
 import toast from 'react-hot-toast'
 
 const createWalletStatus = (
@@ -86,7 +90,6 @@ function useIsWalletReady(): {
   const correctEvmNetwork = CHAIN_NAMES_TO_IDS[correctChain]
   const hasCorrectEvmNetwork = evmChainId === correctEvmNetwork
   const events = useWeb3ModalEvents()
-  // const [bitcoinPubkey, setBitcoinPubkey] = useState<string>('')
 
   const [capabilityState, setCapabilityState] = useState<
     'loading' | 'loaded' | 'missing' | 'cancelled'
@@ -163,7 +166,7 @@ function useIsWalletReady(): {
           (address) => address.purpose === AddressPurpose.Payment
         )
         dispatch(setBitcoinAddress(paymentAddressItem?.address || ''))
-        // setBitcoinPubkey(paymentAddressItem?.publicKey || '')
+        dispatch(setBitcoinPubkey(paymentAddressItem?.publicKey || ''))
       },
       onCancel: () => {
         toast.error('Request cancelled')

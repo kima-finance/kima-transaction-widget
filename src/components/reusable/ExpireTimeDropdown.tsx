@@ -41,6 +41,7 @@ const ExpireTimeDropdown = () => {
       >
         {ExpireTimeOptions.map((option) => (
           <p
+            key={option}
             className='expire-time-item'
             onClick={() => {
               dispatch(setExpireTime(option))
