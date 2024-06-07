@@ -952,7 +952,7 @@ var initialState = {
   dAppOption: exports.DAppOptions.None,
   solanaProvider: undefined,
   submitted: false,
-  amount: 0,
+  amount: '',
   feeDeduct: false,
   errorHandler: function errorHandler() {
     return void 0;
@@ -998,7 +998,7 @@ var optionSlice = createSlice({
       state.submitted = false;
       state.txId = -1;
       state.serviceFee = -1;
-      state.amount = 0;
+      state.amount = '';
       state.targetAddress = '';
       state.compliantOption = true;
       state.sourceCompliant = 'low';
@@ -3904,7 +3904,6 @@ var SingleForm = function SingleForm(_ref) {
   var dispatch = reactRedux.useDispatch();
   var mode = reactRedux.useSelector(selectMode);
   var theme = reactRedux.useSelector(selectTheme);
-  var amount = reactRedux.useSelector(selectAmount);
   var feeDeduct = reactRedux.useSelector(selectFeeDeduct);
   var serviceFee = reactRedux.useSelector(selectServiceFee);
   var compliantOption = reactRedux.useSelector(selectCompliantOption);
@@ -3913,6 +3912,9 @@ var SingleForm = function SingleForm(_ref) {
   var selectedCoin = reactRedux.useSelector(selectSelectedToken);
   var sourceNetwork = reactRedux.useSelector(selectSourceChain);
   var targetNetwork = reactRedux.useSelector(selectTargetChain);
+  var _useState = React.useState(''),
+    amountValue = _useState[0],
+    setAmountValue = _useState[1];
   var Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
   var errorMessage = React.useMemo(function () {
     return compliantOption && targetCompliant !== 'low' ? "Target address has " + targetCompliant + " risk" : '';
@@ -3954,11 +3956,12 @@ var SingleForm = function SingleForm(_ref) {
     className: 'amount-label-container'
   }, React__default.createElement("input", {
     type: 'number',
-    value: amount,
+    value: amountValue || '',
     onChange: function onChange(e) {
       var _amount = +e.target.value;
       var decimal = sourceNetwork === exports.SupportNetworks.BTC || targetNetwork === exports.SupportNetworks.BTC ? 8 : 2;
-      dispatch(setAmount(parseFloat(_amount.toFixed(decimal))));
+      setAmountValue(e.target.value);
+      dispatch(setAmount(_amount.toFixed(decimal)));
     }
   }), React__default.createElement(CoinDropdown, null))) : React__default.createElement("div", {
     className: "form-item " + theme.colorMode
@@ -3985,10 +3988,12 @@ var CoinSelect = function CoinSelect() {
   var dispatch = reactRedux.useDispatch();
   var theme = reactRedux.useSelector(selectTheme);
   var mode = reactRedux.useSelector(selectMode);
-  var amount = reactRedux.useSelector(selectAmount);
   var selectedCoin = reactRedux.useSelector(selectSelectedToken);
   var sourceNetwork = reactRedux.useSelector(selectSourceChain);
   var targetNetwork = reactRedux.useSelector(selectTargetChain);
+  var _useState = React.useState(''),
+    amountValue = _useState[0],
+    setAmountValue = _useState[1];
   var Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
   return React__default.createElement("div", {
     className: "coin-select"
@@ -3998,12 +4003,13 @@ var CoinSelect = function CoinSelect() {
     className: 'input-wrapper'
   }, React__default.createElement("input", {
     type: 'number',
-    value: amount,
+    value: amountValue || '',
     readOnly: mode === exports.ModeOptions.payment,
     onChange: function onChange(e) {
       var _amount = +e.target.value;
       var decimal = sourceNetwork === exports.SupportNetworks.BTC || targetNetwork === exports.SupportNetworks.BTC ? 8 : 2;
-      dispatch(setAmount(parseFloat(_amount.toFixed(decimal))));
+      setAmountValue(e.target.value);
+      dispatch(setAmount(_amount.toFixed(decimal)));
     }
   }), React__default.createElement("div", {
     className: 'coin-label'
@@ -8757,7 +8763,7 @@ var KimaTransactionWidget = function KimaTransactionWidget(_ref) {
         })();
       }
       dispatch(setTargetAddress((transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress) || ''));
-      dispatch(setAmount((transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount) || 0));
+      dispatch(setAmount((transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount.toString()) || ''));
     } else if (mode === exports.ModeOptions.status) {
       dispatch(setTxId(txId || 1));
       dispatch(setSubmitted(true));

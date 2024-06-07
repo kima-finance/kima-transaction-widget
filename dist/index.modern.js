@@ -895,7 +895,7 @@ const initialState = {
   dAppOption: DAppOptions.None,
   solanaProvider: undefined,
   submitted: false,
-  amount: 0,
+  amount: '',
   feeDeduct: false,
   errorHandler: () => void 0,
   closeHandler: () => void 0,
@@ -931,7 +931,7 @@ const optionSlice = createSlice({
       state.submitted = false;
       state.txId = -1;
       state.serviceFee = -1;
-      state.amount = 0;
+      state.amount = '';
       state.targetAddress = '';
       state.compliantOption = true;
       state.sourceCompliant = 'low';
@@ -3222,7 +3222,6 @@ const SingleForm = ({
   const dispatch = useDispatch();
   const mode = useSelector(selectMode);
   const theme = useSelector(selectTheme);
-  const amount = useSelector(selectAmount);
   const feeDeduct = useSelector(selectFeeDeduct);
   const serviceFee = useSelector(selectServiceFee);
   const compliantOption = useSelector(selectCompliantOption);
@@ -3231,6 +3230,7 @@ const SingleForm = ({
   const selectedCoin = useSelector(selectSelectedToken);
   const sourceNetwork = useSelector(selectSourceChain);
   const targetNetwork = useSelector(selectTargetChain);
+  const [amountValue, setAmountValue] = useState('');
   const Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
   const errorMessage = useMemo(() => compliantOption && targetCompliant !== 'low' ? `Target address has ${targetCompliant} risk` : '', [compliantOption, targetCompliant]);
   useEffect(() => {
@@ -3270,11 +3270,12 @@ const SingleForm = ({
     className: 'amount-label-container'
   }, React.createElement("input", {
     type: 'number',
-    value: amount,
+    value: amountValue || '',
     onChange: e => {
       let _amount = +e.target.value;
       const decimal = sourceNetwork === ChainName.BTC || targetNetwork === ChainName.BTC ? 8 : 2;
-      dispatch(setAmount(parseFloat(_amount.toFixed(decimal))));
+      setAmountValue(e.target.value);
+      dispatch(setAmount(_amount.toFixed(decimal)));
     }
   }), React.createElement(CoinDropdown, null))) : React.createElement("div", {
     className: `form-item ${theme.colorMode}`
@@ -3299,10 +3300,10 @@ const CoinSelect = () => {
   const dispatch = useDispatch();
   const theme = useSelector(selectTheme);
   const mode = useSelector(selectMode);
-  const amount = useSelector(selectAmount);
   const selectedCoin = useSelector(selectSelectedToken);
   const sourceNetwork = useSelector(selectSourceChain);
   const targetNetwork = useSelector(selectTargetChain);
+  const [amountValue, setAmountValue] = useState('');
   const Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
   return React.createElement("div", {
     className: `coin-select`
@@ -3312,12 +3313,13 @@ const CoinSelect = () => {
     className: 'input-wrapper'
   }, React.createElement("input", {
     type: 'number',
-    value: amount,
+    value: amountValue || '',
     readOnly: mode === ModeOptions.payment,
     onChange: e => {
       const _amount = +e.target.value;
       const decimal = sourceNetwork === ChainName.BTC || targetNetwork === ChainName.BTC ? 8 : 2;
-      dispatch(setAmount(parseFloat(_amount.toFixed(decimal))));
+      setAmountValue(e.target.value);
+      dispatch(setAmount(_amount.toFixed(decimal)));
     }
   }), React.createElement("div", {
     className: 'coin-label'
@@ -7815,7 +7817,7 @@ const KimaTransactionWidget = ({
         })();
       }
       dispatch(setTargetAddress((transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress) || ''));
-      dispatch(setAmount((transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount) || 0));
+      dispatch(setAmount((transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount.toString()) || ''));
     } else if (mode === ModeOptions.status) {
       dispatch(setTxId(txId || 1));
       dispatch(setSubmitted(true));

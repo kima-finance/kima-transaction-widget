@@ -41,7 +41,7 @@ export interface OptionState {
   dAppOption: DAppOptions // specify which dApp is using this widget
   solanaProvider: any // selected solana wallet provider - phantom, solflare or ...
   submitted: boolean // if transaction is submitted, shows Transaction Widget to monitor status
-  amount: number // amount input
+  amount: string // amount input
   feeDeduct: boolean // whether deduct fee from amount or not
   transactionOption?: TransactionOption // input option from dApp
   errorHandler: Function // error callback function from dApp
@@ -89,7 +89,7 @@ const initialState: OptionState = {
   dAppOption: DAppOptions.None,
   solanaProvider: undefined,
   submitted: false,
-  amount: 0,
+  amount: '',
   feeDeduct: false,
   errorHandler: () => void 0,
   closeHandler: () => void 0,
@@ -126,7 +126,7 @@ export const optionSlice = createSlice({
       state.submitted = false
       state.txId = -1
       state.serviceFee = -1
-      state.amount = 0
+      state.amount = ''
       state.targetAddress = ''
       state.compliantOption = true
       state.sourceCompliant = 'low'
@@ -198,7 +198,7 @@ export const optionSlice = createSlice({
     setTransactionOption: (state, action: PayloadAction<TransactionOption>) => {
       state.transactionOption = action.payload
     },
-    setAmount: (state, action: PayloadAction<number>) => {
+    setAmount: (state, action: PayloadAction<string>) => {
       state.amount = action.payload
     },
     setErrorHandler: (state, action: PayloadAction<Function>) => {

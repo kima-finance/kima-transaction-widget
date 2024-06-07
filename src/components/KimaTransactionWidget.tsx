@@ -191,7 +191,7 @@ export const KimaTransactionWidget = ({
         })()
       }
       dispatch(setTargetAddress(transactionOption?.targetAddress || ''))
-      dispatch(setAmount(transactionOption?.amount || 0))
+      dispatch(setAmount(transactionOption?.amount.toString() || ''))
     } else if (mode === ModeOptions.status) {
       dispatch(setTxId(txId || 1))
       dispatch(setSubmitted(true))

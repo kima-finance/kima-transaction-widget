@@ -1,6 +1,5 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
-  selectAmount,
   selectSelectedToken,
   selectMode,
   selectTheme,
@@ -17,10 +16,10 @@ const CoinSelect = () => {
   const dispatch = useDispatch()
   const theme = useSelector(selectTheme)
   const mode = useSelector(selectMode)
-  const amount = useSelector(selectAmount)
   const selectedCoin = useSelector(selectSelectedToken)
   const sourceNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
+  const [amountValue, setAmountValue] = useState('')
   const Icon = COIN_LIST[selectedCoin || 'USDK'].icon
 
   return (
@@ -45,7 +44,7 @@ const CoinSelect = () => {
         <div className='input-wrapper'>
           <input
             type='number'
-            value={amount}
+            value={amountValue || ''}
             readOnly={mode === ModeOptions.payment}
             onChange={(e) => {
               const _amount = +e.target.value
@@ -54,7 +53,8 @@ const CoinSelect = () => {
                 targetNetwork === ChainName.BTC
                   ? 8
                   : 2
-              dispatch(setAmount(parseFloat(_amount.toFixed(decimal))))
+              setAmountValue(e.target.value)
+              dispatch(setAmount(_amount.toFixed(decimal)))
             }}
           />
           <div className='coin-label'>

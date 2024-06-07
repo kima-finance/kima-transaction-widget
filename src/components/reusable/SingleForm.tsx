@@ -1,8 +1,7 @@
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { useDispatch, useSelector } from 'react-redux'
 import {
-  selectAmount,
   selectCompliantOption,
   selectMode,
   selectSourceChain,
@@ -31,7 +30,6 @@ const SingleForm = ({
   const dispatch = useDispatch()
   const mode = useSelector(selectMode)
   const theme = useSelector(selectTheme)
-  const amount = useSelector(selectAmount)
   const feeDeduct = useSelector(selectFeeDeduct)
   const serviceFee = useSelector(selectServiceFee)
   const compliantOption = useSelector(selectCompliantOption)
@@ -40,6 +38,7 @@ const SingleForm = ({
   const selectedCoin = useSelector(selectSelectedToken)
   const sourceNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
+  const [amountValue, setAmountValue] = useState('')
   const Icon = COIN_LIST[selectedCoin || 'USDK'].icon
 
   const errorMessage = useMemo(
@@ -102,7 +101,7 @@ const SingleForm = ({
           <div className='amount-label-container'>
             <input
               type='number'
-              value={amount}
+              value={amountValue || ''}
               onChange={(e) => {
                 let _amount = +e.target.value
                 const decimal =
@@ -110,7 +109,8 @@ const SingleForm = ({
                   targetNetwork === ChainName.BTC
                     ? 8
                     : 2
-                dispatch(setAmount(parseFloat(_amount.toFixed(decimal))))
+                setAmountValue(e.target.value)
+                dispatch(setAmount(_amount.toFixed(decimal)))
               }}
             />
             <CoinDropdown />
