@@ -40,7 +40,7 @@ export default function useCurrencyOptions() {
           originNetwork === ChainName.BTC ||
           targetNetwork === ChainName.BTC
         ) {
-          tokenList = ['KBTC']
+          tokenList = ['WBTC']
         }
 
         dispatch(setSelectedToken(tokenList[0]))

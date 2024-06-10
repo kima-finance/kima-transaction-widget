@@ -889,8 +889,8 @@ var COIN_LIST = {
     symbol: 'KEUR',
     icon: KEUR
   },
-  KBTC: {
-    symbol: 'KBTC',
+  WBTC: {
+    symbol: 'WBTC',
     icon: BTC
   }
 };
@@ -2766,7 +2766,7 @@ function useBalance() {
   var selectedNetwork = reactRedux.useSelector(selectSourceChain);
   var errorHandler = reactRedux.useSelector(selectErrorHandler);
   var sourceChain = React.useMemo(function () {
-    if (selectedNetwork === exports.SupportNetworks.SOLANA || selectedNetwork === exports.SupportNetworks.TRON) return selectedNetwork;
+    if (selectedNetwork === exports.SupportNetworks.SOLANA || selectedNetwork === exports.SupportNetworks.TRON || selectedNetwork === exports.SupportNetworks.BTC) return selectedNetwork;
     if (CHAIN_NAMES_TO_IDS[selectedNetwork] !== evmChainId) {
       return CHAIN_IDS_TO_NAMES[evmChainId];
     }
@@ -2777,6 +2777,7 @@ function useBalance() {
     signTransaction = _useSolanaWallet.signTransaction;
   var _useTronWallet = tronwalletAdapterReactHooks.useWallet(),
     tronAddress = _useTronWallet.address;
+  var btcAddress = reactRedux.useSelector(selectBitcoinAddress);
   var _useConnection = SolanaAdapter.useConnection(),
     connection = _useConnection.connection;
   var selectedCoin = reactRedux.useSelector(selectSelectedToken);
@@ -2792,12 +2793,16 @@ function useBalance() {
     return '';
   }, [selectedCoin, sourceChain, tokenOptions]);
   React.useEffect(function () {
+    setBalance(0);
+  }, [sourceChain]);
+  React.useEffect(function () {
     (function () {
       try {
         var _exit = false;
+        if (!tokenAddress) return;
         return _catch(function () {
-          function _temp4(_result3) {
-            return _exit ? _result3 : function () {
+          function _temp6(_result4) {
+            return _exit ? _result4 : function () {
               if (walletProvider) {
                 var provider = new ethers.ethers.providers.Web3Provider(walletProvider);
                 var signer = provider === null || provider === void 0 ? void 0 : provider.getSigner();
@@ -2811,11 +2816,24 @@ function useBalance() {
               }
             }();
           }
-          var _temp3 = function () {
+          var _temp5 = function () {
             if (!isEVMChain(sourceChain)) {
-              var _temp2 = function _temp2(_result) {
-                return _exit ? _result : function () {
-                  if (tronAddress && tokenAddress) {
+              var _temp4 = function _temp4(_result) {
+                var _exit2 = false;
+                if (_exit) return _result;
+                function _temp2(_result2) {
+                  return _exit2 ? _result2 : function () {
+                    if (sourceChain === exports.SupportNetworks.BTC && btcAddress) {
+                      return Promise.resolve(fetchWrapper.get("https://blockstream.info/testnet/api/address/" + btcAddress)).then(function (btcInfo) {
+                        var balance = btcInfo.chain_stats.funded_txo_sum - btcInfo.chain_stats.spent_txo_sum;
+                        setBalance(balance);
+                        _exit = true;
+                      });
+                    }
+                  }();
+                }
+                var _temp = function () {
+                  if (sourceChain === exports.SupportNetworks.TRON && tronAddress) {
                     return Promise.resolve(tronWeb.contract(ERC20ABI.abi, tokenAddress)).then(function (trc20Contract) {
                       return Promise.resolve(trc20Contract.decimals().call()).then(function (decimals) {
                         return Promise.resolve(trc20Contract.balanceOf(tronAddress).call()).then(function (userBalance) {
@@ -2826,9 +2844,10 @@ function useBalance() {
                     });
                   }
                 }();
+                return _temp && _temp.then ? _temp.then(_temp2) : _temp2(_temp);
               };
-              var _temp = function () {
-                if (solanaAddress && tokenAddress && connection) {
+              var _temp3 = function () {
+                if (sourceChain === exports.SupportNetworks.SOLANA && solanaAddress && connection) {
                   var mint = new web3_js.PublicKey(tokenAddress);
                   return Promise.resolve(getOrCreateAssociatedTokenAccount(connection, solanaAddress, mint, solanaAddress, signTransaction)).then(function (fromTokenAccount) {
                     return Promise.resolve(connection.getParsedAccountInfo(fromTokenAccount.address)).then(function (accountInfo) {
@@ -2840,10 +2859,10 @@ function useBalance() {
                   });
                 }
               }();
-              return _temp && _temp.then ? _temp.then(_temp2) : _temp2(_temp);
+              return _temp3 && _temp3.then ? _temp3.then(_temp4) : _temp4(_temp3);
             }
           }();
-          return _temp3 && _temp3.then ? _temp3.then(_temp4) : _temp4(_temp3);
+          return _temp5 && _temp5.then ? _temp5.then(_temp6) : _temp6(_temp5);
         }, function (error) {
           errorHandler(error);
         });
@@ -2851,7 +2870,7 @@ function useBalance() {
         Promise.reject(e);
       }
     })();
-  }, [signerAddress, tokenAddress, sourceChain, solanaAddress, tronAddress, walletProvider]);
+  }, [signerAddress, tokenAddress, sourceChain, solanaAddress, tronAddress, btcAddress, walletProvider]);
   return React.useMemo(function () {
     return {
       balance: balance
@@ -7987,7 +8006,7 @@ function useCurrencyOptions() {
               return coin.toUpperCase();
             }) || ['USDK'];
             if (originNetwork === exports.SupportNetworks.BTC || targetNetwork === exports.SupportNetworks.BTC) {
-              tokenList = ['KBTC'];
+              tokenList = ['WBTC'];
             }
             dispatch(setSelectedToken(tokenList[0]));
             dispatch(setAvailableTokenList(tokenList));

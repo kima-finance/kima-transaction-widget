@@ -825,8 +825,8 @@ const COIN_LIST = {
     symbol: 'KEUR',
     icon: KEUR
   },
-  KBTC: {
-    symbol: 'KBTC',
+  WBTC: {
+    symbol: 'WBTC',
     icon: BTC
   }
 };
@@ -2220,7 +2220,7 @@ function useBalance() {
   const selectedNetwork = useSelector(selectSourceChain);
   const errorHandler = useSelector(selectErrorHandler);
   const sourceChain = useMemo(() => {
-    if (selectedNetwork === ChainName.SOLANA || selectedNetwork === ChainName.TRON) return selectedNetwork;
+    if (selectedNetwork === ChainName.SOLANA || selectedNetwork === ChainName.TRON || selectedNetwork === ChainName.BTC) return selectedNetwork;
     if (CHAIN_NAMES_TO_IDS[selectedNetwork] !== evmChainId) {
       return CHAIN_IDS_TO_NAMES[evmChainId];
     }
@@ -2233,6 +2233,7 @@ function useBalance() {
   const {
     address: tronAddress
   } = useWallet$1();
+  const btcAddress = useSelector(selectBitcoinAddress);
   const {
     connection
   } = useConnection();
@@ -2249,10 +2250,14 @@ function useBalance() {
     return '';
   }, [selectedCoin, sourceChain, tokenOptions]);
   useEffect(() => {
+    setBalance(0);
+  }, [sourceChain]);
+  useEffect(() => {
     (async () => {
+      if (!tokenAddress) return;
       try {
         if (!isEVMChain(sourceChain)) {
-          if (solanaAddress && tokenAddress && connection) {
+          if (sourceChain === ChainName.SOLANA && solanaAddress && connection) {
             var _accountInfo$value, _parsedAccountInfo$pa, _parsedAccountInfo$pa2, _parsedAccountInfo$pa3, _parsedAccountInfo$pa4, _parsedAccountInfo$pa5, _parsedAccountInfo$pa6;
             const mint = new PublicKey(tokenAddress);
             const fromTokenAccount = await getOrCreateAssociatedTokenAccount(connection, solanaAddress, mint, solanaAddress, signTransaction);
@@ -2261,11 +2266,17 @@ function useBalance() {
             setBalance(+formatUnits((_parsedAccountInfo$pa = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa === void 0 ? void 0 : (_parsedAccountInfo$pa2 = _parsedAccountInfo$pa.info) === null || _parsedAccountInfo$pa2 === void 0 ? void 0 : (_parsedAccountInfo$pa3 = _parsedAccountInfo$pa2.tokenAmount) === null || _parsedAccountInfo$pa3 === void 0 ? void 0 : _parsedAccountInfo$pa3.amount, (_parsedAccountInfo$pa4 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa4 === void 0 ? void 0 : (_parsedAccountInfo$pa5 = _parsedAccountInfo$pa4.info) === null || _parsedAccountInfo$pa5 === void 0 ? void 0 : (_parsedAccountInfo$pa6 = _parsedAccountInfo$pa5.tokenAmount) === null || _parsedAccountInfo$pa6 === void 0 ? void 0 : _parsedAccountInfo$pa6.decimals));
             return;
           }
-          if (tronAddress && tokenAddress) {
+          if (sourceChain === ChainName.TRON && tronAddress) {
             let trc20Contract = await tronWeb.contract(ERC20ABI.abi, tokenAddress);
             const decimals = await trc20Contract.decimals().call();
             const userBalance = await trc20Contract.balanceOf(tronAddress).call();
             setBalance(+formatUnits(userBalance.balance, decimals));
+            return;
+          }
+          if (sourceChain === ChainName.BTC && btcAddress) {
+            const btcInfo = await fetchWrapper.get(`https://blockstream.info/testnet/api/address/${btcAddress}`);
+            const balance = btcInfo.chain_stats.funded_txo_sum - btcInfo.chain_stats.spent_txo_sum;
+            setBalance(balance);
             return;
           }
         }
@@ -2282,7 +2293,7 @@ function useBalance() {
         errorHandler(error);
       }
     })();
-  }, [signerAddress, tokenAddress, sourceChain, solanaAddress, tronAddress, walletProvider]);
+  }, [signerAddress, tokenAddress, sourceChain, solanaAddress, tronAddress, btcAddress, walletProvider]);
   return useMemo(() => ({
     balance
   }), [balance]);
@@ -7160,7 +7171,7 @@ function useCurrencyOptions() {
         const coins = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/get_currencies/${originNetwork}/${targetNetwork}`);
         let tokenList = coins.Currencies.map(coin => coin.toUpperCase()) || ['USDK'];
         if (originNetwork === ChainName.BTC || targetNetwork === ChainName.BTC) {
-          tokenList = ['KBTC'];
+          tokenList = ['WBTC'];
         }
         dispatch(setSelectedToken(tokenList[0]));
         dispatch(setAvailableTokenList(tokenList));

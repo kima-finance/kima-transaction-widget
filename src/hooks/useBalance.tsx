@@ -17,7 +17,8 @@ import {
   selectSelectedToken,
   selectErrorHandler,
   selectSourceChain,
-  selectTokenOptions
+  selectTokenOptions,
+  selectBitcoinAddress
 } from '../store/selectors'
 import { getOrCreateAssociatedTokenAccount } from '../utils/solana/getOrCreateAssociatedTokenAccount'
 import { PublicKey } from '@solana/web3.js'
@@ -31,6 +32,7 @@ import { ethers } from 'ethers'
 import { ExternalProvider, JsonRpcFetchFunc } from '@ethersproject/providers'
 import { Web3ModalAccountInfo } from '../interface'
 import { isEmptyObject } from '../helpers/functions'
+import { fetchWrapper } from '../helpers/fetch-wrapper'
 
 type ParsedAccountData = {
   /** Name of the program that owns this account */
@@ -58,7 +60,8 @@ export default function useBalance() {
   const sourceChain = useMemo(() => {
     if (
       selectedNetwork === ChainName.SOLANA ||
-      selectedNetwork === ChainName.TRON
+      selectedNetwork === ChainName.TRON ||
+      selectedNetwork === ChainName.BTC
     )
       return selectedNetwork
     if (CHAIN_NAMES_TO_IDS[selectedNetwork] !== evmChainId) {
@@ -69,6 +72,7 @@ export default function useBalance() {
   }, [selectedNetwork, evmChainId])
   const { publicKey: solanaAddress, signTransaction } = useSolanaWallet()
   const { address: tronAddress } = useTronWallet()
+  const btcAddress = useSelector(selectBitcoinAddress)
   const { connection } = useConnection()
   const selectedCoin = useSelector(selectSelectedToken)
   const tokenOptions = useSelector(selectTokenOptions)
@@ -86,10 +90,15 @@ export default function useBalance() {
   }, [selectedCoin, sourceChain, tokenOptions])
 
   useEffect(() => {
+    setBalance(0)
+  }, [sourceChain])
+
+  useEffect(() => {
     ;(async () => {
+      if (!tokenAddress) return
       try {
         if (!isEVMChain(sourceChain)) {
-          if (solanaAddress && tokenAddress && connection) {
+          if (sourceChain === ChainName.SOLANA && solanaAddress && connection) {
             const mint = new PublicKey(tokenAddress)
             const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
               connection,
@@ -115,7 +124,7 @@ export default function useBalance() {
             return
           }
 
-          if (tronAddress && tokenAddress) {
+          if (sourceChain === ChainName.TRON && tronAddress) {
             let trc20Contract = await tronWeb.contract(
               ERC20ABI.abi,
               tokenAddress
@@ -126,6 +135,18 @@ export default function useBalance() {
               .balanceOf(tronAddress)
               .call()
             setBalance(+formatUnits(userBalance.balance, decimals))
+            return
+          }
+
+          if (sourceChain === ChainName.BTC && btcAddress) {
+            const btcInfo: any = await fetchWrapper.get(
+              `https://blockstream.info/testnet/api/address/${btcAddress}`
+            )
+            const balance =
+              btcInfo.chain_stats.funded_txo_sum -
+              btcInfo.chain_stats.spent_txo_sum
+
+            setBalance(balance)
             return
           }
         }
@@ -154,6 +175,7 @@ export default function useBalance() {
     sourceChain,
     solanaAddress,
     tronAddress,
+    btcAddress,
     walletProvider
   ])
 

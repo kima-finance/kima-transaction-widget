@@ -200,8 +200,9 @@ export const COIN_LIST: CoinOptions = {
     symbol: 'KEUR',
     icon: KEURICON
   },
-  KBTC: {
-    symbol: 'KBTC',
+
+  WBTC: {
+    symbol: 'WBTC',
     icon: BTCIcon
   }
 }
