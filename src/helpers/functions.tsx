@@ -9,3 +9,6 @@ export const formatterFloat = new Intl.NumberFormat('en-US', {
 export function isEmptyObject(arg) {
   return typeof arg === 'object' && Object.keys(arg).length === 0
 }
+
+export const sleep = (delay) =>
+  new Promise((resolve) => setTimeout(resolve, delay))

@@ -18,7 +18,6 @@ import { ChainName } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 import { connectWalletBtn } from '../../utils/testId'
 import useBalance from '../../hooks/useBalance'
-import { formatterFloat } from '../../helpers/functions'
 import { useWeb3Modal } from '@web3modal/ethers5/react'
 
 const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
@@ -77,7 +76,8 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
 
       {isReady ? (
         <p className='balance-info'>
-          {formatterFloat.format(balance)} {selectedCoin} available
+          {balance.toFixed(selectedCoin === 'WBTC' ? 8 : 2)}{' '}
+          {selectedNetwork === ChainName.BTC ? 'BTC' : selectedCoin} available
         </p>
       ) : null}
     </div>

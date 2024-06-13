@@ -18,7 +18,8 @@ import {
   selectErrorHandler,
   selectSourceChain,
   selectTokenOptions,
-  selectBitcoinAddress
+  selectBitcoinAddress,
+  selectBackendUrl
 } from '../store/selectors'
 import { getOrCreateAssociatedTokenAccount } from '../utils/solana/getOrCreateAssociatedTokenAccount'
 import { PublicKey } from '@solana/web3.js'
@@ -74,6 +75,7 @@ export default function useBalance() {
   const { address: tronAddress } = useTronWallet()
   const btcAddress = useSelector(selectBitcoinAddress)
   const { connection } = useConnection()
+  const kimaBackendUrl = useSelector(selectBackendUrl)
   const selectedCoin = useSelector(selectSelectedToken)
   const tokenOptions = useSelector(selectTokenOptions)
   const tokenAddress = useMemo(() => {
@@ -140,11 +142,9 @@ export default function useBalance() {
 
           if (sourceChain === ChainName.BTC && btcAddress) {
             const btcInfo: any = await fetchWrapper.get(
-              `https://blockstream.info/testnet/api/address/${btcAddress}`
+              `${kimaBackendUrl}/btc/balance?address=${btcAddress}`
             )
-            const balance =
-              btcInfo.chain_stats.funded_txo_sum -
-              btcInfo.chain_stats.spent_txo_sum
+            const balance = parseFloat(btcInfo.balance) / Math.pow(10, 8)
 
             setBalance(balance)
             return

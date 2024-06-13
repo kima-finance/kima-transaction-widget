@@ -15,7 +15,7 @@ import toast, { toast as toast$1, Toaster } from 'react-hot-toast';
 import { useWeb3ModalProvider, useSwitchNetwork, useWeb3ModalAccount, useWeb3ModalEvents, useWeb3Modal, useWeb3ModalTheme, createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react';
 import { Tooltip } from 'react-tooltip';
 import { WalletReadyState } from '@solana/wallet-adapter-base';
-import { getAddress, AddressPurpose, BitcoinNetworkType, getCapabilities, sendBtcTransaction } from 'sats-connect';
+import { getAddress, AddressPurpose, BitcoinNetworkType, getCapabilities } from 'sats-connect';
 import { Contract } from '@ethersproject/contracts';
 import { formatUnits, parseUnits } from '@ethersproject/units';
 import { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, AccountLayout } from '@solana/spl-token';
@@ -2202,6 +2202,7 @@ const formatterFloat = new Intl.NumberFormat('en-US', {
 function isEmptyObject(arg) {
   return typeof arg === 'object' && Object.keys(arg).length === 0;
 }
+const sleep = delay => new Promise(resolve => setTimeout(resolve, delay));
 
 function useBalance() {
   const [balance, setBalance] = useState(0);
@@ -2237,6 +2238,7 @@ function useBalance() {
   const {
     connection
   } = useConnection();
+  const kimaBackendUrl = useSelector(selectBackendUrl);
   const selectedCoin = useSelector(selectSelectedToken);
   const tokenOptions = useSelector(selectTokenOptions);
   const tokenAddress = useMemo(() => {
@@ -2274,8 +2276,8 @@ function useBalance() {
             return;
           }
           if (sourceChain === ChainName.BTC && btcAddress) {
-            const btcInfo = await fetchWrapper.get(`https://blockstream.info/testnet/api/address/${btcAddress}`);
-            const balance = btcInfo.chain_stats.funded_txo_sum - btcInfo.chain_stats.spent_txo_sum;
+            const btcInfo = await fetchWrapper.get(`${kimaBackendUrl}/btc/balance?address=${btcAddress}`);
+            const balance = parseFloat(btcInfo.balance) / Math.pow(10, 8);
             setBalance(balance);
             return;
           }
@@ -2351,7 +2353,7 @@ const WalletButton = ({
     clickHandler: handleClick
   }, isReady ? `${getShortenedAddress(walletAddress || '')}` : 'Wallet'), isReady ? React.createElement("p", {
     className: 'balance-info'
-  }, formatterFloat.format(balance), " ", selectedCoin, " available") : null);
+  }, balance.toFixed(selectedCoin === 'WBTC' ? 8 : 2), ' ', selectedNetwork === ChainName.BTC ? 'BTC' : selectedCoin, " available") : null);
 };
 
 const CoinDropdown = () => {
@@ -2533,9 +2535,9 @@ const ConfirmDetails = ({
   }, [mode, transactionOption, targetAddress]);
   const amountToShow = useMemo(() => {
     if (originNetwork === ChainName.BTC || targetNetwork === ChainName.BTC) {
-      return formatterFloat.format(amount);
+      return (+amount).toFixed(8);
     }
-    return formatterFloat.format(feeDeduct ? amount : amount + serviceFee);
+    return formatterFloat.format(feeDeduct ? +amount : +amount + serviceFee);
   }, [amount, serviceFee, originNetwork, targetNetwork, feeDeduct]);
   return React.createElement("div", {
     className: `confirm-details ${theme.colorMode}`
@@ -6952,7 +6954,6 @@ function fromHex(address) {
   return getBase58CheckAddress(hexStr2byteArray(address.replace(/^0x/, ADDRESS_PREFIX)));
 }
 
-const sleep = delay => new Promise(resolve => setTimeout(resolve, delay));
 function useAllowance({
   setApproving
 }) {
@@ -6974,7 +6975,7 @@ function useAllowance({
   const errorHandler = useSelector(selectErrorHandler);
   const dAppOption = useSelector(selectDappOption);
   const sourceChain = useMemo(() => {
-    if (selectedNetwork === ChainName.SOLANA || selectedNetwork === ChainName.TRON) return selectedNetwork;
+    if (selectedNetwork === ChainName.SOLANA || selectedNetwork === ChainName.TRON || selectedNetwork === ChainName.BTC) return selectedNetwork;
     if (CHAIN_NAMES_TO_IDS[selectedNetwork] !== evmChainId) {
       return CHAIN_IDS_TO_NAMES[evmChainId];
     }
@@ -7008,7 +7009,7 @@ function useAllowance({
   }, [selectedCoin, sourceChain, tokenOptions]);
   const [targetAddress, setTargetAddress] = useState();
   const isApproved = useMemo(() => {
-    return allowance >= amount + serviceFee;
+    return allowance >= +amount + serviceFee;
   }, [allowance, amount, serviceFee, dAppOption]);
   const updatePoolAddress = async () => {
     try {
@@ -7079,7 +7080,7 @@ function useAllowance({
         const approve = await erc20Contract.approve(targetAddress, parseUnits((amount + serviceFee).toString(), decimals));
         await approve.wait();
         setApproving(false);
-        setAllowance(amount + serviceFee);
+        setAllowance(+amount + serviceFee);
       } catch (error) {
         errorHandler(error);
         setApproving(false);
@@ -7103,7 +7104,7 @@ function useAllowance({
         const result = await tronWeb.trx.sendRawTransaction(signedTx);
         console.log(result);
         setApproving(false);
-        setAllowance(amount + serviceFee);
+        setAllowance(+amount + serviceFee);
       } catch (error) {
         errorHandler(error);
         setApproving(false);
@@ -7116,7 +7117,7 @@ function useAllowance({
       const mint = new PublicKey(tokenAddress);
       const toPublicKey = new PublicKey(targetAddress);
       const fromTokenAccount = await getOrCreateAssociatedTokenAccount(connection, solanaAddress, mint, solanaAddress, signSolanaTransaction);
-      const transaction = new Transaction().add(createApproveTransferInstruction(fromTokenAccount.address, toPublicKey, solanaAddress, (amount + serviceFee) * Math.pow(10, decimals ?? 6), [], TOKEN_PROGRAM_ID));
+      const transaction = new Transaction().add(createApproveTransferInstruction(fromTokenAccount.address, toPublicKey, solanaAddress, (+amount + serviceFee) * Math.pow(10, decimals ?? 6), [], TOKEN_PROGRAM_ID));
       const blockHash = await connection.getLatestBlockhash();
       transaction.feePayer = solanaAddress;
       transaction.recentBlockhash = await blockHash.blockhash;
@@ -7131,8 +7132,8 @@ function useAllowance({
         const parsedAccountInfo = (_accountInfo = accountInfo) === null || _accountInfo === void 0 ? void 0 : (_accountInfo$value2 = _accountInfo.value) === null || _accountInfo$value2 === void 0 ? void 0 : _accountInfo$value2.data;
         allowAmount = ((_parsedAccountInfo$pa9 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa9 === void 0 ? void 0 : (_parsedAccountInfo$pa10 = _parsedAccountInfo$pa9.info) === null || _parsedAccountInfo$pa10 === void 0 ? void 0 : _parsedAccountInfo$pa10.delegate) === targetAddress ? (_parsedAccountInfo$pa11 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa11 === void 0 ? void 0 : (_parsedAccountInfo$pa12 = _parsedAccountInfo$pa11.info) === null || _parsedAccountInfo$pa12 === void 0 ? void 0 : (_parsedAccountInfo$pa13 = _parsedAccountInfo$pa12.delegatedAmount) === null || _parsedAccountInfo$pa13 === void 0 ? void 0 : _parsedAccountInfo$pa13.uiAmount : 0;
         await sleep(1000);
-      } while (allowAmount < amount + serviceFee || retryCount++ < 5);
-      setAllowance(amount + serviceFee);
+      } while (allowAmount < +amount + serviceFee || retryCount++ < 5);
+      setAllowance(+amount + serviceFee);
       setApproving(false);
     } catch (e) {
       errorHandler(e);
@@ -7322,6 +7323,9 @@ const TransferWidget = ({
   const [isSubmitting, setSubmitting] = useState(false);
   const [isSigning, setSigning] = useState(false);
   const [isBTCSigning, setBTCSigning] = useState(false);
+  const [isBTCSigned, setBTCSigned] = useState(false);
+  const [btcHash, setBTCHash] = useState('');
+  const [btcTimestamp, setBTCTimestamp] = useState(0);
   const [isConfirming, setConfirming] = useState(false);
   const [isVerifying, setVerifying] = useState(false);
   const {
@@ -7329,7 +7333,7 @@ const TransferWidget = ({
     walletAddress
   } = useIsWalletReady();
   const {
-    isApproved,
+    isApproved: approved,
     approve
   } = useAllowance({
     setApproving
@@ -7347,6 +7351,10 @@ const TransferWidget = ({
     balance
   } = useBalance();
   const windowWidth = useWidth();
+  const isApproved = useMemo(() => {
+    if (sourceChain === ChainName.BTC) return isBTCSigned;
+    return approved;
+  }, [approved, isBTCSigned, sourceChain]);
   useEffect(() => {
     if (!walletAddress) return;
     dispatch(setTargetAddress(walletAddress));
@@ -7357,8 +7365,8 @@ const TransferWidget = ({
           address: walletAddress
         }));
         dispatch(setSourceCompliant(res));
-        toast$1.error('xplorisk check failed');
       } catch (e) {
+        toast$1.error('xplorisk check failed');
         console.log('xplorisk check failed', e);
       }
     })();
@@ -7371,8 +7379,8 @@ const TransferWidget = ({
           address: targetAddress
         }));
         dispatch(setTargetCompliant(res));
-        toast$1.error('xplorisk check failed');
       } catch (e) {
+        toast$1.error('xplorisk check failed');
         console.log('xplorisk check failed', e);
       }
     })();
@@ -7410,7 +7418,7 @@ const TransferWidget = ({
       if (poolBalance[i].chainName === targetChain) {
         for (let j = 0; j < poolBalance[i].balance.length; j++) {
           if (poolBalance[i].balance[j].tokenSymbol !== selectedToken) continue;
-          if (+poolBalance[i].balance[j].amount >= amount + fee) {
+          if (+poolBalance[i].balance[j].amount >= +amount + fee) {
             return true;
           }
           const symbol = selectedToken;
@@ -7427,13 +7435,31 @@ const TransferWidget = ({
     console.log(`${CHAIN_NAMES_TO_STRING[targetChain]} pool error`);
     return false;
   };
+  const handleBTCFinish = async hash => {
+    await sleep(1000);
+    do {
+      try {
+        var _txInfo$status;
+        const txInfo = await fetchWrapper.get(`${backendUrl}/btc/transaction?hash=${hash}`);
+        if (txInfo !== null && txInfo !== void 0 && (_txInfo$status = txInfo.status) !== null && _txInfo$status !== void 0 && _txInfo$status.confirmed) {
+          setBTCSigning(false);
+          setBTCSigned(true);
+          setBTCHash(hash);
+          break;
+        }
+        await sleep(10000);
+      } catch (e) {
+        console.log(e);
+      }
+    } while (1);
+  };
   const handleSubmit = async () => {
     if (fee < 0) {
       toast$1.error('Fee is not calculated!');
       errorHandler('Fee is not calculated!');
       return;
     }
-    if (dAppOption !== DAppOptions.LPDrain && balance < amount) {
+    if (dAppOption !== DAppOptions.LPDrain && balance < +amount) {
       toast$1.error('Insufficient balance!');
       errorHandler('Insufficient balance!');
     }
@@ -7449,32 +7475,19 @@ const TransferWidget = ({
         sign();
         return;
       }
-    } else if (!isApproved && dAppOption !== DAppOptions.LPDrain) {
+    } else if (!isApproved && dAppOption !== DAppOptions.LPDrain && sourceChain !== ChainName.BTC) {
       approve();
       return;
     }
-    if (sourceChain === ChainName.BTC) {
+    if (sourceChain === ChainName.BTC && !isApproved) {
       setBTCSigning(true);
       const unixTimestamp = Math.floor(Date.now() / 1000) + (expireTime === '1 hour' ? 3600 : expireTime === '2 hours' ? 7200 : 10800);
+      setBTCTimestamp(unixTimestamp);
       const poolAddress = 'tb1qxcfpzll5hjzjrm5sfwp3jpkf2edu2ywy3lr2zn';
       const htlcScript = createHTLCScript(bitcoinAddress, bitcoinPubkey, poolAddress, unixTimestamp, networks.testnet);
       const htlcAddress = htlcP2WSHAddress(htlcScript, networks.testnet);
-      await sendBtcTransaction({
-        payload: {
-          network: {
-            type: BitcoinNetworkType.Testnet
-          },
-          recipients: [{
-            address: htlcAddress,
-            amountSats: BigInt(Math.round(amount * 100000000))
-          }],
-          senderAddress: bitcoinAddress
-        },
-        onFinish: response => {
-          alert(response);
-        },
-        onCancel: () => alert('Canceled')
-      });
+      handleBTCFinish('ef3e7849ec3016ae15a901c60d61a026190ff019d85f239df8830c9dd8264e98');
+      console.log(htlcAddress);
       return;
     }
     try {
@@ -7488,15 +7501,38 @@ const TransferWidget = ({
         setSubmitting(false);
         return;
       }
-      const params = JSON.stringify({
-        originAddress: walletAddress,
-        originChain: sourceChain,
-        targetAddress: mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
-        targetChain: targetChain,
-        symbol: selectedToken,
-        amount: amount,
-        fee
-      });
+      let params;
+      if (sourceChain === ChainName.BTC) {
+        params = JSON.stringify({
+          originAddress: walletAddress,
+          originChain: sourceChain,
+          targetAddress: mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
+          targetChain: targetChain,
+          symbol: selectedToken,
+          amount: amount,
+          fee,
+          htlcCreationHash: btcHash,
+          htlcCreationVout: 0,
+          htlcExpirationTimestamp: btcTimestamp.toString(),
+          htlcVersion: 'v1',
+          senderPubKey: bitcoinPubkey
+        });
+      } else {
+        params = JSON.stringify({
+          originAddress: walletAddress,
+          originChain: sourceChain,
+          targetAddress: mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
+          targetChain: targetChain,
+          symbol: selectedToken,
+          amount: amount,
+          fee,
+          htlcCreationHash: '',
+          htlcCreationVout: 0,
+          htlcExpirationTimestamp: '0',
+          htlcVersion: '',
+          senderPubKey: ''
+        });
+      }
       console.log(params);
       await fetchWrapper.post(`${backendUrl}/auth`, params);
       const result = await fetchWrapper.post(`${backendUrl}/submit`, params);
@@ -7544,12 +7580,12 @@ const TransferWidget = ({
         return;
       }
       if (wizardStep === 4) {
-        if (fee >= 0 && amount > 0) {
+        if (fee >= 0 && +amount > 0) {
           setWizardStep(5);
         }
         return;
       }
-      if (fee > 0 && fee > amount && feeDeduct) {
+      if (fee > 0 && fee > +amount && feeDeduct) {
         toast$1.error('Fee is greater than amount to transfer!');
         errorHandler('Fee is greater than amount to transfer!');
         return;
@@ -7573,7 +7609,7 @@ const TransferWidget = ({
             return;
           }
         }
-        if (amount <= 0) {
+        if (+amount <= 0) {
           toast$1.error('Invalid amount!');
           errorHandler('Invalid amount!');
           return;
@@ -7584,12 +7620,12 @@ const TransferWidget = ({
           return;
         }
         if (compliantOption && (sourceCompliant !== 'low' || targetCompliant !== 'low')) return;
-        if (fee > 0 && fee > amount && feeDeduct) {
+        if (fee > 0 && fee > +amount && feeDeduct) {
           toast$1.error('Fee is greater than amount to transfer!');
           errorHandler('Fee is greater than amount to transfer!');
           return;
         }
-        if (mode === ModeOptions.payment || targetAddress && amount > 0) {
+        if (mode === ModeOptions.payment || targetAddress && +amount > 0) {
           setConfirming(true);
           setFormStep(1);
         }
@@ -7626,7 +7662,7 @@ const TransferWidget = ({
           return 'KYC Verify';
         }
       }
-      if (sourceChain === ChainName.BTC) {
+      if (sourceChain === ChainName.BTC && !isApproved) {
         return isBTCSigning ? 'Signing...' : 'Sign';
       }
       if (sourceChain !== ChainName.FIAT && isApproved || dAppOption === DAppOptions.LPDrain || sourceChain === ChainName.FIAT && isSigned) {
@@ -7695,10 +7731,10 @@ const TransferWidget = ({
     className: 'button-group'
   }, React.createElement(SecondaryButton, {
     clickHandler: () => {
-      if (isApproving || isSubmitting || isSigning) return;
+      if (isApproving || isSubmitting || isSigning || isBTCSigning) return;
       setWizard(prev => !prev);
     },
-    disabled: isApproving || isSubmitting || isSigning,
+    disabled: isApproving || isSubmitting || isSigning || isBTCSigning,
     theme: theme.colorMode,
     style: {
       style: {
@@ -7709,11 +7745,11 @@ const TransferWidget = ({
   }, "Switch to ", isWizard ? 'Form' : 'Wizard'), React.createElement(SecondaryButton, {
     clickHandler: onBack,
     theme: theme.colorMode,
-    disabled: isApproving || isSubmitting || isSigning
+    disabled: isApproving || isSubmitting || isSigning || isBTCSigning
   }, isWizard && wizardStep > 0 || !isWizard && formStep > 0 ? 'Back' : 'Cancel'), React.createElement(PrimaryButton, {
     clickHandler: onNext,
-    isLoading: isApproving || isSubmitting || isSigning,
-    disabled: isApproving || isSubmitting || isSigning
+    isLoading: isApproving || isSubmitting || isSigning || isBTCSigning,
+    disabled: isApproving || isSubmitting || isSigning || isBTCSigning
   }, getButtonLabel()))), React.createElement(SolanaWalletConnectModal, null), React.createElement(TronWalletConnectModal, null), React.createElement(HelpPopup, null), sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT ? React.createElement(BankPopup, {
     setVerifying: setVerifying,
     isVerifying: isVerifying

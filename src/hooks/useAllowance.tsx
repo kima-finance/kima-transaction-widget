@@ -38,7 +38,7 @@ import {
 } from '@web3modal/ethers5/react'
 import { ethers } from 'ethers'
 import { ExternalProvider, JsonRpcFetchFunc } from '@ethersproject/providers'
-import { isEmptyObject } from '../helpers/functions'
+import { isEmptyObject, sleep } from '../helpers/functions'
 import toast from 'react-hot-toast'
 
 type ParsedAccountData = {
@@ -49,8 +49,6 @@ type ParsedAccountData = {
   /** Space used by account data */
   space: number
 }
-
-const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 
 export default function useAllowance({ setApproving }: { setApproving: any }) {
   const [allowance, setAllowance] = useState<number>(0)
@@ -71,7 +69,8 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
   const sourceChain = useMemo(() => {
     if (
       selectedNetwork === ChainName.SOLANA ||
-      selectedNetwork === ChainName.TRON
+      selectedNetwork === ChainName.TRON ||
+      selectedNetwork === ChainName.BTC
     )
       return selectedNetwork
     if (CHAIN_NAMES_TO_IDS[selectedNetwork] !== evmChainId) {
@@ -104,7 +103,7 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
   }, [selectedCoin, sourceChain, tokenOptions])
   const [targetAddress, setTargetAddress] = useState<string>()
   const isApproved = useMemo(() => {
-    return allowance >= amount + serviceFee
+    return allowance >= +amount + serviceFee
   }, [allowance, amount, serviceFee, dAppOption])
 
   const updatePoolAddress = async () => {
@@ -233,7 +232,7 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
 
         await approve.wait()
         setApproving(false)
-        setAllowance(amount + serviceFee)
+        setAllowance(+amount + serviceFee)
       } catch (error) {
         errorHandler(error)
         setApproving(false)
@@ -272,7 +271,7 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
         console.log(result)
 
         setApproving(false)
-        setAllowance(amount + serviceFee)
+        setAllowance(+amount + serviceFee)
       } catch (error) {
         errorHandler(error)
         setApproving(false)
@@ -300,7 +299,7 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
           fromTokenAccount.address, // source
           toPublicKey, // dest
           solanaAddress as PublicKey,
-          (amount + serviceFee) * Math.pow(10, decimals ?? 6), // amount * LAMPORTS_PER_SOL,
+          (+amount + serviceFee) * Math.pow(10, decimals ?? 6), // amount * LAMPORTS_PER_SOL,
           [],
           TOKEN_PROGRAM_ID
         )
@@ -329,9 +328,9 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
             : 0
 
         await sleep(1000)
-      } while (allowAmount < amount + serviceFee || retryCount++ < 5)
+      } while (allowAmount < +amount + serviceFee || retryCount++ < 5)
 
-      setAllowance(amount + serviceFee)
+      setAllowance(+amount + serviceFee)
       setApproving(false)
     } catch (e) {
       errorHandler(e)
