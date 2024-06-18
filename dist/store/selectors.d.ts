@@ -11,6 +11,7 @@ export declare const selectSolanaConnectModal: (state: RootState) => any;
 export declare const selectTronConnectModal: (state: RootState) => any;
 export declare const selectHelpPopup: (state: RootState) => any;
 export declare const selectHashPopup: (state: RootState) => any;
+export declare const selectPendingTxPopup: (state: RootState) => any;
 export declare const selectBankPopup: (state: RootState) => any;
 export declare const selectSolanaProvider: (state: RootState) => any;
 export declare const selectProvider: (state: RootState) => any;

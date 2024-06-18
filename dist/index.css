@@ -63,8 +63,7 @@
 }
 .kima-card .kima-card-header .topbar .control-buttons a, .kima-card .kima-card-header .topbar .control-buttons .menu-button {
   margin-left: auto;
-  margin-right: 1em;
-  margin-top: 0.3em;
+  margin-right: 0.5em;
   color: #5aa0db;
   text-decoration: none;
   cursor: pointer;
@@ -1290,6 +1289,15 @@
     opacity: 0.7;
   }
 }
+.kima-card .tx-button {
+  margin-right: 1em;
+  -moz-column-gap: 0.5em;
+       column-gap: 0.5em;
+  width: 5em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .kima-card .dropdown-menu {
   box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
   position: absolute;
@@ -1319,7 +1327,7 @@
   opacity: 0;
   pointer-events: none;
 }
-.kima-card .error-tooltip.dark {
+.kima-card .error-tooltip.dark, .kima-card .popup-tooltip.dark {
   color: black;
   background-color: white;
 }
@@ -1435,6 +1443,83 @@
 }
 .kima-card .kima-modal.hash-popup .modal-content .hash-container .hash-item span {
   width: 5em;
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content-container {
+  width: 45em;
+  height: 20em;
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content {
+  height: calc(100% - 2em);
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content .scroll-area {
+  height: 14em;
+  width: 100%;
+  margin-top: 1em;
+  padding: 1em 0;
+  overflow-y: scroll;
+  overflow-x: clip;
+  background: #e3e3e3;
+  border-radius: 0.5em;
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content .scroll-area::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 3px;
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content .scroll-area .tx-container {
+  width: 100%;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  row-gap: 0.5em;
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content .scroll-area .tx-container .tx-item {
+  display: flex;
+  align-items: center;
+  -moz-column-gap: 1em;
+       column-gap: 1em;
+  padding: 0.4em 0;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content .scroll-area .tx-container .tx-item:hover {
+  background-color: rgba(90, 160, 219, 0.3137254902);
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content .scroll-area .tx-container .tx-item .label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 12em;
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content .scroll-area .tx-container .tx-item .label .icon-wrapper {
+  display: flex;
+  align-items: center;
+  -moz-column-gap: 0.4em;
+       column-gap: 0.4em;
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content .scroll-area .tx-container .tx-item .label .icon-wrapper svg {
+  width: 1.5em;
+  height: 1.5em;
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content .scroll-area .tx-container .tx-item .amount-label {
+  display: flex;
+  align-items: center;
+  -moz-column-gap: 0.5em;
+       column-gap: 0.5em;
+  width: 10em;
+  justify-content: center;
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content .scroll-area .tx-container .tx-item .status-label {
+  width: 8em;
+  text-align: center;
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content .scroll-area .tx-container .tx-item .action-button {
+  color: #5aa0db;
+  display: flex;
+  width: 5em;
+  justify-content: center;
+}
+.kima-card .kima-modal.pending-tx-popup.dark .scroll-area {
+  background-color: #434343;
 }
 .kima-card .kima-modal.bank-popup .modal-content-container {
   width: 100%;

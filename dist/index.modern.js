@@ -889,6 +889,7 @@ const initialState = {
   tronConnectModal: false,
   helpPopup: false,
   hashPopup: false,
+  pendingTxPopup: false,
   bankPopup: false,
   walletAutoConnect: true,
   provider: undefined,
@@ -980,6 +981,9 @@ const optionSlice = createSlice({
     },
     setHashPopup: (state, action) => {
       state.hashPopup = action.payload;
+    },
+    setPendingTxPopup: (state, action) => {
+      state.pendingTxPopup = action.payload;
     },
     setBankPopup: (state, action) => {
       state.bankPopup = action.payload;
@@ -1093,6 +1097,7 @@ const {
   setTronConnectModal,
   setHelpPopup,
   setHashPopup,
+  setPendingTxPopup,
   setBankPopup,
   setSolanaProvider,
   setProvider,
@@ -1152,6 +1157,7 @@ const selectSolanaConnectModal = state => state.option.solanaConnectModal;
 const selectTronConnectModal = state => state.option.tronConnectModal;
 const selectHelpPopup = state => state.option.helpPopup;
 const selectHashPopup = state => state.option.hashPopup;
+const selectPendingTxPopup = state => state.option.pendingTxPopup;
 const selectBankPopup = state => state.option.bankPopup;
 const selectSolanaProvider = state => state.option.solanaProvider;
 const selectDappOption = state => state.option.dAppOption;
@@ -2722,6 +2728,24 @@ const BankInput = () => {
       recipient: e.target.value
     }))
   })));
+};
+
+const TxButton = ({
+  theme
+}) => {
+  const dispatch = useDispatch();
+  const handleClick = () => {
+    dispatch(setPendingTxPopup(true));
+  };
+  return React.createElement("button", {
+    className: `secondary-button tx-button ${theme.colorMode}`,
+    onClick: handleClick,
+    "data-tooltip-id": 'popup-tooltip'
+  }, "4", React.createElement(Loading180Ring, {
+    height: 16,
+    width: 16,
+    fill: theme.colorMode === 'light' ? 'black' : 'white'
+  }));
 };
 
 const HelpPopup = () => {
@@ -7283,6 +7307,104 @@ function htlcP2WSHAddress(htlcScript, network) {
   return p2wsh.address;
 }
 
+const PendingTxPopup = () => {
+  const dispatch = useDispatch();
+  const theme = useSelector(selectTheme);
+  const pendingTxPopup = useSelector(selectPendingTxPopup);
+  const txData = [{
+    sourceChain: ChainName.BTC,
+    sourceAddress: '2MuhGmBFTJJagYGPUwmehjgdem5wJmowtSa',
+    targetChain: ChainName.ETHEREUM,
+    targetAddress: '0x10c033E050e10510a951a56e4A14B4CD3de6CA67',
+    amount: '0.00015',
+    label: 'WBTC',
+    status: 'Pending'
+  }, {
+    sourceChain: ChainName.ETHEREUM,
+    sourceAddress: '0x10c033E050e10510a951a56e4A14B4CD3de6CA67',
+    targetChain: ChainName.BTC,
+    targetAddress: '2MuhGmBFTJJagYGPUwmehjgdem5wJmowtSa',
+    amount: '0.00015',
+    label: 'WBTC',
+    status: 'Pending'
+  }, {
+    sourceChain: ChainName.BSC,
+    sourceAddress: '0x10c033E050e10510a951a56e4A14B4CD3de6CA67',
+    targetChain: ChainName.POLYGON,
+    targetAddress: '0x10c033E050e10510a951a56e4A14B4CD3de6CA67',
+    amount: '100.5',
+    label: 'USDK',
+    status: 'Completed'
+  }, {
+    sourceChain: ChainName.OPTIMISM,
+    sourceAddress: '0x10c033E050e10510a951a56e4A14B4CD3de6CA67',
+    targetChain: ChainName.POLYGON_ZKEVM,
+    targetAddress: '0x10c033E050e10510a951a56e4A14B4CD3de6CA67',
+    amount: '250',
+    label: 'USDK',
+    status: 'Completed'
+  }, {
+    sourceChain: ChainName.SOLANA,
+    sourceAddress: '2MuhGmBFTJJagYGPUwmehjgdem5wJmowtSa',
+    targetChain: ChainName.TRON,
+    targetAddress: '0x10c033E050e10510a951a56e4A14B4CD3de6CA67',
+    amount: '1000',
+    label: 'USDK',
+    status: 'Completed'
+  }];
+  return React.createElement("div", {
+    className: `kima-modal pending-tx-popup ${theme.colorMode} ${pendingTxPopup ? 'open' : ''}`
+  }, React.createElement("div", {
+    className: 'modal-overlay',
+    onClick: () => {
+      dispatch(setPendingTxPopup(false));
+    }
+  }), React.createElement("div", {
+    className: 'modal-content-container'
+  }, React.createElement("div", {
+    className: 'kima-card-header'
+  }, React.createElement("div", {
+    className: 'topbar'
+  }, React.createElement("div", {
+    className: 'title'
+  }, React.createElement("h3", null, "Transaction List")), React.createElement("div", {
+    className: 'control-buttons'
+  }, React.createElement("button", {
+    className: 'icon-button',
+    onClick: () => dispatch(setPendingTxPopup(false))
+  }, React.createElement(Cross, {
+    fill: theme.colorMode === 'light' ? 'black' : 'white'
+  }))))), React.createElement("div", {
+    className: 'modal-content'
+  }, React.createElement("div", {
+    className: 'scroll-area custom-scrollbar'
+  }, React.createElement("div", {
+    className: 'tx-container'
+  }, txData.map(tx => {
+    const sourceInfo = getNetworkOption(tx.sourceChain);
+    const targetInfo = getNetworkOption(tx.targetChain);
+    return React.createElement("div", {
+      className: 'tx-item'
+    }, React.createElement("div", {
+      className: 'label'
+    }, React.createElement("div", {
+      className: 'icon-wrapper'
+    }, sourceInfo && React.createElement(sourceInfo.icon, null), sourceInfo === null || sourceInfo === void 0 ? void 0 : sourceInfo.label), getShortenedAddress(tx.sourceAddress)), React.createElement(ArrowRight, {
+      fill: theme.colorMode === 'light' ? 'black' : 'white'
+    }), React.createElement("div", {
+      className: 'label'
+    }, React.createElement("div", {
+      className: 'icon-wrapper'
+    }, targetInfo && React.createElement(targetInfo.icon, null), targetInfo === null || targetInfo === void 0 ? void 0 : targetInfo.label), getShortenedAddress(tx.targetAddress)), React.createElement("div", {
+      className: 'amount-label'
+    }, `${tx.amount} ${tx.label}`), React.createElement("span", {
+      className: 'status-label'
+    }, tx.status), React.createElement("div", {
+      className: 'action-button'
+    }, "View"));
+  }))))));
+};
+
 const TransferWidget = ({
   theme,
   feeURL,
@@ -7692,8 +7814,10 @@ const TransferWidget = ({
     className: 'title'
   }, React.createElement("h3", null, isWizard && wizardStep === 3 || !isWizard && formStep > 0 ? titleOption !== null && titleOption !== void 0 && titleOption.confirmTitle ? titleOption === null || titleOption === void 0 ? void 0 : titleOption.confirmTitle : 'Transfer Details' : titleOption !== null && titleOption !== void 0 && titleOption.initialTitle ? titleOption === null || titleOption === void 0 ? void 0 : titleOption.initialTitle : 'New Transfer')), React.createElement("div", {
     className: 'control-buttons'
-  }, React.createElement(ExternalLink, {
-    to: helpURL ?? 'https://docs.kima.finance/demo'
+  }, React.createElement(TxButton, {
+    theme: theme
+  }), React.createElement(ExternalLink, {
+    to: helpURL ? helpURL : 'https://docs.kima.finance/demo'
   }, React.createElement("div", {
     className: 'menu-button'
   }, "I need help")), React.createElement("button", {
@@ -7774,6 +7898,14 @@ const TransferWidget = ({
         background: theme.colorMode === ColorModeOptions.light ? 'white' : theme.backgroundColorDark ?? '#1b1e25'
       }
     }
+  }), React.createElement(PendingTxPopup, null), React.createElement(Tooltip, {
+    id: 'popup-tooltip',
+    className: `popup-tooltip ${theme.colorMode}`,
+    content: 'Click to open popup to see pending transactions',
+    style: {
+      zIndex: 10000
+    },
+    place: 'bottom'
   }));
 };
 

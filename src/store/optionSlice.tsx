@@ -36,6 +36,7 @@ export interface OptionState {
   helpPopup: boolean // shows popup to show help instructions
   hashPopup: boolean // shows popup to show hashes of transactions (kima tx, pull & release hashes)
   bankPopup: boolean // shows popup to simulate bank transfer
+  pendingTxPopup: boolean // shows popup to show pending transactions
   walletAutoConnect: boolean // propmpt metamask connect automatically
   provider: any // Ethereum wallet provider
   dAppOption: DAppOptions // specify which dApp is using this widget
@@ -83,6 +84,7 @@ const initialState: OptionState = {
   tronConnectModal: false,
   helpPopup: false,
   hashPopup: false,
+  pendingTxPopup: false,
   bankPopup: false,
   walletAutoConnect: true,
   provider: undefined,
@@ -176,6 +178,9 @@ export const optionSlice = createSlice({
     },
     setHashPopup: (state, action: PayloadAction<boolean>) => {
       state.hashPopup = action.payload
+    },
+    setPendingTxPopup: (state, action: PayloadAction<boolean>) => {
+      state.pendingTxPopup = action.payload
     },
     setBankPopup: (state, action: PayloadAction<boolean>) => {
       state.bankPopup = action.payload
@@ -290,6 +295,7 @@ export const {
   setTronConnectModal,
   setHelpPopup,
   setHashPopup,
+  setPendingTxPopup,
   setBankPopup,
   setSolanaProvider,
   setProvider,

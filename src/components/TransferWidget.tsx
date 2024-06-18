@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
+import { Tooltip } from 'react-tooltip'
 import { useDispatch, useSelector } from 'react-redux'
 import { CrossIcon, FooterLogo } from '../assets/icons'
 import {
@@ -7,6 +8,7 @@ import {
   NetworkSelect,
   PrimaryButton,
   SecondaryButton,
+  TxButton,
   WalletButton
 } from './reusable'
 import {
@@ -73,6 +75,7 @@ import { createHTLCScript, htlcP2WSHAddress } from '../utils/btc/htlc'
 // import { BitcoinNetworkType, sendBtcTransaction } from 'sats-connect'
 import * as bitcoin from 'bitcoinjs-lib' // you may comment this out during development to use the Node.js library so that you can get intellisense
 import { sleep } from '../helpers/functions'
+import PendingTxPopup from './modals/PendingTxPopup'
 
 interface Props {
   theme: ThemeOptions
@@ -629,7 +632,10 @@ export const TransferWidget = ({
             </h3>
           </div>
           <div className='control-buttons'>
-            <ExternalLink to={helpURL ?? 'https://docs.kima.finance/demo'}>
+            <TxButton theme={theme} />
+            <ExternalLink
+              to={helpURL ? helpURL : 'https://docs.kima.finance/demo'}
+            >
               <div className='menu-button'>I need help</div>
             </ExternalLink>
             <button
@@ -748,6 +754,14 @@ export const TransferWidget = ({
                 : theme.backgroundColorDark ?? '#1b1e25'
           }
         }}
+      />
+      <PendingTxPopup />
+      <Tooltip
+        id='popup-tooltip'
+        className={`popup-tooltip ${theme.colorMode}`}
+        content={'Click to open popup to see pending transactions'}
+        style={{ zIndex: 10000 }}
+        place={'bottom'}
       />
     </div>
   )
