@@ -8363,7 +8363,6 @@ var KimaTransactionWidget = function KimaTransactionWidget(_ref) {
 
 var ConnectionProvider = SolanaAdapter.ConnectionProvider,
   SolanaWalletProvider = SolanaAdapter.WalletProvider;
-var projectId = '90c9315fb25e62e202ce09985f70bcf3';
 var ethereum = {
   chainId: 11155111,
   name: 'Ethereum Sepolia',
@@ -8419,17 +8418,9 @@ var metadata = {
   url: 'https://kima.finance',
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 };
-react.createWeb3Modal({
-  ethersConfig: react.defaultConfig({
-    metadata: metadata
-  }),
-  chains: [ethereum, bsc, polygon, arbitrum, optimism, avalanche, zkEVM],
-  projectId: projectId,
-  enableAnalytics: false,
-  featuredWalletIds: ['c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96', 'a797aa35c0fadbfc1a53e7f675162ed5226968b44a19ee3d24385c64d1d3c393', '4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0']
-});
 var KimaProvider = function KimaProvider(_ref) {
-  var children = _ref.children;
+  var walletConnectProjectId = _ref.walletConnectProjectId,
+    children = _ref.children;
   var wallets = [new walletAdapterWallets.PhantomWalletAdapter(), new walletAdapterWallets.SolflareWalletAdapter(), new walletAdapterWallets.CloverWalletAdapter(), new walletAdapterWallets.Coin98WalletAdapter(), new walletAdapterWallets.SolongWalletAdapter(), new walletAdapterWallets.TorusWalletAdapter()];
   var adapters = React.useMemo(function () {
     var tronLinkAdapter = new tronwalletAdapterTronlink.TronLinkAdapter();
@@ -8453,6 +8444,15 @@ var KimaProvider = function KimaProvider(_ref) {
       adapters[0].switchChain('0xcd8690dc');
     }
   };
+  react.createWeb3Modal({
+    ethersConfig: react.defaultConfig({
+      metadata: metadata
+    }),
+    chains: [ethereum, bsc, polygon, arbitrum, optimism, avalanche, zkEVM],
+    projectId: walletConnectProjectId || 'e579511a495b5c312b572b036e60555a',
+    enableAnalytics: false,
+    featuredWalletIds: ['c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96', 'a797aa35c0fadbfc1a53e7f675162ed5226968b44a19ee3d24385c64d1d3c393', '4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0']
+  });
   return React__default.createElement(reactRedux.Provider, {
     store: store
   }, React__default.createElement(ConnectionProvider, {

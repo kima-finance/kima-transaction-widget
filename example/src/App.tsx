@@ -13,7 +13,7 @@ import 'kima-transaction-widget/dist/index.css'
 
 const App = () => {
   return (
-    <KimaProvider>
+    <KimaProvider walletConnectProjectId='e579511a495b5c312b572b036e60555a'>
       <div
         style={{
           margin: '0 5vw'
@@ -28,7 +28,7 @@ const App = () => {
             mode={ModeOptions.bridge}
             // dAppOption={DAppOptions.LPAdd}
             kimaBackendUrl='http://localhost:3001'
-            kimaNodeProviderQuery='https://api-testnet.kima.finance'
+            kimaNodeProviderQuery='https://api-staging.kima.finance'
             // autoSwitchChain={false}
             // defaultToken={'USDK'}
             useFIAT={true}
