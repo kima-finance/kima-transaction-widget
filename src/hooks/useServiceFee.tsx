@@ -66,14 +66,26 @@ export default function useServiceFee(
         return
       }
 
-      const sourceChainResult: any = await fetchWrapper.get(
-        `${feeURL}/fee/${sourceChain}`
-      )
-      const sourceFee = sourceChainResult.fee.split('-')[0]
-      const targetChainResult: any = await fetchWrapper.get(
-        `${feeURL}/fee/${targetChain}`
-      )
-      const targetFee = targetChainResult.fee.split('-')[0]
+      let sourceFee = 0
+      let targetFee = 0
+
+      if (sourceChain === ChainName.BTC) {
+        sourceFee = 0
+      } else {
+        const sourceChainResult: any = await fetchWrapper.get(
+          `${feeURL}/fee/${sourceChain}`
+        )
+        sourceFee = sourceChainResult.fee.split('-')[0]
+      }
+
+      if (targetChain === ChainName.BTC) {
+        targetFee = 0
+      } else {
+        const targetChainResult: any = await fetchWrapper.get(
+          `${feeURL}/fee/${targetChain}`
+        )
+        targetFee = targetChainResult.fee.split('-')[0]
+      }
 
       let fee = +sourceFee + +targetFee
       dispatch(setServiceFee(fee))

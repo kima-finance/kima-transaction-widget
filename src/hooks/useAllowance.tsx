@@ -21,7 +21,9 @@ import {
   selectNodeProviderQuery,
   selectSourceChain,
   selectServiceFee,
-  selectTokenOptions
+  selectTokenOptions,
+  selectTargetChain,
+  selectFeeDeduct
 } from '../store/selectors'
 import { getOrCreateAssociatedTokenAccount } from '../utils/solana/getOrCreateAssociatedTokenAccount'
 import { PublicKey, Transaction } from '@solana/web3.js'
@@ -38,7 +40,7 @@ import {
 } from '@web3modal/ethers5/react'
 import { ethers } from 'ethers'
 import { ExternalProvider, JsonRpcFetchFunc } from '@ethersproject/providers'
-import { isEmptyObject } from '../helpers/functions'
+import { formatterFloat, isEmptyObject, sleep } from '../helpers/functions'
 import toast from 'react-hot-toast'
 
 type ParsedAccountData = {
@@ -49,8 +51,6 @@ type ParsedAccountData = {
   /** Space used by account data */
   space: number
 }
-
-const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 
 export default function useAllowance({ setApproving }: { setApproving: any }) {
   const [allowance, setAllowance] = useState<number>(0)
@@ -68,10 +68,13 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
   const selectedNetwork = useSelector(selectSourceChain)
   const errorHandler = useSelector(selectErrorHandler)
   const dAppOption = useSelector(selectDappOption)
+  const targetChain = useSelector(selectTargetChain)
+  const feeDeduct = useSelector(selectFeeDeduct)
   const sourceChain = useMemo(() => {
     if (
       selectedNetwork === ChainName.SOLANA ||
-      selectedNetwork === ChainName.TRON
+      selectedNetwork === ChainName.TRON ||
+      selectedNetwork === ChainName.BTC
     )
       return selectedNetwork
     if (CHAIN_NAMES_TO_IDS[selectedNetwork] !== evmChainId) {
@@ -104,8 +107,16 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
   }, [selectedCoin, sourceChain, tokenOptions])
   const [targetAddress, setTargetAddress] = useState<string>()
   const isApproved = useMemo(() => {
-    return allowance >= amount + serviceFee
+    return allowance >= +amount + serviceFee
   }, [allowance, amount, serviceFee, dAppOption])
+
+  const amountToShow = useMemo(() => {
+    if (sourceChain === ChainName.BTC || targetChain === ChainName.BTC) {
+      return (+amount).toFixed(8)
+    }
+
+    return formatterFloat.format(feeDeduct ? +amount : +amount + serviceFee)
+  }, [amount, serviceFee, sourceChain, targetChain, feeDeduct])
 
   const updatePoolAddress = async () => {
     try {
@@ -228,12 +239,12 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
         setApproving(true)
         const approve = await erc20Contract.approve(
           targetAddress,
-          parseUnits((amount + serviceFee).toString(), decimals)
+          parseUnits(amountToShow, decimals)
         )
 
         await approve.wait()
         setApproving(false)
-        setAllowance(amount + serviceFee)
+        setAllowance(+amountToShow)
       } catch (error) {
         errorHandler(error)
         setApproving(false)
@@ -253,10 +264,7 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
           { type: 'address', value: targetAddress },
           {
             type: 'uint256',
-            value: parseUnits(
-              (amount + serviceFee).toString(),
-              decimals
-            ).toString()
+            value: parseUnits(amountToShow, decimals).toString()
           }
         ]
 
@@ -268,11 +276,10 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
           tronWeb.address.toHex(tronAddress)
         )
         const signedTx = await signTronTransaction(tx.transaction)
-        const result = await tronWeb.trx.sendRawTransaction(signedTx)
-        console.log(result)
+        await tronWeb.trx.sendRawTransaction(signedTx)
 
         setApproving(false)
-        setAllowance(amount + serviceFee)
+        setAllowance(+amountToShow)
       } catch (error) {
         errorHandler(error)
         setApproving(false)
@@ -300,8 +307,7 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
           fromTokenAccount.address, // source
           toPublicKey, // dest
           solanaAddress as PublicKey,
-          +(amount + serviceFee).toFixed(decimals || 9) *
-            Math.pow(10, decimals ?? 6), // amount * LAMPORTS_PER_SOL,
+          +amountToShow * Math.pow(10, decimals ?? 6), // amount * LAMPORTS_PER_SOL,
           [],
           TOKEN_PROGRAM_ID
         )
@@ -330,9 +336,9 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
             : 0
 
         await sleep(1000)
-      } while (allowAmount < amount + serviceFee || retryCount++ < 5)
+      } while (allowAmount < +amountToShow || retryCount++ < 5)
 
-      setAllowance(amount + serviceFee)
+      setAllowance(+amountToShow)
       setApproving(false)
     } catch (e) {
       errorHandler(e)
@@ -342,12 +348,11 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
     decimals,
     tokenAddress,
     walletProvider,
-    amount,
     targetAddress,
     tronAddress,
     signSolanaTransaction,
     signTronTransaction,
-    serviceFee
+    amountToShow
   ])
 
   return useMemo(

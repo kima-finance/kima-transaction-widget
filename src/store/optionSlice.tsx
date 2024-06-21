@@ -28,18 +28,21 @@ export interface OptionState {
   sourceChain: string // origin network on UI
   targetChain: string // target network on UI
   targetAddress: string // target address on UI
+  bitcoinAddress: string // bitcoin address from xverse wallet
+  bitcoinPubkey: string // bitcoin pubkey from xverse wallet
   tokenOptions: TokenOptions // token options from blockchain endpoint
   solanaConnectModal: boolean // solana wallet connection modal state - open or closed
   tronConnectModal: boolean // tron wallet connection modal state - open or closed
   helpPopup: boolean // shows popup to show help instructions
   hashPopup: boolean // shows popup to show hashes of transactions (kima tx, pull & release hashes)
   bankPopup: boolean // shows popup to simulate bank transfer
+  pendingTxPopup: boolean // shows popup to show pending transactions
   walletAutoConnect: boolean // propmpt metamask connect automatically
   provider: any // Ethereum wallet provider
   dAppOption: DAppOptions // specify which dApp is using this widget
   solanaProvider: any // selected solana wallet provider - phantom, solflare or ...
   submitted: boolean // if transaction is submitted, shows Transaction Widget to monitor status
-  amount: number // amount input
+  amount: string // amount input
   feeDeduct: boolean // whether deduct fee from amount or not
   transactionOption?: TransactionOption // input option from dApp
   errorHandler: Function // error callback function from dApp
@@ -54,6 +57,7 @@ export interface OptionState {
   kimaExplorerUrl: string // URL for kima explore (testnet, staging or demo)
   txId: number // transaction id to monitor it's status
   selectedToken: string // Currently selected token
+  expireTime: string // Bitcoi HTLC expiration time
   avilableTokenList: Array<string> // Available token list by source, target chain
   compliantOption: boolean // option to check compliant addresses
   sourceCompliant: string // source address is compliant or not
@@ -74,17 +78,20 @@ const initialState: OptionState = {
   sourceChain: '',
   targetChain: '',
   targetAddress: '',
+  bitcoinAddress: '',
+  bitcoinPubkey: '',
   solanaConnectModal: false,
   tronConnectModal: false,
   helpPopup: false,
   hashPopup: false,
+  pendingTxPopup: false,
   bankPopup: false,
   walletAutoConnect: true,
   provider: undefined,
   dAppOption: DAppOptions.None,
   solanaProvider: undefined,
   submitted: false,
-  amount: 0,
+  amount: '',
   feeDeduct: false,
   errorHandler: () => void 0,
   closeHandler: () => void 0,
@@ -109,7 +116,8 @@ const initialState: OptionState = {
   targetNetworkFetching: false,
   signature: '',
   uuid: '',
-  kycStatus: ''
+  kycStatus: '',
+  expireTime: '1 hour'
 }
 
 export const optionSlice = createSlice({
@@ -120,12 +128,12 @@ export const optionSlice = createSlice({
       state.submitted = false
       state.txId = -1
       state.serviceFee = -1
-      state.amount = 0
+      state.amount = ''
       state.targetAddress = ''
       state.compliantOption = true
       state.sourceCompliant = 'low'
       state.targetCompliant = 'low'
-      state.useFIAT = false
+      ;(state.bitcoinAddress = ''), (state.useFIAT = false)
       ;(state.tokenOptions = {}),
         (state.bankDetails = {
           iban: '',
@@ -153,6 +161,12 @@ export const optionSlice = createSlice({
     setTargetAddress: (state, action: PayloadAction<string>) => {
       state.targetAddress = action.payload
     },
+    setBitcoinAddress: (state, action: PayloadAction<string>) => {
+      state.bitcoinAddress = action.payload
+    },
+    setBitcoinPubkey: (state, action: PayloadAction<string>) => {
+      state.bitcoinPubkey = action.payload
+    },
     setSolanaConnectModal: (state, action: PayloadAction<boolean>) => {
       state.solanaConnectModal = action.payload
     },
@@ -164,6 +178,9 @@ export const optionSlice = createSlice({
     },
     setHashPopup: (state, action: PayloadAction<boolean>) => {
       state.hashPopup = action.payload
+    },
+    setPendingTxPopup: (state, action: PayloadAction<boolean>) => {
+      state.pendingTxPopup = action.payload
     },
     setBankPopup: (state, action: PayloadAction<boolean>) => {
       state.bankPopup = action.payload
@@ -186,7 +203,7 @@ export const optionSlice = createSlice({
     setTransactionOption: (state, action: PayloadAction<TransactionOption>) => {
       state.transactionOption = action.payload
     },
-    setAmount: (state, action: PayloadAction<number>) => {
+    setAmount: (state, action: PayloadAction<string>) => {
       state.amount = action.payload
     },
     setErrorHandler: (state, action: PayloadAction<Function>) => {
@@ -257,6 +274,9 @@ export const optionSlice = createSlice({
     },
     setKYCStatus: (state, action: PayloadAction<string>) => {
       state.kycStatus = action.payload
+    },
+    setExpireTime: (state, action: PayloadAction<string>) => {
+      state.expireTime = action.payload
     }
   }
 })
@@ -269,10 +289,13 @@ export const {
   setSourceChain,
   setTargetChain,
   setTargetAddress,
+  setBitcoinAddress,
+  setBitcoinPubkey,
   setSolanaConnectModal,
   setTronConnectModal,
   setHelpPopup,
   setHashPopup,
+  setPendingTxPopup,
   setBankPopup,
   setSolanaProvider,
   setProvider,
@@ -303,7 +326,8 @@ export const {
   setTargetChainFetching,
   setSignature,
   setUuid,
-  setKYCStatus
+  setKYCStatus,
+  setExpireTime
 } = optionSlice.actions
 
 export default optionSlice.reducer

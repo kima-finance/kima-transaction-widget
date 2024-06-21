@@ -578,6 +578,114 @@
         }
       }
 
+      .expire-time-dropdown {
+        position: relative;
+        border-radius: 1em;
+        padding: 0.5em;
+        padding-right: 3em;
+        height: 2.8em;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        box-sizing: content-box;
+
+        .expire-time-wrapper {
+          display: flex;
+          align-items: center;
+          border-radius: 1em;
+          font-size: 1em;
+          font-weight: 500;
+          padding: 0.2em;
+          padding-right: 0.5em;
+          padding-left: 0.5em;
+          // background: white;
+          color: black;
+        }
+
+        &.dark {
+          .coin-wrapper {
+            // background: $borderSecondary;
+            color: white;
+          }
+        }
+
+        &:before {
+          position: absolute;
+          content: '';
+          width: 0.8em;
+          height: 0.8em;
+          right: 1.1em;
+          top: 1.7em;
+          border-top: 2px solid;
+          border-right: 2px solid;
+          border-color: white;
+          transform: rotate(-45deg);
+          @include transition;
+        }
+
+        .expire-time-menu {
+          box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+          position: absolute;
+          z-index: 100;
+          max-height: 10em;
+          width: 100%;
+          top: calc(100% - 0.5em);
+          left: 0;
+          overflow: hidden;
+          @include transition;
+
+          .expire-time-item {
+            padding: 0.5em 1em;
+            margin: 0;
+            @include transition;
+            display: flex;
+            align-items: center;
+
+            p {
+              width: 100%;
+              text-align: center;
+              margin: 0;
+            }
+
+            &:hover {
+              background: $hover;
+            }
+          }
+
+          &.light {
+            background: white;
+          }
+
+          &.dark {
+            background: $progressbarDark;
+          }
+
+          &.collapsed {
+            max-height: 0;
+            opacity: 0;
+          }
+        }
+
+        &.light {
+          background: $progressbarLight;
+
+          &:before {
+            border-color: black;
+          }
+        }
+
+        &.collapsed {
+          &:before {
+            transform: rotate(135deg);
+            top: 1.2em;
+          }
+        }
+
+        &.dark {
+          background: $progressbarDark;
+        }
+      }
+
       .network-dropdown {
         position: relative;
         border-radius: 1em;
@@ -1229,6 +1337,8 @@
     }
   }
 
+  
+
   .secondary-button {
     border-radius: 0.8em;
     width: 10em;
@@ -1273,6 +1383,15 @@
     }
   }
 
+  .tx-button {
+    margin-right: 1em;
+    column-gap: 0.5em;
+    width: 5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
   .dropdown-menu {
     box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
     position: absolute;
@@ -1307,7 +1426,7 @@
     }
   }
 
-  .error-tooltip {
+  .error-tooltip, .popup-tooltip {
     &.dark {
       color: black;
       background-color: white;

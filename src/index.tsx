@@ -101,7 +101,7 @@ const zkEVM = {
 const metadata = {
   name: 'Kima Transaction Widget',
   description: 'Frontend widget for Kima integration for dApps',
-  url: 'https://kima.finance',
+  url: 'https://kima.network',
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 }
 

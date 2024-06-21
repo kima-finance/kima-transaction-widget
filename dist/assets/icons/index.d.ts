@@ -21,3 +21,4 @@ export { default as BankIcon } from './Bank';
 export { default as BSCIcon } from './BSC';
 export { default as KEURICON } from './KEUR';
 export { default as TronIcon } from './Tron';
+export { default as BTCIcon } from './BTC';

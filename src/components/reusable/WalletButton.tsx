@@ -18,7 +18,6 @@ import { ChainName } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 import { connectWalletBtn } from '../../utils/testId'
 import useBalance from '../../hooks/useBalance'
-import { formatterFloat } from '../../helpers/functions'
 import { useWeb3Modal } from '@web3modal/ethers5/react'
 
 const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
@@ -28,7 +27,8 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const sourceCompliant = useSelector(selectSourceCompliant)
   const compliantOption = useSelector(selectCompliantOption)
   const selectedNetwork = useSelector(selectSourceChain)
-  const { isReady, statusMessage, walletAddress } = useIsWalletReady()
+  const { isReady, statusMessage, walletAddress, connectBitcoinWallet } =
+    useIsWalletReady()
   const { balance } = useBalance()
   const { open } = useWeb3Modal()
 
@@ -40,6 +40,11 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
 
     if (selectedNetwork === ChainName.TRON) {
       dispatch(setTronConnectModal(true))
+      return
+    }
+
+    if (selectedNetwork === ChainName.BTC) {
+      connectBitcoinWallet()
       return
     }
 
@@ -71,7 +76,8 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
 
       {isReady ? (
         <p className='balance-info'>
-          {formatterFloat.format(balance)} {selectedCoin} available
+          {balance.toFixed(selectedCoin === 'WBTC' ? 8 : 2)}{' '}
+          {selectedNetwork === ChainName.BTC ? 'BTC' : selectedCoin} available
         </p>
       ) : null}
     </div>

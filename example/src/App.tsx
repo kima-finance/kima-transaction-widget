@@ -22,7 +22,7 @@ const App = () => {
         <div className='container'>
           <KimaTransactionWidget
             theme={{
-              colorMode: ColorModeOptions.dark,
+              colorMode: ColorModeOptions.light,
               fontSize: FontSizeOptions.medium
             }}
             mode={ModeOptions.bridge}
@@ -31,7 +31,7 @@ const App = () => {
             kimaNodeProviderQuery='https://api-staging.kima.finance'
             // autoSwitchChain={false}
             // defaultToken={'USDK'}
-            useFIAT={true}
+            // useFIAT={true}
             // titleOption={{
             //   initialTitle: 'New Purchase'
             // }}

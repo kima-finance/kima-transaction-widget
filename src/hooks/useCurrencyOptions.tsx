@@ -8,7 +8,7 @@ import {
 } from '../store/selectors'
 import { ChainName } from '../utils/constants'
 import { useDispatch } from 'react-redux'
-import { setAvailableTokenList } from '../store/optionSlice'
+import { setAvailableTokenList, setSelectedToken } from '../store/optionSlice'
 import toast from 'react-hot-toast'
 
 export default function useCurrencyOptions() {
@@ -33,8 +33,19 @@ export default function useCurrencyOptions() {
           `${nodeProviderQuery}/kima-finance/kima-blockchain/chains/get_currencies/${originNetwork}/${targetNetwork}`
         )
 
-        dispatch(setAvailableTokenList(coins.Currencies || ['USDK']))
-        setOptions(coins.Currencies?.length ? coins.Currencies[0] : 'USDK')
+        let tokenList = coins.Currencies.map((coin: string) =>
+          coin.toUpperCase()
+        ) || ['USDK']
+        if (
+          originNetwork === ChainName.BTC ||
+          targetNetwork === ChainName.BTC
+        ) {
+          tokenList = ['WBTC']
+        }
+
+        dispatch(setSelectedToken(tokenList[0]))
+        dispatch(setAvailableTokenList(tokenList))
+        setOptions(tokenList[0])
       } catch (e) {
         console.log('rpc disconnected', e)
         toast.error('rpc disconnected')

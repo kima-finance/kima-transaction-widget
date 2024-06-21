@@ -10,9 +10,9 @@ import {
   OptimismIcon,
   BankIcon,
   KEURICON,
-  TronIcon
+  TronIcon,
+  BTCIcon
 } from '../assets/icons'
-import { POLYGON_KEUR_ADDRESS, ETHEREUM_KEUR_ADDRESS } from './config'
 
 export enum ChainName {
   ETHEREUM = 'ETH',
@@ -24,7 +24,8 @@ export enum ChainName {
   OPTIMISM = 'OPT',
   POLYGON_ZKEVM = 'ZKE',
   TRON = 'TRX',
-  FIAT = 'FIAT'
+  FIAT = 'FIAT',
+  BTC = 'BTC'
 }
 
 export enum SupportedChainId {
@@ -57,7 +58,8 @@ export const CHAIN_NAMES_TO_STRING: { [chainName: string]: string } = {
   [ChainName.ARBITRUM]: 'Arbitrum',
   [ChainName.POLYGON_ZKEVM]: 'Polygon zkEVM',
   [ChainName.TRON]: 'Tron',
-  [ChainName.FIAT]: 'Pay with FIAT'
+  [ChainName.FIAT]: 'Pay with FIAT',
+  [ChainName.BTC]: 'Bitcoin'
 }
 
 export const CHAIN_STRING_TO_NAME: { [chainName: string]: ChainName } = {
@@ -70,7 +72,8 @@ export const CHAIN_STRING_TO_NAME: { [chainName: string]: ChainName } = {
   ['Arbitrum']: ChainName.ARBITRUM,
   ['Polygon zkEVM']: ChainName.POLYGON_ZKEVM,
   ['Tron']: ChainName.TRON,
-  ['Pay with FIAT']: ChainName.FIAT
+  ['Pay with FIAT']: ChainName.FIAT,
+  ['Bitcoin']: ChainName.BTC
 }
 
 export const CHAIN_NAMES_TO_EXPLORER: { [chainName: string]: string } = {
@@ -82,20 +85,22 @@ export const CHAIN_NAMES_TO_EXPLORER: { [chainName: string]: string } = {
   [ChainName.OPTIMISM]: 'sepolia-optimism.etherscan.io',
   [ChainName.ARBITRUM]: 'sepolia.arbiscan.io',
   [ChainName.POLYGON_ZKEVM]: 'cardona-zkevm.polygonscan.com',
-  [ChainName.TRON]: 'nile.tronscan.org/#'
+  [ChainName.TRON]: 'nile.tronscan.org/#',
+  [ChainName.BTC]: 'mempool.space/testnet/tx'
 }
 
-export const CHAIN_NAMES_TO_GECKO_ID: { [chainName: string]: string } = {
-  [ChainName.ETHEREUM]: 'ethereum',
-  [ChainName.POLYGON]: 'matic-network',
-  [ChainName.AVALANCHE]: 'avalanche-2',
-  [ChainName.SOLANA]: 'solana',
-  [ChainName.BSC]: 'binancecoin',
-  [ChainName.OPTIMISM]: 'ethereum',
-  [ChainName.ARBITRUM]: 'ethereum',
-  [ChainName.POLYGON_ZKEVM]: 'matic-network',
-  [ChainName.TRON]: 'tron'
-}
+// export const CHAIN_NAMES_TO_GECKO_ID: { [chainName: string]: string } = {
+//   [ChainName.ETHEREUM]: 'ethereum',
+//   [ChainName.POLYGON]: 'matic-network',
+//   [ChainName.AVALANCHE]: 'avalanche-2',
+//   [ChainName.SOLANA]: 'solana',
+//   [ChainName.BSC]: 'binancecoin',
+//   [ChainName.OPTIMISM]: 'ethereum',
+//   [ChainName.ARBITRUM]: 'ethereum',
+//   [ChainName.POLYGON_ZKEVM]: 'matic-network',
+//   [ChainName.TRON]: 'tron',
+//   [ChainName.BTC]: 'btc'
+// }
 
 export const CHAIN_IDS_TO_NAMES: { [chainId: number]: string } = {
   [SupportedChainId.ETHEREUM]: ChainName.ETHEREUM,
@@ -122,6 +127,11 @@ export const networkOptions = [
     id: ChainName.BSC,
     label: 'Binance',
     icon: BSCIcon
+  },
+  {
+    id: ChainName.BTC,
+    label: 'Bitcoin',
+    icon: BTCIcon
   },
   {
     id: ChainName.ETHEREUM,
@@ -188,13 +198,16 @@ export const COIN_LIST: CoinOptions = {
   },
   KEUR: {
     symbol: 'KEUR',
-    icon: KEURICON,
-    address: {
-      ETH: ETHEREUM_KEUR_ADDRESS,
-      POL: POLYGON_KEUR_ADDRESS
-    }
+    icon: KEURICON
+  },
+
+  WBTC: {
+    symbol: 'WBTC',
+    icon: BTCIcon
   }
 }
+
+export const ExpireTimeOptions = ['1 hour', '2 hours', '3 hours']
 
 export enum TransactionStatus {
   AVAILABLE = 'Available',
