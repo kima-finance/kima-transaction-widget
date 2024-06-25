@@ -15,7 +15,7 @@ import toast, { toast as toast$1, Toaster } from 'react-hot-toast';
 import { useWeb3ModalProvider, useSwitchNetwork, useWeb3ModalAccount, useWeb3ModalEvents, useWeb3Modal, useWeb3ModalTheme, createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react';
 import { Tooltip } from 'react-tooltip';
 import { WalletReadyState } from '@solana/wallet-adapter-base';
-import { getAddress, AddressPurpose, BitcoinNetworkType, getCapabilities } from 'sats-connect';
+import { getAddress, AddressPurpose, BitcoinNetworkType, getCapabilities, sendBtcTransaction } from 'sats-connect';
 import { Contract } from '@ethersproject/contracts';
 import { formatUnits, parseUnits } from '@ethersproject/units';
 import { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, AccountLayout } from '@solana/spl-token';
@@ -752,7 +752,7 @@ const CHAIN_NAMES_TO_EXPLORER = {
   [ChainName.ARBITRUM]: 'sepolia.arbiscan.io',
   [ChainName.POLYGON_ZKEVM]: 'cardona-zkevm.polygonscan.com',
   [ChainName.TRON]: 'nile.tronscan.org/#',
-  [ChainName.BTC]: 'mempool.space/testnet/tx'
+  [ChainName.BTC]: 'mempool.space/testnet'
 };
 const CHAIN_IDS_TO_NAMES = {
   [SupportedChainId.ETHEREUM]: ChainName.ETHEREUM,
@@ -834,7 +834,8 @@ const ExpireTimeOptions = ['1 hour', '2 hours', '3 hours'];
 var TransactionStatus;
 (function (TransactionStatus) {
   TransactionStatus["AVAILABLE"] = "Available";
-  TransactionStatus["CONFIRMED"] = "Confirmed";
+  TransactionStatus["CONFIRMED"] = "Pull_Confirmed";
+  TransactionStatus["PULLED"] = "Pulled";
   TransactionStatus["PAID"] = "Paid";
   TransactionStatus["COMPLETED"] = "Completed";
   TransactionStatus["FAILEDTOPAY"] = "FailedToPay";
@@ -2540,7 +2541,7 @@ const ConfirmDetails = ({
   }, [mode, transactionOption, targetAddress]);
   const amountToShow = useMemo(() => {
     if (originNetwork === ChainName.BTC || targetNetwork === ChainName.BTC) {
-      return (+amount).toFixed(8);
+      return (feeDeduct ? +amount : +amount + serviceFee).toFixed(8);
     }
     return formatterFloat.format(feeDeduct ? +amount : +amount + serviceFee);
   }, [amount, serviceFee, originNetwork, targetNetwork, feeDeduct]);
@@ -3062,7 +3063,7 @@ const TransactionWidget = ({
     console.log(data.status);
     setErrorStep(-1);
     const status = data.status;
-    if (status === TransactionStatus.AVAILABLE) {
+    if (status === TransactionStatus.AVAILABLE || status === TransactionStatus.PULLED) {
       setStep(1);
       setPercent(25);
       setLoadingStep(1);
@@ -3304,7 +3305,7 @@ const SingleForm = ({
   }, React.createElement("span", null, (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount) || ''), React.createElement("div", {
     className: 'coin-wrapper'
   }, React.createElement(Icon, null), selectedCoin))), mode === ModeOptions.bridge && serviceFee > 0 ? React.createElement(CustomCheckbox, {
-    text: `Deduct $${formatterFloat.format(serviceFee)} fee`,
+    text: sourceNetwork === ChainName.BTC ? `Deduct ${formatterFloat.format(serviceFee)} BTC fee` : `Deduct $${formatterFloat.format(serviceFee)} fee`,
     checked: feeDeduct,
     setCheck: value => dispatch(setFeeDeduct(value))
   }) : null, sourceNetwork === ChainName.BTC || targetNetwork === ChainName.BTC ? React.createElement("div", {
@@ -3367,20 +3368,20 @@ function useServiceFee(isConfirming = false, feeURL) {
         dispatch(setServiceFee(0));
         return;
       }
-      let sourceFee = 0;
-      let targetFee = 0;
       if (sourceChain === ChainName.BTC) {
-        sourceFee = 0;
-      } else {
-        const sourceChainResult = await fetchWrapper.get(`${feeURL}/fee/${sourceChain}`);
-        sourceFee = sourceChainResult.fee.split('-')[0];
+        dispatch(setServiceFee(0.0004));
+        return;
       }
       if (targetChain === ChainName.BTC) {
-        targetFee = 0;
-      } else {
-        const targetChainResult = await fetchWrapper.get(`${feeURL}/fee/${targetChain}`);
-        targetFee = targetChainResult.fee.split('-')[0];
+        dispatch(setServiceFee(0));
+        return;
       }
+      let sourceFee = 0;
+      let targetFee = 0;
+      const sourceChainResult = await fetchWrapper.get(`${feeURL}/fee/${sourceChain}`);
+      sourceFee = sourceChainResult.fee.split('-')[0];
+      const targetChainResult = await fetchWrapper.get(`${feeURL}/fee/${targetChain}`);
+      targetFee = targetChainResult.fee.split('-')[0];
       let fee = +sourceFee + +targetFee;
       dispatch(setServiceFee(fee));
     } catch (e) {
@@ -7015,15 +7016,16 @@ function useAllowance({
     return '';
   }, [selectedCoin, sourceChain, tokenOptions]);
   const [targetAddress, setTargetAddress] = useState();
-  const isApproved = useMemo(() => {
-    return allowance >= +amount + serviceFee;
-  }, [allowance, amount, serviceFee, dAppOption]);
+  const [poolAddress, setPoolAddress] = useState('');
   const amountToShow = useMemo(() => {
     if (sourceChain === ChainName.BTC || targetChain === ChainName.BTC) {
-      return (+amount).toFixed(8);
+      return (feeDeduct ? +amount : +amount + serviceFee).toFixed(8);
     }
     return formatterFloat.format(feeDeduct ? +amount : +amount + serviceFee);
   }, [amount, serviceFee, sourceChain, targetChain, feeDeduct]);
+  const isApproved = useMemo(() => {
+    return allowance >= +amountToShow;
+  }, [allowance, amountToShow, dAppOption]);
   const updatePoolAddress = async () => {
     try {
       var _result$tssPubkey;
@@ -7035,6 +7037,7 @@ function useAllowance({
         console.log('solana pool address is missing');
         toast.error('solana pool address is missing');
       }
+      setPoolAddress(result.tssPubkey[0].reserved);
       setTargetAddress(sourceChain === ChainName.SOLANA ? result.tssPubkey[0].eddsa : sourceChain === ChainName.TRON ? fromHex(result.tssPubkey[0].ecdsa) : result.tssPubkey[0].ecdsa);
     } catch (e) {
       console.log('rpc disconnected', e);
@@ -7154,8 +7157,9 @@ function useAllowance({
   }, [decimals, tokenAddress, walletProvider, targetAddress, tronAddress, signSolanaTransaction, signTronTransaction, amountToShow]);
   return useMemo(() => ({
     isApproved,
+    poolAddress,
     approve
-  }), [isApproved, approve]);
+  }), [isApproved, poolAddress, approve]);
 }
 
 const AddressInputWizard = () => {
@@ -7346,7 +7350,8 @@ const TransferWidget = ({
   } = useIsWalletReady();
   const {
     isApproved: approved,
-    approve
+    approve,
+    poolAddress
   } = useAllowance({
     setApproving
   });
@@ -7448,8 +7453,8 @@ const TransferWidget = ({
     return false;
   };
   const handleBTCFinish = async hash => {
-    await sleep(1000);
     do {
+      await sleep(10000);
       try {
         var _txInfo$status;
         const txInfo = await fetchWrapper.get(`${backendUrl}/btc/transaction?hash=${hash}`);
@@ -7459,7 +7464,6 @@ const TransferWidget = ({
           setBTCHash(hash);
           break;
         }
-        await sleep(10000);
       } catch (e) {
         console.log(e);
       }
@@ -7471,9 +7475,15 @@ const TransferWidget = ({
       errorHandler('Fee is not calculated!');
       return;
     }
-    if (dAppOption !== DAppOptions.LPDrain && balance < +amount) {
+    if (dAppOption !== DAppOptions.LPDrain && balance < (feeDeduct ? +amount : +amount + fee)) {
       toast$1.error('Insufficient balance!');
       errorHandler('Insufficient balance!');
+      return;
+    }
+    if (sourceChain === ChainName.BTC && +amount < 0.0004) {
+      toast$1.error('Minimum BTC amount is 0.0004!');
+      errorHandler('Minimum BTC amount is 0.0004!');
+      return;
     }
     if (sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT) {
       if (kycStatus !== 'approved') {
@@ -7495,11 +7505,33 @@ const TransferWidget = ({
       setBTCSigning(true);
       const unixTimestamp = Math.floor(Date.now() / 1000) + (expireTime === '1 hour' ? 3600 : expireTime === '2 hours' ? 7200 : 10800);
       setBTCTimestamp(unixTimestamp);
-      const poolAddress = 'tb1qxcfpzll5hjzjrm5sfwp3jpkf2edu2ywy3lr2zn';
       const htlcScript = createHTLCScript(bitcoinAddress, bitcoinPubkey, poolAddress, unixTimestamp, networks.testnet);
       const htlcAddress = htlcP2WSHAddress(htlcScript, networks.testnet);
-      handleBTCFinish('ef3e7849ec3016ae15a901c60d61a026190ff019d85f239df8830c9dd8264e98');
-      console.log(htlcAddress);
+      console.log(htlcAddress, poolAddress);
+      try {
+        await sendBtcTransaction({
+          payload: {
+            network: {
+              type: BitcoinNetworkType.Testnet
+            },
+            recipients: [{
+              address: htlcAddress,
+              amountSats: BigInt(Math.round((feeDeduct ? +amount : +amount + fee) * 100000000))
+            }],
+            senderAddress: bitcoinAddress
+          },
+          onFinish: async hash => {
+            handleBTCFinish(hash);
+          },
+          onCancel: () => {
+            toast$1.error('Transaction cancelled.');
+            setBTCSigning(false);
+          }
+        });
+      } catch (e) {
+        setBTCSigning(false);
+        console.log(e);
+      }
       return;
     }
     try {
@@ -7514,6 +7546,12 @@ const TransferWidget = ({
         return;
       }
       let params;
+      let feeParam;
+      if (sourceChain === ChainName.BTC || targetChain === ChainName.BTC) {
+        feeParam = fee.toFixed(8);
+      } else {
+        feeParam = fee.toFixed(2);
+      }
       if (sourceChain === ChainName.BTC) {
         params = JSON.stringify({
           originAddress: walletAddress,
@@ -7521,8 +7559,8 @@ const TransferWidget = ({
           targetAddress: mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
           targetChain: targetChain,
           symbol: selectedToken,
-          amount: amount,
-          fee,
+          amount: feeDeduct ? (+amount - fee).toString() : amount,
+          fee: feeParam,
           htlcCreationHash: btcHash,
           htlcCreationVout: 0,
           htlcExpirationTimestamp: btcTimestamp.toString(),
@@ -7536,8 +7574,8 @@ const TransferWidget = ({
           targetAddress: mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
           targetChain: targetChain,
           symbol: selectedToken,
-          amount: amount,
-          fee,
+          amount: feeDeduct ? (+amount - fee).toString() : amount,
+          fee: feeParam,
           htlcCreationHash: '',
           htlcCreationVout: 0,
           htlcExpirationTimestamp: '0',

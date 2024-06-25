@@ -106,17 +106,19 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
     return ''
   }, [selectedCoin, sourceChain, tokenOptions])
   const [targetAddress, setTargetAddress] = useState<string>()
-  const isApproved = useMemo(() => {
-    return allowance >= +amount + serviceFee
-  }, [allowance, amount, serviceFee, dAppOption])
+  const [poolAddress, setPoolAddress] = useState<string>('')
 
   const amountToShow = useMemo(() => {
     if (sourceChain === ChainName.BTC || targetChain === ChainName.BTC) {
-      return (+amount).toFixed(8)
+      return (feeDeduct ? +amount : +amount + serviceFee).toFixed(8)
     }
 
     return formatterFloat.format(feeDeduct ? +amount : +amount + serviceFee)
   }, [amount, serviceFee, sourceChain, targetChain, feeDeduct])
+
+  const isApproved = useMemo(() => {
+    return allowance >= +amountToShow
+  }, [allowance, amountToShow, dAppOption])
 
   const updatePoolAddress = async () => {
     try {
@@ -131,6 +133,8 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
         console.log('solana pool address is missing')
         toast.error('solana pool address is missing')
       }
+
+      setPoolAddress(result.tssPubkey[0].reserved)
       setTargetAddress(
         sourceChain === ChainName.SOLANA
           ? result.tssPubkey[0].eddsa
@@ -358,8 +362,9 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
   return useMemo(
     () => ({
       isApproved,
+      poolAddress,
       approve
     }),
-    [isApproved, approve]
+    [isApproved, poolAddress, approve]
   )
 }

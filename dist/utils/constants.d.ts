@@ -1,4 +1,3 @@
-/// <reference types="react" />
 export declare enum ChainName {
     ETHEREUM = "ETH",
     POLYGON = "POL",
@@ -65,7 +64,8 @@ export declare const COIN_LIST: CoinOptions;
 export declare const ExpireTimeOptions: string[];
 export declare enum TransactionStatus {
     AVAILABLE = "Available",
-    CONFIRMED = "Confirmed",
+    CONFIRMED = "Pull_Confirmed",
+    PULLED = "Pulled",
     PAID = "Paid",
     COMPLETED = "Completed",
     FAILEDTOPAY = "FailedToPay",

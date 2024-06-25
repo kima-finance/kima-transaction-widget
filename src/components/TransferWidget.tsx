@@ -72,7 +72,7 @@ import useWidth from '../hooks/useWidth'
 import useSign from '../hooks/useSign'
 import TronWalletConnectModal from './modals/TronWalletConnectModal'
 import { createHTLCScript, htlcP2WSHAddress } from '../utils/btc/htlc'
-// import { BitcoinNetworkType, sendBtcTransaction } from 'sats-connect'
+import { BitcoinNetworkType, sendBtcTransaction } from 'sats-connect'
 import * as bitcoin from 'bitcoinjs-lib' // you may comment this out during development to use the Node.js library so that you can get intellisense
 import { sleep } from '../helpers/functions'
 // import PendingTxPopup from './modals/PendingTxPopup'
@@ -135,7 +135,11 @@ export const TransferWidget = ({
   const [isConfirming, setConfirming] = useState(false)
   const [isVerifying, setVerifying] = useState(false)
   const { isReady, walletAddress } = useIsWalletReady()
-  const { isApproved: approved, approve } = useAllowance({ setApproving })
+  const {
+    isApproved: approved,
+    approve,
+    poolAddress
+  } = useAllowance({ setApproving })
   const { isSigned, sign } = useSign({ setSigning })
   const { serviceFee: fee } = useServiceFee(isConfirming, feeURL)
   const { balance } = useBalance()
@@ -252,8 +256,8 @@ export const TransferWidget = ({
   }
 
   const handleBTCFinish = async (hash) => {
-    await sleep(1000)
     do {
+      await sleep(10000)
       try {
         const txInfo: any = await fetchWrapper.get(
           `${backendUrl}/btc/transaction?hash=${hash}`
@@ -265,7 +269,6 @@ export const TransferWidget = ({
           setBTCHash(hash)
           break
         }
-        await sleep(10000)
       } catch (e) {
         console.log(e)
       }
@@ -279,11 +282,20 @@ export const TransferWidget = ({
       return
     }
 
-    if (dAppOption !== DAppOptions.LPDrain && balance < +amount) {
+    if (
+      dAppOption !== DAppOptions.LPDrain &&
+      balance < (feeDeduct ? +amount : +amount + fee)
+    ) {
       toast.error('Insufficient balance!')
       errorHandler('Insufficient balance!')
 
-      // return
+      return
+    }
+
+    if (sourceChain === ChainName.BTC && +amount < 0.0004) {
+      toast.error('Minimum BTC amount is 0.0004!')
+      errorHandler('Minimum BTC amount is 0.0004!')
+      return
     }
 
     if (sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT) {
@@ -319,7 +331,6 @@ export const TransferWidget = ({
             : 10800)
       setBTCTimestamp(unixTimestamp)
 
-      const poolAddress = 'tb1qxcfpzll5hjzjrm5sfwp3jpkf2edu2ywy3lr2zn'
       const htlcScript = createHTLCScript(
         bitcoinAddress,
         bitcoinPubkey,
@@ -329,39 +340,40 @@ export const TransferWidget = ({
       )
 
       const htlcAddress = htlcP2WSHAddress(htlcScript, bitcoin.networks.testnet)
+      console.log(htlcAddress, poolAddress)
 
-      handleBTCFinish(
-        'ef3e7849ec3016ae15a901c60d61a026190ff019d85f239df8830c9dd8264e98'
-      )
+      // handleBTCFinish(
+      //   '1f65d98ef3ada413eb9aa583554ac98977ffe4fb79c085f03283191e47a61e10'
+      // )
 
-      console.log(htlcAddress)
-      // try {
-      //   await sendBtcTransaction({
-      //     payload: {
-      //       network: {
-      //         type: BitcoinNetworkType.Testnet
-      //       },
-      //       recipients: [
-      //         {
-      //           address: htlcAddress!,
-      //           amountSats: BigInt(Math.round(+amount * 100000000))
-      //         }
-      //       ],
-      //       senderAddress: bitcoinAddress!
-      //     },
-      //     onFinish: async (hash) => {
-
-      //       handleBTCFinish(hash)
-      //     },
-      //     onCancel: () => {
-      //       toast.error('Transaction cancelled.')
-      //       setBTCSigning(false)
-      //     }
-      //   })
-      // } catch (e) {
-      // setBTCSigning(false)
-      //   console.log(e)
-      // }
+      try {
+        await sendBtcTransaction({
+          payload: {
+            network: {
+              type: BitcoinNetworkType.Testnet
+            },
+            recipients: [
+              {
+                address: htlcAddress!,
+                amountSats: BigInt(
+                  Math.round((feeDeduct ? +amount : +amount + fee) * 100000000)
+                )
+              }
+            ],
+            senderAddress: bitcoinAddress!
+          },
+          onFinish: async (hash) => {
+            handleBTCFinish(hash)
+          },
+          onCancel: () => {
+            toast.error('Transaction cancelled.')
+            setBTCSigning(false)
+          }
+        })
+      } catch (e) {
+        setBTCSigning(false)
+        console.log(e)
+      }
       return
     }
 
@@ -385,6 +397,13 @@ export const TransferWidget = ({
       }
 
       let params
+      let feeParam
+      if (sourceChain === ChainName.BTC || targetChain === ChainName.BTC) {
+        feeParam = fee.toFixed(8)
+      } else {
+        feeParam = fee.toFixed(2)
+      }
+
       if (sourceChain === ChainName.BTC) {
         params = JSON.stringify({
           originAddress: walletAddress,
@@ -395,8 +414,8 @@ export const TransferWidget = ({
               : targetAddress,
           targetChain: targetChain,
           symbol: selectedToken,
-          amount: amount,
-          fee,
+          amount: feeDeduct ? (+amount - fee).toString() : amount,
+          fee: feeParam,
           htlcCreationHash: btcHash,
           htlcCreationVout: 0,
           htlcExpirationTimestamp: btcTimestamp.toString(),
@@ -413,8 +432,8 @@ export const TransferWidget = ({
               : targetAddress,
           targetChain: targetChain,
           symbol: selectedToken,
-          amount: amount,
-          fee,
+          amount: feeDeduct ? (+amount - fee).toString() : amount,
+          fee: feeParam,
           htlcCreationHash: '',
           htlcCreationVout: 0,
           htlcExpirationTimestamp: '0',

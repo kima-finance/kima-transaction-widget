@@ -66,7 +66,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
 
   const amountToShow = useMemo(() => {
     if (originNetwork === ChainName.BTC || targetNetwork === ChainName.BTC) {
-      return (+amount).toFixed(8)
+      return (feeDeduct ? +amount : +amount + serviceFee).toFixed(8)
     }
 
     return formatterFloat.format(feeDeduct ? +amount : +amount + serviceFee)

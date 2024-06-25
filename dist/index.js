@@ -821,7 +821,7 @@ var SupportedChainId;
 var CHAIN_NAMES_TO_IDS = (_CHAIN_NAMES_TO_IDS = {}, _CHAIN_NAMES_TO_IDS[exports.SupportNetworks.ETHEREUM] = SupportedChainId.ETHEREUM, _CHAIN_NAMES_TO_IDS[exports.SupportNetworks.POLYGON] = SupportedChainId.POLYGON, _CHAIN_NAMES_TO_IDS[exports.SupportNetworks.AVALANCHE] = SupportedChainId.AVALANCHE, _CHAIN_NAMES_TO_IDS[exports.SupportNetworks.BSC] = SupportedChainId.BSC, _CHAIN_NAMES_TO_IDS[exports.SupportNetworks.OPTIMISM] = SupportedChainId.OPTIMISM, _CHAIN_NAMES_TO_IDS[exports.SupportNetworks.ARBITRUM] = SupportedChainId.ARBITRUM, _CHAIN_NAMES_TO_IDS[exports.SupportNetworks.POLYGON_ZKEVM] = SupportedChainId.POLYGON_ZKEM, _CHAIN_NAMES_TO_IDS);
 var CHAIN_NAMES_TO_STRING = (_CHAIN_NAMES_TO_STRIN = {}, _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.ETHEREUM] = 'Ethereum', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.POLYGON] = 'Polygon', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.AVALANCHE] = 'Avalanche', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.SOLANA] = 'Solana', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.BSC] = 'BNB Smart Chain', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.OPTIMISM] = 'Optimism', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.ARBITRUM] = 'Arbitrum', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.POLYGON_ZKEVM] = 'Polygon zkEVM', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.TRON] = 'Tron', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.FIAT] = 'Pay with FIAT', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.BTC] = 'Bitcoin', _CHAIN_NAMES_TO_STRIN);
 var CHAIN_STRING_TO_NAME = (_CHAIN_STRING_TO_NAME = {}, _CHAIN_STRING_TO_NAME['Ethereum'] = exports.SupportNetworks.ETHEREUM, _CHAIN_STRING_TO_NAME['Polygon'] = exports.SupportNetworks.POLYGON, _CHAIN_STRING_TO_NAME['Avalanche'] = exports.SupportNetworks.AVALANCHE, _CHAIN_STRING_TO_NAME['Solana'] = exports.SupportNetworks.SOLANA, _CHAIN_STRING_TO_NAME['Binance'] = exports.SupportNetworks.BSC, _CHAIN_STRING_TO_NAME['Optimism'] = exports.SupportNetworks.OPTIMISM, _CHAIN_STRING_TO_NAME['Arbitrum'] = exports.SupportNetworks.ARBITRUM, _CHAIN_STRING_TO_NAME['Polygon zkEVM'] = exports.SupportNetworks.POLYGON_ZKEVM, _CHAIN_STRING_TO_NAME['Tron'] = exports.SupportNetworks.TRON, _CHAIN_STRING_TO_NAME['Pay with FIAT'] = exports.SupportNetworks.FIAT, _CHAIN_STRING_TO_NAME['Bitcoin'] = exports.SupportNetworks.BTC, _CHAIN_STRING_TO_NAME);
-var CHAIN_NAMES_TO_EXPLORER = (_CHAIN_NAMES_TO_EXPLO = {}, _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.ETHEREUM] = 'sepolia.etherscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.POLYGON] = 'www.oklink.com/amoy', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.AVALANCHE] = 'testnet.snowtrace.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.SOLANA] = 'solscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.BSC] = 'testnet.bscscan.com', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.OPTIMISM] = 'sepolia-optimism.etherscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.ARBITRUM] = 'sepolia.arbiscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.POLYGON_ZKEVM] = 'cardona-zkevm.polygonscan.com', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.TRON] = 'nile.tronscan.org/#', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.BTC] = 'mempool.space/testnet/tx', _CHAIN_NAMES_TO_EXPLO);
+var CHAIN_NAMES_TO_EXPLORER = (_CHAIN_NAMES_TO_EXPLO = {}, _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.ETHEREUM] = 'sepolia.etherscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.POLYGON] = 'www.oklink.com/amoy', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.AVALANCHE] = 'testnet.snowtrace.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.SOLANA] = 'solscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.BSC] = 'testnet.bscscan.com', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.OPTIMISM] = 'sepolia-optimism.etherscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.ARBITRUM] = 'sepolia.arbiscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.POLYGON_ZKEVM] = 'cardona-zkevm.polygonscan.com', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.TRON] = 'nile.tronscan.org/#', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.BTC] = 'mempool.space/testnet', _CHAIN_NAMES_TO_EXPLO);
 var CHAIN_IDS_TO_NAMES = (_CHAIN_IDS_TO_NAMES = {}, _CHAIN_IDS_TO_NAMES[SupportedChainId.ETHEREUM] = exports.SupportNetworks.ETHEREUM, _CHAIN_IDS_TO_NAMES[SupportedChainId.POLYGON] = exports.SupportNetworks.POLYGON, _CHAIN_IDS_TO_NAMES[SupportedChainId.AVALANCHE] = exports.SupportNetworks.AVALANCHE, _CHAIN_IDS_TO_NAMES[SupportedChainId.BSC] = exports.SupportNetworks.BSC, _CHAIN_IDS_TO_NAMES[SupportedChainId.OPTIMISM] = exports.SupportNetworks.OPTIMISM, _CHAIN_IDS_TO_NAMES[SupportedChainId.ARBITRUM] = exports.SupportNetworks.ARBITRUM, _CHAIN_IDS_TO_NAMES[SupportedChainId.POLYGON_ZKEM] = exports.SupportNetworks.POLYGON_ZKEVM, _CHAIN_IDS_TO_NAMES);
 var networkOptions = [{
   id: exports.SupportNetworks.ARBITRUM,
@@ -898,7 +898,8 @@ var ExpireTimeOptions = ['1 hour', '2 hours', '3 hours'];
 var TransactionStatus;
 (function (TransactionStatus) {
   TransactionStatus["AVAILABLE"] = "Available";
-  TransactionStatus["CONFIRMED"] = "Confirmed";
+  TransactionStatus["CONFIRMED"] = "Pull_Confirmed";
+  TransactionStatus["PULLED"] = "Pulled";
   TransactionStatus["PAID"] = "Paid";
   TransactionStatus["COMPLETED"] = "Completed";
   TransactionStatus["FAILEDTOPAY"] = "FailedToPay";
@@ -3167,7 +3168,7 @@ var ConfirmDetails = function ConfirmDetails(_ref) {
   }, [mode, transactionOption, targetAddress]);
   var amountToShow = React.useMemo(function () {
     if (originNetwork === exports.SupportNetworks.BTC || targetNetwork === exports.SupportNetworks.BTC) {
-      return (+amount).toFixed(8);
+      return (feeDeduct ? +amount : +amount + serviceFee).toFixed(8);
     }
     return formatterFloat.format(feeDeduct ? +amount : +amount + serviceFee);
   }, [amount, serviceFee, originNetwork, targetNetwork, feeDeduct]);
@@ -3746,7 +3747,7 @@ var TransactionWidget = function TransactionWidget(_ref) {
     console.log(data.status);
     setErrorStep(-1);
     var status = data.status;
-    if (status === TransactionStatus.AVAILABLE) {
+    if (status === TransactionStatus.AVAILABLE || status === TransactionStatus.PULLED) {
       setStep(1);
       setPercent(25);
       setLoadingStep(1);
@@ -4001,7 +4002,7 @@ var SingleForm = function SingleForm(_ref) {
   }, React__default.createElement("span", null, (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount) || ''), React__default.createElement("div", {
     className: 'coin-wrapper'
   }, React__default.createElement(Icon, null), selectedCoin))), mode === exports.ModeOptions.bridge && serviceFee > 0 ? React__default.createElement(CustomCheckbox, {
-    text: "Deduct $" + formatterFloat.format(serviceFee) + " fee",
+    text: sourceNetwork === exports.SupportNetworks.BTC ? "Deduct " + formatterFloat.format(serviceFee) + " BTC fee" : "Deduct $" + formatterFloat.format(serviceFee) + " fee",
     checked: feeDeduct,
     setCheck: function setCheck(value) {
       return dispatch(setFeeDeduct(value));
@@ -4073,38 +4074,28 @@ function useServiceFee(isConfirming, feeURL) {
     try {
       if (!sourceChain || !targetChain || !isReady || !walletAddress || !targetAddress || !amount) return Promise.resolve();
       return Promise.resolve(_catch(function () {
-        function _temp4() {
-          function _temp2() {
-            var fee = +sourceFee + +targetFee;
-            dispatch(setServiceFee(fee));
-          }
-          var _temp = function () {
-            if (targetChain === exports.SupportNetworks.BTC) {
-              targetFee = 0;
-            } else {
-              return Promise.resolve(fetchWrapper.get(feeURL + "/fee/" + targetChain)).then(function (targetChainResult) {
-                targetFee = targetChainResult.fee.split('-')[0];
-              });
-            }
-          }();
-          return _temp && _temp.then ? _temp.then(_temp2) : _temp2(_temp);
-        }
         if (sourceChain === exports.SupportNetworks.FIAT || targetChain === exports.SupportNetworks.FIAT) {
+          dispatch(setServiceFee(0));
+          return;
+        }
+        if (sourceChain === exports.SupportNetworks.BTC) {
+          dispatch(setServiceFee(0.0004));
+          return;
+        }
+        if (targetChain === exports.SupportNetworks.BTC) {
           dispatch(setServiceFee(0));
           return;
         }
         var sourceFee = 0;
         var targetFee = 0;
-        var _temp3 = function () {
-          if (sourceChain === exports.SupportNetworks.BTC) {
-            sourceFee = 0;
-          } else {
-            return Promise.resolve(fetchWrapper.get(feeURL + "/fee/" + sourceChain)).then(function (sourceChainResult) {
-              sourceFee = sourceChainResult.fee.split('-')[0];
-            });
-          }
-        }();
-        return _temp3 && _temp3.then ? _temp3.then(_temp4) : _temp4(_temp3);
+        return Promise.resolve(fetchWrapper.get(feeURL + "/fee/" + sourceChain)).then(function (sourceChainResult) {
+          sourceFee = sourceChainResult.fee.split('-')[0];
+          return Promise.resolve(fetchWrapper.get(feeURL + "/fee/" + targetChain)).then(function (targetChainResult) {
+            targetFee = targetChainResult.fee.split('-')[0];
+            var fee = +sourceFee + +targetFee;
+            dispatch(setServiceFee(fee));
+          });
+        });
       }, function (e) {
         dispatch(setServiceFee(0));
         console.log('rpc disconnected', e);
@@ -7760,15 +7751,18 @@ function useAllowance(_ref) {
   var _useState3 = React.useState(),
     targetAddress = _useState3[0],
     setTargetAddress = _useState3[1];
-  var isApproved = React.useMemo(function () {
-    return allowance >= +amount + serviceFee;
-  }, [allowance, amount, serviceFee, dAppOption]);
+  var _useState4 = React.useState(''),
+    poolAddress = _useState4[0],
+    setPoolAddress = _useState4[1];
   var amountToShow = React.useMemo(function () {
     if (sourceChain === exports.SupportNetworks.BTC || targetChain === exports.SupportNetworks.BTC) {
-      return (+amount).toFixed(8);
+      return (feeDeduct ? +amount : +amount + serviceFee).toFixed(8);
     }
     return formatterFloat.format(feeDeduct ? +amount : +amount + serviceFee);
   }, [amount, serviceFee, sourceChain, targetChain, feeDeduct]);
+  var isApproved = React.useMemo(function () {
+    return allowance >= +amountToShow;
+  }, [allowance, amountToShow, dAppOption]);
   var updatePoolAddress = function updatePoolAddress() {
     try {
       return Promise.resolve(_catch(function () {
@@ -7781,6 +7775,7 @@ function useAllowance(_ref) {
             console.log('solana pool address is missing');
             toast__default.error('solana pool address is missing');
           }
+          setPoolAddress(result.tssPubkey[0].reserved);
           setTargetAddress(sourceChain === exports.SupportNetworks.SOLANA ? result.tssPubkey[0].eddsa : sourceChain === exports.SupportNetworks.TRON ? fromHex(result.tssPubkey[0].ecdsa) : result.tssPubkey[0].ecdsa);
         });
       }, function (e) {
@@ -7982,9 +7977,10 @@ function useAllowance(_ref) {
   return React.useMemo(function () {
     return {
       isApproved: isApproved,
+      poolAddress: poolAddress,
       approve: approve
     };
-  }, [isApproved, approve]);
+  }, [isApproved, poolAddress, approve]);
 }
 
 var AddressInputWizard = function AddressInputWizard() {
@@ -8221,7 +8217,8 @@ var TransferWidget = function TransferWidget(_ref) {
       setApproving: setApproving
     }),
     approved = _useAllowance.isApproved,
-    approve = _useAllowance.approve;
+    approve = _useAllowance.approve,
+    poolAddress = _useAllowance.poolAddress;
   var _useSign = useSign({
       setSigning: setSigning
     }),
@@ -8340,9 +8337,9 @@ var TransferWidget = function TransferWidget(_ref) {
   };
   var handleBTCFinish = function handleBTCFinish(hash) {
     try {
-      return Promise.resolve(sleep(1000)).then(function () {
-        var _interrupt = false;
-        return _do(function () {
+      var _interrupt = false;
+      var _temp4 = _do(function () {
+        return Promise.resolve(sleep(10000)).then(function () {
           var _temp3 = _catch(function () {
             return Promise.resolve(fetchWrapper.get(backendUrl + "/btc/transaction?hash=" + hash)).then(function (txInfo) {
               var _txInfo$status;
@@ -8351,33 +8348,130 @@ var TransferWidget = function TransferWidget(_ref) {
                 setBTCSigned(true);
                 setBTCHash(hash);
                 _interrupt = true;
-                return;
               }
-              return Promise.resolve(sleep(10000)).then(function () {});
             });
           }, function (e) {
             console.log(e);
           });
           if (_temp3 && _temp3.then) return _temp3.then(function () {});
-        }, function () {
-          return !_interrupt && 1;
         });
+      }, function () {
+        return !_interrupt && 1;
       });
+      return Promise.resolve(_temp4 && _temp4.then ? _temp4.then(function () {}) : void 0);
     } catch (e) {
       return Promise.reject(e);
     }
   };
   var handleSubmit = function handleSubmit() {
     try {
+      var _temp8 = function _temp8(_result) {
+        var _exit2 = false;
+        if (_exit) return _result;
+        return _catch(function () {
+          var _exit3 = false;
+          if (sourceChain === exports.SupportNetworks.FIAT || targetChain === exports.SupportNetworks.FIAT) return;
+          setSubmitting(true);
+          if (dAppOption === exports.DAppOptions.LPDrain || dAppOption === exports.DAppOptions.LPAdd) {
+            keplrHandler(walletAddress);
+            return;
+          }
+          return Promise.resolve(checkPoolBalance()).then(function (_checkPoolBalance) {
+            if (!_checkPoolBalance) {
+              setSubmitting(false);
+              _exit2 = true;
+              return;
+            }
+            var params;
+            var feeParam;
+            if (sourceChain === exports.SupportNetworks.BTC || targetChain === exports.SupportNetworks.BTC) {
+              feeParam = fee.toFixed(8);
+            } else {
+              feeParam = fee.toFixed(2);
+            }
+            if (sourceChain === exports.SupportNetworks.BTC) {
+              params = JSON.stringify({
+                originAddress: walletAddress,
+                originChain: sourceChain,
+                targetAddress: mode === exports.ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
+                targetChain: targetChain,
+                symbol: selectedToken,
+                amount: feeDeduct ? (+amount - fee).toString() : amount,
+                fee: feeParam,
+                htlcCreationHash: btcHash,
+                htlcCreationVout: 0,
+                htlcExpirationTimestamp: btcTimestamp.toString(),
+                htlcVersion: 'v1',
+                senderPubKey: bitcoinPubkey
+              });
+            } else {
+              params = JSON.stringify({
+                originAddress: walletAddress,
+                originChain: sourceChain,
+                targetAddress: mode === exports.ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
+                targetChain: targetChain,
+                symbol: selectedToken,
+                amount: feeDeduct ? (+amount - fee).toString() : amount,
+                fee: feeParam,
+                htlcCreationHash: '',
+                htlcCreationVout: 0,
+                htlcExpirationTimestamp: '0',
+                htlcVersion: '',
+                senderPubKey: ''
+              });
+            }
+            console.log(params);
+            return Promise.resolve(fetchWrapper.post(backendUrl + "/auth", params)).then(function () {
+              return Promise.resolve(fetchWrapper.post(backendUrl + "/submit", params)).then(function (result) {
+                console.log(result);
+                if ((result === null || result === void 0 ? void 0 : result.code) !== 0) {
+                  errorHandler(result);
+                  toast.toast.error('Failed to submit transaction!');
+                  setSubmitting(false);
+                  return;
+                }
+                var txId = -1;
+                for (var _iterator3 = _createForOfIteratorHelperLoose(result.events), _step3; !(_step3 = _iterator3()).done;) {
+                  var event = _step3.value;
+                  if (event.type === 'transaction_requested') {
+                    for (var _iterator4 = _createForOfIteratorHelperLoose(event.attributes), _step4; !(_step4 = _iterator4()).done;) {
+                      var attr = _step4.value;
+                      if (attr.key === 'txId') {
+                        txId = attr.value;
+                      }
+                    }
+                  }
+                }
+                console.log(txId);
+                setSubmitting(false);
+                dispatch(setTxId(txId));
+                dispatch(setSubmitted(true));
+              });
+            });
+          });
+        }, function (e) {
+          errorHandler(e);
+          setSubmitting(false);
+          console.log((e === null || e === void 0 ? void 0 : e.status) !== 500 ? 'rpc disconnected' : '', e);
+          toast.toast.error('rpc disconnected');
+          toast.toast.error('Failed to submit transaction');
+        });
+      };
       var _exit = false;
       if (fee < 0) {
         toast.toast.error('Fee is not calculated!');
         errorHandler('Fee is not calculated!');
         return Promise.resolve();
       }
-      if (dAppOption !== exports.DAppOptions.LPDrain && balance < +amount) {
+      if (dAppOption !== exports.DAppOptions.LPDrain && balance < (feeDeduct ? +amount : +amount + fee)) {
         toast.toast.error('Insufficient balance!');
         errorHandler('Insufficient balance!');
+        return Promise.resolve();
+      }
+      if (sourceChain === exports.SupportNetworks.BTC && +amount < 0.0004) {
+        toast.toast.error('Minimum BTC amount is 0.0004!');
+        errorHandler('Minimum BTC amount is 0.0004!');
+        return Promise.resolve();
       }
       if (sourceChain === exports.SupportNetworks.FIAT || targetChain === exports.SupportNetworks.FIAT) {
         if (kycStatus !== 'approved') {
@@ -8395,99 +8489,46 @@ var TransferWidget = function TransferWidget(_ref) {
         approve();
         return Promise.resolve();
       }
-      if (sourceChain === exports.SupportNetworks.BTC && !isApproved) {
-        setBTCSigning(true);
-        var unixTimestamp = Math.floor(Date.now() / 1000) + (expireTime === '1 hour' ? 3600 : expireTime === '2 hours' ? 7200 : 10800);
-        setBTCTimestamp(unixTimestamp);
-        var poolAddress = 'tb1qxcfpzll5hjzjrm5sfwp3jpkf2edu2ywy3lr2zn';
-        var htlcScript = createHTLCScript(bitcoinAddress, bitcoinPubkey, poolAddress, unixTimestamp, bitcoin.networks.testnet);
-        var htlcAddress = htlcP2WSHAddress(htlcScript, bitcoin.networks.testnet);
-        handleBTCFinish('ef3e7849ec3016ae15a901c60d61a026190ff019d85f239df8830c9dd8264e98');
-        console.log(htlcAddress);
-        return Promise.resolve();
-      }
-      return Promise.resolve(_catch(function () {
-        var _exit2 = false;
-        if (sourceChain === exports.SupportNetworks.FIAT || targetChain === exports.SupportNetworks.FIAT) return;
-        setSubmitting(true);
-        if (dAppOption === exports.DAppOptions.LPDrain || dAppOption === exports.DAppOptions.LPAdd) {
-          keplrHandler(walletAddress);
-          return;
-        }
-        return Promise.resolve(checkPoolBalance()).then(function (_checkPoolBalance) {
-          if (!_checkPoolBalance) {
-            setSubmitting(false);
+      var _temp7 = function () {
+        if (sourceChain === exports.SupportNetworks.BTC && !isApproved) {
+          var _temp6 = function _temp6() {
             _exit = true;
-            return;
-          }
-          var params;
-          if (sourceChain === exports.SupportNetworks.BTC) {
-            params = JSON.stringify({
-              originAddress: walletAddress,
-              originChain: sourceChain,
-              targetAddress: mode === exports.ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
-              targetChain: targetChain,
-              symbol: selectedToken,
-              amount: amount,
-              fee: fee,
-              htlcCreationHash: btcHash,
-              htlcCreationVout: 0,
-              htlcExpirationTimestamp: btcTimestamp.toString(),
-              htlcVersion: 'v1',
-              senderPubKey: bitcoinPubkey
-            });
-          } else {
-            params = JSON.stringify({
-              originAddress: walletAddress,
-              originChain: sourceChain,
-              targetAddress: mode === exports.ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
-              targetChain: targetChain,
-              symbol: selectedToken,
-              amount: amount,
-              fee: fee,
-              htlcCreationHash: '',
-              htlcCreationVout: 0,
-              htlcExpirationTimestamp: '0',
-              htlcVersion: '',
-              senderPubKey: ''
-            });
-          }
-          console.log(params);
-          return Promise.resolve(fetchWrapper.post(backendUrl + "/auth", params)).then(function () {
-            return Promise.resolve(fetchWrapper.post(backendUrl + "/submit", params)).then(function (result) {
-              console.log(result);
-              if ((result === null || result === void 0 ? void 0 : result.code) !== 0) {
-                errorHandler(result);
-                toast.toast.error('Failed to submit transaction!');
-                setSubmitting(false);
-                return;
+          };
+          setBTCSigning(true);
+          var unixTimestamp = Math.floor(Date.now() / 1000) + (expireTime === '1 hour' ? 3600 : expireTime === '2 hours' ? 7200 : 10800);
+          setBTCTimestamp(unixTimestamp);
+          var htlcScript = createHTLCScript(bitcoinAddress, bitcoinPubkey, poolAddress, unixTimestamp, bitcoin.networks.testnet);
+          var htlcAddress = htlcP2WSHAddress(htlcScript, bitcoin.networks.testnet);
+          console.log(htlcAddress, poolAddress);
+          var _temp5 = _catch(function () {
+            return Promise.resolve(satsConnect.sendBtcTransaction({
+              payload: {
+                network: {
+                  type: satsConnect.BitcoinNetworkType.Testnet
+                },
+                recipients: [{
+                  address: htlcAddress,
+                  amountSats: BigInt(Math.round((feeDeduct ? +amount : +amount + fee) * 100000000))
+                }],
+                senderAddress: bitcoinAddress
+              },
+              onFinish: function (hash) {
+                handleBTCFinish(hash);
+                return Promise.resolve();
+              },
+              onCancel: function onCancel() {
+                toast.toast.error('Transaction cancelled.');
+                setBTCSigning(false);
               }
-              var txId = -1;
-              for (var _iterator3 = _createForOfIteratorHelperLoose(result.events), _step3; !(_step3 = _iterator3()).done;) {
-                var event = _step3.value;
-                if (event.type === 'transaction_requested') {
-                  for (var _iterator4 = _createForOfIteratorHelperLoose(event.attributes), _step4; !(_step4 = _iterator4()).done;) {
-                    var attr = _step4.value;
-                    if (attr.key === 'txId') {
-                      txId = attr.value;
-                    }
-                  }
-                }
-              }
-              console.log(txId);
-              setSubmitting(false);
-              dispatch(setTxId(txId));
-              dispatch(setSubmitted(true));
-            });
+            })).then(function () {});
+          }, function (e) {
+            setBTCSigning(false);
+            console.log(e);
           });
-        });
-      }, function (e) {
-        errorHandler(e);
-        setSubmitting(false);
-        console.log((e === null || e === void 0 ? void 0 : e.status) !== 500 ? 'rpc disconnected' : '', e);
-        toast.toast.error('rpc disconnected');
-        toast.toast.error('Failed to submit transaction');
-      }));
+          return _temp5 && _temp5.then ? _temp5.then(_temp6) : _temp6(_temp5);
+        }
+      }();
+      return Promise.resolve(_temp7 && _temp7.then ? _temp7.then(_temp8) : _temp8(_temp7));
     } catch (e) {
       return Promise.reject(e);
     }

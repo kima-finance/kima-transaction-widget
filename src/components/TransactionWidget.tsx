@@ -127,7 +127,10 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
     setErrorStep(-1)
     const status = data.status as string
 
-    if (status === TransactionStatus.AVAILABLE) {
+    if (
+      status === TransactionStatus.AVAILABLE ||
+      status === TransactionStatus.PULLED
+    ) {
       setStep(1)
       setPercent(25)
       setLoadingStep(1)

@@ -131,7 +131,11 @@ const SingleForm = ({
 
       {mode === ModeOptions.bridge && serviceFee > 0 ? (
         <CustomCheckbox
-          text={`Deduct $${formatterFloat.format(serviceFee)} fee`}
+          text={
+            sourceNetwork === ChainName.BTC
+              ? `Deduct ${formatterFloat.format(serviceFee)} BTC fee`
+              : `Deduct $${formatterFloat.format(serviceFee)} fee`
+          }
           checked={feeDeduct}
           setCheck={(value: boolean) => dispatch(setFeeDeduct(value))}
         />

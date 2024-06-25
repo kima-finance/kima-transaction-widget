@@ -86,7 +86,7 @@ export const CHAIN_NAMES_TO_EXPLORER: { [chainName: string]: string } = {
   [ChainName.ARBITRUM]: 'sepolia.arbiscan.io',
   [ChainName.POLYGON_ZKEVM]: 'cardona-zkevm.polygonscan.com',
   [ChainName.TRON]: 'nile.tronscan.org/#',
-  [ChainName.BTC]: 'mempool.space/testnet/tx'
+  [ChainName.BTC]: 'mempool.space/testnet'
 }
 
 // export const CHAIN_NAMES_TO_GECKO_ID: { [chainName: string]: string } = {
@@ -211,7 +211,8 @@ export const ExpireTimeOptions = ['1 hour', '2 hours', '3 hours']
 
 export enum TransactionStatus {
   AVAILABLE = 'Available',
-  CONFIRMED = 'Confirmed',
+  CONFIRMED = 'Pull_Confirmed',
+  PULLED = 'Pulled',
   PAID = 'Paid',
   COMPLETED = 'Completed',
   FAILEDTOPAY = 'FailedToPay',
