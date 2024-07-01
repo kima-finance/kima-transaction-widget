@@ -1,3 +1,4 @@
+/// <reference types="react" />
 export declare enum ChainName {
     ETHEREUM = "ETH",
     POLYGON = "POL",
@@ -74,4 +75,10 @@ export declare enum TransactionStatus {
     KEYSIGNED = "KeySigned"
 }
 export declare const tooltipInfo: string[][];
+export declare type PendingTxData = {
+    expireTime: string;
+    amount: string;
+    status: string;
+    hash: string;
+};
 export {};

@@ -1158,6 +1158,7 @@ const selectSolanaConnectModal = state => state.option.solanaConnectModal;
 const selectTronConnectModal = state => state.option.tronConnectModal;
 const selectHelpPopup = state => state.option.helpPopup;
 const selectHashPopup = state => state.option.hashPopup;
+const selectPendingTxPopup = state => state.option.pendingTxPopup;
 const selectBankPopup = state => state.option.bankPopup;
 const selectSolanaProvider = state => state.option.solanaProvider;
 const selectDappOption = state => state.option.dAppOption;
@@ -2730,6 +2731,25 @@ const BankInput = () => {
   })));
 };
 
+const TxButton = ({
+  theme,
+  txCount
+}) => {
+  const dispatch = useDispatch();
+  const handleClick = () => {
+    dispatch(setPendingTxPopup(true));
+  };
+  return React.createElement("button", {
+    className: `secondary-button tx-button ${theme.colorMode}`,
+    onClick: handleClick,
+    "data-tooltip-id": 'popup-tooltip'
+  }, txCount, React.createElement(Loading180Ring, {
+    height: 16,
+    width: 16,
+    fill: theme.colorMode === 'light' ? 'black' : 'white'
+  }));
+};
+
 const HelpPopup = () => {
   const dispatch = useDispatch();
   const theme = useSelector(selectTheme);
@@ -3250,12 +3270,17 @@ const SingleForm = ({
   const sourceNetwork = useSelector(selectSourceChain);
   const targetNetwork = useSelector(selectTargetChain);
   const [amountValue, setAmountValue] = useState('');
+  const amount = useSelector(selectAmount);
   const Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
   const errorMessage = useMemo(() => compliantOption && targetCompliant !== 'low' ? `Target address has ${targetCompliant} risk` : '', [compliantOption, targetCompliant]);
   useEffect(() => {
     if (!errorMessage) return;
     toast$1.error(errorMessage);
   }, [errorMessage]);
+  useEffect(() => {
+    if (amountValue) return;
+    setAmountValue(amount);
+  }, [amount]);
   return React.createElement("div", {
     className: 'single-form'
   }, mode === ModeOptions.payment ? React.createElement("p", {
@@ -7299,6 +7324,134 @@ function htlcP2WSHAddress(htlcScript, network) {
   return p2wsh.address;
 }
 
+const PendingTxPopup = ({
+  txData,
+  handleHtlcContinue
+}) => {
+  const dispatch = useDispatch();
+  const theme = useSelector(selectTheme);
+  const pendingTxPopup = useSelector(selectPendingTxPopup);
+  return React.createElement("div", {
+    className: `kima-modal pending-tx-popup ${theme.colorMode} ${pendingTxPopup ? 'open' : ''}`
+  }, React.createElement("div", {
+    className: 'modal-overlay',
+    onClick: () => {
+      dispatch(setPendingTxPopup(false));
+    }
+  }), React.createElement("div", {
+    className: 'modal-content-container'
+  }, React.createElement("div", {
+    className: 'kima-card-header'
+  }, React.createElement("div", {
+    className: 'topbar'
+  }, React.createElement("div", {
+    className: 'title'
+  }, React.createElement("h3", null, "Bitcoin Transaction List")), React.createElement("div", {
+    className: 'control-buttons'
+  }, React.createElement("button", {
+    className: 'icon-button',
+    onClick: () => dispatch(setPendingTxPopup(false))
+  }, React.createElement(Cross, {
+    fill: theme.colorMode === 'light' ? 'black' : 'white'
+  }))))), React.createElement("div", {
+    className: 'modal-content'
+  }, React.createElement("div", {
+    className: 'scroll-area custom-scrollbar'
+  }, React.createElement("div", {
+    className: 'header-container'
+  }, React.createElement("span", null, "Amount"), React.createElement("span", null, "Expire Time"), React.createElement("span", null, "Status"), React.createElement("span", null, "Hash"), React.createElement("span", null, "Action")), React.createElement("div", {
+    className: 'tx-container'
+  }, txData.map((tx, index) => {
+    let date = new Date(+tx.expireTime * 1000);
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let seconds = date.getSeconds();
+    let formattedDate = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    return React.createElement("div", {
+      className: 'tx-item',
+      key: index
+    }, React.createElement("div", {
+      className: 'label'
+    }, React.createElement("div", {
+      className: 'icon-wrapper'
+    }, tx.amount, React.createElement(BTC, null))), React.createElement("span", {
+      className: 'label'
+    }, `${formattedDate}`), React.createElement("span", {
+      className: 'label'
+    }, tx.status), React.createElement("div", {
+      className: 'label'
+    }, React.createElement(ExternalLink, {
+      to: `https://${CHAIN_NAMES_TO_EXPLORER[ChainName.BTC]}/tx/${tx.hash}`
+    }, getShortenedAddress(tx.hash))), React.createElement("div", {
+      className: `action-button-container ${tx.status === 'Pending' || tx.status === 'Failed' ? '' : 'disabled'}`
+    }, React.createElement("div", {
+      className: 'action-button'
+    }, "Reclaim"), React.createElement("div", {
+      className: 'action-button',
+      onClick: () => {
+        handleHtlcContinue(tx.expireTime, tx.hash, tx.amount);
+        dispatch(setPendingTxPopup(false));
+      }
+    }, "Continue")));
+  }))))));
+};
+
+function usePendingTx({
+  walletAddress
+}) {
+  const [pendingTxs, setPendingTxs] = useState(0);
+  const [pendingTxData, setPendingTxData] = useState([]);
+  const sourceChain = useSelector(selectSourceChain);
+  const nodeProviderQuery = useSelector(selectNodeProviderQuery);
+  useEffect(() => {
+    console.log(nodeProviderQuery, sourceChain, walletAddress);
+    if (!nodeProviderQuery || sourceChain !== ChainName.BTC || !walletAddress) return;
+    const updatePendingTxs = async () => {
+      const result = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/transaction/get_htlc_transaction/${walletAddress}`);
+      const data = result === null || result === void 0 ? void 0 : result.htlcLockingTransaction;
+      const txData = [];
+      if (data.length > 0) {
+        for (const tx of data) {
+          let status = '';
+          if (tx.status !== 'Completed') {
+            status = 'Confirming';
+          } else if (tx.pull_status === 'htlc_pull_available') {
+            status = 'Pending';
+          } else if (tx.pull_status === 'htlc_pull_in_progress') {
+            status = 'In Progress';
+          } else if (tx.pull_status === 'htlc_pull_succeed') {
+            status = 'Completed';
+          } else if (tx.pull_status === 'htlc_pull_failed') {
+            status = 'Failed';
+          }
+          txData.push({
+            hash: tx.txHash,
+            amount: tx.amount,
+            expireTime: tx.htlcTimestamp,
+            status
+          });
+        }
+        setPendingTxData([...txData]);
+        setPendingTxs(txData.filter(tx => tx.status === 'Pending' || tx.status === 'Confirming').length);
+      }
+    };
+    const timerId = setInterval(() => {
+      updatePendingTxs();
+    }, 10000);
+    updatePendingTxs();
+    return () => {
+      clearInterval(timerId);
+    };
+  }, [sourceChain, nodeProviderQuery, walletAddress]);
+  return useMemo(() => ({
+    pendingTxData,
+    pendingTxs
+  }), [pendingTxs, pendingTxData]);
+}
+
 const TransferWidget = ({
   theme,
   feeURL,
@@ -7348,6 +7501,12 @@ const TransferWidget = ({
     isReady,
     walletAddress
   } = useIsWalletReady();
+  const {
+    pendingTxData,
+    pendingTxs
+  } = usePendingTx({
+    walletAddress: walletAddress || ''
+  });
   const {
     isApproved: approved,
     approve,
@@ -7452,7 +7611,24 @@ const TransferWidget = ({
     console.log(`${CHAIN_NAMES_TO_STRING[targetChain]} pool error`);
     return false;
   };
-  const handleBTCFinish = async hash => {
+  const handleBTCFinish = async (hash, htlcAddress, timestamp) => {
+    const params = JSON.stringify({
+      fromAddress: walletAddress,
+      senderPubkey: bitcoinPubkey,
+      amount: feeDeduct ? amount : (+amount + fee).toString(),
+      txHash: hash,
+      htlcTimeout: timestamp.toString(),
+      htlcAddress
+    });
+    console.log(params);
+    await fetchWrapper.post(`${backendUrl}/auth`, params);
+    const result = await fetchWrapper.post(`${backendUrl}/htlc`, params);
+    console.log(result);
+    if ((result === null || result === void 0 ? void 0 : result.code) !== 0) {
+      errorHandler(result);
+      toast$1.error('Failed to submit htlc request!');
+      return;
+    }
     do {
       await sleep(10000);
       try {
@@ -7469,6 +7645,14 @@ const TransferWidget = ({
       }
     } while (1);
   };
+  const handleHtlcContinue = async (expireTime, hash, amount) => {
+    setBTCTimestamp(expireTime);
+    setBTCSigning(false);
+    setBTCSigned(true);
+    setBTCHash(hash);
+    dispatch(setFeeDeduct(true));
+    dispatch(setAmount(amount));
+  };
   const handleSubmit = async () => {
     if (fee < 0) {
       toast$1.error('Fee is not calculated!');
@@ -7480,9 +7664,9 @@ const TransferWidget = ({
       errorHandler('Insufficient balance!');
       return;
     }
-    if (sourceChain === ChainName.BTC && +amount < 0.0004) {
-      toast$1.error('Minimum BTC amount is 0.0004!');
-      errorHandler('Minimum BTC amount is 0.0004!');
+    if (sourceChain === ChainName.BTC && +amount < 0.00015) {
+      toast$1.error('Minimum BTC amount is 0.00015!');
+      errorHandler('Minimum BTC amount is 0.00015!');
       return;
     }
     if (sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT) {
@@ -7521,7 +7705,7 @@ const TransferWidget = ({
             senderAddress: bitcoinAddress
           },
           onFinish: async hash => {
-            handleBTCFinish(hash);
+            handleBTCFinish(hash, htlcAddress, unixTimestamp);
           },
           onCancel: () => {
             toast$1.error('Transaction cancelled.');
@@ -7559,7 +7743,7 @@ const TransferWidget = ({
           targetAddress: mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
           targetChain: targetChain,
           symbol: selectedToken,
-          amount: feeDeduct ? (+amount - fee).toString() : amount,
+          amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
           fee: feeParam,
           htlcCreationHash: btcHash,
           htlcCreationVout: 0,
@@ -7574,7 +7758,7 @@ const TransferWidget = ({
           targetAddress: mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
           targetChain: targetChain,
           symbol: selectedToken,
-          amount: feeDeduct ? (+amount - fee).toString() : amount,
+          amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
           fee: feeParam,
           htlcCreationHash: '',
           htlcCreationVout: 0,
@@ -7742,7 +7926,10 @@ const TransferWidget = ({
     className: 'title'
   }, React.createElement("h3", null, isWizard && wizardStep === 3 || !isWizard && formStep > 0 ? titleOption !== null && titleOption !== void 0 && titleOption.confirmTitle ? titleOption === null || titleOption === void 0 ? void 0 : titleOption.confirmTitle : 'Transfer Details' : titleOption !== null && titleOption !== void 0 && titleOption.initialTitle ? titleOption === null || titleOption === void 0 ? void 0 : titleOption.initialTitle : 'New Transfer')), React.createElement("div", {
     className: 'control-buttons'
-  }, React.createElement(ExternalLink, {
+  }, pendingTxs > 0 ? React.createElement(TxButton, {
+    theme: theme,
+    txCount: pendingTxs
+  }) : null, React.createElement(ExternalLink, {
     to: helpURL ? helpURL : 'https://docs.kima.finance/demo'
   }, React.createElement("div", {
     className: 'menu-button'
@@ -7824,6 +8011,9 @@ const TransferWidget = ({
         background: theme.colorMode === ColorModeOptions.light ? 'white' : theme.backgroundColorDark ?? '#1b1e25'
       }
     }
+  }), React.createElement(PendingTxPopup, {
+    txData: pendingTxData,
+    handleHtlcContinue: handleHtlcContinue
   }), React.createElement(Tooltip, {
     id: 'popup-tooltip',
     className: `popup-tooltip ${theme.colorMode}`,

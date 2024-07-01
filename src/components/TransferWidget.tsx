@@ -8,7 +8,7 @@ import {
   NetworkSelect,
   PrimaryButton,
   SecondaryButton,
-  // TxButton,
+  TxButton,
   WalletButton
 } from './reusable'
 import {
@@ -25,7 +25,9 @@ import CoinSelect from './reusable/CoinSelect'
 // store
 import {
   initialize,
+  setAmount,
   setBankPopup,
+  setFeeDeduct,
   setSelectedToken,
   setSourceCompliant,
   setSubmitted,
@@ -75,7 +77,8 @@ import { createHTLCScript, htlcP2WSHAddress } from '../utils/btc/htlc'
 import { BitcoinNetworkType, sendBtcTransaction } from 'sats-connect'
 import * as bitcoin from 'bitcoinjs-lib' // you may comment this out during development to use the Node.js library so that you can get intellisense
 import { sleep } from '../helpers/functions'
-// import PendingTxPopup from './modals/PendingTxPopup'
+import PendingTxPopup from './modals/PendingTxPopup'
+import usePendingTx from '../hooks/usePendingTx'
 
 interface Props {
   theme: ThemeOptions
@@ -135,6 +138,9 @@ export const TransferWidget = ({
   const [isConfirming, setConfirming] = useState(false)
   const [isVerifying, setVerifying] = useState(false)
   const { isReady, walletAddress } = useIsWalletReady()
+  const { pendingTxData, pendingTxs } = usePendingTx({
+    walletAddress: walletAddress || ''
+  })
   const {
     isApproved: approved,
     approve,
@@ -255,7 +261,28 @@ export const TransferWidget = ({
     return false
   }
 
-  const handleBTCFinish = async (hash) => {
+  const handleBTCFinish = async (hash, htlcAddress, timestamp) => {
+    const params = JSON.stringify({
+      fromAddress: walletAddress,
+      senderPubkey: bitcoinPubkey,
+      amount: feeDeduct ? amount : (+amount + fee).toString(),
+      txHash: hash,
+      htlcTimeout: timestamp.toString(),
+      htlcAddress
+    })
+
+    console.log(params)
+    await fetchWrapper.post(`${backendUrl}/auth`, params)
+    const result: any = await fetchWrapper.post(`${backendUrl}/htlc`, params)
+
+    console.log(result)
+
+    if (result?.code !== 0) {
+      errorHandler(result)
+      toast.error('Failed to submit htlc request!')
+      return
+    }
+
     do {
       await sleep(10000)
       try {
@@ -275,6 +302,15 @@ export const TransferWidget = ({
     } while (1)
   }
 
+  const handleHtlcContinue = async (expireTime, hash, amount) => {
+    setBTCTimestamp(expireTime)
+    setBTCSigning(false)
+    setBTCSigned(true)
+    setBTCHash(hash)
+    dispatch(setFeeDeduct(true))
+    dispatch(setAmount(amount))
+  }
+
   const handleSubmit = async () => {
     if (fee < 0) {
       toast.error('Fee is not calculated!')
@@ -292,9 +328,9 @@ export const TransferWidget = ({
       return
     }
 
-    if (sourceChain === ChainName.BTC && +amount < 0.0004) {
-      toast.error('Minimum BTC amount is 0.0004!')
-      errorHandler('Minimum BTC amount is 0.0004!')
+    if (sourceChain === ChainName.BTC && +amount < 0.00015) {
+      toast.error('Minimum BTC amount is 0.00015!')
+      errorHandler('Minimum BTC amount is 0.00015!')
       return
     }
 
@@ -363,7 +399,7 @@ export const TransferWidget = ({
             senderAddress: bitcoinAddress!
           },
           onFinish: async (hash) => {
-            handleBTCFinish(hash)
+            handleBTCFinish(hash, htlcAddress, unixTimestamp)
           },
           onCancel: () => {
             toast.error('Transaction cancelled.')
@@ -414,7 +450,7 @@ export const TransferWidget = ({
               : targetAddress,
           targetChain: targetChain,
           symbol: selectedToken,
-          amount: feeDeduct ? (+amount - fee).toString() : amount,
+          amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
           fee: feeParam,
           htlcCreationHash: btcHash,
           htlcCreationVout: 0,
@@ -432,7 +468,7 @@ export const TransferWidget = ({
               : targetAddress,
           targetChain: targetChain,
           symbol: selectedToken,
-          amount: feeDeduct ? (+amount - fee).toString() : amount,
+          amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
           fee: feeParam,
           htlcCreationHash: '',
           htlcCreationVout: 0,
@@ -651,7 +687,9 @@ export const TransferWidget = ({
             </h3>
           </div>
           <div className='control-buttons'>
-            {/* <TxButton theme={theme} /> */}
+            {pendingTxs > 0 ? (
+              <TxButton theme={theme} txCount={pendingTxs} />
+            ) : null}
             <ExternalLink
               to={helpURL ? helpURL : 'https://docs.kima.finance/demo'}
             >
@@ -774,7 +812,10 @@ export const TransferWidget = ({
           }
         }}
       />
-      {/* <PendingTxPopup /> */}
+      <PendingTxPopup
+        txData={pendingTxData}
+        handleHtlcContinue={handleHtlcContinue}
+      />
       <Tooltip
         id='popup-tooltip'
         className={`popup-tooltip ${theme.colorMode}`}

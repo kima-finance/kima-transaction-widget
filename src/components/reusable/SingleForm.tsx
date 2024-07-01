@@ -11,7 +11,8 @@ import {
   selectTransactionOption,
   selectSelectedToken,
   selectServiceFee,
-  selectFeeDeduct
+  selectFeeDeduct,
+  selectAmount
 } from '../../store/selectors'
 import { BankInput, CoinDropdown, CustomCheckbox, WalletButton } from './'
 import { setAmount, setFeeDeduct } from '../../store/optionSlice'
@@ -39,6 +40,7 @@ const SingleForm = ({
   const sourceNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
   const [amountValue, setAmountValue] = useState('')
+  const amount = useSelector(selectAmount)
   const Icon = COIN_LIST[selectedCoin || 'USDK'].icon
 
   const errorMessage = useMemo(
@@ -53,6 +55,11 @@ const SingleForm = ({
     if (!errorMessage) return
     toast.error(errorMessage)
   }, [errorMessage])
+
+  useEffect(() => {
+    if (amountValue) return
+    setAmountValue(amount)
+  }, [amount])
 
   return (
     <div className='single-form'>

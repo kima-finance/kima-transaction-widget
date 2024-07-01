@@ -1165,6 +1165,7 @@ var _optionSlice$actions = optionSlice.actions,
   setTronConnectModal = _optionSlice$actions.setTronConnectModal,
   setHelpPopup = _optionSlice$actions.setHelpPopup,
   setHashPopup = _optionSlice$actions.setHashPopup,
+  setPendingTxPopup = _optionSlice$actions.setPendingTxPopup,
   setBankPopup = _optionSlice$actions.setBankPopup,
   setSolanaProvider = _optionSlice$actions.setSolanaProvider,
   setProvider = _optionSlice$actions.setProvider,
@@ -1497,6 +1498,9 @@ var selectHelpPopup = function selectHelpPopup(state) {
 };
 var selectHashPopup = function selectHashPopup(state) {
   return state.option.hashPopup;
+};
+var selectPendingTxPopup = function selectPendingTxPopup(state) {
+  return state.option.pendingTxPopup;
 };
 var selectBankPopup = function selectBankPopup(state) {
   return state.option.bankPopup;
@@ -3364,6 +3368,24 @@ var BankInput = function BankInput() {
   })));
 };
 
+var TxButton = function TxButton(_ref) {
+  var theme = _ref.theme,
+    txCount = _ref.txCount;
+  var dispatch = reactRedux.useDispatch();
+  var handleClick = function handleClick() {
+    dispatch(setPendingTxPopup(true));
+  };
+  return React__default.createElement("button", {
+    className: "secondary-button tx-button " + theme.colorMode,
+    onClick: handleClick,
+    "data-tooltip-id": 'popup-tooltip'
+  }, txCount, React__default.createElement(Loading180Ring, {
+    height: 16,
+    width: 16,
+    fill: theme.colorMode === 'light' ? 'black' : 'white'
+  }));
+};
+
 var HelpPopup = function HelpPopup() {
   var dispatch = reactRedux.useDispatch();
   var theme = reactRedux.useSelector(selectTheme);
@@ -3945,6 +3967,7 @@ var SingleForm = function SingleForm(_ref) {
   var _useState = React.useState(''),
     amountValue = _useState[0],
     setAmountValue = _useState[1];
+  var amount = reactRedux.useSelector(selectAmount);
   var Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
   var errorMessage = React.useMemo(function () {
     return compliantOption && targetCompliant !== 'low' ? "Target address has " + targetCompliant + " risk" : '';
@@ -3953,6 +3976,10 @@ var SingleForm = function SingleForm(_ref) {
     if (!errorMessage) return;
     toast.toast.error(errorMessage);
   }, [errorMessage]);
+  React.useEffect(function () {
+    if (amountValue) return;
+    setAmountValue(amount);
+  }, [amount]);
   return React__default.createElement("div", {
     className: 'single-form'
   }, mode === exports.ModeOptions.payment ? React__default.createElement("p", {
@@ -8142,6 +8169,148 @@ function htlcP2WSHAddress(htlcScript, network) {
   return p2wsh.address;
 }
 
+var PendingTxPopup = function PendingTxPopup(_ref) {
+  var txData = _ref.txData,
+    handleHtlcContinue = _ref.handleHtlcContinue;
+  var dispatch = reactRedux.useDispatch();
+  var theme = reactRedux.useSelector(selectTheme);
+  var pendingTxPopup = reactRedux.useSelector(selectPendingTxPopup);
+  return React__default.createElement("div", {
+    className: "kima-modal pending-tx-popup " + theme.colorMode + " " + (pendingTxPopup ? 'open' : '')
+  }, React__default.createElement("div", {
+    className: 'modal-overlay',
+    onClick: function onClick() {
+      dispatch(setPendingTxPopup(false));
+    }
+  }), React__default.createElement("div", {
+    className: 'modal-content-container'
+  }, React__default.createElement("div", {
+    className: 'kima-card-header'
+  }, React__default.createElement("div", {
+    className: 'topbar'
+  }, React__default.createElement("div", {
+    className: 'title'
+  }, React__default.createElement("h3", null, "Bitcoin Transaction List")), React__default.createElement("div", {
+    className: 'control-buttons'
+  }, React__default.createElement("button", {
+    className: 'icon-button',
+    onClick: function onClick() {
+      return dispatch(setPendingTxPopup(false));
+    }
+  }, React__default.createElement(Cross, {
+    fill: theme.colorMode === 'light' ? 'black' : 'white'
+  }))))), React__default.createElement("div", {
+    className: 'modal-content'
+  }, React__default.createElement("div", {
+    className: 'scroll-area custom-scrollbar'
+  }, React__default.createElement("div", {
+    className: 'header-container'
+  }, React__default.createElement("span", null, "Amount"), React__default.createElement("span", null, "Expire Time"), React__default.createElement("span", null, "Status"), React__default.createElement("span", null, "Hash"), React__default.createElement("span", null, "Action")), React__default.createElement("div", {
+    className: 'tx-container'
+  }, txData.map(function (tx, index) {
+    var date = new Date(+tx.expireTime * 1000);
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1;
+    var day = date.getDate();
+    var hours = date.getHours();
+    var minutes = date.getMinutes();
+    var seconds = date.getSeconds();
+    var formattedDate = year + "-" + month.toString().padStart(2, '0') + "-" + day.toString().padStart(2, '0') + " " + hours.toString().padStart(2, '0') + ":" + minutes.toString().padStart(2, '0') + ":" + seconds.toString().padStart(2, '0');
+    return React__default.createElement("div", {
+      className: 'tx-item',
+      key: index
+    }, React__default.createElement("div", {
+      className: 'label'
+    }, React__default.createElement("div", {
+      className: 'icon-wrapper'
+    }, tx.amount, React__default.createElement(BTC, null))), React__default.createElement("span", {
+      className: 'label'
+    }, "" + formattedDate), React__default.createElement("span", {
+      className: 'label'
+    }, tx.status), React__default.createElement("div", {
+      className: 'label'
+    }, React__default.createElement(ExternalLink, {
+      to: "https://" + CHAIN_NAMES_TO_EXPLORER[exports.SupportNetworks.BTC] + "/tx/" + tx.hash
+    }, getShortenedAddress(tx.hash))), React__default.createElement("div", {
+      className: "action-button-container " + (tx.status === 'Pending' || tx.status === 'Failed' ? '' : 'disabled')
+    }, React__default.createElement("div", {
+      className: 'action-button'
+    }, "Reclaim"), React__default.createElement("div", {
+      className: 'action-button',
+      onClick: function onClick() {
+        handleHtlcContinue(tx.expireTime, tx.hash, tx.amount);
+        dispatch(setPendingTxPopup(false));
+      }
+    }, "Continue")));
+  }))))));
+};
+
+function usePendingTx(_ref) {
+  var walletAddress = _ref.walletAddress;
+  var _useState = React.useState(0),
+    pendingTxs = _useState[0],
+    setPendingTxs = _useState[1];
+  var _useState2 = React.useState([]),
+    pendingTxData = _useState2[0],
+    setPendingTxData = _useState2[1];
+  var sourceChain = reactRedux.useSelector(selectSourceChain);
+  var nodeProviderQuery = reactRedux.useSelector(selectNodeProviderQuery);
+  React.useEffect(function () {
+    console.log(nodeProviderQuery, sourceChain, walletAddress);
+    if (!nodeProviderQuery || sourceChain !== exports.SupportNetworks.BTC || !walletAddress) return;
+    var updatePendingTxs = function updatePendingTxs() {
+      try {
+        return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/transaction/get_htlc_transaction/" + walletAddress)).then(function (result) {
+          var data = result === null || result === void 0 ? void 0 : result.htlcLockingTransaction;
+          var txData = [];
+          if (data.length > 0) {
+            for (var _iterator = _createForOfIteratorHelperLoose(data), _step; !(_step = _iterator()).done;) {
+              var tx = _step.value;
+              var status = '';
+              if (tx.status !== 'Completed') {
+                status = 'Confirming';
+              } else if (tx.pull_status === 'htlc_pull_available') {
+                status = 'Pending';
+              } else if (tx.pull_status === 'htlc_pull_in_progress') {
+                status = 'In Progress';
+              } else if (tx.pull_status === 'htlc_pull_succeed') {
+                status = 'Completed';
+              } else if (tx.pull_status === 'htlc_pull_failed') {
+                status = 'Failed';
+              }
+              txData.push({
+                hash: tx.txHash,
+                amount: tx.amount,
+                expireTime: tx.htlcTimestamp,
+                status: status
+              });
+            }
+            setPendingTxData([].concat(txData));
+            setPendingTxs(txData.filter(function (tx) {
+              return tx.status === 'Pending' || tx.status === 'Confirming';
+            }).length);
+          }
+        });
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    };
+    var timerId = setInterval(function () {
+      updatePendingTxs();
+    }, 10000);
+    updatePendingTxs();
+    return function () {
+      clearInterval(timerId);
+    };
+  }, [sourceChain, nodeProviderQuery, walletAddress]);
+  return React.useMemo(function () {
+    return {
+      pendingTxData: pendingTxData,
+      pendingTxs: pendingTxs
+    };
+  }, [pendingTxs, pendingTxData]);
+}
+
 var TransferWidget = function TransferWidget(_ref) {
   var _theme$backgroundColo;
   var theme = _ref.theme,
@@ -8213,6 +8382,11 @@ var TransferWidget = function TransferWidget(_ref) {
   var _useIsWalletReady = useIsWalletReady(),
     isReady = _useIsWalletReady.isReady,
     walletAddress = _useIsWalletReady.walletAddress;
+  var _usePendingTx = usePendingTx({
+      walletAddress: walletAddress || ''
+    }),
+    pendingTxData = _usePendingTx.pendingTxData,
+    pendingTxs = _usePendingTx.pendingTxs;
   var _useAllowance = useAllowance({
       setApproving: setApproving
     }),
@@ -8335,30 +8509,62 @@ var TransferWidget = function TransferWidget(_ref) {
       return Promise.reject(e);
     }
   };
-  var handleBTCFinish = function handleBTCFinish(hash) {
+  var handleBTCFinish = function handleBTCFinish(hash, htlcAddress, timestamp) {
     try {
-      var _interrupt = false;
-      var _temp4 = _do(function () {
-        return Promise.resolve(sleep(10000)).then(function () {
-          var _temp3 = _catch(function () {
-            return Promise.resolve(fetchWrapper.get(backendUrl + "/btc/transaction?hash=" + hash)).then(function (txInfo) {
-              var _txInfo$status;
-              if (txInfo !== null && txInfo !== void 0 && (_txInfo$status = txInfo.status) !== null && _txInfo$status !== void 0 && _txInfo$status.confirmed) {
-                setBTCSigning(false);
-                setBTCSigned(true);
-                setBTCHash(hash);
-                _interrupt = true;
-              }
-            });
-          }, function (e) {
-            console.log(e);
-          });
-          if (_temp3 && _temp3.then) return _temp3.then(function () {});
-        });
-      }, function () {
-        return !_interrupt && 1;
+      var params = JSON.stringify({
+        fromAddress: walletAddress,
+        senderPubkey: bitcoinPubkey,
+        amount: feeDeduct ? amount : (+amount + fee).toString(),
+        txHash: hash,
+        htlcTimeout: timestamp.toString(),
+        htlcAddress: htlcAddress
       });
-      return Promise.resolve(_temp4 && _temp4.then ? _temp4.then(function () {}) : void 0);
+      console.log(params);
+      return Promise.resolve(fetchWrapper.post(backendUrl + "/auth", params)).then(function () {
+        return Promise.resolve(fetchWrapper.post(backendUrl + "/htlc", params)).then(function (result) {
+          var _interrupt = false;
+          console.log(result);
+          if ((result === null || result === void 0 ? void 0 : result.code) !== 0) {
+            errorHandler(result);
+            toast.toast.error('Failed to submit htlc request!');
+            return;
+          }
+          var _temp4 = _do(function () {
+            return Promise.resolve(sleep(10000)).then(function () {
+              var _temp3 = _catch(function () {
+                return Promise.resolve(fetchWrapper.get(backendUrl + "/btc/transaction?hash=" + hash)).then(function (txInfo) {
+                  var _txInfo$status;
+                  if (txInfo !== null && txInfo !== void 0 && (_txInfo$status = txInfo.status) !== null && _txInfo$status !== void 0 && _txInfo$status.confirmed) {
+                    setBTCSigning(false);
+                    setBTCSigned(true);
+                    setBTCHash(hash);
+                    _interrupt = true;
+                  }
+                });
+              }, function (e) {
+                console.log(e);
+              });
+              if (_temp3 && _temp3.then) return _temp3.then(function () {});
+            });
+          }, function () {
+            return !_interrupt && 1;
+          });
+          if (_temp4 && _temp4.then) return _temp4.then(function () {});
+        });
+      });
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  };
+  var handleHtlcContinue = function handleHtlcContinue(expireTime, hash, amount) {
+    try {
+      setBTCTimestamp(expireTime);
+      setBTCSigning(false);
+      setBTCSigned(true);
+      setBTCHash(hash);
+      dispatch(setFeeDeduct(true));
+      dispatch(setAmount(amount));
+      return Promise.resolve();
     } catch (e) {
       return Promise.reject(e);
     }
@@ -8396,7 +8602,7 @@ var TransferWidget = function TransferWidget(_ref) {
                 targetAddress: mode === exports.ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
                 targetChain: targetChain,
                 symbol: selectedToken,
-                amount: feeDeduct ? (+amount - fee).toString() : amount,
+                amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
                 fee: feeParam,
                 htlcCreationHash: btcHash,
                 htlcCreationVout: 0,
@@ -8411,7 +8617,7 @@ var TransferWidget = function TransferWidget(_ref) {
                 targetAddress: mode === exports.ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
                 targetChain: targetChain,
                 symbol: selectedToken,
-                amount: feeDeduct ? (+amount - fee).toString() : amount,
+                amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
                 fee: feeParam,
                 htlcCreationHash: '',
                 htlcCreationVout: 0,
@@ -8468,9 +8674,9 @@ var TransferWidget = function TransferWidget(_ref) {
         errorHandler('Insufficient balance!');
         return Promise.resolve();
       }
-      if (sourceChain === exports.SupportNetworks.BTC && +amount < 0.0004) {
-        toast.toast.error('Minimum BTC amount is 0.0004!');
-        errorHandler('Minimum BTC amount is 0.0004!');
+      if (sourceChain === exports.SupportNetworks.BTC && +amount < 0.00015) {
+        toast.toast.error('Minimum BTC amount is 0.00015!');
+        errorHandler('Minimum BTC amount is 0.00015!');
         return Promise.resolve();
       }
       if (sourceChain === exports.SupportNetworks.FIAT || targetChain === exports.SupportNetworks.FIAT) {
@@ -8513,7 +8719,7 @@ var TransferWidget = function TransferWidget(_ref) {
                 senderAddress: bitcoinAddress
               },
               onFinish: function (hash) {
-                handleBTCFinish(hash);
+                handleBTCFinish(hash, htlcAddress, unixTimestamp);
                 return Promise.resolve();
               },
               onCancel: function onCancel() {
@@ -8664,7 +8870,10 @@ var TransferWidget = function TransferWidget(_ref) {
     className: 'title'
   }, React__default.createElement("h3", null, isWizard && wizardStep === 3 || !isWizard && formStep > 0 ? titleOption !== null && titleOption !== void 0 && titleOption.confirmTitle ? titleOption === null || titleOption === void 0 ? void 0 : titleOption.confirmTitle : 'Transfer Details' : titleOption !== null && titleOption !== void 0 && titleOption.initialTitle ? titleOption === null || titleOption === void 0 ? void 0 : titleOption.initialTitle : 'New Transfer')), React__default.createElement("div", {
     className: 'control-buttons'
-  }, React__default.createElement(ExternalLink, {
+  }, pendingTxs > 0 ? React__default.createElement(TxButton, {
+    theme: theme,
+    txCount: pendingTxs
+  }) : null, React__default.createElement(ExternalLink, {
     to: helpURL ? helpURL : 'https://docs.kima.finance/demo'
   }, React__default.createElement("div", {
     className: 'menu-button'
@@ -8748,6 +8957,9 @@ var TransferWidget = function TransferWidget(_ref) {
         background: theme.colorMode === exports.ColorModeOptions.light ? 'white' : (_theme$backgroundColo = theme.backgroundColorDark) != null ? _theme$backgroundColo : '#1b1e25'
       }
     }
+  }), React__default.createElement(PendingTxPopup, {
+    txData: pendingTxData,
+    handleHtlcContinue: handleHtlcContinue
   }), React__default.createElement(reactTooltip.Tooltip, {
     id: 'popup-tooltip',
     className: "popup-tooltip " + theme.colorMode,

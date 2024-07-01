@@ -228,3 +228,10 @@ export const tooltipInfo = [
   ['Transfer liquidity to target chain'],
   []
 ]
+
+export type PendingTxData = {
+  expireTime: string
+  amount: string
+  status: string
+  hash: string
+}

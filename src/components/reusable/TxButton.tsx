@@ -2,8 +2,15 @@ import React from 'react'
 import { Loading180Ring } from '../../assets/loading'
 import { useDispatch } from 'react-redux'
 import { setPendingTxPopup } from '../../store/optionSlice'
+import { ThemeOptions } from '../../interface'
 
-const TxButton = ({ theme }) => {
+const TxButton = ({
+  theme,
+  txCount
+}: {
+  theme: ThemeOptions
+  txCount: number
+}) => {
   const dispatch = useDispatch()
   const handleClick = () => {
     dispatch(setPendingTxPopup(true))
@@ -15,7 +22,7 @@ const TxButton = ({ theme }) => {
       onClick={handleClick}
       data-tooltip-id='popup-tooltip'
     >
-      4
+      {txCount}
       <Loading180Ring
         height={16}
         width={16}
