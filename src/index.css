@@ -63,8 +63,7 @@
 }
 .kima-card .kima-card-header .topbar .control-buttons a, .kima-card .kima-card-header .topbar .control-buttons .menu-button {
   margin-left: auto;
-  margin-right: 1em;
-  margin-top: 0.3em;
+  margin-right: 0.5em;
   color: #5aa0db;
   text-decoration: none;
   cursor: pointer;
@@ -608,6 +607,93 @@
   top: 1.2em;
 }
 .kima-card .kima-card-content .single-form .coin-dropdown.dark {
+  background: #4f5156;
+}
+.kima-card .kima-card-content .single-form .expire-time-dropdown {
+  position: relative;
+  border-radius: 1em;
+  padding: 0.5em;
+  padding-right: 3em;
+  height: 2.8em;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  box-sizing: content-box;
+}
+.kima-card .kima-card-content .single-form .expire-time-dropdown .expire-time-wrapper {
+  display: flex;
+  align-items: center;
+  border-radius: 1em;
+  font-size: 1em;
+  font-weight: 500;
+  padding: 0.2em;
+  padding-right: 0.5em;
+  padding-left: 0.5em;
+  color: black;
+}
+.kima-card .kima-card-content .single-form .expire-time-dropdown.dark .coin-wrapper {
+  color: white;
+}
+.kima-card .kima-card-content .single-form .expire-time-dropdown:before {
+  position: absolute;
+  content: "";
+  width: 0.8em;
+  height: 0.8em;
+  right: 1.1em;
+  top: 1.7em;
+  border-top: 2px solid;
+  border-right: 2px solid;
+  border-color: white;
+  transform: rotate(-45deg);
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.kima-card .kima-card-content .single-form .expire-time-dropdown .expire-time-menu {
+  box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+  position: absolute;
+  z-index: 100;
+  max-height: 10em;
+  width: 100%;
+  top: calc(100% - 0.5em);
+  left: 0;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.kima-card .kima-card-content .single-form .expire-time-dropdown .expire-time-menu .expire-time-item {
+  padding: 0.5em 1em;
+  margin: 0;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  display: flex;
+  align-items: center;
+}
+.kima-card .kima-card-content .single-form .expire-time-dropdown .expire-time-menu .expire-time-item p {
+  width: 100%;
+  text-align: center;
+  margin: 0;
+}
+.kima-card .kima-card-content .single-form .expire-time-dropdown .expire-time-menu .expire-time-item:hover {
+  background: rgba(90, 160, 219, 0.5019607843);
+}
+.kima-card .kima-card-content .single-form .expire-time-dropdown .expire-time-menu.light {
+  background: white;
+}
+.kima-card .kima-card-content .single-form .expire-time-dropdown .expire-time-menu.dark {
+  background: #4f5156;
+}
+.kima-card .kima-card-content .single-form .expire-time-dropdown .expire-time-menu.collapsed {
+  max-height: 0;
+  opacity: 0;
+}
+.kima-card .kima-card-content .single-form .expire-time-dropdown.light {
+  background: #e3e3e3;
+}
+.kima-card .kima-card-content .single-form .expire-time-dropdown.light:before {
+  border-color: black;
+}
+.kima-card .kima-card-content .single-form .expire-time-dropdown.collapsed:before {
+  transform: rotate(135deg);
+  top: 1.2em;
+}
+.kima-card .kima-card-content .single-form .expire-time-dropdown.dark {
   background: #4f5156;
 }
 .kima-card .kima-card-content .single-form .network-dropdown {
@@ -1193,6 +1279,14 @@
     opacity: 0.7;
   }
 }
+.kima-card .tx-button {
+  margin-right: 1em;
+  column-gap: 0.5em;
+  width: 5em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .kima-card .dropdown-menu {
   box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
   position: absolute;
@@ -1221,7 +1315,7 @@
   opacity: 0;
   pointer-events: none;
 }
-.kima-card .error-tooltip.dark {
+.kima-card .error-tooltip.dark, .kima-card .popup-tooltip.dark {
   color: black;
   background-color: white;
 }
@@ -1333,6 +1427,90 @@
 }
 .kima-card .kima-modal.hash-popup .modal-content .hash-container .hash-item span {
   width: 5em;
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content-container {
+  width: 45em;
+  height: 20em;
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content {
+  height: calc(100% - 2em);
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content .scroll-area {
+  height: 14em;
+  width: 100%;
+  margin-top: 1em;
+  padding: 1em 0;
+  overflow-y: scroll;
+  overflow-x: clip;
+  background: #e3e3e3;
+  border-radius: 0.5em;
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content .scroll-area::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 3px;
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content .scroll-area .header-container {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  column-gap: 1em;
+  margin-bottom: 0.5em;
+  padding: 0 1em;
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content .scroll-area .header-container span {
+  text-align: center;
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content .scroll-area .tx-container {
+  width: 100%;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  row-gap: 0.5em;
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content .scroll-area .tx-container .tx-item {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  align-items: center;
+  column-gap: 1em;
+  padding: 0.4em 1em;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content .scroll-area .tx-container .tx-item:hover {
+  background-color: rgba(90, 160, 219, 0.1254901961);
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content .scroll-area .tx-container .tx-item .label {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content .scroll-area .tx-container .tx-item .label .icon-wrapper {
+  display: flex;
+  align-items: center;
+  column-gap: 0.4em;
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content .scroll-area .tx-container .tx-item .label .icon-wrapper svg {
+  width: 1.5em;
+  height: 1.5em;
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content .scroll-area .tx-container .tx-item .action-button-container {
+  display: flex;
+  flex-direction: column;
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content .scroll-area .tx-container .tx-item .action-button-container .action-button {
+  color: #5aa0db;
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content .scroll-area .tx-container .tx-item .action-button-container .action-button:hover {
+  opacity: 0.7;
+}
+.kima-card .kima-modal.pending-tx-popup .modal-content .scroll-area .tx-container .tx-item .action-button-container.disabled .action-button {
+  opacity: 0.4;
+  cursor: default;
+}
+.kima-card .kima-modal.pending-tx-popup.dark .scroll-area {
+  background-color: #434343;
 }
 .kima-card .kima-modal.bank-popup .modal-content-container {
   width: 100%;

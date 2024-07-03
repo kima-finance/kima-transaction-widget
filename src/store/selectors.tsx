@@ -13,12 +13,18 @@ export const selectSourceChain = (state: RootState) => state.option.sourceChain
 export const selectTargetChain = (state: RootState) => state.option.targetChain
 export const selectTargetAddress = (state: RootState) =>
   state.option.targetAddress
+export const selectBitcoinAddress = (state: RootState) =>
+  state.option.bitcoinAddress
+export const selectBitcoinPubkey = (state: RootState) =>
+  state.option.bitcoinPubkey
 export const selectSolanaConnectModal = (state: RootState) =>
   state.option.solanaConnectModal
 export const selectTronConnectModal = (state: RootState) =>
   state.option.tronConnectModal
 export const selectHelpPopup = (state: RootState) => state.option.helpPopup
 export const selectHashPopup = (state: RootState) => state.option.hashPopup
+export const selectPendingTxPopup = (state: RootState) =>
+  state.option.pendingTxPopup
 export const selectBankPopup = (state: RootState) => state.option.bankPopup
 export const selectSolanaProvider = (state: RootState) =>
   state.option.solanaProvider
@@ -66,3 +72,4 @@ export const selectTargetChainFetching = (state: RootState) =>
 export const selectSignature = (state: RootState) => state.option.signature
 export const selectUuid = (state: RootState) => state.option.uuid
 export const selectKycStatus = (state: RootState) => state.option.kycStatus
+export const selectExpireTime = (state: RootState) => state.option.expireTime

@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useMemo } from 'react'
+import { Tooltip } from 'react-tooltip'
 import { useDispatch, useSelector } from 'react-redux'
 import { CrossIcon, FooterLogo } from '../assets/icons'
 import {
@@ -7,6 +8,7 @@ import {
   NetworkSelect,
   PrimaryButton,
   SecondaryButton,
+  TxButton,
   WalletButton
 } from './reusable'
 import {
@@ -23,7 +25,9 @@ import CoinSelect from './reusable/CoinSelect'
 // store
 import {
   initialize,
+  setAmount,
   setBankPopup,
+  setFeeDeduct,
   setSelectedToken,
   setSourceCompliant,
   setSubmitted,
@@ -51,7 +55,10 @@ import {
   selectKycStatus,
   selectKeplrHandler,
   selectTransactionOption,
-  selectFeeDeduct
+  selectFeeDeduct,
+  selectExpireTime,
+  selectBitcoinAddress,
+  selectBitcoinPubkey
 } from '../store/selectors'
 import useIsWalletReady from '../hooks/useIsWalletReady'
 import useServiceFee from '../hooks/useServiceFee'
@@ -66,6 +73,12 @@ import useBalance from '../hooks/useBalance'
 import useWidth from '../hooks/useWidth'
 import useSign from '../hooks/useSign'
 import TronWalletConnectModal from './modals/TronWalletConnectModal'
+import { createHTLCScript, htlcP2WSHAddress } from '../utils/btc/htlc'
+import { BitcoinNetworkType, sendBtcTransaction } from 'sats-connect'
+import * as bitcoin from 'bitcoinjs-lib' // you may comment this out during development to use the Node.js library so that you can get intellisense
+import { sleep } from '../helpers/functions'
+import PendingTxPopup from './modals/PendingTxPopup'
+import usePendingTx from '../hooks/usePendingTx'
 
 interface Props {
   theme: ThemeOptions
@@ -109,20 +122,38 @@ export const TransferWidget = ({
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
   const bankDetails = useSelector(selectBankDetails)
   const kycStatus = useSelector(selectKycStatus)
+  const expireTime = useSelector(selectExpireTime)
+  const bitcoinAddress = useSelector(selectBitcoinAddress)
+  const bitcoinPubkey = useSelector(selectBitcoinPubkey)
   const transactionOption = useSelector(selectTransactionOption)
 
   // Hooks for wallet connection, allowance
   const [isApproving, setApproving] = useState(false)
   const [isSubmitting, setSubmitting] = useState(false)
   const [isSigning, setSigning] = useState(false)
+  const [isBTCSigning, setBTCSigning] = useState(false)
+  const [isBTCSigned, setBTCSigned] = useState(false)
+  const [btcHash, setBTCHash] = useState('')
+  const [btcTimestamp, setBTCTimestamp] = useState(0)
   const [isConfirming, setConfirming] = useState(false)
   const [isVerifying, setVerifying] = useState(false)
-  const { walletAddress, isReady } = useIsWalletReady()
-  const { isApproved, approve } = useAllowance({ setApproving })
+  const { isReady, walletAddress } = useIsWalletReady()
+  const { pendingTxData, pendingTxs } = usePendingTx({
+    walletAddress: walletAddress || ''
+  })
+  const {
+    isApproved: approved,
+    approve,
+    poolAddress
+  } = useAllowance({ setApproving })
   const { isSigned, sign } = useSign({ setSigning })
   const { serviceFee: fee } = useServiceFee(isConfirming, feeURL)
   const { balance } = useBalance()
   const windowWidth = useWidth()
+  const isApproved = useMemo(() => {
+    if (sourceChain === ChainName.BTC) return isBTCSigned
+    return approved
+  }, [approved, isBTCSigned, sourceChain])
 
   useEffect(() => {
     if (!walletAddress) return
@@ -206,7 +237,7 @@ export const TransferWidget = ({
       if (poolBalance[i].chainName === targetChain) {
         for (let j = 0; j < poolBalance[i].balance.length; j++) {
           if (poolBalance[i].balance[j].tokenSymbol !== selectedToken) continue
-          if (+poolBalance[i].balance[j].amount >= amount + fee) {
+          if (+poolBalance[i].balance[j].amount >= +amount + fee) {
             return true
           }
 
@@ -230,6 +261,56 @@ export const TransferWidget = ({
     return false
   }
 
+  const handleBTCFinish = async (hash, htlcAddress, timestamp) => {
+    const params = JSON.stringify({
+      fromAddress: walletAddress,
+      senderPubkey: bitcoinPubkey,
+      amount: feeDeduct ? amount : (+amount + fee).toFixed(8),
+      txHash: hash,
+      htlcTimeout: timestamp.toString(),
+      htlcAddress
+    })
+
+    console.log(params)
+    await fetchWrapper.post(`${backendUrl}/auth`, params)
+    const result: any = await fetchWrapper.post(`${backendUrl}/htlc`, params)
+
+    console.log(result)
+
+    if (result?.code !== 0) {
+      errorHandler(result)
+      toast.error('Failed to submit htlc request!')
+      return
+    }
+
+    do {
+      await sleep(10000)
+      try {
+        const txInfo: any = await fetchWrapper.get(
+          `${backendUrl}/btc/transaction?hash=${hash}`
+        )
+
+        if (txInfo?.status?.confirmed) {
+          setBTCSigning(false)
+          setBTCSigned(true)
+          setBTCHash(hash)
+          break
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    } while (1)
+  }
+
+  const handleHtlcContinue = async (expireTime, hash, amount) => {
+    setBTCTimestamp(expireTime)
+    setBTCSigning(false)
+    setBTCSigned(true)
+    setBTCHash(hash)
+    dispatch(setFeeDeduct(true))
+    dispatch(setAmount(amount))
+  }
+
   const handleSubmit = async () => {
     if (fee < 0) {
       toast.error('Fee is not calculated!')
@@ -237,9 +318,19 @@ export const TransferWidget = ({
       return
     }
 
-    if (dAppOption !== DAppOptions.LPDrain && balance < amount) {
+    if (
+      dAppOption !== DAppOptions.LPDrain &&
+      balance < (feeDeduct ? +amount : +amount + fee)
+    ) {
       toast.error('Insufficient balance!')
       errorHandler('Insufficient balance!')
+
+      return
+    }
+
+    if (sourceChain === ChainName.BTC && +amount < 0.00015) {
+      toast.error('Minimum BTC amount is 0.00015!')
+      errorHandler('Minimum BTC amount is 0.00015!')
       return
     }
 
@@ -256,8 +347,69 @@ export const TransferWidget = ({
         sign()
         return
       }
-    } else if (!isApproved && dAppOption !== DAppOptions.LPDrain) {
+    } else if (
+      !isApproved &&
+      dAppOption !== DAppOptions.LPDrain &&
+      sourceChain !== ChainName.BTC
+    ) {
       approve()
+      return
+    }
+
+    if (sourceChain === ChainName.BTC && !isApproved) {
+      setBTCSigning(true)
+      const unixTimestamp =
+        Math.floor(Date.now() / 1000) +
+        (expireTime === '1 hour'
+          ? 3600
+          : expireTime === '2 hours'
+            ? 7200
+            : 10800)
+      setBTCTimestamp(unixTimestamp)
+
+      const htlcScript = createHTLCScript(
+        bitcoinAddress,
+        bitcoinPubkey,
+        poolAddress,
+        unixTimestamp,
+        bitcoin.networks.testnet
+      )
+
+      const htlcAddress = htlcP2WSHAddress(htlcScript, bitcoin.networks.testnet)
+      console.log(htlcAddress, poolAddress)
+
+      // handleBTCFinish(
+      //   '1f65d98ef3ada413eb9aa583554ac98977ffe4fb79c085f03283191e47a61e10'
+      // )
+
+      try {
+        await sendBtcTransaction({
+          payload: {
+            network: {
+              type: BitcoinNetworkType.Testnet
+            },
+            recipients: [
+              {
+                address: htlcAddress!,
+                amountSats: BigInt(
+                  Math.round((feeDeduct ? +amount : +amount + fee) * 100000000)
+                )
+              }
+            ],
+            senderAddress: bitcoinAddress!
+          },
+          onFinish: async (hash) => {
+            handleBTCFinish(hash, htlcAddress, unixTimestamp)
+          },
+          onCancel: () => {
+            toast.error('Transaction cancelled.')
+            setBTCSigning(false)
+          }
+        })
+      } catch (e) {
+        setBTCSigning(false)
+        console.log(e)
+      }
       return
     }
 
@@ -280,18 +432,51 @@ export const TransferWidget = ({
         return
       }
 
-      const params = JSON.stringify({
-        originAddress: walletAddress,
-        originChain: sourceChain,
-        targetAddress:
-          mode === ModeOptions.payment
-            ? transactionOption?.targetAddress
-            : targetAddress,
-        targetChain: targetChain,
-        symbol: selectedToken,
-        amount: amount,
-        fee
-      })
+      let params
+      let feeParam
+      if (sourceChain === ChainName.BTC || targetChain === ChainName.BTC) {
+        feeParam = fee.toFixed(8)
+      } else {
+        feeParam = fee.toFixed(2)
+      }
+
+      if (sourceChain === ChainName.BTC) {
+        params = JSON.stringify({
+          originAddress: walletAddress,
+          originChain: sourceChain,
+          targetAddress:
+            mode === ModeOptions.payment
+              ? transactionOption?.targetAddress
+              : targetAddress,
+          targetChain: targetChain,
+          symbol: selectedToken,
+          amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
+          fee: feeParam,
+          htlcCreationHash: btcHash,
+          htlcCreationVout: 0,
+          htlcExpirationTimestamp: btcTimestamp.toString(),
+          htlcVersion: 'v1',
+          senderPubKey: bitcoinPubkey
+        })
+      } else {
+        params = JSON.stringify({
+          originAddress: walletAddress,
+          originChain: sourceChain,
+          targetAddress:
+            mode === ModeOptions.payment
+              ? transactionOption?.targetAddress
+              : targetAddress,
+          targetChain: targetChain,
+          symbol: selectedToken,
+          amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
+          fee: feeParam,
+          htlcCreationHash: '',
+          htlcCreationVout: 0,
+          htlcExpirationTimestamp: '0',
+          htlcVersion: '',
+          senderPubKey: ''
+        })
+      }
 
       console.log(params)
       await fetchWrapper.post(`${backendUrl}/auth`, params)
@@ -348,13 +533,13 @@ export const TransferWidget = ({
         return
       }
       if (wizardStep === 4) {
-        if (fee >= 0 && amount > 0) {
+        if (fee >= 0 && +amount > 0) {
           setWizardStep(5)
         }
         return
       }
 
-      if (fee > 0 && fee > amount && feeDeduct) {
+      if (fee > 0 && fee > +amount && feeDeduct) {
         toast.error('Fee is greater than amount to transfer!')
         errorHandler('Fee is greater than amount to transfer!')
         return
@@ -386,7 +571,7 @@ export const TransferWidget = ({
             return
           }
         }
-        if (amount <= 0) {
+        if (+amount <= 0) {
           toast.error('Invalid amount!')
           errorHandler('Invalid amount!')
           return
@@ -403,13 +588,13 @@ export const TransferWidget = ({
         )
           return
 
-        if (fee > 0 && fee > amount && feeDeduct) {
+        if (fee > 0 && fee > +amount && feeDeduct) {
           toast.error('Fee is greater than amount to transfer!')
           errorHandler('Fee is greater than amount to transfer!')
           return
         }
 
-        if (mode === ModeOptions.payment || (targetAddress && amount > 0)) {
+        if (mode === ModeOptions.payment || (targetAddress && +amount > 0)) {
           setConfirming(true)
           setFormStep(1)
         }
@@ -453,6 +638,10 @@ export const TransferWidget = ({
           return 'KYC Verify'
         }
       }
+      if (sourceChain === ChainName.BTC && !isApproved) {
+        return isBTCSigning ? 'Signing...' : 'Sign'
+      }
+
       if (
         (sourceChain !== ChainName.FIAT && isApproved) ||
         dAppOption === DAppOptions.LPDrain ||
@@ -498,7 +687,12 @@ export const TransferWidget = ({
             </h3>
           </div>
           <div className='control-buttons'>
-            <ExternalLink to={helpURL ?? 'https://docs.kima.finance/demo'}>
+            {pendingTxs > 0 ? (
+              <TxButton theme={theme} txCount={pendingTxs} />
+            ) : null}
+            <ExternalLink
+              to={helpURL ? helpURL : 'https://docs.kima.finance/demo'}
+            >
               <div className='menu-button'>I need help</div>
             </ExternalLink>
             <button
@@ -558,10 +752,11 @@ export const TransferWidget = ({
         <div className='button-group'>
           <SecondaryButton
             clickHandler={() => {
-              if (isApproving || isSubmitting || isSigning) return
+              if (isApproving || isSubmitting || isSigning || isBTCSigning)
+                return
               setWizard((prev) => !prev)
             }}
-            disabled={isApproving || isSubmitting || isSigning}
+            disabled={isApproving || isSubmitting || isSigning || isBTCSigning}
             theme={theme.colorMode}
             style={{ style: { width: '12em', marginLeft: 'auto' } }}
           >
@@ -570,7 +765,7 @@ export const TransferWidget = ({
           <SecondaryButton
             clickHandler={onBack}
             theme={theme.colorMode}
-            disabled={isApproving || isSubmitting || isSigning}
+            disabled={isApproving || isSubmitting || isSigning || isBTCSigning}
           >
             {(isWizard && wizardStep > 0) || (!isWizard && formStep > 0)
               ? 'Back'
@@ -578,8 +773,8 @@ export const TransferWidget = ({
           </SecondaryButton>
           <PrimaryButton
             clickHandler={onNext}
-            isLoading={isApproving || isSubmitting || isSigning}
-            disabled={isApproving || isSubmitting || isSigning}
+            isLoading={isApproving || isSubmitting || isSigning || isBTCSigning}
+            disabled={isApproving || isSubmitting || isSigning || isBTCSigning}
           >
             {getButtonLabel()}
           </PrimaryButton>
@@ -616,6 +811,17 @@ export const TransferWidget = ({
                 : theme.backgroundColorDark ?? '#1b1e25'
           }
         }}
+      />
+      <PendingTxPopup
+        txData={pendingTxData}
+        handleHtlcContinue={handleHtlcContinue}
+      />
+      <Tooltip
+        id='popup-tooltip'
+        className={`popup-tooltip ${theme.colorMode}`}
+        content={'Click to open popup to see pending transactions'}
+        style={{ zIndex: 10000 }}
+        place={'bottom'}
       />
     </div>
   )

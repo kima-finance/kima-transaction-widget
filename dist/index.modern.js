@@ -15,6 +15,7 @@ import toast, { toast as toast$1, Toaster } from 'react-hot-toast';
 import { useWeb3ModalProvider, useSwitchNetwork, useWeb3ModalAccount, useWeb3ModalEvents, useWeb3Modal, useWeb3ModalTheme, createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react';
 import { Tooltip } from 'react-tooltip';
 import { WalletReadyState } from '@solana/wallet-adapter-base';
+import { getAddress, AddressPurpose, BitcoinNetworkType, getCapabilities, sendBtcTransaction } from 'sats-connect';
 import { Contract } from '@ethersproject/contracts';
 import { formatUnits, parseUnits } from '@ethersproject/units';
 import { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, AccountLayout } from '@solana/spl-token';
@@ -23,6 +24,10 @@ import { ethers, utils } from 'ethers';
 import BufferLayout from 'buffer-layout';
 import sha256 from 'crypto-js/sha256.js';
 import Base64 from 'crypto-js/enc-base64.js';
+import { Buffer as Buffer$1 } from 'buffer';
+import { address, script, opcodes, payments, crypto, networks } from 'bitcoinjs-lib';
+import '@scure/base';
+import '@kimafinance/btc-signer';
 
 const Cross = ({
   width: _width = 32,
@@ -630,9 +635,53 @@ const Celo = ({
   }));
 };
 
-const ETHEREUM_KEUR_ADDRESS = '0xAFc823fcbe5945f5f38f144314663c87dA713E06';
-const POLYGON_KEUR_ADDRESS = '0x7D4325eE3A80778Af01498ca32E0C30e233ffB0d';
-const TRON_USDK_OWNER_ADDRESS = 'TBVn4bsBN4DhtZ7D3vEVpAyqkvdFn7zmpU';
+const BTC = ({
+  width: _width = 59,
+  height: _height = 58,
+  ...rest
+}) => {
+  return React.createElement("svg", Object.assign({
+    width: _width,
+    height: _height,
+    viewBox: '0 0 21 20',
+    xmlns: 'http://www.w3.org/2000/svg'
+  }, rest), React.createElement("circle", {
+    cx: '10.5',
+    cy: '10',
+    r: '10',
+    fill: '#F7931A'
+  }), React.createElement("mask", {
+    id: 'path-2-outside-1_72_686',
+    maskUnits: 'userSpaceOnUse',
+    x: '3.59804',
+    y: '2.52942',
+    width: '13',
+    height: '15',
+    fill: 'black'
+  }, React.createElement("rect", {
+    fill: 'white',
+    x: '3.59804',
+    y: '2.52942',
+    width: '13',
+    height: '15'
+  }), React.createElement("path", {
+    fillRule: 'evenodd',
+    clipRule: 'evenodd',
+    d: 'M10.4059 3.54536C10.4019 3.55333 10.2964 3.96177 10.1749 4.45589L9.94981 5.35248C9.51363 5.25087 9.33638 5.20903 9.27663 5.19309C9.23326 5.18152 9.02514 5.12901 8.76348 5.06299C8.66466 5.03806 8.5582 5.01119 8.45009 4.98388C8.05574 4.88626 7.72513 4.80457 7.71318 4.80457C7.70123 4.80457 7.62754 5.07155 7.54787 5.39631C7.4682 5.72307 7.40447 5.99005 7.40845 5.99205C7.41244 5.99205 7.59766 6.03787 7.82272 6.09366C8.04778 6.14945 8.2808 6.21321 8.34055 6.23512C8.4003 6.25903 8.48992 6.31083 8.53971 6.35467C8.5915 6.3985 8.64726 6.47222 8.67316 6.53C8.69706 6.5838 8.72096 6.67146 8.72693 6.72725C8.73888 6.81292 8.65523 7.16558 8.10752 9.36919C7.52198 11.7222 7.47019 11.9175 7.41244 11.9892C7.37858 12.0331 7.32082 12.0869 7.28298 12.1128C7.2312 12.1466 7.18738 12.1566 7.09576 12.1566C7.02008 12.1566 6.8249 12.1167 6.56399 12.051L6.15172 11.9474L5.59804 13.2225C7.31883 13.6549 7.82471 13.7864 7.83467 13.7963C7.84463 13.8043 7.75102 14.2108 7.62754 14.7029C7.52892 15.0943 7.44174 15.4375 7.40859 15.5679C7.40024 15.6008 7.39531 15.6202 7.39451 15.6234C7.38655 15.6473 7.49409 15.6812 7.93823 15.7888C8.24097 15.8645 8.4959 15.9183 8.50187 15.9083C8.50785 15.9003 8.6154 15.4879 8.73689 14.9958L8.96195 14.0992C9.63513 14.2685 9.83628 14.3223 9.84027 14.3283C9.84624 14.3343 9.75064 14.7467 9.62517 15.2448C9.49969 15.7429 9.40011 16.1534 9.4021 16.1554C9.40385 16.1571 9.59671 16.2063 9.8494 16.2707C9.88512 16.2798 9.92203 16.2892 9.95977 16.2988C10.2625 16.3765 10.5154 16.4343 10.5194 16.4243C10.5227 16.4178 10.5937 16.1334 10.6889 15.7524C10.7091 15.6713 10.7304 15.5859 10.7524 15.4979L10.9795 14.5834C11.031 14.591 11.0999 14.6014 11.1782 14.6132C11.2635 14.626 11.3599 14.6405 11.4575 14.6551C11.6447 14.683 11.9435 14.7168 12.1247 14.7268C12.3637 14.7427 12.529 14.7427 12.7322 14.7268C12.8855 14.7149 13.0827 14.6909 13.1703 14.673C13.2579 14.6571 13.3974 14.6212 13.479 14.5933C13.5607 14.5654 13.6822 14.5176 13.7479 14.4877C13.8136 14.4558 13.9351 14.3861 14.0168 14.3323C14.0984 14.2765 14.2239 14.1749 14.2936 14.1052C14.3633 14.0354 14.4749 13.9079 14.5406 13.8203C14.6063 13.7326 14.7059 13.5612 14.7656 13.4417C14.8234 13.3222 14.907 13.1149 14.9509 12.9834C14.9947 12.8519 15.0445 12.6686 15.0624 12.575C15.0803 12.4814 15.1002 12.306 15.1062 12.1865C15.1142 12.0271 15.1082 11.9155 15.0843 11.778C15.0644 11.6744 15.0226 11.521 14.9907 11.4393C14.9568 11.3576 14.8831 11.2182 14.8234 11.1305C14.7656 11.0428 14.6481 10.9034 14.5625 10.8217C14.4749 10.738 14.3374 10.6264 14.2558 10.5706C14.1741 10.5148 14.0626 10.4451 14.0068 10.4152L13.9072 10.3574C14.2 10.2618 14.3573 10.1941 14.443 10.1442C14.5286 10.0944 14.6621 9.99681 14.7397 9.92508C14.8154 9.85335 14.917 9.74178 14.9628 9.67603C15.0106 9.61028 15.0743 9.50269 15.1082 9.43694C15.1401 9.37119 15.1918 9.24567 15.2197 9.158C15.2496 9.07033 15.2914 8.89102 15.3153 8.75952C15.3472 8.57223 15.3532 8.47261 15.3452 8.30126C15.3392 8.17972 15.3153 8.01037 15.2914 7.9227C15.2695 7.83503 15.2257 7.70951 15.1958 7.64376C15.164 7.57801 15.1002 7.46644 15.0524 7.39471C15.0046 7.32298 14.9031 7.19945 14.8254 7.11776C14.7477 7.03807 14.6123 6.91852 14.5246 6.85277C14.437 6.78702 14.2797 6.68142 14.1761 6.62165C14.0725 6.55989 13.8754 6.46027 13.7379 6.3985C13.6005 6.33674 13.3974 6.25106 13.2838 6.20723C13.1305 6.14945 13.0827 6.12155 13.0887 6.09964C13.0946 6.0837 13.1982 5.67127 13.3197 5.18313C13.4412 4.69498 13.5368 4.2965 13.5348 4.29451C13.5322 4.29324 13.4308 4.26765 13.2802 4.22963C13.1947 4.20804 13.0933 4.18246 12.9851 4.15504C12.6366 4.06737 12.4374 4.02553 12.4274 4.03749C12.4175 4.04745 12.3159 4.44992 12.1984 4.9281C12.0809 5.40827 11.9753 5.80078 11.9654 5.80078C11.9554 5.80078 11.7542 5.75495 11.5232 5.69916C11.2902 5.64537 11.095 5.59556 11.089 5.58958C11.0831 5.58559 11.1807 5.17914 11.3041 4.68901C11.4276 4.19887 11.5252 3.7964 11.5232 3.79441C11.5192 3.79242 11.2822 3.73265 10.9954 3.66092C10.7066 3.58919 10.4577 3.52942 10.4417 3.52942C10.4278 3.52942 10.4099 3.5354 10.4059 3.54337V3.54536ZM10.7824 6.93276C10.7764 6.94073 10.651 7.43286 10.5036 8.0266C10.3542 8.62233 10.2327 9.12044 10.2327 9.13239C10.2327 9.14833 10.3702 9.19216 10.6052 9.25194C10.8123 9.30374 11.0792 9.3655 11.1987 9.38742C11.3182 9.40934 11.5253 9.43524 11.6568 9.4452C11.7962 9.45516 11.9814 9.45516 12.0989 9.4452C12.2124 9.43524 12.3718 9.40535 12.4574 9.37746C12.543 9.35156 12.6526 9.30374 12.7024 9.27186C12.7522 9.24197 12.8259 9.1822 12.8657 9.14235C12.9075 9.10251 12.9633 9.03277 12.9912 8.98894C13.0191 8.9451 13.0649 8.83951 13.0927 8.75383C13.1306 8.63827 13.1445 8.55858 13.1465 8.43106C13.1465 8.30355 13.1346 8.22783 13.1007 8.12224C13.0748 8.04453 13.0151 7.93296 12.9713 7.87318C12.9254 7.81341 12.8518 7.72973 12.8059 7.68789C12.7601 7.64804 12.6566 7.57233 12.5769 7.52053C12.4992 7.46872 12.3479 7.38903 12.2443 7.3432C12.1407 7.29738 11.9436 7.22366 11.8061 7.17982C11.6687 7.13599 11.3959 7.06426 11.1987 7.01844C11.0015 6.97261 10.8282 6.93077 10.8143 6.92679C10.8003 6.9228 10.7864 6.92479 10.7824 6.93276ZM9.63523 11.5133C9.46992 12.1908 9.33648 12.7466 9.34046 12.7486C9.34445 12.7506 9.50378 12.7925 9.69498 12.8423C9.88618 12.8921 10.1511 12.9558 10.2825 12.9817C10.414 13.0096 10.6191 13.0475 10.7406 13.0674C10.9019 13.0933 11.0672 13.1033 11.368 13.1033C11.6986 13.1033 11.8041 13.0953 11.9256 13.0654C12.0073 13.0455 12.1467 12.9957 12.2343 12.9538C12.3399 12.904 12.4295 12.8423 12.5012 12.7725C12.561 12.7128 12.6287 12.6291 12.6546 12.5853C12.6805 12.5414 12.7203 12.4518 12.7422 12.386C12.7661 12.3203 12.79 12.1908 12.796 12.0971C12.802 12.0015 12.798 11.8799 12.784 11.8182C12.7721 11.7584 12.7342 11.6508 12.6984 11.5791C12.6606 11.5014 12.5789 11.3918 12.4933 11.3021C12.4176 11.2224 12.2821 11.1089 12.1945 11.0511C12.1069 10.9913 11.9416 10.8997 11.8261 10.8439C11.7105 10.7901 11.4994 10.7044 11.358 10.6566C11.2166 10.6068 10.9955 10.541 10.8701 10.5072C10.7446 10.4733 10.4837 10.4095 10.2925 10.3637C10.1013 10.3199 9.94195 10.284 9.93995 10.284C9.93796 10.284 9.80054 10.8379 9.63523 11.5133Z'
+  })), React.createElement("path", {
+    fillRule: 'evenodd',
+    clipRule: 'evenodd',
+    d: 'M10.4059 3.54536C10.4019 3.55333 10.2964 3.96177 10.1749 4.45589L9.94981 5.35248C9.51363 5.25087 9.33638 5.20903 9.27663 5.19309C9.23326 5.18152 9.02514 5.12901 8.76348 5.06299C8.66466 5.03806 8.5582 5.01119 8.45009 4.98388C8.05574 4.88626 7.72513 4.80457 7.71318 4.80457C7.70123 4.80457 7.62754 5.07155 7.54787 5.39631C7.4682 5.72307 7.40447 5.99005 7.40845 5.99205C7.41244 5.99205 7.59766 6.03787 7.82272 6.09366C8.04778 6.14945 8.2808 6.21321 8.34055 6.23512C8.4003 6.25903 8.48992 6.31083 8.53971 6.35467C8.5915 6.3985 8.64726 6.47222 8.67316 6.53C8.69706 6.5838 8.72096 6.67146 8.72693 6.72725C8.73888 6.81292 8.65523 7.16558 8.10752 9.36919C7.52198 11.7222 7.47019 11.9175 7.41244 11.9892C7.37858 12.0331 7.32082 12.0869 7.28298 12.1128C7.2312 12.1466 7.18738 12.1566 7.09576 12.1566C7.02008 12.1566 6.8249 12.1167 6.56399 12.051L6.15172 11.9474L5.59804 13.2225C7.31883 13.6549 7.82471 13.7864 7.83467 13.7963C7.84463 13.8043 7.75102 14.2108 7.62754 14.7029C7.52892 15.0943 7.44174 15.4375 7.40859 15.5679C7.40024 15.6008 7.39531 15.6202 7.39451 15.6234C7.38655 15.6473 7.49409 15.6812 7.93823 15.7888C8.24097 15.8645 8.4959 15.9183 8.50187 15.9083C8.50785 15.9003 8.6154 15.4879 8.73689 14.9958L8.96195 14.0992C9.63513 14.2685 9.83628 14.3223 9.84027 14.3283C9.84624 14.3343 9.75064 14.7467 9.62517 15.2448C9.49969 15.7429 9.40011 16.1534 9.4021 16.1554C9.40385 16.1571 9.59671 16.2063 9.8494 16.2707C9.88512 16.2798 9.92203 16.2892 9.95977 16.2988C10.2625 16.3765 10.5154 16.4343 10.5194 16.4243C10.5227 16.4178 10.5937 16.1334 10.6889 15.7524C10.7091 15.6713 10.7304 15.5859 10.7524 15.4979L10.9795 14.5834C11.031 14.591 11.0999 14.6014 11.1782 14.6132C11.2635 14.626 11.3599 14.6405 11.4575 14.6551C11.6447 14.683 11.9435 14.7168 12.1247 14.7268C12.3637 14.7427 12.529 14.7427 12.7322 14.7268C12.8855 14.7149 13.0827 14.6909 13.1703 14.673C13.2579 14.6571 13.3974 14.6212 13.479 14.5933C13.5607 14.5654 13.6822 14.5176 13.7479 14.4877C13.8136 14.4558 13.9351 14.3861 14.0168 14.3323C14.0984 14.2765 14.2239 14.1749 14.2936 14.1052C14.3633 14.0354 14.4749 13.9079 14.5406 13.8203C14.6063 13.7326 14.7059 13.5612 14.7656 13.4417C14.8234 13.3222 14.907 13.1149 14.9509 12.9834C14.9947 12.8519 15.0445 12.6686 15.0624 12.575C15.0803 12.4814 15.1002 12.306 15.1062 12.1865C15.1142 12.0271 15.1082 11.9155 15.0843 11.778C15.0644 11.6744 15.0226 11.521 14.9907 11.4393C14.9568 11.3576 14.8831 11.2182 14.8234 11.1305C14.7656 11.0428 14.6481 10.9034 14.5625 10.8217C14.4749 10.738 14.3374 10.6264 14.2558 10.5706C14.1741 10.5148 14.0626 10.4451 14.0068 10.4152L13.9072 10.3574C14.2 10.2618 14.3573 10.1941 14.443 10.1442C14.5286 10.0944 14.6621 9.99681 14.7397 9.92508C14.8154 9.85335 14.917 9.74178 14.9628 9.67603C15.0106 9.61028 15.0743 9.50269 15.1082 9.43694C15.1401 9.37119 15.1918 9.24567 15.2197 9.158C15.2496 9.07033 15.2914 8.89102 15.3153 8.75952C15.3472 8.57223 15.3532 8.47261 15.3452 8.30126C15.3392 8.17972 15.3153 8.01037 15.2914 7.9227C15.2695 7.83503 15.2257 7.70951 15.1958 7.64376C15.164 7.57801 15.1002 7.46644 15.0524 7.39471C15.0046 7.32298 14.9031 7.19945 14.8254 7.11776C14.7477 7.03807 14.6123 6.91852 14.5246 6.85277C14.437 6.78702 14.2797 6.68142 14.1761 6.62165C14.0725 6.55989 13.8754 6.46027 13.7379 6.3985C13.6005 6.33674 13.3974 6.25106 13.2838 6.20723C13.1305 6.14945 13.0827 6.12155 13.0887 6.09964C13.0946 6.0837 13.1982 5.67127 13.3197 5.18313C13.4412 4.69498 13.5368 4.2965 13.5348 4.29451C13.5322 4.29324 13.4308 4.26765 13.2802 4.22963C13.1947 4.20804 13.0933 4.18246 12.9851 4.15504C12.6366 4.06737 12.4374 4.02553 12.4274 4.03749C12.4175 4.04745 12.3159 4.44992 12.1984 4.9281C12.0809 5.40827 11.9753 5.80078 11.9654 5.80078C11.9554 5.80078 11.7542 5.75495 11.5232 5.69916C11.2902 5.64537 11.095 5.59556 11.089 5.58958C11.0831 5.58559 11.1807 5.17914 11.3041 4.68901C11.4276 4.19887 11.5252 3.7964 11.5232 3.79441C11.5192 3.79242 11.2822 3.73265 10.9954 3.66092C10.7066 3.58919 10.4577 3.52942 10.4417 3.52942C10.4278 3.52942 10.4099 3.5354 10.4059 3.54337V3.54536ZM10.7824 6.93276C10.7764 6.94073 10.651 7.43286 10.5036 8.0266C10.3542 8.62233 10.2327 9.12044 10.2327 9.13239C10.2327 9.14833 10.3702 9.19216 10.6052 9.25194C10.8123 9.30374 11.0792 9.3655 11.1987 9.38742C11.3182 9.40934 11.5253 9.43524 11.6568 9.4452C11.7962 9.45516 11.9814 9.45516 12.0989 9.4452C12.2124 9.43524 12.3718 9.40535 12.4574 9.37746C12.543 9.35156 12.6526 9.30374 12.7024 9.27186C12.7522 9.24197 12.8259 9.1822 12.8657 9.14235C12.9075 9.10251 12.9633 9.03277 12.9912 8.98894C13.0191 8.9451 13.0649 8.83951 13.0927 8.75383C13.1306 8.63827 13.1445 8.55858 13.1465 8.43106C13.1465 8.30355 13.1346 8.22783 13.1007 8.12224C13.0748 8.04453 13.0151 7.93296 12.9713 7.87318C12.9254 7.81341 12.8518 7.72973 12.8059 7.68789C12.7601 7.64804 12.6566 7.57233 12.5769 7.52053C12.4992 7.46872 12.3479 7.38903 12.2443 7.3432C12.1407 7.29738 11.9436 7.22366 11.8061 7.17982C11.6687 7.13599 11.3959 7.06426 11.1987 7.01844C11.0015 6.97261 10.8282 6.93077 10.8143 6.92679C10.8003 6.9228 10.7864 6.92479 10.7824 6.93276ZM9.63523 11.5133C9.46992 12.1908 9.33648 12.7466 9.34046 12.7486C9.34445 12.7506 9.50378 12.7925 9.69498 12.8423C9.88618 12.8921 10.1511 12.9558 10.2825 12.9817C10.414 13.0096 10.6191 13.0475 10.7406 13.0674C10.9019 13.0933 11.0672 13.1033 11.368 13.1033C11.6986 13.1033 11.8041 13.0953 11.9256 13.0654C12.0073 13.0455 12.1467 12.9957 12.2343 12.9538C12.3399 12.904 12.4295 12.8423 12.5012 12.7725C12.561 12.7128 12.6287 12.6291 12.6546 12.5853C12.6805 12.5414 12.7203 12.4518 12.7422 12.386C12.7661 12.3203 12.79 12.1908 12.796 12.0971C12.802 12.0015 12.798 11.8799 12.784 11.8182C12.7721 11.7584 12.7342 11.6508 12.6984 11.5791C12.6606 11.5014 12.5789 11.3918 12.4933 11.3021C12.4176 11.2224 12.2821 11.1089 12.1945 11.0511C12.1069 10.9913 11.9416 10.8997 11.8261 10.8439C11.7105 10.7901 11.4994 10.7044 11.358 10.6566C11.2166 10.6068 10.9955 10.541 10.8701 10.5072C10.7446 10.4733 10.4837 10.4095 10.2925 10.3637C10.1013 10.3199 9.94195 10.284 9.93995 10.284C9.93796 10.284 9.80054 10.8379 9.63523 11.5133Z',
+    fill: '#F7931A'
+  }), React.createElement("path", {
+    fillRule: 'evenodd',
+    clipRule: 'evenodd',
+    d: 'M10.4059 3.54536C10.4019 3.55333 10.2964 3.96177 10.1749 4.45589L9.94981 5.35248C9.51363 5.25087 9.33638 5.20903 9.27663 5.19309C9.23326 5.18152 9.02514 5.12901 8.76348 5.06299C8.66466 5.03806 8.5582 5.01119 8.45009 4.98388C8.05574 4.88626 7.72513 4.80457 7.71318 4.80457C7.70123 4.80457 7.62754 5.07155 7.54787 5.39631C7.4682 5.72307 7.40447 5.99005 7.40845 5.99205C7.41244 5.99205 7.59766 6.03787 7.82272 6.09366C8.04778 6.14945 8.2808 6.21321 8.34055 6.23512C8.4003 6.25903 8.48992 6.31083 8.53971 6.35467C8.5915 6.3985 8.64726 6.47222 8.67316 6.53C8.69706 6.5838 8.72096 6.67146 8.72693 6.72725C8.73888 6.81292 8.65523 7.16558 8.10752 9.36919C7.52198 11.7222 7.47019 11.9175 7.41244 11.9892C7.37858 12.0331 7.32082 12.0869 7.28298 12.1128C7.2312 12.1466 7.18738 12.1566 7.09576 12.1566C7.02008 12.1566 6.8249 12.1167 6.56399 12.051L6.15172 11.9474L5.59804 13.2225C7.31883 13.6549 7.82471 13.7864 7.83467 13.7963C7.84463 13.8043 7.75102 14.2108 7.62754 14.7029C7.52892 15.0943 7.44174 15.4375 7.40859 15.5679C7.40024 15.6008 7.39531 15.6202 7.39451 15.6234C7.38655 15.6473 7.49409 15.6812 7.93823 15.7888C8.24097 15.8645 8.4959 15.9183 8.50187 15.9083C8.50785 15.9003 8.6154 15.4879 8.73689 14.9958L8.96195 14.0992C9.63513 14.2685 9.83628 14.3223 9.84027 14.3283C9.84624 14.3343 9.75064 14.7467 9.62517 15.2448C9.49969 15.7429 9.40011 16.1534 9.4021 16.1554C9.40385 16.1571 9.59671 16.2063 9.8494 16.2707C9.88512 16.2798 9.92203 16.2892 9.95977 16.2988C10.2625 16.3765 10.5154 16.4343 10.5194 16.4243C10.5227 16.4178 10.5937 16.1334 10.6889 15.7524C10.7091 15.6713 10.7304 15.5859 10.7524 15.4979L10.9795 14.5834C11.031 14.591 11.0999 14.6014 11.1782 14.6132C11.2635 14.626 11.3599 14.6405 11.4575 14.6551C11.6447 14.683 11.9435 14.7168 12.1247 14.7268C12.3637 14.7427 12.529 14.7427 12.7322 14.7268C12.8855 14.7149 13.0827 14.6909 13.1703 14.673C13.2579 14.6571 13.3974 14.6212 13.479 14.5933C13.5607 14.5654 13.6822 14.5176 13.7479 14.4877C13.8136 14.4558 13.9351 14.3861 14.0168 14.3323C14.0984 14.2765 14.2239 14.1749 14.2936 14.1052C14.3633 14.0354 14.4749 13.9079 14.5406 13.8203C14.6063 13.7326 14.7059 13.5612 14.7656 13.4417C14.8234 13.3222 14.907 13.1149 14.9509 12.9834C14.9947 12.8519 15.0445 12.6686 15.0624 12.575C15.0803 12.4814 15.1002 12.306 15.1062 12.1865C15.1142 12.0271 15.1082 11.9155 15.0843 11.778C15.0644 11.6744 15.0226 11.521 14.9907 11.4393C14.9568 11.3576 14.8831 11.2182 14.8234 11.1305C14.7656 11.0428 14.6481 10.9034 14.5625 10.8217C14.4749 10.738 14.3374 10.6264 14.2558 10.5706C14.1741 10.5148 14.0626 10.4451 14.0068 10.4152L13.9072 10.3574C14.2 10.2618 14.3573 10.1941 14.443 10.1442C14.5286 10.0944 14.6621 9.99681 14.7397 9.92508C14.8154 9.85335 14.917 9.74178 14.9628 9.67603C15.0106 9.61028 15.0743 9.50269 15.1082 9.43694C15.1401 9.37119 15.1918 9.24567 15.2197 9.158C15.2496 9.07033 15.2914 8.89102 15.3153 8.75952C15.3472 8.57223 15.3532 8.47261 15.3452 8.30126C15.3392 8.17972 15.3153 8.01037 15.2914 7.9227C15.2695 7.83503 15.2257 7.70951 15.1958 7.64376C15.164 7.57801 15.1002 7.46644 15.0524 7.39471C15.0046 7.32298 14.9031 7.19945 14.8254 7.11776C14.7477 7.03807 14.6123 6.91852 14.5246 6.85277C14.437 6.78702 14.2797 6.68142 14.1761 6.62165C14.0725 6.55989 13.8754 6.46027 13.7379 6.3985C13.6005 6.33674 13.3974 6.25106 13.2838 6.20723C13.1305 6.14945 13.0827 6.12155 13.0887 6.09964C13.0946 6.0837 13.1982 5.67127 13.3197 5.18313C13.4412 4.69498 13.5368 4.2965 13.5348 4.29451C13.5322 4.29324 13.4308 4.26765 13.2802 4.22963C13.1947 4.20804 13.0933 4.18246 12.9851 4.15504C12.6366 4.06737 12.4374 4.02553 12.4274 4.03749C12.4175 4.04745 12.3159 4.44992 12.1984 4.9281C12.0809 5.40827 11.9753 5.80078 11.9654 5.80078C11.9554 5.80078 11.7542 5.75495 11.5232 5.69916C11.2902 5.64537 11.095 5.59556 11.089 5.58958C11.0831 5.58559 11.1807 5.17914 11.3041 4.68901C11.4276 4.19887 11.5252 3.7964 11.5232 3.79441C11.5192 3.79242 11.2822 3.73265 10.9954 3.66092C10.7066 3.58919 10.4577 3.52942 10.4417 3.52942C10.4278 3.52942 10.4099 3.5354 10.4059 3.54337V3.54536ZM10.7824 6.93276C10.7764 6.94073 10.651 7.43286 10.5036 8.0266C10.3542 8.62233 10.2327 9.12044 10.2327 9.13239C10.2327 9.14833 10.3702 9.19216 10.6052 9.25194C10.8123 9.30374 11.0792 9.3655 11.1987 9.38742C11.3182 9.40934 11.5253 9.43524 11.6568 9.4452C11.7962 9.45516 11.9814 9.45516 12.0989 9.4452C12.2124 9.43524 12.3718 9.40535 12.4574 9.37746C12.543 9.35156 12.6526 9.30374 12.7024 9.27186C12.7522 9.24197 12.8259 9.1822 12.8657 9.14235C12.9075 9.10251 12.9633 9.03277 12.9912 8.98894C13.0191 8.9451 13.0649 8.83951 13.0927 8.75383C13.1306 8.63827 13.1445 8.55858 13.1465 8.43106C13.1465 8.30355 13.1346 8.22783 13.1007 8.12224C13.0748 8.04453 13.0151 7.93296 12.9713 7.87318C12.9254 7.81341 12.8518 7.72973 12.8059 7.68789C12.7601 7.64804 12.6566 7.57233 12.5769 7.52053C12.4992 7.46872 12.3479 7.38903 12.2443 7.3432C12.1407 7.29738 11.9436 7.22366 11.8061 7.17982C11.6687 7.13599 11.3959 7.06426 11.1987 7.01844C11.0015 6.97261 10.8282 6.93077 10.8143 6.92679C10.8003 6.9228 10.7864 6.92479 10.7824 6.93276ZM9.63523 11.5133C9.46992 12.1908 9.33648 12.7466 9.34046 12.7486C9.34445 12.7506 9.50378 12.7925 9.69498 12.8423C9.88618 12.8921 10.1511 12.9558 10.2825 12.9817C10.414 13.0096 10.6191 13.0475 10.7406 13.0674C10.9019 13.0933 11.0672 13.1033 11.368 13.1033C11.6986 13.1033 11.8041 13.0953 11.9256 13.0654C12.0073 13.0455 12.1467 12.9957 12.2343 12.9538C12.3399 12.904 12.4295 12.8423 12.5012 12.7725C12.561 12.7128 12.6287 12.6291 12.6546 12.5853C12.6805 12.5414 12.7203 12.4518 12.7422 12.386C12.7661 12.3203 12.79 12.1908 12.796 12.0971C12.802 12.0015 12.798 11.8799 12.784 11.8182C12.7721 11.7584 12.7342 11.6508 12.6984 11.5791C12.6606 11.5014 12.5789 11.3918 12.4933 11.3021C12.4176 11.2224 12.2821 11.1089 12.1945 11.0511C12.1069 10.9913 11.9416 10.8997 11.8261 10.8439C11.7105 10.7901 11.4994 10.7044 11.358 10.6566C11.2166 10.6068 10.9955 10.541 10.8701 10.5072C10.7446 10.4733 10.4837 10.4095 10.2925 10.3637C10.1013 10.3199 9.94195 10.284 9.93995 10.284C9.93796 10.284 9.80054 10.8379 9.63523 11.5133Z',
+    stroke: 'black',
+    strokeWidth: '2',
+    mask: 'url(#path-2-outside-1_72_686)'
+  }));
+};
 
 var ChainName;
 (function (ChainName) {
@@ -646,6 +695,7 @@ var ChainName;
   ChainName["POLYGON_ZKEVM"] = "ZKE";
   ChainName["TRON"] = "TRX";
   ChainName["FIAT"] = "FIAT";
+  ChainName["BTC"] = "BTC";
 })(ChainName || (ChainName = {}));
 var SupportedChainId;
 (function (SupportedChainId) {
@@ -676,7 +726,8 @@ const CHAIN_NAMES_TO_STRING = {
   [ChainName.ARBITRUM]: 'Arbitrum',
   [ChainName.POLYGON_ZKEVM]: 'Polygon zkEVM',
   [ChainName.TRON]: 'Tron',
-  [ChainName.FIAT]: 'Pay with FIAT'
+  [ChainName.FIAT]: 'Pay with FIAT',
+  [ChainName.BTC]: 'Bitcoin'
 };
 const CHAIN_STRING_TO_NAME = {
   ['Ethereum']: ChainName.ETHEREUM,
@@ -688,7 +739,8 @@ const CHAIN_STRING_TO_NAME = {
   ['Arbitrum']: ChainName.ARBITRUM,
   ['Polygon zkEVM']: ChainName.POLYGON_ZKEVM,
   ['Tron']: ChainName.TRON,
-  ['Pay with FIAT']: ChainName.FIAT
+  ['Pay with FIAT']: ChainName.FIAT,
+  ['Bitcoin']: ChainName.BTC
 };
 const CHAIN_NAMES_TO_EXPLORER = {
   [ChainName.ETHEREUM]: 'sepolia.etherscan.io',
@@ -699,7 +751,8 @@ const CHAIN_NAMES_TO_EXPLORER = {
   [ChainName.OPTIMISM]: 'sepolia-optimism.etherscan.io',
   [ChainName.ARBITRUM]: 'sepolia.arbiscan.io',
   [ChainName.POLYGON_ZKEVM]: 'cardona-zkevm.polygonscan.com',
-  [ChainName.TRON]: 'nile.tronscan.org/#'
+  [ChainName.TRON]: 'nile.tronscan.org/#',
+  [ChainName.BTC]: 'mempool.space/testnet'
 };
 const CHAIN_IDS_TO_NAMES = {
   [SupportedChainId.ETHEREUM]: ChainName.ETHEREUM,
@@ -722,6 +775,10 @@ const networkOptions = [{
   id: ChainName.BSC,
   label: 'Binance',
   icon: BNB
+}, {
+  id: ChainName.BTC,
+  label: 'Bitcoin',
+  icon: BTC
 }, {
   id: ChainName.ETHEREUM,
   label: 'Ethereum',
@@ -766,17 +823,19 @@ const COIN_LIST = {
   },
   KEUR: {
     symbol: 'KEUR',
-    icon: KEUR,
-    address: {
-      ETH: ETHEREUM_KEUR_ADDRESS,
-      POL: POLYGON_KEUR_ADDRESS
-    }
+    icon: KEUR
+  },
+  WBTC: {
+    symbol: 'WBTC',
+    icon: BTC
   }
 };
+const ExpireTimeOptions = ['1 hour', '2 hours', '3 hours'];
 var TransactionStatus;
 (function (TransactionStatus) {
   TransactionStatus["AVAILABLE"] = "Available";
-  TransactionStatus["CONFIRMED"] = "Confirmed";
+  TransactionStatus["CONFIRMED"] = "Pull_Confirmed";
+  TransactionStatus["PULLED"] = "Pulled";
   TransactionStatus["PAID"] = "Paid";
   TransactionStatus["COMPLETED"] = "Completed";
   TransactionStatus["FAILEDTOPAY"] = "FailedToPay";
@@ -825,17 +884,20 @@ const initialState = {
   sourceChain: '',
   targetChain: '',
   targetAddress: '',
+  bitcoinAddress: '',
+  bitcoinPubkey: '',
   solanaConnectModal: false,
   tronConnectModal: false,
   helpPopup: false,
   hashPopup: false,
+  pendingTxPopup: false,
   bankPopup: false,
   walletAutoConnect: true,
   provider: undefined,
   dAppOption: DAppOptions.None,
   solanaProvider: undefined,
   submitted: false,
-  amount: 0,
+  amount: '',
   feeDeduct: false,
   errorHandler: () => void 0,
   closeHandler: () => void 0,
@@ -860,7 +922,8 @@ const initialState = {
   targetNetworkFetching: false,
   signature: '',
   uuid: '',
-  kycStatus: ''
+  kycStatus: '',
+  expireTime: '1 hour'
 };
 const optionSlice = createSlice({
   name: 'option',
@@ -870,12 +933,12 @@ const optionSlice = createSlice({
       state.submitted = false;
       state.txId = -1;
       state.serviceFee = -1;
-      state.amount = 0;
+      state.amount = '';
       state.targetAddress = '';
       state.compliantOption = true;
       state.sourceCompliant = 'low';
       state.targetCompliant = 'low';
-      state.useFIAT = false;
+      state.bitcoinAddress = '', state.useFIAT = false;
       state.tokenOptions = {}, state.bankDetails = {
         iban: '',
         recipient: ''
@@ -902,6 +965,12 @@ const optionSlice = createSlice({
     setTargetAddress: (state, action) => {
       state.targetAddress = action.payload;
     },
+    setBitcoinAddress: (state, action) => {
+      state.bitcoinAddress = action.payload;
+    },
+    setBitcoinPubkey: (state, action) => {
+      state.bitcoinPubkey = action.payload;
+    },
     setSolanaConnectModal: (state, action) => {
       state.solanaConnectModal = action.payload;
     },
@@ -913,6 +982,9 @@ const optionSlice = createSlice({
     },
     setHashPopup: (state, action) => {
       state.hashPopup = action.payload;
+    },
+    setPendingTxPopup: (state, action) => {
+      state.pendingTxPopup = action.payload;
     },
     setBankPopup: (state, action) => {
       state.bankPopup = action.payload;
@@ -1006,6 +1078,9 @@ const optionSlice = createSlice({
     },
     setKYCStatus: (state, action) => {
       state.kycStatus = action.payload;
+    },
+    setExpireTime: (state, action) => {
+      state.expireTime = action.payload;
     }
   }
 });
@@ -1017,10 +1092,13 @@ const {
   setSourceChain,
   setTargetChain,
   setTargetAddress,
+  setBitcoinAddress,
+  setBitcoinPubkey,
   setSolanaConnectModal,
   setTronConnectModal,
   setHelpPopup,
   setHashPopup,
+  setPendingTxPopup,
   setBankPopup,
   setSolanaProvider,
   setProvider,
@@ -1051,7 +1129,8 @@ const {
   setTargetChainFetching,
   setSignature,
   setUuid,
-  setKYCStatus
+  setKYCStatus,
+  setExpireTime
 } = optionSlice.actions;
 var optionReducer = optionSlice.reducer;
 
@@ -1073,10 +1152,13 @@ const selectKimaExplorer = state => state.option.kimaExplorerUrl;
 const selectSourceChain = state => state.option.sourceChain;
 const selectTargetChain = state => state.option.targetChain;
 const selectTargetAddress = state => state.option.targetAddress;
+const selectBitcoinAddress = state => state.option.bitcoinAddress;
+const selectBitcoinPubkey = state => state.option.bitcoinPubkey;
 const selectSolanaConnectModal = state => state.option.solanaConnectModal;
 const selectTronConnectModal = state => state.option.tronConnectModal;
 const selectHelpPopup = state => state.option.helpPopup;
 const selectHashPopup = state => state.option.hashPopup;
+const selectPendingTxPopup = state => state.option.pendingTxPopup;
 const selectBankPopup = state => state.option.bankPopup;
 const selectSolanaProvider = state => state.option.solanaProvider;
 const selectDappOption = state => state.option.dAppOption;
@@ -1105,6 +1187,7 @@ const selectTargetChainFetching = state => state.option.targetNetworkFetching;
 const selectSignature = state => state.option.signature;
 const selectUuid = state => state.option.uuid;
 const selectKycStatus = state => state.option.kycStatus;
+const selectExpireTime = state => state.option.expireTime;
 
 const Loading180Ring = ({
   width: _width = 24,
@@ -1625,10 +1708,10 @@ const WalletSelect = () => {
   }), React.createElement("span", null, "Install", React.createElement("br", null), wallet.adapter.name))))));
 };
 
-const createWalletStatus = (isReady, statusMessage = '', forceNetworkSwitch, walletAddress) => ({
+const createWalletStatus = (isReady, statusMessage = '', connectBitcoinWallet, walletAddress) => ({
   isReady,
   statusMessage,
-  forceNetworkSwitch,
+  connectBitcoinWallet,
   walletAddress
 });
 function useIsWalletReady() {
@@ -1646,6 +1729,7 @@ function useIsWalletReady() {
   const {
     switchNetwork
   } = useSwitchNetwork();
+  const bitcoinAddress = useSelector(selectBitcoinAddress);
   const web3ModalAccountInfo = useWeb3ModalAccount();
   const {
     address: evmAddress,
@@ -1668,6 +1752,9 @@ function useIsWalletReady() {
   const correctEvmNetwork = CHAIN_NAMES_TO_IDS[correctChain];
   const hasCorrectEvmNetwork = evmChainId === correctEvmNetwork;
   const events = useWeb3ModalEvents();
+  const [capabilityState, setCapabilityState] = useState('loading');
+  const [capabilities, setCapabilities] = useState();
+  const capabilityMessage = capabilityState === 'loading' ? 'Checking capabilities...' : capabilityState === 'cancelled' ? 'Capability check cancelled by wallet. Please refresh the page and try again.' : capabilityState === 'missing' ? 'Could not find an installed Sats Connect capable wallet. Please install a wallet and try again.' : !capabilities ? 'Something went wrong with getting capabilities' : undefined;
   useEffect(() => {
     var _events$data, _events$data2;
     if (((_events$data = events.data) === null || _events$data === void 0 ? void 0 : _events$data.event) === 'SELECT_WALLET' || ((_events$data2 = events.data) === null || _events$data2 === void 0 ? void 0 : _events$data2.event) === 'CONNECT_SUCCESS') {
@@ -1675,6 +1762,57 @@ function useIsWalletReady() {
       localStorage.setItem('wallet', (_events$data3 = events.data) === null || _events$data3 === void 0 ? void 0 : (_events$data3$propert = _events$data3.properties) === null || _events$data3$propert === void 0 ? void 0 : _events$data3$propert.name);
     }
   }, [events]);
+  useEffect(() => {
+    const runCapabilityCheck = async () => {
+      let runs = 0;
+      const MAX_RUNS = 20;
+      setCapabilityState('loading');
+      while (runs < MAX_RUNS) {
+        try {
+          await getCapabilities({
+            onFinish(response) {
+              setCapabilities(new Set(response));
+              setCapabilityState('loaded');
+            },
+            onCancel() {
+              setCapabilityState('cancelled');
+            },
+            payload: {
+              network: {
+                type: BitcoinNetworkType.Testnet
+              }
+            }
+          });
+        } catch (e) {
+          runs++;
+          if (runs === MAX_RUNS) {
+            setCapabilityState('missing');
+          }
+        }
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+    };
+    runCapabilityCheck();
+  }, []);
+  const connectBitcoinWallet = useCallback(async () => {
+    await getAddress({
+      payload: {
+        purposes: [AddressPurpose.Payment],
+        message: 'SATS Connect Demo',
+        network: {
+          type: BitcoinNetworkType.Testnet
+        }
+      },
+      onFinish: response => {
+        const paymentAddressItem = response.addresses.find(address => address.purpose === AddressPurpose.Payment);
+        dispatch(setBitcoinAddress((paymentAddressItem === null || paymentAddressItem === void 0 ? void 0 : paymentAddressItem.address) || ''));
+        dispatch(setBitcoinPubkey((paymentAddressItem === null || paymentAddressItem === void 0 ? void 0 : paymentAddressItem.publicKey) || ''));
+      },
+      onCancel: () => {
+        toast.error('Request cancelled');
+      }
+    });
+  }, [getAddress]);
   const forceNetworkSwitch = useCallback(async () => {
     if (evmProvider && correctEvmNetwork) {
       if (!isEVMChain(correctChain)) {
@@ -1692,17 +1830,22 @@ function useIsWalletReady() {
   return useMemo(() => {
     if (correctChain === ChainName.SOLANA) {
       if (solanaAddress) {
-        return createWalletStatus(true, undefined, forceNetworkSwitch, solanaAddress.toBase58());
+        return createWalletStatus(true, undefined, connectBitcoinWallet, solanaAddress.toBase58());
       }
-      return createWalletStatus(false, 'Wallet not connected', forceNetworkSwitch, '');
+      return createWalletStatus(false, 'Wallet not connected', connectBitcoinWallet, '');
     } else if (correctChain === ChainName.TRON) {
       if (tronAddress) {
-        return createWalletStatus(true, undefined, forceNetworkSwitch, tronAddress);
+        return createWalletStatus(true, undefined, connectBitcoinWallet, tronAddress);
       }
-      return createWalletStatus(false, 'Wallet not connected', forceNetworkSwitch, '');
+      return createWalletStatus(false, 'Wallet not connected', connectBitcoinWallet, '');
+    } else if (correctChain === ChainName.BTC) {
+      if (bitcoinAddress) {
+        return createWalletStatus(true, undefined, connectBitcoinWallet, bitcoinAddress);
+      }
+      return createWalletStatus(false, capabilityMessage, connectBitcoinWallet, '');
     } else if (isEVMChain(correctChain) && hasEthInfo && evmAddress) {
       if (hasCorrectEvmNetwork) {
-        return createWalletStatus(true, undefined, forceNetworkSwitch, evmAddress);
+        return createWalletStatus(true, undefined, connectBitcoinWallet, evmAddress);
       } else {
         if (evmProvider && correctEvmNetwork) {
           if (autoSwitch) {
@@ -1712,11 +1855,11 @@ function useIsWalletReady() {
             toast.success(`Wallet connected to ${CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[evmChainId || SupportedChainId.ETHEREUM]]}`);
           }
         }
-        if (evmChainId && autoSwitch) return createWalletStatus(false, `Wallet not connected to ${CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[correctEvmNetwork]]}`, forceNetworkSwitch, evmAddress);
+        if (evmChainId && autoSwitch) return createWalletStatus(false, `Wallet not connected to ${CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[correctEvmNetwork]]}`, connectBitcoinWallet, evmAddress);
       }
     }
-    return createWalletStatus(false, '', forceNetworkSwitch, undefined);
-  }, [correctChain, autoSwitch, forceNetworkSwitch, solanaAddress, tronAddress, hasEthInfo, correctEvmNetwork, hasCorrectEvmNetwork, evmProvider, evmAddress, evmChainId]);
+    return createWalletStatus(false, '', connectBitcoinWallet, undefined);
+  }, [correctChain, autoSwitch, forceNetworkSwitch, connectBitcoinWallet, solanaAddress, tronAddress, hasEthInfo, correctEvmNetwork, hasCorrectEvmNetwork, bitcoinAddress, evmProvider, evmAddress, evmChainId]);
 }
 
 const getShortenedAddress = address => {
@@ -2053,17 +2196,20 @@ async function getOrCreateAssociatedTokenAccount(connection, payer, mint, owner,
   return account;
 }
 
+const TRON_USDK_OWNER_ADDRESS = 'TBVn4bsBN4DhtZ7D3vEVpAyqkvdFn7zmpU';
+
 const tronWeb = new TronWeb({
   fullHost: 'https://api.nileex.io'
 });
 tronWeb.setAddress(TRON_USDK_OWNER_ADDRESS);
 
 const formatterFloat = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 2
+  maximumFractionDigits: 9
 });
 function isEmptyObject(arg) {
   return typeof arg === 'object' && Object.keys(arg).length === 0;
 }
+const sleep = delay => new Promise(resolve => setTimeout(resolve, delay));
 
 function useBalance() {
   const [balance, setBalance] = useState(0);
@@ -2082,7 +2228,7 @@ function useBalance() {
   const selectedNetwork = useSelector(selectSourceChain);
   const errorHandler = useSelector(selectErrorHandler);
   const sourceChain = useMemo(() => {
-    if (selectedNetwork === ChainName.SOLANA || selectedNetwork === ChainName.TRON) return selectedNetwork;
+    if (selectedNetwork === ChainName.SOLANA || selectedNetwork === ChainName.TRON || selectedNetwork === ChainName.BTC) return selectedNetwork;
     if (CHAIN_NAMES_TO_IDS[selectedNetwork] !== evmChainId) {
       return CHAIN_IDS_TO_NAMES[evmChainId];
     }
@@ -2095,9 +2241,11 @@ function useBalance() {
   const {
     address: tronAddress
   } = useWallet$1();
+  const btcAddress = useSelector(selectBitcoinAddress);
   const {
     connection
   } = useConnection();
+  const kimaBackendUrl = useSelector(selectBackendUrl);
   const selectedCoin = useSelector(selectSelectedToken);
   const tokenOptions = useSelector(selectTokenOptions);
   const tokenAddress = useMemo(() => {
@@ -2111,10 +2259,14 @@ function useBalance() {
     return '';
   }, [selectedCoin, sourceChain, tokenOptions]);
   useEffect(() => {
+    setBalance(0);
+  }, [sourceChain]);
+  useEffect(() => {
     (async () => {
+      if (!tokenAddress) return;
       try {
         if (!isEVMChain(sourceChain)) {
-          if (solanaAddress && tokenAddress && connection) {
+          if (sourceChain === ChainName.SOLANA && solanaAddress && connection) {
             var _accountInfo$value, _parsedAccountInfo$pa, _parsedAccountInfo$pa2, _parsedAccountInfo$pa3, _parsedAccountInfo$pa4, _parsedAccountInfo$pa5, _parsedAccountInfo$pa6;
             const mint = new PublicKey(tokenAddress);
             const fromTokenAccount = await getOrCreateAssociatedTokenAccount(connection, solanaAddress, mint, solanaAddress, signTransaction);
@@ -2123,26 +2275,34 @@ function useBalance() {
             setBalance(+formatUnits((_parsedAccountInfo$pa = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa === void 0 ? void 0 : (_parsedAccountInfo$pa2 = _parsedAccountInfo$pa.info) === null || _parsedAccountInfo$pa2 === void 0 ? void 0 : (_parsedAccountInfo$pa3 = _parsedAccountInfo$pa2.tokenAmount) === null || _parsedAccountInfo$pa3 === void 0 ? void 0 : _parsedAccountInfo$pa3.amount, (_parsedAccountInfo$pa4 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa4 === void 0 ? void 0 : (_parsedAccountInfo$pa5 = _parsedAccountInfo$pa4.info) === null || _parsedAccountInfo$pa5 === void 0 ? void 0 : (_parsedAccountInfo$pa6 = _parsedAccountInfo$pa5.tokenAmount) === null || _parsedAccountInfo$pa6 === void 0 ? void 0 : _parsedAccountInfo$pa6.decimals));
             return;
           }
-          if (tronAddress && tokenAddress) {
+          if (sourceChain === ChainName.TRON && tronAddress) {
             let trc20Contract = await tronWeb.contract(ERC20ABI.abi, tokenAddress);
-            const _decimals = await trc20Contract.decimals().call();
-            const _userBalance = await trc20Contract.balanceOf(tronAddress).call();
-            setBalance(+formatUnits(_userBalance.balance, _decimals));
+            const decimals = await trc20Contract.decimals().call();
+            const userBalance = await trc20Contract.balanceOf(tronAddress).call();
+            setBalance(+formatUnits(userBalance.balance, decimals));
+            return;
+          }
+          if (sourceChain === ChainName.BTC && btcAddress) {
+            const btcInfo = await fetchWrapper.get(`${kimaBackendUrl}/btc/balance?address=${btcAddress}`);
+            const balance = parseFloat(btcInfo.balance) / Math.pow(10, 8);
+            setBalance(balance);
             return;
           }
         }
-        const provider = new ethers.providers.Web3Provider(walletProvider);
-        const signer = provider === null || provider === void 0 ? void 0 : provider.getSigner();
-        if (!tokenAddress || !signer || !signerAddress) return;
-        const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer);
-        const decimals = await erc20Contract.decimals();
-        const userBalance = await erc20Contract.balanceOf(signerAddress);
-        setBalance(+formatUnits(userBalance, decimals));
+        if (walletProvider) {
+          const provider = new ethers.providers.Web3Provider(walletProvider);
+          const signer = provider === null || provider === void 0 ? void 0 : provider.getSigner();
+          if (!tokenAddress || !signer || !signerAddress) return;
+          const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer);
+          const decimals = await erc20Contract.decimals();
+          const userBalance = await erc20Contract.balanceOf(signerAddress);
+          setBalance(+formatUnits(userBalance, decimals));
+        }
       } catch (error) {
         errorHandler(error);
       }
     })();
-  }, [signerAddress, tokenAddress, sourceChain, solanaAddress, tronAddress, walletProvider]);
+  }, [signerAddress, tokenAddress, sourceChain, solanaAddress, tronAddress, btcAddress, walletProvider]);
   return useMemo(() => ({
     balance
   }), [balance]);
@@ -2160,7 +2320,8 @@ const WalletButton = ({
   const {
     isReady,
     statusMessage,
-    walletAddress
+    walletAddress,
+    connectBitcoinWallet
   } = useIsWalletReady();
   const {
     balance
@@ -2175,6 +2336,10 @@ const WalletButton = ({
     }
     if (selectedNetwork === ChainName.TRON) {
       dispatch(setTronConnectModal(true));
+      return;
+    }
+    if (selectedNetwork === ChainName.BTC) {
+      connectBitcoinWallet();
       return;
     }
     open();
@@ -2195,7 +2360,7 @@ const WalletButton = ({
     clickHandler: handleClick
   }, isReady ? `${getShortenedAddress(walletAddress || '')}` : 'Wallet'), isReady ? React.createElement("p", {
     className: 'balance-info'
-  }, formatterFloat.format(balance), " ", selectedCoin, " available") : null);
+  }, balance.toFixed(selectedCoin === 'WBTC' ? 8 : 2), ' ', selectedNetwork === ChainName.BTC ? 'BTC' : selectedCoin, " available") : null);
 };
 
 const CoinDropdown = () => {
@@ -2375,6 +2540,12 @@ const ConfirmDetails = ({
   const targetWalletAddress = useMemo(() => {
     return getShortenedAddress((mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress) || '');
   }, [mode, transactionOption, targetAddress]);
+  const amountToShow = useMemo(() => {
+    if (originNetwork === ChainName.BTC || targetNetwork === ChainName.BTC) {
+      return (feeDeduct ? +amount : +amount + serviceFee).toFixed(8);
+    }
+    return formatterFloat.format(feeDeduct ? +amount : +amount + serviceFee);
+  }, [amount, serviceFee, originNetwork, targetNetwork, feeDeduct]);
   return React.createElement("div", {
     className: `confirm-details ${theme.colorMode}`
   }, React.createElement("p", null, "Step ", isApproved ? '2' : '1', "\u00A0of 2\u00A0\u00A0\u00A0", isApproved ? 'Submit transaction' : originNetwork === ChainName.FIAT ? 'Bank Details' : 'Approval'), originNetwork === ChainName.FIAT ? React.createElement("div", null, React.createElement("div", {
@@ -2407,7 +2578,7 @@ const ConfirmDetails = ({
     className: 'detail-item'
   }, React.createElement("span", {
     className: 'label'
-  }, "Amount:"), React.createElement("p", null, formatterFloat.format(feeDeduct ? amount : amount + serviceFee), ' ', selectedCoin)), targetNetwork === ChainName.FIAT ? React.createElement("div", null, React.createElement("div", {
+  }, "Amount:"), React.createElement("p", null, amountToShow, " ", selectedCoin)), targetNetwork === ChainName.FIAT ? React.createElement("div", null, React.createElement("div", {
     className: 'detail-item'
   }, React.createElement("span", {
     className: 'label'
@@ -2558,6 +2729,25 @@ const BankInput = () => {
       recipient: e.target.value
     }))
   })));
+};
+
+const TxButton = ({
+  theme,
+  txCount
+}) => {
+  const dispatch = useDispatch();
+  const handleClick = () => {
+    dispatch(setPendingTxPopup(true));
+  };
+  return React.createElement("button", {
+    className: `secondary-button tx-button ${theme.colorMode}`,
+    onClick: handleClick,
+    "data-tooltip-id": 'popup-tooltip'
+  }, txCount, React.createElement(Loading180Ring, {
+    height: 16,
+    width: 16,
+    fill: theme.colorMode === 'light' ? 'black' : 'white'
+  }));
 };
 
 const HelpPopup = () => {
@@ -2893,7 +3083,7 @@ const TransactionWidget = ({
     console.log(data.status);
     setErrorStep(-1);
     const status = data.status;
-    if (status === TransactionStatus.AVAILABLE) {
+    if (status === TransactionStatus.AVAILABLE || status === TransactionStatus.PULLED) {
       setStep(1);
       setPercent(25);
       setLoadingStep(1);
@@ -3031,13 +3221,46 @@ const TransactionWidget = ({
   })));
 };
 
+const ExpireTimeDropdown = () => {
+  const ref = useRef();
+  const dispatch = useDispatch();
+  const [collapsed, setCollapsed] = useState(true);
+  const expireTime = useSelector(selectExpireTime);
+  const theme = useSelector(selectTheme);
+  useEffect(() => {
+    const bodyMouseDowntHandler = e => {
+      if (ref !== null && ref !== void 0 && ref.current && !ref.current.contains(e.target)) {
+        setCollapsed(true);
+      }
+    };
+    document.addEventListener('mousedown', bodyMouseDowntHandler);
+    return () => {
+      document.removeEventListener('mousedown', bodyMouseDowntHandler);
+    };
+  }, [setCollapsed]);
+  return React.createElement("div", {
+    className: `expire-time-dropdown ${theme.colorMode} ${collapsed ? 'collapsed' : ''}`,
+    onClick: () => setCollapsed(prev => !prev),
+    ref: ref
+  }, React.createElement("div", {
+    className: 'expire-time-wrapper'
+  }, React.createElement("p", null, expireTime)), React.createElement("div", {
+    className: `expire-time-menu ${theme.colorMode} ${collapsed ? 'collapsed' : ''}`
+  }, ExpireTimeOptions.map(option => React.createElement("p", {
+    key: option,
+    className: 'expire-time-item',
+    onClick: () => {
+      dispatch(setExpireTime(option));
+    }
+  }, option))));
+};
+
 const SingleForm = ({
   paymentTitleOption
 }) => {
   const dispatch = useDispatch();
   const mode = useSelector(selectMode);
   const theme = useSelector(selectTheme);
-  const amount = useSelector(selectAmount);
   const feeDeduct = useSelector(selectFeeDeduct);
   const serviceFee = useSelector(selectServiceFee);
   const compliantOption = useSelector(selectCompliantOption);
@@ -3046,12 +3269,18 @@ const SingleForm = ({
   const selectedCoin = useSelector(selectSelectedToken);
   const sourceNetwork = useSelector(selectSourceChain);
   const targetNetwork = useSelector(selectTargetChain);
+  const [amountValue, setAmountValue] = useState('');
+  const amount = useSelector(selectAmount);
   const Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
   const errorMessage = useMemo(() => compliantOption && targetCompliant !== 'low' ? `Target address has ${targetCompliant} risk` : '', [compliantOption, targetCompliant]);
   useEffect(() => {
     if (!errorMessage) return;
     toast$1.error(errorMessage);
   }, [errorMessage]);
+  useEffect(() => {
+    if (amountValue) return;
+    setAmountValue(amount);
+  }, [amount]);
   return React.createElement("div", {
     className: 'single-form'
   }, mode === ModeOptions.payment ? React.createElement("p", {
@@ -3085,10 +3314,12 @@ const SingleForm = ({
     className: 'amount-label-container'
   }, React.createElement("input", {
     type: 'number',
-    value: amount || '',
+    value: amountValue || '',
     onChange: e => {
       let _amount = +e.target.value;
-      dispatch(setAmount(parseFloat(_amount.toFixed(2))));
+      const decimal = sourceNetwork === ChainName.BTC || targetNetwork === ChainName.BTC ? 8 : 2;
+      setAmountValue(e.target.value);
+      dispatch(setAmount(_amount.toFixed(decimal)));
     }
   }), React.createElement(CoinDropdown, null))) : React.createElement("div", {
     className: `form-item ${theme.colorMode}`
@@ -3099,18 +3330,24 @@ const SingleForm = ({
   }, React.createElement("span", null, (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount) || ''), React.createElement("div", {
     className: 'coin-wrapper'
   }, React.createElement(Icon, null), selectedCoin))), mode === ModeOptions.bridge && serviceFee > 0 ? React.createElement(CustomCheckbox, {
-    text: `Deduct ${formatterFloat.format(serviceFee)} USDK fee`,
+    text: sourceNetwork === ChainName.BTC ? `Deduct ${formatterFloat.format(serviceFee)} BTC fee` : `Deduct $${formatterFloat.format(serviceFee)} fee`,
     checked: feeDeduct,
     setCheck: value => dispatch(setFeeDeduct(value))
-  }) : null);
+  }) : null, sourceNetwork === ChainName.BTC || targetNetwork === ChainName.BTC ? React.createElement("div", {
+    className: `form-item ${theme.colorMode}`
+  }, React.createElement("span", {
+    className: 'label'
+  }, "Expire Time:"), React.createElement(ExpireTimeDropdown, null)) : null);
 };
 
 const CoinSelect = () => {
   const dispatch = useDispatch();
   const theme = useSelector(selectTheme);
   const mode = useSelector(selectMode);
-  const amount = useSelector(selectAmount);
   const selectedCoin = useSelector(selectSelectedToken);
+  const sourceNetwork = useSelector(selectSourceChain);
+  const targetNetwork = useSelector(selectTargetChain);
+  const [amountValue, setAmountValue] = useState('');
   const Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
   return React.createElement("div", {
     className: `coin-select`
@@ -3120,11 +3357,13 @@ const CoinSelect = () => {
     className: 'input-wrapper'
   }, React.createElement("input", {
     type: 'number',
-    value: amount || '',
+    value: amountValue || '',
     readOnly: mode === ModeOptions.payment,
     onChange: e => {
       const _amount = +e.target.value;
-      dispatch(setAmount(parseFloat(_amount.toFixed(2))));
+      const decimal = sourceNetwork === ChainName.BTC || targetNetwork === ChainName.BTC ? 8 : 2;
+      setAmountValue(e.target.value);
+      dispatch(setAmount(_amount.toFixed(decimal)));
     }
   }), React.createElement("div", {
     className: 'coin-label'
@@ -3154,12 +3393,22 @@ function useServiceFee(isConfirming = false, feeURL) {
         dispatch(setServiceFee(0));
         return;
       }
+      if (sourceChain === ChainName.BTC) {
+        dispatch(setServiceFee(0.0004));
+        return;
+      }
+      if (targetChain === ChainName.BTC) {
+        dispatch(setServiceFee(0));
+        return;
+      }
+      let sourceFee = 0;
+      let targetFee = 0;
       const sourceChainResult = await fetchWrapper.get(`${feeURL}/fee/${sourceChain}`);
-      const sourceFee = sourceChainResult.fee.split('-')[0];
+      sourceFee = sourceChainResult.fee.split('-')[0];
       const targetChainResult = await fetchWrapper.get(`${feeURL}/fee/${targetChain}`);
-      const targetFee = targetChainResult.fee.split('-')[0];
+      targetFee = targetChainResult.fee.split('-')[0];
       let fee = +sourceFee + +targetFee;
-      dispatch(setServiceFee(parseFloat(fee.toFixed(2))));
+      dispatch(setServiceFee(fee));
     } catch (e) {
       dispatch(setServiceFee(0));
       console.log('rpc disconnected', e);
@@ -6736,7 +6985,6 @@ function fromHex(address) {
   return getBase58CheckAddress(hexStr2byteArray(address.replace(/^0x/, ADDRESS_PREFIX)));
 }
 
-const sleep = delay => new Promise(resolve => setTimeout(resolve, delay));
 function useAllowance({
   setApproving
 }) {
@@ -6757,8 +7005,10 @@ function useAllowance({
   const selectedNetwork = useSelector(selectSourceChain);
   const errorHandler = useSelector(selectErrorHandler);
   const dAppOption = useSelector(selectDappOption);
+  const targetChain = useSelector(selectTargetChain);
+  const feeDeduct = useSelector(selectFeeDeduct);
   const sourceChain = useMemo(() => {
-    if (selectedNetwork === ChainName.SOLANA || selectedNetwork === ChainName.TRON) return selectedNetwork;
+    if (selectedNetwork === ChainName.SOLANA || selectedNetwork === ChainName.TRON || selectedNetwork === ChainName.BTC) return selectedNetwork;
     if (CHAIN_NAMES_TO_IDS[selectedNetwork] !== evmChainId) {
       return CHAIN_IDS_TO_NAMES[evmChainId];
     }
@@ -6791,9 +7041,16 @@ function useAllowance({
     return '';
   }, [selectedCoin, sourceChain, tokenOptions]);
   const [targetAddress, setTargetAddress] = useState();
+  const [poolAddress, setPoolAddress] = useState('');
+  const amountToShow = useMemo(() => {
+    if (sourceChain === ChainName.BTC || targetChain === ChainName.BTC) {
+      return (feeDeduct ? +amount : +amount + serviceFee).toFixed(8);
+    }
+    return formatterFloat.format(feeDeduct ? +amount : +amount + serviceFee);
+  }, [amount, serviceFee, sourceChain, targetChain, feeDeduct]);
   const isApproved = useMemo(() => {
-    return allowance >= amount + serviceFee;
-  }, [allowance, amount, serviceFee, dAppOption]);
+    return allowance >= +amountToShow;
+  }, [allowance, amountToShow, dAppOption]);
   const updatePoolAddress = async () => {
     try {
       var _result$tssPubkey;
@@ -6805,6 +7062,7 @@ function useAllowance({
         console.log('solana pool address is missing');
         toast.error('solana pool address is missing');
       }
+      setPoolAddress(result.tssPubkey[0].reserved);
       setTargetAddress(sourceChain === ChainName.SOLANA ? result.tssPubkey[0].eddsa : sourceChain === ChainName.TRON ? fromHex(result.tssPubkey[0].ecdsa) : result.tssPubkey[0].ecdsa);
     } catch (e) {
       console.log('rpc disconnected', e);
@@ -6860,10 +7118,10 @@ function useAllowance({
       try {
         const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer);
         setApproving(true);
-        const approve = await erc20Contract.approve(targetAddress, parseUnits((amount + serviceFee).toString(), decimals));
+        const approve = await erc20Contract.approve(targetAddress, parseUnits(amountToShow, decimals));
         await approve.wait();
         setApproving(false);
-        setAllowance(amount + serviceFee);
+        setAllowance(+amountToShow);
       } catch (error) {
         errorHandler(error);
         setApproving(false);
@@ -6880,14 +7138,13 @@ function useAllowance({
           value: targetAddress
         }, {
           type: 'uint256',
-          value: parseUnits((amount + serviceFee).toString(), decimals).toString()
+          value: parseUnits(amountToShow, decimals).toString()
         }];
         const tx = await tronWeb.transactionBuilder.triggerSmartContract(tronWeb.address.toHex(tokenAddress), functionSelector, {}, parameter, tronWeb.address.toHex(tronAddress));
         const signedTx = await signTronTransaction(tx.transaction);
-        const result = await tronWeb.trx.sendRawTransaction(signedTx);
-        console.log(result);
+        await tronWeb.trx.sendRawTransaction(signedTx);
         setApproving(false);
-        setAllowance(amount + serviceFee);
+        setAllowance(+amountToShow);
       } catch (error) {
         errorHandler(error);
         setApproving(false);
@@ -6900,7 +7157,7 @@ function useAllowance({
       const mint = new PublicKey(tokenAddress);
       const toPublicKey = new PublicKey(targetAddress);
       const fromTokenAccount = await getOrCreateAssociatedTokenAccount(connection, solanaAddress, mint, solanaAddress, signSolanaTransaction);
-      const transaction = new Transaction().add(createApproveTransferInstruction(fromTokenAccount.address, toPublicKey, solanaAddress, +(amount + serviceFee).toFixed(2) * Math.pow(10, decimals ?? 6), [], TOKEN_PROGRAM_ID));
+      const transaction = new Transaction().add(createApproveTransferInstruction(fromTokenAccount.address, toPublicKey, solanaAddress, +amountToShow * Math.pow(10, decimals ?? 6), [], TOKEN_PROGRAM_ID));
       const blockHash = await connection.getLatestBlockhash();
       transaction.feePayer = solanaAddress;
       transaction.recentBlockhash = await blockHash.blockhash;
@@ -6915,18 +7172,19 @@ function useAllowance({
         const parsedAccountInfo = (_accountInfo = accountInfo) === null || _accountInfo === void 0 ? void 0 : (_accountInfo$value2 = _accountInfo.value) === null || _accountInfo$value2 === void 0 ? void 0 : _accountInfo$value2.data;
         allowAmount = ((_parsedAccountInfo$pa9 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa9 === void 0 ? void 0 : (_parsedAccountInfo$pa10 = _parsedAccountInfo$pa9.info) === null || _parsedAccountInfo$pa10 === void 0 ? void 0 : _parsedAccountInfo$pa10.delegate) === targetAddress ? (_parsedAccountInfo$pa11 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa11 === void 0 ? void 0 : (_parsedAccountInfo$pa12 = _parsedAccountInfo$pa11.info) === null || _parsedAccountInfo$pa12 === void 0 ? void 0 : (_parsedAccountInfo$pa13 = _parsedAccountInfo$pa12.delegatedAmount) === null || _parsedAccountInfo$pa13 === void 0 ? void 0 : _parsedAccountInfo$pa13.uiAmount : 0;
         await sleep(1000);
-      } while (allowAmount < amount + serviceFee || retryCount++ < 5);
-      setAllowance(amount + serviceFee);
+      } while (allowAmount < +amountToShow || retryCount++ < 5);
+      setAllowance(+amountToShow);
       setApproving(false);
     } catch (e) {
       errorHandler(e);
       setApproving(false);
     }
-  }, [decimals, tokenAddress, walletProvider, amount, targetAddress, tronAddress, signSolanaTransaction, signTronTransaction, serviceFee]);
+  }, [decimals, tokenAddress, walletProvider, targetAddress, tronAddress, signSolanaTransaction, signTronTransaction, amountToShow]);
   return useMemo(() => ({
     isApproved,
+    poolAddress,
     approve
-  }), [isApproved, approve]);
+  }), [isApproved, poolAddress, approve]);
 }
 
 const AddressInputWizard = () => {
@@ -6948,14 +7206,18 @@ function useCurrencyOptions() {
     if (!nodeProviderQuery || !originNetwork || !targetNetwork) return;
     (async function () {
       try {
-        var _coins$Currencies;
         if (originNetwork === ChainName.FIAT || targetNetwork === ChainName.FIAT) {
           setOptions('KEUR');
           return;
         }
         const coins = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/get_currencies/${originNetwork}/${targetNetwork}`);
-        dispatch(setAvailableTokenList(coins.Currencies || ['USDK']));
-        setOptions((_coins$Currencies = coins.Currencies) !== null && _coins$Currencies !== void 0 && _coins$Currencies.length ? coins.Currencies[0] : 'USDK');
+        let tokenList = coins.Currencies.map(coin => coin.toUpperCase()) || ['USDK'];
+        if (originNetwork === ChainName.BTC || targetNetwork === ChainName.BTC) {
+          tokenList = ['WBTC'];
+        }
+        dispatch(setSelectedToken(tokenList[0]));
+        dispatch(setAvailableTokenList(tokenList));
+        setOptions(tokenList[0]);
       } catch (e) {
         console.log('rpc disconnected', e);
         toast.error('rpc disconnected');
@@ -7024,6 +7286,172 @@ function useSign({
   }), [isSigned, sign]);
 }
 
+function hash160(publicKey) {
+  const publicKeyBuffer = Buffer$1.from(publicKey, 'hex');
+  const hash160Buffer = crypto.hash160(publicKeyBuffer);
+  return hash160Buffer;
+}
+function createHTLCScript(senderAddress, senderPublicKey, recipientAddress, timeout, network) {
+  console.log('senderAddress = ' + senderAddress);
+  console.log('senderPublicKey = ' + senderPublicKey);
+  console.log('recipientAddress = ' + recipientAddress);
+  console.log('timeout = ' + timeout);
+  console.log('network = ' + network);
+  let recipientAddressCheck;
+  try {
+    recipientAddressCheck = address.fromBech32(recipientAddress);
+  } catch (error) {
+    throw new Error(`Failed to decode recipient address: ${error.message}`);
+  }
+  if (!recipientAddressCheck) {
+    throw new Error('Failed to decode recipient address');
+  }
+  const senderPKH = hash160(senderPublicKey);
+  console.log('senderPKH:', senderPKH.toString('hex'));
+  const recipientPKH = recipientAddressCheck.data;
+  console.log('recipientPKH:', recipientPKH.toString('hex'));
+  const script$1 = script.compile([opcodes.OP_DUP, opcodes.OP_HASH160, recipientAddressCheck.data, opcodes.OP_EQUAL, opcodes.OP_IF, opcodes.OP_DUP, opcodes.OP_HASH160, recipientPKH, opcodes.OP_EQUALVERIFY, opcodes.OP_CHECKSIG, opcodes.OP_ELSE, script.number.encode(timeout), opcodes.OP_CHECKLOCKTIMEVERIFY, opcodes.OP_DROP, opcodes.OP_DUP, opcodes.OP_HASH160, senderPKH, opcodes.OP_EQUALVERIFY, opcodes.OP_CHECKSIG, opcodes.OP_ENDIF, Buffer$1.from(senderPublicKey, 'hex'), opcodes.OP_DROP]);
+  return script$1;
+}
+function htlcP2WSHAddress(htlcScript, network) {
+  const p2wsh = payments.p2wsh({
+    redeem: {
+      output: htlcScript,
+      network
+    },
+    network
+  });
+  return p2wsh.address;
+}
+
+const PendingTxPopup = ({
+  txData,
+  handleHtlcContinue
+}) => {
+  const dispatch = useDispatch();
+  const theme = useSelector(selectTheme);
+  const pendingTxPopup = useSelector(selectPendingTxPopup);
+  return React.createElement("div", {
+    className: `kima-modal pending-tx-popup ${theme.colorMode} ${pendingTxPopup ? 'open' : ''}`
+  }, React.createElement("div", {
+    className: 'modal-overlay',
+    onClick: () => {
+      dispatch(setPendingTxPopup(false));
+    }
+  }), React.createElement("div", {
+    className: 'modal-content-container'
+  }, React.createElement("div", {
+    className: 'kima-card-header'
+  }, React.createElement("div", {
+    className: 'topbar'
+  }, React.createElement("div", {
+    className: 'title'
+  }, React.createElement("h3", null, "Bitcoin Transaction List")), React.createElement("div", {
+    className: 'control-buttons'
+  }, React.createElement("button", {
+    className: 'icon-button',
+    onClick: () => dispatch(setPendingTxPopup(false))
+  }, React.createElement(Cross, {
+    fill: theme.colorMode === 'light' ? 'black' : 'white'
+  }))))), React.createElement("div", {
+    className: 'modal-content'
+  }, React.createElement("div", {
+    className: 'scroll-area custom-scrollbar'
+  }, React.createElement("div", {
+    className: 'header-container'
+  }, React.createElement("span", null, "Amount"), React.createElement("span", null, "Expire Time"), React.createElement("span", null, "Status"), React.createElement("span", null, "Hash"), React.createElement("span", null, "Action")), React.createElement("div", {
+    className: 'tx-container'
+  }, txData.map((tx, index) => {
+    let date = new Date(+tx.expireTime * 1000);
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let seconds = date.getSeconds();
+    let formattedDate = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    return React.createElement("div", {
+      className: 'tx-item',
+      key: index
+    }, React.createElement("div", {
+      className: 'label'
+    }, React.createElement("div", {
+      className: 'icon-wrapper'
+    }, (+tx.amount).toFixed(8), React.createElement(BTC, null))), React.createElement("span", {
+      className: 'label'
+    }, `${formattedDate}`), React.createElement("span", {
+      className: 'label'
+    }, tx.status), React.createElement("div", {
+      className: 'label'
+    }, React.createElement(ExternalLink, {
+      to: `https://${CHAIN_NAMES_TO_EXPLORER[ChainName.BTC]}/tx/${tx.hash}`
+    }, getShortenedAddress(tx.hash))), React.createElement("div", {
+      className: `action-button-container ${tx.status === 'Pending' || tx.status === 'Failed' ? '' : 'disabled'}`
+    }, React.createElement("div", {
+      className: 'action-button'
+    }, "Reclaim"), React.createElement("div", {
+      className: 'action-button',
+      onClick: () => {
+        handleHtlcContinue(tx.expireTime, tx.hash, tx.amount);
+        dispatch(setPendingTxPopup(false));
+      }
+    }, "Continue")));
+  }))))));
+};
+
+function usePendingTx({
+  walletAddress
+}) {
+  const [pendingTxs, setPendingTxs] = useState(0);
+  const [pendingTxData, setPendingTxData] = useState([]);
+  const sourceChain = useSelector(selectSourceChain);
+  const nodeProviderQuery = useSelector(selectNodeProviderQuery);
+  useEffect(() => {
+    console.log(nodeProviderQuery, sourceChain, walletAddress);
+    if (!nodeProviderQuery || sourceChain !== ChainName.BTC || !walletAddress) return;
+    const updatePendingTxs = async () => {
+      const result = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/transaction/get_htlc_transaction/${walletAddress}`);
+      const data = result === null || result === void 0 ? void 0 : result.htlcLockingTransaction;
+      const txData = [];
+      if (data.length > 0) {
+        for (const tx of data) {
+          let status = '';
+          if (tx.status !== 'Completed') {
+            status = 'Confirming';
+          } else if (tx.pull_status === 'htlc_pull_available') {
+            status = 'Pending';
+          } else if (tx.pull_status === 'htlc_pull_in_progress') {
+            status = 'In Progress';
+          } else if (tx.pull_status === 'htlc_pull_succeed') {
+            status = 'Completed';
+          } else if (tx.pull_status === 'htlc_pull_failed') {
+            status = 'Failed';
+          }
+          txData.push({
+            hash: tx.txHash,
+            amount: tx.amount,
+            expireTime: tx.htlcTimestamp,
+            status
+          });
+        }
+        setPendingTxData([...txData]);
+        setPendingTxs(txData.filter(tx => tx.status === 'Pending' || tx.status === 'Confirming').length);
+      }
+    };
+    const timerId = setInterval(() => {
+      updatePendingTxs();
+    }, 10000);
+    updatePendingTxs();
+    return () => {
+      clearInterval(timerId);
+    };
+  }, [sourceChain, nodeProviderQuery, walletAddress]);
+  return useMemo(() => ({
+    pendingTxData,
+    pendingTxs
+  }), [pendingTxs, pendingTxData]);
+}
+
 const TransferWidget = ({
   theme,
   feeURL,
@@ -7056,19 +7484,33 @@ const TransferWidget = ({
   const nodeProviderQuery = useSelector(selectNodeProviderQuery);
   const bankDetails = useSelector(selectBankDetails);
   const kycStatus = useSelector(selectKycStatus);
+  const expireTime = useSelector(selectExpireTime);
+  const bitcoinAddress = useSelector(selectBitcoinAddress);
+  const bitcoinPubkey = useSelector(selectBitcoinPubkey);
   const transactionOption = useSelector(selectTransactionOption);
   const [isApproving, setApproving] = useState(false);
   const [isSubmitting, setSubmitting] = useState(false);
   const [isSigning, setSigning] = useState(false);
+  const [isBTCSigning, setBTCSigning] = useState(false);
+  const [isBTCSigned, setBTCSigned] = useState(false);
+  const [btcHash, setBTCHash] = useState('');
+  const [btcTimestamp, setBTCTimestamp] = useState(0);
   const [isConfirming, setConfirming] = useState(false);
   const [isVerifying, setVerifying] = useState(false);
   const {
-    walletAddress,
-    isReady
+    isReady,
+    walletAddress
   } = useIsWalletReady();
   const {
-    isApproved,
-    approve
+    pendingTxData,
+    pendingTxs
+  } = usePendingTx({
+    walletAddress: walletAddress || ''
+  });
+  const {
+    isApproved: approved,
+    approve,
+    poolAddress
   } = useAllowance({
     setApproving
   });
@@ -7085,6 +7527,10 @@ const TransferWidget = ({
     balance
   } = useBalance();
   const windowWidth = useWidth();
+  const isApproved = useMemo(() => {
+    if (sourceChain === ChainName.BTC) return isBTCSigned;
+    return approved;
+  }, [approved, isBTCSigned, sourceChain]);
   useEffect(() => {
     if (!walletAddress) return;
     dispatch(setTargetAddress(walletAddress));
@@ -7148,7 +7594,7 @@ const TransferWidget = ({
       if (poolBalance[i].chainName === targetChain) {
         for (let j = 0; j < poolBalance[i].balance.length; j++) {
           if (poolBalance[i].balance[j].tokenSymbol !== selectedToken) continue;
-          if (+poolBalance[i].balance[j].amount >= amount + fee) {
+          if (+poolBalance[i].balance[j].amount >= +amount + fee) {
             return true;
           }
           const symbol = selectedToken;
@@ -7165,15 +7611,62 @@ const TransferWidget = ({
     console.log(`${CHAIN_NAMES_TO_STRING[targetChain]} pool error`);
     return false;
   };
+  const handleBTCFinish = async (hash, htlcAddress, timestamp) => {
+    const params = JSON.stringify({
+      fromAddress: walletAddress,
+      senderPubkey: bitcoinPubkey,
+      amount: feeDeduct ? amount : (+amount + fee).toFixed(8),
+      txHash: hash,
+      htlcTimeout: timestamp.toString(),
+      htlcAddress
+    });
+    console.log(params);
+    await fetchWrapper.post(`${backendUrl}/auth`, params);
+    const result = await fetchWrapper.post(`${backendUrl}/htlc`, params);
+    console.log(result);
+    if ((result === null || result === void 0 ? void 0 : result.code) !== 0) {
+      errorHandler(result);
+      toast$1.error('Failed to submit htlc request!');
+      return;
+    }
+    do {
+      await sleep(10000);
+      try {
+        var _txInfo$status;
+        const txInfo = await fetchWrapper.get(`${backendUrl}/btc/transaction?hash=${hash}`);
+        if (txInfo !== null && txInfo !== void 0 && (_txInfo$status = txInfo.status) !== null && _txInfo$status !== void 0 && _txInfo$status.confirmed) {
+          setBTCSigning(false);
+          setBTCSigned(true);
+          setBTCHash(hash);
+          break;
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    } while (1);
+  };
+  const handleHtlcContinue = async (expireTime, hash, amount) => {
+    setBTCTimestamp(expireTime);
+    setBTCSigning(false);
+    setBTCSigned(true);
+    setBTCHash(hash);
+    dispatch(setFeeDeduct(true));
+    dispatch(setAmount(amount));
+  };
   const handleSubmit = async () => {
     if (fee < 0) {
       toast$1.error('Fee is not calculated!');
       errorHandler('Fee is not calculated!');
       return;
     }
-    if (dAppOption !== DAppOptions.LPDrain && balance < amount) {
+    if (dAppOption !== DAppOptions.LPDrain && balance < (feeDeduct ? +amount : +amount + fee)) {
       toast$1.error('Insufficient balance!');
       errorHandler('Insufficient balance!');
+      return;
+    }
+    if (sourceChain === ChainName.BTC && +amount < 0.00015) {
+      toast$1.error('Minimum BTC amount is 0.00015!');
+      errorHandler('Minimum BTC amount is 0.00015!');
       return;
     }
     if (sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT) {
@@ -7188,8 +7681,41 @@ const TransferWidget = ({
         sign();
         return;
       }
-    } else if (!isApproved && dAppOption !== DAppOptions.LPDrain) {
+    } else if (!isApproved && dAppOption !== DAppOptions.LPDrain && sourceChain !== ChainName.BTC) {
       approve();
+      return;
+    }
+    if (sourceChain === ChainName.BTC && !isApproved) {
+      setBTCSigning(true);
+      const unixTimestamp = Math.floor(Date.now() / 1000) + (expireTime === '1 hour' ? 3600 : expireTime === '2 hours' ? 7200 : 10800);
+      setBTCTimestamp(unixTimestamp);
+      const htlcScript = createHTLCScript(bitcoinAddress, bitcoinPubkey, poolAddress, unixTimestamp, networks.testnet);
+      const htlcAddress = htlcP2WSHAddress(htlcScript, networks.testnet);
+      console.log(htlcAddress, poolAddress);
+      try {
+        await sendBtcTransaction({
+          payload: {
+            network: {
+              type: BitcoinNetworkType.Testnet
+            },
+            recipients: [{
+              address: htlcAddress,
+              amountSats: BigInt(Math.round((feeDeduct ? +amount : +amount + fee) * 100000000))
+            }],
+            senderAddress: bitcoinAddress
+          },
+          onFinish: async hash => {
+            handleBTCFinish(hash, htlcAddress, unixTimestamp);
+          },
+          onCancel: () => {
+            toast$1.error('Transaction cancelled.');
+            setBTCSigning(false);
+          }
+        });
+      } catch (e) {
+        setBTCSigning(false);
+        console.log(e);
+      }
       return;
     }
     try {
@@ -7203,15 +7729,44 @@ const TransferWidget = ({
         setSubmitting(false);
         return;
       }
-      const params = JSON.stringify({
-        originAddress: walletAddress,
-        originChain: sourceChain,
-        targetAddress: mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
-        targetChain: targetChain,
-        symbol: selectedToken,
-        amount: amount,
-        fee
-      });
+      let params;
+      let feeParam;
+      if (sourceChain === ChainName.BTC || targetChain === ChainName.BTC) {
+        feeParam = fee.toFixed(8);
+      } else {
+        feeParam = fee.toFixed(2);
+      }
+      if (sourceChain === ChainName.BTC) {
+        params = JSON.stringify({
+          originAddress: walletAddress,
+          originChain: sourceChain,
+          targetAddress: mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
+          targetChain: targetChain,
+          symbol: selectedToken,
+          amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
+          fee: feeParam,
+          htlcCreationHash: btcHash,
+          htlcCreationVout: 0,
+          htlcExpirationTimestamp: btcTimestamp.toString(),
+          htlcVersion: 'v1',
+          senderPubKey: bitcoinPubkey
+        });
+      } else {
+        params = JSON.stringify({
+          originAddress: walletAddress,
+          originChain: sourceChain,
+          targetAddress: mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
+          targetChain: targetChain,
+          symbol: selectedToken,
+          amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
+          fee: feeParam,
+          htlcCreationHash: '',
+          htlcCreationVout: 0,
+          htlcExpirationTimestamp: '0',
+          htlcVersion: '',
+          senderPubKey: ''
+        });
+      }
       console.log(params);
       await fetchWrapper.post(`${backendUrl}/auth`, params);
       const result = await fetchWrapper.post(`${backendUrl}/submit`, params);
@@ -7259,12 +7814,12 @@ const TransferWidget = ({
         return;
       }
       if (wizardStep === 4) {
-        if (fee >= 0 && amount > 0) {
+        if (fee >= 0 && +amount > 0) {
           setWizardStep(5);
         }
         return;
       }
-      if (fee > 0 && fee > amount && feeDeduct) {
+      if (fee > 0 && fee > +amount && feeDeduct) {
         toast$1.error('Fee is greater than amount to transfer!');
         errorHandler('Fee is greater than amount to transfer!');
         return;
@@ -7288,7 +7843,7 @@ const TransferWidget = ({
             return;
           }
         }
-        if (amount <= 0) {
+        if (+amount <= 0) {
           toast$1.error('Invalid amount!');
           errorHandler('Invalid amount!');
           return;
@@ -7299,12 +7854,12 @@ const TransferWidget = ({
           return;
         }
         if (compliantOption && (sourceCompliant !== 'low' || targetCompliant !== 'low')) return;
-        if (fee > 0 && fee > amount && feeDeduct) {
+        if (fee > 0 && fee > +amount && feeDeduct) {
           toast$1.error('Fee is greater than amount to transfer!');
           errorHandler('Fee is greater than amount to transfer!');
           return;
         }
-        if (mode === ModeOptions.payment || targetAddress && amount > 0) {
+        if (mode === ModeOptions.payment || targetAddress && +amount > 0) {
           setConfirming(true);
           setFormStep(1);
         }
@@ -7341,6 +7896,9 @@ const TransferWidget = ({
           return 'KYC Verify';
         }
       }
+      if (sourceChain === ChainName.BTC && !isApproved) {
+        return isBTCSigning ? 'Signing...' : 'Sign';
+      }
       if (sourceChain !== ChainName.FIAT && isApproved || dAppOption === DAppOptions.LPDrain || sourceChain === ChainName.FIAT && isSigned) {
         return isSubmitting ? 'Submitting...' : 'Submit';
       } else if (sourceChain === ChainName.FIAT) {
@@ -7368,8 +7926,11 @@ const TransferWidget = ({
     className: 'title'
   }, React.createElement("h3", null, isWizard && wizardStep === 3 || !isWizard && formStep > 0 ? titleOption !== null && titleOption !== void 0 && titleOption.confirmTitle ? titleOption === null || titleOption === void 0 ? void 0 : titleOption.confirmTitle : 'Transfer Details' : titleOption !== null && titleOption !== void 0 && titleOption.initialTitle ? titleOption === null || titleOption === void 0 ? void 0 : titleOption.initialTitle : 'New Transfer')), React.createElement("div", {
     className: 'control-buttons'
-  }, React.createElement(ExternalLink, {
-    to: helpURL ?? 'https://docs.kima.finance/demo'
+  }, pendingTxs > 0 ? React.createElement(TxButton, {
+    theme: theme,
+    txCount: pendingTxs
+  }) : null, React.createElement(ExternalLink, {
+    to: helpURL ? helpURL : 'https://docs.kima.finance/demo'
   }, React.createElement("div", {
     className: 'menu-button'
   }, "I need help")), React.createElement("button", {
@@ -7407,10 +7968,10 @@ const TransferWidget = ({
     className: 'button-group'
   }, React.createElement(SecondaryButton, {
     clickHandler: () => {
-      if (isApproving || isSubmitting || isSigning) return;
+      if (isApproving || isSubmitting || isSigning || isBTCSigning) return;
       setWizard(prev => !prev);
     },
-    disabled: isApproving || isSubmitting || isSigning,
+    disabled: isApproving || isSubmitting || isSigning || isBTCSigning,
     theme: theme.colorMode,
     style: {
       style: {
@@ -7421,11 +7982,11 @@ const TransferWidget = ({
   }, "Switch to ", isWizard ? 'Form' : 'Wizard'), React.createElement(SecondaryButton, {
     clickHandler: onBack,
     theme: theme.colorMode,
-    disabled: isApproving || isSubmitting || isSigning
+    disabled: isApproving || isSubmitting || isSigning || isBTCSigning
   }, isWizard && wizardStep > 0 || !isWizard && formStep > 0 ? 'Back' : 'Cancel'), React.createElement(PrimaryButton, {
     clickHandler: onNext,
-    isLoading: isApproving || isSubmitting || isSigning,
-    disabled: isApproving || isSubmitting || isSigning
+    isLoading: isApproving || isSubmitting || isSigning || isBTCSigning,
+    disabled: isApproving || isSubmitting || isSigning || isBTCSigning
   }, getButtonLabel()))), React.createElement(SolanaWalletConnectModal, null), React.createElement(TronWalletConnectModal, null), React.createElement(HelpPopup, null), sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT ? React.createElement(BankPopup, {
     setVerifying: setVerifying,
     isVerifying: isVerifying
@@ -7450,6 +8011,17 @@ const TransferWidget = ({
         background: theme.colorMode === ColorModeOptions.light ? 'white' : theme.backgroundColorDark ?? '#1b1e25'
       }
     }
+  }), React.createElement(PendingTxPopup, {
+    txData: pendingTxData,
+    handleHtlcContinue: handleHtlcContinue
+  }), React.createElement(Tooltip, {
+    id: 'popup-tooltip',
+    className: `popup-tooltip ${theme.colorMode}`,
+    content: 'Click to open popup to see pending transactions',
+    style: {
+      zIndex: 10000
+    },
+    place: 'bottom'
   }));
 };
 
@@ -7540,7 +8112,7 @@ const KimaTransactionWidget = ({
         })();
       }
       dispatch(setTargetAddress((transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress) || ''));
-      dispatch(setAmount((transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount) || 0));
+      dispatch(setAmount((transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount.toString()) || ''));
     } else if (mode === ModeOptions.status) {
       dispatch(setTxId(txId || 1));
       dispatch(setSubmitted(true));
@@ -7567,7 +8139,6 @@ const {
   ConnectionProvider,
   WalletProvider: SolanaWalletProvider
 } = SolanaAdapter;
-const projectId = '90c9315fb25e62e202ce09985f70bcf3';
 const ethereum = {
   chainId: 11155111,
   name: 'Ethereum Sepolia',
@@ -7620,19 +8191,11 @@ const zkEVM = {
 const metadata = {
   name: 'Kima Transaction Widget',
   description: 'Frontend widget for Kima integration for dApps',
-  url: 'https://kima.finance',
+  url: 'https://kima.network',
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 };
-createWeb3Modal({
-  ethersConfig: defaultConfig({
-    metadata
-  }),
-  chains: [ethereum, bsc, polygon, arbitrum, optimism, avalanche, zkEVM],
-  projectId,
-  enableAnalytics: false,
-  featuredWalletIds: ['c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96', 'a797aa35c0fadbfc1a53e7f675162ed5226968b44a19ee3d24385c64d1d3c393', '4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0']
-});
 const KimaProvider = ({
+  walletConnectProjectId,
   children
 }) => {
   const wallets = [new PhantomWalletAdapter(), new SolflareWalletAdapter(), new CloverWalletAdapter(), new Coin98WalletAdapter(), new SolongWalletAdapter(), new TorusWalletAdapter()];
@@ -7658,6 +8221,15 @@ const KimaProvider = ({
       adapters[0].switchChain('0xcd8690dc');
     }
   };
+  createWeb3Modal({
+    ethersConfig: defaultConfig({
+      metadata
+    }),
+    chains: [ethereum, bsc, polygon, arbitrum, optimism, avalanche, zkEVM],
+    projectId: walletConnectProjectId || 'e579511a495b5c312b572b036e60555a',
+    enableAnalytics: false,
+    featuredWalletIds: ['c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96', 'a797aa35c0fadbfc1a53e7f675162ed5226968b44a19ee3d24385c64d1d3c393', '4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0']
+  });
   return React.createElement(Provider, {
     store: store
   }, React.createElement(ConnectionProvider, {

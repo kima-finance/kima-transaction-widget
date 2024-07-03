@@ -64,6 +64,14 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
     )
   }, [mode, transactionOption, targetAddress])
 
+  const amountToShow = useMemo(() => {
+    if (originNetwork === ChainName.BTC || targetNetwork === ChainName.BTC) {
+      return (feeDeduct ? +amount : +amount + serviceFee).toFixed(8)
+    }
+
+    return formatterFloat.format(feeDeduct ? +amount : +amount + serviceFee)
+  }, [amount, serviceFee, originNetwork, targetNetwork, feeDeduct])
+
   return (
     <div className={`confirm-details ${theme.colorMode}`}>
       <p>
@@ -114,8 +122,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
       <div className='detail-item'>
         <span className='label'>Amount:</span>
         <p>
-          {formatterFloat.format(feeDeduct ? amount : amount + serviceFee)}{' '}
-          {selectedCoin}
+          {amountToShow} {selectedCoin}
         </p>
       </div>
       {targetNetwork === ChainName.FIAT ? (

@@ -1,8 +1,7 @@
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { useDispatch, useSelector } from 'react-redux'
 import {
-  selectAmount,
   selectCompliantOption,
   selectMode,
   selectSourceChain,
@@ -12,7 +11,8 @@ import {
   selectTransactionOption,
   selectSelectedToken,
   selectServiceFee,
-  selectFeeDeduct
+  selectFeeDeduct,
+  selectAmount
 } from '../../store/selectors'
 import { BankInput, CoinDropdown, CustomCheckbox, WalletButton } from './'
 import { setAmount, setFeeDeduct } from '../../store/optionSlice'
@@ -21,6 +21,7 @@ import AddressInput from './AddressInput'
 import NetworkDropdown from './NetworkDropdown'
 import { COIN_LIST, ChainName } from '../../utils/constants'
 import { formatterFloat } from '../../helpers/functions'
+import ExpireTimeDropdown from './ExpireTimeDropdown'
 
 const SingleForm = ({
   paymentTitleOption
@@ -30,7 +31,6 @@ const SingleForm = ({
   const dispatch = useDispatch()
   const mode = useSelector(selectMode)
   const theme = useSelector(selectTheme)
-  const amount = useSelector(selectAmount)
   const feeDeduct = useSelector(selectFeeDeduct)
   const serviceFee = useSelector(selectServiceFee)
   const compliantOption = useSelector(selectCompliantOption)
@@ -39,6 +39,8 @@ const SingleForm = ({
   const selectedCoin = useSelector(selectSelectedToken)
   const sourceNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
+  const [amountValue, setAmountValue] = useState('')
+  const amount = useSelector(selectAmount)
   const Icon = COIN_LIST[selectedCoin || 'USDK'].icon
 
   const errorMessage = useMemo(
@@ -53,6 +55,11 @@ const SingleForm = ({
     if (!errorMessage) return
     toast.error(errorMessage)
   }, [errorMessage])
+
+  useEffect(() => {
+    if (amountValue) return
+    setAmountValue(amount)
+  }, [amount])
 
   return (
     <div className='single-form'>
@@ -101,10 +108,16 @@ const SingleForm = ({
           <div className='amount-label-container'>
             <input
               type='number'
-              value={amount || ''}
+              value={amountValue || ''}
               onChange={(e) => {
                 let _amount = +e.target.value
-                dispatch(setAmount(parseFloat(_amount.toFixed(2))))
+                const decimal =
+                  sourceNetwork === ChainName.BTC ||
+                  targetNetwork === ChainName.BTC
+                    ? 8
+                    : 2
+                setAmountValue(e.target.value)
+                dispatch(setAmount(_amount.toFixed(decimal)))
               }}
             />
             <CoinDropdown />
@@ -123,13 +136,24 @@ const SingleForm = ({
         </div>
       )}
 
-      {mode === ModeOptions.bridge && serviceFee > 0? (
-          <CustomCheckbox
-            text={`Deduct ${formatterFloat.format(serviceFee)} USDK fee`}
-            checked={feeDeduct}
-            setCheck={(value: boolean) => dispatch(setFeeDeduct(value))}
-          />
-        ) : null}
+      {mode === ModeOptions.bridge && serviceFee > 0 ? (
+        <CustomCheckbox
+          text={
+            sourceNetwork === ChainName.BTC
+              ? `Deduct ${formatterFloat.format(serviceFee)} BTC fee`
+              : `Deduct $${formatterFloat.format(serviceFee)} fee`
+          }
+          checked={feeDeduct}
+          setCheck={(value: boolean) => dispatch(setFeeDeduct(value))}
+        />
+      ) : null}
+
+      {sourceNetwork === ChainName.BTC || targetNetwork === ChainName.BTC ? (
+        <div className={`form-item ${theme.colorMode}`}>
+          <span className='label'>Expire Time:</span>
+          <ExpireTimeDropdown />
+        </div>
+      ) : null}
     </div>
   )
 }

@@ -17,7 +17,9 @@ import {
   selectSelectedToken,
   selectErrorHandler,
   selectSourceChain,
-  selectTokenOptions
+  selectTokenOptions,
+  selectBitcoinAddress,
+  selectBackendUrl
 } from '../store/selectors'
 import { getOrCreateAssociatedTokenAccount } from '../utils/solana/getOrCreateAssociatedTokenAccount'
 import { PublicKey } from '@solana/web3.js'
@@ -31,6 +33,7 @@ import { ethers } from 'ethers'
 import { ExternalProvider, JsonRpcFetchFunc } from '@ethersproject/providers'
 import { Web3ModalAccountInfo } from '../interface'
 import { isEmptyObject } from '../helpers/functions'
+import { fetchWrapper } from '../helpers/fetch-wrapper'
 
 type ParsedAccountData = {
   /** Name of the program that owns this account */
@@ -58,7 +61,8 @@ export default function useBalance() {
   const sourceChain = useMemo(() => {
     if (
       selectedNetwork === ChainName.SOLANA ||
-      selectedNetwork === ChainName.TRON
+      selectedNetwork === ChainName.TRON ||
+      selectedNetwork === ChainName.BTC
     )
       return selectedNetwork
     if (CHAIN_NAMES_TO_IDS[selectedNetwork] !== evmChainId) {
@@ -69,7 +73,9 @@ export default function useBalance() {
   }, [selectedNetwork, evmChainId])
   const { publicKey: solanaAddress, signTransaction } = useSolanaWallet()
   const { address: tronAddress } = useTronWallet()
+  const btcAddress = useSelector(selectBitcoinAddress)
   const { connection } = useConnection()
+  const kimaBackendUrl = useSelector(selectBackendUrl)
   const selectedCoin = useSelector(selectSelectedToken)
   const tokenOptions = useSelector(selectTokenOptions)
   const tokenAddress = useMemo(() => {
@@ -86,10 +92,15 @@ export default function useBalance() {
   }, [selectedCoin, sourceChain, tokenOptions])
 
   useEffect(() => {
+    setBalance(0)
+  }, [sourceChain])
+
+  useEffect(() => {
     ;(async () => {
+      if (!tokenAddress) return
       try {
         if (!isEVMChain(sourceChain)) {
-          if (solanaAddress && tokenAddress && connection) {
+          if (sourceChain === ChainName.SOLANA && solanaAddress && connection) {
             const mint = new PublicKey(tokenAddress)
             const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
               connection,
@@ -115,7 +126,7 @@ export default function useBalance() {
             return
           }
 
-          if (tronAddress && tokenAddress) {
+          if (sourceChain === ChainName.TRON && tronAddress) {
             let trc20Contract = await tronWeb.contract(
               ERC20ABI.abi,
               tokenAddress
@@ -128,20 +139,32 @@ export default function useBalance() {
             setBalance(+formatUnits(userBalance.balance, decimals))
             return
           }
+
+          if (sourceChain === ChainName.BTC && btcAddress) {
+            const btcInfo: any = await fetchWrapper.get(
+              `${kimaBackendUrl}/btc/balance?address=${btcAddress}`
+            )
+            const balance = parseFloat(btcInfo.balance) / Math.pow(10, 8)
+
+            setBalance(balance)
+            return
+          }
         }
 
-        const provider = new ethers.providers.Web3Provider(
-          walletProvider as ExternalProvider | JsonRpcFetchFunc
-        )
-        const signer = provider?.getSigner()
+        if (walletProvider) {
+          const provider = new ethers.providers.Web3Provider(
+            walletProvider as ExternalProvider | JsonRpcFetchFunc
+          )
+          const signer = provider?.getSigner()
 
-        if (!tokenAddress || !signer || !signerAddress) return
+          if (!tokenAddress || !signer || !signerAddress) return
 
-        const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer)
-        const decimals = await erc20Contract.decimals()
-        const userBalance = await erc20Contract.balanceOf(signerAddress)
+          const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer)
+          const decimals = await erc20Contract.decimals()
+          const userBalance = await erc20Contract.balanceOf(signerAddress)
 
-        setBalance(+formatUnits(userBalance, decimals))
+          setBalance(+formatUnits(userBalance, decimals))
+        }
       } catch (error) {
         errorHandler(error)
       }
@@ -152,6 +175,7 @@ export default function useBalance() {
     sourceChain,
     solanaAddress,
     tronAddress,
+    btcAddress,
     walletProvider
   ])
 

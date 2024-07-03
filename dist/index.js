@@ -18,6 +18,7 @@ var toast__default = _interopDefault(toast);
 var react = require('@web3modal/ethers5/react');
 var reactTooltip = require('react-tooltip');
 var walletAdapterBase = require('@solana/wallet-adapter-base');
+var satsConnect = require('sats-connect');
 var contracts = require('@ethersproject/contracts');
 var units = require('@ethersproject/units');
 var splToken = require('@solana/spl-token');
@@ -26,6 +27,10 @@ var ethers = require('ethers');
 var BufferLayout = _interopDefault(require('buffer-layout'));
 var sha256 = _interopDefault(require('crypto-js/sha256.js'));
 var Base64 = _interopDefault(require('crypto-js/enc-base64.js'));
+var buffer = require('buffer');
+var bitcoin = require('bitcoinjs-lib');
+require('@scure/base');
+require('@kimafinance/btc-signer');
 
 function _extends() {
   _extends = Object.assign ? Object.assign.bind() : function (target) {
@@ -739,11 +744,57 @@ var Celo = function Celo(_ref) {
   }));
 };
 
-var ETHEREUM_KEUR_ADDRESS = '0xAFc823fcbe5945f5f38f144314663c87dA713E06';
-var POLYGON_KEUR_ADDRESS = '0x7D4325eE3A80778Af01498ca32E0C30e233ffB0d';
-var TRON_USDK_OWNER_ADDRESS = 'TBVn4bsBN4DhtZ7D3vEVpAyqkvdFn7zmpU';
+var _excluded$j = ["width", "height"];
+var BTC = function BTC(_ref) {
+  var _ref$width = _ref.width,
+    width = _ref$width === void 0 ? 59 : _ref$width,
+    _ref$height = _ref.height,
+    height = _ref$height === void 0 ? 58 : _ref$height,
+    rest = _objectWithoutPropertiesLoose(_ref, _excluded$j);
+  return React__default.createElement("svg", Object.assign({
+    width: width,
+    height: height,
+    viewBox: '0 0 21 20',
+    xmlns: 'http://www.w3.org/2000/svg'
+  }, rest), React__default.createElement("circle", {
+    cx: '10.5',
+    cy: '10',
+    r: '10',
+    fill: '#F7931A'
+  }), React__default.createElement("mask", {
+    id: 'path-2-outside-1_72_686',
+    maskUnits: 'userSpaceOnUse',
+    x: '3.59804',
+    y: '2.52942',
+    width: '13',
+    height: '15',
+    fill: 'black'
+  }, React__default.createElement("rect", {
+    fill: 'white',
+    x: '3.59804',
+    y: '2.52942',
+    width: '13',
+    height: '15'
+  }), React__default.createElement("path", {
+    fillRule: 'evenodd',
+    clipRule: 'evenodd',
+    d: 'M10.4059 3.54536C10.4019 3.55333 10.2964 3.96177 10.1749 4.45589L9.94981 5.35248C9.51363 5.25087 9.33638 5.20903 9.27663 5.19309C9.23326 5.18152 9.02514 5.12901 8.76348 5.06299C8.66466 5.03806 8.5582 5.01119 8.45009 4.98388C8.05574 4.88626 7.72513 4.80457 7.71318 4.80457C7.70123 4.80457 7.62754 5.07155 7.54787 5.39631C7.4682 5.72307 7.40447 5.99005 7.40845 5.99205C7.41244 5.99205 7.59766 6.03787 7.82272 6.09366C8.04778 6.14945 8.2808 6.21321 8.34055 6.23512C8.4003 6.25903 8.48992 6.31083 8.53971 6.35467C8.5915 6.3985 8.64726 6.47222 8.67316 6.53C8.69706 6.5838 8.72096 6.67146 8.72693 6.72725C8.73888 6.81292 8.65523 7.16558 8.10752 9.36919C7.52198 11.7222 7.47019 11.9175 7.41244 11.9892C7.37858 12.0331 7.32082 12.0869 7.28298 12.1128C7.2312 12.1466 7.18738 12.1566 7.09576 12.1566C7.02008 12.1566 6.8249 12.1167 6.56399 12.051L6.15172 11.9474L5.59804 13.2225C7.31883 13.6549 7.82471 13.7864 7.83467 13.7963C7.84463 13.8043 7.75102 14.2108 7.62754 14.7029C7.52892 15.0943 7.44174 15.4375 7.40859 15.5679C7.40024 15.6008 7.39531 15.6202 7.39451 15.6234C7.38655 15.6473 7.49409 15.6812 7.93823 15.7888C8.24097 15.8645 8.4959 15.9183 8.50187 15.9083C8.50785 15.9003 8.6154 15.4879 8.73689 14.9958L8.96195 14.0992C9.63513 14.2685 9.83628 14.3223 9.84027 14.3283C9.84624 14.3343 9.75064 14.7467 9.62517 15.2448C9.49969 15.7429 9.40011 16.1534 9.4021 16.1554C9.40385 16.1571 9.59671 16.2063 9.8494 16.2707C9.88512 16.2798 9.92203 16.2892 9.95977 16.2988C10.2625 16.3765 10.5154 16.4343 10.5194 16.4243C10.5227 16.4178 10.5937 16.1334 10.6889 15.7524C10.7091 15.6713 10.7304 15.5859 10.7524 15.4979L10.9795 14.5834C11.031 14.591 11.0999 14.6014 11.1782 14.6132C11.2635 14.626 11.3599 14.6405 11.4575 14.6551C11.6447 14.683 11.9435 14.7168 12.1247 14.7268C12.3637 14.7427 12.529 14.7427 12.7322 14.7268C12.8855 14.7149 13.0827 14.6909 13.1703 14.673C13.2579 14.6571 13.3974 14.6212 13.479 14.5933C13.5607 14.5654 13.6822 14.5176 13.7479 14.4877C13.8136 14.4558 13.9351 14.3861 14.0168 14.3323C14.0984 14.2765 14.2239 14.1749 14.2936 14.1052C14.3633 14.0354 14.4749 13.9079 14.5406 13.8203C14.6063 13.7326 14.7059 13.5612 14.7656 13.4417C14.8234 13.3222 14.907 13.1149 14.9509 12.9834C14.9947 12.8519 15.0445 12.6686 15.0624 12.575C15.0803 12.4814 15.1002 12.306 15.1062 12.1865C15.1142 12.0271 15.1082 11.9155 15.0843 11.778C15.0644 11.6744 15.0226 11.521 14.9907 11.4393C14.9568 11.3576 14.8831 11.2182 14.8234 11.1305C14.7656 11.0428 14.6481 10.9034 14.5625 10.8217C14.4749 10.738 14.3374 10.6264 14.2558 10.5706C14.1741 10.5148 14.0626 10.4451 14.0068 10.4152L13.9072 10.3574C14.2 10.2618 14.3573 10.1941 14.443 10.1442C14.5286 10.0944 14.6621 9.99681 14.7397 9.92508C14.8154 9.85335 14.917 9.74178 14.9628 9.67603C15.0106 9.61028 15.0743 9.50269 15.1082 9.43694C15.1401 9.37119 15.1918 9.24567 15.2197 9.158C15.2496 9.07033 15.2914 8.89102 15.3153 8.75952C15.3472 8.57223 15.3532 8.47261 15.3452 8.30126C15.3392 8.17972 15.3153 8.01037 15.2914 7.9227C15.2695 7.83503 15.2257 7.70951 15.1958 7.64376C15.164 7.57801 15.1002 7.46644 15.0524 7.39471C15.0046 7.32298 14.9031 7.19945 14.8254 7.11776C14.7477 7.03807 14.6123 6.91852 14.5246 6.85277C14.437 6.78702 14.2797 6.68142 14.1761 6.62165C14.0725 6.55989 13.8754 6.46027 13.7379 6.3985C13.6005 6.33674 13.3974 6.25106 13.2838 6.20723C13.1305 6.14945 13.0827 6.12155 13.0887 6.09964C13.0946 6.0837 13.1982 5.67127 13.3197 5.18313C13.4412 4.69498 13.5368 4.2965 13.5348 4.29451C13.5322 4.29324 13.4308 4.26765 13.2802 4.22963C13.1947 4.20804 13.0933 4.18246 12.9851 4.15504C12.6366 4.06737 12.4374 4.02553 12.4274 4.03749C12.4175 4.04745 12.3159 4.44992 12.1984 4.9281C12.0809 5.40827 11.9753 5.80078 11.9654 5.80078C11.9554 5.80078 11.7542 5.75495 11.5232 5.69916C11.2902 5.64537 11.095 5.59556 11.089 5.58958C11.0831 5.58559 11.1807 5.17914 11.3041 4.68901C11.4276 4.19887 11.5252 3.7964 11.5232 3.79441C11.5192 3.79242 11.2822 3.73265 10.9954 3.66092C10.7066 3.58919 10.4577 3.52942 10.4417 3.52942C10.4278 3.52942 10.4099 3.5354 10.4059 3.54337V3.54536ZM10.7824 6.93276C10.7764 6.94073 10.651 7.43286 10.5036 8.0266C10.3542 8.62233 10.2327 9.12044 10.2327 9.13239C10.2327 9.14833 10.3702 9.19216 10.6052 9.25194C10.8123 9.30374 11.0792 9.3655 11.1987 9.38742C11.3182 9.40934 11.5253 9.43524 11.6568 9.4452C11.7962 9.45516 11.9814 9.45516 12.0989 9.4452C12.2124 9.43524 12.3718 9.40535 12.4574 9.37746C12.543 9.35156 12.6526 9.30374 12.7024 9.27186C12.7522 9.24197 12.8259 9.1822 12.8657 9.14235C12.9075 9.10251 12.9633 9.03277 12.9912 8.98894C13.0191 8.9451 13.0649 8.83951 13.0927 8.75383C13.1306 8.63827 13.1445 8.55858 13.1465 8.43106C13.1465 8.30355 13.1346 8.22783 13.1007 8.12224C13.0748 8.04453 13.0151 7.93296 12.9713 7.87318C12.9254 7.81341 12.8518 7.72973 12.8059 7.68789C12.7601 7.64804 12.6566 7.57233 12.5769 7.52053C12.4992 7.46872 12.3479 7.38903 12.2443 7.3432C12.1407 7.29738 11.9436 7.22366 11.8061 7.17982C11.6687 7.13599 11.3959 7.06426 11.1987 7.01844C11.0015 6.97261 10.8282 6.93077 10.8143 6.92679C10.8003 6.9228 10.7864 6.92479 10.7824 6.93276ZM9.63523 11.5133C9.46992 12.1908 9.33648 12.7466 9.34046 12.7486C9.34445 12.7506 9.50378 12.7925 9.69498 12.8423C9.88618 12.8921 10.1511 12.9558 10.2825 12.9817C10.414 13.0096 10.6191 13.0475 10.7406 13.0674C10.9019 13.0933 11.0672 13.1033 11.368 13.1033C11.6986 13.1033 11.8041 13.0953 11.9256 13.0654C12.0073 13.0455 12.1467 12.9957 12.2343 12.9538C12.3399 12.904 12.4295 12.8423 12.5012 12.7725C12.561 12.7128 12.6287 12.6291 12.6546 12.5853C12.6805 12.5414 12.7203 12.4518 12.7422 12.386C12.7661 12.3203 12.79 12.1908 12.796 12.0971C12.802 12.0015 12.798 11.8799 12.784 11.8182C12.7721 11.7584 12.7342 11.6508 12.6984 11.5791C12.6606 11.5014 12.5789 11.3918 12.4933 11.3021C12.4176 11.2224 12.2821 11.1089 12.1945 11.0511C12.1069 10.9913 11.9416 10.8997 11.8261 10.8439C11.7105 10.7901 11.4994 10.7044 11.358 10.6566C11.2166 10.6068 10.9955 10.541 10.8701 10.5072C10.7446 10.4733 10.4837 10.4095 10.2925 10.3637C10.1013 10.3199 9.94195 10.284 9.93995 10.284C9.93796 10.284 9.80054 10.8379 9.63523 11.5133Z'
+  })), React__default.createElement("path", {
+    fillRule: 'evenodd',
+    clipRule: 'evenodd',
+    d: 'M10.4059 3.54536C10.4019 3.55333 10.2964 3.96177 10.1749 4.45589L9.94981 5.35248C9.51363 5.25087 9.33638 5.20903 9.27663 5.19309C9.23326 5.18152 9.02514 5.12901 8.76348 5.06299C8.66466 5.03806 8.5582 5.01119 8.45009 4.98388C8.05574 4.88626 7.72513 4.80457 7.71318 4.80457C7.70123 4.80457 7.62754 5.07155 7.54787 5.39631C7.4682 5.72307 7.40447 5.99005 7.40845 5.99205C7.41244 5.99205 7.59766 6.03787 7.82272 6.09366C8.04778 6.14945 8.2808 6.21321 8.34055 6.23512C8.4003 6.25903 8.48992 6.31083 8.53971 6.35467C8.5915 6.3985 8.64726 6.47222 8.67316 6.53C8.69706 6.5838 8.72096 6.67146 8.72693 6.72725C8.73888 6.81292 8.65523 7.16558 8.10752 9.36919C7.52198 11.7222 7.47019 11.9175 7.41244 11.9892C7.37858 12.0331 7.32082 12.0869 7.28298 12.1128C7.2312 12.1466 7.18738 12.1566 7.09576 12.1566C7.02008 12.1566 6.8249 12.1167 6.56399 12.051L6.15172 11.9474L5.59804 13.2225C7.31883 13.6549 7.82471 13.7864 7.83467 13.7963C7.84463 13.8043 7.75102 14.2108 7.62754 14.7029C7.52892 15.0943 7.44174 15.4375 7.40859 15.5679C7.40024 15.6008 7.39531 15.6202 7.39451 15.6234C7.38655 15.6473 7.49409 15.6812 7.93823 15.7888C8.24097 15.8645 8.4959 15.9183 8.50187 15.9083C8.50785 15.9003 8.6154 15.4879 8.73689 14.9958L8.96195 14.0992C9.63513 14.2685 9.83628 14.3223 9.84027 14.3283C9.84624 14.3343 9.75064 14.7467 9.62517 15.2448C9.49969 15.7429 9.40011 16.1534 9.4021 16.1554C9.40385 16.1571 9.59671 16.2063 9.8494 16.2707C9.88512 16.2798 9.92203 16.2892 9.95977 16.2988C10.2625 16.3765 10.5154 16.4343 10.5194 16.4243C10.5227 16.4178 10.5937 16.1334 10.6889 15.7524C10.7091 15.6713 10.7304 15.5859 10.7524 15.4979L10.9795 14.5834C11.031 14.591 11.0999 14.6014 11.1782 14.6132C11.2635 14.626 11.3599 14.6405 11.4575 14.6551C11.6447 14.683 11.9435 14.7168 12.1247 14.7268C12.3637 14.7427 12.529 14.7427 12.7322 14.7268C12.8855 14.7149 13.0827 14.6909 13.1703 14.673C13.2579 14.6571 13.3974 14.6212 13.479 14.5933C13.5607 14.5654 13.6822 14.5176 13.7479 14.4877C13.8136 14.4558 13.9351 14.3861 14.0168 14.3323C14.0984 14.2765 14.2239 14.1749 14.2936 14.1052C14.3633 14.0354 14.4749 13.9079 14.5406 13.8203C14.6063 13.7326 14.7059 13.5612 14.7656 13.4417C14.8234 13.3222 14.907 13.1149 14.9509 12.9834C14.9947 12.8519 15.0445 12.6686 15.0624 12.575C15.0803 12.4814 15.1002 12.306 15.1062 12.1865C15.1142 12.0271 15.1082 11.9155 15.0843 11.778C15.0644 11.6744 15.0226 11.521 14.9907 11.4393C14.9568 11.3576 14.8831 11.2182 14.8234 11.1305C14.7656 11.0428 14.6481 10.9034 14.5625 10.8217C14.4749 10.738 14.3374 10.6264 14.2558 10.5706C14.1741 10.5148 14.0626 10.4451 14.0068 10.4152L13.9072 10.3574C14.2 10.2618 14.3573 10.1941 14.443 10.1442C14.5286 10.0944 14.6621 9.99681 14.7397 9.92508C14.8154 9.85335 14.917 9.74178 14.9628 9.67603C15.0106 9.61028 15.0743 9.50269 15.1082 9.43694C15.1401 9.37119 15.1918 9.24567 15.2197 9.158C15.2496 9.07033 15.2914 8.89102 15.3153 8.75952C15.3472 8.57223 15.3532 8.47261 15.3452 8.30126C15.3392 8.17972 15.3153 8.01037 15.2914 7.9227C15.2695 7.83503 15.2257 7.70951 15.1958 7.64376C15.164 7.57801 15.1002 7.46644 15.0524 7.39471C15.0046 7.32298 14.9031 7.19945 14.8254 7.11776C14.7477 7.03807 14.6123 6.91852 14.5246 6.85277C14.437 6.78702 14.2797 6.68142 14.1761 6.62165C14.0725 6.55989 13.8754 6.46027 13.7379 6.3985C13.6005 6.33674 13.3974 6.25106 13.2838 6.20723C13.1305 6.14945 13.0827 6.12155 13.0887 6.09964C13.0946 6.0837 13.1982 5.67127 13.3197 5.18313C13.4412 4.69498 13.5368 4.2965 13.5348 4.29451C13.5322 4.29324 13.4308 4.26765 13.2802 4.22963C13.1947 4.20804 13.0933 4.18246 12.9851 4.15504C12.6366 4.06737 12.4374 4.02553 12.4274 4.03749C12.4175 4.04745 12.3159 4.44992 12.1984 4.9281C12.0809 5.40827 11.9753 5.80078 11.9654 5.80078C11.9554 5.80078 11.7542 5.75495 11.5232 5.69916C11.2902 5.64537 11.095 5.59556 11.089 5.58958C11.0831 5.58559 11.1807 5.17914 11.3041 4.68901C11.4276 4.19887 11.5252 3.7964 11.5232 3.79441C11.5192 3.79242 11.2822 3.73265 10.9954 3.66092C10.7066 3.58919 10.4577 3.52942 10.4417 3.52942C10.4278 3.52942 10.4099 3.5354 10.4059 3.54337V3.54536ZM10.7824 6.93276C10.7764 6.94073 10.651 7.43286 10.5036 8.0266C10.3542 8.62233 10.2327 9.12044 10.2327 9.13239C10.2327 9.14833 10.3702 9.19216 10.6052 9.25194C10.8123 9.30374 11.0792 9.3655 11.1987 9.38742C11.3182 9.40934 11.5253 9.43524 11.6568 9.4452C11.7962 9.45516 11.9814 9.45516 12.0989 9.4452C12.2124 9.43524 12.3718 9.40535 12.4574 9.37746C12.543 9.35156 12.6526 9.30374 12.7024 9.27186C12.7522 9.24197 12.8259 9.1822 12.8657 9.14235C12.9075 9.10251 12.9633 9.03277 12.9912 8.98894C13.0191 8.9451 13.0649 8.83951 13.0927 8.75383C13.1306 8.63827 13.1445 8.55858 13.1465 8.43106C13.1465 8.30355 13.1346 8.22783 13.1007 8.12224C13.0748 8.04453 13.0151 7.93296 12.9713 7.87318C12.9254 7.81341 12.8518 7.72973 12.8059 7.68789C12.7601 7.64804 12.6566 7.57233 12.5769 7.52053C12.4992 7.46872 12.3479 7.38903 12.2443 7.3432C12.1407 7.29738 11.9436 7.22366 11.8061 7.17982C11.6687 7.13599 11.3959 7.06426 11.1987 7.01844C11.0015 6.97261 10.8282 6.93077 10.8143 6.92679C10.8003 6.9228 10.7864 6.92479 10.7824 6.93276ZM9.63523 11.5133C9.46992 12.1908 9.33648 12.7466 9.34046 12.7486C9.34445 12.7506 9.50378 12.7925 9.69498 12.8423C9.88618 12.8921 10.1511 12.9558 10.2825 12.9817C10.414 13.0096 10.6191 13.0475 10.7406 13.0674C10.9019 13.0933 11.0672 13.1033 11.368 13.1033C11.6986 13.1033 11.8041 13.0953 11.9256 13.0654C12.0073 13.0455 12.1467 12.9957 12.2343 12.9538C12.3399 12.904 12.4295 12.8423 12.5012 12.7725C12.561 12.7128 12.6287 12.6291 12.6546 12.5853C12.6805 12.5414 12.7203 12.4518 12.7422 12.386C12.7661 12.3203 12.79 12.1908 12.796 12.0971C12.802 12.0015 12.798 11.8799 12.784 11.8182C12.7721 11.7584 12.7342 11.6508 12.6984 11.5791C12.6606 11.5014 12.5789 11.3918 12.4933 11.3021C12.4176 11.2224 12.2821 11.1089 12.1945 11.0511C12.1069 10.9913 11.9416 10.8997 11.8261 10.8439C11.7105 10.7901 11.4994 10.7044 11.358 10.6566C11.2166 10.6068 10.9955 10.541 10.8701 10.5072C10.7446 10.4733 10.4837 10.4095 10.2925 10.3637C10.1013 10.3199 9.94195 10.284 9.93995 10.284C9.93796 10.284 9.80054 10.8379 9.63523 11.5133Z',
+    fill: '#F7931A'
+  }), React__default.createElement("path", {
+    fillRule: 'evenodd',
+    clipRule: 'evenodd',
+    d: 'M10.4059 3.54536C10.4019 3.55333 10.2964 3.96177 10.1749 4.45589L9.94981 5.35248C9.51363 5.25087 9.33638 5.20903 9.27663 5.19309C9.23326 5.18152 9.02514 5.12901 8.76348 5.06299C8.66466 5.03806 8.5582 5.01119 8.45009 4.98388C8.05574 4.88626 7.72513 4.80457 7.71318 4.80457C7.70123 4.80457 7.62754 5.07155 7.54787 5.39631C7.4682 5.72307 7.40447 5.99005 7.40845 5.99205C7.41244 5.99205 7.59766 6.03787 7.82272 6.09366C8.04778 6.14945 8.2808 6.21321 8.34055 6.23512C8.4003 6.25903 8.48992 6.31083 8.53971 6.35467C8.5915 6.3985 8.64726 6.47222 8.67316 6.53C8.69706 6.5838 8.72096 6.67146 8.72693 6.72725C8.73888 6.81292 8.65523 7.16558 8.10752 9.36919C7.52198 11.7222 7.47019 11.9175 7.41244 11.9892C7.37858 12.0331 7.32082 12.0869 7.28298 12.1128C7.2312 12.1466 7.18738 12.1566 7.09576 12.1566C7.02008 12.1566 6.8249 12.1167 6.56399 12.051L6.15172 11.9474L5.59804 13.2225C7.31883 13.6549 7.82471 13.7864 7.83467 13.7963C7.84463 13.8043 7.75102 14.2108 7.62754 14.7029C7.52892 15.0943 7.44174 15.4375 7.40859 15.5679C7.40024 15.6008 7.39531 15.6202 7.39451 15.6234C7.38655 15.6473 7.49409 15.6812 7.93823 15.7888C8.24097 15.8645 8.4959 15.9183 8.50187 15.9083C8.50785 15.9003 8.6154 15.4879 8.73689 14.9958L8.96195 14.0992C9.63513 14.2685 9.83628 14.3223 9.84027 14.3283C9.84624 14.3343 9.75064 14.7467 9.62517 15.2448C9.49969 15.7429 9.40011 16.1534 9.4021 16.1554C9.40385 16.1571 9.59671 16.2063 9.8494 16.2707C9.88512 16.2798 9.92203 16.2892 9.95977 16.2988C10.2625 16.3765 10.5154 16.4343 10.5194 16.4243C10.5227 16.4178 10.5937 16.1334 10.6889 15.7524C10.7091 15.6713 10.7304 15.5859 10.7524 15.4979L10.9795 14.5834C11.031 14.591 11.0999 14.6014 11.1782 14.6132C11.2635 14.626 11.3599 14.6405 11.4575 14.6551C11.6447 14.683 11.9435 14.7168 12.1247 14.7268C12.3637 14.7427 12.529 14.7427 12.7322 14.7268C12.8855 14.7149 13.0827 14.6909 13.1703 14.673C13.2579 14.6571 13.3974 14.6212 13.479 14.5933C13.5607 14.5654 13.6822 14.5176 13.7479 14.4877C13.8136 14.4558 13.9351 14.3861 14.0168 14.3323C14.0984 14.2765 14.2239 14.1749 14.2936 14.1052C14.3633 14.0354 14.4749 13.9079 14.5406 13.8203C14.6063 13.7326 14.7059 13.5612 14.7656 13.4417C14.8234 13.3222 14.907 13.1149 14.9509 12.9834C14.9947 12.8519 15.0445 12.6686 15.0624 12.575C15.0803 12.4814 15.1002 12.306 15.1062 12.1865C15.1142 12.0271 15.1082 11.9155 15.0843 11.778C15.0644 11.6744 15.0226 11.521 14.9907 11.4393C14.9568 11.3576 14.8831 11.2182 14.8234 11.1305C14.7656 11.0428 14.6481 10.9034 14.5625 10.8217C14.4749 10.738 14.3374 10.6264 14.2558 10.5706C14.1741 10.5148 14.0626 10.4451 14.0068 10.4152L13.9072 10.3574C14.2 10.2618 14.3573 10.1941 14.443 10.1442C14.5286 10.0944 14.6621 9.99681 14.7397 9.92508C14.8154 9.85335 14.917 9.74178 14.9628 9.67603C15.0106 9.61028 15.0743 9.50269 15.1082 9.43694C15.1401 9.37119 15.1918 9.24567 15.2197 9.158C15.2496 9.07033 15.2914 8.89102 15.3153 8.75952C15.3472 8.57223 15.3532 8.47261 15.3452 8.30126C15.3392 8.17972 15.3153 8.01037 15.2914 7.9227C15.2695 7.83503 15.2257 7.70951 15.1958 7.64376C15.164 7.57801 15.1002 7.46644 15.0524 7.39471C15.0046 7.32298 14.9031 7.19945 14.8254 7.11776C14.7477 7.03807 14.6123 6.91852 14.5246 6.85277C14.437 6.78702 14.2797 6.68142 14.1761 6.62165C14.0725 6.55989 13.8754 6.46027 13.7379 6.3985C13.6005 6.33674 13.3974 6.25106 13.2838 6.20723C13.1305 6.14945 13.0827 6.12155 13.0887 6.09964C13.0946 6.0837 13.1982 5.67127 13.3197 5.18313C13.4412 4.69498 13.5368 4.2965 13.5348 4.29451C13.5322 4.29324 13.4308 4.26765 13.2802 4.22963C13.1947 4.20804 13.0933 4.18246 12.9851 4.15504C12.6366 4.06737 12.4374 4.02553 12.4274 4.03749C12.4175 4.04745 12.3159 4.44992 12.1984 4.9281C12.0809 5.40827 11.9753 5.80078 11.9654 5.80078C11.9554 5.80078 11.7542 5.75495 11.5232 5.69916C11.2902 5.64537 11.095 5.59556 11.089 5.58958C11.0831 5.58559 11.1807 5.17914 11.3041 4.68901C11.4276 4.19887 11.5252 3.7964 11.5232 3.79441C11.5192 3.79242 11.2822 3.73265 10.9954 3.66092C10.7066 3.58919 10.4577 3.52942 10.4417 3.52942C10.4278 3.52942 10.4099 3.5354 10.4059 3.54337V3.54536ZM10.7824 6.93276C10.7764 6.94073 10.651 7.43286 10.5036 8.0266C10.3542 8.62233 10.2327 9.12044 10.2327 9.13239C10.2327 9.14833 10.3702 9.19216 10.6052 9.25194C10.8123 9.30374 11.0792 9.3655 11.1987 9.38742C11.3182 9.40934 11.5253 9.43524 11.6568 9.4452C11.7962 9.45516 11.9814 9.45516 12.0989 9.4452C12.2124 9.43524 12.3718 9.40535 12.4574 9.37746C12.543 9.35156 12.6526 9.30374 12.7024 9.27186C12.7522 9.24197 12.8259 9.1822 12.8657 9.14235C12.9075 9.10251 12.9633 9.03277 12.9912 8.98894C13.0191 8.9451 13.0649 8.83951 13.0927 8.75383C13.1306 8.63827 13.1445 8.55858 13.1465 8.43106C13.1465 8.30355 13.1346 8.22783 13.1007 8.12224C13.0748 8.04453 13.0151 7.93296 12.9713 7.87318C12.9254 7.81341 12.8518 7.72973 12.8059 7.68789C12.7601 7.64804 12.6566 7.57233 12.5769 7.52053C12.4992 7.46872 12.3479 7.38903 12.2443 7.3432C12.1407 7.29738 11.9436 7.22366 11.8061 7.17982C11.6687 7.13599 11.3959 7.06426 11.1987 7.01844C11.0015 6.97261 10.8282 6.93077 10.8143 6.92679C10.8003 6.9228 10.7864 6.92479 10.7824 6.93276ZM9.63523 11.5133C9.46992 12.1908 9.33648 12.7466 9.34046 12.7486C9.34445 12.7506 9.50378 12.7925 9.69498 12.8423C9.88618 12.8921 10.1511 12.9558 10.2825 12.9817C10.414 13.0096 10.6191 13.0475 10.7406 13.0674C10.9019 13.0933 11.0672 13.1033 11.368 13.1033C11.6986 13.1033 11.8041 13.0953 11.9256 13.0654C12.0073 13.0455 12.1467 12.9957 12.2343 12.9538C12.3399 12.904 12.4295 12.8423 12.5012 12.7725C12.561 12.7128 12.6287 12.6291 12.6546 12.5853C12.6805 12.5414 12.7203 12.4518 12.7422 12.386C12.7661 12.3203 12.79 12.1908 12.796 12.0971C12.802 12.0015 12.798 11.8799 12.784 11.8182C12.7721 11.7584 12.7342 11.6508 12.6984 11.5791C12.6606 11.5014 12.5789 11.3918 12.4933 11.3021C12.4176 11.2224 12.2821 11.1089 12.1945 11.0511C12.1069 10.9913 11.9416 10.8997 11.8261 10.8439C11.7105 10.7901 11.4994 10.7044 11.358 10.6566C11.2166 10.6068 10.9955 10.541 10.8701 10.5072C10.7446 10.4733 10.4837 10.4095 10.2925 10.3637C10.1013 10.3199 9.94195 10.284 9.93995 10.284C9.93796 10.284 9.80054 10.8379 9.63523 11.5133Z',
+    stroke: 'black',
+    strokeWidth: '2',
+    mask: 'url(#path-2-outside-1_72_686)'
+  }));
+};
 
-var _CHAIN_NAMES_TO_IDS, _CHAIN_NAMES_TO_STRIN, _CHAIN_STRING_TO_NAME, _CHAIN_NAMES_TO_EXPLO, _CHAIN_NAMES_TO_GECKO, _CHAIN_IDS_TO_NAMES;
+var _CHAIN_NAMES_TO_IDS, _CHAIN_NAMES_TO_STRIN, _CHAIN_STRING_TO_NAME, _CHAIN_NAMES_TO_EXPLO, _CHAIN_IDS_TO_NAMES;
 (function (ChainName) {
   ChainName["ETHEREUM"] = "ETH";
   ChainName["POLYGON"] = "POL";
@@ -755,6 +806,7 @@ var _CHAIN_NAMES_TO_IDS, _CHAIN_NAMES_TO_STRIN, _CHAIN_STRING_TO_NAME, _CHAIN_NA
   ChainName["POLYGON_ZKEVM"] = "ZKE";
   ChainName["TRON"] = "TRX";
   ChainName["FIAT"] = "FIAT";
+  ChainName["BTC"] = "BTC";
 })(exports.SupportNetworks || (exports.SupportNetworks = {}));
 var SupportedChainId;
 (function (SupportedChainId) {
@@ -767,10 +819,9 @@ var SupportedChainId;
   SupportedChainId[SupportedChainId["POLYGON_ZKEM"] = 2442] = "POLYGON_ZKEM";
 })(SupportedChainId || (SupportedChainId = {}));
 var CHAIN_NAMES_TO_IDS = (_CHAIN_NAMES_TO_IDS = {}, _CHAIN_NAMES_TO_IDS[exports.SupportNetworks.ETHEREUM] = SupportedChainId.ETHEREUM, _CHAIN_NAMES_TO_IDS[exports.SupportNetworks.POLYGON] = SupportedChainId.POLYGON, _CHAIN_NAMES_TO_IDS[exports.SupportNetworks.AVALANCHE] = SupportedChainId.AVALANCHE, _CHAIN_NAMES_TO_IDS[exports.SupportNetworks.BSC] = SupportedChainId.BSC, _CHAIN_NAMES_TO_IDS[exports.SupportNetworks.OPTIMISM] = SupportedChainId.OPTIMISM, _CHAIN_NAMES_TO_IDS[exports.SupportNetworks.ARBITRUM] = SupportedChainId.ARBITRUM, _CHAIN_NAMES_TO_IDS[exports.SupportNetworks.POLYGON_ZKEVM] = SupportedChainId.POLYGON_ZKEM, _CHAIN_NAMES_TO_IDS);
-var CHAIN_NAMES_TO_STRING = (_CHAIN_NAMES_TO_STRIN = {}, _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.ETHEREUM] = 'Ethereum', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.POLYGON] = 'Polygon', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.AVALANCHE] = 'Avalanche', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.SOLANA] = 'Solana', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.BSC] = 'BNB Smart Chain', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.OPTIMISM] = 'Optimism', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.ARBITRUM] = 'Arbitrum', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.POLYGON_ZKEVM] = 'Polygon zkEVM', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.TRON] = 'Tron', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.FIAT] = 'Pay with FIAT', _CHAIN_NAMES_TO_STRIN);
-var CHAIN_STRING_TO_NAME = (_CHAIN_STRING_TO_NAME = {}, _CHAIN_STRING_TO_NAME['Ethereum'] = exports.SupportNetworks.ETHEREUM, _CHAIN_STRING_TO_NAME['Polygon'] = exports.SupportNetworks.POLYGON, _CHAIN_STRING_TO_NAME['Avalanche'] = exports.SupportNetworks.AVALANCHE, _CHAIN_STRING_TO_NAME['Solana'] = exports.SupportNetworks.SOLANA, _CHAIN_STRING_TO_NAME['Binance'] = exports.SupportNetworks.BSC, _CHAIN_STRING_TO_NAME['Optimism'] = exports.SupportNetworks.OPTIMISM, _CHAIN_STRING_TO_NAME['Arbitrum'] = exports.SupportNetworks.ARBITRUM, _CHAIN_STRING_TO_NAME['Polygon zkEVM'] = exports.SupportNetworks.POLYGON_ZKEVM, _CHAIN_STRING_TO_NAME['Tron'] = exports.SupportNetworks.TRON, _CHAIN_STRING_TO_NAME['Pay with FIAT'] = exports.SupportNetworks.FIAT, _CHAIN_STRING_TO_NAME);
-var CHAIN_NAMES_TO_EXPLORER = (_CHAIN_NAMES_TO_EXPLO = {}, _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.ETHEREUM] = 'sepolia.etherscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.POLYGON] = 'www.oklink.com/amoy', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.AVALANCHE] = 'testnet.snowtrace.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.SOLANA] = 'solscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.BSC] = 'testnet.bscscan.com', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.OPTIMISM] = 'sepolia-optimism.etherscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.ARBITRUM] = 'sepolia.arbiscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.POLYGON_ZKEVM] = 'cardona-zkevm.polygonscan.com', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.TRON] = 'nile.tronscan.org/#', _CHAIN_NAMES_TO_EXPLO);
-var CHAIN_NAMES_TO_GECKO_ID = (_CHAIN_NAMES_TO_GECKO = {}, _CHAIN_NAMES_TO_GECKO[exports.SupportNetworks.ETHEREUM] = 'ethereum', _CHAIN_NAMES_TO_GECKO[exports.SupportNetworks.POLYGON] = 'matic-network', _CHAIN_NAMES_TO_GECKO[exports.SupportNetworks.AVALANCHE] = 'avalanche-2', _CHAIN_NAMES_TO_GECKO[exports.SupportNetworks.SOLANA] = 'solana', _CHAIN_NAMES_TO_GECKO[exports.SupportNetworks.BSC] = 'binancecoin', _CHAIN_NAMES_TO_GECKO[exports.SupportNetworks.OPTIMISM] = 'ethereum', _CHAIN_NAMES_TO_GECKO[exports.SupportNetworks.ARBITRUM] = 'ethereum', _CHAIN_NAMES_TO_GECKO[exports.SupportNetworks.POLYGON_ZKEVM] = 'matic-network', _CHAIN_NAMES_TO_GECKO[exports.SupportNetworks.TRON] = 'tron', _CHAIN_NAMES_TO_GECKO);
+var CHAIN_NAMES_TO_STRING = (_CHAIN_NAMES_TO_STRIN = {}, _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.ETHEREUM] = 'Ethereum', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.POLYGON] = 'Polygon', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.AVALANCHE] = 'Avalanche', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.SOLANA] = 'Solana', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.BSC] = 'BNB Smart Chain', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.OPTIMISM] = 'Optimism', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.ARBITRUM] = 'Arbitrum', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.POLYGON_ZKEVM] = 'Polygon zkEVM', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.TRON] = 'Tron', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.FIAT] = 'Pay with FIAT', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.BTC] = 'Bitcoin', _CHAIN_NAMES_TO_STRIN);
+var CHAIN_STRING_TO_NAME = (_CHAIN_STRING_TO_NAME = {}, _CHAIN_STRING_TO_NAME['Ethereum'] = exports.SupportNetworks.ETHEREUM, _CHAIN_STRING_TO_NAME['Polygon'] = exports.SupportNetworks.POLYGON, _CHAIN_STRING_TO_NAME['Avalanche'] = exports.SupportNetworks.AVALANCHE, _CHAIN_STRING_TO_NAME['Solana'] = exports.SupportNetworks.SOLANA, _CHAIN_STRING_TO_NAME['Binance'] = exports.SupportNetworks.BSC, _CHAIN_STRING_TO_NAME['Optimism'] = exports.SupportNetworks.OPTIMISM, _CHAIN_STRING_TO_NAME['Arbitrum'] = exports.SupportNetworks.ARBITRUM, _CHAIN_STRING_TO_NAME['Polygon zkEVM'] = exports.SupportNetworks.POLYGON_ZKEVM, _CHAIN_STRING_TO_NAME['Tron'] = exports.SupportNetworks.TRON, _CHAIN_STRING_TO_NAME['Pay with FIAT'] = exports.SupportNetworks.FIAT, _CHAIN_STRING_TO_NAME['Bitcoin'] = exports.SupportNetworks.BTC, _CHAIN_STRING_TO_NAME);
+var CHAIN_NAMES_TO_EXPLORER = (_CHAIN_NAMES_TO_EXPLO = {}, _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.ETHEREUM] = 'sepolia.etherscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.POLYGON] = 'www.oklink.com/amoy', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.AVALANCHE] = 'testnet.snowtrace.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.SOLANA] = 'solscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.BSC] = 'testnet.bscscan.com', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.OPTIMISM] = 'sepolia-optimism.etherscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.ARBITRUM] = 'sepolia.arbiscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.POLYGON_ZKEVM] = 'cardona-zkevm.polygonscan.com', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.TRON] = 'nile.tronscan.org/#', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.BTC] = 'mempool.space/testnet', _CHAIN_NAMES_TO_EXPLO);
 var CHAIN_IDS_TO_NAMES = (_CHAIN_IDS_TO_NAMES = {}, _CHAIN_IDS_TO_NAMES[SupportedChainId.ETHEREUM] = exports.SupportNetworks.ETHEREUM, _CHAIN_IDS_TO_NAMES[SupportedChainId.POLYGON] = exports.SupportNetworks.POLYGON, _CHAIN_IDS_TO_NAMES[SupportedChainId.AVALANCHE] = exports.SupportNetworks.AVALANCHE, _CHAIN_IDS_TO_NAMES[SupportedChainId.BSC] = exports.SupportNetworks.BSC, _CHAIN_IDS_TO_NAMES[SupportedChainId.OPTIMISM] = exports.SupportNetworks.OPTIMISM, _CHAIN_IDS_TO_NAMES[SupportedChainId.ARBITRUM] = exports.SupportNetworks.ARBITRUM, _CHAIN_IDS_TO_NAMES[SupportedChainId.POLYGON_ZKEM] = exports.SupportNetworks.POLYGON_ZKEVM, _CHAIN_IDS_TO_NAMES);
 var networkOptions = [{
   id: exports.SupportNetworks.ARBITRUM,
@@ -784,6 +835,10 @@ var networkOptions = [{
   id: exports.SupportNetworks.BSC,
   label: 'Binance',
   icon: BNB
+}, {
+  id: exports.SupportNetworks.BTC,
+  label: 'Bitcoin',
+  icon: BTC
 }, {
   id: exports.SupportNetworks.ETHEREUM,
   label: 'Ethereum',
@@ -832,17 +887,19 @@ var COIN_LIST = {
   },
   KEUR: {
     symbol: 'KEUR',
-    icon: KEUR,
-    address: {
-      ETH: ETHEREUM_KEUR_ADDRESS,
-      POL: POLYGON_KEUR_ADDRESS
-    }
+    icon: KEUR
+  },
+  WBTC: {
+    symbol: 'WBTC',
+    icon: BTC
   }
 };
+var ExpireTimeOptions = ['1 hour', '2 hours', '3 hours'];
 var TransactionStatus;
 (function (TransactionStatus) {
   TransactionStatus["AVAILABLE"] = "Available";
-  TransactionStatus["CONFIRMED"] = "Confirmed";
+  TransactionStatus["CONFIRMED"] = "Pull_Confirmed";
+  TransactionStatus["PULLED"] = "Pulled";
   TransactionStatus["PAID"] = "Paid";
   TransactionStatus["COMPLETED"] = "Completed";
   TransactionStatus["FAILEDTOPAY"] = "FailedToPay";
@@ -884,17 +941,20 @@ var initialState = {
   sourceChain: '',
   targetChain: '',
   targetAddress: '',
+  bitcoinAddress: '',
+  bitcoinPubkey: '',
   solanaConnectModal: false,
   tronConnectModal: false,
   helpPopup: false,
   hashPopup: false,
+  pendingTxPopup: false,
   bankPopup: false,
   walletAutoConnect: true,
   provider: undefined,
   dAppOption: exports.DAppOptions.None,
   solanaProvider: undefined,
   submitted: false,
-  amount: 0,
+  amount: '',
   feeDeduct: false,
   errorHandler: function errorHandler() {
     return void 0;
@@ -929,7 +989,8 @@ var initialState = {
   targetNetworkFetching: false,
   signature: '',
   uuid: '',
-  kycStatus: ''
+  kycStatus: '',
+  expireTime: '1 hour'
 };
 var optionSlice = createSlice({
   name: 'option',
@@ -939,12 +1000,12 @@ var optionSlice = createSlice({
       state.submitted = false;
       state.txId = -1;
       state.serviceFee = -1;
-      state.amount = 0;
+      state.amount = '';
       state.targetAddress = '';
       state.compliantOption = true;
       state.sourceCompliant = 'low';
       state.targetCompliant = 'low';
-      state.useFIAT = false;
+      state.bitcoinAddress = '', state.useFIAT = false;
       state.tokenOptions = {}, state.bankDetails = {
         iban: '',
         recipient: ''
@@ -971,6 +1032,12 @@ var optionSlice = createSlice({
     setTargetAddress: function setTargetAddress(state, action) {
       state.targetAddress = action.payload;
     },
+    setBitcoinAddress: function setBitcoinAddress(state, action) {
+      state.bitcoinAddress = action.payload;
+    },
+    setBitcoinPubkey: function setBitcoinPubkey(state, action) {
+      state.bitcoinPubkey = action.payload;
+    },
     setSolanaConnectModal: function setSolanaConnectModal(state, action) {
       state.solanaConnectModal = action.payload;
     },
@@ -982,6 +1049,9 @@ var optionSlice = createSlice({
     },
     setHashPopup: function setHashPopup(state, action) {
       state.hashPopup = action.payload;
+    },
+    setPendingTxPopup: function setPendingTxPopup(state, action) {
+      state.pendingTxPopup = action.payload;
     },
     setBankPopup: function setBankPopup(state, action) {
       state.bankPopup = action.payload;
@@ -1075,6 +1145,9 @@ var optionSlice = createSlice({
     },
     setKYCStatus: function setKYCStatus(state, action) {
       state.kycStatus = action.payload;
+    },
+    setExpireTime: function setExpireTime(state, action) {
+      state.expireTime = action.payload;
     }
   }
 });
@@ -1086,10 +1159,13 @@ var _optionSlice$actions = optionSlice.actions,
   setSourceChain = _optionSlice$actions.setSourceChain,
   setTargetChain = _optionSlice$actions.setTargetChain,
   setTargetAddress = _optionSlice$actions.setTargetAddress,
+  setBitcoinAddress = _optionSlice$actions.setBitcoinAddress,
+  setBitcoinPubkey = _optionSlice$actions.setBitcoinPubkey,
   setSolanaConnectModal = _optionSlice$actions.setSolanaConnectModal,
   setTronConnectModal = _optionSlice$actions.setTronConnectModal,
   setHelpPopup = _optionSlice$actions.setHelpPopup,
   setHashPopup = _optionSlice$actions.setHashPopup,
+  setPendingTxPopup = _optionSlice$actions.setPendingTxPopup,
   setBankPopup = _optionSlice$actions.setBankPopup,
   setSolanaProvider = _optionSlice$actions.setSolanaProvider,
   setProvider = _optionSlice$actions.setProvider,
@@ -1119,7 +1195,8 @@ var _optionSlice$actions = optionSlice.actions,
   setTargetChainFetching = _optionSlice$actions.setTargetChainFetching,
   setSignature = _optionSlice$actions.setSignature,
   setUuid = _optionSlice$actions.setUuid,
-  setKYCStatus = _optionSlice$actions.setKYCStatus;
+  setKYCStatus = _optionSlice$actions.setKYCStatus,
+  setExpireTime = _optionSlice$actions.setExpireTime;
 var optionReducer = optionSlice.reducer;
 
 var configureStore = toolkitRaw.configureStore;
@@ -1206,6 +1283,93 @@ function _isSettledPact(thenable) {
 const _iteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.iterator || (Symbol.iterator = Symbol("Symbol.iterator"))) : "@@iterator";
 
 const _asyncIteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.asyncIterator || (Symbol.asyncIterator = Symbol("Symbol.asyncIterator"))) : "@@asyncIterator";
+
+// Asynchronously implement a generic for loop
+function _for(test, update, body) {
+	var stage;
+	for (;;) {
+		var shouldContinue = test();
+		if (_isSettledPact(shouldContinue)) {
+			shouldContinue = shouldContinue.v;
+		}
+		if (!shouldContinue) {
+			return result;
+		}
+		if (shouldContinue.then) {
+			stage = 0;
+			break;
+		}
+		var result = body();
+		if (result && result.then) {
+			if (_isSettledPact(result)) {
+				result = result.s;
+			} else {
+				stage = 1;
+				break;
+			}
+		}
+		if (update) {
+			var updateValue = update();
+			if (updateValue && updateValue.then && !_isSettledPact(updateValue)) {
+				stage = 2;
+				break;
+			}
+		}
+	}
+	var pact = new _Pact();
+	var reject = _settle.bind(null, pact, 2);
+	(stage === 0 ? shouldContinue.then(_resumeAfterTest) : stage === 1 ? result.then(_resumeAfterBody) : updateValue.then(_resumeAfterUpdate)).then(void 0, reject);
+	return pact;
+	function _resumeAfterBody(value) {
+		result = value;
+		do {
+			if (update) {
+				updateValue = update();
+				if (updateValue && updateValue.then && !_isSettledPact(updateValue)) {
+					updateValue.then(_resumeAfterUpdate).then(void 0, reject);
+					return;
+				}
+			}
+			shouldContinue = test();
+			if (!shouldContinue || (_isSettledPact(shouldContinue) && !shouldContinue.v)) {
+				_settle(pact, 1, result);
+				return;
+			}
+			if (shouldContinue.then) {
+				shouldContinue.then(_resumeAfterTest).then(void 0, reject);
+				return;
+			}
+			result = body();
+			if (_isSettledPact(result)) {
+				result = result.v;
+			}
+		} while (!result || !result.then);
+		result.then(_resumeAfterBody).then(void 0, reject);
+	}
+	function _resumeAfterTest(shouldContinue) {
+		if (shouldContinue) {
+			result = body();
+			if (result && result.then) {
+				result.then(_resumeAfterBody).then(void 0, reject);
+			} else {
+				_resumeAfterBody(result);
+			}
+		} else {
+			_settle(pact, 1, result);
+		}
+	}
+	function _resumeAfterUpdate() {
+		if (shouldContinue = test()) {
+			if (shouldContinue.then) {
+				shouldContinue.then(_resumeAfterTest).then(void 0, reject);
+			} else {
+				_resumeAfterTest(shouldContinue);
+			}
+		} else {
+			_settle(pact, 1, result);
+		}
+	}
+}
 
 // Asynchronously implement a do ... while loop
 function _do(body, test) {
@@ -1317,6 +1481,12 @@ var selectTargetChain = function selectTargetChain(state) {
 var selectTargetAddress = function selectTargetAddress(state) {
   return state.option.targetAddress;
 };
+var selectBitcoinAddress = function selectBitcoinAddress(state) {
+  return state.option.bitcoinAddress;
+};
+var selectBitcoinPubkey = function selectBitcoinPubkey(state) {
+  return state.option.bitcoinPubkey;
+};
 var selectSolanaConnectModal = function selectSolanaConnectModal(state) {
   return state.option.solanaConnectModal;
 };
@@ -1328,6 +1498,9 @@ var selectHelpPopup = function selectHelpPopup(state) {
 };
 var selectHashPopup = function selectHashPopup(state) {
   return state.option.hashPopup;
+};
+var selectPendingTxPopup = function selectPendingTxPopup(state) {
+  return state.option.pendingTxPopup;
 };
 var selectBankPopup = function selectBankPopup(state) {
   return state.option.bankPopup;
@@ -1412,6 +1585,9 @@ var selectUuid = function selectUuid(state) {
 };
 var selectKycStatus = function selectKycStatus(state) {
   return state.option.kycStatus;
+};
+var selectExpireTime = function selectExpireTime(state) {
+  return state.option.expireTime;
 };
 
 var Loading180Ring = function Loading180Ring(_ref) {
@@ -1986,14 +2162,14 @@ var WalletSelect = function WalletSelect() {
   }))));
 };
 
-var createWalletStatus = function createWalletStatus(isReady, statusMessage, forceNetworkSwitch, walletAddress) {
+var createWalletStatus = function createWalletStatus(isReady, statusMessage, connectBitcoinWallet, walletAddress) {
   if (statusMessage === void 0) {
     statusMessage = '';
   }
   return {
     isReady: isReady,
     statusMessage: statusMessage,
-    forceNetworkSwitch: forceNetworkSwitch,
+    connectBitcoinWallet: connectBitcoinWallet,
     walletAddress: walletAddress
   };
 };
@@ -2008,6 +2184,7 @@ function useIsWalletReady() {
     evmProvider = _useWeb3ModalProvider.walletProvider;
   var _useSwitchNetwork = react.useSwitchNetwork(),
     switchNetwork = _useSwitchNetwork.switchNetwork;
+  var bitcoinAddress = reactRedux.useSelector(selectBitcoinAddress);
   var web3ModalAccountInfo = react.useWeb3ModalAccount();
   var _ref = web3ModalAccountInfo || {
       address: null,
@@ -2029,6 +2206,13 @@ function useIsWalletReady() {
   var correctEvmNetwork = CHAIN_NAMES_TO_IDS[correctChain];
   var hasCorrectEvmNetwork = evmChainId === correctEvmNetwork;
   var events = react.useWeb3ModalEvents();
+  var _useState = React.useState('loading'),
+    capabilityState = _useState[0],
+    setCapabilityState = _useState[1];
+  var _useState2 = React.useState(),
+    capabilities = _useState2[0],
+    setCapabilities = _useState2[1];
+  var capabilityMessage = capabilityState === 'loading' ? 'Checking capabilities...' : capabilityState === 'cancelled' ? 'Capability check cancelled by wallet. Please refresh the page and try again.' : capabilityState === 'missing' ? 'Could not find an installed Sats Connect capable wallet. Please install a wallet and try again.' : !capabilities ? 'Something went wrong with getting capabilities' : undefined;
   React.useEffect(function () {
     var _events$data, _events$data2;
     if (((_events$data = events.data) === null || _events$data === void 0 ? void 0 : _events$data.event) === 'SELECT_WALLET' || ((_events$data2 = events.data) === null || _events$data2 === void 0 ? void 0 : _events$data2.event) === 'CONNECT_SUCCESS') {
@@ -2036,6 +2220,75 @@ function useIsWalletReady() {
       localStorage.setItem('wallet', (_events$data3 = events.data) === null || _events$data3 === void 0 ? void 0 : (_events$data3$propert = _events$data3.properties) === null || _events$data3$propert === void 0 ? void 0 : _events$data3$propert.name);
     }
   }, [events]);
+  React.useEffect(function () {
+    var runCapabilityCheck = function runCapabilityCheck() {
+      try {
+        var runs = 0;
+        var MAX_RUNS = 20;
+        setCapabilityState('loading');
+        var _temp3 = _for(function () {
+          return runs < MAX_RUNS;
+        }, void 0, function () {
+          function _temp2() {
+            return Promise.resolve(new Promise(function (resolve) {
+              return setTimeout(resolve, 100);
+            })).then(function () {});
+          }
+          var _temp = _catch(function () {
+            return Promise.resolve(satsConnect.getCapabilities({
+              onFinish: function onFinish(response) {
+                setCapabilities(new Set(response));
+                setCapabilityState('loaded');
+              },
+              onCancel: function onCancel() {
+                setCapabilityState('cancelled');
+              },
+              payload: {
+                network: {
+                  type: satsConnect.BitcoinNetworkType.Testnet
+                }
+              }
+            })).then(function () {});
+          }, function () {
+            runs++;
+            if (runs === MAX_RUNS) {
+              setCapabilityState('missing');
+            }
+          });
+          return _temp && _temp.then ? _temp.then(_temp2) : _temp2(_temp);
+        });
+        return Promise.resolve(_temp3 && _temp3.then ? _temp3.then(function () {}) : void 0);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    };
+    runCapabilityCheck();
+  }, []);
+  var connectBitcoinWallet = React.useCallback(function () {
+    try {
+      return Promise.resolve(satsConnect.getAddress({
+        payload: {
+          purposes: [satsConnect.AddressPurpose.Payment],
+          message: 'SATS Connect Demo',
+          network: {
+            type: satsConnect.BitcoinNetworkType.Testnet
+          }
+        },
+        onFinish: function onFinish(response) {
+          var paymentAddressItem = response.addresses.find(function (address) {
+            return address.purpose === satsConnect.AddressPurpose.Payment;
+          });
+          dispatch(setBitcoinAddress((paymentAddressItem === null || paymentAddressItem === void 0 ? void 0 : paymentAddressItem.address) || ''));
+          dispatch(setBitcoinPubkey((paymentAddressItem === null || paymentAddressItem === void 0 ? void 0 : paymentAddressItem.publicKey) || ''));
+        },
+        onCancel: function onCancel() {
+          toast__default.error('Request cancelled');
+        }
+      })).then(function () {});
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }, [satsConnect.getAddress]);
   var forceNetworkSwitch = React.useCallback(function () {
     try {
       return Promise.resolve(function () {
@@ -2059,17 +2312,22 @@ function useIsWalletReady() {
   return React.useMemo(function () {
     if (correctChain === exports.SupportNetworks.SOLANA) {
       if (solanaAddress) {
-        return createWalletStatus(true, undefined, forceNetworkSwitch, solanaAddress.toBase58());
+        return createWalletStatus(true, undefined, connectBitcoinWallet, solanaAddress.toBase58());
       }
-      return createWalletStatus(false, 'Wallet not connected', forceNetworkSwitch, '');
+      return createWalletStatus(false, 'Wallet not connected', connectBitcoinWallet, '');
     } else if (correctChain === exports.SupportNetworks.TRON) {
       if (tronAddress) {
-        return createWalletStatus(true, undefined, forceNetworkSwitch, tronAddress);
+        return createWalletStatus(true, undefined, connectBitcoinWallet, tronAddress);
       }
-      return createWalletStatus(false, 'Wallet not connected', forceNetworkSwitch, '');
+      return createWalletStatus(false, 'Wallet not connected', connectBitcoinWallet, '');
+    } else if (correctChain === exports.SupportNetworks.BTC) {
+      if (bitcoinAddress) {
+        return createWalletStatus(true, undefined, connectBitcoinWallet, bitcoinAddress);
+      }
+      return createWalletStatus(false, capabilityMessage, connectBitcoinWallet, '');
     } else if (isEVMChain(correctChain) && hasEthInfo && evmAddress) {
       if (hasCorrectEvmNetwork) {
-        return createWalletStatus(true, undefined, forceNetworkSwitch, evmAddress);
+        return createWalletStatus(true, undefined, connectBitcoinWallet, evmAddress);
       } else {
         if (evmProvider && correctEvmNetwork) {
           if (autoSwitch) {
@@ -2079,11 +2337,11 @@ function useIsWalletReady() {
             toast__default.success("Wallet connected to " + CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[evmChainId || SupportedChainId.ETHEREUM]]);
           }
         }
-        if (evmChainId && autoSwitch) return createWalletStatus(false, "Wallet not connected to " + CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[correctEvmNetwork]], forceNetworkSwitch, evmAddress);
+        if (evmChainId && autoSwitch) return createWalletStatus(false, "Wallet not connected to " + CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[correctEvmNetwork]], connectBitcoinWallet, evmAddress);
       }
     }
-    return createWalletStatus(false, '', forceNetworkSwitch, undefined);
-  }, [correctChain, autoSwitch, forceNetworkSwitch, solanaAddress, tronAddress, hasEthInfo, correctEvmNetwork, hasCorrectEvmNetwork, evmProvider, evmAddress, evmChainId]);
+    return createWalletStatus(false, '', connectBitcoinWallet, undefined);
+  }, [correctChain, autoSwitch, forceNetworkSwitch, connectBitcoinWallet, solanaAddress, tronAddress, hasEthInfo, correctEvmNetwork, hasCorrectEvmNetwork, bitcoinAddress, evmProvider, evmAddress, evmChainId]);
 }
 
 var getShortenedAddress = function getShortenedAddress(address) {
@@ -2486,17 +2744,24 @@ var getOrCreateAssociatedTokenAccount = function getOrCreateAssociatedTokenAccou
   }
 };
 
+var TRON_USDK_OWNER_ADDRESS = 'TBVn4bsBN4DhtZ7D3vEVpAyqkvdFn7zmpU';
+
 var tronWeb = new tronweb.TronWeb({
   fullHost: 'https://api.nileex.io'
 });
 tronWeb.setAddress(TRON_USDK_OWNER_ADDRESS);
 
 var formatterFloat = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 2
+  maximumFractionDigits: 9
 });
 function isEmptyObject(arg) {
   return typeof arg === 'object' && Object.keys(arg).length === 0;
 }
+var sleep = function sleep(delay) {
+  return new Promise(function (resolve) {
+    return setTimeout(resolve, delay);
+  });
+};
 
 function useBalance() {
   var _useState = React.useState(0),
@@ -2515,7 +2780,7 @@ function useBalance() {
   var selectedNetwork = reactRedux.useSelector(selectSourceChain);
   var errorHandler = reactRedux.useSelector(selectErrorHandler);
   var sourceChain = React.useMemo(function () {
-    if (selectedNetwork === exports.SupportNetworks.SOLANA || selectedNetwork === exports.SupportNetworks.TRON) return selectedNetwork;
+    if (selectedNetwork === exports.SupportNetworks.SOLANA || selectedNetwork === exports.SupportNetworks.TRON || selectedNetwork === exports.SupportNetworks.BTC) return selectedNetwork;
     if (CHAIN_NAMES_TO_IDS[selectedNetwork] !== evmChainId) {
       return CHAIN_IDS_TO_NAMES[evmChainId];
     }
@@ -2526,8 +2791,10 @@ function useBalance() {
     signTransaction = _useSolanaWallet.signTransaction;
   var _useTronWallet = tronwalletAdapterReactHooks.useWallet(),
     tronAddress = _useTronWallet.address;
+  var btcAddress = reactRedux.useSelector(selectBitcoinAddress);
   var _useConnection = SolanaAdapter.useConnection(),
     connection = _useConnection.connection;
+  var kimaBackendUrl = reactRedux.useSelector(selectBackendUrl);
   var selectedCoin = reactRedux.useSelector(selectSelectedToken);
   var tokenOptions = reactRedux.useSelector(selectTokenOptions);
   var tokenAddress = React.useMemo(function () {
@@ -2541,27 +2808,47 @@ function useBalance() {
     return '';
   }, [selectedCoin, sourceChain, tokenOptions]);
   React.useEffect(function () {
+    setBalance(0);
+  }, [sourceChain]);
+  React.useEffect(function () {
     (function () {
       try {
         var _exit = false;
+        if (!tokenAddress) return;
         return _catch(function () {
-          function _temp4(_result3) {
-            if (_exit) return _result3;
-            var provider = new ethers.ethers.providers.Web3Provider(walletProvider);
-            var signer = provider === null || provider === void 0 ? void 0 : provider.getSigner();
-            if (!tokenAddress || !signer || !signerAddress) return;
-            var erc20Contract = new contracts.Contract(tokenAddress, ERC20ABI.abi, signer);
-            return Promise.resolve(erc20Contract.decimals()).then(function (decimals) {
-              return Promise.resolve(erc20Contract.balanceOf(signerAddress)).then(function (userBalance) {
-                setBalance(+units.formatUnits(userBalance, decimals));
-              });
-            });
+          function _temp6(_result4) {
+            return _exit ? _result4 : function () {
+              if (walletProvider) {
+                var provider = new ethers.ethers.providers.Web3Provider(walletProvider);
+                var signer = provider === null || provider === void 0 ? void 0 : provider.getSigner();
+                if (!tokenAddress || !signer || !signerAddress) return;
+                var erc20Contract = new contracts.Contract(tokenAddress, ERC20ABI.abi, signer);
+                return Promise.resolve(erc20Contract.decimals()).then(function (decimals) {
+                  return Promise.resolve(erc20Contract.balanceOf(signerAddress)).then(function (userBalance) {
+                    setBalance(+units.formatUnits(userBalance, decimals));
+                  });
+                });
+              }
+            }();
           }
-          var _temp3 = function () {
+          var _temp5 = function () {
             if (!isEVMChain(sourceChain)) {
-              var _temp2 = function _temp2(_result) {
-                return _exit ? _result : function () {
-                  if (tronAddress && tokenAddress) {
+              var _temp4 = function _temp4(_result) {
+                var _exit2 = false;
+                if (_exit) return _result;
+                function _temp2(_result2) {
+                  return _exit2 ? _result2 : function () {
+                    if (sourceChain === exports.SupportNetworks.BTC && btcAddress) {
+                      return Promise.resolve(fetchWrapper.get(kimaBackendUrl + "/btc/balance?address=" + btcAddress)).then(function (btcInfo) {
+                        var balance = parseFloat(btcInfo.balance) / Math.pow(10, 8);
+                        setBalance(balance);
+                        _exit = true;
+                      });
+                    }
+                  }();
+                }
+                var _temp = function () {
+                  if (sourceChain === exports.SupportNetworks.TRON && tronAddress) {
                     return Promise.resolve(tronWeb.contract(ERC20ABI.abi, tokenAddress)).then(function (trc20Contract) {
                       return Promise.resolve(trc20Contract.decimals().call()).then(function (decimals) {
                         return Promise.resolve(trc20Contract.balanceOf(tronAddress).call()).then(function (userBalance) {
@@ -2572,9 +2859,10 @@ function useBalance() {
                     });
                   }
                 }();
+                return _temp && _temp.then ? _temp.then(_temp2) : _temp2(_temp);
               };
-              var _temp = function () {
-                if (solanaAddress && tokenAddress && connection) {
+              var _temp3 = function () {
+                if (sourceChain === exports.SupportNetworks.SOLANA && solanaAddress && connection) {
                   var mint = new web3_js.PublicKey(tokenAddress);
                   return Promise.resolve(getOrCreateAssociatedTokenAccount(connection, solanaAddress, mint, solanaAddress, signTransaction)).then(function (fromTokenAccount) {
                     return Promise.resolve(connection.getParsedAccountInfo(fromTokenAccount.address)).then(function (accountInfo) {
@@ -2586,10 +2874,10 @@ function useBalance() {
                   });
                 }
               }();
-              return _temp && _temp.then ? _temp.then(_temp2) : _temp2(_temp);
+              return _temp3 && _temp3.then ? _temp3.then(_temp4) : _temp4(_temp3);
             }
           }();
-          return _temp3 && _temp3.then ? _temp3.then(_temp4) : _temp4(_temp3);
+          return _temp5 && _temp5.then ? _temp5.then(_temp6) : _temp6(_temp5);
         }, function (error) {
           errorHandler(error);
         });
@@ -2597,7 +2885,7 @@ function useBalance() {
         Promise.reject(e);
       }
     })();
-  }, [signerAddress, tokenAddress, sourceChain, solanaAddress, tronAddress, walletProvider]);
+  }, [signerAddress, tokenAddress, sourceChain, solanaAddress, tronAddress, btcAddress, walletProvider]);
   return React.useMemo(function () {
     return {
       balance: balance
@@ -2617,7 +2905,8 @@ var WalletButton = function WalletButton(_ref) {
   var _useIsWalletReady = useIsWalletReady(),
     isReady = _useIsWalletReady.isReady,
     statusMessage = _useIsWalletReady.statusMessage,
-    walletAddress = _useIsWalletReady.walletAddress;
+    walletAddress = _useIsWalletReady.walletAddress,
+    connectBitcoinWallet = _useIsWalletReady.connectBitcoinWallet;
   var _useBalance = useBalance(),
     balance = _useBalance.balance;
   var _useWeb3Modal = react.useWeb3Modal(),
@@ -2629,6 +2918,10 @@ var WalletButton = function WalletButton(_ref) {
     }
     if (selectedNetwork === exports.SupportNetworks.TRON) {
       dispatch(setTronConnectModal(true));
+      return;
+    }
+    if (selectedNetwork === exports.SupportNetworks.BTC) {
+      connectBitcoinWallet();
       return;
     }
     open();
@@ -2649,7 +2942,7 @@ var WalletButton = function WalletButton(_ref) {
     clickHandler: handleClick
   }, isReady ? "" + getShortenedAddress(walletAddress || '') : 'Wallet'), isReady ? React__default.createElement("p", {
     className: 'balance-info'
-  }, formatterFloat.format(balance), " ", selectedCoin, " available") : null);
+  }, balance.toFixed(selectedCoin === 'WBTC' ? 8 : 2), ' ', selectedNetwork === exports.SupportNetworks.BTC ? 'BTC' : selectedCoin, " available") : null);
 };
 
 var CoinDropdown = function CoinDropdown() {
@@ -2877,6 +3170,12 @@ var ConfirmDetails = function ConfirmDetails(_ref) {
   var targetWalletAddress = React.useMemo(function () {
     return getShortenedAddress((mode === exports.ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress) || '');
   }, [mode, transactionOption, targetAddress]);
+  var amountToShow = React.useMemo(function () {
+    if (originNetwork === exports.SupportNetworks.BTC || targetNetwork === exports.SupportNetworks.BTC) {
+      return (feeDeduct ? +amount : +amount + serviceFee).toFixed(8);
+    }
+    return formatterFloat.format(feeDeduct ? +amount : +amount + serviceFee);
+  }, [amount, serviceFee, originNetwork, targetNetwork, feeDeduct]);
   return React__default.createElement("div", {
     className: "confirm-details " + theme.colorMode
   }, React__default.createElement("p", null, "Step ", isApproved ? '2' : '1', "\xA0of 2\xA0\xA0\xA0", isApproved ? 'Submit transaction' : originNetwork === exports.SupportNetworks.FIAT ? 'Bank Details' : 'Approval'), originNetwork === exports.SupportNetworks.FIAT ? React__default.createElement("div", null, React__default.createElement("div", {
@@ -2909,7 +3208,7 @@ var ConfirmDetails = function ConfirmDetails(_ref) {
     className: 'detail-item'
   }, React__default.createElement("span", {
     className: 'label'
-  }, "Amount:"), React__default.createElement("p", null, formatterFloat.format(feeDeduct ? amount : amount + serviceFee), ' ', selectedCoin)), targetNetwork === exports.SupportNetworks.FIAT ? React__default.createElement("div", null, React__default.createElement("div", {
+  }, "Amount:"), React__default.createElement("p", null, amountToShow, " ", selectedCoin)), targetNetwork === exports.SupportNetworks.FIAT ? React__default.createElement("div", null, React__default.createElement("div", {
     className: 'detail-item'
   }, React__default.createElement("span", {
     className: 'label'
@@ -3067,6 +3366,24 @@ var BankInput = function BankInput() {
       })));
     }
   })));
+};
+
+var TxButton = function TxButton(_ref) {
+  var theme = _ref.theme,
+    txCount = _ref.txCount;
+  var dispatch = reactRedux.useDispatch();
+  var handleClick = function handleClick() {
+    dispatch(setPendingTxPopup(true));
+  };
+  return React__default.createElement("button", {
+    className: "secondary-button tx-button " + theme.colorMode,
+    onClick: handleClick,
+    "data-tooltip-id": 'popup-tooltip'
+  }, txCount, React__default.createElement(Loading180Ring, {
+    height: 16,
+    width: 16,
+    fill: theme.colorMode === 'light' ? 'black' : 'white'
+  }));
 };
 
 var HelpPopup = function HelpPopup() {
@@ -3452,7 +3769,7 @@ var TransactionWidget = function TransactionWidget(_ref) {
     console.log(data.status);
     setErrorStep(-1);
     var status = data.status;
-    if (status === TransactionStatus.AVAILABLE) {
+    if (status === TransactionStatus.AVAILABLE || status === TransactionStatus.PULLED) {
       setStep(1);
       setPercent(25);
       setLoadingStep(1);
@@ -3592,12 +3909,53 @@ var TransactionWidget = function TransactionWidget(_ref) {
   })));
 };
 
+var ExpireTimeDropdown = function ExpireTimeDropdown() {
+  var ref = React.useRef();
+  var dispatch = reactRedux.useDispatch();
+  var _useState = React.useState(true),
+    collapsed = _useState[0],
+    setCollapsed = _useState[1];
+  var expireTime = reactRedux.useSelector(selectExpireTime);
+  var theme = reactRedux.useSelector(selectTheme);
+  React.useEffect(function () {
+    var bodyMouseDowntHandler = function bodyMouseDowntHandler(e) {
+      if (ref !== null && ref !== void 0 && ref.current && !ref.current.contains(e.target)) {
+        setCollapsed(true);
+      }
+    };
+    document.addEventListener('mousedown', bodyMouseDowntHandler);
+    return function () {
+      document.removeEventListener('mousedown', bodyMouseDowntHandler);
+    };
+  }, [setCollapsed]);
+  return React__default.createElement("div", {
+    className: "expire-time-dropdown " + theme.colorMode + " " + (collapsed ? 'collapsed' : ''),
+    onClick: function onClick() {
+      return setCollapsed(function (prev) {
+        return !prev;
+      });
+    },
+    ref: ref
+  }, React__default.createElement("div", {
+    className: 'expire-time-wrapper'
+  }, React__default.createElement("p", null, expireTime)), React__default.createElement("div", {
+    className: "expire-time-menu " + theme.colorMode + " " + (collapsed ? 'collapsed' : '')
+  }, ExpireTimeOptions.map(function (option) {
+    return React__default.createElement("p", {
+      key: option,
+      className: 'expire-time-item',
+      onClick: function onClick() {
+        dispatch(setExpireTime(option));
+      }
+    }, option);
+  })));
+};
+
 var SingleForm = function SingleForm(_ref) {
   var paymentTitleOption = _ref.paymentTitleOption;
   var dispatch = reactRedux.useDispatch();
   var mode = reactRedux.useSelector(selectMode);
   var theme = reactRedux.useSelector(selectTheme);
-  var amount = reactRedux.useSelector(selectAmount);
   var feeDeduct = reactRedux.useSelector(selectFeeDeduct);
   var serviceFee = reactRedux.useSelector(selectServiceFee);
   var compliantOption = reactRedux.useSelector(selectCompliantOption);
@@ -3606,6 +3964,10 @@ var SingleForm = function SingleForm(_ref) {
   var selectedCoin = reactRedux.useSelector(selectSelectedToken);
   var sourceNetwork = reactRedux.useSelector(selectSourceChain);
   var targetNetwork = reactRedux.useSelector(selectTargetChain);
+  var _useState = React.useState(''),
+    amountValue = _useState[0],
+    setAmountValue = _useState[1];
+  var amount = reactRedux.useSelector(selectAmount);
   var Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
   var errorMessage = React.useMemo(function () {
     return compliantOption && targetCompliant !== 'low' ? "Target address has " + targetCompliant + " risk" : '';
@@ -3614,6 +3976,10 @@ var SingleForm = function SingleForm(_ref) {
     if (!errorMessage) return;
     toast.toast.error(errorMessage);
   }, [errorMessage]);
+  React.useEffect(function () {
+    if (amountValue) return;
+    setAmountValue(amount);
+  }, [amount]);
   return React__default.createElement("div", {
     className: 'single-form'
   }, mode === exports.ModeOptions.payment ? React__default.createElement("p", {
@@ -3647,10 +4013,12 @@ var SingleForm = function SingleForm(_ref) {
     className: 'amount-label-container'
   }, React__default.createElement("input", {
     type: 'number',
-    value: amount || '',
+    value: amountValue || '',
     onChange: function onChange(e) {
       var _amount = +e.target.value;
-      dispatch(setAmount(parseFloat(_amount.toFixed(2))));
+      var decimal = sourceNetwork === exports.SupportNetworks.BTC || targetNetwork === exports.SupportNetworks.BTC ? 8 : 2;
+      setAmountValue(e.target.value);
+      dispatch(setAmount(_amount.toFixed(decimal)));
     }
   }), React__default.createElement(CoinDropdown, null))) : React__default.createElement("div", {
     className: "form-item " + theme.colorMode
@@ -3661,20 +4029,28 @@ var SingleForm = function SingleForm(_ref) {
   }, React__default.createElement("span", null, (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount) || ''), React__default.createElement("div", {
     className: 'coin-wrapper'
   }, React__default.createElement(Icon, null), selectedCoin))), mode === exports.ModeOptions.bridge && serviceFee > 0 ? React__default.createElement(CustomCheckbox, {
-    text: "Deduct " + formatterFloat.format(serviceFee) + " USDK fee",
+    text: sourceNetwork === exports.SupportNetworks.BTC ? "Deduct " + formatterFloat.format(serviceFee) + " BTC fee" : "Deduct $" + formatterFloat.format(serviceFee) + " fee",
     checked: feeDeduct,
     setCheck: function setCheck(value) {
       return dispatch(setFeeDeduct(value));
     }
-  }) : null);
+  }) : null, sourceNetwork === exports.SupportNetworks.BTC || targetNetwork === exports.SupportNetworks.BTC ? React__default.createElement("div", {
+    className: "form-item " + theme.colorMode
+  }, React__default.createElement("span", {
+    className: 'label'
+  }, "Expire Time:"), React__default.createElement(ExpireTimeDropdown, null)) : null);
 };
 
 var CoinSelect = function CoinSelect() {
   var dispatch = reactRedux.useDispatch();
   var theme = reactRedux.useSelector(selectTheme);
   var mode = reactRedux.useSelector(selectMode);
-  var amount = reactRedux.useSelector(selectAmount);
   var selectedCoin = reactRedux.useSelector(selectSelectedToken);
+  var sourceNetwork = reactRedux.useSelector(selectSourceChain);
+  var targetNetwork = reactRedux.useSelector(selectTargetChain);
+  var _useState = React.useState(''),
+    amountValue = _useState[0],
+    setAmountValue = _useState[1];
   var Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
   return React__default.createElement("div", {
     className: "coin-select"
@@ -3684,11 +4060,13 @@ var CoinSelect = function CoinSelect() {
     className: 'input-wrapper'
   }, React__default.createElement("input", {
     type: 'number',
-    value: amount || '',
+    value: amountValue || '',
     readOnly: mode === exports.ModeOptions.payment,
     onChange: function onChange(e) {
       var _amount = +e.target.value;
-      dispatch(setAmount(parseFloat(_amount.toFixed(2))));
+      var decimal = sourceNetwork === exports.SupportNetworks.BTC || targetNetwork === exports.SupportNetworks.BTC ? 8 : 2;
+      setAmountValue(e.target.value);
+      dispatch(setAmount(_amount.toFixed(decimal)));
     }
   }), React__default.createElement("div", {
     className: 'coin-label'
@@ -3727,12 +4105,22 @@ function useServiceFee(isConfirming, feeURL) {
           dispatch(setServiceFee(0));
           return;
         }
+        if (sourceChain === exports.SupportNetworks.BTC) {
+          dispatch(setServiceFee(0.0004));
+          return;
+        }
+        if (targetChain === exports.SupportNetworks.BTC) {
+          dispatch(setServiceFee(0));
+          return;
+        }
+        var sourceFee = 0;
+        var targetFee = 0;
         return Promise.resolve(fetchWrapper.get(feeURL + "/fee/" + sourceChain)).then(function (sourceChainResult) {
-          var sourceFee = sourceChainResult.fee.split('-')[0];
+          sourceFee = sourceChainResult.fee.split('-')[0];
           return Promise.resolve(fetchWrapper.get(feeURL + "/fee/" + targetChain)).then(function (targetChainResult) {
-            var targetFee = targetChainResult.fee.split('-')[0];
+            targetFee = targetChainResult.fee.split('-')[0];
             var fee = +sourceFee + +targetFee;
-            dispatch(setServiceFee(parseFloat(fee.toFixed(2))));
+            dispatch(setServiceFee(fee));
           });
         });
       }, function (e) {
@@ -7334,11 +7722,6 @@ function fromHex(address) {
   return getBase58CheckAddress(hexStr2byteArray(address.replace(/^0x/, ADDRESS_PREFIX)));
 }
 
-var sleep = function sleep(delay) {
-  return new Promise(function (resolve) {
-    return setTimeout(resolve, delay);
-  });
-};
 function useAllowance(_ref) {
   var setApproving = _ref.setApproving;
   var _useState = React.useState(0),
@@ -7360,8 +7743,10 @@ function useAllowance(_ref) {
   var selectedNetwork = reactRedux.useSelector(selectSourceChain);
   var errorHandler = reactRedux.useSelector(selectErrorHandler);
   var dAppOption = reactRedux.useSelector(selectDappOption);
+  var targetChain = reactRedux.useSelector(selectTargetChain);
+  var feeDeduct = reactRedux.useSelector(selectFeeDeduct);
   var sourceChain = React.useMemo(function () {
-    if (selectedNetwork === exports.SupportNetworks.SOLANA || selectedNetwork === exports.SupportNetworks.TRON) return selectedNetwork;
+    if (selectedNetwork === exports.SupportNetworks.SOLANA || selectedNetwork === exports.SupportNetworks.TRON || selectedNetwork === exports.SupportNetworks.BTC) return selectedNetwork;
     if (CHAIN_NAMES_TO_IDS[selectedNetwork] !== evmChainId) {
       return CHAIN_IDS_TO_NAMES[evmChainId];
     }
@@ -7393,9 +7778,18 @@ function useAllowance(_ref) {
   var _useState3 = React.useState(),
     targetAddress = _useState3[0],
     setTargetAddress = _useState3[1];
+  var _useState4 = React.useState(''),
+    poolAddress = _useState4[0],
+    setPoolAddress = _useState4[1];
+  var amountToShow = React.useMemo(function () {
+    if (sourceChain === exports.SupportNetworks.BTC || targetChain === exports.SupportNetworks.BTC) {
+      return (feeDeduct ? +amount : +amount + serviceFee).toFixed(8);
+    }
+    return formatterFloat.format(feeDeduct ? +amount : +amount + serviceFee);
+  }, [amount, serviceFee, sourceChain, targetChain, feeDeduct]);
   var isApproved = React.useMemo(function () {
-    return allowance >= amount + serviceFee;
-  }, [allowance, amount, serviceFee, dAppOption]);
+    return allowance >= +amountToShow;
+  }, [allowance, amountToShow, dAppOption]);
   var updatePoolAddress = function updatePoolAddress() {
     try {
       return Promise.resolve(_catch(function () {
@@ -7408,6 +7802,7 @@ function useAllowance(_ref) {
             console.log('solana pool address is missing');
             toast__default.error('solana pool address is missing');
           }
+          setPoolAddress(result.tssPubkey[0].reserved);
           setTargetAddress(sourceChain === exports.SupportNetworks.SOLANA ? result.tssPubkey[0].eddsa : sourceChain === exports.SupportNetworks.TRON ? fromHex(result.tssPubkey[0].ecdsa) : result.tssPubkey[0].ecdsa);
         });
       }, function (e) {
@@ -7500,7 +7895,7 @@ function useAllowance(_ref) {
             var mint = new web3_js.PublicKey(tokenAddress);
             var toPublicKey = new web3_js.PublicKey(targetAddress);
             return Promise.resolve(getOrCreateAssociatedTokenAccount(connection, solanaAddress, mint, solanaAddress, signSolanaTransaction)).then(function (fromTokenAccount) {
-              var transaction = new web3_js.Transaction().add(createApproveTransferInstruction(fromTokenAccount.address, toPublicKey, solanaAddress, +(amount + serviceFee).toFixed(2) * Math.pow(10, decimals != null ? decimals : 6), [], splToken.TOKEN_PROGRAM_ID));
+              var transaction = new web3_js.Transaction().add(createApproveTransferInstruction(fromTokenAccount.address, toPublicKey, solanaAddress, +amountToShow * Math.pow(10, decimals != null ? decimals : 6), [], splToken.TOKEN_PROGRAM_ID));
               return Promise.resolve(connection.getLatestBlockhash()).then(function (blockHash) {
                 transaction.feePayer = solanaAddress;
                 return Promise.resolve(blockHash.blockhash).then(function (_blockHash$blockhash) {
@@ -7508,7 +7903,7 @@ function useAllowance(_ref) {
                   return Promise.resolve(signSolanaTransaction(transaction)).then(function (signed) {
                     return Promise.resolve(connection.sendRawTransaction(signed.serialize())).then(function () {
                       function _temp12() {
-                        setAllowance(amount + serviceFee);
+                        setAllowance(+amountToShow);
                         setApproving(false);
                       }
                       var accountInfo;
@@ -7523,7 +7918,7 @@ function useAllowance(_ref) {
                           return Promise.resolve(sleep(1000)).then(function () {});
                         });
                       }, function () {
-                        return allowAmount < amount + serviceFee || retryCount++ < 5;
+                        return allowAmount < +amountToShow || retryCount++ < 5;
                       });
                       return _temp11 && _temp11.then ? _temp11.then(_temp12) : _temp12(_temp11);
                     });
@@ -7554,14 +7949,13 @@ function useAllowance(_ref) {
                 value: targetAddress
               }, {
                 type: 'uint256',
-                value: units.parseUnits((amount + serviceFee).toString(), decimals).toString()
+                value: units.parseUnits(amountToShow, decimals).toString()
               }];
               return Promise.resolve(tronWeb.transactionBuilder.triggerSmartContract(tronWeb.address.toHex(tokenAddress), functionSelector, {}, parameter, tronWeb.address.toHex(tronAddress))).then(function (tx) {
                 return Promise.resolve(signTronTransaction(tx.transaction)).then(function (signedTx) {
-                  return Promise.resolve(tronWeb.trx.sendRawTransaction(signedTx)).then(function (result) {
-                    console.log(result);
+                  return Promise.resolve(tronWeb.trx.sendRawTransaction(signedTx)).then(function () {
                     setApproving(false);
-                    setAllowance(amount + serviceFee);
+                    setAllowance(+amountToShow);
                   });
                 });
               });
@@ -7589,10 +7983,10 @@ function useAllowance(_ref) {
           var _temp7 = _catch(function () {
             var erc20Contract = new contracts.Contract(tokenAddress, ERC20ABI.abi, signer);
             setApproving(true);
-            return Promise.resolve(erc20Contract.approve(targetAddress, units.parseUnits((amount + serviceFee).toString(), decimals))).then(function (approve) {
+            return Promise.resolve(erc20Contract.approve(targetAddress, units.parseUnits(amountToShow, decimals))).then(function (approve) {
               return Promise.resolve(approve.wait()).then(function () {
                 setApproving(false);
-                setAllowance(amount + serviceFee);
+                setAllowance(+amountToShow);
               });
             });
           }, function (error) {
@@ -7606,13 +8000,14 @@ function useAllowance(_ref) {
     } catch (e) {
       return Promise.reject(e);
     }
-  }, [decimals, tokenAddress, walletProvider, amount, targetAddress, tronAddress, signSolanaTransaction, signTronTransaction, serviceFee]);
+  }, [decimals, tokenAddress, walletProvider, targetAddress, tronAddress, signSolanaTransaction, signTronTransaction, amountToShow]);
   return React.useMemo(function () {
     return {
       isApproved: isApproved,
+      poolAddress: poolAddress,
       approve: approve
     };
-  }, [isApproved, approve]);
+  }, [isApproved, poolAddress, approve]);
 }
 
 var AddressInputWizard = function AddressInputWizard() {
@@ -7642,9 +8037,15 @@ function useCurrencyOptions() {
             return;
           }
           return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/chains/get_currencies/" + originNetwork + "/" + targetNetwork)).then(function (coins) {
-            var _coins$Currencies;
-            dispatch(setAvailableTokenList(coins.Currencies || ['USDK']));
-            setOptions((_coins$Currencies = coins.Currencies) !== null && _coins$Currencies !== void 0 && _coins$Currencies.length ? coins.Currencies[0] : 'USDK');
+            var tokenList = coins.Currencies.map(function (coin) {
+              return coin.toUpperCase();
+            }) || ['USDK'];
+            if (originNetwork === exports.SupportNetworks.BTC || targetNetwork === exports.SupportNetworks.BTC) {
+              tokenList = ['WBTC'];
+            }
+            dispatch(setSelectedToken(tokenList[0]));
+            dispatch(setAvailableTokenList(tokenList));
+            setOptions(tokenList[0]);
           });
         }, function (e) {
           console.log('rpc disconnected', e);
@@ -7730,6 +8131,186 @@ function useSign(_ref) {
   }, [isSigned, sign]);
 }
 
+function hash160(publicKey) {
+  var publicKeyBuffer = buffer.Buffer.from(publicKey, 'hex');
+  var hash160Buffer = bitcoin.crypto.hash160(publicKeyBuffer);
+  return hash160Buffer;
+}
+function createHTLCScript(senderAddress, senderPublicKey, recipientAddress, timeout, network) {
+  console.log('senderAddress = ' + senderAddress);
+  console.log('senderPublicKey = ' + senderPublicKey);
+  console.log('recipientAddress = ' + recipientAddress);
+  console.log('timeout = ' + timeout);
+  console.log('network = ' + network);
+  var recipientAddressCheck;
+  try {
+    recipientAddressCheck = bitcoin.address.fromBech32(recipientAddress);
+  } catch (error) {
+    throw new Error("Failed to decode recipient address: " + error.message);
+  }
+  if (!recipientAddressCheck) {
+    throw new Error('Failed to decode recipient address');
+  }
+  var senderPKH = hash160(senderPublicKey);
+  console.log('senderPKH:', senderPKH.toString('hex'));
+  var recipientPKH = recipientAddressCheck.data;
+  console.log('recipientPKH:', recipientPKH.toString('hex'));
+  var script = bitcoin.script.compile([bitcoin.opcodes.OP_DUP, bitcoin.opcodes.OP_HASH160, recipientAddressCheck.data, bitcoin.opcodes.OP_EQUAL, bitcoin.opcodes.OP_IF, bitcoin.opcodes.OP_DUP, bitcoin.opcodes.OP_HASH160, recipientPKH, bitcoin.opcodes.OP_EQUALVERIFY, bitcoin.opcodes.OP_CHECKSIG, bitcoin.opcodes.OP_ELSE, bitcoin.script.number.encode(timeout), bitcoin.opcodes.OP_CHECKLOCKTIMEVERIFY, bitcoin.opcodes.OP_DROP, bitcoin.opcodes.OP_DUP, bitcoin.opcodes.OP_HASH160, senderPKH, bitcoin.opcodes.OP_EQUALVERIFY, bitcoin.opcodes.OP_CHECKSIG, bitcoin.opcodes.OP_ENDIF, buffer.Buffer.from(senderPublicKey, 'hex'), bitcoin.opcodes.OP_DROP]);
+  return script;
+}
+function htlcP2WSHAddress(htlcScript, network) {
+  var p2wsh = bitcoin.payments.p2wsh({
+    redeem: {
+      output: htlcScript,
+      network: network
+    },
+    network: network
+  });
+  return p2wsh.address;
+}
+
+var PendingTxPopup = function PendingTxPopup(_ref) {
+  var txData = _ref.txData,
+    handleHtlcContinue = _ref.handleHtlcContinue;
+  var dispatch = reactRedux.useDispatch();
+  var theme = reactRedux.useSelector(selectTheme);
+  var pendingTxPopup = reactRedux.useSelector(selectPendingTxPopup);
+  return React__default.createElement("div", {
+    className: "kima-modal pending-tx-popup " + theme.colorMode + " " + (pendingTxPopup ? 'open' : '')
+  }, React__default.createElement("div", {
+    className: 'modal-overlay',
+    onClick: function onClick() {
+      dispatch(setPendingTxPopup(false));
+    }
+  }), React__default.createElement("div", {
+    className: 'modal-content-container'
+  }, React__default.createElement("div", {
+    className: 'kima-card-header'
+  }, React__default.createElement("div", {
+    className: 'topbar'
+  }, React__default.createElement("div", {
+    className: 'title'
+  }, React__default.createElement("h3", null, "Bitcoin Transaction List")), React__default.createElement("div", {
+    className: 'control-buttons'
+  }, React__default.createElement("button", {
+    className: 'icon-button',
+    onClick: function onClick() {
+      return dispatch(setPendingTxPopup(false));
+    }
+  }, React__default.createElement(Cross, {
+    fill: theme.colorMode === 'light' ? 'black' : 'white'
+  }))))), React__default.createElement("div", {
+    className: 'modal-content'
+  }, React__default.createElement("div", {
+    className: 'scroll-area custom-scrollbar'
+  }, React__default.createElement("div", {
+    className: 'header-container'
+  }, React__default.createElement("span", null, "Amount"), React__default.createElement("span", null, "Expire Time"), React__default.createElement("span", null, "Status"), React__default.createElement("span", null, "Hash"), React__default.createElement("span", null, "Action")), React__default.createElement("div", {
+    className: 'tx-container'
+  }, txData.map(function (tx, index) {
+    var date = new Date(+tx.expireTime * 1000);
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1;
+    var day = date.getDate();
+    var hours = date.getHours();
+    var minutes = date.getMinutes();
+    var seconds = date.getSeconds();
+    var formattedDate = year + "-" + month.toString().padStart(2, '0') + "-" + day.toString().padStart(2, '0') + " " + hours.toString().padStart(2, '0') + ":" + minutes.toString().padStart(2, '0') + ":" + seconds.toString().padStart(2, '0');
+    return React__default.createElement("div", {
+      className: 'tx-item',
+      key: index
+    }, React__default.createElement("div", {
+      className: 'label'
+    }, React__default.createElement("div", {
+      className: 'icon-wrapper'
+    }, (+tx.amount).toFixed(8), React__default.createElement(BTC, null))), React__default.createElement("span", {
+      className: 'label'
+    }, "" + formattedDate), React__default.createElement("span", {
+      className: 'label'
+    }, tx.status), React__default.createElement("div", {
+      className: 'label'
+    }, React__default.createElement(ExternalLink, {
+      to: "https://" + CHAIN_NAMES_TO_EXPLORER[exports.SupportNetworks.BTC] + "/tx/" + tx.hash
+    }, getShortenedAddress(tx.hash))), React__default.createElement("div", {
+      className: "action-button-container " + (tx.status === 'Pending' || tx.status === 'Failed' ? '' : 'disabled')
+    }, React__default.createElement("div", {
+      className: 'action-button'
+    }, "Reclaim"), React__default.createElement("div", {
+      className: 'action-button',
+      onClick: function onClick() {
+        handleHtlcContinue(tx.expireTime, tx.hash, tx.amount);
+        dispatch(setPendingTxPopup(false));
+      }
+    }, "Continue")));
+  }))))));
+};
+
+function usePendingTx(_ref) {
+  var walletAddress = _ref.walletAddress;
+  var _useState = React.useState(0),
+    pendingTxs = _useState[0],
+    setPendingTxs = _useState[1];
+  var _useState2 = React.useState([]),
+    pendingTxData = _useState2[0],
+    setPendingTxData = _useState2[1];
+  var sourceChain = reactRedux.useSelector(selectSourceChain);
+  var nodeProviderQuery = reactRedux.useSelector(selectNodeProviderQuery);
+  React.useEffect(function () {
+    console.log(nodeProviderQuery, sourceChain, walletAddress);
+    if (!nodeProviderQuery || sourceChain !== exports.SupportNetworks.BTC || !walletAddress) return;
+    var updatePendingTxs = function updatePendingTxs() {
+      try {
+        return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/transaction/get_htlc_transaction/" + walletAddress)).then(function (result) {
+          var data = result === null || result === void 0 ? void 0 : result.htlcLockingTransaction;
+          var txData = [];
+          if (data.length > 0) {
+            for (var _iterator = _createForOfIteratorHelperLoose(data), _step; !(_step = _iterator()).done;) {
+              var tx = _step.value;
+              var status = '';
+              if (tx.status !== 'Completed') {
+                status = 'Confirming';
+              } else if (tx.pull_status === 'htlc_pull_available') {
+                status = 'Pending';
+              } else if (tx.pull_status === 'htlc_pull_in_progress') {
+                status = 'In Progress';
+              } else if (tx.pull_status === 'htlc_pull_succeed') {
+                status = 'Completed';
+              } else if (tx.pull_status === 'htlc_pull_failed') {
+                status = 'Failed';
+              }
+              txData.push({
+                hash: tx.txHash,
+                amount: tx.amount,
+                expireTime: tx.htlcTimestamp,
+                status: status
+              });
+            }
+            setPendingTxData([].concat(txData));
+            setPendingTxs(txData.filter(function (tx) {
+              return tx.status === 'Pending' || tx.status === 'Confirming';
+            }).length);
+          }
+        });
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    };
+    var timerId = setInterval(function () {
+      updatePendingTxs();
+    }, 10000);
+    updatePendingTxs();
+    return function () {
+      clearInterval(timerId);
+    };
+  }, [sourceChain, nodeProviderQuery, walletAddress]);
+  return React.useMemo(function () {
+    return {
+      pendingTxData: pendingTxData,
+      pendingTxs: pendingTxs
+    };
+  }, [pendingTxs, pendingTxData]);
+}
+
 var TransferWidget = function TransferWidget(_ref) {
   var _theme$backgroundColo;
   var theme = _ref.theme,
@@ -7767,6 +8348,9 @@ var TransferWidget = function TransferWidget(_ref) {
   var nodeProviderQuery = reactRedux.useSelector(selectNodeProviderQuery);
   var bankDetails = reactRedux.useSelector(selectBankDetails);
   var kycStatus = reactRedux.useSelector(selectKycStatus);
+  var expireTime = reactRedux.useSelector(selectExpireTime);
+  var bitcoinAddress = reactRedux.useSelector(selectBitcoinAddress);
+  var bitcoinPubkey = reactRedux.useSelector(selectBitcoinPubkey);
   var transactionOption = reactRedux.useSelector(selectTransactionOption);
   var _useState4 = React.useState(false),
     isApproving = _useState4[0],
@@ -7778,19 +8362,37 @@ var TransferWidget = function TransferWidget(_ref) {
     isSigning = _useState6[0],
     setSigning = _useState6[1];
   var _useState7 = React.useState(false),
-    isConfirming = _useState7[0],
-    setConfirming = _useState7[1];
+    isBTCSigning = _useState7[0],
+    setBTCSigning = _useState7[1];
   var _useState8 = React.useState(false),
-    isVerifying = _useState8[0],
-    setVerifying = _useState8[1];
+    isBTCSigned = _useState8[0],
+    setBTCSigned = _useState8[1];
+  var _useState9 = React.useState(''),
+    btcHash = _useState9[0],
+    setBTCHash = _useState9[1];
+  var _useState10 = React.useState(0),
+    btcTimestamp = _useState10[0],
+    setBTCTimestamp = _useState10[1];
+  var _useState11 = React.useState(false),
+    isConfirming = _useState11[0],
+    setConfirming = _useState11[1];
+  var _useState12 = React.useState(false),
+    isVerifying = _useState12[0],
+    setVerifying = _useState12[1];
   var _useIsWalletReady = useIsWalletReady(),
-    walletAddress = _useIsWalletReady.walletAddress,
-    isReady = _useIsWalletReady.isReady;
+    isReady = _useIsWalletReady.isReady,
+    walletAddress = _useIsWalletReady.walletAddress;
+  var _usePendingTx = usePendingTx({
+      walletAddress: walletAddress || ''
+    }),
+    pendingTxData = _usePendingTx.pendingTxData,
+    pendingTxs = _usePendingTx.pendingTxs;
   var _useAllowance = useAllowance({
       setApproving: setApproving
     }),
-    isApproved = _useAllowance.isApproved,
-    approve = _useAllowance.approve;
+    approved = _useAllowance.isApproved,
+    approve = _useAllowance.approve,
+    poolAddress = _useAllowance.poolAddress;
   var _useSign = useSign({
       setSigning: setSigning
     }),
@@ -7801,6 +8403,10 @@ var TransferWidget = function TransferWidget(_ref) {
   var _useBalance = useBalance(),
     balance = _useBalance.balance;
   var windowWidth = useWidth();
+  var isApproved = React.useMemo(function () {
+    if (sourceChain === exports.SupportNetworks.BTC) return isBTCSigned;
+    return approved;
+  }, [approved, isBTCSigned, sourceChain]);
   React.useEffect(function () {
     if (!walletAddress) return;
     dispatch(setTargetAddress(walletAddress));
@@ -7882,7 +8488,7 @@ var TransferWidget = function TransferWidget(_ref) {
           if (poolBalance[i].chainName === targetChain) {
             for (var j = 0; j < poolBalance[i].balance.length; j++) {
               if (poolBalance[i].balance[j].tokenSymbol !== selectedToken) continue;
-              if (+poolBalance[i].balance[j].amount >= amount + fee) {
+              if (+poolBalance[i].balance[j].amount >= +amount + fee) {
                 return true;
               }
               var symbol = selectedToken;
@@ -7903,17 +8509,174 @@ var TransferWidget = function TransferWidget(_ref) {
       return Promise.reject(e);
     }
   };
+  var handleBTCFinish = function handleBTCFinish(hash, htlcAddress, timestamp) {
+    try {
+      var params = JSON.stringify({
+        fromAddress: walletAddress,
+        senderPubkey: bitcoinPubkey,
+        amount: feeDeduct ? amount : (+amount + fee).toFixed(8),
+        txHash: hash,
+        htlcTimeout: timestamp.toString(),
+        htlcAddress: htlcAddress
+      });
+      console.log(params);
+      return Promise.resolve(fetchWrapper.post(backendUrl + "/auth", params)).then(function () {
+        return Promise.resolve(fetchWrapper.post(backendUrl + "/htlc", params)).then(function (result) {
+          var _interrupt = false;
+          console.log(result);
+          if ((result === null || result === void 0 ? void 0 : result.code) !== 0) {
+            errorHandler(result);
+            toast.toast.error('Failed to submit htlc request!');
+            return;
+          }
+          var _temp4 = _do(function () {
+            return Promise.resolve(sleep(10000)).then(function () {
+              var _temp3 = _catch(function () {
+                return Promise.resolve(fetchWrapper.get(backendUrl + "/btc/transaction?hash=" + hash)).then(function (txInfo) {
+                  var _txInfo$status;
+                  if (txInfo !== null && txInfo !== void 0 && (_txInfo$status = txInfo.status) !== null && _txInfo$status !== void 0 && _txInfo$status.confirmed) {
+                    setBTCSigning(false);
+                    setBTCSigned(true);
+                    setBTCHash(hash);
+                    _interrupt = true;
+                  }
+                });
+              }, function (e) {
+                console.log(e);
+              });
+              if (_temp3 && _temp3.then) return _temp3.then(function () {});
+            });
+          }, function () {
+            return !_interrupt && 1;
+          });
+          if (_temp4 && _temp4.then) return _temp4.then(function () {});
+        });
+      });
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  };
+  var handleHtlcContinue = function handleHtlcContinue(expireTime, hash, amount) {
+    try {
+      setBTCTimestamp(expireTime);
+      setBTCSigning(false);
+      setBTCSigned(true);
+      setBTCHash(hash);
+      dispatch(setFeeDeduct(true));
+      dispatch(setAmount(amount));
+      return Promise.resolve();
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  };
   var handleSubmit = function handleSubmit() {
     try {
+      var _temp8 = function _temp8(_result) {
+        var _exit2 = false;
+        if (_exit) return _result;
+        return _catch(function () {
+          var _exit3 = false;
+          if (sourceChain === exports.SupportNetworks.FIAT || targetChain === exports.SupportNetworks.FIAT) return;
+          setSubmitting(true);
+          if (dAppOption === exports.DAppOptions.LPDrain || dAppOption === exports.DAppOptions.LPAdd) {
+            keplrHandler(walletAddress);
+            return;
+          }
+          return Promise.resolve(checkPoolBalance()).then(function (_checkPoolBalance) {
+            if (!_checkPoolBalance) {
+              setSubmitting(false);
+              _exit2 = true;
+              return;
+            }
+            var params;
+            var feeParam;
+            if (sourceChain === exports.SupportNetworks.BTC || targetChain === exports.SupportNetworks.BTC) {
+              feeParam = fee.toFixed(8);
+            } else {
+              feeParam = fee.toFixed(2);
+            }
+            if (sourceChain === exports.SupportNetworks.BTC) {
+              params = JSON.stringify({
+                originAddress: walletAddress,
+                originChain: sourceChain,
+                targetAddress: mode === exports.ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
+                targetChain: targetChain,
+                symbol: selectedToken,
+                amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
+                fee: feeParam,
+                htlcCreationHash: btcHash,
+                htlcCreationVout: 0,
+                htlcExpirationTimestamp: btcTimestamp.toString(),
+                htlcVersion: 'v1',
+                senderPubKey: bitcoinPubkey
+              });
+            } else {
+              params = JSON.stringify({
+                originAddress: walletAddress,
+                originChain: sourceChain,
+                targetAddress: mode === exports.ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
+                targetChain: targetChain,
+                symbol: selectedToken,
+                amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
+                fee: feeParam,
+                htlcCreationHash: '',
+                htlcCreationVout: 0,
+                htlcExpirationTimestamp: '0',
+                htlcVersion: '',
+                senderPubKey: ''
+              });
+            }
+            console.log(params);
+            return Promise.resolve(fetchWrapper.post(backendUrl + "/auth", params)).then(function () {
+              return Promise.resolve(fetchWrapper.post(backendUrl + "/submit", params)).then(function (result) {
+                console.log(result);
+                if ((result === null || result === void 0 ? void 0 : result.code) !== 0) {
+                  errorHandler(result);
+                  toast.toast.error('Failed to submit transaction!');
+                  setSubmitting(false);
+                  return;
+                }
+                var txId = -1;
+                for (var _iterator3 = _createForOfIteratorHelperLoose(result.events), _step3; !(_step3 = _iterator3()).done;) {
+                  var event = _step3.value;
+                  if (event.type === 'transaction_requested') {
+                    for (var _iterator4 = _createForOfIteratorHelperLoose(event.attributes), _step4; !(_step4 = _iterator4()).done;) {
+                      var attr = _step4.value;
+                      if (attr.key === 'txId') {
+                        txId = attr.value;
+                      }
+                    }
+                  }
+                }
+                console.log(txId);
+                setSubmitting(false);
+                dispatch(setTxId(txId));
+                dispatch(setSubmitted(true));
+              });
+            });
+          });
+        }, function (e) {
+          errorHandler(e);
+          setSubmitting(false);
+          console.log((e === null || e === void 0 ? void 0 : e.status) !== 500 ? 'rpc disconnected' : '', e);
+          toast.toast.error('rpc disconnected');
+          toast.toast.error('Failed to submit transaction');
+        });
+      };
       var _exit = false;
       if (fee < 0) {
         toast.toast.error('Fee is not calculated!');
         errorHandler('Fee is not calculated!');
         return Promise.resolve();
       }
-      if (dAppOption !== exports.DAppOptions.LPDrain && balance < amount) {
+      if (dAppOption !== exports.DAppOptions.LPDrain && balance < (feeDeduct ? +amount : +amount + fee)) {
         toast.toast.error('Insufficient balance!');
         errorHandler('Insufficient balance!');
+        return Promise.resolve();
+      }
+      if (sourceChain === exports.SupportNetworks.BTC && +amount < 0.00015) {
+        toast.toast.error('Minimum BTC amount is 0.00015!');
+        errorHandler('Minimum BTC amount is 0.00015!');
         return Promise.resolve();
       }
       if (sourceChain === exports.SupportNetworks.FIAT || targetChain === exports.SupportNetworks.FIAT) {
@@ -7928,69 +8691,50 @@ var TransferWidget = function TransferWidget(_ref) {
           sign();
           return Promise.resolve();
         }
-      } else if (!isApproved && dAppOption !== exports.DAppOptions.LPDrain) {
+      } else if (!isApproved && dAppOption !== exports.DAppOptions.LPDrain && sourceChain !== exports.SupportNetworks.BTC) {
         approve();
         return Promise.resolve();
       }
-      return Promise.resolve(_catch(function () {
-        var _exit2 = false;
-        if (sourceChain === exports.SupportNetworks.FIAT || targetChain === exports.SupportNetworks.FIAT) return;
-        setSubmitting(true);
-        if (dAppOption === exports.DAppOptions.LPDrain || dAppOption === exports.DAppOptions.LPAdd) {
-          keplrHandler(walletAddress);
-          return;
-        }
-        return Promise.resolve(checkPoolBalance()).then(function (_checkPoolBalance) {
-          if (!_checkPoolBalance) {
-            setSubmitting(false);
+      var _temp7 = function () {
+        if (sourceChain === exports.SupportNetworks.BTC && !isApproved) {
+          var _temp6 = function _temp6() {
             _exit = true;
-            return;
-          }
-          var params = JSON.stringify({
-            originAddress: walletAddress,
-            originChain: sourceChain,
-            targetAddress: mode === exports.ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
-            targetChain: targetChain,
-            symbol: selectedToken,
-            amount: amount,
-            fee: fee
-          });
-          console.log(params);
-          return Promise.resolve(fetchWrapper.post(backendUrl + "/auth", params)).then(function () {
-            return Promise.resolve(fetchWrapper.post(backendUrl + "/submit", params)).then(function (result) {
-              console.log(result);
-              if ((result === null || result === void 0 ? void 0 : result.code) !== 0) {
-                errorHandler(result);
-                toast.toast.error('Failed to submit transaction!');
-                setSubmitting(false);
-                return;
+          };
+          setBTCSigning(true);
+          var unixTimestamp = Math.floor(Date.now() / 1000) + (expireTime === '1 hour' ? 3600 : expireTime === '2 hours' ? 7200 : 10800);
+          setBTCTimestamp(unixTimestamp);
+          var htlcScript = createHTLCScript(bitcoinAddress, bitcoinPubkey, poolAddress, unixTimestamp, bitcoin.networks.testnet);
+          var htlcAddress = htlcP2WSHAddress(htlcScript, bitcoin.networks.testnet);
+          console.log(htlcAddress, poolAddress);
+          var _temp5 = _catch(function () {
+            return Promise.resolve(satsConnect.sendBtcTransaction({
+              payload: {
+                network: {
+                  type: satsConnect.BitcoinNetworkType.Testnet
+                },
+                recipients: [{
+                  address: htlcAddress,
+                  amountSats: BigInt(Math.round((feeDeduct ? +amount : +amount + fee) * 100000000))
+                }],
+                senderAddress: bitcoinAddress
+              },
+              onFinish: function (hash) {
+                handleBTCFinish(hash, htlcAddress, unixTimestamp);
+                return Promise.resolve();
+              },
+              onCancel: function onCancel() {
+                toast.toast.error('Transaction cancelled.');
+                setBTCSigning(false);
               }
-              var txId = -1;
-              for (var _iterator3 = _createForOfIteratorHelperLoose(result.events), _step3; !(_step3 = _iterator3()).done;) {
-                var event = _step3.value;
-                if (event.type === 'transaction_requested') {
-                  for (var _iterator4 = _createForOfIteratorHelperLoose(event.attributes), _step4; !(_step4 = _iterator4()).done;) {
-                    var attr = _step4.value;
-                    if (attr.key === 'txId') {
-                      txId = attr.value;
-                    }
-                  }
-                }
-              }
-              console.log(txId);
-              setSubmitting(false);
-              dispatch(setTxId(txId));
-              dispatch(setSubmitted(true));
-            });
+            })).then(function () {});
+          }, function (e) {
+            setBTCSigning(false);
+            console.log(e);
           });
-        });
-      }, function (e) {
-        errorHandler(e);
-        setSubmitting(false);
-        console.log((e === null || e === void 0 ? void 0 : e.status) !== 500 ? 'rpc disconnected' : '', e);
-        toast.toast.error('rpc disconnected');
-        toast.toast.error('Failed to submit transaction');
-      }));
+          return _temp5 && _temp5.then ? _temp5.then(_temp6) : _temp6(_temp5);
+        }
+      }();
+      return Promise.resolve(_temp7 && _temp7.then ? _temp7.then(_temp8) : _temp8(_temp7));
     } catch (e) {
       return Promise.reject(e);
     }
@@ -8010,12 +8754,12 @@ var TransferWidget = function TransferWidget(_ref) {
         return;
       }
       if (wizardStep === 4) {
-        if (fee >= 0 && amount > 0) {
+        if (fee >= 0 && +amount > 0) {
           setWizardStep(5);
         }
         return;
       }
-      if (fee > 0 && fee > amount && feeDeduct) {
+      if (fee > 0 && fee > +amount && feeDeduct) {
         toast.toast.error('Fee is greater than amount to transfer!');
         errorHandler('Fee is greater than amount to transfer!');
         return;
@@ -8041,7 +8785,7 @@ var TransferWidget = function TransferWidget(_ref) {
             return;
           }
         }
-        if (amount <= 0) {
+        if (+amount <= 0) {
           toast.toast.error('Invalid amount!');
           errorHandler('Invalid amount!');
           return;
@@ -8052,12 +8796,12 @@ var TransferWidget = function TransferWidget(_ref) {
           return;
         }
         if (compliantOption && (sourceCompliant !== 'low' || targetCompliant !== 'low')) return;
-        if (fee > 0 && fee > amount && feeDeduct) {
+        if (fee > 0 && fee > +amount && feeDeduct) {
           toast.toast.error('Fee is greater than amount to transfer!');
           errorHandler('Fee is greater than amount to transfer!');
           return;
         }
-        if (mode === exports.ModeOptions.payment || targetAddress && amount > 0) {
+        if (mode === exports.ModeOptions.payment || targetAddress && +amount > 0) {
           setConfirming(true);
           setFormStep(1);
         }
@@ -8096,6 +8840,9 @@ var TransferWidget = function TransferWidget(_ref) {
           return 'KYC Verify';
         }
       }
+      if (sourceChain === exports.SupportNetworks.BTC && !isApproved) {
+        return isBTCSigning ? 'Signing...' : 'Sign';
+      }
       if (sourceChain !== exports.SupportNetworks.FIAT && isApproved || dAppOption === exports.DAppOptions.LPDrain || sourceChain === exports.SupportNetworks.FIAT && isSigned) {
         return isSubmitting ? 'Submitting...' : 'Submit';
       } else if (sourceChain === exports.SupportNetworks.FIAT) {
@@ -8123,8 +8870,11 @@ var TransferWidget = function TransferWidget(_ref) {
     className: 'title'
   }, React__default.createElement("h3", null, isWizard && wizardStep === 3 || !isWizard && formStep > 0 ? titleOption !== null && titleOption !== void 0 && titleOption.confirmTitle ? titleOption === null || titleOption === void 0 ? void 0 : titleOption.confirmTitle : 'Transfer Details' : titleOption !== null && titleOption !== void 0 && titleOption.initialTitle ? titleOption === null || titleOption === void 0 ? void 0 : titleOption.initialTitle : 'New Transfer')), React__default.createElement("div", {
     className: 'control-buttons'
-  }, React__default.createElement(ExternalLink, {
-    to: helpURL != null ? helpURL : 'https://docs.kima.finance/demo'
+  }, pendingTxs > 0 ? React__default.createElement(TxButton, {
+    theme: theme,
+    txCount: pendingTxs
+  }) : null, React__default.createElement(ExternalLink, {
+    to: helpURL ? helpURL : 'https://docs.kima.finance/demo'
   }, React__default.createElement("div", {
     className: 'menu-button'
   }, "I need help")), React__default.createElement("button", {
@@ -8162,12 +8912,12 @@ var TransferWidget = function TransferWidget(_ref) {
     className: 'button-group'
   }, React__default.createElement(SecondaryButton, {
     clickHandler: function clickHandler() {
-      if (isApproving || isSubmitting || isSigning) return;
+      if (isApproving || isSubmitting || isSigning || isBTCSigning) return;
       setWizard(function (prev) {
         return !prev;
       });
     },
-    disabled: isApproving || isSubmitting || isSigning,
+    disabled: isApproving || isSubmitting || isSigning || isBTCSigning,
     theme: theme.colorMode,
     style: {
       style: {
@@ -8178,11 +8928,11 @@ var TransferWidget = function TransferWidget(_ref) {
   }, "Switch to ", isWizard ? 'Form' : 'Wizard'), React__default.createElement(SecondaryButton, {
     clickHandler: onBack,
     theme: theme.colorMode,
-    disabled: isApproving || isSubmitting || isSigning
+    disabled: isApproving || isSubmitting || isSigning || isBTCSigning
   }, isWizard && wizardStep > 0 || !isWizard && formStep > 0 ? 'Back' : 'Cancel'), React__default.createElement(PrimaryButton, {
     clickHandler: onNext,
-    isLoading: isApproving || isSubmitting || isSigning,
-    disabled: isApproving || isSubmitting || isSigning
+    isLoading: isApproving || isSubmitting || isSigning || isBTCSigning,
+    disabled: isApproving || isSubmitting || isSigning || isBTCSigning
   }, getButtonLabel()))), React__default.createElement(SolanaWalletConnectModal, null), React__default.createElement(TronWalletConnectModal, null), React__default.createElement(HelpPopup, null), sourceChain === exports.SupportNetworks.FIAT || targetChain === exports.SupportNetworks.FIAT ? React__default.createElement(BankPopup, {
     setVerifying: setVerifying,
     isVerifying: isVerifying
@@ -8207,6 +8957,17 @@ var TransferWidget = function TransferWidget(_ref) {
         background: theme.colorMode === exports.ColorModeOptions.light ? 'white' : (_theme$backgroundColo = theme.backgroundColorDark) != null ? _theme$backgroundColo : '#1b1e25'
       }
     }
+  }), React__default.createElement(PendingTxPopup, {
+    txData: pendingTxData,
+    handleHtlcContinue: handleHtlcContinue
+  }), React__default.createElement(reactTooltip.Tooltip, {
+    id: 'popup-tooltip',
+    className: "popup-tooltip " + theme.colorMode,
+    content: 'Click to open popup to see pending transactions',
+    style: {
+      zIndex: 10000
+    },
+    place: 'bottom'
   }));
 };
 
@@ -8336,7 +9097,7 @@ var KimaTransactionWidget = function KimaTransactionWidget(_ref) {
         })();
       }
       dispatch(setTargetAddress((transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress) || ''));
-      dispatch(setAmount((transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount) || 0));
+      dispatch(setAmount((transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount.toString()) || ''));
     } else if (mode === exports.ModeOptions.status) {
       dispatch(setTxId(txId || 1));
       dispatch(setSubmitted(true));
@@ -8361,7 +9122,6 @@ var KimaTransactionWidget = function KimaTransactionWidget(_ref) {
 
 var ConnectionProvider = SolanaAdapter.ConnectionProvider,
   SolanaWalletProvider = SolanaAdapter.WalletProvider;
-var projectId = '90c9315fb25e62e202ce09985f70bcf3';
 var ethereum = {
   chainId: 11155111,
   name: 'Ethereum Sepolia',
@@ -8414,20 +9174,12 @@ var zkEVM = {
 var metadata = {
   name: 'Kima Transaction Widget',
   description: 'Frontend widget for Kima integration for dApps',
-  url: 'https://kima.finance',
+  url: 'https://kima.network',
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 };
-react.createWeb3Modal({
-  ethersConfig: react.defaultConfig({
-    metadata: metadata
-  }),
-  chains: [ethereum, bsc, polygon, arbitrum, optimism, avalanche, zkEVM],
-  projectId: projectId,
-  enableAnalytics: false,
-  featuredWalletIds: ['c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96', 'a797aa35c0fadbfc1a53e7f675162ed5226968b44a19ee3d24385c64d1d3c393', '4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0']
-});
 var KimaProvider = function KimaProvider(_ref) {
-  var children = _ref.children;
+  var walletConnectProjectId = _ref.walletConnectProjectId,
+    children = _ref.children;
   var wallets = [new walletAdapterWallets.PhantomWalletAdapter(), new walletAdapterWallets.SolflareWalletAdapter(), new walletAdapterWallets.CloverWalletAdapter(), new walletAdapterWallets.Coin98WalletAdapter(), new walletAdapterWallets.SolongWalletAdapter(), new walletAdapterWallets.TorusWalletAdapter()];
   var adapters = React.useMemo(function () {
     var tronLinkAdapter = new tronwalletAdapterTronlink.TronLinkAdapter();
@@ -8451,6 +9203,15 @@ var KimaProvider = function KimaProvider(_ref) {
       adapters[0].switchChain('0xcd8690dc');
     }
   };
+  react.createWeb3Modal({
+    ethersConfig: react.defaultConfig({
+      metadata: metadata
+    }),
+    chains: [ethereum, bsc, polygon, arbitrum, optimism, avalanche, zkEVM],
+    projectId: walletConnectProjectId || 'e579511a495b5c312b572b036e60555a',
+    enableAnalytics: false,
+    featuredWalletIds: ['c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96', 'a797aa35c0fadbfc1a53e7f675162ed5226968b44a19ee3d24385c64d1d3c393', '4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0']
+  });
   return React__default.createElement(reactRedux.Provider, {
     store: store
   }, React__default.createElement(ConnectionProvider, {

@@ -2,6 +2,6 @@ declare function useIsWalletReady(): {
     isReady: boolean;
     statusMessage: string;
     walletAddress?: string;
-    forceNetworkSwitch: () => void;
+    connectBitcoinWallet: () => void;
 };
 export default useIsWalletReady;

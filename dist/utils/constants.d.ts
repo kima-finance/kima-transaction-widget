@@ -9,7 +9,8 @@ export declare enum ChainName {
     OPTIMISM = "OPT",
     POLYGON_ZKEVM = "ZKE",
     TRON = "TRX",
-    FIAT = "FIAT"
+    FIAT = "FIAT",
+    BTC = "BTC"
 }
 export declare enum SupportedChainId {
     ETHEREUM = 11155111,
@@ -30,9 +31,6 @@ export declare const CHAIN_STRING_TO_NAME: {
     [chainName: string]: ChainName;
 };
 export declare const CHAIN_NAMES_TO_EXPLORER: {
-    [chainName: string]: string;
-};
-export declare const CHAIN_NAMES_TO_GECKO_ID: {
     [chainName: string]: string;
 };
 export declare const CHAIN_IDS_TO_NAMES: {
@@ -64,9 +62,11 @@ declare type CoinOptions = {
     [key: string]: any;
 };
 export declare const COIN_LIST: CoinOptions;
+export declare const ExpireTimeOptions: string[];
 export declare enum TransactionStatus {
     AVAILABLE = "Available",
-    CONFIRMED = "Confirmed",
+    CONFIRMED = "Pull_Confirmed",
+    PULLED = "Pulled",
     PAID = "Paid",
     COMPLETED = "Completed",
     FAILEDTOPAY = "FailedToPay",
@@ -75,4 +75,10 @@ export declare enum TransactionStatus {
     KEYSIGNED = "KeySigned"
 }
 export declare const tooltipInfo: string[][];
+export declare type PendingTxData = {
+    expireTime: string;
+    amount: string;
+    status: string;
+    hash: string;
+};
 export {};

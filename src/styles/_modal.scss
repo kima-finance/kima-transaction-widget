@@ -134,6 +134,114 @@
       }
     }
 
+    &.pending-tx-popup {
+      .modal-content-container {
+        width: 45em;
+        height: 20em;
+      }
+
+      .modal-content {
+        height: calc(100% - 2em);
+
+        .scroll-area {
+          height: 14em;
+          width: 100%;
+          margin-top: 1em;
+          padding: 1em 0;
+          overflow-y: scroll;
+          overflow-x: clip;
+          background: $progressbarLight;
+          border-radius: 0.5em;
+
+          &::-webkit-scrollbar-track {
+            background: transparent;
+            border-radius: 3px;
+          }
+
+          .header-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            column-gap: 1em;
+            margin-bottom: 0.5em;
+            padding: 0 1em;
+
+            span {
+              text-align: center;
+            }
+          }
+
+          .tx-container {
+            width: 100%;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            row-gap: 0.5em;
+
+            .tx-item {
+              display: grid;
+              grid-template-columns: repeat(5, 1fr);
+              align-items: center;
+              column-gap: 1em;
+              padding: 0.4em 1em;
+              @include transition();
+
+              &:hover {
+                background-color: #5aa0db20;
+              }
+
+              .label {
+                display: flex;
+                justify-content: center;
+                text-align: center;
+
+                .icon-wrapper {
+                  display: flex;
+                  align-items: center;
+                  column-gap: 0.4em;
+
+                  svg {
+                    width: 1.5em;
+                    height: 1.5em;
+                  }
+                }
+              }
+
+              .action-button-container {
+                display: flex;
+                flex-direction: column;
+
+                .action-button {
+                  color: $textSecondary;
+                  display: flex;
+                  justify-content: center;
+                  cursor: pointer;
+
+                  @include transition();
+
+                  &:hover {
+                    opacity: 0.7;
+                  }
+                }
+
+                &.disabled {
+                  .action-button {
+                    opacity: 0.4;
+                    cursor: default;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      &.dark {
+        .scroll-area {
+          background-color: #434343;
+        }
+      }
+    }
+
     &.bank-popup {
       .modal-content-container {
         width: 100%;

@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import type { Capability } from 'sats-connect'
+import {
+  AddressPurpose,
+  BitcoinNetworkType,
+  getAddress,
+  getCapabilities
+} from 'sats-connect'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import {
@@ -11,6 +18,7 @@ import {
 } from '../utils/constants'
 import { useSelector } from 'react-redux'
 import {
+  selectBitcoinAddress,
   selectErrorHandler,
   selectSourceChain,
   selectTargetChain,
@@ -25,18 +33,22 @@ import {
 } from '@web3modal/ethers5/react'
 import { Web3ModalAccountInfo } from '../interface'
 import { useDispatch } from 'react-redux'
-import { setSourceChain } from '../store/optionSlice'
+import {
+  setBitcoinAddress,
+  setBitcoinPubkey,
+  setSourceChain
+} from '../store/optionSlice'
 import toast from 'react-hot-toast'
 
 const createWalletStatus = (
   isReady: boolean,
   statusMessage: string = '',
-  forceNetworkSwitch: () => void,
+  connectBitcoinWallet: () => void,
   walletAddress?: string
 ) => ({
   isReady,
   statusMessage,
-  forceNetworkSwitch,
+  connectBitcoinWallet,
   walletAddress
 })
 
@@ -44,7 +56,7 @@ function useIsWalletReady(): {
   isReady: boolean
   statusMessage: string
   walletAddress?: string
-  forceNetworkSwitch: () => void
+  connectBitcoinWallet: () => void
 } {
   const dispatch = useDispatch()
   const autoSwitch = useSelector(selectWalletAutoConnect)
@@ -52,7 +64,7 @@ function useIsWalletReady(): {
   const { address: tronAddress } = useTronWallet()
   const { walletProvider: evmProvider } = useWeb3ModalProvider()
   const { switchNetwork } = useSwitchNetwork()
-
+  const bitcoinAddress = useSelector(selectBitcoinAddress)
   const web3ModalAccountInfo: Web3ModalAccountInfo = useWeb3ModalAccount()
 
   const {
@@ -79,6 +91,22 @@ function useIsWalletReady(): {
   const hasCorrectEvmNetwork = evmChainId === correctEvmNetwork
   const events = useWeb3ModalEvents()
 
+  const [capabilityState, setCapabilityState] = useState<
+    'loading' | 'loaded' | 'missing' | 'cancelled'
+  >('loading')
+  const [capabilities, setCapabilities] = useState<Set<Capability>>()
+
+  const capabilityMessage =
+    capabilityState === 'loading'
+      ? 'Checking capabilities...'
+      : capabilityState === 'cancelled'
+        ? 'Capability check cancelled by wallet. Please refresh the page and try again.'
+        : capabilityState === 'missing'
+          ? 'Could not find an installed Sats Connect capable wallet. Please install a wallet and try again.'
+          : !capabilities
+            ? 'Something went wrong with getting capabilities'
+            : undefined
+
   useEffect(() => {
     if (
       events.data?.event === 'SELECT_WALLET' ||
@@ -87,6 +115,64 @@ function useIsWalletReady(): {
       localStorage.setItem('wallet', events.data?.properties?.name)
     }
   }, [events])
+
+  useEffect(() => {
+    const runCapabilityCheck = async () => {
+      let runs = 0
+      const MAX_RUNS = 20
+      setCapabilityState('loading')
+
+      // the wallet's in-page script may not be loaded yet, so we'll try a few times
+      while (runs < MAX_RUNS) {
+        try {
+          await getCapabilities({
+            onFinish(response) {
+              setCapabilities(new Set(response))
+              setCapabilityState('loaded')
+            },
+            onCancel() {
+              setCapabilityState('cancelled')
+            },
+            payload: {
+              network: {
+                type: BitcoinNetworkType.Testnet
+              }
+            }
+          })
+        } catch (e) {
+          runs++
+          if (runs === MAX_RUNS) {
+            setCapabilityState('missing')
+          }
+        }
+        await new Promise((resolve) => setTimeout(resolve, 100))
+      }
+    }
+
+    runCapabilityCheck()
+  }, [])
+
+  const connectBitcoinWallet = useCallback(async () => {
+    await getAddress({
+      payload: {
+        purposes: [AddressPurpose.Payment],
+        message: 'SATS Connect Demo',
+        network: {
+          type: BitcoinNetworkType.Testnet
+        }
+      },
+      onFinish: (response) => {
+        const paymentAddressItem = response.addresses.find(
+          (address) => address.purpose === AddressPurpose.Payment
+        )
+        dispatch(setBitcoinAddress(paymentAddressItem?.address || ''))
+        dispatch(setBitcoinPubkey(paymentAddressItem?.publicKey || ''))
+      },
+      onCancel: () => {
+        toast.error('Request cancelled')
+      }
+    })
+  }, [getAddress])
 
   const forceNetworkSwitch = useCallback(async () => {
     if (evmProvider && correctEvmNetwork) {
@@ -110,14 +196,14 @@ function useIsWalletReady(): {
         return createWalletStatus(
           true,
           undefined,
-          forceNetworkSwitch,
+          connectBitcoinWallet,
           solanaAddress.toBase58()
         )
       }
       return createWalletStatus(
         false,
         'Wallet not connected',
-        forceNetworkSwitch,
+        connectBitcoinWallet,
         ''
       )
     } else if (correctChain === ChainName.TRON) {
@@ -125,14 +211,29 @@ function useIsWalletReady(): {
         return createWalletStatus(
           true,
           undefined,
-          forceNetworkSwitch,
+          connectBitcoinWallet,
           tronAddress
         )
       }
       return createWalletStatus(
         false,
         'Wallet not connected',
-        forceNetworkSwitch,
+        connectBitcoinWallet,
+        ''
+      )
+    } else if (correctChain === ChainName.BTC) {
+      if (bitcoinAddress) {
+        return createWalletStatus(
+          true,
+          undefined,
+          connectBitcoinWallet,
+          bitcoinAddress
+        )
+      }
+      return createWalletStatus(
+        false,
+        capabilityMessage,
+        connectBitcoinWallet,
         ''
       )
     } else if (isEVMChain(correctChain) && hasEthInfo && evmAddress) {
@@ -140,7 +241,7 @@ function useIsWalletReady(): {
         return createWalletStatus(
           true,
           undefined,
-          forceNetworkSwitch,
+          connectBitcoinWallet,
           evmAddress
         )
       } else {
@@ -169,22 +270,24 @@ function useIsWalletReady(): {
             `Wallet not connected to ${
               CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[correctEvmNetwork]]
             }`,
-            forceNetworkSwitch,
+            connectBitcoinWallet,
             evmAddress
           )
       }
     }
 
-    return createWalletStatus(false, '', forceNetworkSwitch, undefined)
+    return createWalletStatus(false, '', connectBitcoinWallet, undefined)
   }, [
     correctChain,
     autoSwitch,
     forceNetworkSwitch,
+    connectBitcoinWallet,
     solanaAddress,
     tronAddress,
     hasEthInfo,
     correctEvmNetwork,
     hasCorrectEvmNetwork,
+    bitcoinAddress,
     evmProvider,
     evmAddress,
     evmChainId

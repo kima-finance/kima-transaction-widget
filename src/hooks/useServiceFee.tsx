@@ -66,17 +66,30 @@ export default function useServiceFee(
         return
       }
 
+      if (sourceChain === ChainName.BTC) {
+        dispatch(setServiceFee(0.0004))
+        return
+      }
+
+      if (targetChain === ChainName.BTC) {
+        dispatch(setServiceFee(0))
+        return
+      }
+
+      let sourceFee = 0
+      let targetFee = 0
       const sourceChainResult: any = await fetchWrapper.get(
         `${feeURL}/fee/${sourceChain}`
       )
-      const sourceFee = sourceChainResult.fee.split('-')[0]
+      sourceFee = sourceChainResult.fee.split('-')[0]
+
       const targetChainResult: any = await fetchWrapper.get(
         `${feeURL}/fee/${targetChain}`
       )
-      const targetFee = targetChainResult.fee.split('-')[0]
+      targetFee = targetChainResult.fee.split('-')[0]
 
       let fee = +sourceFee + +targetFee
-      dispatch(setServiceFee(parseFloat(fee.toFixed(2))))
+      dispatch(setServiceFee(fee))
     } catch (e) {
       dispatch(setServiceFee(0))
       console.log('rpc disconnected', e)
