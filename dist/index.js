@@ -2221,6 +2221,7 @@ function useIsWalletReady() {
     }
   }, [events]);
   React.useEffect(function () {
+    if (sourceChain !== exports.SupportNetworks.BTC) return;
     var runCapabilityCheck = function runCapabilityCheck() {
       try {
         var runs = 0;
@@ -2231,12 +2232,13 @@ function useIsWalletReady() {
         }, void 0, function () {
           function _temp2() {
             return Promise.resolve(new Promise(function (resolve) {
-              return setTimeout(resolve, 100);
+              return setTimeout(resolve, 10000);
             })).then(function () {});
           }
           var _temp = _catch(function () {
             return Promise.resolve(satsConnect.getCapabilities({
               onFinish: function onFinish(response) {
+                console.log(response);
                 setCapabilities(new Set(response));
                 setCapabilityState('loaded');
               },
@@ -2263,7 +2265,7 @@ function useIsWalletReady() {
       }
     };
     runCapabilityCheck();
-  }, []);
+  }, [sourceChain]);
   var connectBitcoinWallet = React.useCallback(function () {
     try {
       return Promise.resolve(satsConnect.getAddress({
