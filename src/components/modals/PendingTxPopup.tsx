@@ -77,7 +77,7 @@ const PendingTxPopup = ({
                   <div className='tx-item' key={index}>
                     <div className='label'>
                       <div className='icon-wrapper'>
-                        {tx.amount}
+                        {(+tx.amount).toFixed(8)}
                         <BTCIcon />
                       </div>
                     </div>

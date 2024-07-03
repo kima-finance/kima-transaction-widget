@@ -1471,6 +1471,7 @@
   -moz-column-gap: 1em;
        column-gap: 1em;
   margin-bottom: 0.5em;
+  padding: 0 1em;
 }
 .kima-card .kima-modal.pending-tx-popup .modal-content .scroll-area .header-container span {
   text-align: center;
@@ -1488,7 +1489,7 @@
   align-items: center;
   -moz-column-gap: 1em;
        column-gap: 1em;
-  padding: 0.4em 0;
+  padding: 0.4em 1em;
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 .kima-card .kima-modal.pending-tx-popup .modal-content .scroll-area .tx-container .tx-item:hover {

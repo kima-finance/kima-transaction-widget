@@ -265,7 +265,7 @@ export const TransferWidget = ({
     const params = JSON.stringify({
       fromAddress: walletAddress,
       senderPubkey: bitcoinPubkey,
-      amount: feeDeduct ? amount : (+amount + fee).toString(),
+      amount: feeDeduct ? amount : (+amount + fee).toFixed(8),
       txHash: hash,
       htlcTimeout: timestamp.toString(),
       htlcAddress

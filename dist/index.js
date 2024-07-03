@@ -8223,7 +8223,7 @@ var PendingTxPopup = function PendingTxPopup(_ref) {
       className: 'label'
     }, React__default.createElement("div", {
       className: 'icon-wrapper'
-    }, tx.amount, React__default.createElement(BTC, null))), React__default.createElement("span", {
+    }, (+tx.amount).toFixed(8), React__default.createElement(BTC, null))), React__default.createElement("span", {
       className: 'label'
     }, "" + formattedDate), React__default.createElement("span", {
       className: 'label'
@@ -8514,7 +8514,7 @@ var TransferWidget = function TransferWidget(_ref) {
       var params = JSON.stringify({
         fromAddress: walletAddress,
         senderPubkey: bitcoinPubkey,
-        amount: feeDeduct ? amount : (+amount + fee).toString(),
+        amount: feeDeduct ? amount : (+amount + fee).toFixed(8),
         txHash: hash,
         htlcTimeout: timestamp.toString(),
         htlcAddress: htlcAddress
