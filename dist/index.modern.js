@@ -1763,6 +1763,7 @@ function useIsWalletReady() {
     }
   }, [events]);
   useEffect(() => {
+    if (sourceChain !== ChainName.BTC) return;
     const runCapabilityCheck = async () => {
       let runs = 0;
       const MAX_RUNS = 20;
@@ -1771,6 +1772,7 @@ function useIsWalletReady() {
         try {
           await getCapabilities({
             onFinish(response) {
+              console.log(response);
               setCapabilities(new Set(response));
               setCapabilityState('loaded');
             },
@@ -1789,11 +1791,11 @@ function useIsWalletReady() {
             setCapabilityState('missing');
           }
         }
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 10000));
       }
     };
     runCapabilityCheck();
-  }, []);
+  }, [sourceChain]);
   const connectBitcoinWallet = useCallback(async () => {
     await getAddress({
       payload: {
