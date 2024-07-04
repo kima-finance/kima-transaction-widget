@@ -11,7 +11,7 @@ import { CHAIN_NAMES_TO_EXPLORER, ChainName } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 import { ExternalLink } from '../reusable'
 
-const PendingTxPopup = (handleHtlcContinue) => {
+const PendingTxPopup = ({ handleHtlcContinue }) => {
   const dispatch = useDispatch()
   const theme = useSelector(selectTheme)
   const pendingTxPopup = useSelector(selectPendingTxPopup)

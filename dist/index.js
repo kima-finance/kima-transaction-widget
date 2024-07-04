@@ -8046,7 +8046,8 @@ function htlcP2WSHAddress(htlcScript, network) {
   return p2wsh.address;
 }
 
-var PendingTxPopup = function PendingTxPopup(handleHtlcContinue) {
+var PendingTxPopup = function PendingTxPopup(_ref) {
+  var handleHtlcContinue = _ref.handleHtlcContinue;
   var dispatch = reactRedux.useDispatch();
   var theme = reactRedux.useSelector(selectTheme);
   var pendingTxPopup = reactRedux.useSelector(selectPendingTxPopup);

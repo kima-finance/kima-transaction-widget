@@ -7300,7 +7300,9 @@ function htlcP2WSHAddress(htlcScript, network) {
   return p2wsh.address;
 }
 
-const PendingTxPopup = handleHtlcContinue => {
+const PendingTxPopup = ({
+  handleHtlcContinue
+}) => {
   const dispatch = useDispatch();
   const theme = useSelector(selectTheme);
   const pendingTxPopup = useSelector(selectPendingTxPopup);
