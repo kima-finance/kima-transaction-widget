@@ -44,3 +44,5 @@ export declare const selectSignature: (state: RootState) => any;
 export declare const selectUuid: (state: RootState) => any;
 export declare const selectKycStatus: (state: RootState) => any;
 export declare const selectExpireTime: (state: RootState) => any;
+export declare const selectPendingTxs: (state: RootState) => any;
+export declare const selectPendingTxData: (state: RootState) => any;

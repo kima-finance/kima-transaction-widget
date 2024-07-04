@@ -15,7 +15,7 @@ import toast, { toast as toast$1, Toaster } from 'react-hot-toast';
 import { useWeb3ModalProvider, useSwitchNetwork, useWeb3ModalAccount, useWeb3ModalEvents, useWeb3Modal, useWeb3ModalTheme, createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react';
 import { Tooltip } from 'react-tooltip';
 import { WalletReadyState } from '@solana/wallet-adapter-base';
-import { getAddress, AddressPurpose, BitcoinNetworkType, getCapabilities, sendBtcTransaction } from 'sats-connect';
+import { getAddress, AddressPurpose, BitcoinNetworkType, sendBtcTransaction } from 'sats-connect';
 import { Contract } from '@ethersproject/contracts';
 import { formatUnits, parseUnits } from '@ethersproject/units';
 import { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, AccountLayout } from '@solana/spl-token';
@@ -879,6 +879,8 @@ const {
 const initialState = {
   theme: {},
   tokenOptions: {},
+  pendingTxs: 0,
+  pendingTxData: [],
   kimaExplorerUrl: 'explorer.kima.finance',
   mode: ModeOptions.bridge,
   sourceChain: '',
@@ -946,6 +948,12 @@ const optionSlice = createSlice({
       state.initChainFromProvider = false;
       state.targetNetworkFetching = false;
       state.signature = '';
+    },
+    setPendingTxs: (state, action) => {
+      state.pendingTxs = action.payload;
+    },
+    setPendingTxData: (state, action) => {
+      state.pendingTxData = action.payload;
     },
     setTokenOptions: (state, action) => {
       state.tokenOptions = action.payload;
@@ -1130,7 +1138,9 @@ const {
   setSignature,
   setUuid,
   setKYCStatus,
-  setExpireTime
+  setExpireTime,
+  setPendingTxData,
+  setPendingTxs
 } = optionSlice.actions;
 var optionReducer = optionSlice.reducer;
 
@@ -1188,6 +1198,8 @@ const selectSignature = state => state.option.signature;
 const selectUuid = state => state.option.uuid;
 const selectKycStatus = state => state.option.kycStatus;
 const selectExpireTime = state => state.option.expireTime;
+const selectPendingTxs = state => state.option.pendingTxs;
+const selectPendingTxData = state => state.option.pendingTxData;
 
 const Loading180Ring = ({
   width: _width = 24,
@@ -1752,9 +1764,6 @@ function useIsWalletReady() {
   const correctEvmNetwork = CHAIN_NAMES_TO_IDS[correctChain];
   const hasCorrectEvmNetwork = evmChainId === correctEvmNetwork;
   const events = useWeb3ModalEvents();
-  const [capabilityState, setCapabilityState] = useState('loading');
-  const [capabilities, setCapabilities] = useState();
-  const capabilityMessage = capabilityState === 'loading' ? 'Checking capabilities...' : capabilityState === 'cancelled' ? 'Capability check cancelled by wallet. Please refresh the page and try again.' : capabilityState === 'missing' ? 'Could not find an installed Sats Connect capable wallet. Please install a wallet and try again.' : !capabilities ? 'Something went wrong with getting capabilities' : undefined;
   useEffect(() => {
     var _events$data, _events$data2;
     if (((_events$data = events.data) === null || _events$data === void 0 ? void 0 : _events$data.event) === 'SELECT_WALLET' || ((_events$data2 = events.data) === null || _events$data2 === void 0 ? void 0 : _events$data2.event) === 'CONNECT_SUCCESS') {
@@ -1762,40 +1771,6 @@ function useIsWalletReady() {
       localStorage.setItem('wallet', (_events$data3 = events.data) === null || _events$data3 === void 0 ? void 0 : (_events$data3$propert = _events$data3.properties) === null || _events$data3$propert === void 0 ? void 0 : _events$data3$propert.name);
     }
   }, [events]);
-  useEffect(() => {
-    if (sourceChain !== ChainName.BTC) return;
-    const runCapabilityCheck = async () => {
-      let runs = 0;
-      const MAX_RUNS = 20;
-      setCapabilityState('loading');
-      while (runs < MAX_RUNS) {
-        try {
-          await getCapabilities({
-            onFinish(response) {
-              console.log(response);
-              setCapabilities(new Set(response));
-              setCapabilityState('loaded');
-            },
-            onCancel() {
-              setCapabilityState('cancelled');
-            },
-            payload: {
-              network: {
-                type: BitcoinNetworkType.Testnet
-              }
-            }
-          });
-        } catch (e) {
-          runs++;
-          if (runs === MAX_RUNS) {
-            setCapabilityState('missing');
-          }
-        }
-        await new Promise(resolve => setTimeout(resolve, 10000));
-      }
-    };
-    runCapabilityCheck();
-  }, [sourceChain]);
   const connectBitcoinWallet = useCallback(async () => {
     await getAddress({
       payload: {
@@ -1844,7 +1819,7 @@ function useIsWalletReady() {
       if (bitcoinAddress) {
         return createWalletStatus(true, undefined, connectBitcoinWallet, bitcoinAddress);
       }
-      return createWalletStatus(false, capabilityMessage, connectBitcoinWallet, '');
+      return createWalletStatus(false, 'Xverse wallet not connected', connectBitcoinWallet, '');
     } else if (isEVMChain(correctChain) && hasEthInfo && evmAddress) {
       if (hasCorrectEvmNetwork) {
         return createWalletStatus(true, undefined, connectBitcoinWallet, evmAddress);
@@ -2734,17 +2709,16 @@ const BankInput = () => {
 };
 
 const TxButton = ({
-  theme,
-  txCount
+  theme
 }) => {
   const dispatch = useDispatch();
   const handleClick = () => {
     dispatch(setPendingTxPopup(true));
   };
+  const txCount = useSelector(selectPendingTxs);
   return React.createElement("button", {
     className: `secondary-button tx-button ${theme.colorMode}`,
-    onClick: handleClick,
-    "data-tooltip-id": 'popup-tooltip'
+    onClick: handleClick
   }, txCount, React.createElement(Loading180Ring, {
     height: 16,
     width: 16,
@@ -7327,12 +7301,12 @@ function htlcP2WSHAddress(htlcScript, network) {
 }
 
 const PendingTxPopup = ({
-  txData,
   handleHtlcContinue
 }) => {
   const dispatch = useDispatch();
   const theme = useSelector(selectTheme);
   const pendingTxPopup = useSelector(selectPendingTxPopup);
+  const txData = useSelector(selectPendingTxData);
   return React.createElement("div", {
     className: `kima-modal pending-tx-popup ${theme.colorMode} ${pendingTxPopup ? 'open' : ''}`
   }, React.createElement("div", {
@@ -7401,59 +7375,6 @@ const PendingTxPopup = ({
   }))))));
 };
 
-function usePendingTx({
-  walletAddress
-}) {
-  const [pendingTxs, setPendingTxs] = useState(0);
-  const [pendingTxData, setPendingTxData] = useState([]);
-  const sourceChain = useSelector(selectSourceChain);
-  const nodeProviderQuery = useSelector(selectNodeProviderQuery);
-  useEffect(() => {
-    console.log(nodeProviderQuery, sourceChain, walletAddress);
-    if (!nodeProviderQuery || sourceChain !== ChainName.BTC || !walletAddress) return;
-    const updatePendingTxs = async () => {
-      const result = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/transaction/get_htlc_transaction/${walletAddress}`);
-      const data = result === null || result === void 0 ? void 0 : result.htlcLockingTransaction;
-      const txData = [];
-      if (data.length > 0) {
-        for (const tx of data) {
-          let status = '';
-          if (tx.status !== 'Completed') {
-            status = 'Confirming';
-          } else if (tx.pull_status === 'htlc_pull_available') {
-            status = 'Pending';
-          } else if (tx.pull_status === 'htlc_pull_in_progress') {
-            status = 'In Progress';
-          } else if (tx.pull_status === 'htlc_pull_succeed') {
-            status = 'Completed';
-          } else if (tx.pull_status === 'htlc_pull_failed') {
-            status = 'Failed';
-          }
-          txData.push({
-            hash: tx.txHash,
-            amount: tx.amount,
-            expireTime: tx.htlcTimestamp,
-            status
-          });
-        }
-        setPendingTxData([...txData]);
-        setPendingTxs(txData.filter(tx => tx.status === 'Pending' || tx.status === 'Confirming').length);
-      }
-    };
-    const timerId = setInterval(() => {
-      updatePendingTxs();
-    }, 10000);
-    updatePendingTxs();
-    return () => {
-      clearInterval(timerId);
-    };
-  }, [sourceChain, nodeProviderQuery, walletAddress]);
-  return useMemo(() => ({
-    pendingTxData,
-    pendingTxs
-  }), [pendingTxs, pendingTxData]);
-}
-
 const TransferWidget = ({
   theme,
   feeURL,
@@ -7503,12 +7424,7 @@ const TransferWidget = ({
     isReady,
     walletAddress
   } = useIsWalletReady();
-  const {
-    pendingTxData,
-    pendingTxs
-  } = usePendingTx({
-    walletAddress: walletAddress || ''
-  });
+  const pendingTxs = useSelector(selectPendingTxs);
   const {
     isApproved: approved,
     approve,
@@ -7914,6 +7830,45 @@ const TransferWidget = ({
   useEffect(() => {
     dispatch(setTheme(theme));
   }, [theme]);
+  useEffect(() => {
+    if (!nodeProviderQuery || sourceChain !== ChainName.BTC || !walletAddress) return;
+    const updatePendingTxs = async () => {
+      const result = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/transaction/get_htlc_transaction/${walletAddress}`);
+      const data = result === null || result === void 0 ? void 0 : result.htlcLockingTransaction;
+      const txData = [];
+      if (data.length > 0) {
+        for (const tx of data) {
+          let status = '';
+          if (tx.status !== 'Completed') {
+            status = 'Confirming';
+          } else if (tx.pull_status === 'htlc_pull_available') {
+            status = 'Pending';
+          } else if (tx.pull_status === 'htlc_pull_in_progress') {
+            status = 'In Progress';
+          } else if (tx.pull_status === 'htlc_pull_succeed') {
+            status = 'Completed';
+          } else if (tx.pull_status === 'htlc_pull_failed') {
+            status = 'Failed';
+          }
+          txData.push({
+            hash: tx.txHash,
+            amount: tx.amount,
+            expireTime: tx.htlcTimestamp,
+            status
+          });
+        }
+        dispatch(setPendingTxData(txData));
+        dispatch(setPendingTxs(txData.filter(tx => tx.status === 'Pending' || tx.status === 'Confirming').length));
+      }
+    };
+    const timerId = setInterval(() => {
+      updatePendingTxs();
+    }, 10000);
+    updatePendingTxs();
+    return () => {
+      clearInterval(timerId);
+    };
+  }, [sourceChain, nodeProviderQuery, walletAddress]);
   return React.createElement("div", {
     className: `kima-card ${theme.colorMode} font-${theme.fontSize}`,
     style: {
@@ -7929,8 +7884,7 @@ const TransferWidget = ({
   }, React.createElement("h3", null, isWizard && wizardStep === 3 || !isWizard && formStep > 0 ? titleOption !== null && titleOption !== void 0 && titleOption.confirmTitle ? titleOption === null || titleOption === void 0 ? void 0 : titleOption.confirmTitle : 'Transfer Details' : titleOption !== null && titleOption !== void 0 && titleOption.initialTitle ? titleOption === null || titleOption === void 0 ? void 0 : titleOption.initialTitle : 'New Transfer')), React.createElement("div", {
     className: 'control-buttons'
   }, pendingTxs > 0 ? React.createElement(TxButton, {
-    theme: theme,
-    txCount: pendingTxs
+    theme: theme
   }) : null, React.createElement(ExternalLink, {
     to: helpURL ? helpURL : 'https://docs.kima.finance/demo'
   }, React.createElement("div", {
@@ -8014,16 +7968,7 @@ const TransferWidget = ({
       }
     }
   }), React.createElement(PendingTxPopup, {
-    txData: pendingTxData,
     handleHtlcContinue: handleHtlcContinue
-  }), React.createElement(Tooltip, {
-    id: 'popup-tooltip',
-    className: `popup-tooltip ${theme.colorMode}`,
-    content: 'Click to open popup to see pending transactions',
-    style: {
-      zIndex: 10000
-    },
-    place: 'bottom'
   }));
 };
 

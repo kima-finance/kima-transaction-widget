@@ -2,25 +2,20 @@ import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { BTCIcon, CrossIcon } from '../../assets/icons'
 import { setPendingTxPopup } from '../../store/optionSlice'
-import { selectPendingTxPopup, selectTheme } from '../../store/selectors'
 import {
-  CHAIN_NAMES_TO_EXPLORER,
-  ChainName,
-  PendingTxData
-} from '../../utils/constants'
+  selectPendingTxData,
+  selectPendingTxPopup,
+  selectTheme
+} from '../../store/selectors'
+import { CHAIN_NAMES_TO_EXPLORER, ChainName } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 import { ExternalLink } from '../reusable'
 
-const PendingTxPopup = ({
-  txData,
-  handleHtlcContinue
-}: {
-  txData: Array<PendingTxData>
-  handleHtlcContinue: (expireTime, hash, amount) => {}
-}) => {
+const PendingTxPopup = ({ handleHtlcContinue }) => {
   const dispatch = useDispatch()
   const theme = useSelector(selectTheme)
   const pendingTxPopup = useSelector(selectPendingTxPopup)
+  const txData = useSelector(selectPendingTxData)
 
   return (
     <div

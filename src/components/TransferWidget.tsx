@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
-import { Tooltip } from 'react-tooltip'
 import { useDispatch, useSelector } from 'react-redux'
 import { CrossIcon, FooterLogo } from '../assets/icons'
 import {
@@ -25,9 +24,11 @@ import CoinSelect from './reusable/CoinSelect'
 // store
 import {
   initialize,
-  setAmount,
   setBankPopup,
+  setAmount,
   setFeeDeduct,
+  setPendingTxData,
+  setPendingTxs,
   setSelectedToken,
   setSourceCompliant,
   setSubmitted,
@@ -58,7 +59,8 @@ import {
   selectFeeDeduct,
   selectExpireTime,
   selectBitcoinAddress,
-  selectBitcoinPubkey
+  selectBitcoinPubkey,
+  selectPendingTxs
 } from '../store/selectors'
 import useIsWalletReady from '../hooks/useIsWalletReady'
 import useServiceFee from '../hooks/useServiceFee'
@@ -67,7 +69,11 @@ import { fetchWrapper } from '../helpers/fetch-wrapper'
 import AddressInputWizard from './reusable/AddressInputWizard'
 import { HelpPopup, BankPopup, SolanaWalletConnectModal } from './modals'
 import useCurrencyOptions from '../hooks/useCurrencyOptions'
-import { ChainName, CHAIN_NAMES_TO_STRING } from '../utils/constants'
+import {
+  ChainName,
+  CHAIN_NAMES_TO_STRING,
+  PendingTxData
+} from '../utils/constants'
 import { toast, Toaster } from 'react-hot-toast'
 import useBalance from '../hooks/useBalance'
 import useWidth from '../hooks/useWidth'
@@ -78,7 +84,6 @@ import { BitcoinNetworkType, sendBtcTransaction } from 'sats-connect'
 import * as bitcoin from 'bitcoinjs-lib' // you may comment this out during development to use the Node.js library so that you can get intellisense
 import { sleep } from '../helpers/functions'
 import PendingTxPopup from './modals/PendingTxPopup'
-import usePendingTx from '../hooks/usePendingTx'
 
 interface Props {
   theme: ThemeOptions
@@ -138,9 +143,7 @@ export const TransferWidget = ({
   const [isConfirming, setConfirming] = useState(false)
   const [isVerifying, setVerifying] = useState(false)
   const { isReady, walletAddress } = useIsWalletReady()
-  const { pendingTxData, pendingTxs } = usePendingTx({
-    walletAddress: walletAddress || ''
-  })
+  const pendingTxs = useSelector(selectPendingTxs)
   const {
     isApproved: approved,
     approve,
@@ -662,6 +665,63 @@ export const TransferWidget = ({
     dispatch(setTheme(theme))
   }, [theme])
 
+  useEffect(() => {
+    if (!nodeProviderQuery || sourceChain !== ChainName.BTC || !walletAddress)
+      return
+
+    const updatePendingTxs = async () => {
+      const result: any = await fetchWrapper.get(
+        `${nodeProviderQuery}/kima-finance/kima-blockchain/transaction/get_htlc_transaction/${walletAddress}`
+      )
+      const data = result?.htlcLockingTransaction
+      const txData: Array<PendingTxData> = []
+
+      if (data.length > 0) {
+        for (const tx of data) {
+          let status = ''
+
+          if (tx.status !== 'Completed') {
+            status = 'Confirming'
+          } else if (tx.pull_status === 'htlc_pull_available') {
+            status = 'Pending'
+          } else if (tx.pull_status === 'htlc_pull_in_progress') {
+            status = 'In Progress'
+          } else if (tx.pull_status === 'htlc_pull_succeed') {
+            status = 'Completed'
+          } else if (tx.pull_status === 'htlc_pull_failed') {
+            status = 'Failed'
+          }
+
+          txData.push({
+            hash: tx.txHash,
+            amount: tx.amount,
+            expireTime: tx.htlcTimestamp,
+            status
+          })
+        }
+
+        dispatch(setPendingTxData(txData))
+        dispatch(
+          setPendingTxs(
+            txData.filter(
+              (tx) => tx.status === 'Pending' || tx.status === 'Confirming'
+            ).length
+          )
+        )
+      }
+    }
+
+    const timerId = setInterval(() => {
+      updatePendingTxs()
+    }, 10000)
+
+    updatePendingTxs()
+
+    return () => {
+      clearInterval(timerId)
+    }
+  }, [sourceChain, nodeProviderQuery, walletAddress])
+
   return (
     <div
       className={`kima-card ${theme.colorMode} font-${theme.fontSize}`}
@@ -687,9 +747,7 @@ export const TransferWidget = ({
             </h3>
           </div>
           <div className='control-buttons'>
-            {pendingTxs > 0 ? (
-              <TxButton theme={theme} txCount={pendingTxs} />
-            ) : null}
+            {pendingTxs > 0 ? <TxButton theme={theme} /> : null}
             <ExternalLink
               to={helpURL ? helpURL : 'https://docs.kima.finance/demo'}
             >
@@ -812,17 +870,14 @@ export const TransferWidget = ({
           }
         }}
       />
-      <PendingTxPopup
-        txData={pendingTxData}
-        handleHtlcContinue={handleHtlcContinue}
-      />
-      <Tooltip
+      <PendingTxPopup handleHtlcContinue={handleHtlcContinue} />
+      {/* <Tooltip
         id='popup-tooltip'
         className={`popup-tooltip ${theme.colorMode}`}
         content={'Click to open popup to see pending transactions'}
         style={{ zIndex: 10000 }}
         place={'bottom'}
-      />
+      /> */}
     </div>
   )
 }

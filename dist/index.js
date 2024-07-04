@@ -936,6 +936,8 @@ var createSlice = toolkitRaw.createSlice;
 var initialState = {
   theme: {},
   tokenOptions: {},
+  pendingTxs: 0,
+  pendingTxData: [],
   kimaExplorerUrl: 'explorer.kima.finance',
   mode: exports.ModeOptions.bridge,
   sourceChain: '',
@@ -1013,6 +1015,12 @@ var optionSlice = createSlice({
       state.initChainFromProvider = false;
       state.targetNetworkFetching = false;
       state.signature = '';
+    },
+    setPendingTxs: function setPendingTxs(state, action) {
+      state.pendingTxs = action.payload;
+    },
+    setPendingTxData: function setPendingTxData(state, action) {
+      state.pendingTxData = action.payload;
     },
     setTokenOptions: function setTokenOptions(state, action) {
       state.tokenOptions = action.payload;
@@ -1196,7 +1204,9 @@ var _optionSlice$actions = optionSlice.actions,
   setSignature = _optionSlice$actions.setSignature,
   setUuid = _optionSlice$actions.setUuid,
   setKYCStatus = _optionSlice$actions.setKYCStatus,
-  setExpireTime = _optionSlice$actions.setExpireTime;
+  setExpireTime = _optionSlice$actions.setExpireTime,
+  setPendingTxData = _optionSlice$actions.setPendingTxData,
+  setPendingTxs = _optionSlice$actions.setPendingTxs;
 var optionReducer = optionSlice.reducer;
 
 var configureStore = toolkitRaw.configureStore;
@@ -1283,93 +1293,6 @@ function _isSettledPact(thenable) {
 const _iteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.iterator || (Symbol.iterator = Symbol("Symbol.iterator"))) : "@@iterator";
 
 const _asyncIteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.asyncIterator || (Symbol.asyncIterator = Symbol("Symbol.asyncIterator"))) : "@@asyncIterator";
-
-// Asynchronously implement a generic for loop
-function _for(test, update, body) {
-	var stage;
-	for (;;) {
-		var shouldContinue = test();
-		if (_isSettledPact(shouldContinue)) {
-			shouldContinue = shouldContinue.v;
-		}
-		if (!shouldContinue) {
-			return result;
-		}
-		if (shouldContinue.then) {
-			stage = 0;
-			break;
-		}
-		var result = body();
-		if (result && result.then) {
-			if (_isSettledPact(result)) {
-				result = result.s;
-			} else {
-				stage = 1;
-				break;
-			}
-		}
-		if (update) {
-			var updateValue = update();
-			if (updateValue && updateValue.then && !_isSettledPact(updateValue)) {
-				stage = 2;
-				break;
-			}
-		}
-	}
-	var pact = new _Pact();
-	var reject = _settle.bind(null, pact, 2);
-	(stage === 0 ? shouldContinue.then(_resumeAfterTest) : stage === 1 ? result.then(_resumeAfterBody) : updateValue.then(_resumeAfterUpdate)).then(void 0, reject);
-	return pact;
-	function _resumeAfterBody(value) {
-		result = value;
-		do {
-			if (update) {
-				updateValue = update();
-				if (updateValue && updateValue.then && !_isSettledPact(updateValue)) {
-					updateValue.then(_resumeAfterUpdate).then(void 0, reject);
-					return;
-				}
-			}
-			shouldContinue = test();
-			if (!shouldContinue || (_isSettledPact(shouldContinue) && !shouldContinue.v)) {
-				_settle(pact, 1, result);
-				return;
-			}
-			if (shouldContinue.then) {
-				shouldContinue.then(_resumeAfterTest).then(void 0, reject);
-				return;
-			}
-			result = body();
-			if (_isSettledPact(result)) {
-				result = result.v;
-			}
-		} while (!result || !result.then);
-		result.then(_resumeAfterBody).then(void 0, reject);
-	}
-	function _resumeAfterTest(shouldContinue) {
-		if (shouldContinue) {
-			result = body();
-			if (result && result.then) {
-				result.then(_resumeAfterBody).then(void 0, reject);
-			} else {
-				_resumeAfterBody(result);
-			}
-		} else {
-			_settle(pact, 1, result);
-		}
-	}
-	function _resumeAfterUpdate() {
-		if (shouldContinue = test()) {
-			if (shouldContinue.then) {
-				shouldContinue.then(_resumeAfterTest).then(void 0, reject);
-			} else {
-				_resumeAfterTest(shouldContinue);
-			}
-		} else {
-			_settle(pact, 1, result);
-		}
-	}
-}
 
 // Asynchronously implement a do ... while loop
 function _do(body, test) {
@@ -1588,6 +1511,12 @@ var selectKycStatus = function selectKycStatus(state) {
 };
 var selectExpireTime = function selectExpireTime(state) {
   return state.option.expireTime;
+};
+var selectPendingTxs = function selectPendingTxs(state) {
+  return state.option.pendingTxs;
+};
+var selectPendingTxData = function selectPendingTxData(state) {
+  return state.option.pendingTxData;
 };
 
 var Loading180Ring = function Loading180Ring(_ref) {
@@ -2206,13 +2135,6 @@ function useIsWalletReady() {
   var correctEvmNetwork = CHAIN_NAMES_TO_IDS[correctChain];
   var hasCorrectEvmNetwork = evmChainId === correctEvmNetwork;
   var events = react.useWeb3ModalEvents();
-  var _useState = React.useState('loading'),
-    capabilityState = _useState[0],
-    setCapabilityState = _useState[1];
-  var _useState2 = React.useState(),
-    capabilities = _useState2[0],
-    setCapabilities = _useState2[1];
-  var capabilityMessage = capabilityState === 'loading' ? 'Checking capabilities...' : capabilityState === 'cancelled' ? 'Capability check cancelled by wallet. Please refresh the page and try again.' : capabilityState === 'missing' ? 'Could not find an installed Sats Connect capable wallet. Please install a wallet and try again.' : !capabilities ? 'Something went wrong with getting capabilities' : undefined;
   React.useEffect(function () {
     var _events$data, _events$data2;
     if (((_events$data = events.data) === null || _events$data === void 0 ? void 0 : _events$data.event) === 'SELECT_WALLET' || ((_events$data2 = events.data) === null || _events$data2 === void 0 ? void 0 : _events$data2.event) === 'CONNECT_SUCCESS') {
@@ -2220,52 +2142,6 @@ function useIsWalletReady() {
       localStorage.setItem('wallet', (_events$data3 = events.data) === null || _events$data3 === void 0 ? void 0 : (_events$data3$propert = _events$data3.properties) === null || _events$data3$propert === void 0 ? void 0 : _events$data3$propert.name);
     }
   }, [events]);
-  React.useEffect(function () {
-    if (sourceChain !== exports.SupportNetworks.BTC) return;
-    var runCapabilityCheck = function runCapabilityCheck() {
-      try {
-        var runs = 0;
-        var MAX_RUNS = 20;
-        setCapabilityState('loading');
-        var _temp3 = _for(function () {
-          return runs < MAX_RUNS;
-        }, void 0, function () {
-          function _temp2() {
-            return Promise.resolve(new Promise(function (resolve) {
-              return setTimeout(resolve, 10000);
-            })).then(function () {});
-          }
-          var _temp = _catch(function () {
-            return Promise.resolve(satsConnect.getCapabilities({
-              onFinish: function onFinish(response) {
-                console.log(response);
-                setCapabilities(new Set(response));
-                setCapabilityState('loaded');
-              },
-              onCancel: function onCancel() {
-                setCapabilityState('cancelled');
-              },
-              payload: {
-                network: {
-                  type: satsConnect.BitcoinNetworkType.Testnet
-                }
-              }
-            })).then(function () {});
-          }, function () {
-            runs++;
-            if (runs === MAX_RUNS) {
-              setCapabilityState('missing');
-            }
-          });
-          return _temp && _temp.then ? _temp.then(_temp2) : _temp2(_temp);
-        });
-        return Promise.resolve(_temp3 && _temp3.then ? _temp3.then(function () {}) : void 0);
-      } catch (e) {
-        return Promise.reject(e);
-      }
-    };
-    runCapabilityCheck();
-  }, [sourceChain]);
   var connectBitcoinWallet = React.useCallback(function () {
     try {
       return Promise.resolve(satsConnect.getAddress({
@@ -2326,7 +2202,7 @@ function useIsWalletReady() {
       if (bitcoinAddress) {
         return createWalletStatus(true, undefined, connectBitcoinWallet, bitcoinAddress);
       }
-      return createWalletStatus(false, capabilityMessage, connectBitcoinWallet, '');
+      return createWalletStatus(false, 'Xverse wallet not connected', connectBitcoinWallet, '');
     } else if (isEVMChain(correctChain) && hasEthInfo && evmAddress) {
       if (hasCorrectEvmNetwork) {
         return createWalletStatus(true, undefined, connectBitcoinWallet, evmAddress);
@@ -3371,16 +3247,15 @@ var BankInput = function BankInput() {
 };
 
 var TxButton = function TxButton(_ref) {
-  var theme = _ref.theme,
-    txCount = _ref.txCount;
+  var theme = _ref.theme;
   var dispatch = reactRedux.useDispatch();
   var handleClick = function handleClick() {
     dispatch(setPendingTxPopup(true));
   };
+  var txCount = reactRedux.useSelector(selectPendingTxs);
   return React__default.createElement("button", {
     className: "secondary-button tx-button " + theme.colorMode,
-    onClick: handleClick,
-    "data-tooltip-id": 'popup-tooltip'
+    onClick: handleClick
   }, txCount, React__default.createElement(Loading180Ring, {
     height: 16,
     width: 16,
@@ -8172,11 +8047,11 @@ function htlcP2WSHAddress(htlcScript, network) {
 }
 
 var PendingTxPopup = function PendingTxPopup(_ref) {
-  var txData = _ref.txData,
-    handleHtlcContinue = _ref.handleHtlcContinue;
+  var handleHtlcContinue = _ref.handleHtlcContinue;
   var dispatch = reactRedux.useDispatch();
   var theme = reactRedux.useSelector(selectTheme);
   var pendingTxPopup = reactRedux.useSelector(selectPendingTxPopup);
+  var txData = reactRedux.useSelector(selectPendingTxData);
   return React__default.createElement("div", {
     className: "kima-modal pending-tx-popup " + theme.colorMode + " " + (pendingTxPopup ? 'open' : '')
   }, React__default.createElement("div", {
@@ -8246,72 +8121,6 @@ var PendingTxPopup = function PendingTxPopup(_ref) {
     }, "Continue")));
   }))))));
 };
-
-function usePendingTx(_ref) {
-  var walletAddress = _ref.walletAddress;
-  var _useState = React.useState(0),
-    pendingTxs = _useState[0],
-    setPendingTxs = _useState[1];
-  var _useState2 = React.useState([]),
-    pendingTxData = _useState2[0],
-    setPendingTxData = _useState2[1];
-  var sourceChain = reactRedux.useSelector(selectSourceChain);
-  var nodeProviderQuery = reactRedux.useSelector(selectNodeProviderQuery);
-  React.useEffect(function () {
-    console.log(nodeProviderQuery, sourceChain, walletAddress);
-    if (!nodeProviderQuery || sourceChain !== exports.SupportNetworks.BTC || !walletAddress) return;
-    var updatePendingTxs = function updatePendingTxs() {
-      try {
-        return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/transaction/get_htlc_transaction/" + walletAddress)).then(function (result) {
-          var data = result === null || result === void 0 ? void 0 : result.htlcLockingTransaction;
-          var txData = [];
-          if (data.length > 0) {
-            for (var _iterator = _createForOfIteratorHelperLoose(data), _step; !(_step = _iterator()).done;) {
-              var tx = _step.value;
-              var status = '';
-              if (tx.status !== 'Completed') {
-                status = 'Confirming';
-              } else if (tx.pull_status === 'htlc_pull_available') {
-                status = 'Pending';
-              } else if (tx.pull_status === 'htlc_pull_in_progress') {
-                status = 'In Progress';
-              } else if (tx.pull_status === 'htlc_pull_succeed') {
-                status = 'Completed';
-              } else if (tx.pull_status === 'htlc_pull_failed') {
-                status = 'Failed';
-              }
-              txData.push({
-                hash: tx.txHash,
-                amount: tx.amount,
-                expireTime: tx.htlcTimestamp,
-                status: status
-              });
-            }
-            setPendingTxData([].concat(txData));
-            setPendingTxs(txData.filter(function (tx) {
-              return tx.status === 'Pending' || tx.status === 'Confirming';
-            }).length);
-          }
-        });
-      } catch (e) {
-        return Promise.reject(e);
-      }
-    };
-    var timerId = setInterval(function () {
-      updatePendingTxs();
-    }, 10000);
-    updatePendingTxs();
-    return function () {
-      clearInterval(timerId);
-    };
-  }, [sourceChain, nodeProviderQuery, walletAddress]);
-  return React.useMemo(function () {
-    return {
-      pendingTxData: pendingTxData,
-      pendingTxs: pendingTxs
-    };
-  }, [pendingTxs, pendingTxData]);
-}
 
 var TransferWidget = function TransferWidget(_ref) {
   var _theme$backgroundColo;
@@ -8384,11 +8193,7 @@ var TransferWidget = function TransferWidget(_ref) {
   var _useIsWalletReady = useIsWalletReady(),
     isReady = _useIsWalletReady.isReady,
     walletAddress = _useIsWalletReady.walletAddress;
-  var _usePendingTx = usePendingTx({
-      walletAddress: walletAddress || ''
-    }),
-    pendingTxData = _usePendingTx.pendingTxData,
-    pendingTxs = _usePendingTx.pendingTxs;
+  var pendingTxs = reactRedux.useSelector(selectPendingTxs);
   var _useAllowance = useAllowance({
       setApproving: setApproving
     }),
@@ -8858,6 +8663,53 @@ var TransferWidget = function TransferWidget(_ref) {
   React.useEffect(function () {
     dispatch(setTheme(theme));
   }, [theme]);
+  React.useEffect(function () {
+    if (!nodeProviderQuery || sourceChain !== exports.SupportNetworks.BTC || !walletAddress) return;
+    var updatePendingTxs = function updatePendingTxs() {
+      try {
+        return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/transaction/get_htlc_transaction/" + walletAddress)).then(function (result) {
+          var data = result === null || result === void 0 ? void 0 : result.htlcLockingTransaction;
+          var txData = [];
+          if (data.length > 0) {
+            for (var _iterator5 = _createForOfIteratorHelperLoose(data), _step5; !(_step5 = _iterator5()).done;) {
+              var tx = _step5.value;
+              var status = '';
+              if (tx.status !== 'Completed') {
+                status = 'Confirming';
+              } else if (tx.pull_status === 'htlc_pull_available') {
+                status = 'Pending';
+              } else if (tx.pull_status === 'htlc_pull_in_progress') {
+                status = 'In Progress';
+              } else if (tx.pull_status === 'htlc_pull_succeed') {
+                status = 'Completed';
+              } else if (tx.pull_status === 'htlc_pull_failed') {
+                status = 'Failed';
+              }
+              txData.push({
+                hash: tx.txHash,
+                amount: tx.amount,
+                expireTime: tx.htlcTimestamp,
+                status: status
+              });
+            }
+            dispatch(setPendingTxData(txData));
+            dispatch(setPendingTxs(txData.filter(function (tx) {
+              return tx.status === 'Pending' || tx.status === 'Confirming';
+            }).length));
+          }
+        });
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    };
+    var timerId = setInterval(function () {
+      updatePendingTxs();
+    }, 10000);
+    updatePendingTxs();
+    return function () {
+      clearInterval(timerId);
+    };
+  }, [sourceChain, nodeProviderQuery, walletAddress]);
   return React__default.createElement("div", {
     className: "kima-card " + theme.colorMode + " font-" + theme.fontSize,
     style: {
@@ -8873,8 +8725,7 @@ var TransferWidget = function TransferWidget(_ref) {
   }, React__default.createElement("h3", null, isWizard && wizardStep === 3 || !isWizard && formStep > 0 ? titleOption !== null && titleOption !== void 0 && titleOption.confirmTitle ? titleOption === null || titleOption === void 0 ? void 0 : titleOption.confirmTitle : 'Transfer Details' : titleOption !== null && titleOption !== void 0 && titleOption.initialTitle ? titleOption === null || titleOption === void 0 ? void 0 : titleOption.initialTitle : 'New Transfer')), React__default.createElement("div", {
     className: 'control-buttons'
   }, pendingTxs > 0 ? React__default.createElement(TxButton, {
-    theme: theme,
-    txCount: pendingTxs
+    theme: theme
   }) : null, React__default.createElement(ExternalLink, {
     to: helpURL ? helpURL : 'https://docs.kima.finance/demo'
   }, React__default.createElement("div", {
@@ -8960,16 +8811,7 @@ var TransferWidget = function TransferWidget(_ref) {
       }
     }
   }), React__default.createElement(PendingTxPopup, {
-    txData: pendingTxData,
     handleHtlcContinue: handleHtlcContinue
-  }), React__default.createElement(reactTooltip.Tooltip, {
-    id: 'popup-tooltip',
-    className: "popup-tooltip " + theme.colorMode,
-    content: 'Click to open popup to see pending transactions',
-    style: {
-      zIndex: 10000
-    },
-    place: 'bottom'
   }));
 };
 

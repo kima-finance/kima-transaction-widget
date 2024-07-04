@@ -73,3 +73,6 @@ export const selectSignature = (state: RootState) => state.option.signature
 export const selectUuid = (state: RootState) => state.option.uuid
 export const selectKycStatus = (state: RootState) => state.option.kycStatus
 export const selectExpireTime = (state: RootState) => state.option.expireTime
+export const selectPendingTxs = (state: RootState) => state.option.pendingTxs
+export const selectPendingTxData = (state: RootState) =>
+  state.option.pendingTxData
