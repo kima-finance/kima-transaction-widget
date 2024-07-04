@@ -8,6 +8,7 @@ import {
   ThemeOptions,
   TransactionOption
 } from '../interface'
+import { PendingTxData } from '../utils/constants'
 
 type BankDetails = {
   iban: string
@@ -68,11 +69,15 @@ export interface OptionState {
   signature: string // off-chain proof of target address for on-ramping fiat transaction
   uuid: string // uuid for depasify KYC
   kycStatus: string // kyc status from depasify
+  pendingTxs: number // number of pending bitcoin transactions
+  pendingTxData: Array<PendingTxData> // pending bitcoin transaction data
 }
 
 const initialState: OptionState = {
   theme: {},
   tokenOptions: {},
+  pendingTxs: 0,
+  pendingTxData: [],
   kimaExplorerUrl: 'explorer.kima.finance',
   mode: ModeOptions.bridge,
   sourceChain: '',
@@ -142,6 +147,12 @@ export const optionSlice = createSlice({
       state.initChainFromProvider = false
       state.targetNetworkFetching = false
       state.signature = ''
+    },
+    setPendingTxs: (state, action: PayloadAction<number>) => {
+      state.pendingTxs = action.payload
+    },
+    setPendingTxData: (state, action: PayloadAction<Array<PendingTxData>>) => {
+      state.pendingTxData = action.payload
     },
     setTokenOptions: (state, action: PayloadAction<TokenOptions>) => {
       state.tokenOptions = action.payload
@@ -327,7 +338,9 @@ export const {
   setSignature,
   setUuid,
   setKYCStatus,
-  setExpireTime
+  setExpireTime,
+  setPendingTxData,
+  setPendingTxs
 } = optionSlice.actions
 
 export default optionSlice.reducer

@@ -1,11 +1,11 @@
-import type { Capability } from 'sats-connect'
+// import type { Capability } from 'sats-connect'
 import {
   AddressPurpose,
   BitcoinNetworkType,
-  getAddress,
-  getCapabilities
+  getAddress
+  // getCapabilities
 } from 'sats-connect'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import {
@@ -91,21 +91,21 @@ function useIsWalletReady(): {
   const hasCorrectEvmNetwork = evmChainId === correctEvmNetwork
   const events = useWeb3ModalEvents()
 
-  const [capabilityState, setCapabilityState] = useState<
-    'loading' | 'loaded' | 'missing' | 'cancelled'
-  >('loading')
-  const [capabilities, setCapabilities] = useState<Set<Capability>>()
+  // const [capabilityState, setCapabilityState] = useState<
+  //   'loading' | 'loaded' | 'missing' | 'cancelled'
+  // >('loading')
+  // const [capabilities, setCapabilities] = useState<Set<Capability>>()
 
-  const capabilityMessage =
-    capabilityState === 'loading'
-      ? 'Checking capabilities...'
-      : capabilityState === 'cancelled'
-        ? 'Capability check cancelled by wallet. Please refresh the page and try again.'
-        : capabilityState === 'missing'
-          ? 'Could not find an installed Sats Connect capable wallet. Please install a wallet and try again.'
-          : !capabilities
-            ? 'Something went wrong with getting capabilities'
-            : undefined
+  // const capabilityMessage =
+  //   capabilityState === 'loading'
+  //     ? 'Checking capabilities...'
+  //     : capabilityState === 'cancelled'
+  //       ? 'Capability check cancelled by wallet. Please refresh the page and try again.'
+  //       : capabilityState === 'missing'
+  //         ? 'Could not find an installed Sats Connect capable wallet. Please install a wallet and try again.'
+  //         : !capabilities
+  //           ? 'Something went wrong with getting capabilities'
+  //           : undefined
 
   useEffect(() => {
     if (
@@ -116,44 +116,41 @@ function useIsWalletReady(): {
     }
   }, [events])
 
-  useEffect(() => {
-    if (sourceChain !== ChainName.BTC) return
+  // useEffect(() => {
+  //   const runCapabilityCheck = async () => {
+  //     let runs = 0
+  //     const MAX_RUNS = 20
+  //     setCapabilityState('loading')
 
-    const runCapabilityCheck = async () => {
-      let runs = 0
-      const MAX_RUNS = 20
-      setCapabilityState('loading')
+  //     // the wallet's in-page script may not be loaded yet, so we'll try a few times
+  //     while (runs < MAX_RUNS) {
+  //       try {
+  //         await getCapabilities({
+  //           onFinish(response) {
+  //             setCapabilities(new Set(response))
+  //             setCapabilityState('loaded')
+  //           },
+  //           onCancel() {
+  //             setCapabilityState('cancelled')
+  //           },
+  //           payload: {
+  //             network: {
+  //               type: BitcoinNetworkType.Testnet
+  //             }
+  //           }
+  //         })
+  //       } catch (e) {
+  //         runs++
+  //         if (runs === MAX_RUNS) {
+  //           setCapabilityState('missing')
+  //         }
+  //       }
+  //       await new Promise((resolve) => setTimeout(resolve, 100))
+  //     }
+  //   }
 
-      // the wallet's in-page script may not be loaded yet, so we'll try a few times
-      while (runs < MAX_RUNS) {
-        try {
-          await getCapabilities({
-            onFinish(response) {
-              console.log(response)
-              setCapabilities(new Set(response))
-              setCapabilityState('loaded')
-            },
-            onCancel() {
-              setCapabilityState('cancelled')
-            },
-            payload: {
-              network: {
-                type: BitcoinNetworkType.Testnet
-              }
-            }
-          })
-        } catch (e) {
-          runs++
-          if (runs === MAX_RUNS) {
-            setCapabilityState('missing')
-          }
-        }
-        await new Promise((resolve) => setTimeout(resolve, 10000))
-      }
-    }
-
-    runCapabilityCheck()
-  }, [sourceChain])
+  //   runCapabilityCheck()
+  // }, [])
 
   const connectBitcoinWallet = useCallback(async () => {
     await getAddress({
@@ -235,7 +232,8 @@ function useIsWalletReady(): {
       }
       return createWalletStatus(
         false,
-        capabilityMessage,
+        // capabilityMessage,
+        'Xverse wallet not connected',
         connectBitcoinWallet,
         ''
       )

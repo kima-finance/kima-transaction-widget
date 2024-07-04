@@ -1,7 +1,7 @@
 import React from 'react';
 import { ThemeOptions } from '../../interface';
-declare const TxButton: ({ theme, txCount }: {
+interface Props {
     theme: ThemeOptions;
-    txCount: number;
-}) => React.JSX.Element;
+}
+declare const TxButton: ({ theme }: Props) => React.JSX.Element;
 export default TxButton;
