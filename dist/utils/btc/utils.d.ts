@@ -12,4 +12,4 @@ export declare type UTXO = {
 };
 export declare const getUTXOs: (network: BitcoinNetworkType, address: string) => Promise<UTXO[]>;
 export declare function broadcastTransaction(rawHex: string, networkSubpath?: string): Promise<any>;
-export declare const createPSBT: (networkType: BitcoinNetworkType, paymentPublicKeyString: string, paymentUnspentOutputs: UTXO[], recipient1: string) => Promise<string>;
+export declare const createPSBT: (networkType: BitcoinNetworkType, paymentPublicKeyString: string, paymentUnspentOutputs: UTXO[], recipient1: string) => Promise<any>;

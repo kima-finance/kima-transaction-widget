@@ -10,8 +10,9 @@ import {
 import { CHAIN_NAMES_TO_EXPLORER, ChainName } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 import { ExternalLink } from '../reusable'
+import toast from 'react-hot-toast'
 
-const PendingTxPopup = ({ handleHtlcContinue }) => {
+const PendingTxPopup = ({ handleHtlcContinue, handleHtlcReclaim }) => {
   const dispatch = useDispatch()
   const theme = useSelector(selectTheme)
   const pendingTxPopup = useSelector(selectPendingTxPopup)
@@ -88,7 +89,30 @@ const PendingTxPopup = ({ handleHtlcContinue }) => {
                     <div
                       className={`action-button-container ${tx.status === 'Pending' || tx.status === 'Failed' ? '' : 'disabled'}`}
                     >
-                      <div className='action-button'>Reclaim</div>
+                      <div
+                        className='action-button'
+                        onClick={() => {
+                          // Get the current date and time
+                          const now = new Date()
+
+                          // Convert the current date to a Unix timestamp (in seconds)
+                          const currentTimestamp = Math.floor(
+                            now.getTime() / 1000
+                          )
+
+                          console.log(currentTimestamp, tx.expireTime)
+                          if (currentTimestamp < +tx.expireTime) {
+                            toast.error(
+                              'Please wait for until htlc is expired!'
+                            )
+                            return
+                          }
+
+                          handleHtlcReclaim(tx.expireTime, tx.amount)
+                        }}
+                      >
+                        Reclaim
+                      </div>
                       <div
                         className='action-button'
                         onClick={() => {

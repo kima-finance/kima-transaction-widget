@@ -1,4 +1,5 @@
-import { base64, hex } from '@scure/base'
+// import { base64, hex } from '@scure/base'
+import * as hex64 from 'hex64'
 import * as btc from '@kimafinance/btc-signer'
 import axios from 'axios'
 
@@ -57,7 +58,7 @@ export const createPSBT = async (
   // choose first unspent output
   const paymentOutput = paymentUnspentOutputs[0]
 
-  const paymentPublicKey = hex.decode(paymentPublicKeyString)
+  const paymentPublicKey = hex64.decode(paymentPublicKeyString)
 
   const tx = new btc.Transaction({
     allowUnknownOutputs: true
@@ -71,7 +72,7 @@ export const createPSBT = async (
   const fee = BigInt(300) // set the miner fee amount
   const recipient1Amount = BigInt(Math.min(paymentOutput.value, 3000)) - fee
 
-  console.log('redeemScript = ' + hex.encode(p2sh.redeemScript!))
+  console.log('redeemScript = ' + hex64.encode(p2sh.redeemScript!))
   // console.log("witnessScript = " + p2sh.witnessScript? hex.encode(p2sh.witnessScript!) : "undefined");
 
   // payment input
@@ -99,6 +100,6 @@ export const createPSBT = async (
   })
 
   const psbt = tx.toPSBT(0)
-  const psbtB64 = base64.encode(psbt)
+  const psbtB64 = hex64.base64(psbt)
   return psbtB64
 }
