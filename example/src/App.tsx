@@ -28,7 +28,7 @@ const App = () => {
             mode={ModeOptions.bridge}
             // dAppOption={DAppOptions.LPAdd}
             kimaBackendUrl='http://localhost:3001'
-            kimaNodeProviderQuery='https://api-staging.kima.finance'
+            kimaNodeProviderQuery='https://api.aegean.kima.finance'
             // autoSwitchChain={false}
             // defaultToken={'USDT'}
             // useFIAT={true}
