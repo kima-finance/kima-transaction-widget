@@ -13,7 +13,7 @@ const CoinDropdown = () => {
   const selectedCoin = useSelector(selectSelectedToken)
   const tokenList = useSelector(selectAvailableTokenList)
   const theme = useSelector(selectTheme)
-  const Icon = COIN_LIST[selectedCoin || 'USDK'].icon
+  const Icon = COIN_LIST[selectedCoin || 'USDT'].icon
 
   useEffect(() => {
     const bodyMouseDowntHandler = (e: any) => {

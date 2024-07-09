@@ -882,8 +882,8 @@ var isEVMChain = function isEVMChain(chainId) {
   return chainId === exports.SupportNetworks.ETHEREUM || chainId === exports.SupportNetworks.POLYGON || chainId === exports.SupportNetworks.AVALANCHE || chainId === exports.SupportNetworks.BSC || chainId === exports.SupportNetworks.OPTIMISM || chainId === exports.SupportNetworks.ARBITRUM || chainId === exports.SupportNetworks.POLYGON_ZKEVM;
 };
 var COIN_LIST = {
-  USDK: {
-    symbol: 'USDK',
+  USDT: {
+    symbol: 'USDT',
     icon: USDT
   },
   KEUR: {
@@ -920,7 +920,7 @@ var TransactionStatus;
   ModeOptions["status"] = "status";
 })(exports.ModeOptions || (exports.ModeOptions = {}));
 (function (CurrencyOptions) {
-  CurrencyOptions["USDK"] = "USDK";
+  CurrencyOptions["USDT"] = "USDT";
   CurrencyOptions["G$"] = "GDOLLAR";
 })(exports.CurrencyOptions || (exports.CurrencyOptions = {}));
 (function (ColorModeOptions) {
@@ -979,8 +979,8 @@ var initialState = {
   backendUrl: '',
   nodeProviderQuery: '',
   txId: -1,
-  selectedToken: 'USDK',
-  avilableTokenList: ['USDK'],
+  selectedToken: 'USDT',
+  avilableTokenList: ['USDT'],
   compliantOption: true,
   sourceCompliant: 'low',
   targetCompliant: 'low',
@@ -2832,7 +2832,7 @@ var CoinDropdown = function CoinDropdown() {
   var selectedCoin = reactRedux.useSelector(selectSelectedToken);
   var tokenList = reactRedux.useSelector(selectAvailableTokenList);
   var theme = reactRedux.useSelector(selectTheme);
-  var Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
+  var Icon = COIN_LIST[selectedCoin || 'USDT'].icon;
   React.useEffect(function () {
     var bodyMouseDowntHandler = function bodyMouseDowntHandler(e) {
       if (ref !== null && ref !== void 0 && ref.current && !ref.current.contains(e.target)) {
@@ -3707,7 +3707,7 @@ var TransactionWidget = function TransactionWidget(_ref) {
     className: 'topbar'
   }, React__default.createElement("div", {
     className: 'title'
-  }, React__default.createElement("h3", null, "Transferring ", formatterFloat.format((data === null || data === void 0 ? void 0 : data.amount) || 0), ' ', (data === null || data === void 0 ? void 0 : data.symbol) || 'USDK', "\xA0\xA0", "(" + percent + "%)")), !minimized ? React__default.createElement("div", {
+  }, React__default.createElement("h3", null, "Transferring ", formatterFloat.format((data === null || data === void 0 ? void 0 : data.amount) || 0), ' ', (data === null || data === void 0 ? void 0 : data.symbol) || 'USDT', "\xA0\xA0", "(" + percent + "%)")), !minimized ? React__default.createElement("div", {
     className: 'control-buttons'
   }, React__default.createElement("button", {
     className: 'icon-button',
@@ -3846,7 +3846,7 @@ var SingleForm = function SingleForm(_ref) {
     amountValue = _useState[0],
     setAmountValue = _useState[1];
   var amount = reactRedux.useSelector(selectAmount);
-  var Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
+  var Icon = COIN_LIST[selectedCoin || 'USDT'].icon;
   var errorMessage = React.useMemo(function () {
     return compliantOption && targetCompliant !== 'low' ? "Target address has " + targetCompliant + " risk" : '';
   }, [compliantOption, targetCompliant]);
@@ -3929,7 +3929,7 @@ var CoinSelect = function CoinSelect() {
   var _useState = React.useState(''),
     amountValue = _useState[0],
     setAmountValue = _useState[1];
-  var Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
+  var Icon = COIN_LIST[selectedCoin || 'USDT'].icon;
   return React__default.createElement("div", {
     className: "coin-select"
   }, React__default.createElement("p", null, "Select Amount of Token for Funding"), React__default.createElement("div", {
@@ -7903,7 +7903,7 @@ var AddressInputWizard = function AddressInputWizard() {
 
 function useCurrencyOptions() {
   var dispatch = reactRedux.useDispatch();
-  var _useState = React.useState('USDK'),
+  var _useState = React.useState('USDT'),
     options = _useState[0],
     setOptions = _useState[1];
   var nodeProviderQuery = reactRedux.useSelector(selectNodeProviderQuery);
@@ -7921,7 +7921,7 @@ function useCurrencyOptions() {
           return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/chains/get_currencies/" + originNetwork + "/" + targetNetwork)).then(function (coins) {
             var tokenList = coins.Currencies.map(function (coin) {
               return coin.toUpperCase();
-            }) || ['USDK'];
+            }) || ['USDT'];
             if (originNetwork === exports.SupportNetworks.BTC || targetNetwork === exports.SupportNetworks.BTC) {
               tokenList = ['WBTC'];
             }
@@ -8062,7 +8062,7 @@ function output(out, instance) {
 exports.output = output;
 const assert = { number, bool, bytes, hash, exists, output };
 exports.default = assert;
-//# sourceMappingURL=_assert.js.map
+
 });
 
 unwrapExports(_assert);
@@ -8071,7 +8071,7 @@ var crypto = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.crypto = void 0;
 exports.crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
-//# sourceMappingURL=crypto.js.map
+
 });
 
 unwrapExports(crypto);
@@ -8273,7 +8273,7 @@ function randomBytes(bytesLength = 32) {
     throw new Error('crypto.getRandomValues must be defined');
 }
 exports.randomBytes = randomBytes;
-//# sourceMappingURL=utils.js.map
+
 });
 
 unwrapExports(utils);
@@ -8395,7 +8395,7 @@ class SHA2 extends utils.Hash {
     }
 }
 exports.SHA2 = SHA2;
-//# sourceMappingURL=_sha2.js.map
+
 });
 
 unwrapExports(_sha2);
@@ -8528,7 +8528,7 @@ class SHA224 extends SHA256 {
  */
 exports.sha256 = (0, utils.wrapConstructor)(() => new SHA256());
 exports.sha224 = (0, utils.wrapConstructor)(() => new SHA224());
-//# sourceMappingURL=sha256.js.map
+
 });
 
 unwrapExports(sha256);
@@ -12724,7 +12724,7 @@ var KimaTransactionWidget = function KimaTransactionWidget(_ref) {
     _ref$autoSwitchChain = _ref.autoSwitchChain,
     autoSwitchChain = _ref$autoSwitchChain === void 0 ? true : _ref$autoSwitchChain,
     _ref$defaultToken = _ref.defaultToken,
-    defaultToken = _ref$defaultToken === void 0 ? 'USDK' : _ref$defaultToken,
+    defaultToken = _ref$defaultToken === void 0 ? 'USDT' : _ref$defaultToken,
     provider = _ref.provider,
     _ref$dAppOption = _ref.dAppOption,
     dAppOption = _ref$dAppOption === void 0 ? exports.DAppOptions.None : _ref$dAppOption,

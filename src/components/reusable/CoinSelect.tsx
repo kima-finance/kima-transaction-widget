@@ -20,7 +20,7 @@ const CoinSelect = () => {
   const sourceNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
   const [amountValue, setAmountValue] = useState('')
-  const Icon = COIN_LIST[selectedCoin || 'USDK'].icon
+  const Icon = COIN_LIST[selectedCoin || 'USDT'].icon
 
   return (
     <div className={`coin-select`}>

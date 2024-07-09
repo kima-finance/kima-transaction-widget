@@ -41,7 +41,7 @@ const SingleForm = ({
   const targetNetwork = useSelector(selectTargetChain)
   const [amountValue, setAmountValue] = useState('')
   const amount = useSelector(selectAmount)
-  const Icon = COIN_LIST[selectedCoin || 'USDK'].icon
+  const Icon = COIN_LIST[selectedCoin || 'USDT'].icon
 
   const errorMessage = useMemo(
     () =>

@@ -818,8 +818,8 @@ const CLUSTER = 'devnet';
 const SOLANA_HOST = clusterApiUrl(CLUSTER);
 const isEVMChain = chainId => chainId === ChainName.ETHEREUM || chainId === ChainName.POLYGON || chainId === ChainName.AVALANCHE || chainId === ChainName.BSC || chainId === ChainName.OPTIMISM || chainId === ChainName.ARBITRUM || chainId === ChainName.POLYGON_ZKEVM;
 const COIN_LIST = {
-  USDK: {
-    symbol: 'USDK',
+  USDT: {
+    symbol: 'USDT',
     icon: USDT
   },
   KEUR: {
@@ -859,7 +859,7 @@ var ModeOptions;
 })(ModeOptions || (ModeOptions = {}));
 var CurrencyOptions;
 (function (CurrencyOptions) {
-  CurrencyOptions["USDK"] = "USDK";
+  CurrencyOptions["USDT"] = "USDT";
   CurrencyOptions["G$"] = "GDOLLAR";
 })(CurrencyOptions || (CurrencyOptions = {}));
 var ColorModeOptions;
@@ -912,8 +912,8 @@ const initialState = {
   backendUrl: '',
   nodeProviderQuery: '',
   txId: -1,
-  selectedToken: 'USDK',
-  avilableTokenList: ['USDK'],
+  selectedToken: 'USDT',
+  avilableTokenList: ['USDT'],
   compliantOption: true,
   sourceCompliant: 'low',
   targetCompliant: 'low',
@@ -2347,7 +2347,7 @@ const CoinDropdown = () => {
   const selectedCoin = useSelector(selectSelectedToken);
   const tokenList = useSelector(selectAvailableTokenList);
   const theme = useSelector(selectTheme);
-  const Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
+  const Icon = COIN_LIST[selectedCoin || 'USDT'].icon;
   useEffect(() => {
     const bodyMouseDowntHandler = e => {
       if (ref !== null && ref !== void 0 && ref.current && !ref.current.contains(e.target)) {
@@ -3120,7 +3120,7 @@ const TransactionWidget = ({
     className: 'topbar'
   }, React.createElement("div", {
     className: 'title'
-  }, React.createElement("h3", null, "Transferring ", formatterFloat.format((data === null || data === void 0 ? void 0 : data.amount) || 0), ' ', (data === null || data === void 0 ? void 0 : data.symbol) || 'USDK', "\u00A0\u00A0", `(${percent}%)`)), !minimized ? React.createElement("div", {
+  }, React.createElement("h3", null, "Transferring ", formatterFloat.format((data === null || data === void 0 ? void 0 : data.amount) || 0), ' ', (data === null || data === void 0 ? void 0 : data.symbol) || 'USDT', "\u00A0\u00A0", `(${percent}%)`)), !minimized ? React.createElement("div", {
     className: 'control-buttons'
   }, React.createElement("button", {
     className: 'icon-button',
@@ -3248,7 +3248,7 @@ const SingleForm = ({
   const targetNetwork = useSelector(selectTargetChain);
   const [amountValue, setAmountValue] = useState('');
   const amount = useSelector(selectAmount);
-  const Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
+  const Icon = COIN_LIST[selectedCoin || 'USDT'].icon;
   const errorMessage = useMemo(() => compliantOption && targetCompliant !== 'low' ? `Target address has ${targetCompliant} risk` : '', [compliantOption, targetCompliant]);
   useEffect(() => {
     if (!errorMessage) return;
@@ -3325,7 +3325,7 @@ const CoinSelect = () => {
   const sourceNetwork = useSelector(selectSourceChain);
   const targetNetwork = useSelector(selectTargetChain);
   const [amountValue, setAmountValue] = useState('');
-  const Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
+  const Icon = COIN_LIST[selectedCoin || 'USDT'].icon;
   return React.createElement("div", {
     className: `coin-select`
   }, React.createElement("p", null, "Select Amount of Token for Funding"), React.createElement("div", {
@@ -7179,7 +7179,7 @@ const AddressInputWizard = () => {
 
 function useCurrencyOptions() {
   const dispatch = useDispatch();
-  const [options, setOptions] = useState('USDK');
+  const [options, setOptions] = useState('USDT');
   const nodeProviderQuery = useSelector(selectNodeProviderQuery);
   const originNetwork = useSelector(selectSourceChain);
   const targetNetwork = useSelector(selectTargetChain);
@@ -7192,7 +7192,7 @@ function useCurrencyOptions() {
           return;
         }
         const coins = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/get_currencies/${originNetwork}/${targetNetwork}`);
-        let tokenList = coins.Currencies.map(coin => coin.toUpperCase()) || ['USDK'];
+        let tokenList = coins.Currencies.map(coin => coin.toUpperCase()) || ['USDT'];
         if (originNetwork === ChainName.BTC || targetNetwork === ChainName.BTC) {
           tokenList = ['WBTC'];
         }
@@ -7316,7 +7316,7 @@ function output(out, instance) {
 exports.output = output;
 const assert = { number, bool, bytes, hash, exists, output };
 exports.default = assert;
-//# sourceMappingURL=_assert.js.map
+
 });
 
 unwrapExports(_assert);
@@ -7325,7 +7325,7 @@ var crypto = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.crypto = void 0;
 exports.crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
-//# sourceMappingURL=crypto.js.map
+
 });
 
 unwrapExports(crypto);
@@ -7527,7 +7527,7 @@ function randomBytes(bytesLength = 32) {
     throw new Error('crypto.getRandomValues must be defined');
 }
 exports.randomBytes = randomBytes;
-//# sourceMappingURL=utils.js.map
+
 });
 
 unwrapExports(utils);
@@ -7649,7 +7649,7 @@ class SHA2 extends utils.Hash {
     }
 }
 exports.SHA2 = SHA2;
-//# sourceMappingURL=_sha2.js.map
+
 });
 
 unwrapExports(_sha2);
@@ -7782,7 +7782,7 @@ class SHA224 extends SHA256 {
  */
 exports.sha256 = (0, utils.wrapConstructor)(() => new SHA256());
 exports.sha224 = (0, utils.wrapConstructor)(() => new SHA224());
-//# sourceMappingURL=sha256.js.map
+
 });
 
 unwrapExports(sha256);
@@ -11854,7 +11854,7 @@ const KimaTransactionWidget = ({
   mode,
   txId,
   autoSwitchChain: _autoSwitchChain = true,
-  defaultToken: _defaultToken = 'USDK',
+  defaultToken: _defaultToken = 'USDT',
   provider,
   dAppOption: _dAppOption = DAppOptions.None,
   theme,

@@ -196,7 +196,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
             <div className='title'>
               <h3>
                 Transferring {formatterFloat.format(data?.amount || 0)}{' '}
-                {data?.symbol || 'USDK'}&nbsp;&nbsp;
+                {data?.symbol || 'USDT'}&nbsp;&nbsp;
                 {`(${percent}%)`}
               </h3>
             </div>

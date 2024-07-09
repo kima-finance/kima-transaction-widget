@@ -12,7 +12,7 @@ export declare enum ModeOptions {
     status = "status"
 }
 export declare enum CurrencyOptions {
-    USDK = "USDK",
+    USDT = "USDT",
     G$ = "GDOLLAR"
 }
 export declare enum ColorModeOptions {

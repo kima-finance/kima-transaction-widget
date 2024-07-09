@@ -13,7 +13,7 @@ import toast from 'react-hot-toast'
 
 export default function useCurrencyOptions() {
   const dispatch = useDispatch()
-  const [options, setOptions] = useState('USDK')
+  const [options, setOptions] = useState('USDT')
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
   const originNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
@@ -35,7 +35,7 @@ export default function useCurrencyOptions() {
 
         let tokenList = coins.Currencies.map((coin: string) =>
           coin.toUpperCase()
-        ) || ['USDK']
+        ) || ['USDT']
         if (
           originNetwork === ChainName.BTC ||
           targetNetwork === ChainName.BTC

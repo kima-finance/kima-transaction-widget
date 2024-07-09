@@ -90,7 +90,7 @@ export const KimaTransactionWidget = ({
   mode,
   txId,
   autoSwitchChain = true,
-  defaultToken = 'USDK',
+  defaultToken = 'USDT',
   provider,
   dAppOption = DAppOptions.None,
   theme,

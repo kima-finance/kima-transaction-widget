@@ -18,7 +18,7 @@ export enum ModeOptions {
 }
 
 export enum CurrencyOptions {
-  USDK = 'USDK',
+  USDT = 'USDT',
   G$ = 'GDOLLAR'
 }
 
