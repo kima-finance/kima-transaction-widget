@@ -100,12 +100,12 @@ export function decodeBase64PSBT(base64Psbt: string) {
 
 export function createReclaimPsbt(
   reclaimerAddress: string,
-  htlcAmount: bigint,
-  htlcTimeout: bigint,
+  htlcAmount: string,
+  htlcTimeout: string,
   htlcScript: Buffer,
   htlcOutput: UTXO,
   network: any,
-  fee: bigint
+  fee: string
 ) {
   const htlcScriptHash = sha256(htlcScript)
   const htlcScriptHex = Buffer.from(htlcScript).toString('hex')
@@ -120,7 +120,7 @@ export function createReclaimPsbt(
     version: 0
   })
 
-  const reclaimedAmount = BigInt(htlcAmount) - fee
+  const reclaimedAmount = BigInt(htlcAmount) - BigInt(fee)
 
   // add the output to the reclaimer
   tx.addOutputAddress(reclaimerAddress, reclaimedAmount, network)

@@ -79,11 +79,22 @@ import useBalance from '../hooks/useBalance'
 import useWidth from '../hooks/useWidth'
 import useSign from '../hooks/useSign'
 import TronWalletConnectModal from './modals/TronWalletConnectModal'
-import { createHTLCScript, htlcP2WSHAddress } from '../utils/btc/htlc'
-import { BitcoinNetworkType, sendBtcTransaction } from 'sats-connect'
+import {
+  createHTLCScript,
+  createReclaimPsbt,
+  decodeBase64PSBT,
+  htlcP2WSHAddress
+} from '../utils/btc/htlc'
+import {
+  BitcoinNetworkType,
+  sendBtcTransaction,
+  signTransaction
+} from 'sats-connect'
 import * as bitcoin from 'bitcoinjs-lib' // you may comment this out during development to use the Node.js library so that you can get intellisense
 import { sleep } from '../helpers/functions'
 import PendingTxPopup from './modals/PendingTxPopup'
+import { broadcastTransaction, getUTXOs } from '../utils/btc/utils'
+import * as btc from '@kimafinance/btc-signer'
 
 interface Props {
   theme: ThemeOptions
@@ -314,6 +325,89 @@ export const TransferWidget = ({
     dispatch(setAmount(amount))
   }
 
+  const handleHtlcReclaim = async (expireTime, amount) => {
+    const htlcScript = createHTLCScript(
+      bitcoinAddress,
+      bitcoinPubkey,
+      poolAddress,
+      expireTime,
+      bitcoin.networks.testnet
+    )
+    console.log('HTLC Script : ' + htlcScript.toString('hex'))
+
+    const htlcAddress = htlcP2WSHAddress(htlcScript, bitcoin.networks.testnet)
+    console.log('HTLC address : ' + htlcAddress)
+
+    const [htlcUnspentOutputs] = await Promise.all([
+      getUTXOs(BitcoinNetworkType.Testnet, htlcAddress!)
+    ])
+
+    if (htlcUnspentOutputs.length === 0) {
+      alert('No unspent outputs found for HTLC address')
+      return
+    }
+
+    // get the last element (i.e. the latest unspent output), assuming a chronological order from the API
+    const htlcUtxo = htlcUnspentOutputs[htlcUnspentOutputs.length - 1]
+
+    const fee = '5000' // set the miner fee amount, for now hardcoded // TODO: estimate the fee or allow the user to set it through min, mid, max choices
+
+    const reclaimPsbtBase64 = createReclaimPsbt(
+      bitcoinAddress,
+      Math.round(+amount * 1e8).toString(),
+      expireTime,
+      htlcScript,
+      htlcUtxo,
+      bitcoin.networks.testnet,
+      fee
+    )
+
+    await signTransaction({
+      payload: {
+        network: {
+          type: BitcoinNetworkType.Testnet
+        },
+        message: 'Sign Reclaim Transaction',
+        psbtBase64: reclaimPsbtBase64,
+        broadcast: false,
+        inputsToSign: [
+          {
+            address: bitcoinAddress,
+            signingIndexes: [0],
+            sigHash: btc.SigHash.ALL
+          }
+        ]
+      },
+      onFinish: async (response) => {
+        console.log('response = ', response)
+        console.log('reponse.txId = ', response.txId)
+        const tx = decodeBase64PSBT(response.psbtBase64)
+        // Finalize the PSBT
+        tx.finalize()
+        // Get the transaction in hexadecimal format
+        const rawTxHex = tx.hex
+        console.log('rawTxHex = ' + rawTxHex)
+        try {
+          const broadcastResponse = await broadcastTransaction(
+            rawTxHex,
+            '/testnet'
+          )
+          console.log('broadcastResponse = ' + broadcastResponse)
+          console.log(broadcastResponse)
+          // alert(
+          //   'Transaction broadcasted successfully. TxId: ' + broadcastResponse
+          // )
+        } catch (error) {
+          toast.error('Error broadcasting the transaction!')
+          console.error('Error broadcasting the transaction!', error)
+        }
+      },
+      onCancel: () => {
+        toast.error('Transaction cancelled!')
+      }
+    })
+  }
+
   const handleSubmit = async () => {
     if (fee < 0) {
       toast.error('Fee is not calculated!')
@@ -379,11 +473,6 @@ export const TransferWidget = ({
       )
 
       const htlcAddress = htlcP2WSHAddress(htlcScript, bitcoin.networks.testnet)
-      console.log(htlcAddress, poolAddress)
-
-      // handleBTCFinish(
-      //   '1f65d98ef3ada413eb9aa583554ac98977ffe4fb79c085f03283191e47a61e10'
-      // )
 
       try {
         await sendBtcTransaction({
@@ -870,7 +959,10 @@ export const TransferWidget = ({
           }
         }}
       />
-      <PendingTxPopup handleHtlcContinue={handleHtlcContinue} />
+      <PendingTxPopup
+        handleHtlcContinue={handleHtlcContinue}
+        handleHtlcReclaim={handleHtlcReclaim}
+      />
       {/* <Tooltip
         id='popup-tooltip'
         className={`popup-tooltip ${theme.colorMode}`}
