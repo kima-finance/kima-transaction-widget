@@ -7316,7 +7316,7 @@ function output(out, instance) {
 exports.output = output;
 const assert = { number, bool, bytes, hash, exists, output };
 exports.default = assert;
-//# sourceMappingURL=_assert.js.map
+
 });
 
 unwrapExports(_assert);
@@ -7325,7 +7325,7 @@ var crypto = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.crypto = void 0;
 exports.crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
-//# sourceMappingURL=crypto.js.map
+
 });
 
 unwrapExports(crypto);
@@ -7527,7 +7527,7 @@ function randomBytes(bytesLength = 32) {
     throw new Error('crypto.getRandomValues must be defined');
 }
 exports.randomBytes = randomBytes;
-//# sourceMappingURL=utils.js.map
+
 });
 
 unwrapExports(utils);
@@ -7649,7 +7649,7 @@ class SHA2 extends utils.Hash {
     }
 }
 exports.SHA2 = SHA2;
-//# sourceMappingURL=_sha2.js.map
+
 });
 
 unwrapExports(_sha2);
@@ -7782,7 +7782,7 @@ class SHA224 extends SHA256 {
  */
 exports.sha256 = (0, utils.wrapConstructor)(() => new SHA256());
 exports.sha224 = (0, utils.wrapConstructor)(() => new SHA224());
-//# sourceMappingURL=sha256.js.map
+
 });
 
 unwrapExports(sha256);
@@ -7929,6 +7929,7 @@ const PendingTxPopup = ({
     }, React.createElement("div", {
       className: 'action-button',
       onClick: () => {
+        if (tx.status !== 'Pending' && tx.status !== 'Failed') return;
         const now = new Date();
         const currentTimestamp = Math.floor(now.getTime() / 1000);
         console.log(currentTimestamp, tx.expireTime);
@@ -7936,7 +7937,7 @@ const PendingTxPopup = ({
           toast.error('Please wait for until htlc is expired!');
           return;
         }
-        handleHtlcReclaim(tx.expireTime, tx.amount);
+        handleHtlcReclaim(tx.expireTime, tx.hash, tx.amount);
       }
     }, "Reclaim"), React.createElement("div", {
       className: 'action-button',
@@ -11401,7 +11402,7 @@ const TransferWidget = ({
     dispatch(setFeeDeduct(true));
     dispatch(setAmount(amount));
   };
-  const handleHtlcReclaim = async (expireTime, amount) => {
+  const handleHtlcReclaim = async (expireTime, hash, amount) => {
     const htlcScript = createHTLCScript(bitcoinAddress, bitcoinPubkey, poolAddress, expireTime, networks.testnet);
     console.log('HTLC Script : ' + htlcScript.toString('hex'));
     const htlcAddress = htlcP2WSHAddress(htlcScript, networks.testnet);
@@ -11439,6 +11440,18 @@ const TransferWidget = ({
           const broadcastResponse = await broadcastTransaction(rawTxHex, '/testnet');
           console.log('broadcastResponse = ' + broadcastResponse);
           console.log(broadcastResponse);
+          const params = JSON.stringify({
+            senderAddress: walletAddress,
+            txHash: hash
+          });
+          await fetchWrapper.post(`${backendUrl}/auth`, params);
+          const result = await fetchWrapper.post(`${backendUrl}/reclaim`, params);
+          console.log(result);
+          if ((result === null || result === void 0 ? void 0 : result.code) !== 0) {
+            errorHandler(result);
+            toast$1.error('Failed to submit htlc reclaim!');
+            return;
+          }
         } catch (error) {
           toast$1.error('Error broadcasting the transaction!');
           console.error('Error broadcasting the transaction!', error);

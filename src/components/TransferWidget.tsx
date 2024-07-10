@@ -325,7 +325,7 @@ export const TransferWidget = ({
     dispatch(setAmount(amount))
   }
 
-  const handleHtlcReclaim = async (expireTime, amount) => {
+  const handleHtlcReclaim = async (expireTime, hash, amount) => {
     const htlcScript = createHTLCScript(
       bitcoinAddress,
       bitcoinPubkey,
@@ -397,6 +397,25 @@ export const TransferWidget = ({
           // alert(
           //   'Transaction broadcasted successfully. TxId: ' + broadcastResponse
           // )
+
+          const params = JSON.stringify({
+            senderAddress: walletAddress,
+            txHash: hash
+          })
+
+          await fetchWrapper.post(`${backendUrl}/auth`, params)
+          const result: any = await fetchWrapper.post(
+            `${backendUrl}/reclaim`,
+            params
+          )
+
+          console.log(result)
+
+          if (result?.code !== 0) {
+            errorHandler(result)
+            toast.error('Failed to submit htlc reclaim!')
+            return
+          }
         } catch (error) {
           toast.error('Error broadcasting the transaction!')
           console.error('Error broadcasting the transaction!', error)

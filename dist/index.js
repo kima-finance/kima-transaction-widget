@@ -8062,7 +8062,7 @@ function output(out, instance) {
 exports.output = output;
 const assert = { number, bool, bytes, hash, exists, output };
 exports.default = assert;
-//# sourceMappingURL=_assert.js.map
+
 });
 
 unwrapExports(_assert);
@@ -8071,7 +8071,7 @@ var crypto = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.crypto = void 0;
 exports.crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
-//# sourceMappingURL=crypto.js.map
+
 });
 
 unwrapExports(crypto);
@@ -8273,7 +8273,7 @@ function randomBytes(bytesLength = 32) {
     throw new Error('crypto.getRandomValues must be defined');
 }
 exports.randomBytes = randomBytes;
-//# sourceMappingURL=utils.js.map
+
 });
 
 unwrapExports(utils);
@@ -8395,7 +8395,7 @@ class SHA2 extends utils.Hash {
     }
 }
 exports.SHA2 = SHA2;
-//# sourceMappingURL=_sha2.js.map
+
 });
 
 unwrapExports(_sha2);
@@ -8528,7 +8528,7 @@ class SHA224 extends SHA256 {
  */
 exports.sha256 = (0, utils.wrapConstructor)(() => new SHA256());
 exports.sha224 = (0, utils.wrapConstructor)(() => new SHA224());
-//# sourceMappingURL=sha256.js.map
+
 });
 
 unwrapExports(sha256);
@@ -8676,6 +8676,7 @@ var PendingTxPopup = function PendingTxPopup(_ref) {
     }, React__default.createElement("div", {
       className: 'action-button',
       onClick: function onClick() {
+        if (tx.status !== 'Pending' && tx.status !== 'Failed') return;
         var now = new Date();
         var currentTimestamp = Math.floor(now.getTime() / 1000);
         console.log(currentTimestamp, tx.expireTime);
@@ -8683,7 +8684,7 @@ var PendingTxPopup = function PendingTxPopup(_ref) {
           toast__default.error('Please wait for until htlc is expired!');
           return;
         }
-        handleHtlcReclaim(tx.expireTime, tx.amount);
+        handleHtlcReclaim(tx.expireTime, tx.hash, tx.amount);
       }
     }, "Reclaim"), React__default.createElement("div", {
       className: 'action-button',
@@ -12219,7 +12220,7 @@ var TransferWidget = function TransferWidget(_ref) {
       return Promise.reject(e);
     }
   };
-  var handleHtlcReclaim = function handleHtlcReclaim(expireTime, amount) {
+  var handleHtlcReclaim = function handleHtlcReclaim(expireTime, hash, amount) {
     try {
       var htlcScript = createHTLCScript(bitcoinAddress, bitcoinPubkey, poolAddress, expireTime, bitcoin.networks.testnet);
       console.log('HTLC Script : ' + htlcScript.toString('hex'));
@@ -12256,16 +12257,28 @@ var TransferWidget = function TransferWidget(_ref) {
               tx.finalize();
               var rawTxHex = tx.hex;
               console.log('rawTxHex = ' + rawTxHex);
-              var _temp5 = _catch(function () {
+              return Promise.resolve(_catch(function () {
                 return Promise.resolve(broadcastTransaction(rawTxHex, '/testnet')).then(function (broadcastResponse) {
                   console.log('broadcastResponse = ' + broadcastResponse);
                   console.log(broadcastResponse);
+                  var params = JSON.stringify({
+                    senderAddress: walletAddress,
+                    txHash: hash
+                  });
+                  return Promise.resolve(fetchWrapper.post(backendUrl + "/auth", params)).then(function () {
+                    return Promise.resolve(fetchWrapper.post(backendUrl + "/reclaim", params)).then(function (result) {
+                      console.log(result);
+                      if ((result === null || result === void 0 ? void 0 : result.code) !== 0) {
+                        errorHandler(result);
+                        toast.toast.error('Failed to submit htlc reclaim!');
+                      }
+                    });
+                  });
                 });
               }, function (error) {
                 toast.toast.error('Error broadcasting the transaction!');
                 console.error('Error broadcasting the transaction!', error);
-              });
-              return Promise.resolve(_temp5 && _temp5.then ? _temp5.then(function () {}) : void 0);
+              }));
             } catch (e) {
               return Promise.reject(e);
             }
@@ -12281,9 +12294,9 @@ var TransferWidget = function TransferWidget(_ref) {
   };
   var handleSubmit = function handleSubmit() {
     try {
-      var _temp9 = function _temp9(_result) {
+      var _temp8 = function _temp8(_result2) {
         var _exit2 = false;
-        if (_exit) return _result;
+        if (_exit) return _result2;
         return _catch(function () {
           var _exit3 = false;
           if (sourceChain === exports.SupportNetworks.FIAT || targetChain === exports.SupportNetworks.FIAT) return;
@@ -12405,9 +12418,9 @@ var TransferWidget = function TransferWidget(_ref) {
         approve();
         return Promise.resolve();
       }
-      var _temp8 = function () {
+      var _temp7 = function () {
         if (sourceChain === exports.SupportNetworks.BTC && !isApproved) {
-          var _temp7 = function _temp7() {
+          var _temp6 = function _temp6() {
             _exit = true;
           };
           setBTCSigning(true);
@@ -12415,7 +12428,7 @@ var TransferWidget = function TransferWidget(_ref) {
           setBTCTimestamp(unixTimestamp);
           var htlcScript = createHTLCScript(bitcoinAddress, bitcoinPubkey, poolAddress, unixTimestamp, bitcoin.networks.testnet);
           var htlcAddress = htlcP2WSHAddress(htlcScript, bitcoin.networks.testnet);
-          var _temp6 = _catch(function () {
+          var _temp5 = _catch(function () {
             return Promise.resolve(satsConnect.sendBtcTransaction({
               payload: {
                 network: {
@@ -12440,10 +12453,10 @@ var TransferWidget = function TransferWidget(_ref) {
             setBTCSigning(false);
             console.log(e);
           });
-          return _temp6 && _temp6.then ? _temp6.then(_temp7) : _temp7(_temp6);
+          return _temp5 && _temp5.then ? _temp5.then(_temp6) : _temp6(_temp5);
         }
       }();
-      return Promise.resolve(_temp8 && _temp8.then ? _temp8.then(_temp9) : _temp9(_temp8));
+      return Promise.resolve(_temp7 && _temp7.then ? _temp7.then(_temp8) : _temp8(_temp7));
     } catch (e) {
       return Promise.reject(e);
     }
