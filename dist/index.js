@@ -811,18 +811,18 @@ var _CHAIN_NAMES_TO_IDS, _CHAIN_NAMES_TO_STRIN, _CHAIN_STRING_TO_NAME, _CHAIN_NA
 })(exports.SupportNetworks || (exports.SupportNetworks = {}));
 var SupportedChainId;
 (function (SupportedChainId) {
-  SupportedChainId[SupportedChainId["ETHEREUM"] = 11155111] = "ETHEREUM";
-  SupportedChainId[SupportedChainId["POLYGON"] = 80002] = "POLYGON";
-  SupportedChainId[SupportedChainId["AVALANCHE"] = 43113] = "AVALANCHE";
-  SupportedChainId[SupportedChainId["BSC"] = 97] = "BSC";
-  SupportedChainId[SupportedChainId["ARBITRUM"] = 421614] = "ARBITRUM";
-  SupportedChainId[SupportedChainId["OPTIMISM"] = 11155420] = "OPTIMISM";
-  SupportedChainId[SupportedChainId["POLYGON_ZKEM"] = 2442] = "POLYGON_ZKEM";
+  SupportedChainId[SupportedChainId["ETHEREUM"] = 1] = "ETHEREUM";
+  SupportedChainId[SupportedChainId["POLYGON"] = 137] = "POLYGON";
+  SupportedChainId[SupportedChainId["AVALANCHE"] = 43114] = "AVALANCHE";
+  SupportedChainId[SupportedChainId["BSC"] = 56] = "BSC";
+  SupportedChainId[SupportedChainId["ARBITRUM"] = 42161] = "ARBITRUM";
+  SupportedChainId[SupportedChainId["OPTIMISM"] = 10] = "OPTIMISM";
+  SupportedChainId[SupportedChainId["POLYGON_ZKEM"] = 1101] = "POLYGON_ZKEM";
 })(SupportedChainId || (SupportedChainId = {}));
 var CHAIN_NAMES_TO_IDS = (_CHAIN_NAMES_TO_IDS = {}, _CHAIN_NAMES_TO_IDS[exports.SupportNetworks.ETHEREUM] = SupportedChainId.ETHEREUM, _CHAIN_NAMES_TO_IDS[exports.SupportNetworks.POLYGON] = SupportedChainId.POLYGON, _CHAIN_NAMES_TO_IDS[exports.SupportNetworks.AVALANCHE] = SupportedChainId.AVALANCHE, _CHAIN_NAMES_TO_IDS[exports.SupportNetworks.BSC] = SupportedChainId.BSC, _CHAIN_NAMES_TO_IDS[exports.SupportNetworks.OPTIMISM] = SupportedChainId.OPTIMISM, _CHAIN_NAMES_TO_IDS[exports.SupportNetworks.ARBITRUM] = SupportedChainId.ARBITRUM, _CHAIN_NAMES_TO_IDS[exports.SupportNetworks.POLYGON_ZKEVM] = SupportedChainId.POLYGON_ZKEM, _CHAIN_NAMES_TO_IDS);
 var CHAIN_NAMES_TO_STRING = (_CHAIN_NAMES_TO_STRIN = {}, _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.ETHEREUM] = 'Ethereum', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.POLYGON] = 'Polygon', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.AVALANCHE] = 'Avalanche', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.SOLANA] = 'Solana', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.BSC] = 'BNB Smart Chain', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.OPTIMISM] = 'Optimism', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.ARBITRUM] = 'Arbitrum', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.POLYGON_ZKEVM] = 'Polygon zkEVM', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.TRON] = 'Tron', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.FIAT] = 'Pay with FIAT', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.BTC] = 'Bitcoin', _CHAIN_NAMES_TO_STRIN);
 var CHAIN_STRING_TO_NAME = (_CHAIN_STRING_TO_NAME = {}, _CHAIN_STRING_TO_NAME['Ethereum'] = exports.SupportNetworks.ETHEREUM, _CHAIN_STRING_TO_NAME['Polygon'] = exports.SupportNetworks.POLYGON, _CHAIN_STRING_TO_NAME['Avalanche'] = exports.SupportNetworks.AVALANCHE, _CHAIN_STRING_TO_NAME['Solana'] = exports.SupportNetworks.SOLANA, _CHAIN_STRING_TO_NAME['Binance'] = exports.SupportNetworks.BSC, _CHAIN_STRING_TO_NAME['Optimism'] = exports.SupportNetworks.OPTIMISM, _CHAIN_STRING_TO_NAME['Arbitrum'] = exports.SupportNetworks.ARBITRUM, _CHAIN_STRING_TO_NAME['Polygon zkEVM'] = exports.SupportNetworks.POLYGON_ZKEVM, _CHAIN_STRING_TO_NAME['Tron'] = exports.SupportNetworks.TRON, _CHAIN_STRING_TO_NAME['Pay with FIAT'] = exports.SupportNetworks.FIAT, _CHAIN_STRING_TO_NAME['Bitcoin'] = exports.SupportNetworks.BTC, _CHAIN_STRING_TO_NAME);
-var CHAIN_NAMES_TO_EXPLORER = (_CHAIN_NAMES_TO_EXPLO = {}, _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.ETHEREUM] = 'sepolia.etherscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.POLYGON] = 'www.oklink.com/amoy', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.AVALANCHE] = 'testnet.snowtrace.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.SOLANA] = 'solscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.BSC] = 'testnet.bscscan.com', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.OPTIMISM] = 'sepolia-optimism.etherscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.ARBITRUM] = 'sepolia.arbiscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.POLYGON_ZKEVM] = 'cardona-zkevm.polygonscan.com', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.TRON] = 'nile.tronscan.org/#', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.BTC] = 'mempool.space/testnet', _CHAIN_NAMES_TO_EXPLO);
+var CHAIN_NAMES_TO_EXPLORER = (_CHAIN_NAMES_TO_EXPLO = {}, _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.ETHEREUM] = 'etherscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.POLYGON] = 'polygonscan.com', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.AVALANCHE] = 'snowtrace.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.SOLANA] = 'solscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.BSC] = 'bscscan.com', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.OPTIMISM] = 'optimistic.etherscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.ARBITRUM] = 'arbiscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.POLYGON_ZKEVM] = 'zkevm.polygonscan.com', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.TRON] = 'tronscan.org/#', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.BTC] = 'mempool.space', _CHAIN_NAMES_TO_EXPLO);
 var CHAIN_IDS_TO_NAMES = (_CHAIN_IDS_TO_NAMES = {}, _CHAIN_IDS_TO_NAMES[SupportedChainId.ETHEREUM] = exports.SupportNetworks.ETHEREUM, _CHAIN_IDS_TO_NAMES[SupportedChainId.POLYGON] = exports.SupportNetworks.POLYGON, _CHAIN_IDS_TO_NAMES[SupportedChainId.AVALANCHE] = exports.SupportNetworks.AVALANCHE, _CHAIN_IDS_TO_NAMES[SupportedChainId.BSC] = exports.SupportNetworks.BSC, _CHAIN_IDS_TO_NAMES[SupportedChainId.OPTIMISM] = exports.SupportNetworks.OPTIMISM, _CHAIN_IDS_TO_NAMES[SupportedChainId.ARBITRUM] = exports.SupportNetworks.ARBITRUM, _CHAIN_IDS_TO_NAMES[SupportedChainId.POLYGON_ZKEM] = exports.SupportNetworks.POLYGON_ZKEVM, _CHAIN_IDS_TO_NAMES);
 var networkOptions = [{
   id: exports.SupportNetworks.ARBITRUM,
@@ -2462,49 +2462,6 @@ var ERC20ABI = {
 	abi: abi
 };
 
-function createAssociatedTokenAccountInstruction(payer, associatedToken, owner, mint, programId, associatedTokenProgramId) {
-  if (programId === void 0) {
-    programId = splToken.TOKEN_PROGRAM_ID;
-  }
-  if (associatedTokenProgramId === void 0) {
-    associatedTokenProgramId = splToken.ASSOCIATED_TOKEN_PROGRAM_ID;
-  }
-  var keys = [{
-    pubkey: payer,
-    isSigner: true,
-    isWritable: true
-  }, {
-    pubkey: associatedToken,
-    isSigner: false,
-    isWritable: true
-  }, {
-    pubkey: owner,
-    isSigner: false,
-    isWritable: false
-  }, {
-    pubkey: mint,
-    isSigner: false,
-    isWritable: false
-  }, {
-    pubkey: web3_js.SystemProgram.programId,
-    isSigner: false,
-    isWritable: false
-  }, {
-    pubkey: programId,
-    isSigner: false,
-    isWritable: false
-  }, {
-    pubkey: web3_js.SYSVAR_RENT_PUBKEY,
-    isSigner: false,
-    isWritable: false
-  }];
-  return new web3_js.TransactionInstruction({
-    keys: keys,
-    programId: associatedTokenProgramId,
-    data: Buffer.alloc(0)
-  });
-}
-
 var getAccountInfo = function getAccountInfo(connection, address, commitment, programId) {
   if (programId === void 0) {
     programId = splToken.TOKEN_PROGRAM_ID;
@@ -2573,50 +2530,19 @@ var getOrCreateAssociatedTokenAccount = function getOrCreateAssociatedTokenAccou
   }
   try {
     return Promise.resolve(getAssociatedTokenAddress(mint, owner, allowOwnerOffCurve, programId, associatedTokenProgramId)).then(function (associatedToken) {
-      var _exit = false;
-      function _temp4(_result) {
-        if (_exit) return _result;
+      function _temp2() {
         if (!account.mint.equals(mint)) throw Error('TokenInvalidMintError');
         if (!account.owner.equals(owner)) throw new Error('TokenInvalidOwnerError');
         return account;
       }
+      console.log(payer, signTransaction);
       var account;
-      var _temp3 = _catch(function () {
+      var _temp = _catch(function () {
         return Promise.resolve(getAccountInfo(connection, associatedToken, commitment, programId)).then(function (_getAccountInfo) {
           account = _getAccountInfo;
         });
-      }, function (error) {
-        var err = error;
-        return function () {
-          if (err.message === 'TokenAccountNotFoundError' || err.message === 'TokenInvalidAccountOwnerError') {
-            var _temp2 = function _temp2() {
-              return Promise.resolve(getAccountInfo(connection, associatedToken, commitment, programId)).then(function (_getAccountInfo2) {
-                account = _getAccountInfo2;
-              });
-            };
-            var _temp = _catch(function () {
-              var transaction = new web3_js.Transaction().add(createAssociatedTokenAccountInstruction(payer, associatedToken, owner, mint, programId, associatedTokenProgramId));
-              return Promise.resolve(connection.getRecentBlockhash()).then(function (blockHash) {
-                return Promise.resolve(payer).then(function (_payer) {
-                  transaction.feePayer = _payer;
-                  return Promise.resolve(blockHash.blockhash).then(function (_blockHash$blockhash) {
-                    transaction.recentBlockhash = _blockHash$blockhash;
-                    return Promise.resolve(signTransaction(transaction)).then(function (signed) {
-                      return Promise.resolve(connection.sendRawTransaction(signed.serialize())).then(function (signature) {
-                        return Promise.resolve(connection.confirmTransaction(signature)).then(function () {});
-                      });
-                    });
-                  });
-                });
-              });
-            }, function () {});
-            return _temp && _temp.then ? _temp.then(_temp2) : _temp2(_temp);
-          } else {
-            throw error;
-          }
-        }();
-      });
-      return _temp3 && _temp3.then ? _temp3.then(_temp4) : _temp4(_temp3);
+      }, function () {});
+      return _temp && _temp.then ? _temp.then(_temp2) : _temp2(_temp);
     });
   } catch (e) {
     return Promise.reject(e);
@@ -3199,13 +3125,13 @@ var StepBox = function StepBox(_ref) {
     }))) : null, index === 1 && data !== null && data !== void 0 && data.tssPullHash ? React__default.createElement("div", {
       className: 'info-item'
     }, React__default.createElement("p", null, CHAIN_NAMES_TO_STRING[(data === null || data === void 0 ? void 0 : data.sourceChain) || exports.SupportNetworks.ETHEREUM], ' ', "TX ID:", React__default.createElement(ExternalLink, {
-      to: "https://" + CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.sourceChain) || exports.SupportNetworks.ETHEREUM] + "/" + ((data === null || data === void 0 ? void 0 : data.sourceChain) === exports.SupportNetworks.TRON ? 'transaction' : 'tx') + "/" + (data === null || data === void 0 ? void 0 : data.tssPullHash) + ((data === null || data === void 0 ? void 0 : data.sourceChain) === exports.SupportNetworks.SOLANA ? '?cluster=devnet' : '')
+      to: "https://" + CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.sourceChain) || exports.SupportNetworks.ETHEREUM] + "/" + ((data === null || data === void 0 ? void 0 : data.sourceChain) === exports.SupportNetworks.TRON ? 'transaction' : 'tx') + "/" + (data === null || data === void 0 ? void 0 : data.tssPullHash) + ((data === null || data === void 0 ? void 0 : data.sourceChain) === exports.SupportNetworks.SOLANA && CLUSTER === 'devnet' ? '?cluster=devnet' : '')
     }, getShortenedAddress((data === null || data === void 0 ? void 0 : data.tssPullHash) || '')), React__default.createElement(CopyButton, {
       text: (data === null || data === void 0 ? void 0 : data.tssPullHash) || ''
     }))) : null, index === 3 && data !== null && data !== void 0 && data.tssReleaseHash ? React__default.createElement("div", {
       className: 'info-item'
     }, React__default.createElement("p", null, CHAIN_NAMES_TO_STRING[(data === null || data === void 0 ? void 0 : data.targetChain) || exports.SupportNetworks.ETHEREUM], ' ', "TX ID:", React__default.createElement(ExternalLink, {
-      to: "https://" + CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.targetChain) || exports.SupportNetworks.ETHEREUM] + "/" + ((data === null || data === void 0 ? void 0 : data.targetChain) === exports.SupportNetworks.TRON ? 'transaction' : 'tx') + "/" + (data === null || data === void 0 ? void 0 : data.tssReleaseHash) + ((data === null || data === void 0 ? void 0 : data.targetChain) === exports.SupportNetworks.SOLANA ? '?cluster=devnet' : '')
+      to: "https://" + CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.targetChain) || exports.SupportNetworks.ETHEREUM] + "/" + ((data === null || data === void 0 ? void 0 : data.targetChain) === exports.SupportNetworks.TRON ? 'transaction' : 'tx') + "/" + (data === null || data === void 0 ? void 0 : data.tssReleaseHash) + ((data === null || data === void 0 ? void 0 : data.targetChain) === exports.SupportNetworks.SOLANA && CLUSTER === 'devnet' ? '?cluster=devnet' : '')
     }, getShortenedAddress((data === null || data === void 0 ? void 0 : data.tssReleaseHash) || '')), React__default.createElement(CopyButton, {
       text: (data === null || data === void 0 ? void 0 : data.tssReleaseHash) || ''
     }))) : null);
@@ -8062,7 +7988,7 @@ function output(out, instance) {
 exports.output = output;
 const assert = { number, bool, bytes, hash, exists, output };
 exports.default = assert;
-
+//# sourceMappingURL=_assert.js.map
 });
 
 unwrapExports(_assert);
@@ -8071,7 +7997,7 @@ var crypto = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.crypto = void 0;
 exports.crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
-
+//# sourceMappingURL=crypto.js.map
 });
 
 unwrapExports(crypto);
@@ -8273,7 +8199,7 @@ function randomBytes(bytesLength = 32) {
     throw new Error('crypto.getRandomValues must be defined');
 }
 exports.randomBytes = randomBytes;
-
+//# sourceMappingURL=utils.js.map
 });
 
 unwrapExports(utils);
@@ -8395,7 +8321,7 @@ class SHA2 extends utils.Hash {
     }
 }
 exports.SHA2 = SHA2;
-
+//# sourceMappingURL=_sha2.js.map
 });
 
 unwrapExports(_sha2);
@@ -8528,7 +8454,7 @@ class SHA224 extends SHA256 {
  */
 exports.sha256 = (0, utils.wrapConstructor)(() => new SHA256());
 exports.sha224 = (0, utils.wrapConstructor)(() => new SHA224());
-
+//# sourceMappingURL=sha256.js.map
 });
 
 unwrapExports(sha256);
@@ -12870,53 +12796,53 @@ var KimaTransactionWidget = function KimaTransactionWidget(_ref) {
 var ConnectionProvider = SolanaAdapter.ConnectionProvider,
   SolanaWalletProvider = SolanaAdapter.WalletProvider;
 var ethereum = {
-  chainId: 11155111,
-  name: 'Ethereum Sepolia',
+  chainId: 1,
+  name: 'Ethereum Mainnet',
   currency: 'ETH',
-  explorerUrl: 'https://sepolia.etherscan.io',
-  rpcUrl: 'https://ethereum-sepolia-rpc.publicnode.com'
+  explorerUrl: 'https://etherscan.io',
+  rpcUrl: 'https://eth.llamarpc.com'
 };
 var bsc = {
-  chainId: 97,
-  name: 'BNB Smart Chain Testnet',
-  currency: 'tBNB',
-  explorerUrl: 'https://testnet.bscscan.com',
-  rpcUrl: 'https://endpoints.omniatech.io/v1/bsc/testnet/public'
+  chainId: 56,
+  name: 'BNB Smart Chain Mainnet',
+  currency: 'BNB',
+  explorerUrl: 'https://bscscan.com',
+  rpcUrl: 'https://binance.llamarpc.com'
 };
 var polygon = {
-  chainId: 80002,
-  name: 'Amoy',
+  chainId: 137,
+  name: 'Polygon Mainnet',
   currency: 'MATIC',
-  explorerUrl: 'https://www.oklink.com/amoy',
-  rpcUrl: 'https://rpc-amoy.polygon.technology'
+  explorerUrl: 'https://polygonscan.com',
+  rpcUrl: 'https://polygon.llamarpc.com'
 };
 var arbitrum = {
-  chainId: 421614,
-  name: 'Arbitrum Sepolia Testnet',
+  chainId: 42161,
+  name: 'Arbitrum Mainnet',
   currency: 'ETH',
-  explorerUrl: 'https://sepolia.arbiscan.io/',
-  rpcUrl: 'https://sepolia-rollup.arbitrum.io/rpc'
+  explorerUrl: 'https://arbiscan.io',
+  rpcUrl: 'https://arbitrum.llamarpc.com'
 };
 var optimism = {
-  chainId: 11155420,
-  name: 'OP Sepolia',
+  chainId: 10,
+  name: 'OP Mainnet',
   currency: 'ETH',
-  explorerUrl: 'https://sepolia-optimism.etherscan.io',
-  rpcUrl: 'https://sepolia.optimism.io'
+  explorerUrl: 'https://optimistic.etherscan.io',
+  rpcUrl: 'https://optimism.llamarpc.com'
 };
 var avalanche = {
-  chainId: 43113,
-  name: 'Avalanche Fuji Testnet',
+  chainId: 43114,
+  name: 'Avalanche Mainnet',
   currency: 'AVAX',
-  explorerUrl: 'https://testnet.snowtrace.io',
-  rpcUrl: 'https://api.avax-test.network/ext/bc/C/rpc'
+  explorerUrl: 'https://snowtrace.io',
+  rpcUrl: 'https://api.avax.network/ext/bc/C/rpc'
 };
 var zkEVM = {
-  chainId: 2442,
+  chainId: 1101,
   name: 'Polygon zkEVM Cardona Testnet',
   currency: 'ETH',
-  explorerUrl: 'https://cardona-zkevm.polygonscan.com',
-  rpcUrl: 'https://polygon-zkevm-cardona.blockpi.network/v1/rpc/public'
+  explorerUrl: 'https://zkevm.polygonscan.com',
+  rpcUrl: 'https://rpc.ankr.com/polygon_zkevm'
 };
 var metadata = {
   name: 'Kima Transaction Widget',
@@ -12945,9 +12871,9 @@ var KimaProvider = function KimaProvider(_ref) {
     } else toast.toast.error(e.message);
   }
   var onChainChanged = function onChainChanged(chainData) {
-    toast.toast.error('Please switch to Tron Nile Testnet!');
-    if (chainData.chainId !== '0xcd8690dc') {
-      adapters[0].switchChain('0xcd8690dc');
+    toast.toast.error('Please switch to Tron Mainnet!');
+    if (chainData.chainId !== '0x2b6653dc') {
+      adapters[0].switchChain('0x2b6653dc');
     }
   };
   react.createWeb3Modal({

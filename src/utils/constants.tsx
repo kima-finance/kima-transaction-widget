@@ -29,13 +29,13 @@ export enum ChainName {
 }
 
 export enum SupportedChainId {
-  ETHEREUM = 11155111,
-  POLYGON = 80002,
-  AVALANCHE = 43113,
-  BSC = 97,
-  ARBITRUM = 421614,
-  OPTIMISM = 11155420,
-  POLYGON_ZKEM = 2442
+  ETHEREUM = 1,
+  POLYGON = 137,
+  AVALANCHE = 43114,
+  BSC = 56,
+  ARBITRUM = 42161,
+  OPTIMISM = 10,
+  POLYGON_ZKEM = 1101
 }
 
 export const CHAIN_NAMES_TO_IDS: { [chainName: string]: SupportedChainId } = {
@@ -77,16 +77,16 @@ export const CHAIN_STRING_TO_NAME: { [chainName: string]: ChainName } = {
 }
 
 export const CHAIN_NAMES_TO_EXPLORER: { [chainName: string]: string } = {
-  [ChainName.ETHEREUM]: 'sepolia.etherscan.io',
-  [ChainName.POLYGON]: 'www.oklink.com/amoy',
-  [ChainName.AVALANCHE]: 'testnet.snowtrace.io',
+  [ChainName.ETHEREUM]: 'etherscan.io',
+  [ChainName.POLYGON]: 'polygonscan.com',
+  [ChainName.AVALANCHE]: 'snowtrace.io',
   [ChainName.SOLANA]: 'solscan.io',
-  [ChainName.BSC]: 'testnet.bscscan.com',
-  [ChainName.OPTIMISM]: 'sepolia-optimism.etherscan.io',
-  [ChainName.ARBITRUM]: 'sepolia.arbiscan.io',
-  [ChainName.POLYGON_ZKEVM]: 'cardona-zkevm.polygonscan.com',
-  [ChainName.TRON]: 'nile.tronscan.org/#',
-  [ChainName.BTC]: 'mempool.space/testnet'
+  [ChainName.BSC]: 'bscscan.com',
+  [ChainName.OPTIMISM]: 'optimistic.etherscan.io',
+  [ChainName.ARBITRUM]: 'arbiscan.io',
+  [ChainName.POLYGON_ZKEVM]: 'zkevm.polygonscan.com',
+  [ChainName.TRON]: 'tronscan.org/#',
+  [ChainName.BTC]: 'mempool.space'
 }
 
 // export const CHAIN_NAMES_TO_GECKO_ID: { [chainName: string]: string } = {

@@ -7,7 +7,8 @@ import { selectKimaExplorer, selectTheme } from '../../store/selectors'
 import {
   ChainName,
   CHAIN_NAMES_TO_EXPLORER,
-  CHAIN_NAMES_TO_STRING
+  CHAIN_NAMES_TO_STRING,
+  CLUSTER
 } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 import CopyButton from './CopyButton'
@@ -89,7 +90,8 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                         data?.sourceChain || ChainName.ETHEREUM
                       ]
                     }/${data?.sourceChain === ChainName.TRON ? 'transaction' : 'tx'}/${data?.tssPullHash}${
-                      data?.sourceChain === ChainName.SOLANA
+                      data?.sourceChain === ChainName.SOLANA &&
+                      CLUSTER === 'devnet'
                         ? '?cluster=devnet'
                         : ''
                     }`}
@@ -115,7 +117,8 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                         data?.targetChain || ChainName.ETHEREUM
                       ]
                     }/${data?.targetChain === ChainName.TRON ? 'transaction' : 'tx'}/${data?.tssReleaseHash}${
-                      data?.targetChain === ChainName.SOLANA
+                      data?.targetChain === ChainName.SOLANA &&
+                      CLUSTER === 'devnet'
                         ? '?cluster=devnet'
                         : ''
                     }`}

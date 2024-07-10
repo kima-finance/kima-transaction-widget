@@ -9,7 +9,8 @@ import {
   ChainName,
   CHAIN_NAMES_TO_EXPLORER,
   CHAIN_NAMES_TO_STRING,
-  tooltipInfo
+  tooltipInfo,
+  CLUSTER
 } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 import ExternalLink from './ExternalLink'
@@ -92,7 +93,8 @@ const Tooltip = ({ step, focus, errorStep, loadingStep, data }: Props) => {
                       data?.sourceChain || ChainName.ETHEREUM
                     ]
                   }/tx/${data?.tssPullHash}${
-                    data?.sourceChain === ChainName.SOLANA
+                    data?.sourceChain === ChainName.SOLANA &&
+                    CLUSTER === 'devnet'
                       ? '?cluster=devnet'
                       : ''
                   }`}
@@ -122,7 +124,8 @@ const Tooltip = ({ step, focus, errorStep, loadingStep, data }: Props) => {
                       data?.targetChain || ChainName.ETHEREUM
                     ]
                   }/tx/${data?.tssReleaseHash}${
-                    data?.targetChain === ChainName.SOLANA
+                    data?.targetChain === ChainName.SOLANA &&
+                    CLUSTER === 'devnet'
                       ? '?cluster=devnet'
                       : ''
                   }`}
@@ -149,8 +152,8 @@ const Tooltip = ({ step, focus, errorStep, loadingStep, data }: Props) => {
                   focus === 0
                     ? '1em'
                     : focus === 4
-                    ? 'calc(100% - 3em)'
-                    : `calc(${focus * 25}% - 1em)`
+                      ? 'calc(100% - 3em)'
+                      : `calc(${focus * 25}% - 1em)`
               }}
             />
           )}

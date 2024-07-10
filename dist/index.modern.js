@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import * as toolkitRaw from '@reduxjs/toolkit';
-import { clusterApiUrl, TransactionInstruction, SystemProgram, SYSVAR_RENT_PUBKEY, PublicKey, Transaction } from '@solana/web3.js';
+import { clusterApiUrl, PublicKey, TransactionInstruction, Transaction } from '@solana/web3.js';
 import { useSelector, useDispatch, Provider } from 'react-redux';
 import * as SolanaAdapter from '@solana/wallet-adapter-react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
@@ -18,7 +18,7 @@ import { WalletReadyState } from '@solana/wallet-adapter-base';
 import { getAddress, AddressPurpose, BitcoinNetworkType, signTransaction, sendBtcTransaction } from 'sats-connect';
 import { Contract } from '@ethersproject/contracts';
 import { formatUnits, parseUnits } from '@ethersproject/units';
-import { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, AccountLayout } from '@solana/spl-token';
+import { TOKEN_PROGRAM_ID, AccountLayout, ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { TronWeb } from 'tronweb';
 import { ethers, utils as utils$3 } from 'ethers';
 import BufferLayout from 'buffer-layout';
@@ -700,13 +700,13 @@ var ChainName;
 })(ChainName || (ChainName = {}));
 var SupportedChainId;
 (function (SupportedChainId) {
-  SupportedChainId[SupportedChainId["ETHEREUM"] = 11155111] = "ETHEREUM";
-  SupportedChainId[SupportedChainId["POLYGON"] = 80002] = "POLYGON";
-  SupportedChainId[SupportedChainId["AVALANCHE"] = 43113] = "AVALANCHE";
-  SupportedChainId[SupportedChainId["BSC"] = 97] = "BSC";
-  SupportedChainId[SupportedChainId["ARBITRUM"] = 421614] = "ARBITRUM";
-  SupportedChainId[SupportedChainId["OPTIMISM"] = 11155420] = "OPTIMISM";
-  SupportedChainId[SupportedChainId["POLYGON_ZKEM"] = 2442] = "POLYGON_ZKEM";
+  SupportedChainId[SupportedChainId["ETHEREUM"] = 1] = "ETHEREUM";
+  SupportedChainId[SupportedChainId["POLYGON"] = 137] = "POLYGON";
+  SupportedChainId[SupportedChainId["AVALANCHE"] = 43114] = "AVALANCHE";
+  SupportedChainId[SupportedChainId["BSC"] = 56] = "BSC";
+  SupportedChainId[SupportedChainId["ARBITRUM"] = 42161] = "ARBITRUM";
+  SupportedChainId[SupportedChainId["OPTIMISM"] = 10] = "OPTIMISM";
+  SupportedChainId[SupportedChainId["POLYGON_ZKEM"] = 1101] = "POLYGON_ZKEM";
 })(SupportedChainId || (SupportedChainId = {}));
 const CHAIN_NAMES_TO_IDS = {
   [ChainName.ETHEREUM]: SupportedChainId.ETHEREUM,
@@ -744,16 +744,16 @@ const CHAIN_STRING_TO_NAME = {
   ['Bitcoin']: ChainName.BTC
 };
 const CHAIN_NAMES_TO_EXPLORER = {
-  [ChainName.ETHEREUM]: 'sepolia.etherscan.io',
-  [ChainName.POLYGON]: 'www.oklink.com/amoy',
-  [ChainName.AVALANCHE]: 'testnet.snowtrace.io',
+  [ChainName.ETHEREUM]: 'etherscan.io',
+  [ChainName.POLYGON]: 'polygonscan.com',
+  [ChainName.AVALANCHE]: 'snowtrace.io',
   [ChainName.SOLANA]: 'solscan.io',
-  [ChainName.BSC]: 'testnet.bscscan.com',
-  [ChainName.OPTIMISM]: 'sepolia-optimism.etherscan.io',
-  [ChainName.ARBITRUM]: 'sepolia.arbiscan.io',
-  [ChainName.POLYGON_ZKEVM]: 'cardona-zkevm.polygonscan.com',
-  [ChainName.TRON]: 'nile.tronscan.org/#',
-  [ChainName.BTC]: 'mempool.space/testnet'
+  [ChainName.BSC]: 'bscscan.com',
+  [ChainName.OPTIMISM]: 'optimistic.etherscan.io',
+  [ChainName.ARBITRUM]: 'arbiscan.io',
+  [ChainName.POLYGON_ZKEVM]: 'zkevm.polygonscan.com',
+  [ChainName.TRON]: 'tronscan.org/#',
+  [ChainName.BTC]: 'mempool.space'
 };
 const CHAIN_IDS_TO_NAMES = {
   [SupportedChainId.ETHEREUM]: ChainName.ETHEREUM,
@@ -2077,43 +2077,6 @@ var ERC20ABI = {
 	abi: abi
 };
 
-function createAssociatedTokenAccountInstruction(payer, associatedToken, owner, mint, programId = TOKEN_PROGRAM_ID, associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID) {
-  const keys = [{
-    pubkey: payer,
-    isSigner: true,
-    isWritable: true
-  }, {
-    pubkey: associatedToken,
-    isSigner: false,
-    isWritable: true
-  }, {
-    pubkey: owner,
-    isSigner: false,
-    isWritable: false
-  }, {
-    pubkey: mint,
-    isSigner: false,
-    isWritable: false
-  }, {
-    pubkey: SystemProgram.programId,
-    isSigner: false,
-    isWritable: false
-  }, {
-    pubkey: programId,
-    isSigner: false,
-    isWritable: false
-  }, {
-    pubkey: SYSVAR_RENT_PUBKEY,
-    isSigner: false,
-    isWritable: false
-  }];
-  return new TransactionInstruction({
-    keys,
-    programId: associatedTokenProgramId,
-    data: Buffer.alloc(0)
-  });
-}
-
 var AccountState;
 (function (AccountState) {
   AccountState[AccountState["Uninitialized"] = 0] = "Uninitialized";
@@ -2149,26 +2112,11 @@ async function getAssociatedTokenAddress(mint, owner, allowOwnerOffCurve = false
 
 async function getOrCreateAssociatedTokenAccount(connection, payer, mint, owner, signTransaction, allowOwnerOffCurve = false, commitment, programId = TOKEN_PROGRAM_ID, associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID) {
   const associatedToken = await getAssociatedTokenAddress(mint, owner, allowOwnerOffCurve, programId, associatedTokenProgramId);
+  console.log(payer, signTransaction);
   let account;
   try {
     account = await getAccountInfo(connection, associatedToken, commitment, programId);
-  } catch (error) {
-    const err = error;
-    if (err.message === 'TokenAccountNotFoundError' || err.message === 'TokenInvalidAccountOwnerError') {
-      try {
-        const transaction = new Transaction().add(createAssociatedTokenAccountInstruction(payer, associatedToken, owner, mint, programId, associatedTokenProgramId));
-        const blockHash = await connection.getRecentBlockhash();
-        transaction.feePayer = await payer;
-        transaction.recentBlockhash = await blockHash.blockhash;
-        const signed = await signTransaction(transaction);
-        const signature = await connection.sendRawTransaction(signed.serialize());
-        await connection.confirmTransaction(signature);
-      } catch (error) {}
-      account = await getAccountInfo(connection, associatedToken, commitment, programId);
-    } else {
-      throw error;
-    }
-  }
+  } catch (error) {}
   if (!account.mint.equals(mint)) throw Error('TokenInvalidMintError');
   if (!account.owner.equals(owner)) throw new Error('TokenInvalidOwnerError');
   return account;
@@ -2664,13 +2612,13 @@ const StepBox = ({
   }))) : null, index === 1 && data !== null && data !== void 0 && data.tssPullHash ? React.createElement("div", {
     className: 'info-item'
   }, React.createElement("p", null, CHAIN_NAMES_TO_STRING[(data === null || data === void 0 ? void 0 : data.sourceChain) || ChainName.ETHEREUM], ' ', "TX ID:", React.createElement(ExternalLink, {
-    to: `https://${CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.sourceChain) || ChainName.ETHEREUM]}/${(data === null || data === void 0 ? void 0 : data.sourceChain) === ChainName.TRON ? 'transaction' : 'tx'}/${data === null || data === void 0 ? void 0 : data.tssPullHash}${(data === null || data === void 0 ? void 0 : data.sourceChain) === ChainName.SOLANA ? '?cluster=devnet' : ''}`
+    to: `https://${CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.sourceChain) || ChainName.ETHEREUM]}/${(data === null || data === void 0 ? void 0 : data.sourceChain) === ChainName.TRON ? 'transaction' : 'tx'}/${data === null || data === void 0 ? void 0 : data.tssPullHash}${(data === null || data === void 0 ? void 0 : data.sourceChain) === ChainName.SOLANA && CLUSTER === 'devnet' ? '?cluster=devnet' : ''}`
   }, getShortenedAddress((data === null || data === void 0 ? void 0 : data.tssPullHash) || '')), React.createElement(CopyButton, {
     text: (data === null || data === void 0 ? void 0 : data.tssPullHash) || ''
   }))) : null, index === 3 && data !== null && data !== void 0 && data.tssReleaseHash ? React.createElement("div", {
     className: 'info-item'
   }, React.createElement("p", null, CHAIN_NAMES_TO_STRING[(data === null || data === void 0 ? void 0 : data.targetChain) || ChainName.ETHEREUM], ' ', "TX ID:", React.createElement(ExternalLink, {
-    to: `https://${CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.targetChain) || ChainName.ETHEREUM]}/${(data === null || data === void 0 ? void 0 : data.targetChain) === ChainName.TRON ? 'transaction' : 'tx'}/${data === null || data === void 0 ? void 0 : data.tssReleaseHash}${(data === null || data === void 0 ? void 0 : data.targetChain) === ChainName.SOLANA ? '?cluster=devnet' : ''}`
+    to: `https://${CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.targetChain) || ChainName.ETHEREUM]}/${(data === null || data === void 0 ? void 0 : data.targetChain) === ChainName.TRON ? 'transaction' : 'tx'}/${data === null || data === void 0 ? void 0 : data.tssReleaseHash}${(data === null || data === void 0 ? void 0 : data.targetChain) === ChainName.SOLANA && CLUSTER === 'devnet' ? '?cluster=devnet' : ''}`
   }, getShortenedAddress((data === null || data === void 0 ? void 0 : data.tssReleaseHash) || '')), React.createElement(CopyButton, {
     text: (data === null || data === void 0 ? void 0 : data.tssReleaseHash) || ''
   }))) : null))));
@@ -7316,7 +7264,7 @@ function output(out, instance) {
 exports.output = output;
 const assert = { number, bool, bytes, hash, exists, output };
 exports.default = assert;
-
+//# sourceMappingURL=_assert.js.map
 });
 
 unwrapExports(_assert);
@@ -7325,7 +7273,7 @@ var crypto = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.crypto = void 0;
 exports.crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
-
+//# sourceMappingURL=crypto.js.map
 });
 
 unwrapExports(crypto);
@@ -7527,7 +7475,7 @@ function randomBytes(bytesLength = 32) {
     throw new Error('crypto.getRandomValues must be defined');
 }
 exports.randomBytes = randomBytes;
-
+//# sourceMappingURL=utils.js.map
 });
 
 unwrapExports(utils);
@@ -7649,7 +7597,7 @@ class SHA2 extends utils.Hash {
     }
 }
 exports.SHA2 = SHA2;
-
+//# sourceMappingURL=_sha2.js.map
 });
 
 unwrapExports(_sha2);
@@ -7782,7 +7730,7 @@ class SHA224 extends SHA256 {
  */
 exports.sha256 = (0, utils.wrapConstructor)(() => new SHA256());
 exports.sha224 = (0, utils.wrapConstructor)(() => new SHA224());
-
+//# sourceMappingURL=sha256.js.map
 });
 
 unwrapExports(sha256);
@@ -11965,53 +11913,53 @@ const {
   WalletProvider: SolanaWalletProvider
 } = SolanaAdapter;
 const ethereum = {
-  chainId: 11155111,
-  name: 'Ethereum Sepolia',
+  chainId: 1,
+  name: 'Ethereum Mainnet',
   currency: 'ETH',
-  explorerUrl: 'https://sepolia.etherscan.io',
-  rpcUrl: 'https://ethereum-sepolia-rpc.publicnode.com'
+  explorerUrl: 'https://etherscan.io',
+  rpcUrl: 'https://eth.llamarpc.com'
 };
 const bsc = {
-  chainId: 97,
-  name: 'BNB Smart Chain Testnet',
-  currency: 'tBNB',
-  explorerUrl: 'https://testnet.bscscan.com',
-  rpcUrl: 'https://endpoints.omniatech.io/v1/bsc/testnet/public'
+  chainId: 56,
+  name: 'BNB Smart Chain Mainnet',
+  currency: 'BNB',
+  explorerUrl: 'https://bscscan.com',
+  rpcUrl: 'https://binance.llamarpc.com'
 };
 const polygon = {
-  chainId: 80002,
-  name: 'Amoy',
+  chainId: 137,
+  name: 'Polygon Mainnet',
   currency: 'MATIC',
-  explorerUrl: 'https://www.oklink.com/amoy',
-  rpcUrl: 'https://rpc-amoy.polygon.technology'
+  explorerUrl: 'https://polygonscan.com',
+  rpcUrl: 'https://polygon.llamarpc.com'
 };
 const arbitrum = {
-  chainId: 421614,
-  name: 'Arbitrum Sepolia Testnet',
+  chainId: 42161,
+  name: 'Arbitrum Mainnet',
   currency: 'ETH',
-  explorerUrl: 'https://sepolia.arbiscan.io/',
-  rpcUrl: 'https://sepolia-rollup.arbitrum.io/rpc'
+  explorerUrl: 'https://arbiscan.io',
+  rpcUrl: 'https://arbitrum.llamarpc.com'
 };
 const optimism = {
-  chainId: 11155420,
-  name: 'OP Sepolia',
+  chainId: 10,
+  name: 'OP Mainnet',
   currency: 'ETH',
-  explorerUrl: 'https://sepolia-optimism.etherscan.io',
-  rpcUrl: 'https://sepolia.optimism.io'
+  explorerUrl: 'https://optimistic.etherscan.io',
+  rpcUrl: 'https://optimism.llamarpc.com'
 };
 const avalanche = {
-  chainId: 43113,
-  name: 'Avalanche Fuji Testnet',
+  chainId: 43114,
+  name: 'Avalanche Mainnet',
   currency: 'AVAX',
-  explorerUrl: 'https://testnet.snowtrace.io',
-  rpcUrl: 'https://api.avax-test.network/ext/bc/C/rpc'
+  explorerUrl: 'https://snowtrace.io',
+  rpcUrl: 'https://api.avax.network/ext/bc/C/rpc'
 };
 const zkEVM = {
-  chainId: 2442,
+  chainId: 1101,
   name: 'Polygon zkEVM Cardona Testnet',
   currency: 'ETH',
-  explorerUrl: 'https://cardona-zkevm.polygonscan.com',
-  rpcUrl: 'https://polygon-zkevm-cardona.blockpi.network/v1/rpc/public'
+  explorerUrl: 'https://zkevm.polygonscan.com',
+  rpcUrl: 'https://rpc.ankr.com/polygon_zkevm'
 };
 const metadata = {
   name: 'Kima Transaction Widget',
@@ -12041,9 +11989,9 @@ const KimaProvider = ({
     } else toast$1.error(e.message);
   }
   const onChainChanged = chainData => {
-    toast$1.error('Please switch to Tron Nile Testnet!');
-    if (chainData.chainId !== '0xcd8690dc') {
-      adapters[0].switchChain('0xcd8690dc');
+    toast$1.error('Please switch to Tron Mainnet!');
+    if (chainData.chainId !== '0x2b6653dc') {
+      adapters[0].switchChain('0x2b6653dc');
     }
   };
   createWeb3Modal({

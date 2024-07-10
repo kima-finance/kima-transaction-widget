@@ -13,13 +13,13 @@ export declare enum ChainName {
     BTC = "BTC"
 }
 export declare enum SupportedChainId {
-    ETHEREUM = 11155111,
-    POLYGON = 80002,
-    AVALANCHE = 43113,
-    BSC = 97,
-    ARBITRUM = 421614,
-    OPTIMISM = 11155420,
-    POLYGON_ZKEM = 2442
+    ETHEREUM = 1,
+    POLYGON = 137,
+    AVALANCHE = 43114,
+    BSC = 56,
+    ARBITRUM = 42161,
+    OPTIMISM = 10,
+    POLYGON_ZKEM = 1101
 }
 export declare const CHAIN_NAMES_TO_IDS: {
     [chainName: string]: SupportedChainId;
