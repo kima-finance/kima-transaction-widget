@@ -92,6 +92,8 @@ const PendingTxPopup = ({ handleHtlcContinue, handleHtlcReclaim }) => {
                       <div
                         className='action-button'
                         onClick={() => {
+                          if (tx.status !== 'Pending' && tx.status !== 'Failed')
+                            return
                           // Get the current date and time
                           const now = new Date()
 
@@ -108,7 +110,7 @@ const PendingTxPopup = ({ handleHtlcContinue, handleHtlcReclaim }) => {
                             return
                           }
 
-                          handleHtlcReclaim(tx.expireTime, tx.amount)
+                          handleHtlcReclaim(tx.expireTime, tx.hash, tx.amount)
                         }}
                       >
                         Reclaim

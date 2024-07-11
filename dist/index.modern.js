@@ -7027,7 +7027,7 @@ function useAllowance({
     if (sourceChain === ChainName.BTC || targetChain === ChainName.BTC) {
       return (feeDeduct ? +amount : +amount + serviceFee).toFixed(8);
     }
-    return formatterFloat.format(feeDeduct ? +amount : +amount + serviceFee);
+    return (feeDeduct ? +amount : +amount + serviceFee).toFixed(2);
   }, [amount, serviceFee, sourceChain, targetChain, feeDeduct]);
   const isApproved = useMemo(() => {
     return allowance >= +amountToShow;
@@ -7929,6 +7929,7 @@ const PendingTxPopup = ({
     }, React.createElement("div", {
       className: 'action-button',
       onClick: () => {
+        if (tx.status !== 'Pending' && tx.status !== 'Failed') return;
         const now = new Date();
         const currentTimestamp = Math.floor(now.getTime() / 1000);
         console.log(currentTimestamp, tx.expireTime);
@@ -7936,7 +7937,7 @@ const PendingTxPopup = ({
           toast.error('Please wait for until htlc is expired!');
           return;
         }
-        handleHtlcReclaim(tx.expireTime, tx.amount);
+        handleHtlcReclaim(tx.expireTime, tx.hash, tx.amount);
       }
     }, "Reclaim"), React.createElement("div", {
       className: 'action-button',
@@ -11401,7 +11402,7 @@ const TransferWidget = ({
     dispatch(setFeeDeduct(true));
     dispatch(setAmount(amount));
   };
-  const handleHtlcReclaim = async (expireTime, amount) => {
+  const handleHtlcReclaim = async (expireTime, hash, amount) => {
     const htlcScript = createHTLCScript(bitcoinAddress, bitcoinPubkey, poolAddress, expireTime, networks.testnet);
     console.log('HTLC Script : ' + htlcScript.toString('hex'));
     const htlcAddress = htlcP2WSHAddress(htlcScript, networks.testnet);
@@ -11439,6 +11440,18 @@ const TransferWidget = ({
           const broadcastResponse = await broadcastTransaction(rawTxHex, '/testnet');
           console.log('broadcastResponse = ' + broadcastResponse);
           console.log(broadcastResponse);
+          const params = JSON.stringify({
+            senderAddress: walletAddress,
+            txHash: hash
+          });
+          await fetchWrapper.post(`${backendUrl}/auth`, params);
+          const result = await fetchWrapper.post(`${backendUrl}/reclaim`, params);
+          console.log(result);
+          if ((result === null || result === void 0 ? void 0 : result.code) !== 0) {
+            errorHandler(result);
+            toast$1.error('Failed to submit htlc reclaim!');
+            return;
+          }
         } catch (error) {
           toast$1.error('Error broadcasting the transaction!');
           console.error('Error broadcasting the transaction!', error);
