@@ -40,7 +40,7 @@ import {
 } from '@web3modal/ethers5/react'
 import { ethers } from 'ethers'
 import { ExternalProvider, JsonRpcFetchFunc } from '@ethersproject/providers'
-import { formatterFloat, isEmptyObject, sleep } from '../helpers/functions'
+import { isEmptyObject, sleep } from '../helpers/functions'
 import toast from 'react-hot-toast'
 
 type ParsedAccountData = {
@@ -113,7 +113,7 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
       return (feeDeduct ? +amount : +amount + serviceFee).toFixed(8)
     }
 
-    return formatterFloat.format(feeDeduct ? +amount : +amount + serviceFee)
+    return (feeDeduct ? +amount : +amount + serviceFee).toFixed(2)
   }, [amount, serviceFee, sourceChain, targetChain, feeDeduct])
 
   const isApproved = useMemo(() => {
