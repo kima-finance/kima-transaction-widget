@@ -13,7 +13,7 @@ const CoinDropdown = () => {
   const selectedCoin = useSelector(selectSelectedToken)
   const tokenList = useSelector(selectAvailableTokenList)
   const theme = useSelector(selectTheme)
-  const Icon = COIN_LIST[selectedCoin || 'USDK'].icon
+  const Icon = COIN_LIST[selectedCoin || 'USDK']?.icon || COIN_LIST['USDK'].icon
 
   useEffect(() => {
     const bodyMouseDowntHandler = (e: any) => {
@@ -44,11 +44,11 @@ const CoinDropdown = () => {
         className={`coin-menu ${theme.colorMode} ${collapsed ? 'collapsed' : ''}`}
       >
         {tokenList.map((token) => {
-          const CoinIcon = COIN_LIST[token].icon
+          const CoinIcon = COIN_LIST[token].icon || COIN_LIST['USDK'].icon
           return (
-            <div className='coin-item' key={COIN_LIST[token].symbol}>
+            <div className='coin-item' key={COIN_LIST[token]?.symbol}>
               {<CoinIcon />}
-              <p>{COIN_LIST[token].symbol}</p>
+              <p>{COIN_LIST[token]?.symbol}</p>
             </div>
           )
         })}

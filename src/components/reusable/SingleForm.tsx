@@ -41,8 +41,8 @@ const SingleForm = ({
   const targetNetwork = useSelector(selectTargetChain)
   const [amountValue, setAmountValue] = useState('')
   const amount = useSelector(selectAmount)
-  const Icon = COIN_LIST[selectedCoin || 'USDK'].icon
-
+  const Icon = COIN_LIST[selectedCoin || 'USDK']?.icon || COIN_LIST['USDK'].icon
+  
   const errorMessage = useMemo(
     () =>
       compliantOption && targetCompliant !== 'low'

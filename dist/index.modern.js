@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import * as toolkitRaw from '@reduxjs/toolkit';
+import { createSlice as createSlice$1, configureStore as configureStore$1 } from '@reduxjs/toolkit';
 import { clusterApiUrl, TransactionInstruction, SystemProgram, SYSVAR_RENT_PUBKEY, PublicKey, Transaction } from '@solana/web3.js';
 import { useSelector, useDispatch, Provider } from 'react-redux';
-import * as SolanaAdapter from '@solana/wallet-adapter-react';
-import { useWallet, useConnection } from '@solana/wallet-adapter-react';
+import { useWallet, useConnection, ConnectionProvider as ConnectionProvider$1, WalletProvider as WalletProvider$1 } from '@solana/wallet-adapter-react';
 import { PhantomWalletAdapter, SolflareWalletAdapter, CloverWalletAdapter, Coin98WalletAdapter, SolongWalletAdapter, TorusWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { LedgerAdapter } from '@tronweb3/tronwallet-adapter-ledger';
 import { TronLinkAdapter } from '@tronweb3/tronwallet-adapter-tronlink';
@@ -18,7 +17,7 @@ import { WalletReadyState } from '@solana/wallet-adapter-base';
 import { getAddress, AddressPurpose, BitcoinNetworkType, signTransaction, sendBtcTransaction } from 'sats-connect';
 import { Contract } from '@ethersproject/contracts';
 import { formatUnits, parseUnits } from '@ethersproject/units';
-import { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, AccountLayout } from '@solana/spl-token';
+import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, AccountLayout } from '@solana/spl-token';
 import { TronWeb } from 'tronweb';
 import { ethers, utils as utils$3 } from 'ethers';
 import BufferLayout from 'buffer-layout';
@@ -30,95 +29,178 @@ import { base64 } from '@scure/base';
 import { Transaction as Transaction$1, Script, SigHash } from '@kimafinance/btc-signer';
 import 'hex64';
 
-const Cross = ({
-  width: _width = 32,
-  height: _height = 32,
-  fill: _fill = 'white',
-  ...rest
-}) => {
+function _extends() {
+  _extends = Object.assign ? Object.assign.bind() : function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+    return target;
+  };
+  return _extends.apply(this, arguments);
+}
+function _inheritsLoose(subClass, superClass) {
+  subClass.prototype = Object.create(superClass.prototype);
+  subClass.prototype.constructor = subClass;
+  _setPrototypeOf(subClass, superClass);
+}
+function _setPrototypeOf(o, p) {
+  _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) {
+    o.__proto__ = p;
+    return o;
+  };
+  return _setPrototypeOf(o, p);
+}
+function _objectWithoutPropertiesLoose(source, excluded) {
+  if (source == null) return {};
+  var target = {};
+  for (var key in source) {
+    if (Object.prototype.hasOwnProperty.call(source, key)) {
+      if (excluded.indexOf(key) >= 0) continue;
+      target[key] = source[key];
+    }
+  }
+  return target;
+}
+function _unsupportedIterableToArray(o, minLen) {
+  if (!o) return;
+  if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+  var n = Object.prototype.toString.call(o).slice(8, -1);
+  if (n === "Object" && o.constructor) n = o.constructor.name;
+  if (n === "Map" || n === "Set") return Array.from(o);
+  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+}
+function _arrayLikeToArray(arr, len) {
+  if (len == null || len > arr.length) len = arr.length;
+  for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+  return arr2;
+}
+function _createForOfIteratorHelperLoose(o, allowArrayLike) {
+  var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"];
+  if (it) return (it = it.call(o)).next.bind(it);
+  if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
+    if (it) o = it;
+    var i = 0;
+    return function () {
+      if (i >= o.length) return {
+        done: true
+      };
+      return {
+        done: false,
+        value: o[i++]
+      };
+    };
+  }
+  throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+}
+
+var _excluded = ["width", "height", "fill"];
+var Cross = function Cross(_ref) {
+  var _ref$width = _ref.width,
+    width = _ref$width === void 0 ? 32 : _ref$width,
+    _ref$height = _ref.height,
+    height = _ref$height === void 0 ? 32 : _ref$height,
+    _ref$fill = _ref.fill,
+    fill = _ref$fill === void 0 ? 'white' : _ref$fill,
+    rest = _objectWithoutPropertiesLoose(_ref, _excluded);
   return React.createElement("svg", Object.assign({
-    width: _width,
-    height: _height,
+    width: width,
+    height: height,
     viewBox: '0 0 11 11',
     xmlns: 'http://www.w3.org/2000/svg'
   }, rest), React.createElement("path", {
     d: 'M9.656 1.688L5.944 5.4L9.656 9.112L8.712 10.056L5 6.344L1.288 10.056L0.344 9.112L4.056 5.4L0.344 1.688L1.288 0.743999L5 4.456L8.712 0.743999L9.656 1.688Z',
-    fill: _fill
+    fill: fill
   }));
 };
 
-const Minimize = ({
-  width: _width = 16,
-  height: _height = 1,
-  fill: _fill = 'white',
-  ...rest
-}) => {
+var _excluded$1 = ["width", "height", "fill"];
+var Minimize = function Minimize(_ref) {
+  var _ref$width = _ref.width,
+    width = _ref$width === void 0 ? 16 : _ref$width,
+    _ref$height = _ref.height,
+    height = _ref$height === void 0 ? 1 : _ref$height,
+    _ref$fill = _ref.fill,
+    fill = _ref$fill === void 0 ? 'white' : _ref$fill,
+    rest = _objectWithoutPropertiesLoose(_ref, _excluded$1);
   return React.createElement("svg", Object.assign({
-    width: _width,
-    height: _height,
+    width: width,
+    height: height,
     viewBox: '0 0 11 1',
     xmlns: 'http://www.w3.org/2000/svg'
   }, rest), React.createElement("rect", {
     width: '11',
     height: '1',
-    fill: _fill
+    fill: fill
   }));
 };
 
-const FooterLogo = ({
-  width: _width = 32,
-  height: _height = 32,
-  fill: _fill = '#C5C5C5',
-  ...rest
-}) => {
+var _excluded$2 = ["width", "height", "fill"];
+var FooterLogo = function FooterLogo(_ref) {
+  var _ref$width = _ref.width,
+    width = _ref$width === void 0 ? 32 : _ref$width,
+    _ref$height = _ref.height,
+    height = _ref$height === void 0 ? 32 : _ref$height,
+    _ref$fill = _ref.fill,
+    fill = _ref$fill === void 0 ? '#C5C5C5' : _ref$fill,
+    rest = _objectWithoutPropertiesLoose(_ref, _excluded$2);
   return React.createElement("svg", Object.assign({
-    width: _width,
-    height: _height,
+    width: width,
+    height: height,
     viewBox: '0 0 103 20',
     xmlns: 'http://www.w3.org/2000/svg'
   }, rest), React.createElement("path", {
     d: 'M91.483 10.2491C91.483 9.61748 91.8537 9.0958 92.54 9.0958C93.1091 9.11485 93.5697 9.63311 93.5697 10.2491V14.2164C93.5697 14.24 93.5744 14.2633 93.5834 14.2851C93.5924 14.3069 93.6057 14.3266 93.6224 14.3433C93.6391 14.36 93.6589 14.3731 93.6807 14.3821C93.7025 14.3911 93.7259 14.3957 93.7495 14.3956H95.5465C95.5941 14.3956 95.6397 14.3767 95.6733 14.3431C95.7069 14.3095 95.7258 14.2639 95.7258 14.2164V9.80993C95.7258 8.20338 94.7782 7.15953 93.2678 7.15953C92.224 7.15953 91.5377 7.61282 91.0986 8.10519C91.0971 8.10731 91.0951 8.10904 91.0928 8.11023C91.0905 8.11142 91.088 8.11205 91.0854 8.11205C91.0828 8.11205 91.0802 8.11142 91.0779 8.11023C91.0757 8.10904 91.0737 8.10731 91.0722 8.10519C90.6731 7.57326 90.0415 7.16099 89.1349 7.16099C88.3109 7.16099 87.6109 7.50292 87.2661 8.00848L87.2539 8.00506V7.50389C87.2539 7.48031 87.2493 7.45695 87.2404 7.43514C87.2314 7.41334 87.2182 7.39352 87.2015 7.37682C87.1849 7.36012 87.1651 7.34687 87.1433 7.33783C87.1215 7.32879 87.0982 7.32414 87.0746 7.32414H85.2912C85.244 7.32491 85.199 7.34417 85.1658 7.37778C85.1327 7.4114 85.114 7.45668 85.1139 7.50389V14.2164C85.1139 14.2639 85.1328 14.3095 85.1664 14.3431C85.2 14.3767 85.2456 14.3956 85.2932 14.3956H87.0766C87.1241 14.3956 87.1697 14.3767 87.2033 14.3431C87.2369 14.3095 87.2558 14.2639 87.2558 14.2164V10.2491C87.2558 9.61748 87.6266 9.0958 88.2997 9.0958C88.8756 9.11485 89.343 9.63311 89.343 10.2491V14.2164C89.343 14.2639 89.3619 14.3095 89.3955 14.3431C89.4292 14.3767 89.4748 14.3956 89.5223 14.3956H91.3057C91.3532 14.3956 91.3988 14.3767 91.4324 14.3431C91.4661 14.3095 91.4849 14.2639 91.4849 14.2164L91.483 10.2491ZM100.927 14.2164C100.927 14.2639 100.946 14.3095 100.979 14.3431C101.013 14.3767 101.059 14.3956 101.106 14.3956H102.821C102.868 14.3956 102.914 14.3767 102.947 14.3431C102.981 14.3095 103 14.2639 103 14.2164V10.0156C103 8.20338 101.819 7.15953 99.801 7.15953C99.0649 7.15367 98.0533 7.36712 97.4691 7.64555C97.4394 7.66035 97.4145 7.68324 97.3972 7.71158C97.3799 7.73993 97.371 7.77257 97.3714 7.80577V9.2526C97.3714 9.28314 97.3792 9.31319 97.3941 9.33986C97.409 9.36654 97.4304 9.38895 97.4565 9.40497C97.4825 9.42099 97.5122 9.43008 97.5427 9.43136C97.5732 9.43265 97.6035 9.4261 97.6308 9.41232C98.1364 9.16467 98.7142 8.98589 99.3214 8.98589C100.209 8.96831 100.928 9.46654 100.928 10.0981V10.147C100.928 10.17 100.923 10.1927 100.911 10.2128C100.9 10.2328 100.883 10.2494 100.863 10.261C100.844 10.2725 100.821 10.2784 100.798 10.2782C100.775 10.278 100.752 10.2717 100.733 10.2598C100.402 10.0644 99.8577 9.89053 99.2779 9.89053C97.7812 9.89053 96.5454 10.7966 96.5454 12.1697C96.5454 13.6527 97.7812 14.5593 99.209 14.5593C100.033 14.5593 100.678 14.2296 100.925 13.955L100.927 14.2164ZM100.954 12.1712C100.954 12.7344 100.336 13.0362 99.7463 13.0362C99.1284 13.0362 98.5252 12.7344 98.5252 12.1712C98.5252 11.6221 99.1294 11.3203 99.7463 11.3203C100.336 11.3203 100.954 11.6221 100.954 12.1712Z',
-    fill: _fill
+    fill: fill
   }), React.createElement("path", {
     d: 'M81.6947 14.3956H83.478C83.5256 14.3956 83.5712 14.3767 83.6048 14.3431C83.6384 14.3095 83.6573 14.2639 83.6573 14.2164V7.5039C83.6573 7.45635 83.6384 7.41075 83.6048 7.37713C83.5712 7.34352 83.5256 7.32463 83.478 7.32463H81.6947C81.6471 7.32463 81.6015 7.34352 81.5679 7.37713C81.5343 7.41075 81.5154 7.45635 81.5154 7.5039V14.2164C81.5154 14.2639 81.5343 14.3095 81.5679 14.3431C81.6015 14.3767 81.6471 14.3956 81.6947 14.3956Z',
-    fill: _fill
+    fill: fill
   }), React.createElement("path", {
     d: 'M82.6003 4.00014H82.5705C82.3972 3.99758 82.2252 4.02978 82.0646 4.09482C81.904 4.15987 81.7581 4.25645 81.6355 4.37885C81.5129 4.50125 81.416 4.647 81.3507 4.80747C81.2853 4.96794 81.2528 5.13988 81.255 5.31313C81.2544 5.4851 81.288 5.65548 81.354 5.81429C81.4199 5.97311 81.5169 6.11718 81.6392 6.23807C81.7615 6.35896 81.9067 6.45425 82.0662 6.51837C82.2258 6.58248 82.3966 6.61413 82.5685 6.61147H82.5983C82.7698 6.61147 82.9396 6.5777 83.098 6.51208C83.2564 6.44647 83.4003 6.35029 83.5216 6.22905C83.6428 6.10781 83.739 5.96387 83.8046 5.80546C83.8702 5.64705 83.904 5.47727 83.904 5.30581C83.904 5.13434 83.8702 4.96456 83.8046 4.80615C83.739 4.64774 83.6428 4.5038 83.5216 4.38256C83.4003 4.26132 83.2564 4.16515 83.098 4.09953C82.9396 4.03391 82.7698 4.00014 82.5983 4.00014',
-    fill: _fill
+    fill: fill
   }), React.createElement("path", {
     d: 'M79.7198 12.3895C79.4939 12.1693 79.196 12.0384 78.8811 12.0207C77.7161 11.9836 77.5481 11.016 77.5481 10.7717C77.5481 10.5055 77.7332 9.57205 78.8792 9.53542C79.2181 9.51481 79.5358 9.3633 79.7651 9.11289C79.9944 8.86248 80.1175 8.53275 80.1083 8.19331C80.0991 7.85388 79.9584 7.53129 79.7158 7.29366C79.4733 7.05602 79.1479 6.92193 78.8083 6.91969H78.7995C78.4598 6.92039 78.1336 7.05357 77.8905 7.29092C77.6131 7.56153 77.4963 7.92593 77.4963 8.28397C77.4963 8.59903 77.2877 9.46264 76.3196 9.46264C75.9552 9.46264 75.5727 9.56863 75.2938 9.85341C75.2816 9.86562 75.2723 9.87978 75.2611 9.89297V9.8876C75.1937 9.95745 75.1805 9.90225 75.1815 9.86464V4.59704C75.1815 4.54958 75.1627 4.50406 75.1291 4.47046C75.0956 4.43685 75.0502 4.41791 75.0027 4.41778H73.1793C73.1317 4.41778 73.0861 4.43666 73.0525 4.47028C73.0189 4.5039 73 4.5495 73 4.59704V14.2618C73 14.3093 73.0189 14.3549 73.0525 14.3886C73.0861 14.4222 73.1317 14.4411 73.1793 14.4411H75.0027C75.0502 14.4409 75.0957 14.422 75.1293 14.3884C75.1629 14.3548 75.1818 14.3093 75.182 14.2618V11.691C75.182 11.6534 75.1942 11.5982 75.2616 11.6681V11.6637C75.2723 11.6764 75.2816 11.6895 75.2933 11.7018C75.5723 11.988 75.9493 12.0925 76.3191 12.0925C77.2877 12.0925 77.4963 13.0695 77.4963 13.2712C77.4963 13.5501 77.6131 13.9936 77.8905 14.2642C78.1346 14.5025 78.4623 14.6357 78.8034 14.6355C79.1505 14.6361 79.4836 14.499 79.7296 14.2542C79.9757 14.0093 80.1144 13.6769 80.1155 13.3298V13.3215C80.115 13.1473 80.0798 12.975 80.0118 12.8146C79.9439 12.6542 79.8446 12.5091 79.7198 12.3876',
-    fill: _fill
+    fill: fill
   }), React.createElement("path", {
     d: 'M6.516 8.084C6.516 8.78 6.276 9.36 5.796 9.824C5.324 10.28 4.6 10.508 3.624 10.508H2.016V14H0.924V5.636H3.624C4.568 5.636 5.284 5.864 5.772 6.32C6.268 6.776 6.516 7.364 6.516 8.084ZM3.624 9.608C4.232 9.608 4.68 9.476 4.968 9.212C5.256 8.948 5.4 8.572 5.4 8.084C5.4 7.052 4.808 6.536 3.624 6.536H2.016V9.608H3.624ZM10.5412 14.108C9.92522 14.108 9.36522 13.968 8.86122 13.688C8.36522 13.408 7.97322 13.012 7.68522 12.5C7.40522 11.98 7.26522 11.38 7.26522 10.7C7.26522 10.028 7.40922 9.436 7.69722 8.924C7.99322 8.404 8.39322 8.008 8.89722 7.736C9.40122 7.456 9.96522 7.316 10.5892 7.316C11.2132 7.316 11.7772 7.456 12.2812 7.736C12.7852 8.008 13.1812 8.4 13.4692 8.912C13.7652 9.424 13.9132 10.02 13.9132 10.7C13.9132 11.38 13.7612 11.98 13.4572 12.5C13.1612 13.012 12.7572 13.408 12.2452 13.688C11.7332 13.968 11.1652 14.108 10.5412 14.108ZM10.5412 13.148C10.9332 13.148 11.3012 13.056 11.6452 12.872C11.9892 12.688 12.2652 12.412 12.4732 12.044C12.6892 11.676 12.7972 11.228 12.7972 10.7C12.7972 10.172 12.6932 9.724 12.4852 9.356C12.2772 8.988 12.0052 8.716 11.6692 8.54C11.3332 8.356 10.9692 8.264 10.5772 8.264C10.1772 8.264 9.80922 8.356 9.47322 8.54C9.14522 8.716 8.88122 8.988 8.68122 9.356C8.48122 9.724 8.38122 10.172 8.38122 10.7C8.38122 11.236 8.47722 11.688 8.66922 12.056C8.86922 12.424 9.13322 12.7 9.46122 12.884C9.78922 13.06 10.1492 13.148 10.5412 13.148ZM23.909 7.424L21.857 14H20.729L19.145 8.78L17.561 14H16.433L14.369 7.424H15.485L16.997 12.944L18.629 7.424H19.745L21.341 12.956L22.829 7.424H23.909ZM30.7927 10.46C30.7927 10.668 30.7807 10.888 30.7567 11.12H25.5007C25.5407 11.768 25.7607 12.276 26.1607 12.644C26.5687 13.004 27.0607 13.184 27.6367 13.184C28.1087 13.184 28.5007 13.076 28.8127 12.86C29.1327 12.636 29.3567 12.34 29.4847 11.972H30.6608C30.4848 12.604 30.1327 13.12 29.6047 13.52C29.0767 13.912 28.4207 14.108 27.6367 14.108C27.0127 14.108 26.4527 13.968 25.9567 13.688C25.4687 13.408 25.0847 13.012 24.8047 12.5C24.5247 11.98 24.3847 11.38 24.3847 10.7C24.3847 10.02 24.5207 9.424 24.7927 8.912C25.0647 8.4 25.4447 8.008 25.9327 7.736C26.4287 7.456 26.9967 7.316 27.6367 7.316C28.2607 7.316 28.8127 7.452 29.2927 7.724C29.7727 7.996 30.1407 8.372 30.3967 8.852C30.6607 9.324 30.7927 9.86 30.7927 10.46ZM29.6647 10.232C29.6647 9.816 29.5727 9.46 29.3887 9.164C29.2047 8.86 28.9527 8.632 28.6327 8.48C28.3207 8.32 27.9727 8.24 27.5887 8.24C27.0367 8.24 26.5647 8.416 26.1727 8.768C25.7887 9.12 25.5687 9.608 25.5127 10.232H29.6647ZM33.1262 8.492C33.3182 8.116 33.5902 7.824 33.9422 7.616C34.3022 7.408 34.7382 7.304 35.2502 7.304V8.432H34.9622C33.7382 8.432 33.1262 9.096 33.1262 10.424V14H32.0342V7.424H33.1262V8.492ZM42.3107 10.46C42.3107 10.668 42.2987 10.888 42.2747 11.12H37.0187C37.0587 11.768 37.2787 12.276 37.6787 12.644C38.0867 13.004 38.5787 13.184 39.1547 13.184C39.6267 13.184 40.0187 13.076 40.3307 12.86C40.6507 12.636 40.8747 12.34 41.0027 11.972H42.1787C42.0027 12.604 41.6507 13.12 41.1227 13.52C40.5947 13.912 39.9387 14.108 39.1547 14.108C38.5307 14.108 37.9707 13.968 37.4747 13.688C36.9867 13.408 36.6027 13.012 36.3227 12.5C36.0427 11.98 35.9027 11.38 35.9027 10.7C35.9027 10.02 36.0387 9.424 36.3107 8.912C36.5827 8.4 36.9627 8.008 37.4507 7.736C37.9467 7.456 38.5147 7.316 39.1547 7.316C39.7787 7.316 40.3307 7.452 40.8107 7.724C41.2907 7.996 41.6587 8.372 41.9147 8.852C42.1787 9.324 42.3107 9.86 42.3107 10.46ZM41.1827 10.232C41.1827 9.816 41.0907 9.46 40.9067 9.164C40.7227 8.86 40.4707 8.632 40.1507 8.48C39.8387 8.32 39.4907 8.24 39.1067 8.24C38.5547 8.24 38.0827 8.416 37.6907 8.768C37.3067 9.12 37.0867 9.608 37.0307 10.232H41.1827ZM43.1441 10.688C43.1441 10.016 43.2801 9.428 43.5521 8.924C43.8241 8.412 44.1961 8.016 44.6681 7.736C45.1481 7.456 45.6841 7.316 46.2761 7.316C46.7881 7.316 47.2641 7.436 47.7041 7.676C48.1441 7.908 48.4801 8.216 48.7121 8.6V5.12H49.8161V14H48.7121V12.764C48.4961 13.156 48.1761 13.48 47.7521 13.736C47.3281 13.984 46.8321 14.108 46.2641 14.108C45.6801 14.108 45.1481 13.964 44.6681 13.676C44.1961 13.388 43.8241 12.984 43.5521 12.464C43.2801 11.944 43.1441 11.352 43.1441 10.688ZM48.7121 10.7C48.7121 10.204 48.6121 9.772 48.4121 9.404C48.2121 9.036 47.9401 8.756 47.5961 8.564C47.2601 8.364 46.8881 8.264 46.4801 8.264C46.0721 8.264 45.7001 8.36 45.3641 8.552C45.0281 8.744 44.7601 9.024 44.5601 9.392C44.3601 9.76 44.2601 10.192 44.2601 10.688C44.2601 11.192 44.3601 11.632 44.5601 12.008C44.7601 12.376 45.0281 12.66 45.3641 12.86C45.7001 13.052 46.0721 13.148 46.4801 13.148C46.8881 13.148 47.2601 13.052 47.5961 12.86C47.9401 12.66 48.2121 12.376 48.4121 12.008C48.6121 11.632 48.7121 11.196 48.7121 10.7ZM55.5527 8.648C55.7767 8.256 56.1047 7.936 56.5367 7.688C56.9687 7.44 57.4607 7.316 58.0127 7.316C58.6047 7.316 59.1367 7.456 59.6087 7.736C60.0807 8.016 60.4527 8.412 60.7247 8.924C60.9967 9.428 61.1327 10.016 61.1327 10.688C61.1327 11.352 60.9967 11.944 60.7247 12.464C60.4527 12.984 60.0767 13.388 59.5967 13.676C59.1247 13.964 58.5967 14.108 58.0127 14.108C57.4447 14.108 56.9447 13.984 56.5127 13.736C56.0887 13.488 55.7687 13.172 55.5527 12.788V14H54.4607V5.12H55.5527V8.648ZM60.0167 10.688C60.0167 10.192 59.9167 9.76 59.7167 9.392C59.5167 9.024 59.2447 8.744 58.9007 8.552C58.5647 8.36 58.1927 8.264 57.7847 8.264C57.3847 8.264 57.0127 8.364 56.6687 8.564C56.3327 8.756 56.0607 9.04 55.8527 9.416C55.6527 9.784 55.5527 10.212 55.5527 10.7C55.5527 11.196 55.6527 11.632 55.8527 12.008C56.0607 12.376 56.3327 12.66 56.6687 12.86C57.0127 13.052 57.3847 13.148 57.7847 13.148C58.1927 13.148 58.5647 13.052 58.9007 12.86C59.2447 12.66 59.5167 12.376 59.7167 12.008C59.9167 11.632 60.0167 11.192 60.0167 10.688ZM68.0341 7.424L64.0741 17.096H62.9461L64.2421 13.928L61.5901 7.424H62.8021L64.8661 12.752L66.9061 7.424H68.0341Z',
-    fill: _fill
+    fill: fill
   }));
 };
 
-const Check = ({
-  width: _width = 15,
-  height: _height = 11,
-  fill: _fill = '#03a932',
-  ...rest
-}) => {
+var _excluded$3 = ["width", "height", "fill"];
+var Check = function Check(_ref) {
+  var _ref$width = _ref.width,
+    width = _ref$width === void 0 ? 15 : _ref$width,
+    _ref$height = _ref.height,
+    height = _ref$height === void 0 ? 11 : _ref$height,
+    _ref$fill = _ref.fill,
+    fill = _ref$fill === void 0 ? '#03a932' : _ref$fill,
+    rest = _objectWithoutPropertiesLoose(_ref, _excluded$3);
   return React.createElement("svg", Object.assign({
-    width: _width,
-    height: _height,
+    width: width,
+    height: height,
     viewBox: '0 0 15 11',
     xmlns: 'http://www.w3.org/2000/svg'
   }, rest), React.createElement("path", {
     d: 'M13.7319 0.295798C13.639 0.20207 13.5284 0.127675 13.4065 0.0769067C13.2846 0.026138 13.1539 0 13.0219 0C12.8899 0 12.7592 0.026138 12.6373 0.0769067C12.5155 0.127675 12.4049 0.20207 12.3119 0.295798L4.86192 7.7558L1.73192 4.6158C1.6354 4.52256 1.52146 4.44925 1.3966 4.40004C1.27175 4.35084 1.13843 4.32671 1.00424 4.32903C0.870064 4.33135 0.737655 4.36008 0.614576 4.41357C0.491498 4.46706 0.380161 4.54428 0.286922 4.6408C0.193684 4.73732 0.12037 4.85126 0.0711659 4.97612C0.0219619 5.10097 -0.00216855 5.2343 0.000152918 5.36848C0.00247438 5.50266 0.0312022 5.63507 0.0846957 5.75814C0.138189 5.88122 0.215401 5.99256 0.311922 6.0858L4.15192 9.9258C4.24489 10.0195 4.35549 10.0939 4.47735 10.1447C4.59921 10.1955 4.72991 10.2216 4.86192 10.2216C4.99393 10.2216 5.12464 10.1955 5.2465 10.1447C5.36836 10.0939 5.47896 10.0195 5.57192 9.9258L13.7319 1.7658C13.8334 1.67216 13.9144 1.5585 13.9698 1.432C14.0252 1.30551 14.0539 1.1689 14.0539 1.0308C14.0539 0.892697 14.0252 0.756091 13.9698 0.629592C13.9144 0.503092 13.8334 0.389441 13.7319 0.295798Z',
-    fill: _fill
+    fill: fill
   }));
 };
 
-const Warning = ({
-  width: _width = 14,
-  height: _height = 13,
-  ...rest
-}) => {
+var _excluded$4 = ["width", "height"];
+var Warning = function Warning(_ref) {
+  var _ref$width = _ref.width,
+    width = _ref$width === void 0 ? 14 : _ref$width,
+    _ref$height = _ref.height,
+    height = _ref$height === void 0 ? 13 : _ref$height,
+    rest = _objectWithoutPropertiesLoose(_ref, _excluded$4);
   return React.createElement("svg", Object.assign({
-    width: _width,
-    height: _height,
+    width: width,
+    height: height,
     viewBox: '0 0 14 13',
     xmlns: 'http://www.w3.org/2000/svg'
   }, rest), React.createElement("path", {
@@ -127,52 +209,60 @@ const Warning = ({
   }));
 };
 
-const ArrowRight = ({
-  width: _width = 12,
-  height: _height = 9,
-  fill: _fill = 'white',
-  ...rest
-}) => {
+var _excluded$5 = ["width", "height", "fill"];
+var ArrowRight = function ArrowRight(_ref) {
+  var _ref$width = _ref.width,
+    width = _ref$width === void 0 ? 12 : _ref$width,
+    _ref$height = _ref.height,
+    height = _ref$height === void 0 ? 9 : _ref$height,
+    _ref$fill = _ref.fill,
+    fill = _ref$fill === void 0 ? 'white' : _ref$fill,
+    rest = _objectWithoutPropertiesLoose(_ref, _excluded$5);
   return React.createElement("svg", Object.assign({
-    width: _width,
-    height: _height,
+    width: width,
+    height: height,
     viewBox: '0 0 12 9',
     xmlns: 'http://www.w3.org/2000/svg'
   }, rest), React.createElement("path", {
     d: 'M11.3536 4.85355C11.5488 4.65829 11.5488 4.34171 11.3536 4.14645L8.17157 0.964466C7.97631 0.769204 7.65973 0.769204 7.46447 0.964466C7.2692 1.15973 7.2692 1.47631 7.46447 1.67157L10.2929 4.5L7.46447 7.32843C7.2692 7.52369 7.2692 7.84027 7.46447 8.03553C7.65973 8.2308 7.97631 8.2308 8.17157 8.03553L11.3536 4.85355ZM0.5 5H11V4H0.5V5Z',
-    fill: _fill
+    fill: fill
   }));
 };
 
-const Arrow = ({
-  width: _width = 27,
-  height: _height = 51,
-  fill: _fill = 'black',
-  ...rest
-}) => {
+var _excluded$6 = ["width", "height", "fill"];
+var Arrow = function Arrow(_ref) {
+  var _ref$width = _ref.width,
+    width = _ref$width === void 0 ? 27 : _ref$width,
+    _ref$height = _ref.height,
+    height = _ref$height === void 0 ? 51 : _ref$height,
+    _ref$fill = _ref.fill,
+    fill = _ref$fill === void 0 ? 'black' : _ref$fill,
+    rest = _objectWithoutPropertiesLoose(_ref, _excluded$6);
   return React.createElement("svg", Object.assign({
-    width: _width,
-    height: _height,
+    width: width,
+    height: height,
     viewBox: '0 0 27 51',
     xmlns: 'http://www.w3.org/2000/svg',
     fill: 'transparent'
   }, rest), React.createElement("path", {
     d: 'M25 49L2 25.5L25 2',
-    stroke: _fill,
+    stroke: fill,
     strokeWidth: '4',
     strokeLinecap: 'round',
     strokeLinejoin: 'round'
   }));
 };
 
-const Ethereum = ({
-  width: _width = 37,
-  height: _height = 37,
-  ...rest
-}) => {
+var _excluded$7 = ["width", "height"];
+var Ethereum = function Ethereum(_ref) {
+  var _ref$width = _ref.width,
+    width = _ref$width === void 0 ? 37 : _ref$width,
+    _ref$height = _ref.height,
+    height = _ref$height === void 0 ? 37 : _ref$height,
+    rest = _objectWithoutPropertiesLoose(_ref, _excluded$7);
   return React.createElement("svg", Object.assign({
-    width: _width,
-    height: _height,
+    width: width,
+    height: height,
     viewBox: '0 0 37 37',
     xmlns: 'http://www.w3.org/2000/svg'
   }, rest), React.createElement("rect", {
@@ -197,14 +287,16 @@ const Ethereum = ({
   })));
 };
 
-const Solana = ({
-  width: _width = 14,
-  height: _height = 14,
-  ...rest
-}) => {
+var _excluded$8 = ["width", "height"];
+var Solana = function Solana(_ref) {
+  var _ref$width = _ref.width,
+    width = _ref$width === void 0 ? 14 : _ref$width,
+    _ref$height = _ref.height,
+    height = _ref$height === void 0 ? 14 : _ref$height,
+    rest = _objectWithoutPropertiesLoose(_ref, _excluded$8);
   return React.createElement("svg", Object.assign({
-    width: _width,
-    height: _height,
+    width: width,
+    height: height,
     viewBox: '0 0 14 14',
     xmlns: 'http://www.w3.org/2000/svg'
   }, rest), React.createElement("path", {
@@ -245,14 +337,16 @@ const Solana = ({
   })));
 };
 
-const Ethereum$1 = ({
-  width: _width = 27,
-  height: _height = 27,
-  ...rest
-}) => {
+var _excluded$9 = ["width", "height"];
+var Ethereum$1 = function Ethereum(_ref) {
+  var _ref$width = _ref.width,
+    width = _ref$width === void 0 ? 27 : _ref$width,
+    _ref$height = _ref.height,
+    height = _ref$height === void 0 ? 27 : _ref$height,
+    rest = _objectWithoutPropertiesLoose(_ref, _excluded$9);
   return React.createElement("svg", Object.assign({
-    width: _width,
-    height: _height,
+    width: width,
+    height: height,
     viewBox: '0 0 27 27',
     xmlns: 'http://www.w3.org/2000/svg'
   }, rest), React.createElement("mask", {
@@ -289,14 +383,16 @@ const Ethereum$1 = ({
   }))));
 };
 
-const Avalanche = ({
-  width: _width = 37,
-  height: _height = 37,
-  ...rest
-}) => {
+var _excluded$a = ["width", "height"];
+var Avalanche = function Avalanche(_ref) {
+  var _ref$width = _ref.width,
+    width = _ref$width === void 0 ? 37 : _ref$width,
+    _ref$height = _ref.height,
+    height = _ref$height === void 0 ? 37 : _ref$height,
+    rest = _objectWithoutPropertiesLoose(_ref, _excluded$a);
   return React.createElement("svg", Object.assign({
-    width: _width,
-    height: _height,
+    width: width,
+    height: height,
     viewBox: '0 0 37 37',
     xmlns: 'http://www.w3.org/2000/svg'
   }, rest), React.createElement("rect", {
@@ -321,11 +417,9 @@ const Avalanche = ({
   })));
 };
 
-const Arbitrum = ({
-  width: _width = 37,
-  height: _height = 37,
-  ...rest
-}) => {
+var _excluded$b = ["width", "height"];
+var Arbitrum = function Arbitrum(_ref) {
+  var rest = _objectWithoutPropertiesLoose(_ref, _excluded$b);
   return React.createElement("svg", {
     xmlns: 'http://www.w3.org/2000/svg',
     width: '124.983',
@@ -373,11 +467,9 @@ const Arbitrum = ({
   })));
 };
 
-const Optimism = ({
-  width: _width = 37,
-  height: _height = 37,
-  ...rest
-}) => {
+var _excluded$c = ["width", "height"];
+var Optimism = function Optimism(_ref) {
+  var rest = _objectWithoutPropertiesLoose(_ref, _excluded$c);
   return React.createElement("svg", Object.assign({
     version: "1.0",
     xmlns: "http://www.w3.org/2000/svg",
@@ -390,22 +482,24 @@ const Optimism = ({
     fill: "#000000",
     stroke: "none"
   }, React.createElement("path", {
-    d: "M109 372 c-43 -22 -59 -38 -81 -81 -36 -68 -36 -114 0 -182 22 -43\r\n    38 -59 81 -81 68 -36 114 -36 182 0 43 22 59 38 81 81 36 68 36 114 0 182 -22\r\n    43 -38 59 -81 81 -31 16 -69 28 -91 28 -22 0 -60 -12 -91 -28z m79 -124 c16\r\n    -16 15 -60 -1 -82 -9 -12 -23 -17 -42 -14 -26 3 -30 8 -33 36 -5 54 44 92 76\r\n    60z m96 -1 c26 -19 13 -54 -24 -62 -17 -4 -30 -13 -30 -21 0 -8 -6 -14 -14\r\n    -14 -10 0 -12 9 -5 43 4 23 8 48 9 55 0 16 41 16 64 -1z"
+    d: "M109 372 c-43 -22 -59 -38 -81 -81 -36 -68 -36 -114 0 -182 22 -43\n    38 -59 81 -81 68 -36 114 -36 182 0 43 22 59 38 81 81 36 68 36 114 0 182 -22\n    43 -38 59 -81 81 -31 16 -69 28 -91 28 -22 0 -60 -12 -91 -28z m79 -124 c16\n    -16 15 -60 -1 -82 -9 -12 -23 -17 -42 -14 -26 3 -30 8 -33 36 -5 54 44 92 76\n    60z m96 -1 c26 -19 13 -54 -24 -62 -17 -4 -30 -13 -30 -21 0 -8 -6 -14 -14\n    -14 -10 0 -12 9 -5 43 4 23 8 48 9 55 0 16 41 16 64 -1z"
   }), React.createElement("path", {
-    d: "M140 219 c-14 -24 -7 -49 14 -49 15 0 28 34 19 56 -7 20 -21 17 -33\r\n    -7z"
+    d: "M140 219 c-14 -24 -7 -49 14 -49 15 0 28 34 19 56 -7 20 -21 17 -33\n    -7z"
   }), React.createElement("path", {
     d: "M247 233 c-12 -11 -8 -23 8 -23 8 0 15 7 15 15 0 16 -12 20 -23 8z"
   })));
 };
 
-const USDT = ({
-  width: _width = 37,
-  height: _height = 37,
-  ...rest
-}) => {
+var _excluded$d = ["width", "height"];
+var USDT = function USDT(_ref) {
+  var _ref$width = _ref.width,
+    width = _ref$width === void 0 ? 37 : _ref$width,
+    _ref$height = _ref.height,
+    height = _ref$height === void 0 ? 37 : _ref$height,
+    rest = _objectWithoutPropertiesLoose(_ref, _excluded$d);
   return React.createElement("svg", Object.assign({
-    width: _width,
-    height: _height,
+    width: width,
+    height: height,
     viewBox: '0 0 37 37',
     xmlns: 'http://www.w3.org/2000/svg'
   }, rest), React.createElement("rect", {
@@ -428,38 +522,43 @@ const USDT = ({
   })));
 };
 
-const Copy = ({
-  width: _width = 20,
-  height: _height = 20,
-  fill: _fill = '#979797',
-  ...rest
-}) => {
+var _excluded$e = ["width", "height", "fill"];
+var Copy = function Copy(_ref) {
+  var _ref$width = _ref.width,
+    width = _ref$width === void 0 ? 20 : _ref$width,
+    _ref$height = _ref.height,
+    height = _ref$height === void 0 ? 20 : _ref$height,
+    _ref$fill = _ref.fill,
+    fill = _ref$fill === void 0 ? '#979797' : _ref$fill,
+    rest = _objectWithoutPropertiesLoose(_ref, _excluded$e);
   return React.createElement("svg", Object.assign({
-    width: _width,
-    height: _height,
+    width: width,
+    height: height,
     viewBox: '0 0 330 330',
     xmlSpace: 'preserve',
     xmlns: 'http://www.w3.org/2000/svg',
-    fill: _fill
+    fill: fill
   }, rest), React.createElement("g", null, React.createElement("path", {
-    d: 'M35,270h45v45c0,8.284,6.716,15,15,15h200c8.284,0,15-6.716,15-15V75c0-8.284-6.716-15-15-15h-45V15\r\n     c0-8.284-6.716-15-15-15H35c-8.284,0-15,6.716-15,15v240C20,263.284,26.716,270,35,270z M280,300H110V90h170V300z M50,30h170v30H95\r\n     c-8.284,0-15,6.716-15,15v165H50V30z'
+    d: 'M35,270h45v45c0,8.284,6.716,15,15,15h200c8.284,0,15-6.716,15-15V75c0-8.284-6.716-15-15-15h-45V15\n     c0-8.284-6.716-15-15-15H35c-8.284,0-15,6.716-15,15v240C20,263.284,26.716,270,35,270z M280,300H110V90h170V300z M50,30h170v30H95\n     c-8.284,0-15,6.716-15,15v165H50V30z'
   }), React.createElement("path", {
     d: 'M155,120c-8.284,0-15,6.716-15,15s6.716,15,15,15h80c8.284,0,15-6.716,15-15s-6.716-15-15-15H155z'
   }), React.createElement("path", {
     d: 'M235,180h-80c-8.284,0-15,6.716-15,15s6.716,15,15,15h80c8.284,0,15-6.716,15-15S243.284,180,235,180z'
   }), React.createElement("path", {
-    d: 'M235,240h-80c-8.284,0-15,6.716-15,15c0,8.284,6.716,15,15,15h80c8.284,0,15-6.716,15-15C250,246.716,243.284,240,235,240z\r\n     '
+    d: 'M235,240h-80c-8.284,0-15,6.716-15,15c0,8.284,6.716,15,15,15h80c8.284,0,15-6.716,15-15C250,246.716,243.284,240,235,240z\n     '
   })));
 };
 
-const Bank = ({
-  width: _width = 32,
-  height: _height = 32,
-  ...rest
-}) => {
+var _excluded$f = ["width", "height"];
+var Bank = function Bank(_ref) {
+  var _ref$width = _ref.width,
+    width = _ref$width === void 0 ? 32 : _ref$width,
+    _ref$height = _ref.height,
+    height = _ref$height === void 0 ? 32 : _ref$height,
+    rest = _objectWithoutPropertiesLoose(_ref, _excluded$f);
   return React.createElement("svg", Object.assign({
-    width: _width,
-    height: _height,
+    width: width,
+    height: height,
     viewBox: '0 0 256 256',
     xmlns: 'http://www.w3.org/2000/svg'
   }, rest), React.createElement("defs", null), React.createElement("g", {
@@ -493,14 +592,16 @@ const Bank = ({
   })));
 };
 
-const BNB = ({
-  width: _width = 59,
-  height: _height = 58,
-  ...rest
-}) => {
+var _excluded$g = ["width", "height"];
+var BNB = function BNB(_ref) {
+  var _ref$width = _ref.width,
+    width = _ref$width === void 0 ? 59 : _ref$width,
+    _ref$height = _ref.height,
+    height = _ref$height === void 0 ? 58 : _ref$height,
+    rest = _objectWithoutPropertiesLoose(_ref, _excluded$g);
   return React.createElement("svg", Object.assign({
-    width: _width,
-    height: _height,
+    width: width,
+    height: height,
     viewBox: "0 0 59 58",
     xmlns: 'http://www.w3.org/2000/svg'
   }, rest), React.createElement("defs", null, React.createElement("clipPath", {
@@ -591,14 +692,16 @@ const BNB = ({
   })))));
 };
 
-const KEUR = ({
-  width: _width = 32,
-  height: _height = 32,
-  ...rest
-}) => {
+var _excluded$h = ["width", "height"];
+var KEUR = function KEUR(_ref) {
+  var _ref$width = _ref.width,
+    width = _ref$width === void 0 ? 32 : _ref$width,
+    _ref$height = _ref.height,
+    height = _ref$height === void 0 ? 32 : _ref$height,
+    rest = _objectWithoutPropertiesLoose(_ref, _excluded$h);
   return React.createElement("svg", Object.assign({
-    width: _width,
-    height: _height,
+    width: width,
+    height: height,
     viewBox: '0 0 32 32',
     xmlns: 'http://www.w3.org/2000/svg'
   }, rest), React.createElement("g", {
@@ -615,14 +718,16 @@ const KEUR = ({
   })));
 };
 
-const Celo = ({
-  width: _width = 37,
-  height: _height = 37,
-  ...rest
-}) => {
+var _excluded$i = ["width", "height"];
+var Celo = function Celo(_ref) {
+  var _ref$width = _ref.width,
+    width = _ref$width === void 0 ? 37 : _ref$width,
+    _ref$height = _ref.height,
+    height = _ref$height === void 0 ? 37 : _ref$height,
+    rest = _objectWithoutPropertiesLoose(_ref, _excluded$i);
   return React.createElement("svg", Object.assign({
-    width: _width,
-    height: _height,
+    width: width,
+    height: height,
     viewBox: '0 0 610 610',
     xmlns: 'http://www.w3.org/2000/svg'
   }, rest), React.createElement("circle", {
@@ -636,14 +741,16 @@ const Celo = ({
   }));
 };
 
-const BTC = ({
-  width: _width = 59,
-  height: _height = 58,
-  ...rest
-}) => {
+var _excluded$j = ["width", "height"];
+var BTC = function BTC(_ref) {
+  var _ref$width = _ref.width,
+    width = _ref$width === void 0 ? 59 : _ref$width,
+    _ref$height = _ref.height,
+    height = _ref$height === void 0 ? 58 : _ref$height,
+    rest = _objectWithoutPropertiesLoose(_ref, _excluded$j);
   return React.createElement("svg", Object.assign({
-    width: _width,
-    height: _height,
+    width: width,
+    height: height,
     viewBox: '0 0 21 20',
     xmlns: 'http://www.w3.org/2000/svg'
   }, rest), React.createElement("circle", {
@@ -684,6 +791,7 @@ const BTC = ({
   }));
 };
 
+var _CHAIN_NAMES_TO_IDS, _CHAIN_NAMES_TO_STRIN, _CHAIN_STRING_TO_NAME, _CHAIN_NAMES_TO_EXPLO, _CHAIN_IDS_TO_NAMES;
 var ChainName;
 (function (ChainName) {
   ChainName["ETHEREUM"] = "ETH";
@@ -708,63 +816,12 @@ var SupportedChainId;
   SupportedChainId[SupportedChainId["OPTIMISM"] = 11155420] = "OPTIMISM";
   SupportedChainId[SupportedChainId["POLYGON_ZKEM"] = 2442] = "POLYGON_ZKEM";
 })(SupportedChainId || (SupportedChainId = {}));
-const CHAIN_NAMES_TO_IDS = {
-  [ChainName.ETHEREUM]: SupportedChainId.ETHEREUM,
-  [ChainName.POLYGON]: SupportedChainId.POLYGON,
-  [ChainName.AVALANCHE]: SupportedChainId.AVALANCHE,
-  [ChainName.BSC]: SupportedChainId.BSC,
-  [ChainName.OPTIMISM]: SupportedChainId.OPTIMISM,
-  [ChainName.ARBITRUM]: SupportedChainId.ARBITRUM,
-  [ChainName.POLYGON_ZKEVM]: SupportedChainId.POLYGON_ZKEM
-};
-const CHAIN_NAMES_TO_STRING = {
-  [ChainName.ETHEREUM]: 'Ethereum',
-  [ChainName.POLYGON]: 'Polygon',
-  [ChainName.AVALANCHE]: 'Avalanche',
-  [ChainName.SOLANA]: 'Solana',
-  [ChainName.BSC]: 'BNB Smart Chain',
-  [ChainName.OPTIMISM]: 'Optimism',
-  [ChainName.ARBITRUM]: 'Arbitrum',
-  [ChainName.POLYGON_ZKEVM]: 'Polygon zkEVM',
-  [ChainName.TRON]: 'Tron',
-  [ChainName.FIAT]: 'Pay with FIAT',
-  [ChainName.BTC]: 'Bitcoin'
-};
-const CHAIN_STRING_TO_NAME = {
-  ['Ethereum']: ChainName.ETHEREUM,
-  ['Polygon']: ChainName.POLYGON,
-  ['Avalanche']: ChainName.AVALANCHE,
-  ['Solana']: ChainName.SOLANA,
-  ['Binance']: ChainName.BSC,
-  ['Optimism']: ChainName.OPTIMISM,
-  ['Arbitrum']: ChainName.ARBITRUM,
-  ['Polygon zkEVM']: ChainName.POLYGON_ZKEVM,
-  ['Tron']: ChainName.TRON,
-  ['Pay with FIAT']: ChainName.FIAT,
-  ['Bitcoin']: ChainName.BTC
-};
-const CHAIN_NAMES_TO_EXPLORER = {
-  [ChainName.ETHEREUM]: 'sepolia.etherscan.io',
-  [ChainName.POLYGON]: 'www.oklink.com/amoy',
-  [ChainName.AVALANCHE]: 'testnet.snowtrace.io',
-  [ChainName.SOLANA]: 'solscan.io',
-  [ChainName.BSC]: 'testnet.bscscan.com',
-  [ChainName.OPTIMISM]: 'sepolia-optimism.etherscan.io',
-  [ChainName.ARBITRUM]: 'sepolia.arbiscan.io',
-  [ChainName.POLYGON_ZKEVM]: 'cardona-zkevm.polygonscan.com',
-  [ChainName.TRON]: 'nile.tronscan.org/#',
-  [ChainName.BTC]: 'mempool.space/testnet'
-};
-const CHAIN_IDS_TO_NAMES = {
-  [SupportedChainId.ETHEREUM]: ChainName.ETHEREUM,
-  [SupportedChainId.POLYGON]: ChainName.POLYGON,
-  [SupportedChainId.AVALANCHE]: ChainName.AVALANCHE,
-  [SupportedChainId.BSC]: ChainName.BSC,
-  [SupportedChainId.OPTIMISM]: ChainName.OPTIMISM,
-  [SupportedChainId.ARBITRUM]: ChainName.ARBITRUM,
-  [SupportedChainId.POLYGON_ZKEM]: ChainName.POLYGON_ZKEVM
-};
-const networkOptions = [{
+var CHAIN_NAMES_TO_IDS = (_CHAIN_NAMES_TO_IDS = {}, _CHAIN_NAMES_TO_IDS[ChainName.ETHEREUM] = SupportedChainId.ETHEREUM, _CHAIN_NAMES_TO_IDS[ChainName.POLYGON] = SupportedChainId.POLYGON, _CHAIN_NAMES_TO_IDS[ChainName.AVALANCHE] = SupportedChainId.AVALANCHE, _CHAIN_NAMES_TO_IDS[ChainName.BSC] = SupportedChainId.BSC, _CHAIN_NAMES_TO_IDS[ChainName.OPTIMISM] = SupportedChainId.OPTIMISM, _CHAIN_NAMES_TO_IDS[ChainName.ARBITRUM] = SupportedChainId.ARBITRUM, _CHAIN_NAMES_TO_IDS[ChainName.POLYGON_ZKEVM] = SupportedChainId.POLYGON_ZKEM, _CHAIN_NAMES_TO_IDS);
+var CHAIN_NAMES_TO_STRING = (_CHAIN_NAMES_TO_STRIN = {}, _CHAIN_NAMES_TO_STRIN[ChainName.ETHEREUM] = 'Ethereum', _CHAIN_NAMES_TO_STRIN[ChainName.POLYGON] = 'Polygon', _CHAIN_NAMES_TO_STRIN[ChainName.AVALANCHE] = 'Avalanche', _CHAIN_NAMES_TO_STRIN[ChainName.SOLANA] = 'Solana', _CHAIN_NAMES_TO_STRIN[ChainName.BSC] = 'BNB Smart Chain', _CHAIN_NAMES_TO_STRIN[ChainName.OPTIMISM] = 'Optimism', _CHAIN_NAMES_TO_STRIN[ChainName.ARBITRUM] = 'Arbitrum', _CHAIN_NAMES_TO_STRIN[ChainName.POLYGON_ZKEVM] = 'Polygon zkEVM', _CHAIN_NAMES_TO_STRIN[ChainName.TRON] = 'Tron', _CHAIN_NAMES_TO_STRIN[ChainName.FIAT] = 'Pay with FIAT', _CHAIN_NAMES_TO_STRIN[ChainName.BTC] = 'Bitcoin', _CHAIN_NAMES_TO_STRIN);
+var CHAIN_STRING_TO_NAME = (_CHAIN_STRING_TO_NAME = {}, _CHAIN_STRING_TO_NAME['Ethereum'] = ChainName.ETHEREUM, _CHAIN_STRING_TO_NAME['Polygon'] = ChainName.POLYGON, _CHAIN_STRING_TO_NAME['Avalanche'] = ChainName.AVALANCHE, _CHAIN_STRING_TO_NAME['Solana'] = ChainName.SOLANA, _CHAIN_STRING_TO_NAME['Binance'] = ChainName.BSC, _CHAIN_STRING_TO_NAME['Optimism'] = ChainName.OPTIMISM, _CHAIN_STRING_TO_NAME['Arbitrum'] = ChainName.ARBITRUM, _CHAIN_STRING_TO_NAME['Polygon zkEVM'] = ChainName.POLYGON_ZKEVM, _CHAIN_STRING_TO_NAME['Tron'] = ChainName.TRON, _CHAIN_STRING_TO_NAME['Pay with FIAT'] = ChainName.FIAT, _CHAIN_STRING_TO_NAME['Bitcoin'] = ChainName.BTC, _CHAIN_STRING_TO_NAME);
+var CHAIN_NAMES_TO_EXPLORER = (_CHAIN_NAMES_TO_EXPLO = {}, _CHAIN_NAMES_TO_EXPLO[ChainName.ETHEREUM] = 'sepolia.etherscan.io', _CHAIN_NAMES_TO_EXPLO[ChainName.POLYGON] = 'www.oklink.com/amoy', _CHAIN_NAMES_TO_EXPLO[ChainName.AVALANCHE] = 'testnet.snowtrace.io', _CHAIN_NAMES_TO_EXPLO[ChainName.SOLANA] = 'solscan.io', _CHAIN_NAMES_TO_EXPLO[ChainName.BSC] = 'testnet.bscscan.com', _CHAIN_NAMES_TO_EXPLO[ChainName.OPTIMISM] = 'sepolia-optimism.etherscan.io', _CHAIN_NAMES_TO_EXPLO[ChainName.ARBITRUM] = 'sepolia.arbiscan.io', _CHAIN_NAMES_TO_EXPLO[ChainName.POLYGON_ZKEVM] = 'cardona-zkevm.polygonscan.com', _CHAIN_NAMES_TO_EXPLO[ChainName.TRON] = 'nile.tronscan.org/#', _CHAIN_NAMES_TO_EXPLO[ChainName.BTC] = 'mempool.space/testnet', _CHAIN_NAMES_TO_EXPLO);
+var CHAIN_IDS_TO_NAMES = (_CHAIN_IDS_TO_NAMES = {}, _CHAIN_IDS_TO_NAMES[SupportedChainId.ETHEREUM] = ChainName.ETHEREUM, _CHAIN_IDS_TO_NAMES[SupportedChainId.POLYGON] = ChainName.POLYGON, _CHAIN_IDS_TO_NAMES[SupportedChainId.AVALANCHE] = ChainName.AVALANCHE, _CHAIN_IDS_TO_NAMES[SupportedChainId.BSC] = ChainName.BSC, _CHAIN_IDS_TO_NAMES[SupportedChainId.OPTIMISM] = ChainName.OPTIMISM, _CHAIN_IDS_TO_NAMES[SupportedChainId.ARBITRUM] = ChainName.ARBITRUM, _CHAIN_IDS_TO_NAMES[SupportedChainId.POLYGON_ZKEM] = ChainName.POLYGON_ZKEVM, _CHAIN_IDS_TO_NAMES);
+var networkOptions = [{
   id: ChainName.ARBITRUM,
   label: 'Arbitrum',
   icon: Arbitrum
@@ -809,15 +866,19 @@ const networkOptions = [{
   label: 'Tron',
   icon: Celo
 }];
-const getNetworkOption = id => {
-  const index = networkOptions.findIndex(item => item.id === id);
+var getNetworkOption = function getNetworkOption(id) {
+  var index = networkOptions.findIndex(function (item) {
+    return item.id === id;
+  });
   if (index < 0) return;
   return networkOptions[index];
 };
-const CLUSTER = 'devnet';
-const SOLANA_HOST = clusterApiUrl(CLUSTER);
-const isEVMChain = chainId => chainId === ChainName.ETHEREUM || chainId === ChainName.POLYGON || chainId === ChainName.AVALANCHE || chainId === ChainName.BSC || chainId === ChainName.OPTIMISM || chainId === ChainName.ARBITRUM || chainId === ChainName.POLYGON_ZKEVM;
-const COIN_LIST = {
+var CLUSTER = 'devnet';
+var SOLANA_HOST = clusterApiUrl(CLUSTER);
+var isEVMChain = function isEVMChain(chainId) {
+  return chainId === ChainName.ETHEREUM || chainId === ChainName.POLYGON || chainId === ChainName.AVALANCHE || chainId === ChainName.BSC || chainId === ChainName.OPTIMISM || chainId === ChainName.ARBITRUM || chainId === ChainName.POLYGON_ZKEVM;
+};
+var COIN_LIST = {
   USDK: {
     symbol: 'USDK',
     icon: USDT
@@ -831,7 +892,7 @@ const COIN_LIST = {
     icon: BTC
   }
 };
-const ExpireTimeOptions = ['1 hour', '2 hours', '3 hours'];
+var ExpireTimeOptions = ['1 hour', '2 hours', '3 hours'];
 var TransactionStatus;
 (function (TransactionStatus) {
   TransactionStatus["AVAILABLE"] = "Available";
@@ -874,10 +935,8 @@ var DAppOptions;
   DAppOptions["LPDrain"] = "LPDrain";
 })(DAppOptions || (DAppOptions = {}));
 
-const {
-  createSlice
-} = toolkitRaw;
-const initialState = {
+var createSlice = createSlice$1;
+var initialState = {
   theme: {},
   tokenOptions: {},
   pendingTxs: 0,
@@ -902,11 +961,21 @@ const initialState = {
   submitted: false,
   amount: '',
   feeDeduct: false,
-  errorHandler: () => void 0,
-  closeHandler: () => void 0,
-  successHandler: () => void 0,
-  switchChainHandler: () => void 0,
-  keplrHandler: () => void 0,
+  errorHandler: function errorHandler() {
+    return void 0;
+  },
+  closeHandler: function closeHandler() {
+    return void 0;
+  },
+  successHandler: function successHandler() {
+    return void 0;
+  },
+  switchChainHandler: function switchChainHandler() {
+    return void 0;
+  },
+  keplrHandler: function keplrHandler() {
+    return void 0;
+  },
   initChainFromProvider: false,
   serviceFee: -1,
   backendUrl: '',
@@ -928,11 +997,11 @@ const initialState = {
   kycStatus: '',
   expireTime: '1 hour'
 };
-const optionSlice = createSlice({
+var optionSlice = createSlice({
   name: 'option',
-  initialState,
+  initialState: initialState,
   reducers: {
-    initialize: state => {
+    initialize: function initialize(state) {
       state.submitted = false;
       state.txId = -1;
       state.serviceFee = -1;
@@ -950,267 +1019,520 @@ const optionSlice = createSlice({
       state.targetNetworkFetching = false;
       state.signature = '';
     },
-    setPendingTxs: (state, action) => {
+    setPendingTxs: function setPendingTxs(state, action) {
       state.pendingTxs = action.payload;
     },
-    setPendingTxData: (state, action) => {
+    setPendingTxData: function setPendingTxData(state, action) {
       state.pendingTxData = action.payload;
     },
-    setTokenOptions: (state, action) => {
+    setTokenOptions: function setTokenOptions(state, action) {
       state.tokenOptions = action.payload;
     },
-    setTheme: (state, action) => {
+    setTheme: function setTheme(state, action) {
       state.theme = action.payload;
     },
-    setKimaExplorer: (state, action) => {
+    setKimaExplorer: function setKimaExplorer(state, action) {
       state.kimaExplorerUrl = action.payload;
     },
-    setSourceChain: (state, action) => {
+    setSourceChain: function setSourceChain(state, action) {
       state.sourceChain = action.payload;
     },
-    setTargetChain: (state, action) => {
+    setTargetChain: function setTargetChain(state, action) {
       state.targetChain = action.payload;
     },
-    setTargetAddress: (state, action) => {
+    setTargetAddress: function setTargetAddress(state, action) {
       state.targetAddress = action.payload;
     },
-    setBitcoinAddress: (state, action) => {
+    setBitcoinAddress: function setBitcoinAddress(state, action) {
       state.bitcoinAddress = action.payload;
     },
-    setBitcoinPubkey: (state, action) => {
+    setBitcoinPubkey: function setBitcoinPubkey(state, action) {
       state.bitcoinPubkey = action.payload;
     },
-    setSolanaConnectModal: (state, action) => {
+    setSolanaConnectModal: function setSolanaConnectModal(state, action) {
       state.solanaConnectModal = action.payload;
     },
-    setTronConnectModal: (state, action) => {
+    setTronConnectModal: function setTronConnectModal(state, action) {
       state.tronConnectModal = action.payload;
     },
-    setHelpPopup: (state, action) => {
+    setHelpPopup: function setHelpPopup(state, action) {
       state.helpPopup = action.payload;
     },
-    setHashPopup: (state, action) => {
+    setHashPopup: function setHashPopup(state, action) {
       state.hashPopup = action.payload;
     },
-    setPendingTxPopup: (state, action) => {
+    setPendingTxPopup: function setPendingTxPopup(state, action) {
       state.pendingTxPopup = action.payload;
     },
-    setBankPopup: (state, action) => {
+    setBankPopup: function setBankPopup(state, action) {
       state.bankPopup = action.payload;
     },
-    setProvider: (state, action) => {
+    setProvider: function setProvider(state, action) {
       state.provider = action.payload;
     },
-    setDappOption: (state, action) => {
+    setDappOption: function setDappOption(state, action) {
       state.dAppOption = action.payload;
     },
-    setWalletAutoConnect: (state, action) => {
+    setWalletAutoConnect: function setWalletAutoConnect(state, action) {
       state.walletAutoConnect = action.payload;
     },
-    setSolanaProvider: (state, action) => {
+    setSolanaProvider: function setSolanaProvider(state, action) {
       state.solanaProvider = action.payload;
     },
-    setSubmitted: (state, action) => {
+    setSubmitted: function setSubmitted(state, action) {
       state.submitted = action.payload;
     },
-    setTransactionOption: (state, action) => {
+    setTransactionOption: function setTransactionOption(state, action) {
       state.transactionOption = action.payload;
     },
-    setAmount: (state, action) => {
+    setAmount: function setAmount(state, action) {
       state.amount = action.payload;
     },
-    setErrorHandler: (state, action) => {
+    setErrorHandler: function setErrorHandler(state, action) {
       state.errorHandler = action.payload;
     },
-    setKeplrHandler: (state, action) => {
+    setKeplrHandler: function setKeplrHandler(state, action) {
       state.keplrHandler = action.payload;
     },
-    setCloseHandler: (state, action) => {
+    setCloseHandler: function setCloseHandler(state, action) {
       state.closeHandler = action.payload;
     },
-    setSwitchChainHandler: (state, action) => {
+    setSwitchChainHandler: function setSwitchChainHandler(state, action) {
       state.switchChainHandler = action.payload;
     },
-    setInitChainFromProvider: (state, action) => {
+    setInitChainFromProvider: function setInitChainFromProvider(state, action) {
       state.initChainFromProvider = action.payload;
     },
-    setSuccessHandler: (state, action) => {
+    setSuccessHandler: function setSuccessHandler(state, action) {
       state.successHandler = action.payload;
     },
-    setServiceFee: (state, action) => {
+    setServiceFee: function setServiceFee(state, action) {
       state.serviceFee = action.payload;
     },
-    setMode: (state, action) => {
+    setMode: function setMode(state, action) {
       state.mode = action.payload;
     },
-    setFeeDeduct: (state, action) => {
+    setFeeDeduct: function setFeeDeduct(state, action) {
       state.feeDeduct = action.payload;
     },
-    setBackendUrl: (state, action) => {
+    setBackendUrl: function setBackendUrl(state, action) {
       state.backendUrl = action.payload;
     },
-    setNodeProviderQuery: (state, action) => {
+    setNodeProviderQuery: function setNodeProviderQuery(state, action) {
       state.nodeProviderQuery = action.payload;
     },
-    setTxId: (state, action) => {
+    setTxId: function setTxId(state, action) {
       state.txId = action.payload;
     },
-    setSelectedToken: (state, action) => {
+    setSelectedToken: function setSelectedToken(state, action) {
       state.selectedToken = action.payload;
     },
-    setAvailableTokenList: (state, action) => {
+    setAvailableTokenList: function setAvailableTokenList(state, action) {
       state.avilableTokenList = action.payload;
     },
-    setCompliantOption: (state, action) => {
+    setCompliantOption: function setCompliantOption(state, action) {
       state.compliantOption = action.payload;
     },
-    setSourceCompliant: (state, action) => {
+    setSourceCompliant: function setSourceCompliant(state, action) {
       state.sourceCompliant = action.payload;
     },
-    setTargetCompliant: (state, action) => {
+    setTargetCompliant: function setTargetCompliant(state, action) {
       state.targetCompliant = action.payload;
     },
-    setUseFIAT: (state, action) => {
+    setUseFIAT: function setUseFIAT(state, action) {
       state.useFIAT = action.payload;
     },
-    setBankDetails: (state, action) => {
+    setBankDetails: function setBankDetails(state, action) {
       state.bankDetails = action.payload;
     },
-    setTargetChainFetching: (state, action) => {
+    setTargetChainFetching: function setTargetChainFetching(state, action) {
       state.targetNetworkFetching = action.payload;
     },
-    setSignature: (state, action) => {
+    setSignature: function setSignature(state, action) {
       state.signature = action.payload;
     },
-    setUuid: (state, action) => {
+    setUuid: function setUuid(state, action) {
       state.uuid = action.payload;
     },
-    setKYCStatus: (state, action) => {
+    setKYCStatus: function setKYCStatus(state, action) {
       state.kycStatus = action.payload;
     },
-    setExpireTime: (state, action) => {
+    setExpireTime: function setExpireTime(state, action) {
       state.expireTime = action.payload;
     }
   }
 });
-const {
-  initialize,
-  setTokenOptions,
-  setKimaExplorer,
-  setTheme,
-  setSourceChain,
-  setTargetChain,
-  setTargetAddress,
-  setBitcoinAddress,
-  setBitcoinPubkey,
-  setSolanaConnectModal,
-  setTronConnectModal,
-  setHelpPopup,
-  setHashPopup,
-  setPendingTxPopup,
-  setBankPopup,
-  setSolanaProvider,
-  setProvider,
-  setDappOption,
-  setWalletAutoConnect,
-  setSubmitted,
-  setTransactionOption,
-  setAmount,
-  setErrorHandler,
-  setKeplrHandler,
-  setCloseHandler,
-  setSuccessHandler,
-  setSwitchChainHandler,
-  setInitChainFromProvider,
-  setServiceFee,
-  setMode,
-  setFeeDeduct,
-  setBackendUrl,
-  setNodeProviderQuery,
-  setTxId,
-  setSelectedToken,
-  setAvailableTokenList,
-  setCompliantOption,
-  setSourceCompliant,
-  setTargetCompliant,
-  setUseFIAT,
-  setBankDetails,
-  setTargetChainFetching,
-  setSignature,
-  setUuid,
-  setKYCStatus,
-  setExpireTime,
-  setPendingTxData,
-  setPendingTxs
-} = optionSlice.actions;
+var _optionSlice$actions = optionSlice.actions,
+  initialize = _optionSlice$actions.initialize,
+  setTokenOptions = _optionSlice$actions.setTokenOptions,
+  setKimaExplorer = _optionSlice$actions.setKimaExplorer,
+  setTheme = _optionSlice$actions.setTheme,
+  setSourceChain = _optionSlice$actions.setSourceChain,
+  setTargetChain = _optionSlice$actions.setTargetChain,
+  setTargetAddress = _optionSlice$actions.setTargetAddress,
+  setBitcoinAddress = _optionSlice$actions.setBitcoinAddress,
+  setBitcoinPubkey = _optionSlice$actions.setBitcoinPubkey,
+  setSolanaConnectModal = _optionSlice$actions.setSolanaConnectModal,
+  setTronConnectModal = _optionSlice$actions.setTronConnectModal,
+  setHelpPopup = _optionSlice$actions.setHelpPopup,
+  setHashPopup = _optionSlice$actions.setHashPopup,
+  setPendingTxPopup = _optionSlice$actions.setPendingTxPopup,
+  setBankPopup = _optionSlice$actions.setBankPopup,
+  setSolanaProvider = _optionSlice$actions.setSolanaProvider,
+  setProvider = _optionSlice$actions.setProvider,
+  setDappOption = _optionSlice$actions.setDappOption,
+  setWalletAutoConnect = _optionSlice$actions.setWalletAutoConnect,
+  setSubmitted = _optionSlice$actions.setSubmitted,
+  setTransactionOption = _optionSlice$actions.setTransactionOption,
+  setAmount = _optionSlice$actions.setAmount,
+  setErrorHandler = _optionSlice$actions.setErrorHandler,
+  setKeplrHandler = _optionSlice$actions.setKeplrHandler,
+  setCloseHandler = _optionSlice$actions.setCloseHandler,
+  setSuccessHandler = _optionSlice$actions.setSuccessHandler,
+  setSwitchChainHandler = _optionSlice$actions.setSwitchChainHandler,
+  setServiceFee = _optionSlice$actions.setServiceFee,
+  setMode = _optionSlice$actions.setMode,
+  setFeeDeduct = _optionSlice$actions.setFeeDeduct,
+  setBackendUrl = _optionSlice$actions.setBackendUrl,
+  setNodeProviderQuery = _optionSlice$actions.setNodeProviderQuery,
+  setTxId = _optionSlice$actions.setTxId,
+  setSelectedToken = _optionSlice$actions.setSelectedToken,
+  setAvailableTokenList = _optionSlice$actions.setAvailableTokenList,
+  setCompliantOption = _optionSlice$actions.setCompliantOption,
+  setSourceCompliant = _optionSlice$actions.setSourceCompliant,
+  setTargetCompliant = _optionSlice$actions.setTargetCompliant,
+  setUseFIAT = _optionSlice$actions.setUseFIAT,
+  setBankDetails = _optionSlice$actions.setBankDetails,
+  setTargetChainFetching = _optionSlice$actions.setTargetChainFetching,
+  setSignature = _optionSlice$actions.setSignature,
+  setUuid = _optionSlice$actions.setUuid,
+  setKYCStatus = _optionSlice$actions.setKYCStatus,
+  setExpireTime = _optionSlice$actions.setExpireTime,
+  setPendingTxData = _optionSlice$actions.setPendingTxData,
+  setPendingTxs = _optionSlice$actions.setPendingTxs;
 var optionReducer = optionSlice.reducer;
 
-const {
-  configureStore
-} = toolkitRaw;
-const store = configureStore({
+var configureStore = configureStore$1;
+var store = configureStore({
   reducer: {
     option: optionReducer
   },
-  middleware: getDefaultMiddleware => getDefaultMiddleware({
-    serializableCheck: false
-  })
+  middleware: function middleware(getDefaultMiddleware) {
+    return getDefaultMiddleware({
+      serializableCheck: false
+    });
+  }
 });
 
-const selectTokenOptions = state => state.option.tokenOptions;
-const selectTheme = state => state.option.theme;
-const selectKimaExplorer = state => state.option.kimaExplorerUrl;
-const selectSourceChain = state => state.option.sourceChain;
-const selectTargetChain = state => state.option.targetChain;
-const selectTargetAddress = state => state.option.targetAddress;
-const selectBitcoinAddress = state => state.option.bitcoinAddress;
-const selectBitcoinPubkey = state => state.option.bitcoinPubkey;
-const selectSolanaConnectModal = state => state.option.solanaConnectModal;
-const selectTronConnectModal = state => state.option.tronConnectModal;
-const selectHelpPopup = state => state.option.helpPopup;
-const selectHashPopup = state => state.option.hashPopup;
-const selectPendingTxPopup = state => state.option.pendingTxPopup;
-const selectBankPopup = state => state.option.bankPopup;
-const selectSolanaProvider = state => state.option.solanaProvider;
-const selectDappOption = state => state.option.dAppOption;
-const selectWalletAutoConnect = state => state.option.walletAutoConnect;
-const selectSubmitted = state => state.option.submitted;
-const selectTransactionOption = state => state.option.transactionOption;
-const selectAmount = state => state.option.amount;
-const selectErrorHandler = state => state.option.errorHandler;
-const selectKeplrHandler = state => state.option.keplrHandler;
-const selectCloseHandler = state => state.option.closeHandler;
-const selectSuccessHandler = state => state.option.successHandler;
-const selectServiceFee = state => state.option.serviceFee;
-const selectMode = state => state.option.mode;
-const selectFeeDeduct = state => state.option.feeDeduct;
-const selectBackendUrl = state => state.option.backendUrl;
-const selectNodeProviderQuery = state => state.option.nodeProviderQuery;
-const selectTxId = state => state.option.txId;
-const selectSelectedToken = state => state.option.selectedToken;
-const selectAvailableTokenList = state => state.option.avilableTokenList;
-const selectCompliantOption = state => state.option.compliantOption;
-const selectSourceCompliant = state => state.option.sourceCompliant;
-const selectTargetCompliant = state => state.option.targetCompliant;
-const selectUseFIAT = state => state.option.useFIAT;
-const selectBankDetails = state => state.option.bankDetails;
-const selectTargetChainFetching = state => state.option.targetNetworkFetching;
-const selectSignature = state => state.option.signature;
-const selectUuid = state => state.option.uuid;
-const selectKycStatus = state => state.option.kycStatus;
-const selectExpireTime = state => state.option.expireTime;
-const selectPendingTxs = state => state.option.pendingTxs;
-const selectPendingTxData = state => state.option.pendingTxData;
+// A type of promise-like that resolves synchronously and supports only one observer
+const _Pact = /*#__PURE__*/(function() {
+	function _Pact() {}
+	_Pact.prototype.then = function(onFulfilled, onRejected) {
+		const result = new _Pact();
+		const state = this.s;
+		if (state) {
+			const callback = state & 1 ? onFulfilled : onRejected;
+			if (callback) {
+				try {
+					_settle(result, 1, callback(this.v));
+				} catch (e) {
+					_settle(result, 2, e);
+				}
+				return result;
+			} else {
+				return this;
+			}
+		}
+		this.o = function(_this) {
+			try {
+				const value = _this.v;
+				if (_this.s & 1) {
+					_settle(result, 1, onFulfilled ? onFulfilled(value) : value);
+				} else if (onRejected) {
+					_settle(result, 1, onRejected(value));
+				} else {
+					_settle(result, 2, value);
+				}
+			} catch (e) {
+				_settle(result, 2, e);
+			}
+		};
+		return result;
+	};
+	return _Pact;
+})();
 
-const Loading180Ring = ({
-  width: _width = 24,
-  height: _height = 24,
-  fill: _fill = 'white'
-}) => {
+// Settles a pact synchronously
+function _settle(pact, state, value) {
+	if (!pact.s) {
+		if (value instanceof _Pact) {
+			if (value.s) {
+				if (state & 1) {
+					state = value.s;
+				}
+				value = value.v;
+			} else {
+				value.o = _settle.bind(null, pact, state);
+				return;
+			}
+		}
+		if (value && value.then) {
+			value.then(_settle.bind(null, pact, state), _settle.bind(null, pact, 2));
+			return;
+		}
+		pact.s = state;
+		pact.v = value;
+		const observer = pact.o;
+		if (observer) {
+			observer(pact);
+		}
+	}
+}
+
+function _isSettledPact(thenable) {
+	return thenable instanceof _Pact && thenable.s & 1;
+}
+
+const _iteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.iterator || (Symbol.iterator = Symbol("Symbol.iterator"))) : "@@iterator";
+
+const _asyncIteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.asyncIterator || (Symbol.asyncIterator = Symbol("Symbol.asyncIterator"))) : "@@asyncIterator";
+
+// Asynchronously implement a do ... while loop
+function _do(body, test) {
+	var awaitBody;
+	do {
+		var result = body();
+		if (result && result.then) {
+			if (_isSettledPact(result)) {
+				result = result.v;
+			} else {
+				awaitBody = true;
+				break;
+			}
+		}
+		var shouldContinue = test();
+		if (_isSettledPact(shouldContinue)) {
+			shouldContinue = shouldContinue.v;
+		}
+		if (!shouldContinue) {
+			return result;
+		}
+	} while (!shouldContinue.then);
+	const pact = new _Pact();
+	const reject = _settle.bind(null, pact, 2);
+	(awaitBody ? result.then(_resumeAfterBody) : shouldContinue.then(_resumeAfterTest)).then(void 0, reject);
+	return pact;
+	function _resumeAfterBody(value) {
+		result = value;
+		for (;;) {
+			shouldContinue = test();
+			if (_isSettledPact(shouldContinue)) {
+				shouldContinue = shouldContinue.v;
+			}
+			if (!shouldContinue) {
+				break;
+			}
+			if (shouldContinue.then) {
+				shouldContinue.then(_resumeAfterTest).then(void 0, reject);
+				return;
+			}
+			result = body();
+			if (result && result.then) {
+				if (_isSettledPact(result)) {
+					result = result.v;
+				} else {
+					result.then(_resumeAfterBody).then(void 0, reject);
+					return;
+				}
+			}
+		}
+		_settle(pact, 1, result);
+	}
+	function _resumeAfterTest(shouldContinue) {
+		if (shouldContinue) {
+			do {
+				result = body();
+				if (result && result.then) {
+					if (_isSettledPact(result)) {
+						result = result.v;
+					} else {
+						result.then(_resumeAfterBody).then(void 0, reject);
+						return;
+					}
+				}
+				shouldContinue = test();
+				if (_isSettledPact(shouldContinue)) {
+					shouldContinue = shouldContinue.v;
+				}
+				if (!shouldContinue) {
+					_settle(pact, 1, result);
+					return;
+				}
+			} while (!shouldContinue.then);
+			shouldContinue.then(_resumeAfterTest).then(void 0, reject);
+		} else {
+			_settle(pact, 1, result);
+		}
+	}
+}
+
+// Asynchronously call a function and send errors to recovery continuation
+function _catch(body, recover) {
+	try {
+		var result = body();
+	} catch(e) {
+		return recover(e);
+	}
+	if (result && result.then) {
+		return result.then(void 0, recover);
+	}
+	return result;
+}
+
+var selectTokenOptions = function selectTokenOptions(state) {
+  return state.option.tokenOptions;
+};
+var selectTheme = function selectTheme(state) {
+  return state.option.theme;
+};
+var selectKimaExplorer = function selectKimaExplorer(state) {
+  return state.option.kimaExplorerUrl;
+};
+var selectSourceChain = function selectSourceChain(state) {
+  return state.option.sourceChain;
+};
+var selectTargetChain = function selectTargetChain(state) {
+  return state.option.targetChain;
+};
+var selectTargetAddress = function selectTargetAddress(state) {
+  return state.option.targetAddress;
+};
+var selectBitcoinAddress = function selectBitcoinAddress(state) {
+  return state.option.bitcoinAddress;
+};
+var selectBitcoinPubkey = function selectBitcoinPubkey(state) {
+  return state.option.bitcoinPubkey;
+};
+var selectSolanaConnectModal = function selectSolanaConnectModal(state) {
+  return state.option.solanaConnectModal;
+};
+var selectTronConnectModal = function selectTronConnectModal(state) {
+  return state.option.tronConnectModal;
+};
+var selectHelpPopup = function selectHelpPopup(state) {
+  return state.option.helpPopup;
+};
+var selectHashPopup = function selectHashPopup(state) {
+  return state.option.hashPopup;
+};
+var selectPendingTxPopup = function selectPendingTxPopup(state) {
+  return state.option.pendingTxPopup;
+};
+var selectBankPopup = function selectBankPopup(state) {
+  return state.option.bankPopup;
+};
+var selectSolanaProvider = function selectSolanaProvider(state) {
+  return state.option.solanaProvider;
+};
+var selectDappOption = function selectDappOption(state) {
+  return state.option.dAppOption;
+};
+var selectWalletAutoConnect = function selectWalletAutoConnect(state) {
+  return state.option.walletAutoConnect;
+};
+var selectSubmitted = function selectSubmitted(state) {
+  return state.option.submitted;
+};
+var selectTransactionOption = function selectTransactionOption(state) {
+  return state.option.transactionOption;
+};
+var selectAmount = function selectAmount(state) {
+  return state.option.amount;
+};
+var selectErrorHandler = function selectErrorHandler(state) {
+  return state.option.errorHandler;
+};
+var selectKeplrHandler = function selectKeplrHandler(state) {
+  return state.option.keplrHandler;
+};
+var selectCloseHandler = function selectCloseHandler(state) {
+  return state.option.closeHandler;
+};
+var selectSuccessHandler = function selectSuccessHandler(state) {
+  return state.option.successHandler;
+};
+var selectServiceFee = function selectServiceFee(state) {
+  return state.option.serviceFee;
+};
+var selectMode = function selectMode(state) {
+  return state.option.mode;
+};
+var selectFeeDeduct = function selectFeeDeduct(state) {
+  return state.option.feeDeduct;
+};
+var selectBackendUrl = function selectBackendUrl(state) {
+  return state.option.backendUrl;
+};
+var selectNodeProviderQuery = function selectNodeProviderQuery(state) {
+  return state.option.nodeProviderQuery;
+};
+var selectTxId = function selectTxId(state) {
+  return state.option.txId;
+};
+var selectSelectedToken = function selectSelectedToken(state) {
+  return state.option.selectedToken;
+};
+var selectAvailableTokenList = function selectAvailableTokenList(state) {
+  return state.option.avilableTokenList;
+};
+var selectCompliantOption = function selectCompliantOption(state) {
+  return state.option.compliantOption;
+};
+var selectSourceCompliant = function selectSourceCompliant(state) {
+  return state.option.sourceCompliant;
+};
+var selectTargetCompliant = function selectTargetCompliant(state) {
+  return state.option.targetCompliant;
+};
+var selectUseFIAT = function selectUseFIAT(state) {
+  return state.option.useFIAT;
+};
+var selectBankDetails = function selectBankDetails(state) {
+  return state.option.bankDetails;
+};
+var selectTargetChainFetching = function selectTargetChainFetching(state) {
+  return state.option.targetNetworkFetching;
+};
+var selectSignature = function selectSignature(state) {
+  return state.option.signature;
+};
+var selectUuid = function selectUuid(state) {
+  return state.option.uuid;
+};
+var selectKycStatus = function selectKycStatus(state) {
+  return state.option.kycStatus;
+};
+var selectExpireTime = function selectExpireTime(state) {
+  return state.option.expireTime;
+};
+var selectPendingTxs = function selectPendingTxs(state) {
+  return state.option.pendingTxs;
+};
+var selectPendingTxData = function selectPendingTxData(state) {
+  return state.option.pendingTxData;
+};
+
+var Loading180Ring = function Loading180Ring(_ref) {
+  var _ref$width = _ref.width,
+    width = _ref$width === void 0 ? 24 : _ref$width,
+    _ref$height = _ref.height,
+    height = _ref$height === void 0 ? 24 : _ref$height,
+    _ref$fill = _ref.fill,
+    fill = _ref$fill === void 0 ? 'white' : _ref$fill;
   return React.createElement("svg", {
-    width: _width,
-    height: _height,
-    fill: _fill,
+    width: width,
+    height: height,
+    fill: fill,
     viewBox: '0 0 24 24',
     xmlns: 'http://www.w3.org/2000/svg'
   }, React.createElement("path", {
@@ -1224,7 +1546,7 @@ const Loading180Ring = ({
   })));
 };
 
-const stepInfo = [{
+var stepInfo = [{
   title: 'Initialize'
 }, {
   title: 'Source Transfer'
@@ -1235,57 +1557,58 @@ const stepInfo = [{
 }, {
   title: 'Finalize'
 }];
-const Progressbar = ({
-  step,
-  errorStep,
-  setFocus,
-  loadingStep
-}) => {
-  const theme = useSelector(selectTheme);
+var Progressbar = function Progressbar(_ref) {
+  var step = _ref.step,
+    errorStep = _ref.errorStep,
+    setFocus = _ref.setFocus,
+    loadingStep = _ref.loadingStep;
+  var theme = useSelector(selectTheme);
   return React.createElement("div", {
     className: 'kima-progressbar'
   }, React.createElement("div", {
     className: 'value',
     style: {
-      width: `calc(${step * 100 / 4}% + ${step > 0 && step < 3 ? 0.5 : 0}em)`
+      width: "calc(" + step * 100 / 4 + "% + " + (step > 0 && step < 3 ? 0.5 : 0) + "em)"
     }
   }), React.createElement("div", {
     className: 'step-indicators'
-  }, stepInfo.map((item, index) => React.createElement("div", {
-    key: item.title,
-    className: `step ${step >= index ? 'active' : ''}`,
-    onClick: () => {
-      if (index < 4) setFocus(index);
-    }
-  }, React.createElement("div", {
-    className: 'step-info'
-  }, index === loadingStep ? React.createElement(Loading180Ring, {
-    fill: theme.colorMode === 'dark' ? 'white' : '#5aa0db'
-  }) : step >= index ? index === errorStep ? React.createElement(Warning, {
-    "data-tooltip-id": 'error-tooltip'
-  }) : React.createElement(Check, null) : null, React.createElement("span", null, item.title))))));
+  }, stepInfo.map(function (item, index) {
+    return React.createElement("div", {
+      key: item.title,
+      className: "step " + (step >= index ? 'active' : ''),
+      onClick: function onClick() {
+        if (index < 4) setFocus(index);
+      }
+    }, React.createElement("div", {
+      className: 'step-info'
+    }, index === loadingStep ? React.createElement(Loading180Ring, {
+      fill: theme.colorMode === 'dark' ? 'white' : '#5aa0db'
+    }) : step >= index ? index === errorStep ? React.createElement(Warning, {
+      "data-tooltip-id": 'error-tooltip'
+    }) : React.createElement(Check, null) : null, React.createElement("span", null, item.title)));
+  })));
 };
 
-const ExternalLink = ({
-  to,
-  children,
-  className,
-  rest
-}) => React.createElement("a", Object.assign({
-  className: className,
-  href: to,
-  target: '_blank',
-  rel: 'noreferrer noopener'
-}, rest), children);
+var ExternalLink = function ExternalLink(_ref) {
+  var to = _ref.to,
+    children = _ref.children,
+    className = _ref.className,
+    rest = _ref.rest;
+  return React.createElement("a", Object.assign({
+    className: className,
+    href: to,
+    target: '_blank',
+    rel: 'noreferrer noopener'
+  }, rest), children);
+};
 
-const NetworkLabel = ({
-  sourceChain,
-  targetChain,
-  hasError
-}) => {
-  const theme = useSelector(selectTheme);
-  const SourceInfo = getNetworkOption(sourceChain);
-  const TargetInfo = getNetworkOption(targetChain);
+var NetworkLabel = function NetworkLabel(_ref) {
+  var sourceChain = _ref.sourceChain,
+    targetChain = _ref.targetChain,
+    hasError = _ref.hasError;
+  var theme = useSelector(selectTheme);
+  var SourceInfo = getNetworkOption(sourceChain);
+  var TargetInfo = getNetworkOption(targetChain);
   return React.createElement("div", {
     className: 'kima-card-network-label'
   }, React.createElement("div", {
@@ -1304,20 +1627,21 @@ const NetworkLabel = ({
   }, React.createElement(Warning, null), React.createElement("span", null, "1 issue")));
 };
 
-const PrimaryButton = ({
-  className,
-  clickHandler,
-  children,
-  isLoading: _isLoading = false,
-  disabled: _disabled = false,
-  ref
-}) => {
+var PrimaryButton = function PrimaryButton(_ref) {
+  var className = _ref.className,
+    clickHandler = _ref.clickHandler,
+    children = _ref.children,
+    _ref$isLoading = _ref.isLoading,
+    isLoading = _ref$isLoading === void 0 ? false : _ref$isLoading,
+    _ref$disabled = _ref.disabled,
+    disabled = _ref$disabled === void 0 ? false : _ref$disabled,
+    ref = _ref.ref;
   return React.createElement("button", {
-    className: `primary-button ${className}`,
+    className: "primary-button " + className,
     onClick: clickHandler,
     ref: ref,
-    disabled: _disabled
-  }, _isLoading && React.createElement("div", {
+    disabled: disabled
+  }, isLoading && React.createElement("div", {
     className: 'loading-indicator'
   }, React.createElement(Loading180Ring, {
     width: 24,
@@ -1326,26 +1650,28 @@ const PrimaryButton = ({
   })), children);
 };
 
-const SecondaryButton = ({
-  className,
-  clickHandler,
-  children,
-  theme,
-  style,
-  disabled: _disabled = false
-}) => React.createElement("button", Object.assign({
-  className: `secondary-button ${className} ${theme}`,
-  onClick: clickHandler
-}, style, {
-  disabled: _disabled
-}), children);
+var SecondaryButton = function SecondaryButton(_ref) {
+  var className = _ref.className,
+    clickHandler = _ref.clickHandler,
+    children = _ref.children,
+    theme = _ref.theme,
+    style = _ref.style,
+    _ref$disabled = _ref.disabled,
+    disabled = _ref$disabled === void 0 ? false : _ref$disabled;
+  return React.createElement("button", Object.assign({
+    className: "secondary-button " + className + " " + theme,
+    onClick: clickHandler
+  }, style, {
+    disabled: disabled
+  }), children);
+};
 
-const fetchWrapper = {
-  get,
-  post
+var fetchWrapper = {
+  get: get,
+  post: post
 };
 function get(url) {
-  const requestOptions = {
+  var requestOptions = {
     method: 'GET'
   };
   requestOptions.headers = {
@@ -1354,7 +1680,7 @@ function get(url) {
   return fetch(url, requestOptions).then(handleResponse);
 }
 function post(url, body) {
-  const requestOptions = {
+  var requestOptions = {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -1365,18 +1691,18 @@ function post(url, body) {
   return fetch(url, requestOptions).then(handleResponse);
 }
 function handleResponse(response) {
-  return response.text().then(text => {
-    let data = text;
+  return response.text().then(function (text) {
+    var data = text;
     try {
       data = JSON.parse(text);
     } catch (error) {
       data = text;
     }
     if (!response.ok) {
-      const error = data || response.statusText;
+      var error = data || response.statusText;
       return Promise.reject({
         status: response.status,
-        error
+        error: error
       });
     }
     return data;
@@ -1384,128 +1710,157 @@ function handleResponse(response) {
 }
 
 function useNetworkOptions() {
-  const dispatch = useDispatch();
-  const useFIAT = useSelector(selectUseFIAT);
-  const nodeProviderQuery = useSelector(selectNodeProviderQuery);
-  const [options, setOptions] = useState(networkOptions);
-  useEffect(() => {
+  var dispatch = useDispatch();
+  var useFIAT = useSelector(selectUseFIAT);
+  var nodeProviderQuery = useSelector(selectNodeProviderQuery);
+  var _useState = useState(networkOptions),
+    options = _useState[0],
+    setOptions = _useState[1];
+  useEffect(function () {
     if (!nodeProviderQuery) return;
-    (async function () {
+    (function () {
       try {
-        const networks = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/chain`);
-        setOptions(networkOptions.filter(network => networks.Chain.findIndex(chain => chain.symbol === network.id && !chain.disabled) >= 0 || network.id === ChainName.FIAT && useFIAT));
-        let tokenOptions = {};
-        for (const network of networks.Chain) {
-          for (const token of network.tokens) {
-            if (!tokenOptions[token.symbol]) {
-              tokenOptions[token.symbol] = {};
+        var _temp = _catch(function () {
+          return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/chains/chain")).then(function (networks) {
+            setOptions(networkOptions.filter(function (network) {
+              return networks.Chain.findIndex(function (chain) {
+                return chain.symbol === network.id && !chain.disabled;
+              }) >= 0 || network.id === ChainName.FIAT && useFIAT;
+            }));
+            var tokenOptions = {};
+            for (var _iterator = _createForOfIteratorHelperLoose(networks.Chain), _step; !(_step = _iterator()).done;) {
+              var network = _step.value;
+              for (var _iterator2 = _createForOfIteratorHelperLoose(network.tokens), _step2; !(_step2 = _iterator2()).done;) {
+                var token = _step2.value;
+                if (!tokenOptions[token.symbol]) {
+                  tokenOptions[token.symbol] = {};
+                }
+                tokenOptions[token.symbol][network.symbol] = token.address;
+              }
             }
-            tokenOptions[token.symbol][network.symbol] = token.address;
-          }
-        }
-        dispatch(setTokenOptions(tokenOptions));
+            dispatch(setTokenOptions(tokenOptions));
+          });
+        }, function (e) {
+          console.log('rpc disconnected', e);
+          toast.error('rpc disconnected');
+        });
+        return _temp && _temp.then ? _temp.then(function () {}) : void 0;
       } catch (e) {
-        console.log('rpc disconnected', e);
-        toast.error('rpc disconnected');
+        Promise.reject(e);
       }
     })();
   }, [nodeProviderQuery]);
-  return useMemo(() => ({
-    options
-  }), [options]);
+  return useMemo(function () {
+    return {
+      options: options
+    };
+  }, [options]);
 }
 
-const Network = ({
-  isOriginChain: _isOriginChain = true
-}) => {
-  const sourceChangeRef = useRef(false);
-  const theme = useSelector(selectTheme);
-  const mode = useSelector(selectMode);
-  const dAppOption = useSelector(selectDappOption);
-  const originNetwork = useSelector(selectSourceChain);
-  const targetNetwork = useSelector(selectTargetChain);
-  const nodeProviderQuery = useSelector(selectNodeProviderQuery);
-  const dispatch = useDispatch();
-  const sliderRef = useRef();
-  const [availableNetworks, setAvailableNetworks] = useState([]);
-  const {
-    options: networkOptions
-  } = useNetworkOptions();
-  const selectedNetwork = useMemo(() => {
-    const index = networkOptions.findIndex(option => option.id === (_isOriginChain ? originNetwork : targetNetwork));
+var Network = function Network(_ref) {
+  var _ref$isOriginChain = _ref.isOriginChain,
+    isOriginChain = _ref$isOriginChain === void 0 ? true : _ref$isOriginChain;
+  var sourceChangeRef = useRef(false);
+  var theme = useSelector(selectTheme);
+  var mode = useSelector(selectMode);
+  var dAppOption = useSelector(selectDappOption);
+  var originNetwork = useSelector(selectSourceChain);
+  var targetNetwork = useSelector(selectTargetChain);
+  var nodeProviderQuery = useSelector(selectNodeProviderQuery);
+  var dispatch = useDispatch();
+  var sliderRef = useRef();
+  var _useState = useState([]),
+    availableNetworks = _useState[0],
+    setAvailableNetworks = _useState[1];
+  var _useNetworkOptions = useNetworkOptions(),
+    networkOptions = _useNetworkOptions.options;
+  var selectedNetwork = useMemo(function () {
+    var index = networkOptions.findIndex(function (option) {
+      return option.id === (isOriginChain ? originNetwork : targetNetwork);
+    });
     if (index >= 0) return networkOptions[index];
     return networkOptions[3];
   }, [originNetwork, targetNetwork, networkOptions]);
-  const networks = useMemo(() => {
-    if (_isOriginChain && mode === ModeOptions.bridge) {
+  var networks = useMemo(function () {
+    if (isOriginChain && mode === ModeOptions.bridge) {
       return networkOptions;
     }
-    return networkOptions.filter(network => availableNetworks.findIndex(id => id === network.id) >= 0);
-  }, [networkOptions, _isOriginChain, availableNetworks, dAppOption]);
-  useEffect(() => {
+    return networkOptions.filter(function (network) {
+      return availableNetworks.findIndex(function (id) {
+        return id === network.id;
+      }) >= 0;
+    });
+  }, [networkOptions, isOriginChain, availableNetworks, dAppOption]);
+  useEffect(function () {
     if (!nodeProviderQuery || mode !== ModeOptions.bridge) return;
-    (async function () {
+    (function () {
       try {
-        const networks = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/get_available_chains/${originNetwork}`);
-        setAvailableNetworks(networks.Chains);
-        if (_isOriginChain && !targetNetwork) {
-          dispatch(setTargetChain(networks.Chains[0]));
-        }
-        if (sourceChangeRef.current) {
-          sourceChangeRef.current = false;
-          dispatch(setTargetChain(networks.Chains[0]));
-        }
+        var _temp = _catch(function () {
+          return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/chains/get_available_chains/" + originNetwork)).then(function (networks) {
+            setAvailableNetworks(networks.Chains);
+            if (isOriginChain && !targetNetwork) {
+              dispatch(setTargetChain(networks.Chains[0]));
+            }
+            if (sourceChangeRef.current) {
+              sourceChangeRef.current = false;
+              dispatch(setTargetChain(networks.Chains[0]));
+            }
+          });
+        }, function (e) {
+          console.log('rpc disconnected', e);
+          toast.error('rpc disconnected');
+        });
+        return _temp && _temp.then ? _temp.then(function () {}) : void 0;
       } catch (e) {
-        console.log('rpc disconnected', e);
-        toast.error('rpc disconnected');
+        Promise.reject(e);
       }
     })();
-  }, [nodeProviderQuery, originNetwork, targetNetwork, mode, _isOriginChain]);
-  useEffect(() => {
+  }, [nodeProviderQuery, originNetwork, targetNetwork, mode, isOriginChain]);
+  useEffect(function () {
     var _sliderRef$current, _sliderRef$current5, _sliderRef$current6, _sliderRef$current7;
-    let isDown = false;
-    let startX;
-    let scrollLeft;
-    (_sliderRef$current = sliderRef.current) === null || _sliderRef$current === void 0 ? void 0 : _sliderRef$current.addEventListener('mousedown', e => {
+    var isDown = false;
+    var startX;
+    var scrollLeft;
+    (_sliderRef$current = sliderRef.current) === null || _sliderRef$current === void 0 ? void 0 : _sliderRef$current.addEventListener('mousedown', function (e) {
       var _sliderRef$current2, _sliderRef$current3, _sliderRef$current4;
       isDown = true;
       (_sliderRef$current2 = sliderRef.current) === null || _sliderRef$current2 === void 0 ? void 0 : _sliderRef$current2.classList.add('active');
       startX = e.pageX - ((_sliderRef$current3 = sliderRef.current) === null || _sliderRef$current3 === void 0 ? void 0 : _sliderRef$current3.offsetLeft);
       scrollLeft = (_sliderRef$current4 = sliderRef.current) === null || _sliderRef$current4 === void 0 ? void 0 : _sliderRef$current4.scrollLeft;
     });
-    (_sliderRef$current5 = sliderRef.current) === null || _sliderRef$current5 === void 0 ? void 0 : _sliderRef$current5.addEventListener('mouseleave', () => {
+    (_sliderRef$current5 = sliderRef.current) === null || _sliderRef$current5 === void 0 ? void 0 : _sliderRef$current5.addEventListener('mouseleave', function () {
       isDown = false;
       sliderRef.current.classList.remove('active');
     });
-    (_sliderRef$current6 = sliderRef.current) === null || _sliderRef$current6 === void 0 ? void 0 : _sliderRef$current6.addEventListener('mouseup', () => {
+    (_sliderRef$current6 = sliderRef.current) === null || _sliderRef$current6 === void 0 ? void 0 : _sliderRef$current6.addEventListener('mouseup', function () {
       isDown = false;
       sliderRef.current.classList.remove('active');
     });
-    (_sliderRef$current7 = sliderRef.current) === null || _sliderRef$current7 === void 0 ? void 0 : _sliderRef$current7.addEventListener('mousemove', e => {
+    (_sliderRef$current7 = sliderRef.current) === null || _sliderRef$current7 === void 0 ? void 0 : _sliderRef$current7.addEventListener('mousemove', function (e) {
       if (!isDown) return;
       e.preventDefault();
-      const x = e.pageX - sliderRef.current.offsetLeft;
-      const walk = (x - startX) * 1;
+      var x = e.pageX - sliderRef.current.offsetLeft;
+      var walk = (x - startX) * 1;
       sliderRef.current.scrollLeft = scrollLeft - walk;
     });
   });
-  const slideLeft = () => {
-    let temp = 0;
-    const timerId = setInterval(() => {
+  var slideLeft = function slideLeft() {
+    var temp = 0;
+    var timerId = setInterval(function () {
       sliderRef.current.scrollLeft -= 10;
       if (temp++ === 20) clearInterval(timerId);
     }, 10);
   };
-  const slideRight = () => {
-    let temp = 0;
-    const timerId = setInterval(() => {
+  var slideRight = function slideRight() {
+    var temp = 0;
+    var timerId = setInterval(function () {
       sliderRef.current.scrollLeft += 10;
       if (temp++ === 20) clearInterval(timerId);
     }, 10);
   };
   return React.createElement("div", {
-    className: `network-select`
-  }, React.createElement("p", null, _isOriginChain ? 'Which network are you funding from?' : 'Which network are you funding to?'), React.createElement("div", {
+    className: "network-select"
+  }, React.createElement("p", null, isOriginChain ? 'Which network are you funding from?' : 'Which network are you funding to?'), React.createElement("div", {
     className: 'scroll-button'
   }, React.createElement(Arrow, {
     fill: theme.colorMode === 'light' ? 'black' : 'white',
@@ -1518,85 +1873,89 @@ const Network = ({
     ref: sliderRef
   }, React.createElement("div", {
     className: 'network-container'
-  }, networks.map(network => React.createElement("div", {
-    className: `card-item ${theme.colorMode} ${network.id === selectedNetwork.id ? 'active' : ''}`,
-    key: network.id,
-    onClick: () => {
-      if (_isOriginChain) {
-        dispatch(setSourceChain(network.id));
-        sourceChangeRef.current = true;
-      } else {
-        dispatch(setTargetChain(network.id));
-        dispatch(setServiceFee(-1));
+  }, networks.map(function (network) {
+    return React.createElement("div", {
+      className: "card-item " + theme.colorMode + " " + (network.id === selectedNetwork.id ? 'active' : ''),
+      key: network.id,
+      onClick: function onClick() {
+        if (isOriginChain) {
+          dispatch(setSourceChain(network.id));
+          sourceChangeRef.current = true;
+        } else {
+          dispatch(setTargetChain(network.id));
+          dispatch(setServiceFee(-1));
+        }
       }
-    }
-  }, React.createElement(network.icon, null), React.createElement("span", null, network.label))))));
+    }, React.createElement(network.icon, null), React.createElement("span", null, network.label));
+  }))));
 };
 
-const SolanaWalletSelect = () => {
-  const theme = useSelector(selectTheme);
-  const selectedProvider = useSelector(selectSolanaProvider);
-  const sliderRef = useRef();
-  const dispatch = useDispatch();
-  const {
-    wallets
-  } = useWallet();
-  const [detected, undetected] = useMemo(() => {
-    const detected = [];
-    const undetected = [];
-    for (const wallet of wallets) {
-      if (wallet.readyState === WalletReadyState.Installed || wallet.readyState === WalletReadyState.Loadable) {
-        detected.push(wallet);
-      } else if (wallet.readyState === WalletReadyState.NotDetected) {
-        undetected.push(wallet);
+var SolanaWalletSelect = function SolanaWalletSelect() {
+  var theme = useSelector(selectTheme);
+  var selectedProvider = useSelector(selectSolanaProvider);
+  var sliderRef = useRef();
+  var dispatch = useDispatch();
+  var _useWallet = useWallet(),
+    wallets = _useWallet.wallets;
+  var _useMemo = useMemo(function () {
+      var detected = [];
+      var undetected = [];
+      for (var _iterator = _createForOfIteratorHelperLoose(wallets), _step; !(_step = _iterator()).done;) {
+        var wallet = _step.value;
+        if (wallet.readyState === WalletReadyState.Installed || wallet.readyState === WalletReadyState.Loadable) {
+          detected.push(wallet);
+        } else if (wallet.readyState === WalletReadyState.NotDetected) {
+          undetected.push(wallet);
+        }
       }
-    }
-    return [detected, undetected];
-  }, [wallets]);
-  useEffect(() => {
+      return [detected, undetected];
+    }, [wallets]),
+    detected = _useMemo[0],
+    undetected = _useMemo[1];
+  useEffect(function () {
     var _sliderRef$current, _sliderRef$current5, _sliderRef$current6, _sliderRef$current7;
-    let isDown = false;
-    let startX;
-    let scrollLeft;
-    (_sliderRef$current = sliderRef.current) === null || _sliderRef$current === void 0 ? void 0 : _sliderRef$current.addEventListener('mousedown', e => {
+    var isDown = false;
+    var startX;
+    var scrollLeft;
+    (_sliderRef$current = sliderRef.current) === null || _sliderRef$current === void 0 ? void 0 : _sliderRef$current.addEventListener('mousedown', function (e) {
       var _sliderRef$current2, _sliderRef$current3, _sliderRef$current4;
       isDown = true;
       (_sliderRef$current2 = sliderRef.current) === null || _sliderRef$current2 === void 0 ? void 0 : _sliderRef$current2.classList.add('active');
       startX = e.pageX - ((_sliderRef$current3 = sliderRef.current) === null || _sliderRef$current3 === void 0 ? void 0 : _sliderRef$current3.offsetLeft);
       scrollLeft = (_sliderRef$current4 = sliderRef.current) === null || _sliderRef$current4 === void 0 ? void 0 : _sliderRef$current4.scrollLeft;
     });
-    (_sliderRef$current5 = sliderRef.current) === null || _sliderRef$current5 === void 0 ? void 0 : _sliderRef$current5.addEventListener('mouseleave', () => {
+    (_sliderRef$current5 = sliderRef.current) === null || _sliderRef$current5 === void 0 ? void 0 : _sliderRef$current5.addEventListener('mouseleave', function () {
       isDown = false;
       sliderRef.current.classList.remove('active');
     });
-    (_sliderRef$current6 = sliderRef.current) === null || _sliderRef$current6 === void 0 ? void 0 : _sliderRef$current6.addEventListener('mouseup', () => {
+    (_sliderRef$current6 = sliderRef.current) === null || _sliderRef$current6 === void 0 ? void 0 : _sliderRef$current6.addEventListener('mouseup', function () {
       isDown = false;
       sliderRef.current.classList.remove('active');
     });
-    (_sliderRef$current7 = sliderRef.current) === null || _sliderRef$current7 === void 0 ? void 0 : _sliderRef$current7.addEventListener('mousemove', e => {
+    (_sliderRef$current7 = sliderRef.current) === null || _sliderRef$current7 === void 0 ? void 0 : _sliderRef$current7.addEventListener('mousemove', function (e) {
       if (!isDown) return;
       e.preventDefault();
-      const x = e.pageX - sliderRef.current.offsetLeft;
-      const walk = (x - startX) * 1;
+      var x = e.pageX - sliderRef.current.offsetLeft;
+      var walk = (x - startX) * 1;
       sliderRef.current.scrollLeft = scrollLeft - walk;
     });
   });
-  const slideLeft = () => {
-    let temp = 0;
-    const timerId = setInterval(() => {
+  var slideLeft = function slideLeft() {
+    var temp = 0;
+    var timerId = setInterval(function () {
       sliderRef.current.scrollLeft -= 10;
       if (temp++ === 20) clearInterval(timerId);
     }, 10);
   };
-  const slideRight = () => {
-    let temp = 0;
-    const timerId = setInterval(() => {
+  var slideRight = function slideRight() {
+    var temp = 0;
+    var timerId = setInterval(function () {
       sliderRef.current.scrollLeft += 10;
       if (temp++ === 20) clearInterval(timerId);
     }, 10);
   };
   return React.createElement("div", {
-    className: `wallet-select`
+    className: "wallet-select"
   }, React.createElement("p", null, "Please select:"), React.createElement("div", {
     className: 'scroll-button'
   }, React.createElement(Arrow, {
@@ -1610,87 +1969,95 @@ const SolanaWalletSelect = () => {
     ref: sliderRef
   }, React.createElement("div", {
     className: 'wallet-container'
-  }, detected.map((wallet, index) => React.createElement("div", {
-    className: `card-item ${theme.colorMode} ${wallet.adapter.name === selectedProvider ? 'active' : ''}`,
-    onClick: () => dispatch(setSolanaProvider(wallet.adapter.name)),
-    key: `${wallet.adapter.name}-${index}`
-  }, React.createElement("img", {
-    src: wallet.adapter.icon,
-    alt: wallet.adapter.name
-  }), React.createElement("span", null, wallet.adapter.name))), undetected.map((wallet, index) => React.createElement(ExternalLink, {
-    to: wallet.adapter.url,
-    className: `card-item ${theme.colorMode}`,
-    key: `${wallet.adapter.name}-${index}`
-  }, React.createElement("img", {
-    src: wallet.adapter.icon,
-    alt: wallet.adapter.name
-  }), React.createElement("span", null, "Install", React.createElement("br", null), wallet.adapter.name))))));
+  }, detected.map(function (wallet, index) {
+    return React.createElement("div", {
+      className: "card-item " + theme.colorMode + " " + (wallet.adapter.name === selectedProvider ? 'active' : ''),
+      onClick: function onClick() {
+        return dispatch(setSolanaProvider(wallet.adapter.name));
+      },
+      key: wallet.adapter.name + "-" + index
+    }, React.createElement("img", {
+      src: wallet.adapter.icon,
+      alt: wallet.adapter.name
+    }), React.createElement("span", null, wallet.adapter.name));
+  }), undetected.map(function (wallet, index) {
+    return React.createElement(ExternalLink, {
+      to: wallet.adapter.url,
+      className: "card-item " + theme.colorMode,
+      key: wallet.adapter.name + "-" + index
+    }, React.createElement("img", {
+      src: wallet.adapter.icon,
+      alt: wallet.adapter.name
+    }), React.createElement("span", null, "Install", React.createElement("br", null), wallet.adapter.name));
+  }))));
 };
 
-const WalletSelect = () => {
-  const theme = useSelector(selectTheme);
-  const selectedProvider = useSelector(selectSolanaProvider);
-  const sliderRef = useRef();
-  const dispatch = useDispatch();
-  const {
-    wallets
-  } = useWallet$1();
-  const [detected, undetected] = useMemo(() => {
-    const detected = [];
-    const undetected = [];
-    for (const wallet of wallets) {
-      if (wallet.state === AdapterState.Connected || wallet.state === AdapterState.Disconnect || wallet.state === AdapterState.Loading) {
-        detected.push(wallet);
-      } else if (wallet.state === AdapterState.NotFound) {
-        undetected.push(wallet);
+var WalletSelect = function WalletSelect() {
+  var theme = useSelector(selectTheme);
+  var selectedProvider = useSelector(selectSolanaProvider);
+  var sliderRef = useRef();
+  var dispatch = useDispatch();
+  var _useWallet = useWallet$1(),
+    wallets = _useWallet.wallets;
+  var _useMemo = useMemo(function () {
+      var detected = [];
+      var undetected = [];
+      for (var _iterator = _createForOfIteratorHelperLoose(wallets), _step; !(_step = _iterator()).done;) {
+        var wallet = _step.value;
+        if (wallet.state === AdapterState.Connected || wallet.state === AdapterState.Disconnect || wallet.state === AdapterState.Loading) {
+          detected.push(wallet);
+        } else if (wallet.state === AdapterState.NotFound) {
+          undetected.push(wallet);
+        }
       }
-    }
-    return [detected, undetected];
-  }, [wallets]);
-  useEffect(() => {
+      return [detected, undetected];
+    }, [wallets]),
+    detected = _useMemo[0],
+    undetected = _useMemo[1];
+  useEffect(function () {
     var _sliderRef$current, _sliderRef$current5, _sliderRef$current6, _sliderRef$current7;
-    let isDown = false;
-    let startX;
-    let scrollLeft;
-    (_sliderRef$current = sliderRef.current) === null || _sliderRef$current === void 0 ? void 0 : _sliderRef$current.addEventListener('mousedown', e => {
+    var isDown = false;
+    var startX;
+    var scrollLeft;
+    (_sliderRef$current = sliderRef.current) === null || _sliderRef$current === void 0 ? void 0 : _sliderRef$current.addEventListener('mousedown', function (e) {
       var _sliderRef$current2, _sliderRef$current3, _sliderRef$current4;
       isDown = true;
       (_sliderRef$current2 = sliderRef.current) === null || _sliderRef$current2 === void 0 ? void 0 : _sliderRef$current2.classList.add('active');
       startX = e.pageX - ((_sliderRef$current3 = sliderRef.current) === null || _sliderRef$current3 === void 0 ? void 0 : _sliderRef$current3.offsetLeft);
       scrollLeft = (_sliderRef$current4 = sliderRef.current) === null || _sliderRef$current4 === void 0 ? void 0 : _sliderRef$current4.scrollLeft;
     });
-    (_sliderRef$current5 = sliderRef.current) === null || _sliderRef$current5 === void 0 ? void 0 : _sliderRef$current5.addEventListener('mouseleave', () => {
+    (_sliderRef$current5 = sliderRef.current) === null || _sliderRef$current5 === void 0 ? void 0 : _sliderRef$current5.addEventListener('mouseleave', function () {
       isDown = false;
       sliderRef.current.classList.remove('active');
     });
-    (_sliderRef$current6 = sliderRef.current) === null || _sliderRef$current6 === void 0 ? void 0 : _sliderRef$current6.addEventListener('mouseup', () => {
+    (_sliderRef$current6 = sliderRef.current) === null || _sliderRef$current6 === void 0 ? void 0 : _sliderRef$current6.addEventListener('mouseup', function () {
       isDown = false;
       sliderRef.current.classList.remove('active');
     });
-    (_sliderRef$current7 = sliderRef.current) === null || _sliderRef$current7 === void 0 ? void 0 : _sliderRef$current7.addEventListener('mousemove', e => {
+    (_sliderRef$current7 = sliderRef.current) === null || _sliderRef$current7 === void 0 ? void 0 : _sliderRef$current7.addEventListener('mousemove', function (e) {
       if (!isDown) return;
       e.preventDefault();
-      const x = e.pageX - sliderRef.current.offsetLeft;
-      const walk = (x - startX) * 1;
+      var x = e.pageX - sliderRef.current.offsetLeft;
+      var walk = (x - startX) * 1;
       sliderRef.current.scrollLeft = scrollLeft - walk;
     });
   });
-  const slideLeft = () => {
-    let temp = 0;
-    const timerId = setInterval(() => {
+  var slideLeft = function slideLeft() {
+    var temp = 0;
+    var timerId = setInterval(function () {
       sliderRef.current.scrollLeft -= 10;
       if (temp++ === 20) clearInterval(timerId);
     }, 10);
   };
-  const slideRight = () => {
-    let temp = 0;
-    const timerId = setInterval(() => {
+  var slideRight = function slideRight() {
+    var temp = 0;
+    var timerId = setInterval(function () {
       sliderRef.current.scrollLeft += 10;
       if (temp++ === 20) clearInterval(timerId);
     }, 10);
   };
   return React.createElement("div", {
-    className: `wallet-select`
+    className: "wallet-select"
   }, React.createElement("p", null, "Please select:"), React.createElement("div", {
     className: 'scroll-button'
   }, React.createElement(Arrow, {
@@ -1704,108 +2071,126 @@ const WalletSelect = () => {
     ref: sliderRef
   }, React.createElement("div", {
     className: 'wallet-container'
-  }, detected.map((wallet, index) => React.createElement("div", {
-    className: `card-item ${theme.colorMode} ${wallet.adapter.name === selectedProvider ? 'active' : ''}`,
-    onClick: () => dispatch(setSolanaProvider(wallet.adapter.name)),
-    key: `${wallet.adapter.name}-${index}`
-  }, React.createElement("img", {
-    src: wallet.adapter.icon,
-    alt: wallet.adapter.name
-  }), React.createElement("span", null, wallet.adapter.name))), undetected.map((wallet, index) => React.createElement(ExternalLink, {
-    to: wallet.adapter.url,
-    className: `card-item ${theme.colorMode}`,
-    key: `${wallet.adapter.name}-${index}`
-  }, React.createElement("img", {
-    src: wallet.adapter.icon,
-    alt: wallet.adapter.name
-  }), React.createElement("span", null, "Install", React.createElement("br", null), wallet.adapter.name))))));
+  }, detected.map(function (wallet, index) {
+    return React.createElement("div", {
+      className: "card-item " + theme.colorMode + " " + (wallet.adapter.name === selectedProvider ? 'active' : ''),
+      onClick: function onClick() {
+        return dispatch(setSolanaProvider(wallet.adapter.name));
+      },
+      key: wallet.adapter.name + "-" + index
+    }, React.createElement("img", {
+      src: wallet.adapter.icon,
+      alt: wallet.adapter.name
+    }), React.createElement("span", null, wallet.adapter.name));
+  }), undetected.map(function (wallet, index) {
+    return React.createElement(ExternalLink, {
+      to: wallet.adapter.url,
+      className: "card-item " + theme.colorMode,
+      key: wallet.adapter.name + "-" + index
+    }, React.createElement("img", {
+      src: wallet.adapter.icon,
+      alt: wallet.adapter.name
+    }), React.createElement("span", null, "Install", React.createElement("br", null), wallet.adapter.name));
+  }))));
 };
 
-const createWalletStatus = (isReady, statusMessage = '', connectBitcoinWallet, walletAddress) => ({
-  isReady,
-  statusMessage,
-  connectBitcoinWallet,
-  walletAddress
-});
+var createWalletStatus = function createWalletStatus(isReady, statusMessage, connectBitcoinWallet, walletAddress) {
+  if (statusMessage === void 0) {
+    statusMessage = '';
+  }
+  return {
+    isReady: isReady,
+    statusMessage: statusMessage,
+    connectBitcoinWallet: connectBitcoinWallet,
+    walletAddress: walletAddress
+  };
+};
 function useIsWalletReady() {
-  const dispatch = useDispatch();
-  const autoSwitch = useSelector(selectWalletAutoConnect);
-  const {
-    publicKey: solanaAddress
-  } = useWallet();
-  const {
-    address: tronAddress
-  } = useWallet$1();
-  const {
-    walletProvider: evmProvider
-  } = useWeb3ModalProvider();
-  const {
-    switchNetwork
-  } = useSwitchNetwork();
-  const bitcoinAddress = useSelector(selectBitcoinAddress);
-  const web3ModalAccountInfo = useWeb3ModalAccount();
-  const {
-    address: evmAddress,
-    chainId: evmChainId,
-    isConnected
-  } = web3ModalAccountInfo || {
-    address: null,
-    chainId: null,
-    isConnected: null
-  };
-  const sourceChain = useSelector(selectSourceChain);
-  const targetChain = useSelector(selectTargetChain);
-  const targetNetworkFetching = useSelector(selectTargetChainFetching);
-  const correctChain = useMemo(() => {
+  var dispatch = useDispatch();
+  var autoSwitch = useSelector(selectWalletAutoConnect);
+  var _useSolanaWallet = useWallet(),
+    solanaAddress = _useSolanaWallet.publicKey;
+  var _useTronWallet = useWallet$1(),
+    tronAddress = _useTronWallet.address;
+  var _useWeb3ModalProvider = useWeb3ModalProvider(),
+    evmProvider = _useWeb3ModalProvider.walletProvider;
+  var _useSwitchNetwork = useSwitchNetwork(),
+    switchNetwork = _useSwitchNetwork.switchNetwork;
+  var bitcoinAddress = useSelector(selectBitcoinAddress);
+  var web3ModalAccountInfo = useWeb3ModalAccount();
+  var _ref = web3ModalAccountInfo || {
+      address: null,
+      chainId: null,
+      isConnected: null
+    },
+    evmAddress = _ref.address,
+    evmChainId = _ref.chainId,
+    isConnected = _ref.isConnected;
+  var sourceChain = useSelector(selectSourceChain);
+  var targetChain = useSelector(selectTargetChain);
+  var targetNetworkFetching = useSelector(selectTargetChainFetching);
+  var correctChain = useMemo(function () {
     if (sourceChain === ChainName.FIAT && !targetNetworkFetching) return targetChain;
     return sourceChain;
   }, [sourceChain, targetChain, targetNetworkFetching]);
-  const hasEthInfo = isConnected && !!evmAddress;
-  const errorHandler = useSelector(selectErrorHandler);
-  const correctEvmNetwork = CHAIN_NAMES_TO_IDS[correctChain];
-  const hasCorrectEvmNetwork = evmChainId === correctEvmNetwork;
-  const events = useWeb3ModalEvents();
-  useEffect(() => {
+  var hasEthInfo = isConnected && !!evmAddress;
+  var errorHandler = useSelector(selectErrorHandler);
+  var correctEvmNetwork = CHAIN_NAMES_TO_IDS[correctChain];
+  var hasCorrectEvmNetwork = evmChainId === correctEvmNetwork;
+  var events = useWeb3ModalEvents();
+  useEffect(function () {
     var _events$data, _events$data2;
     if (((_events$data = events.data) === null || _events$data === void 0 ? void 0 : _events$data.event) === 'SELECT_WALLET' || ((_events$data2 = events.data) === null || _events$data2 === void 0 ? void 0 : _events$data2.event) === 'CONNECT_SUCCESS') {
       var _events$data3, _events$data3$propert;
       localStorage.setItem('wallet', (_events$data3 = events.data) === null || _events$data3 === void 0 ? void 0 : (_events$data3$propert = _events$data3.properties) === null || _events$data3$propert === void 0 ? void 0 : _events$data3$propert.name);
     }
   }, [events]);
-  const connectBitcoinWallet = useCallback(async () => {
-    await getAddress({
-      payload: {
-        purposes: [AddressPurpose.Payment],
-        message: 'SATS Connect Demo',
-        network: {
-          type: BitcoinNetworkType.Testnet
+  var connectBitcoinWallet = useCallback(function () {
+    try {
+      return Promise.resolve(getAddress({
+        payload: {
+          purposes: [AddressPurpose.Payment],
+          message: 'SATS Connect Demo',
+          network: {
+            type: BitcoinNetworkType.Testnet
+          }
+        },
+        onFinish: function onFinish(response) {
+          var paymentAddressItem = response.addresses.find(function (address) {
+            return address.purpose === AddressPurpose.Payment;
+          });
+          dispatch(setBitcoinAddress((paymentAddressItem === null || paymentAddressItem === void 0 ? void 0 : paymentAddressItem.address) || ''));
+          dispatch(setBitcoinPubkey((paymentAddressItem === null || paymentAddressItem === void 0 ? void 0 : paymentAddressItem.publicKey) || ''));
+        },
+        onCancel: function onCancel() {
+          toast.error('Request cancelled');
         }
-      },
-      onFinish: response => {
-        const paymentAddressItem = response.addresses.find(address => address.purpose === AddressPurpose.Payment);
-        dispatch(setBitcoinAddress((paymentAddressItem === null || paymentAddressItem === void 0 ? void 0 : paymentAddressItem.address) || ''));
-        dispatch(setBitcoinPubkey((paymentAddressItem === null || paymentAddressItem === void 0 ? void 0 : paymentAddressItem.publicKey) || ''));
-      },
-      onCancel: () => {
-        toast.error('Request cancelled');
-      }
-    });
+      })).then(function () {});
+    } catch (e) {
+      return Promise.reject(e);
+    }
   }, [getAddress]);
-  const forceNetworkSwitch = useCallback(async () => {
-    if (evmProvider && correctEvmNetwork) {
-      if (!isEVMChain(correctChain)) {
-        return;
-      }
-      try {
-        const wallet = localStorage.getItem('wallet');
-        if (wallet === 'Phantom' && correctEvmNetwork !== 11155111) return;
-        await switchNetwork(correctEvmNetwork);
-      } catch (e) {
-        errorHandler(e);
-      }
+  var forceNetworkSwitch = useCallback(function () {
+    try {
+      return Promise.resolve(function () {
+        if (evmProvider && correctEvmNetwork) {
+          if (!isEVMChain(correctChain)) {
+            return;
+          }
+          return _catch(function () {
+            var wallet = localStorage.getItem('wallet');
+            if (wallet === 'Phantom' && correctEvmNetwork !== 11155111) return;
+            return Promise.resolve(switchNetwork(correctEvmNetwork)).then(function () {});
+          }, function (e) {
+            errorHandler(e);
+          });
+        }
+      }());
+    } catch (e) {
+      return Promise.reject(e);
     }
   }, [evmProvider, correctEvmNetwork, correctChain]);
-  return useMemo(() => {
+  return useMemo(function () {
     if (correctChain === ChainName.SOLANA) {
       if (solanaAddress) {
         return createWalletStatus(true, undefined, connectBitcoinWallet, solanaAddress.toBase58());
@@ -1830,22 +2215,24 @@ function useIsWalletReady() {
             forceNetworkSwitch();
           } else {
             dispatch(setSourceChain(CHAIN_IDS_TO_NAMES[evmChainId || SupportedChainId.ETHEREUM]));
-            toast.success(`Wallet connected to ${CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[evmChainId || SupportedChainId.ETHEREUM]]}`);
+            toast.success("Wallet connected to " + CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[evmChainId || SupportedChainId.ETHEREUM]]);
           }
         }
-        if (evmChainId && autoSwitch) return createWalletStatus(false, `Wallet not connected to ${CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[correctEvmNetwork]]}`, connectBitcoinWallet, evmAddress);
+        if (evmChainId && autoSwitch) return createWalletStatus(false, "Wallet not connected to " + CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[correctEvmNetwork]], connectBitcoinWallet, evmAddress);
       }
     }
     return createWalletStatus(false, '', connectBitcoinWallet, undefined);
   }, [correctChain, autoSwitch, forceNetworkSwitch, connectBitcoinWallet, solanaAddress, tronAddress, hasEthInfo, correctEvmNetwork, hasCorrectEvmNetwork, bitcoinAddress, evmProvider, evmAddress, evmChainId]);
 }
 
-const getShortenedAddress = address => {
-  const is0x = addr => addr === null || addr === void 0 ? void 0 : addr.startsWith('0x');
-  return `${address === null || address === void 0 ? void 0 : address.substring(0, is0x(address) ? 6 : 3)}...${address === null || address === void 0 ? void 0 : address.substr(address.length - (is0x(address) ? 4 : 3))}`;
+var getShortenedAddress = function getShortenedAddress(address) {
+  var is0x = function is0x(addr) {
+    return addr === null || addr === void 0 ? void 0 : addr.startsWith('0x');
+  };
+  return (address === null || address === void 0 ? void 0 : address.substring(0, is0x(address) ? 6 : 3)) + "..." + (address === null || address === void 0 ? void 0 : address.substr(address.length - (is0x(address) ? 4 : 3)));
 };
 
-const connectWalletBtn = 'connect-wallet-btn';
+var connectWalletBtn = 'connect-wallet-btn';
 
 var abi = [
 	{
@@ -2077,8 +2464,14 @@ var ERC20ABI = {
 	abi: abi
 };
 
-function createAssociatedTokenAccountInstruction(payer, associatedToken, owner, mint, programId = TOKEN_PROGRAM_ID, associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID) {
-  const keys = [{
+function createAssociatedTokenAccountInstruction(payer, associatedToken, owner, mint, programId, associatedTokenProgramId) {
+  if (programId === void 0) {
+    programId = TOKEN_PROGRAM_ID;
+  }
+  if (associatedTokenProgramId === void 0) {
+    associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID;
+  }
+  var keys = [{
     pubkey: payer,
     isSigner: true,
     isWritable: true
@@ -2108,206 +2501,298 @@ function createAssociatedTokenAccountInstruction(payer, associatedToken, owner, 
     isWritable: false
   }];
   return new TransactionInstruction({
-    keys,
+    keys: keys,
     programId: associatedTokenProgramId,
     data: Buffer.alloc(0)
   });
 }
 
+var getAccountInfo = function getAccountInfo(connection, address, commitment, programId) {
+  if (programId === void 0) {
+    programId = TOKEN_PROGRAM_ID;
+  }
+  try {
+    return Promise.resolve(connection.getAccountInfo(address, commitment)).then(function (info) {
+      if (!info) throw new Error('TokenAccountNotFoundError');
+      if (!info.owner.equals(programId)) throw new Error('TokenInvalidAccountOwnerError');
+      if (info.data.length != AccountLayout.span) throw new Error('TokenInvalidAccountSizeError');
+      var rawAccount = AccountLayout.decode(Buffer.from(info.data));
+      return {
+        address: address,
+        mint: rawAccount.mint,
+        owner: rawAccount.owner,
+        amount: rawAccount.amount,
+        delegate: rawAccount.delegateOption ? rawAccount.delegate : null,
+        delegatedAmount: rawAccount.delegatedAmount,
+        isInitialized: rawAccount.state !== AccountState.Uninitialized,
+        isFrozen: rawAccount.state === AccountState.Frozen,
+        isNative: !!rawAccount.isNativeOption,
+        rentExemptReserve: rawAccount.isNativeOption ? rawAccount.isNative : null,
+        closeAuthority: rawAccount.closeAuthorityOption ? rawAccount.closeAuthority : null
+      };
+    });
+  } catch (e) {
+    return Promise.reject(e);
+  }
+};
 var AccountState;
 (function (AccountState) {
   AccountState[AccountState["Uninitialized"] = 0] = "Uninitialized";
   AccountState[AccountState["Initialized"] = 1] = "Initialized";
   AccountState[AccountState["Frozen"] = 2] = "Frozen";
 })(AccountState || (AccountState = {}));
-async function getAccountInfo(connection, address, commitment, programId = TOKEN_PROGRAM_ID) {
-  const info = await connection.getAccountInfo(address, commitment);
-  if (!info) throw new Error('TokenAccountNotFoundError');
-  if (!info.owner.equals(programId)) throw new Error('TokenInvalidAccountOwnerError');
-  if (info.data.length != AccountLayout.span) throw new Error('TokenInvalidAccountSizeError');
-  const rawAccount = AccountLayout.decode(Buffer.from(info.data));
-  return {
-    address,
-    mint: rawAccount.mint,
-    owner: rawAccount.owner,
-    amount: rawAccount.amount,
-    delegate: rawAccount.delegateOption ? rawAccount.delegate : null,
-    delegatedAmount: rawAccount.delegatedAmount,
-    isInitialized: rawAccount.state !== AccountState.Uninitialized,
-    isFrozen: rawAccount.state === AccountState.Frozen,
-    isNative: !!rawAccount.isNativeOption,
-    rentExemptReserve: rawAccount.isNativeOption ? rawAccount.isNative : null,
-    closeAuthority: rawAccount.closeAuthorityOption ? rawAccount.closeAuthority : null
-  };
-}
 
-async function getAssociatedTokenAddress(mint, owner, allowOwnerOffCurve = false, programId = TOKEN_PROGRAM_ID, associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID) {
-  if (!allowOwnerOffCurve && !PublicKey.isOnCurve(owner.toBuffer())) throw new Error('TokenOwnerOffCurveError');
-  const [address] = await PublicKey.findProgramAddress([owner.toBuffer(), programId.toBuffer(), mint.toBuffer()], associatedTokenProgramId);
-  return address;
-}
-
-async function getOrCreateAssociatedTokenAccount(connection, payer, mint, owner, signTransaction, allowOwnerOffCurve = false, commitment, programId = TOKEN_PROGRAM_ID, associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID) {
-  const associatedToken = await getAssociatedTokenAddress(mint, owner, allowOwnerOffCurve, programId, associatedTokenProgramId);
-  let account;
-  try {
-    account = await getAccountInfo(connection, associatedToken, commitment, programId);
-  } catch (error) {
-    const err = error;
-    if (err.message === 'TokenAccountNotFoundError' || err.message === 'TokenInvalidAccountOwnerError') {
-      try {
-        const transaction = new Transaction().add(createAssociatedTokenAccountInstruction(payer, associatedToken, owner, mint, programId, associatedTokenProgramId));
-        const blockHash = await connection.getRecentBlockhash();
-        transaction.feePayer = await payer;
-        transaction.recentBlockhash = await blockHash.blockhash;
-        const signed = await signTransaction(transaction);
-        const signature = await connection.sendRawTransaction(signed.serialize());
-        await connection.confirmTransaction(signature);
-      } catch (error) {}
-      account = await getAccountInfo(connection, associatedToken, commitment, programId);
-    } else {
-      throw error;
-    }
+var getAssociatedTokenAddress = function getAssociatedTokenAddress(mint, owner, allowOwnerOffCurve, programId, associatedTokenProgramId) {
+  if (allowOwnerOffCurve === void 0) {
+    allowOwnerOffCurve = false;
   }
-  if (!account.mint.equals(mint)) throw Error('TokenInvalidMintError');
-  if (!account.owner.equals(owner)) throw new Error('TokenInvalidOwnerError');
-  return account;
-}
+  if (programId === void 0) {
+    programId = TOKEN_PROGRAM_ID;
+  }
+  if (associatedTokenProgramId === void 0) {
+    associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID;
+  }
+  try {
+    if (!allowOwnerOffCurve && !PublicKey.isOnCurve(owner.toBuffer())) throw new Error('TokenOwnerOffCurveError');
+    return Promise.resolve(PublicKey.findProgramAddress([owner.toBuffer(), programId.toBuffer(), mint.toBuffer()], associatedTokenProgramId)).then(function (_ref) {
+      var address = _ref[0];
+      return address;
+    });
+  } catch (e) {
+    return Promise.reject(e);
+  }
+};
 
-const TRON_USDK_OWNER_ADDRESS = 'TBVn4bsBN4DhtZ7D3vEVpAyqkvdFn7zmpU';
+var getOrCreateAssociatedTokenAccount = function getOrCreateAssociatedTokenAccount(connection, payer, mint, owner, signTransaction, allowOwnerOffCurve, commitment, programId, associatedTokenProgramId) {
+  if (allowOwnerOffCurve === void 0) {
+    allowOwnerOffCurve = false;
+  }
+  if (programId === void 0) {
+    programId = TOKEN_PROGRAM_ID;
+  }
+  if (associatedTokenProgramId === void 0) {
+    associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID;
+  }
+  try {
+    return Promise.resolve(getAssociatedTokenAddress(mint, owner, allowOwnerOffCurve, programId, associatedTokenProgramId)).then(function (associatedToken) {
+      var _exit = false;
+      function _temp4(_result) {
+        if (_exit) return _result;
+        if (!account.mint.equals(mint)) throw Error('TokenInvalidMintError');
+        if (!account.owner.equals(owner)) throw new Error('TokenInvalidOwnerError');
+        return account;
+      }
+      var account;
+      var _temp3 = _catch(function () {
+        return Promise.resolve(getAccountInfo(connection, associatedToken, commitment, programId)).then(function (_getAccountInfo) {
+          account = _getAccountInfo;
+        });
+      }, function (error) {
+        var err = error;
+        return function () {
+          if (err.message === 'TokenAccountNotFoundError' || err.message === 'TokenInvalidAccountOwnerError') {
+            var _temp2 = function _temp2() {
+              return Promise.resolve(getAccountInfo(connection, associatedToken, commitment, programId)).then(function (_getAccountInfo2) {
+                account = _getAccountInfo2;
+              });
+            };
+            var _temp = _catch(function () {
+              var transaction = new Transaction().add(createAssociatedTokenAccountInstruction(payer, associatedToken, owner, mint, programId, associatedTokenProgramId));
+              return Promise.resolve(connection.getRecentBlockhash()).then(function (blockHash) {
+                return Promise.resolve(payer).then(function (_payer) {
+                  transaction.feePayer = _payer;
+                  return Promise.resolve(blockHash.blockhash).then(function (_blockHash$blockhash) {
+                    transaction.recentBlockhash = _blockHash$blockhash;
+                    return Promise.resolve(signTransaction(transaction)).then(function (signed) {
+                      return Promise.resolve(connection.sendRawTransaction(signed.serialize())).then(function (signature) {
+                        return Promise.resolve(connection.confirmTransaction(signature)).then(function () {});
+                      });
+                    });
+                  });
+                });
+              });
+            }, function () {});
+            return _temp && _temp.then ? _temp.then(_temp2) : _temp2(_temp);
+          } else {
+            throw error;
+          }
+        }();
+      });
+      return _temp3 && _temp3.then ? _temp3.then(_temp4) : _temp4(_temp3);
+    });
+  } catch (e) {
+    return Promise.reject(e);
+  }
+};
 
-const tronWeb = new TronWeb({
+var TRON_USDK_OWNER_ADDRESS = 'TBVn4bsBN4DhtZ7D3vEVpAyqkvdFn7zmpU';
+
+var tronWeb = new TronWeb({
   fullHost: 'https://api.nileex.io'
 });
 tronWeb.setAddress(TRON_USDK_OWNER_ADDRESS);
 
-const formatterFloat = new Intl.NumberFormat('en-US', {
+var formatterFloat = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 9
 });
 function isEmptyObject(arg) {
   return typeof arg === 'object' && Object.keys(arg).length === 0;
 }
-const sleep = delay => new Promise(resolve => setTimeout(resolve, delay));
+var sleep = function sleep(delay) {
+  return new Promise(function (resolve) {
+    return setTimeout(resolve, delay);
+  });
+};
 
 function useBalance() {
-  const [balance, setBalance] = useState(0);
-  const web3ModalAccountInfo = useWeb3ModalAccount();
-  const {
-    address: signerAddress,
-    chainId: evmChainId
-  } = web3ModalAccountInfo || {
-    address: null,
-    chainId: null,
-    isConnected: null
-  };
-  const {
-    walletProvider
-  } = useWeb3ModalProvider();
-  const selectedNetwork = useSelector(selectSourceChain);
-  const errorHandler = useSelector(selectErrorHandler);
-  const sourceChain = useMemo(() => {
+  var _useState = useState(0),
+    balance = _useState[0],
+    setBalance = _useState[1];
+  var web3ModalAccountInfo = useWeb3ModalAccount();
+  var _ref = web3ModalAccountInfo || {
+      address: null,
+      chainId: null,
+      isConnected: null
+    },
+    signerAddress = _ref.address,
+    evmChainId = _ref.chainId;
+  var _useWeb3ModalProvider = useWeb3ModalProvider(),
+    walletProvider = _useWeb3ModalProvider.walletProvider;
+  var selectedNetwork = useSelector(selectSourceChain);
+  var errorHandler = useSelector(selectErrorHandler);
+  var sourceChain = useMemo(function () {
     if (selectedNetwork === ChainName.SOLANA || selectedNetwork === ChainName.TRON || selectedNetwork === ChainName.BTC) return selectedNetwork;
     if (CHAIN_NAMES_TO_IDS[selectedNetwork] !== evmChainId) {
       return CHAIN_IDS_TO_NAMES[evmChainId];
     }
     return selectedNetwork;
   }, [selectedNetwork, evmChainId]);
-  const {
-    publicKey: solanaAddress,
-    signTransaction
-  } = useWallet();
-  const {
-    address: tronAddress
-  } = useWallet$1();
-  const btcAddress = useSelector(selectBitcoinAddress);
-  const {
-    connection
-  } = useConnection();
-  const kimaBackendUrl = useSelector(selectBackendUrl);
-  const selectedCoin = useSelector(selectSelectedToken);
-  const tokenOptions = useSelector(selectTokenOptions);
-  const tokenAddress = useMemo(() => {
+  var _useSolanaWallet = useWallet(),
+    solanaAddress = _useSolanaWallet.publicKey,
+    signTransaction = _useSolanaWallet.signTransaction;
+  var _useTronWallet = useWallet$1(),
+    tronAddress = _useTronWallet.address;
+  var btcAddress = useSelector(selectBitcoinAddress);
+  var _useConnection = useConnection(),
+    connection = _useConnection.connection;
+  var kimaBackendUrl = useSelector(selectBackendUrl);
+  var selectedCoin = useSelector(selectSelectedToken);
+  var tokenOptions = useSelector(selectTokenOptions);
+  var tokenAddress = useMemo(function () {
     if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT) return '';
     if (tokenOptions && typeof tokenOptions === 'object') {
-      const coinOptions = tokenOptions[selectedCoin];
+      var coinOptions = tokenOptions[selectedCoin];
       if (coinOptions && typeof coinOptions === 'object') {
         return tokenOptions[selectedCoin][sourceChain];
       }
     }
     return '';
   }, [selectedCoin, sourceChain, tokenOptions]);
-  useEffect(() => {
+  useEffect(function () {
     setBalance(0);
   }, [sourceChain]);
-  useEffect(() => {
-    (async () => {
-      if (!tokenAddress) return;
+  useEffect(function () {
+    (function () {
       try {
-        if (!isEVMChain(sourceChain)) {
-          if (sourceChain === ChainName.SOLANA && solanaAddress && connection) {
-            var _accountInfo$value, _parsedAccountInfo$pa, _parsedAccountInfo$pa2, _parsedAccountInfo$pa3, _parsedAccountInfo$pa4, _parsedAccountInfo$pa5, _parsedAccountInfo$pa6;
-            const mint = new PublicKey(tokenAddress);
-            const fromTokenAccount = await getOrCreateAssociatedTokenAccount(connection, solanaAddress, mint, solanaAddress, signTransaction);
-            const accountInfo = await connection.getParsedAccountInfo(fromTokenAccount.address);
-            const parsedAccountInfo = accountInfo === null || accountInfo === void 0 ? void 0 : (_accountInfo$value = accountInfo.value) === null || _accountInfo$value === void 0 ? void 0 : _accountInfo$value.data;
-            setBalance(+formatUnits((_parsedAccountInfo$pa = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa === void 0 ? void 0 : (_parsedAccountInfo$pa2 = _parsedAccountInfo$pa.info) === null || _parsedAccountInfo$pa2 === void 0 ? void 0 : (_parsedAccountInfo$pa3 = _parsedAccountInfo$pa2.tokenAmount) === null || _parsedAccountInfo$pa3 === void 0 ? void 0 : _parsedAccountInfo$pa3.amount, (_parsedAccountInfo$pa4 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa4 === void 0 ? void 0 : (_parsedAccountInfo$pa5 = _parsedAccountInfo$pa4.info) === null || _parsedAccountInfo$pa5 === void 0 ? void 0 : (_parsedAccountInfo$pa6 = _parsedAccountInfo$pa5.tokenAmount) === null || _parsedAccountInfo$pa6 === void 0 ? void 0 : _parsedAccountInfo$pa6.decimals));
-            return;
+        var _exit = false;
+        if (!tokenAddress) return;
+        return _catch(function () {
+          function _temp6(_result4) {
+            return _exit ? _result4 : function () {
+              if (walletProvider) {
+                var provider = new ethers.providers.Web3Provider(walletProvider);
+                var signer = provider === null || provider === void 0 ? void 0 : provider.getSigner();
+                if (!tokenAddress || !signer || !signerAddress) return;
+                var erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer);
+                return Promise.resolve(erc20Contract.decimals()).then(function (decimals) {
+                  return Promise.resolve(erc20Contract.balanceOf(signerAddress)).then(function (userBalance) {
+                    setBalance(+formatUnits(userBalance, decimals));
+                  });
+                });
+              }
+            }();
           }
-          if (sourceChain === ChainName.TRON && tronAddress) {
-            let trc20Contract = await tronWeb.contract(ERC20ABI.abi, tokenAddress);
-            const decimals = await trc20Contract.decimals().call();
-            const userBalance = await trc20Contract.balanceOf(tronAddress).call();
-            setBalance(+formatUnits(userBalance.balance, decimals));
-            return;
-          }
-          if (sourceChain === ChainName.BTC && btcAddress) {
-            const btcInfo = await fetchWrapper.get(`${kimaBackendUrl}/btc/balance?address=${btcAddress}`);
-            const balance = parseFloat(btcInfo.balance) / Math.pow(10, 8);
-            setBalance(balance);
-            return;
-          }
-        }
-        if (walletProvider) {
-          const provider = new ethers.providers.Web3Provider(walletProvider);
-          const signer = provider === null || provider === void 0 ? void 0 : provider.getSigner();
-          if (!tokenAddress || !signer || !signerAddress) return;
-          const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer);
-          const decimals = await erc20Contract.decimals();
-          const userBalance = await erc20Contract.balanceOf(signerAddress);
-          setBalance(+formatUnits(userBalance, decimals));
-        }
-      } catch (error) {
-        errorHandler(error);
+          var _temp5 = function () {
+            if (!isEVMChain(sourceChain)) {
+              var _temp4 = function _temp4(_result) {
+                var _exit2 = false;
+                if (_exit) return _result;
+                function _temp2(_result2) {
+                  return _exit2 ? _result2 : function () {
+                    if (sourceChain === ChainName.BTC && btcAddress) {
+                      return Promise.resolve(fetchWrapper.get(kimaBackendUrl + "/btc/balance?address=" + btcAddress)).then(function (btcInfo) {
+                        var balance = parseFloat(btcInfo.balance) / Math.pow(10, 8);
+                        setBalance(balance);
+                        _exit = true;
+                      });
+                    }
+                  }();
+                }
+                var _temp = function () {
+                  if (sourceChain === ChainName.TRON && tronAddress) {
+                    return Promise.resolve(tronWeb.contract(ERC20ABI.abi, tokenAddress)).then(function (trc20Contract) {
+                      return Promise.resolve(trc20Contract.decimals().call()).then(function (decimals) {
+                        return Promise.resolve(trc20Contract.balanceOf(tronAddress).call()).then(function (userBalance) {
+                          setBalance(+formatUnits(userBalance.balance, decimals));
+                          _exit = true;
+                        });
+                      });
+                    });
+                  }
+                }();
+                return _temp && _temp.then ? _temp.then(_temp2) : _temp2(_temp);
+              };
+              var _temp3 = function () {
+                if (sourceChain === ChainName.SOLANA && solanaAddress && connection) {
+                  var mint = new PublicKey(tokenAddress);
+                  return Promise.resolve(getOrCreateAssociatedTokenAccount(connection, solanaAddress, mint, solanaAddress, signTransaction)).then(function (fromTokenAccount) {
+                    return Promise.resolve(connection.getParsedAccountInfo(fromTokenAccount.address)).then(function (accountInfo) {
+                      var _accountInfo$value, _parsedAccountInfo$pa, _parsedAccountInfo$pa2, _parsedAccountInfo$pa3, _parsedAccountInfo$pa4, _parsedAccountInfo$pa5, _parsedAccountInfo$pa6;
+                      var parsedAccountInfo = accountInfo === null || accountInfo === void 0 ? void 0 : (_accountInfo$value = accountInfo.value) === null || _accountInfo$value === void 0 ? void 0 : _accountInfo$value.data;
+                      setBalance(+formatUnits((_parsedAccountInfo$pa = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa === void 0 ? void 0 : (_parsedAccountInfo$pa2 = _parsedAccountInfo$pa.info) === null || _parsedAccountInfo$pa2 === void 0 ? void 0 : (_parsedAccountInfo$pa3 = _parsedAccountInfo$pa2.tokenAmount) === null || _parsedAccountInfo$pa3 === void 0 ? void 0 : _parsedAccountInfo$pa3.amount, (_parsedAccountInfo$pa4 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa4 === void 0 ? void 0 : (_parsedAccountInfo$pa5 = _parsedAccountInfo$pa4.info) === null || _parsedAccountInfo$pa5 === void 0 ? void 0 : (_parsedAccountInfo$pa6 = _parsedAccountInfo$pa5.tokenAmount) === null || _parsedAccountInfo$pa6 === void 0 ? void 0 : _parsedAccountInfo$pa6.decimals));
+                      _exit = true;
+                    });
+                  });
+                }
+              }();
+              return _temp3 && _temp3.then ? _temp3.then(_temp4) : _temp4(_temp3);
+            }
+          }();
+          return _temp5 && _temp5.then ? _temp5.then(_temp6) : _temp6(_temp5);
+        }, function (error) {
+          errorHandler(error);
+        });
+      } catch (e) {
+        Promise.reject(e);
       }
     })();
   }, [signerAddress, tokenAddress, sourceChain, solanaAddress, tronAddress, btcAddress, walletProvider]);
-  return useMemo(() => ({
-    balance
-  }), [balance]);
+  return useMemo(function () {
+    return {
+      balance: balance
+    };
+  }, [balance]);
 }
 
-const WalletButton = ({
-  errorBelow: _errorBelow = false
-}) => {
-  const dispatch = useDispatch();
-  const theme = useSelector(selectTheme);
-  const selectedCoin = useSelector(selectSelectedToken);
-  const sourceCompliant = useSelector(selectSourceCompliant);
-  const compliantOption = useSelector(selectCompliantOption);
-  const selectedNetwork = useSelector(selectSourceChain);
-  const {
-    isReady,
-    statusMessage,
-    walletAddress,
-    connectBitcoinWallet
-  } = useIsWalletReady();
-  const {
-    balance
-  } = useBalance();
-  const {
-    open
-  } = useWeb3Modal();
-  const handleClick = () => {
+var WalletButton = function WalletButton(_ref) {
+  var _ref$errorBelow = _ref.errorBelow,
+    errorBelow = _ref$errorBelow === void 0 ? false : _ref$errorBelow;
+  var dispatch = useDispatch();
+  var theme = useSelector(selectTheme);
+  var selectedCoin = useSelector(selectSelectedToken);
+  var sourceCompliant = useSelector(selectSourceCompliant);
+  var compliantOption = useSelector(selectCompliantOption);
+  var selectedNetwork = useSelector(selectSourceChain);
+  var _useIsWalletReady = useIsWalletReady(),
+    isReady = _useIsWalletReady.isReady,
+    statusMessage = _useIsWalletReady.statusMessage,
+    walletAddress = _useIsWalletReady.walletAddress,
+    connectBitcoinWallet = _useIsWalletReady.connectBitcoinWallet;
+  var _useBalance = useBalance(),
+    balance = _useBalance.balance;
+  var _useWeb3Modal = useWeb3Modal(),
+    open = _useWeb3Modal.open;
+  var handleClick = function handleClick() {
     if (selectedNetwork === ChainName.SOLANA) {
       dispatch(setSolanaConnectModal(true));
       return;
@@ -2322,211 +2807,261 @@ const WalletButton = ({
     }
     open();
   };
-  const errorMessage = useMemo(() => {
+  var errorMessage = useMemo(function () {
     if (!isReady) return statusMessage;
-    if (sourceCompliant !== 'low' && compliantOption) return `Source address has ${sourceCompliant} risk`;
+    if (sourceCompliant !== 'low' && compliantOption) return "Source address has " + sourceCompliant + " risk";
     return '';
   }, [isReady, statusMessage, sourceCompliant, compliantOption]);
-  useEffect(() => {
+  useEffect(function () {
     if (!errorMessage) return;
     toast$1.error(errorMessage);
   }, [errorMessage]);
   return React.createElement("div", {
-    className: `wallet-button ${theme.colorMode} ${_errorBelow ? 'error-below' : ''}`,
+    className: "wallet-button " + theme.colorMode + " " + (errorBelow ? 'error-below' : ''),
     "data-testid": connectWalletBtn
   }, React.createElement(PrimaryButton, {
     clickHandler: handleClick
-  }, isReady ? `${getShortenedAddress(walletAddress || '')}` : 'Wallet'), isReady ? React.createElement("p", {
+  }, isReady ? "" + getShortenedAddress(walletAddress || '') : 'Wallet'), isReady ? React.createElement("p", {
     className: 'balance-info'
   }, balance.toFixed(selectedCoin === 'WBTC' ? 8 : 2), ' ', selectedNetwork === ChainName.BTC ? 'BTC' : selectedCoin, " available") : null);
 };
 
-const CoinDropdown = () => {
-  const ref = useRef();
-  const [collapsed, setCollapsed] = useState(true);
-  const selectedCoin = useSelector(selectSelectedToken);
-  const tokenList = useSelector(selectAvailableTokenList);
-  const theme = useSelector(selectTheme);
-  const Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
-  useEffect(() => {
-    const bodyMouseDowntHandler = e => {
+var CoinDropdown = function CoinDropdown() {
+  var _COIN_LIST;
+  var ref = useRef();
+  var _useState = useState(true),
+    collapsed = _useState[0],
+    setCollapsed = _useState[1];
+  var selectedCoin = useSelector(selectSelectedToken);
+  var tokenList = useSelector(selectAvailableTokenList);
+  var theme = useSelector(selectTheme);
+  var Icon = ((_COIN_LIST = COIN_LIST[selectedCoin || 'USDK']) === null || _COIN_LIST === void 0 ? void 0 : _COIN_LIST.icon) || COIN_LIST['USDK'].icon;
+  useEffect(function () {
+    var bodyMouseDowntHandler = function bodyMouseDowntHandler(e) {
       if (ref !== null && ref !== void 0 && ref.current && !ref.current.contains(e.target)) {
         setCollapsed(true);
       }
     };
     document.addEventListener('mousedown', bodyMouseDowntHandler);
-    return () => {
+    return function () {
       document.removeEventListener('mousedown', bodyMouseDowntHandler);
     };
   }, [setCollapsed]);
   return React.createElement("div", {
-    className: `coin-dropdown ${theme.colorMode} ${collapsed ? 'collapsed' : ''}`,
-    onClick: () => setCollapsed(prev => !prev),
+    className: "coin-dropdown " + theme.colorMode + " " + (collapsed ? 'collapsed' : ''),
+    onClick: function onClick() {
+      return setCollapsed(function (prev) {
+        return !prev;
+      });
+    },
     ref: ref
   }, React.createElement("div", {
     className: 'coin-wrapper'
   }, React.createElement(Icon, null), selectedCoin), React.createElement("div", {
-    className: `coin-menu ${theme.colorMode} ${collapsed ? 'collapsed' : ''}`
-  }, tokenList.map(token => {
-    const CoinIcon = COIN_LIST[token].icon;
+    className: "coin-menu " + theme.colorMode + " " + (collapsed ? 'collapsed' : '')
+  }, tokenList.map(function (token) {
+    var _COIN_LIST$token, _COIN_LIST$token2;
+    var CoinIcon = COIN_LIST[token].icon || COIN_LIST['USDK'].icon;
     return React.createElement("div", {
       className: 'coin-item',
-      key: COIN_LIST[token].symbol
-    }, React.createElement(CoinIcon, null), React.createElement("p", null, COIN_LIST[token].symbol));
+      key: (_COIN_LIST$token = COIN_LIST[token]) === null || _COIN_LIST$token === void 0 ? void 0 : _COIN_LIST$token.symbol
+    }, React.createElement(CoinIcon, null), React.createElement("p", null, (_COIN_LIST$token2 = COIN_LIST[token]) === null || _COIN_LIST$token2 === void 0 ? void 0 : _COIN_LIST$token2.symbol));
   })));
 };
 
-const NetworkDropdown = React.memo(({
-  isOriginChain: _isOriginChain = true
-}) => {
-  const [collapsed, setCollapsed] = useState(true);
-  const [availableNetworks, setAvailableNetworks] = useState([]);
-  const ref = useRef();
-  const sourceChangeRef = useRef(false);
-  const mode = useSelector(selectMode);
-  const autoSwitchChain = useSelector(selectWalletAutoConnect);
-  const useFIAT = useSelector(selectUseFIAT);
-  const dAppOption = useSelector(selectDappOption);
-  const originNetwork = useSelector(selectSourceChain);
-  const targetNetwork = useSelector(selectTargetChain);
-  const nodeProviderQuery = useSelector(selectNodeProviderQuery);
-  const {
-    options: networkOptions
-  } = useNetworkOptions();
-  const selectedNetwork = useMemo(() => {
-    const index = networkOptions.findIndex(option => option.id === (_isOriginChain ? originNetwork : targetNetwork));
+var NetworkDropdown = React.memo(function (_ref) {
+  var _ref$isOriginChain = _ref.isOriginChain,
+    isOriginChain = _ref$isOriginChain === void 0 ? true : _ref$isOriginChain;
+  var _useState = useState(true),
+    collapsed = _useState[0],
+    setCollapsed = _useState[1];
+  var _useState2 = useState([]),
+    availableNetworks = _useState2[0],
+    setAvailableNetworks = _useState2[1];
+  var ref = useRef();
+  var sourceChangeRef = useRef(false);
+  var mode = useSelector(selectMode);
+  var autoSwitchChain = useSelector(selectWalletAutoConnect);
+  var useFIAT = useSelector(selectUseFIAT);
+  var dAppOption = useSelector(selectDappOption);
+  var originNetwork = useSelector(selectSourceChain);
+  var targetNetwork = useSelector(selectTargetChain);
+  var nodeProviderQuery = useSelector(selectNodeProviderQuery);
+  var _useNetworkOptions = useNetworkOptions(),
+    networkOptions = _useNetworkOptions.options;
+  var selectedNetwork = useMemo(function () {
+    var index = networkOptions.findIndex(function (option) {
+      return option.id === (isOriginChain ? originNetwork : targetNetwork);
+    });
     if (index >= 0) return networkOptions[index];
     return networkOptions[3];
   }, [originNetwork, targetNetwork, networkOptions]);
-  const networks = useMemo(() => {
-    if (_isOriginChain && mode === ModeOptions.bridge) {
+  var networks = useMemo(function () {
+    if (isOriginChain && mode === ModeOptions.bridge) {
       return networkOptions;
     }
-    return networkOptions.filter(network => availableNetworks.findIndex(id => id === network.id) >= 0);
-  }, [networkOptions, _isOriginChain, availableNetworks, dAppOption, originNetwork]);
-  const theme = useSelector(selectTheme);
-  const dispatch = useDispatch();
-  useEffect(() => {
+    return networkOptions.filter(function (network) {
+      return availableNetworks.findIndex(function (id) {
+        return id === network.id;
+      }) >= 0;
+    });
+  }, [networkOptions, isOriginChain, availableNetworks, dAppOption, originNetwork]);
+  var theme = useSelector(selectTheme);
+  var dispatch = useDispatch();
+  useEffect(function () {
     if (!nodeProviderQuery || mode !== ModeOptions.bridge) return;
-    (async function () {
+    (function () {
       try {
-        let chains = [];
-        if (originNetwork === ChainName.FIAT) {
-          chains = [ChainName.ETHEREUM, ChainName.POLYGON];
-        } else {
-          const networks = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/get_available_chains/${originNetwork}`);
-          chains = networks.Chains;
-          if (useFIAT) chains.push(ChainName.FIAT);
-        }
-        setAvailableNetworks(chains);
-        if (_isOriginChain && !targetNetwork) {
-          dispatch(setTargetChain(chains[0]));
-        }
-        if (sourceChangeRef.current) {
-          sourceChangeRef.current = false;
-          dispatch(setTargetChain(chains.findIndex(chain => chain === targetNetwork) < 0 || targetNetwork === originNetwork ? chains[0] : targetNetwork));
-          dispatch(setTargetChainFetching(false));
-        }
+        var _temp3 = _catch(function () {
+          function _temp2() {
+            setAvailableNetworks(chains);
+            if (isOriginChain && !targetNetwork) {
+              dispatch(setTargetChain(chains[0]));
+            }
+            if (sourceChangeRef.current) {
+              sourceChangeRef.current = false;
+              dispatch(setTargetChain(chains.findIndex(function (chain) {
+                return chain === targetNetwork;
+              }) < 0 || targetNetwork === originNetwork ? chains[0] : targetNetwork));
+              dispatch(setTargetChainFetching(false));
+            }
+          }
+          var chains = [];
+          var _temp = function () {
+            if (originNetwork === ChainName.FIAT) {
+              chains = [ChainName.ETHEREUM, ChainName.POLYGON];
+            } else {
+              return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/chains/get_available_chains/" + originNetwork)).then(function (networks) {
+                chains = networks.Chains;
+                if (useFIAT) chains.push(ChainName.FIAT);
+              });
+            }
+          }();
+          return _temp && _temp.then ? _temp.then(_temp2) : _temp2(_temp);
+        }, function (e) {
+          console.log('rpc disconnected', e);
+          toast.error('rpc disconnected');
+        });
+        return _temp3 && _temp3.then ? _temp3.then(function () {}) : void 0;
       } catch (e) {
-        console.log('rpc disconnected', e);
-        toast.error('rpc disconnected');
+        Promise.reject(e);
       }
     })();
-  }, [nodeProviderQuery, originNetwork, targetNetwork, mode, _isOriginChain, useFIAT]);
-  useEffect(() => {
+  }, [nodeProviderQuery, originNetwork, targetNetwork, mode, isOriginChain, useFIAT]);
+  useEffect(function () {
     if (!nodeProviderQuery || mode !== ModeOptions.payment) return;
-    (async function () {
+    (function () {
       try {
-        if (dAppOption === DAppOptions.LPAdd || dAppOption === DAppOptions.LPDrain) {
-          setAvailableNetworks([targetNetwork]);
-        } else {
-          if (targetNetwork === ChainName.FIAT) {
-            setAvailableNetworks([ChainName.ETHEREUM, ChainName.POLYGON]);
-            return;
+        return _catch(function () {
+          if (dAppOption === DAppOptions.LPAdd || dAppOption === DAppOptions.LPDrain) {
+            setAvailableNetworks([targetNetwork]);
+          } else {
+            if (targetNetwork === ChainName.FIAT) {
+              setAvailableNetworks([ChainName.ETHEREUM, ChainName.POLYGON]);
+              return;
+            }
+            return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/chains/get_available_chains/" + targetNetwork)).then(function (networks) {
+              setAvailableNetworks(networks.Chains);
+            });
           }
-          const networks = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/get_available_chains/${targetNetwork}`);
-          setAvailableNetworks(networks.Chains);
-        }
+        }, function (e) {
+          console.log('rpc disconnected', e);
+          toast.error('rpc disconnected');
+        });
       } catch (e) {
-        console.log('rpc disconnected', e);
-        toast.error('rpc disconnected');
+        Promise.reject(e);
       }
     })();
   }, [nodeProviderQuery, mode, targetNetwork, dAppOption]);
-  useEffect(() => {
-    const bodyMouseDowntHandler = e => {
+  useEffect(function () {
+    var bodyMouseDowntHandler = function bodyMouseDowntHandler(e) {
       if (ref !== null && ref !== void 0 && ref.current && !ref.current.contains(e.target)) {
         setCollapsed(true);
       }
     };
     document.addEventListener('mousedown', bodyMouseDowntHandler);
-    return () => {
+    return function () {
       document.removeEventListener('mousedown', bodyMouseDowntHandler);
     };
   }, [setCollapsed]);
   return React.createElement("div", {
-    className: `network-dropdown ${theme.colorMode} ${collapsed ? 'collapsed' : ''}`,
-    onClick: () => {
-      if (!autoSwitchChain && _isOriginChain) return;
-      setCollapsed(prev => !prev);
+    className: "network-dropdown " + theme.colorMode + " " + (collapsed ? 'collapsed' : ''),
+    onClick: function onClick() {
+      if (!autoSwitchChain && isOriginChain) return;
+      setCollapsed(function (prev) {
+        return !prev;
+      });
     },
     ref: ref
   }, React.createElement("div", {
     className: 'network-wrapper'
   }, React.createElement(selectedNetwork.icon, null), React.createElement("span", null, selectedNetwork.label)), React.createElement("div", {
-    className: `network-menu custom-scrollbar ${theme.colorMode} ${collapsed ? 'collapsed' : ''}`
-  }, networks.map(network => React.createElement("div", {
-    className: 'network-menu-item',
-    key: network.label,
-    onClick: async () => {
-      if (_isOriginChain) {
-        dispatch(setTargetChainFetching(true));
-        dispatch(setSourceChain(network.id));
-        sourceChangeRef.current = true;
-      } else {
-        dispatch(setTargetChain(network.id));
-        dispatch(setServiceFee(-1));
+    className: "network-menu custom-scrollbar " + theme.colorMode + " " + (collapsed ? 'collapsed' : '')
+  }, networks.map(function (network) {
+    return React.createElement("div", {
+      className: 'network-menu-item',
+      key: network.label,
+      onClick: function () {
+        try {
+          if (isOriginChain) {
+            dispatch(setTargetChainFetching(true));
+            dispatch(setSourceChain(network.id));
+            sourceChangeRef.current = true;
+          } else {
+            dispatch(setTargetChain(network.id));
+            dispatch(setServiceFee(-1));
+          }
+          return Promise.resolve();
+        } catch (e) {
+          return Promise.reject(e);
+        }
       }
-    }
-  }, React.createElement(network.icon, null), React.createElement("p", null, network.label)))));
+    }, React.createElement(network.icon, null), React.createElement("p", null, network.label));
+  })));
 });
 
-const ConfirmDetails = ({
-  isApproved
-}) => {
-  const feeDeduct = useSelector(selectFeeDeduct);
-  const mode = useSelector(selectMode);
-  const dAppOption = useSelector(selectDappOption);
-  const theme = useSelector(selectTheme);
-  const amount = useSelector(selectAmount);
-  const serviceFee = useSelector(selectServiceFee);
-  const originNetwork = useSelector(selectSourceChain);
-  const targetNetwork = useSelector(selectTargetChain);
-  const targetAddress = useSelector(selectTargetAddress);
-  const bankDetails = useSelector(selectBankDetails);
-  const signature = useSelector(selectSignature);
-  const transactionOption = useSelector(selectTransactionOption);
-  const {
-    walletAddress
-  } = useIsWalletReady();
-  const originNetworkOption = useMemo(() => networkOptions.filter(network => network.id === originNetwork)[0], [networkOptions, originNetwork]);
-  const targetNetworkOption = useMemo(() => networkOptions.filter(network => network.id === (mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetChain : targetNetwork))[0], [networkOptions, originNetwork]);
-  const selectedCoin = useSelector(selectSelectedToken);
-  const sourceWalletAddress = useMemo(() => {
+var ConfirmDetails = function ConfirmDetails(_ref) {
+  var isApproved = _ref.isApproved;
+  var feeDeduct = useSelector(selectFeeDeduct);
+  var mode = useSelector(selectMode);
+  var dAppOption = useSelector(selectDappOption);
+  var theme = useSelector(selectTheme);
+  var amount = useSelector(selectAmount);
+  var serviceFee = useSelector(selectServiceFee);
+  var originNetwork = useSelector(selectSourceChain);
+  var targetNetwork = useSelector(selectTargetChain);
+  var targetAddress = useSelector(selectTargetAddress);
+  var bankDetails = useSelector(selectBankDetails);
+  var signature = useSelector(selectSignature);
+  var transactionOption = useSelector(selectTransactionOption);
+  var _useIsWalletReady = useIsWalletReady(),
+    walletAddress = _useIsWalletReady.walletAddress;
+  var originNetworkOption = useMemo(function () {
+    return networkOptions.filter(function (network) {
+      return network.id === originNetwork;
+    })[0];
+  }, [networkOptions, originNetwork]);
+  var targetNetworkOption = useMemo(function () {
+    return networkOptions.filter(function (network) {
+      return network.id === (mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetChain : targetNetwork);
+    })[0];
+  }, [networkOptions, originNetwork]);
+  var selectedCoin = useSelector(selectSelectedToken);
+  var sourceWalletAddress = useMemo(function () {
     return getShortenedAddress(walletAddress || '');
   }, [walletAddress]);
-  const targetWalletAddress = useMemo(() => {
+  var targetWalletAddress = useMemo(function () {
     return getShortenedAddress((mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress) || '');
   }, [mode, transactionOption, targetAddress]);
-  const amountToShow = useMemo(() => {
+  var amountToShow = useMemo(function () {
     if (originNetwork === ChainName.BTC || targetNetwork === ChainName.BTC) {
       return (feeDeduct ? +amount : +amount + serviceFee).toFixed(8);
     }
     return formatterFloat.format(feeDeduct ? +amount : +amount + serviceFee);
   }, [amount, serviceFee, originNetwork, targetNetwork, feeDeduct]);
   return React.createElement("div", {
-    className: `confirm-details ${theme.colorMode}`
-  }, React.createElement("p", null, "Step ", isApproved ? '2' : '1', "\u00A0of 2\u00A0\u00A0\u00A0", isApproved ? 'Submit transaction' : originNetwork === ChainName.FIAT ? 'Bank Details' : 'Approval'), originNetwork === ChainName.FIAT ? React.createElement("div", null, React.createElement("div", {
+    className: "confirm-details " + theme.colorMode
+  }, React.createElement("p", null, "Step ", isApproved ? '2' : '1', "\xA0of 2\xA0\xA0\xA0", isApproved ? 'Submit transaction' : originNetwork === ChainName.FIAT ? 'Bank Details' : 'Approval'), originNetwork === ChainName.FIAT ? React.createElement("div", null, React.createElement("div", {
     className: 'detail-item'
   }, React.createElement("span", {
     className: 'label'
@@ -2575,46 +3110,50 @@ const ConfirmDetails = ({
   }, React.createElement(targetNetworkOption.icon, null), targetNetworkOption.label)));
 };
 
-const AddressInput = () => {
-  const dispatch = useDispatch();
-  const targetAddress = useSelector(selectTargetAddress);
+var AddressInput = function AddressInput() {
+  var dispatch = useDispatch();
+  var targetAddress = useSelector(selectTargetAddress);
   return React.createElement("input", {
     className: 'kima-address-input',
     type: 'text',
     value: targetAddress,
-    onChange: e => dispatch(setTargetAddress(e.target.value))
+    onChange: function onChange(e) {
+      return dispatch(setTargetAddress(e.target.value));
+    }
   });
 };
 
-const CustomCheckbox = ({
-  text,
-  checked,
-  setCheck
-}) => {
-  const theme = useSelector(selectTheme);
+var CustomCheckbox = function CustomCheckbox(_ref) {
+  var text = _ref.text,
+    checked = _ref.checked,
+    setCheck = _ref.setCheck;
+  var theme = useSelector(selectTheme);
   return React.createElement("div", {
     className: 'kima-custom-checkbox'
   }, React.createElement("div", {
     className: 'custom-checkbox-content',
-    onClick: () => setCheck(!checked)
+    onClick: function onClick() {
+      return setCheck(!checked);
+    }
   }, React.createElement("div", {
-    className: `custom-checkbox-icon-wrapper ${theme.colorMode}`
+    className: "custom-checkbox-icon-wrapper " + theme.colorMode
   }, checked && React.createElement(Check, null)), React.createElement("span", null, text)));
 };
 
-const CopyButton = ({
-  text
-}) => {
-  const [copyClicked, setCopyClicked] = useState(false);
-  useEffect(() => {
+var CopyButton = function CopyButton(_ref) {
+  var text = _ref.text;
+  var _useState = useState(false),
+    copyClicked = _useState[0],
+    setCopyClicked = _useState[1];
+  useEffect(function () {
     if (!copyClicked) return;
-    setTimeout(() => {
+    setTimeout(function () {
       setCopyClicked(false);
     }, 2000);
   }, [copyClicked]);
   return React.createElement("span", {
     className: 'copy-btn',
-    onClick: () => {
+    onClick: function onClick() {
       setCopyClicked(true);
       navigator.clipboard.writeText(text);
     }
@@ -2623,7 +3162,7 @@ const CopyButton = ({
   }) : React.createElement(Copy, null));
 };
 
-const stepInfo$1 = [{
+var stepInfo$1 = [{
   title: 'Initialize'
 }, {
   title: 'Source Transfer'
@@ -2634,91 +3173,93 @@ const stepInfo$1 = [{
 }, {
   title: 'Finalize'
 }];
-const StepBox = ({
-  step,
-  errorStep,
-  loadingStep,
-  data
-}) => {
-  const theme = useSelector(selectTheme);
-  const explorerUrl = useSelector(selectKimaExplorer);
+var StepBox = function StepBox(_ref) {
+  var step = _ref.step,
+    errorStep = _ref.errorStep,
+    loadingStep = _ref.loadingStep,
+    data = _ref.data;
+  var theme = useSelector(selectTheme);
+  var explorerUrl = useSelector(selectKimaExplorer);
   return React.createElement("div", {
     className: 'kima-stepbox'
   }, React.createElement("div", {
     className: 'content-wrapper'
-  }, stepInfo$1.map((item, index) => React.createElement("div", {
-    key: item.title,
-    className: 'step-item'
-  }, React.createElement("div", {
-    className: 'info-item'
-  }, index === loadingStep ? React.createElement(Loading180Ring, {
-    fill: theme.colorMode === 'dark' ? 'white' : '#5aa0db'
-  }) : step >= index ? index === errorStep ? React.createElement(Warning, {
-    "data-tooltip-id": 'error-tooltip'
-  }) : React.createElement(Check, null) : null, React.createElement("p", null, item.title)), index === 0 && data !== null && data !== void 0 && data.kimaTxHash ? React.createElement("div", {
-    className: 'info-item'
-  }, React.createElement("p", null, "Kima TX ID:", ' ', React.createElement(ExternalLink, {
-    to: `https://${explorerUrl}/transactions/${data === null || data === void 0 ? void 0 : data.kimaTxHash}`
-  }, getShortenedAddress((data === null || data === void 0 ? void 0 : data.kimaTxHash) || '')), React.createElement(CopyButton, {
-    text: data === null || data === void 0 ? void 0 : data.kimaTxHash
-  }))) : null, index === 1 && data !== null && data !== void 0 && data.tssPullHash ? React.createElement("div", {
-    className: 'info-item'
-  }, React.createElement("p", null, CHAIN_NAMES_TO_STRING[(data === null || data === void 0 ? void 0 : data.sourceChain) || ChainName.ETHEREUM], ' ', "TX ID:", React.createElement(ExternalLink, {
-    to: `https://${CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.sourceChain) || ChainName.ETHEREUM]}/${(data === null || data === void 0 ? void 0 : data.sourceChain) === ChainName.TRON ? 'transaction' : 'tx'}/${data === null || data === void 0 ? void 0 : data.tssPullHash}${(data === null || data === void 0 ? void 0 : data.sourceChain) === ChainName.SOLANA ? '?cluster=devnet' : ''}`
-  }, getShortenedAddress((data === null || data === void 0 ? void 0 : data.tssPullHash) || '')), React.createElement(CopyButton, {
-    text: (data === null || data === void 0 ? void 0 : data.tssPullHash) || ''
-  }))) : null, index === 3 && data !== null && data !== void 0 && data.tssReleaseHash ? React.createElement("div", {
-    className: 'info-item'
-  }, React.createElement("p", null, CHAIN_NAMES_TO_STRING[(data === null || data === void 0 ? void 0 : data.targetChain) || ChainName.ETHEREUM], ' ', "TX ID:", React.createElement(ExternalLink, {
-    to: `https://${CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.targetChain) || ChainName.ETHEREUM]}/${(data === null || data === void 0 ? void 0 : data.targetChain) === ChainName.TRON ? 'transaction' : 'tx'}/${data === null || data === void 0 ? void 0 : data.tssReleaseHash}${(data === null || data === void 0 ? void 0 : data.targetChain) === ChainName.SOLANA ? '?cluster=devnet' : ''}`
-  }, getShortenedAddress((data === null || data === void 0 ? void 0 : data.tssReleaseHash) || '')), React.createElement(CopyButton, {
-    text: (data === null || data === void 0 ? void 0 : data.tssReleaseHash) || ''
-  }))) : null))));
+  }, stepInfo$1.map(function (item, index) {
+    return React.createElement("div", {
+      key: item.title,
+      className: 'step-item'
+    }, React.createElement("div", {
+      className: 'info-item'
+    }, index === loadingStep ? React.createElement(Loading180Ring, {
+      fill: theme.colorMode === 'dark' ? 'white' : '#5aa0db'
+    }) : step >= index ? index === errorStep ? React.createElement(Warning, {
+      "data-tooltip-id": 'error-tooltip'
+    }) : React.createElement(Check, null) : null, React.createElement("p", null, item.title)), index === 0 && data !== null && data !== void 0 && data.kimaTxHash ? React.createElement("div", {
+      className: 'info-item'
+    }, React.createElement("p", null, "Kima TX ID:", ' ', React.createElement(ExternalLink, {
+      to: "https://" + explorerUrl + "/transactions/" + (data === null || data === void 0 ? void 0 : data.kimaTxHash)
+    }, getShortenedAddress((data === null || data === void 0 ? void 0 : data.kimaTxHash) || '')), React.createElement(CopyButton, {
+      text: data === null || data === void 0 ? void 0 : data.kimaTxHash
+    }))) : null, index === 1 && data !== null && data !== void 0 && data.tssPullHash ? React.createElement("div", {
+      className: 'info-item'
+    }, React.createElement("p", null, CHAIN_NAMES_TO_STRING[(data === null || data === void 0 ? void 0 : data.sourceChain) || ChainName.ETHEREUM], ' ', "TX ID:", React.createElement(ExternalLink, {
+      to: "https://" + CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.sourceChain) || ChainName.ETHEREUM] + "/" + ((data === null || data === void 0 ? void 0 : data.sourceChain) === ChainName.TRON ? 'transaction' : 'tx') + "/" + (data === null || data === void 0 ? void 0 : data.tssPullHash) + ((data === null || data === void 0 ? void 0 : data.sourceChain) === ChainName.SOLANA ? '?cluster=devnet' : '')
+    }, getShortenedAddress((data === null || data === void 0 ? void 0 : data.tssPullHash) || '')), React.createElement(CopyButton, {
+      text: (data === null || data === void 0 ? void 0 : data.tssPullHash) || ''
+    }))) : null, index === 3 && data !== null && data !== void 0 && data.tssReleaseHash ? React.createElement("div", {
+      className: 'info-item'
+    }, React.createElement("p", null, CHAIN_NAMES_TO_STRING[(data === null || data === void 0 ? void 0 : data.targetChain) || ChainName.ETHEREUM], ' ', "TX ID:", React.createElement(ExternalLink, {
+      to: "https://" + CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.targetChain) || ChainName.ETHEREUM] + "/" + ((data === null || data === void 0 ? void 0 : data.targetChain) === ChainName.TRON ? 'transaction' : 'tx') + "/" + (data === null || data === void 0 ? void 0 : data.tssReleaseHash) + ((data === null || data === void 0 ? void 0 : data.targetChain) === ChainName.SOLANA ? '?cluster=devnet' : '')
+    }, getShortenedAddress((data === null || data === void 0 ? void 0 : data.tssReleaseHash) || '')), React.createElement(CopyButton, {
+      text: (data === null || data === void 0 ? void 0 : data.tssReleaseHash) || ''
+    }))) : null);
+  })));
 };
 
-const BankInput = () => {
-  const dispatch = useDispatch();
-  const theme = useSelector(selectTheme);
-  const bankDetails = useSelector(selectBankDetails);
+var BankInput = function BankInput() {
+  var dispatch = useDispatch();
+  var theme = useSelector(selectTheme);
+  var bankDetails = useSelector(selectBankDetails);
   return React.createElement("div", {
     className: 'bank-input'
   }, React.createElement("div", {
-    className: `form-item ${theme.colorMode}`
+    className: "form-item " + theme.colorMode
   }, React.createElement("span", {
     className: 'label'
   }, "IBAN:"), React.createElement("input", {
     className: 'kima-address-input',
     type: 'text',
     value: bankDetails.iban,
-    onChange: e => dispatch(setBankDetails({
-      ...bankDetails,
-      iban: e.target.value
-    }))
+    onChange: function onChange(e) {
+      return dispatch(setBankDetails(_extends({}, bankDetails, {
+        iban: e.target.value
+      })));
+    }
   })), React.createElement("div", {
-    className: `form-item ${theme.colorMode}`
+    className: "form-item " + theme.colorMode
   }, React.createElement("span", {
     className: 'label'
   }, "Recipient:"), React.createElement("input", {
     className: 'kima-address-input',
     type: 'text',
     value: bankDetails.recipient,
-    onChange: e => dispatch(setBankDetails({
-      ...bankDetails,
-      recipient: e.target.value
-    }))
+    onChange: function onChange(e) {
+      return dispatch(setBankDetails(_extends({}, bankDetails, {
+        recipient: e.target.value
+      })));
+    }
   })));
 };
 
-const TxButton = ({
-  theme
-}) => {
-  const dispatch = useDispatch();
-  const handleClick = () => {
+var TxButton = function TxButton(_ref) {
+  var theme = _ref.theme;
+  var dispatch = useDispatch();
+  var handleClick = function handleClick() {
     dispatch(setPendingTxPopup(true));
   };
-  const txCount = useSelector(selectPendingTxs);
+  var txCount = useSelector(selectPendingTxs);
   return React.createElement("button", {
-    className: `secondary-button tx-button ${theme.colorMode}`,
+    className: "secondary-button tx-button " + theme.colorMode,
     onClick: handleClick
   }, txCount, React.createElement(Loading180Ring, {
     height: 16,
@@ -2727,15 +3268,15 @@ const TxButton = ({
   }));
 };
 
-const HelpPopup = () => {
-  const dispatch = useDispatch();
-  const theme = useSelector(selectTheme);
-  const helpPopup = useSelector(selectHelpPopup);
+var HelpPopup = function HelpPopup() {
+  var dispatch = useDispatch();
+  var theme = useSelector(selectTheme);
+  var helpPopup = useSelector(selectHelpPopup);
   return React.createElement("div", {
-    className: `kima-modal help-popup ${theme.colorMode} ${helpPopup ? 'open' : ''}`
+    className: "kima-modal help-popup " + theme.colorMode + " " + (helpPopup ? 'open' : '')
   }, React.createElement("div", {
     className: 'modal-overlay',
-    onClick: () => {
+    onClick: function onClick() {
       dispatch(setHelpPopup(false));
     }
   }), React.createElement("div", {
@@ -2750,7 +3291,9 @@ const HelpPopup = () => {
     className: 'control-buttons'
   }, React.createElement("button", {
     className: 'icon-button',
-    onClick: () => dispatch(setHelpPopup(false))
+    onClick: function onClick() {
+      return dispatch(setHelpPopup(false));
+    }
   }, React.createElement(Cross, {
     fill: theme.colorMode === 'light' ? 'black' : 'white'
   }))))), React.createElement("div", {
@@ -2758,17 +3301,16 @@ const HelpPopup = () => {
   }, React.createElement("p", null, "The SDK enables dApp developers to process Kima transactions on behalf of their clients. It will include visual and API components that communicate with the Kima RPC nodes. The developers can pick and choose the right level of integration, based on their usage scenario."))));
 };
 
-const HashPopup = ({
-  data
-}) => {
-  const dispatch = useDispatch();
-  const theme = useSelector(selectTheme);
-  const hashPopup = useSelector(selectHashPopup);
+var HashPopup = function HashPopup(_ref) {
+  var data = _ref.data;
+  var dispatch = useDispatch();
+  var theme = useSelector(selectTheme);
+  var hashPopup = useSelector(selectHashPopup);
   return React.createElement("div", {
-    className: `kima-modal hash-popup ${theme.colorMode} ${hashPopup ? 'open' : ''}`
+    className: "kima-modal hash-popup " + theme.colorMode + " " + (hashPopup ? 'open' : '')
   }, React.createElement("div", {
     className: 'modal-overlay',
-    onClick: () => {
+    onClick: function onClick() {
       dispatch(setHashPopup(false));
     }
   }), React.createElement("div", {
@@ -2783,7 +3325,9 @@ const HashPopup = ({
     className: 'control-buttons'
   }, React.createElement("button", {
     className: 'icon-button',
-    onClick: () => dispatch(setHashPopup(false))
+    onClick: function onClick() {
+      return dispatch(setHashPopup(false));
+    }
   }, React.createElement(Cross, {
     fill: theme.colorMode === 'light' ? 'black' : 'white'
   }))))), React.createElement("div", {
@@ -2797,30 +3341,29 @@ const HashPopup = ({
   }, "718A...2524")), React.createElement("div", {
     className: 'hash-item'
   }, React.createElement("span", null, "Source tx:"), React.createElement(ExternalLink, {
-    to: `https://${CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.sourceChain) || ChainName.ETHEREUM]}/tx/${data === null || data === void 0 ? void 0 : data.tssPullHash}`
+    to: "https://" + CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.sourceChain) || ChainName.ETHEREUM] + "/tx/" + (data === null || data === void 0 ? void 0 : data.tssPullHash)
   }, getShortenedAddress((data === null || data === void 0 ? void 0 : data.tssPullHash) || ''))), React.createElement("div", {
     className: 'hash-item'
   }, React.createElement("span", null, "Target tx:"), React.createElement(ExternalLink, {
-    to: `https://${CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.targetChain) || ChainName.ETHEREUM]}/tx/${data === null || data === void 0 ? void 0 : data.tssReleaseHash}`
+    to: "https://" + CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.targetChain) || ChainName.ETHEREUM] + "/tx/" + (data === null || data === void 0 ? void 0 : data.tssReleaseHash)
   }, getShortenedAddress((data === null || data === void 0 ? void 0 : data.tssReleaseHash) || '')))))));
 };
 
-const SolanaWalletConnectModal = () => {
-  const dispatch = useDispatch();
-  const theme = useSelector(selectTheme);
-  const connectModal = useSelector(selectSolanaConnectModal);
-  const selectedProvider = useSelector(selectSolanaProvider);
-  const {
-    select,
-    connect
-  } = useWallet();
-  const handleConnect = () => {
+var SolanaWalletConnectModal = function SolanaWalletConnectModal() {
+  var dispatch = useDispatch();
+  var theme = useSelector(selectTheme);
+  var connectModal = useSelector(selectSolanaConnectModal);
+  var selectedProvider = useSelector(selectSolanaProvider);
+  var _useWallet = useWallet(),
+    select = _useWallet.select,
+    connect = _useWallet.connect;
+  var handleConnect = function handleConnect() {
     select(selectedProvider);
     connect();
     dispatch(setSolanaConnectModal(false));
   };
   return React.createElement("div", {
-    className: `kima-modal wallet-connect ${theme.colorMode} ${connectModal ? 'open' : ''}`
+    className: "kima-modal wallet-connect " + theme.colorMode + " " + (connectModal ? 'open' : '')
   }, React.createElement("div", {
     className: 'modal-overlay'
   }), React.createElement("div", {
@@ -2835,7 +3378,9 @@ const SolanaWalletConnectModal = () => {
     className: 'control-buttons'
   }, React.createElement("button", {
     className: 'icon-button',
-    onClick: () => dispatch(setSolanaConnectModal(false))
+    onClick: function onClick() {
+      return dispatch(setSolanaConnectModal(false));
+    }
   }, React.createElement(Cross, {
     fill: theme.colorMode === 'light' ? 'black' : 'white'
   }))))), React.createElement("div", {
@@ -2847,33 +3392,40 @@ const SolanaWalletConnectModal = () => {
       marginTop: '2em'
     }
   }, React.createElement(SecondaryButton, {
-    clickHandler: () => dispatch(setSolanaConnectModal(false)),
+    clickHandler: function clickHandler() {
+      return dispatch(setSolanaConnectModal(false));
+    },
     theme: theme.colorMode
   }, "Cancel"), React.createElement(PrimaryButton, {
     clickHandler: handleConnect
   }, "Connect"))));
 };
 
-const TronWalletConnectModal = () => {
-  const dispatch = useDispatch();
-  const theme = useSelector(selectTheme);
-  const connectModal = useSelector(selectTronConnectModal);
-  const selectedProvider = useSelector(selectSolanaProvider);
-  const {
-    select,
-    connect
-  } = useWallet$1();
-  const handleConnect = async () => {
+var TronWalletConnectModal = function TronWalletConnectModal() {
+  var dispatch = useDispatch();
+  var theme = useSelector(selectTheme);
+  var connectModal = useSelector(selectTronConnectModal);
+  var selectedProvider = useSelector(selectSolanaProvider);
+  var _useWallet = useWallet$1(),
+    select = _useWallet.select,
+    connect = _useWallet.connect;
+  var handleConnect = function handleConnect() {
     try {
-      select(selectedProvider);
-      await connect();
-      dispatch(setTronConnectModal(false));
+      var _temp = _catch(function () {
+        select(selectedProvider);
+        return Promise.resolve(connect()).then(function () {
+          dispatch(setTronConnectModal(false));
+        });
+      }, function (e) {
+        console.log(e);
+      });
+      return Promise.resolve(_temp && _temp.then ? _temp.then(function () {}) : void 0);
     } catch (e) {
-      console.log(e);
+      return Promise.reject(e);
     }
   };
   return React.createElement("div", {
-    className: `kima-modal wallet-connect ${theme.colorMode} ${connectModal ? 'open' : ''}`
+    className: "kima-modal wallet-connect " + theme.colorMode + " " + (connectModal ? 'open' : '')
   }, React.createElement("div", {
     className: 'modal-overlay'
   }), React.createElement("div", {
@@ -2888,7 +3440,9 @@ const TronWalletConnectModal = () => {
     className: 'control-buttons'
   }, React.createElement("button", {
     className: 'icon-button',
-    onClick: () => dispatch(setTronConnectModal(false))
+    onClick: function onClick() {
+      return dispatch(setTronConnectModal(false));
+    }
   }, React.createElement(Cross, {
     fill: theme.colorMode === 'light' ? 'black' : 'white'
   }))))), React.createElement("div", {
@@ -2900,53 +3454,60 @@ const TronWalletConnectModal = () => {
       marginTop: '2em'
     }
   }, React.createElement(SecondaryButton, {
-    clickHandler: () => dispatch(setTronConnectModal(false)),
+    clickHandler: function clickHandler() {
+      return dispatch(setTronConnectModal(false));
+    },
     theme: theme.colorMode
   }, "Cancel"), React.createElement(PrimaryButton, {
     clickHandler: handleConnect
   }, "Connect"))));
 };
 
-const BankPopup = ({
-  setVerifying,
-  isVerifying
-}) => {
-  const dispatch = useDispatch();
-  const uuid = useSelector(selectUuid);
-  const theme = useSelector(selectTheme);
-  const bankPopup = useSelector(selectBankPopup);
-  const kimaBackendUrl = useSelector(selectBackendUrl);
-  useEffect(() => {
+var BankPopup = function BankPopup(_ref) {
+  var setVerifying = _ref.setVerifying,
+    isVerifying = _ref.isVerifying;
+  var dispatch = useDispatch();
+  var uuid = useSelector(selectUuid);
+  var theme = useSelector(selectTheme);
+  var bankPopup = useSelector(selectBankPopup);
+  var kimaBackendUrl = useSelector(selectBackendUrl);
+  useEffect(function () {
     if (!kimaBackendUrl || !uuid || !isVerifying) return;
-    const timerId = setInterval(async () => {
+    var timerId = setInterval(function () {
       try {
-        const res = await fetchWrapper.post(`${kimaBackendUrl}/kyc`, JSON.stringify({
-          uuid
-        }));
-        const kycResult = res.data;
-        console.log(kycResult);
-        if (!kycResult.length) {
+        var _temp = _catch(function () {
+          return Promise.resolve(fetchWrapper.post(kimaBackendUrl + "/kyc", JSON.stringify({
+            uuid: uuid
+          }))).then(function (res) {
+            var kycResult = res.data;
+            console.log(kycResult);
+            if (!kycResult.length) {
+              console.log('failed to check kyc status');
+              toast$1.error('failed to check kyc status');
+            } else if (kycResult[0].status === 'approved') {
+              setVerifying(false);
+              dispatch(setKYCStatus('approved'));
+              toast$1.success('KYC is verified');
+            }
+          });
+        }, function () {
           console.log('failed to check kyc status');
           toast$1.error('failed to check kyc status');
-        } else if (kycResult[0].status === 'approved') {
-          setVerifying(false);
-          dispatch(setKYCStatus('approved'));
-          toast$1.success('KYC is verified');
-        }
+        });
+        return Promise.resolve(_temp && _temp.then ? _temp.then(function () {}) : void 0);
       } catch (e) {
-        console.log('failed to check kyc status');
-        toast$1.error('failed to check kyc status');
+        return Promise.reject(e);
       }
     }, 3000);
-    return () => {
+    return function () {
       clearInterval(timerId);
     };
   }, [kimaBackendUrl, uuid, isVerifying]);
   return React.createElement("div", {
-    className: `kima-modal bank-popup ${theme.colorMode} ${bankPopup ? 'open' : ''}`
+    className: "kima-modal bank-popup " + theme.colorMode + " " + (bankPopup ? 'open' : '')
   }, React.createElement("div", {
     className: 'modal-overlay',
-    onClick: () => {
+    onClick: function onClick() {
       dispatch(setBankPopup(false));
     }
   }), React.createElement("div", {
@@ -2961,13 +3522,15 @@ const BankPopup = ({
     className: 'control-buttons'
   }, React.createElement("button", {
     className: 'icon-button',
-    onClick: () => dispatch(setBankPopup(false))
+    onClick: function onClick() {
+      return dispatch(setBankPopup(false));
+    }
   }, React.createElement(Cross, {
     fill: theme.colorMode === 'light' ? 'black' : 'white'
   }))))), React.createElement("div", {
     className: 'modal-content'
   }, React.createElement("iframe", {
-    src: `https://sandbox.depasify.com/widgets/kyc?partner=kimastage&user_uuid=${uuid}`,
+    src: "https://sandbox.depasify.com/widgets/kyc?partner=kimastage&user_uuid=" + uuid,
     width: '100%',
     height: '100%',
     frameBorder: '0',
@@ -2975,83 +3538,111 @@ const BankPopup = ({
   }))));
 };
 
-const TransactionWidget = ({
-  theme
-}) => {
-  const [step, setStep] = useState(0);
-  const [focus, setFocus] = useState(-1);
-  const [errorStep, setErrorStep] = useState(-1);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [loadingStep, setLoadingStep] = useState(-1);
-  const [minimized, setMinimized] = useState(false);
-  const [percent, setPercent] = useState(0);
-  const [data, setData] = useState();
-  const dispatch = useDispatch();
-  const txId = useSelector(selectTxId);
-  const dAppOption = useSelector(selectDappOption);
-  const closeHandler = useSelector(selectCloseHandler);
-  const successHandler = useSelector(selectSuccessHandler);
-  const nodeProviderQuery = useSelector(selectNodeProviderQuery);
-  useEffect(() => {
+var TransactionWidget = function TransactionWidget(_ref) {
+  var theme = _ref.theme;
+  var _useState = useState(0),
+    step = _useState[0],
+    setStep = _useState[1];
+  var _useState2 = useState(-1),
+    focus = _useState2[0],
+    setFocus = _useState2[1];
+  var _useState3 = useState(-1),
+    errorStep = _useState3[0],
+    setErrorStep = _useState3[1];
+  var _useState4 = useState(''),
+    errorMessage = _useState4[0],
+    setErrorMessage = _useState4[1];
+  var _useState5 = useState(-1),
+    loadingStep = _useState5[0],
+    setLoadingStep = _useState5[1];
+  var _useState6 = useState(false),
+    minimized = _useState6[0],
+    setMinimized = _useState6[1];
+  var _useState7 = useState(0),
+    percent = _useState7[0],
+    setPercent = _useState7[1];
+  var _useState8 = useState(),
+    data = _useState8[0],
+    setData = _useState8[1];
+  var dispatch = useDispatch();
+  var txId = useSelector(selectTxId);
+  var dAppOption = useSelector(selectDappOption);
+  var closeHandler = useSelector(selectCloseHandler);
+  var successHandler = useSelector(selectSuccessHandler);
+  var nodeProviderQuery = useSelector(selectNodeProviderQuery);
+  useEffect(function () {
     if (!nodeProviderQuery || txId < 0) return;
-    const timerId = setInterval(async () => {
+    var timerId = setInterval(function () {
       try {
-        let data;
-        let result;
-        const isLP = dAppOption === DAppOptions.LPAdd || dAppOption === DAppOptions.LPDrain;
-        if (isLP) {
-          var _result;
-          result = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/transaction/liquidity_transaction_data/${txId}`);
-          data = (_result = result) === null || _result === void 0 ? void 0 : _result.LiquidityTransactionData;
-        } else {
-          var _result2;
-          result = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/transaction/transaction_data/${txId}`);
-          data = (_result2 = result) === null || _result2 === void 0 ? void 0 : _result2.transactionData;
-        }
-        if (!data) return;
-        if (isLP) {
-          setData({
-            status: data.status,
-            sourceChain: data.chain,
-            targetChain: data.chain,
-            tssPullHash: dAppOption === DAppOptions.LPAdd ? data.tssReleaseHash : '',
-            tssReleaseHash: dAppOption === DAppOptions.LPDrain ? data.tssReleaseHash : '',
-            failReason: data.failReason,
-            amount: +data.amount,
-            symbol: data.symbol,
-            kimaTxHash: data.kimaTxHash
-          });
-        } else {
-          setData({
-            status: data.status,
-            sourceChain: data.originChain,
-            targetChain: data.targetChain,
-            tssPullHash: data.tssPullHash,
-            tssReleaseHash: data.tssReleaseHash,
-            failReason: data.failReason,
-            amount: +data.amount,
-            symbol: data.symbol,
-            kimaTxHash: data.kimaTxHash
-          });
-        }
-        if (data.status === TransactionStatus.COMPLETED) {
-          clearInterval(timerId);
-          setTimeout(() => {
-            successHandler({
-              txId
-            });
-          }, 3000);
-        }
+        return Promise.resolve(_catch(function () {
+          function _temp2() {
+            if (!data) return;
+            if (isLP) {
+              setData({
+                status: data.status,
+                sourceChain: data.chain,
+                targetChain: data.chain,
+                tssPullHash: dAppOption === DAppOptions.LPAdd ? data.tssReleaseHash : '',
+                tssReleaseHash: dAppOption === DAppOptions.LPDrain ? data.tssReleaseHash : '',
+                failReason: data.failReason,
+                amount: +data.amount,
+                symbol: data.symbol,
+                kimaTxHash: data.kimaTxHash
+              });
+            } else {
+              setData({
+                status: data.status,
+                sourceChain: data.originChain,
+                targetChain: data.targetChain,
+                tssPullHash: data.tssPullHash,
+                tssReleaseHash: data.tssReleaseHash,
+                failReason: data.failReason,
+                amount: +data.amount,
+                symbol: data.symbol,
+                kimaTxHash: data.kimaTxHash
+              });
+            }
+            if (data.status === TransactionStatus.COMPLETED) {
+              clearInterval(timerId);
+              setTimeout(function () {
+                successHandler({
+                  txId: txId
+                });
+              }, 3000);
+            }
+          }
+          var data;
+          var result;
+          var isLP = dAppOption === DAppOptions.LPAdd || dAppOption === DAppOptions.LPDrain;
+          var _temp = function () {
+            if (isLP) {
+              return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/transaction/liquidity_transaction_data/" + txId)).then(function (_fetchWrapper$get) {
+                var _result2;
+                result = _fetchWrapper$get;
+                data = (_result2 = result) === null || _result2 === void 0 ? void 0 : _result2.LiquidityTransactionData;
+              });
+            } else {
+              return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/transaction/transaction_data/" + txId)).then(function (_fetchWrapper$get2) {
+                var _result3;
+                result = _fetchWrapper$get2;
+                data = (_result3 = result) === null || _result3 === void 0 ? void 0 : _result3.transactionData;
+              });
+            }
+          }();
+          return _temp && _temp.then ? _temp.then(_temp2) : _temp2(_temp);
+        }, function (e) {
+          toast$1.error('rpc disconnected');
+          console.log('rpc disconnected', e);
+        }));
       } catch (e) {
-        toast$1.error('rpc disconnected');
-        console.log('rpc disconnected', e);
+        return Promise.reject(e);
       }
     }, 1000);
-    return () => {
+    return function () {
       clearInterval(timerId);
     };
   }, [nodeProviderQuery, txId, dAppOption]);
-  useEffect(() => {
+  useEffect(function () {
     if (!data) {
       setStep(0);
       setLoadingStep(0);
@@ -3059,7 +3650,7 @@ const TransactionWidget = ({
     }
     console.log(data.status);
     setErrorStep(-1);
-    const status = data.status;
+    var status = data.status;
     if (status === TransactionStatus.AVAILABLE || status === TransactionStatus.PULLED) {
       setStep(1);
       setPercent(25);
@@ -3109,7 +3700,7 @@ const TransactionWidget = ({
   return React.createElement(Provider, {
     store: store
   }, React.createElement("div", {
-    className: `kima-card transaction-card ${theme.colorMode} font-${theme.fontSize} ${minimized ? 'minimized' : ''}`,
+    className: "kima-card transaction-card " + theme.colorMode + " font-" + theme.fontSize + " " + (minimized ? 'minimized' : ''),
     style: {
       fontFamily: theme.fontFamily,
       background: theme.colorMode === ColorModeOptions.light ? theme.backgroundColorLight : theme.backgroundColorDark
@@ -3120,18 +3711,18 @@ const TransactionWidget = ({
     className: 'topbar'
   }, React.createElement("div", {
     className: 'title'
-  }, React.createElement("h3", null, "Transferring ", formatterFloat.format((data === null || data === void 0 ? void 0 : data.amount) || 0), ' ', (data === null || data === void 0 ? void 0 : data.symbol) || 'USDK', "\u00A0\u00A0", `(${percent}%)`)), !minimized ? React.createElement("div", {
+  }, React.createElement("h3", null, "Transferring ", formatterFloat.format((data === null || data === void 0 ? void 0 : data.amount) || 0), ' ', (data === null || data === void 0 ? void 0 : data.symbol) || 'USDK', "\xA0\xA0", "(" + percent + "%)")), !minimized ? React.createElement("div", {
     className: 'control-buttons'
   }, React.createElement("button", {
     className: 'icon-button',
-    onClick: () => {
+    onClick: function onClick() {
       setMinimized(true);
     }
   }, React.createElement(Minimize, {
     fill: theme.colorMode === 'light' ? 'black' : 'white'
   })), loadingStep < 0 ? React.createElement("button", {
     className: 'icon-button',
-    onClick: () => {
+    onClick: function onClick() {
       dispatch(initialize());
       closeHandler();
     }
@@ -3141,7 +3732,9 @@ const TransactionWidget = ({
     className: 'control-buttons'
   }, React.createElement("div", {
     className: 'maximize',
-    onClick: () => setMinimized(false)
+    onClick: function onClick() {
+      return setMinimized(false);
+    }
   }, "View"))), (data === null || data === void 0 ? void 0 : data.sourceChain) && (data === null || data === void 0 ? void 0 : data.targetChain) && React.createElement(NetworkLabel, {
     sourceChain: data === null || data === void 0 ? void 0 : data.sourceChain,
     targetChain: data === null || data === void 0 ? void 0 : data.targetChain,
@@ -3190,7 +3783,7 @@ const TransactionWidget = ({
     }
   }), React.createElement(Tooltip, {
     id: 'error-tooltip',
-    className: `error-tooltip ${theme.colorMode}`,
+    className: "error-tooltip " + theme.colorMode,
     content: errorMessage,
     style: {
       zIndex: 10000
@@ -3198,63 +3791,75 @@ const TransactionWidget = ({
   })));
 };
 
-const ExpireTimeDropdown = () => {
-  const ref = useRef();
-  const dispatch = useDispatch();
-  const [collapsed, setCollapsed] = useState(true);
-  const expireTime = useSelector(selectExpireTime);
-  const theme = useSelector(selectTheme);
-  useEffect(() => {
-    const bodyMouseDowntHandler = e => {
+var ExpireTimeDropdown = function ExpireTimeDropdown() {
+  var ref = useRef();
+  var dispatch = useDispatch();
+  var _useState = useState(true),
+    collapsed = _useState[0],
+    setCollapsed = _useState[1];
+  var expireTime = useSelector(selectExpireTime);
+  var theme = useSelector(selectTheme);
+  useEffect(function () {
+    var bodyMouseDowntHandler = function bodyMouseDowntHandler(e) {
       if (ref !== null && ref !== void 0 && ref.current && !ref.current.contains(e.target)) {
         setCollapsed(true);
       }
     };
     document.addEventListener('mousedown', bodyMouseDowntHandler);
-    return () => {
+    return function () {
       document.removeEventListener('mousedown', bodyMouseDowntHandler);
     };
   }, [setCollapsed]);
   return React.createElement("div", {
-    className: `expire-time-dropdown ${theme.colorMode} ${collapsed ? 'collapsed' : ''}`,
-    onClick: () => setCollapsed(prev => !prev),
+    className: "expire-time-dropdown " + theme.colorMode + " " + (collapsed ? 'collapsed' : ''),
+    onClick: function onClick() {
+      return setCollapsed(function (prev) {
+        return !prev;
+      });
+    },
     ref: ref
   }, React.createElement("div", {
     className: 'expire-time-wrapper'
   }, React.createElement("p", null, expireTime)), React.createElement("div", {
-    className: `expire-time-menu ${theme.colorMode} ${collapsed ? 'collapsed' : ''}`
-  }, ExpireTimeOptions.map(option => React.createElement("p", {
-    key: option,
-    className: 'expire-time-item',
-    onClick: () => {
-      dispatch(setExpireTime(option));
-    }
-  }, option))));
+    className: "expire-time-menu " + theme.colorMode + " " + (collapsed ? 'collapsed' : '')
+  }, ExpireTimeOptions.map(function (option) {
+    return React.createElement("p", {
+      key: option,
+      className: 'expire-time-item',
+      onClick: function onClick() {
+        dispatch(setExpireTime(option));
+      }
+    }, option);
+  })));
 };
 
-const SingleForm = ({
-  paymentTitleOption
-}) => {
-  const dispatch = useDispatch();
-  const mode = useSelector(selectMode);
-  const theme = useSelector(selectTheme);
-  const feeDeduct = useSelector(selectFeeDeduct);
-  const serviceFee = useSelector(selectServiceFee);
-  const compliantOption = useSelector(selectCompliantOption);
-  const targetCompliant = useSelector(selectTargetCompliant);
-  const transactionOption = useSelector(selectTransactionOption);
-  const selectedCoin = useSelector(selectSelectedToken);
-  const sourceNetwork = useSelector(selectSourceChain);
-  const targetNetwork = useSelector(selectTargetChain);
-  const [amountValue, setAmountValue] = useState('');
-  const amount = useSelector(selectAmount);
-  const Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
-  const errorMessage = useMemo(() => compliantOption && targetCompliant !== 'low' ? `Target address has ${targetCompliant} risk` : '', [compliantOption, targetCompliant]);
-  useEffect(() => {
+var SingleForm = function SingleForm(_ref) {
+  var _COIN_LIST;
+  var paymentTitleOption = _ref.paymentTitleOption;
+  var dispatch = useDispatch();
+  var mode = useSelector(selectMode);
+  var theme = useSelector(selectTheme);
+  var feeDeduct = useSelector(selectFeeDeduct);
+  var serviceFee = useSelector(selectServiceFee);
+  var compliantOption = useSelector(selectCompliantOption);
+  var targetCompliant = useSelector(selectTargetCompliant);
+  var transactionOption = useSelector(selectTransactionOption);
+  var selectedCoin = useSelector(selectSelectedToken);
+  var sourceNetwork = useSelector(selectSourceChain);
+  var targetNetwork = useSelector(selectTargetChain);
+  var _useState = useState(''),
+    amountValue = _useState[0],
+    setAmountValue = _useState[1];
+  var amount = useSelector(selectAmount);
+  var Icon = ((_COIN_LIST = COIN_LIST[selectedCoin || 'USDK']) === null || _COIN_LIST === void 0 ? void 0 : _COIN_LIST.icon) || COIN_LIST['USDK'].icon;
+  var errorMessage = useMemo(function () {
+    return compliantOption && targetCompliant !== 'low' ? "Target address has " + targetCompliant + " risk" : '';
+  }, [compliantOption, targetCompliant]);
+  useEffect(function () {
     if (!errorMessage) return;
     toast$1.error(errorMessage);
   }, [errorMessage]);
-  useEffect(() => {
+  useEffect(function () {
     if (amountValue) return;
     setAmountValue(amount);
   }, [amount]);
@@ -3268,7 +3873,7 @@ const SingleForm = ({
   }, React.createElement("span", {
     className: 'label'
   }, "Source Network"), React.createElement(NetworkDropdown, null)), React.createElement("div", {
-    className: `dynamic-area ${sourceNetwork === ChainName.FIAT ? 'reverse' : ''}`
+    className: "dynamic-area " + (sourceNetwork === ChainName.FIAT ? 'reverse' : '')
   }, React.createElement("div", {
     className: 'form-item wallet-button-item'
   }, React.createElement("span", {
@@ -3280,11 +3885,11 @@ const SingleForm = ({
   }, "Target Network:"), React.createElement(NetworkDropdown, {
     isOriginChain: false
   }))), mode === ModeOptions.bridge && sourceNetwork !== ChainName.FIAT ? targetNetwork === ChainName.FIAT ? React.createElement(BankInput, null) : React.createElement("div", {
-    className: `form-item ${theme.colorMode}`
+    className: "form-item " + theme.colorMode
   }, React.createElement("span", {
     className: 'label'
   }, "Target Address:"), React.createElement(AddressInput, null)) : null, mode === ModeOptions.bridge ? React.createElement("div", {
-    className: `form-item ${theme.colorMode}`
+    className: "form-item " + theme.colorMode
   }, React.createElement("span", {
     className: 'label'
   }, "Amount:"), React.createElement("div", {
@@ -3292,53 +3897,57 @@ const SingleForm = ({
   }, React.createElement("input", {
     type: 'number',
     value: amountValue || '',
-    onChange: e => {
-      let _amount = +e.target.value;
-      const decimal = sourceNetwork === ChainName.BTC || targetNetwork === ChainName.BTC ? 8 : 2;
+    onChange: function onChange(e) {
+      var _amount = +e.target.value;
+      var decimal = sourceNetwork === ChainName.BTC || targetNetwork === ChainName.BTC ? 8 : 2;
       setAmountValue(e.target.value);
       dispatch(setAmount(_amount.toFixed(decimal)));
     }
   }), React.createElement(CoinDropdown, null))) : React.createElement("div", {
-    className: `form-item ${theme.colorMode}`
+    className: "form-item " + theme.colorMode
   }, React.createElement("span", {
     className: 'label'
   }, "Amount:"), React.createElement("div", {
-    className: `amount-label ${theme.colorMode}`
+    className: "amount-label " + theme.colorMode
   }, React.createElement("span", null, (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount) || ''), React.createElement("div", {
     className: 'coin-wrapper'
   }, React.createElement(Icon, null), selectedCoin))), mode === ModeOptions.bridge && serviceFee > 0 ? React.createElement(CustomCheckbox, {
-    text: sourceNetwork === ChainName.BTC ? `Deduct ${formatterFloat.format(serviceFee)} BTC fee` : `Deduct $${formatterFloat.format(serviceFee)} fee`,
+    text: sourceNetwork === ChainName.BTC ? "Deduct " + formatterFloat.format(serviceFee) + " BTC fee" : "Deduct $" + formatterFloat.format(serviceFee) + " fee",
     checked: feeDeduct,
-    setCheck: value => dispatch(setFeeDeduct(value))
+    setCheck: function setCheck(value) {
+      return dispatch(setFeeDeduct(value));
+    }
   }) : null, sourceNetwork === ChainName.BTC || targetNetwork === ChainName.BTC ? React.createElement("div", {
-    className: `form-item ${theme.colorMode}`
+    className: "form-item " + theme.colorMode
   }, React.createElement("span", {
     className: 'label'
   }, "Expire Time:"), React.createElement(ExpireTimeDropdown, null)) : null);
 };
 
-const CoinSelect = () => {
-  const dispatch = useDispatch();
-  const theme = useSelector(selectTheme);
-  const mode = useSelector(selectMode);
-  const selectedCoin = useSelector(selectSelectedToken);
-  const sourceNetwork = useSelector(selectSourceChain);
-  const targetNetwork = useSelector(selectTargetChain);
-  const [amountValue, setAmountValue] = useState('');
-  const Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
+var CoinSelect = function CoinSelect() {
+  var dispatch = useDispatch();
+  var theme = useSelector(selectTheme);
+  var mode = useSelector(selectMode);
+  var selectedCoin = useSelector(selectSelectedToken);
+  var sourceNetwork = useSelector(selectSourceChain);
+  var targetNetwork = useSelector(selectTargetChain);
+  var _useState = useState(''),
+    amountValue = _useState[0],
+    setAmountValue = _useState[1];
+  var Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
   return React.createElement("div", {
-    className: `coin-select`
+    className: "coin-select"
   }, React.createElement("p", null, "Select Amount of Token for Funding"), React.createElement("div", {
-    className: `amount-input ${theme.colorMode}`
+    className: "amount-input " + theme.colorMode
   }, React.createElement("span", null, "Amount:"), React.createElement("div", {
     className: 'input-wrapper'
   }, React.createElement("input", {
     type: 'number',
     value: amountValue || '',
     readOnly: mode === ModeOptions.payment,
-    onChange: e => {
-      const _amount = +e.target.value;
-      const decimal = sourceNetwork === ChainName.BTC || targetNetwork === ChainName.BTC ? 8 : 2;
+    onChange: function onChange(e) {
+      var _amount = +e.target.value;
+      var decimal = sourceNetwork === ChainName.BTC || targetNetwork === ChainName.BTC ? 8 : 2;
       setAmountValue(e.target.value);
       dispatch(setAmount(_amount.toFixed(decimal)));
     }
@@ -3347,64 +3956,80 @@ const CoinSelect = () => {
   }, React.createElement(Icon, null), React.createElement("span", null, selectedCoin)))));
 };
 
-function useServiceFee(isConfirming = false, feeURL) {
-  const {
-    walletAddress,
-    isReady
-  } = useIsWalletReady();
-  const dispatch = useDispatch();
-  const serviceFee = useSelector(selectServiceFee);
-  const mode = useSelector(selectMode);
-  const amount_ = useSelector(selectAmount);
-  const sourceChain = useSelector(selectSourceChain);
-  const targetNetwork = useSelector(selectTargetChain);
-  const targetAddress_ = useSelector(selectTargetAddress);
-  const transactionOption = useSelector(selectTransactionOption);
-  const targetChain = useMemo(() => mode === ModeOptions.payment ? (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetChain) || '' : targetNetwork, [transactionOption, mode, targetNetwork]);
-  const targetAddress = useMemo(() => mode === ModeOptions.payment ? (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress) || '' : targetAddress_, [transactionOption, mode, targetAddress_]);
-  const amount = useMemo(() => mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount : amount_, [transactionOption, mode, amount_]);
-  const getServiceFee = async () => {
-    if (!sourceChain || !targetChain || !isReady || !walletAddress || !targetAddress || !amount) return;
+function useServiceFee(isConfirming, feeURL) {
+  if (isConfirming === void 0) {
+    isConfirming = false;
+  }
+  var _useIsWalletReady = useIsWalletReady(),
+    walletAddress = _useIsWalletReady.walletAddress,
+    isReady = _useIsWalletReady.isReady;
+  var dispatch = useDispatch();
+  var serviceFee = useSelector(selectServiceFee);
+  var mode = useSelector(selectMode);
+  var amount_ = useSelector(selectAmount);
+  var sourceChain = useSelector(selectSourceChain);
+  var targetNetwork = useSelector(selectTargetChain);
+  var targetAddress_ = useSelector(selectTargetAddress);
+  var transactionOption = useSelector(selectTransactionOption);
+  var targetChain = useMemo(function () {
+    return mode === ModeOptions.payment ? (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetChain) || '' : targetNetwork;
+  }, [transactionOption, mode, targetNetwork]);
+  var targetAddress = useMemo(function () {
+    return mode === ModeOptions.payment ? (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress) || '' : targetAddress_;
+  }, [transactionOption, mode, targetAddress_]);
+  var amount = useMemo(function () {
+    return mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount : amount_;
+  }, [transactionOption, mode, amount_]);
+  var getServiceFee = function getServiceFee() {
     try {
-      if (sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT) {
+      if (!sourceChain || !targetChain || !isReady || !walletAddress || !targetAddress || !amount) return Promise.resolve();
+      return Promise.resolve(_catch(function () {
+        if (sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT) {
+          dispatch(setServiceFee(0));
+          return;
+        }
+        if (sourceChain === ChainName.BTC) {
+          dispatch(setServiceFee(0.0004));
+          return;
+        }
+        if (targetChain === ChainName.BTC) {
+          dispatch(setServiceFee(0));
+          return;
+        }
+        var sourceFee = 0;
+        var targetFee = 0;
+        return Promise.resolve(fetchWrapper.get(feeURL + "/fee/" + sourceChain)).then(function (sourceChainResult) {
+          sourceFee = sourceChainResult.fee.split('-')[0];
+          return Promise.resolve(fetchWrapper.get(feeURL + "/fee/" + targetChain)).then(function (targetChainResult) {
+            targetFee = targetChainResult.fee.split('-')[0];
+            var fee = +sourceFee + +targetFee;
+            dispatch(setServiceFee(fee));
+          });
+        });
+      }, function (e) {
         dispatch(setServiceFee(0));
-        return;
-      }
-      if (sourceChain === ChainName.BTC) {
-        dispatch(setServiceFee(0.0004));
-        return;
-      }
-      if (targetChain === ChainName.BTC) {
-        dispatch(setServiceFee(0));
-        return;
-      }
-      let sourceFee = 0;
-      let targetFee = 0;
-      const sourceChainResult = await fetchWrapper.get(`${feeURL}/fee/${sourceChain}`);
-      sourceFee = sourceChainResult.fee.split('-')[0];
-      const targetChainResult = await fetchWrapper.get(`${feeURL}/fee/${targetChain}`);
-      targetFee = targetChainResult.fee.split('-')[0];
-      let fee = +sourceFee + +targetFee;
-      dispatch(setServiceFee(fee));
+        console.log('rpc disconnected', e);
+        toast.error('rpc disconnected');
+      }));
     } catch (e) {
-      dispatch(setServiceFee(0));
-      console.log('rpc disconnected', e);
-      toast.error('rpc disconnected');
+      return Promise.reject(e);
     }
   };
-  useEffect(() => {
+  useEffect(function () {
     if (isConfirming) return;
     getServiceFee();
-    const timerId = setInterval(() => {
+    var timerId = setInterval(function () {
       getServiceFee();
     }, 20 * 1000);
-    return () => {
+    return function () {
       clearInterval(timerId);
     };
   }, [sourceChain, targetChain, isReady, walletAddress, isConfirming, targetAddress, amount]);
-  return useMemo(() => ({
-    serviceFee
-  }), [serviceFee]);
+  return useMemo(function () {
+    return {
+      serviceFee: serviceFee
+    };
+  }, [serviceFee]);
 }
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
@@ -6805,9 +7430,15 @@ var TokenInstruction;
   TokenInstruction[TokenInstruction["InitializeMultisig2"] = 19] = "InitializeMultisig2";
   TokenInstruction[TokenInstruction["InitializeMint2"] = 20] = "InitializeMint2";
 })(TokenInstruction || (TokenInstruction = {}));
-function createApproveTransferInstruction(source, destination, owner, amount, multiSigners = [], programId = TOKEN_PROGRAM_ID) {
-  const dataLayout = BufferLayout.struct([BufferLayout.u8('instruction'), BufferLayout.blob(8, 'amount')]);
-  const keys = addSigners([{
+function createApproveTransferInstruction(source, destination, owner, amount, multiSigners, programId) {
+  if (multiSigners === void 0) {
+    multiSigners = [];
+  }
+  if (programId === void 0) {
+    programId = TOKEN_PROGRAM_ID;
+  }
+  var dataLayout = BufferLayout.struct([BufferLayout.u8('instruction'), BufferLayout.blob(8, 'amount')]);
+  var keys = addSigners([{
     pubkey: source,
     isSigner: false,
     isWritable: true
@@ -6816,15 +7447,15 @@ function createApproveTransferInstruction(source, destination, owner, amount, mu
     isSigner: false,
     isWritable: true
   }], owner, multiSigners);
-  const data = Buffer.alloc(dataLayout.span);
+  var data = Buffer.alloc(dataLayout.span);
   dataLayout.encode({
     instruction: TokenInstruction.Approve,
     amount: new TokenAmount(amount).toBuffer()
   }, data);
   return new TransactionInstruction({
-    keys,
-    programId,
-    data
+    keys: keys,
+    programId: programId,
+    data: data
   });
 }
 function addSigners(keys, ownerOrAuthority, multiSigners) {
@@ -6834,7 +7465,8 @@ function addSigners(keys, ownerOrAuthority, multiSigners) {
       isSigner: false,
       isWritable: false
     });
-    for (const signer of multiSigners) {
+    for (var _iterator = _createForOfIteratorHelperLoose(multiSigners), _step; !(_step = _iterator()).done;) {
+      var signer = _step.value;
       keys.push({
         pubkey: signer.publicKey,
         isSigner: true,
@@ -6850,34 +7482,40 @@ function addSigners(keys, ownerOrAuthority, multiSigners) {
   }
   return keys;
 }
-class TokenAmount extends bn {
-  toBuffer() {
-    const a = super.toArray().reverse();
-    const b = Buffer.from(a);
+var TokenAmount = /*#__PURE__*/function (_BN) {
+  _inheritsLoose(TokenAmount, _BN);
+  function TokenAmount() {
+    return _BN.apply(this, arguments) || this;
+  }
+  var _proto = TokenAmount.prototype;
+  _proto.toBuffer = function toBuffer() {
+    var a = _BN.prototype.toArray.call(this).reverse();
+    var b = Buffer.from(a);
     if (b.length === 8) {
       return b;
     }
     if (b.length >= 8) {
       throw new Error('TokenAmount too large');
     }
-    const zeroPad = Buffer.alloc(8);
+    var zeroPad = Buffer.alloc(8);
     b.copy(zeroPad);
     return zeroPad;
-  }
-}
+  };
+  return TokenAmount;
+}(bn);
 
-function byte2hexStr(byte) {
-  if (typeof byte !== "number") throw new Error("Input must be a number");
-  if (byte < 0 || byte > 255) throw new Error("Input must be a byte");
-  const hexByteMap = "0123456789ABCDEF";
-  let str = "";
-  str += hexByteMap.charAt(byte >> 4);
-  str += hexByteMap.charAt(byte & 0x0f);
+function byte2hexStr(_byte) {
+  if (typeof _byte !== "number") throw new Error("Input must be a number");
+  if (_byte < 0 || _byte > 255) throw new Error("Input must be a byte");
+  var hexByteMap = "0123456789ABCDEF";
+  var str = "";
+  str += hexByteMap.charAt(_byte >> 4);
+  str += hexByteMap.charAt(_byte & 0x0f);
   return str;
 }
 function byteArray2hexStr(byteArray) {
-  let str = "";
-  for (let i = 0; i < byteArray.length; i++) str += byte2hexStr(byteArray[i]);
+  var str = "";
+  for (var i = 0; i < byteArray.length; i++) str += byte2hexStr(byteArray[i]);
   return str;
 }
 
@@ -6888,25 +7526,28 @@ function isHexChar(c) {
   return 0;
 }
 function hexChar2byte(c) {
-  let d;
+  var d;
   if (c >= "A" && c <= "F") d = c.charCodeAt(0) - "A".charCodeAt(0) + 10;else if (c >= "a" && c <= "f") d = c.charCodeAt(0) - "a".charCodeAt(0) + 10;else if (c >= "0" && c <= "9") d = c.charCodeAt(0) - "0".charCodeAt(0);
   if (typeof d === "number") return d;else throw new Error("The passed hex char is not a valid hex char");
 }
-function hexStr2byteArray(str, strict = false) {
+function hexStr2byteArray(str, strict) {
+  if (strict === void 0) {
+    strict = false;
+  }
   if (typeof str !== "string") throw new Error("The passed string is not a string");
-  let len = str.length;
+  var len = str.length;
   if (strict) {
     if (len % 2) {
-      str = `0${str}`;
+      str = "0" + str;
       len++;
     }
   }
-  const byteArray = [];
-  let d = 0;
-  let j = 0;
-  let k = 0;
-  for (let i = 0; i < len; i++) {
-    const c = str.charAt(i);
+  var byteArray = [];
+  var d = 0;
+  var j = 0;
+  var k = 0;
+  for (var i = 0; i < len; i++) {
+    var c = str.charAt(i);
     if (isHexChar(c)) {
       d <<= 4;
       d += hexChar2byte(c);
@@ -6920,17 +7561,17 @@ function hexStr2byteArray(str, strict = false) {
   return byteArray;
 }
 
-const ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
-const BASE = 58;
+var ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+var BASE = 58;
 function encode58(buffer) {
   if (buffer.length === 0) return "";
-  let i;
-  let j;
-  const digits = [0];
+  var i;
+  var j;
+  var digits = [0];
   for (i = 0; i < buffer.length; i++) {
     for (j = 0; j < digits.length; j++) digits[j] <<= 8;
     digits[0] += buffer[i];
-    let carry = 0;
+    var carry = 0;
     for (j = 0; j < digits.length; ++j) {
       digits[j] += carry;
       carry = digits[j] / BASE | 0;
@@ -6942,22 +7583,24 @@ function encode58(buffer) {
     }
   }
   for (i = 0; buffer[i] === 0 && i < buffer.length - 1; i++) digits.push(0);
-  return digits.reverse().map(digit => ALPHABET[digit]).join("");
+  return digits.reverse().map(function (digit) {
+    return ALPHABET[digit];
+  }).join("");
 }
 
-const ADDRESS_PREFIX = "41";
+var ADDRESS_PREFIX = "41";
 function isHex(string) {
   return typeof string === "string" && !isNaN(parseInt(string, 16)) && /^(0x|)[a-fA-F0-9]+$/.test(string);
 }
 function SHA256(msgBytes) {
-  const msgHex = byteArray2hexStr(msgBytes);
-  const hashHex = utils$3.sha256("0x" + msgHex).replace(/^0x/, "");
+  var msgHex = byteArray2hexStr(msgBytes);
+  var hashHex = utils$3.sha256("0x" + msgHex).replace(/^0x/, "");
   return hexStr2byteArray(hashHex);
 }
 function getBase58CheckAddress(addressBytes) {
-  const hash0 = SHA256(addressBytes);
-  const hash1 = SHA256(hash0);
-  let checkSum = hash1.slice(0, 4);
+  var hash0 = SHA256(addressBytes);
+  var hash1 = SHA256(hash0);
+  var checkSum = hash1.slice(0, 4);
   checkSum = addressBytes.concat(checkSum);
   return encode58(checkSum);
 }
@@ -6966,305 +7609,413 @@ function fromHex(address) {
   return getBase58CheckAddress(hexStr2byteArray(address.replace(/^0x/, ADDRESS_PREFIX)));
 }
 
-function useAllowance({
-  setApproving
-}) {
-  const [allowance, setAllowance] = useState(0);
-  const [decimals, setDecimals] = useState(null);
-  const web3ModalAccountInfo = useWeb3ModalAccount();
-  const {
-    address: signerAddress,
-    chainId: evmChainId
-  } = web3ModalAccountInfo || {
-    address: null,
-    chainId: null,
-    isConnected: null
-  };
-  const {
-    walletProvider
-  } = useWeb3ModalProvider();
-  const selectedNetwork = useSelector(selectSourceChain);
-  const errorHandler = useSelector(selectErrorHandler);
-  const dAppOption = useSelector(selectDappOption);
-  const targetChain = useSelector(selectTargetChain);
-  const feeDeduct = useSelector(selectFeeDeduct);
-  const sourceChain = useMemo(() => {
+function useAllowance(_ref) {
+  var setApproving = _ref.setApproving;
+  var _useState = useState(0),
+    allowance = _useState[0],
+    setAllowance = _useState[1];
+  var _useState2 = useState(null),
+    decimals = _useState2[0],
+    setDecimals = _useState2[1];
+  var web3ModalAccountInfo = useWeb3ModalAccount();
+  var _ref2 = web3ModalAccountInfo || {
+      address: null,
+      chainId: null,
+      isConnected: null
+    },
+    signerAddress = _ref2.address,
+    evmChainId = _ref2.chainId;
+  var _useWeb3ModalProvider = useWeb3ModalProvider(),
+    walletProvider = _useWeb3ModalProvider.walletProvider;
+  var selectedNetwork = useSelector(selectSourceChain);
+  var errorHandler = useSelector(selectErrorHandler);
+  var dAppOption = useSelector(selectDappOption);
+  var targetChain = useSelector(selectTargetChain);
+  var feeDeduct = useSelector(selectFeeDeduct);
+  var sourceChain = useMemo(function () {
     if (selectedNetwork === ChainName.SOLANA || selectedNetwork === ChainName.TRON || selectedNetwork === ChainName.BTC) return selectedNetwork;
     if (CHAIN_NAMES_TO_IDS[selectedNetwork] !== evmChainId) {
       return CHAIN_IDS_TO_NAMES[evmChainId];
     }
     return selectedNetwork;
   }, [selectedNetwork, evmChainId]);
-  const amount = useSelector(selectAmount);
-  const serviceFee = useSelector(selectServiceFee);
-  const nodeProviderQuery = useSelector(selectNodeProviderQuery);
-  const {
-    connection
-  } = useConnection();
-  const {
-    publicKey: solanaAddress,
-    signTransaction: signSolanaTransaction
-  } = useWallet();
-  const {
-    address: tronAddress,
-    signTransaction: signTronTransaction
-  } = useWallet$1();
-  const selectedCoin = useSelector(selectSelectedToken);
-  const tokenOptions = useSelector(selectTokenOptions);
-  const tokenAddress = useMemo(() => {
+  var amount = useSelector(selectAmount);
+  var serviceFee = useSelector(selectServiceFee);
+  var nodeProviderQuery = useSelector(selectNodeProviderQuery);
+  var _useConnection = useConnection(),
+    connection = _useConnection.connection;
+  var _useSolanaWallet = useWallet(),
+    solanaAddress = _useSolanaWallet.publicKey,
+    signSolanaTransaction = _useSolanaWallet.signTransaction;
+  var _useTronWallet = useWallet$1(),
+    tronAddress = _useTronWallet.address,
+    signTronTransaction = _useTronWallet.signTransaction;
+  var selectedCoin = useSelector(selectSelectedToken);
+  var tokenOptions = useSelector(selectTokenOptions);
+  var tokenAddress = useMemo(function () {
     if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT) return '';
     if (tokenOptions && typeof tokenOptions === 'object') {
-      const coinOptions = tokenOptions[selectedCoin];
+      var coinOptions = tokenOptions[selectedCoin];
       if (coinOptions && typeof coinOptions === 'object') {
         return tokenOptions[selectedCoin][sourceChain];
       }
     }
     return '';
   }, [selectedCoin, sourceChain, tokenOptions]);
-  const [targetAddress, setTargetAddress] = useState();
-  const [poolAddress, setPoolAddress] = useState('');
-  const amountToShow = useMemo(() => {
+  var _useState3 = useState(),
+    targetAddress = _useState3[0],
+    setTargetAddress = _useState3[1];
+  var _useState4 = useState(''),
+    poolAddress = _useState4[0],
+    setPoolAddress = _useState4[1];
+  var amountToShow = useMemo(function () {
     if (sourceChain === ChainName.BTC || targetChain === ChainName.BTC) {
       return (feeDeduct ? +amount : +amount + serviceFee).toFixed(8);
     }
     return (feeDeduct ? +amount : +amount + serviceFee).toFixed(2);
   }, [amount, serviceFee, sourceChain, targetChain, feeDeduct]);
-  const isApproved = useMemo(() => {
+  var isApproved = useMemo(function () {
     return allowance >= +amountToShow;
   }, [allowance, amountToShow, dAppOption]);
-  const updatePoolAddress = async () => {
+  var updatePoolAddress = function updatePoolAddress() {
     try {
-      var _result$tssPubkey;
-      const result = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/kima/tss_pubkey`);
-      if ((result === null || result === void 0 ? void 0 : (_result$tssPubkey = result.tssPubkey) === null || _result$tssPubkey === void 0 ? void 0 : _result$tssPubkey.length) < 1) {
-        return;
-      }
-      if (sourceChain === ChainName.SOLANA && !result.tssPubkey[0].eddsa) {
-        console.log('solana pool address is missing');
-        toast.error('solana pool address is missing');
-      }
-      setPoolAddress(result.tssPubkey[0].reserved);
-      setTargetAddress(sourceChain === ChainName.SOLANA ? result.tssPubkey[0].eddsa : sourceChain === ChainName.TRON ? fromHex(result.tssPubkey[0].ecdsa) : result.tssPubkey[0].ecdsa);
+      return Promise.resolve(_catch(function () {
+        return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/kima/tss_pubkey")).then(function (result) {
+          var _result$tssPubkey;
+          if ((result === null || result === void 0 ? void 0 : (_result$tssPubkey = result.tssPubkey) === null || _result$tssPubkey === void 0 ? void 0 : _result$tssPubkey.length) < 1) {
+            return;
+          }
+          if (sourceChain === ChainName.SOLANA && !result.tssPubkey[0].eddsa) {
+            console.log('solana pool address is missing');
+            toast.error('solana pool address is missing');
+          }
+          setPoolAddress(result.tssPubkey[0].reserved);
+          setTargetAddress(sourceChain === ChainName.SOLANA ? result.tssPubkey[0].eddsa : sourceChain === ChainName.TRON ? fromHex(result.tssPubkey[0].ecdsa) : result.tssPubkey[0].ecdsa);
+        });
+      }, function (e) {
+        console.log('rpc disconnected', e);
+        toast.error('rpc disconnected');
+      }));
     } catch (e) {
-      console.log('rpc disconnected', e);
-      toast.error('rpc disconnected');
+      return Promise.reject(e);
     }
   };
-  useEffect(() => {
+  useEffect(function () {
     if (!nodeProviderQuery) return;
     updatePoolAddress();
   }, [nodeProviderQuery, sourceChain]);
-  useEffect(() => {
-    (async () => {
+  useEffect(function () {
+    (function () {
       try {
-        if (!isEVMChain(sourceChain)) {
-          if (solanaAddress && tokenAddress && connection) {
-            var _accountInfo$value, _parsedAccountInfo$pa, _parsedAccountInfo$pa2, _parsedAccountInfo$pa3, _parsedAccountInfo$pa4, _parsedAccountInfo$pa5, _parsedAccountInfo$pa6, _parsedAccountInfo$pa7, _parsedAccountInfo$pa8;
-            const mint = new PublicKey(tokenAddress);
-            const fromTokenAccount = await getOrCreateAssociatedTokenAccount(connection, solanaAddress, mint, solanaAddress, signSolanaTransaction);
-            const accountInfo = await connection.getParsedAccountInfo(fromTokenAccount.address);
-            console.log('solana token account: ', accountInfo);
-            const parsedAccountInfo = accountInfo === null || accountInfo === void 0 ? void 0 : (_accountInfo$value = accountInfo.value) === null || _accountInfo$value === void 0 ? void 0 : _accountInfo$value.data;
-            setDecimals((_parsedAccountInfo$pa = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa === void 0 ? void 0 : (_parsedAccountInfo$pa2 = _parsedAccountInfo$pa.info) === null || _parsedAccountInfo$pa2 === void 0 ? void 0 : (_parsedAccountInfo$pa3 = _parsedAccountInfo$pa2.tokenAmount) === null || _parsedAccountInfo$pa3 === void 0 ? void 0 : _parsedAccountInfo$pa3.decimals);
-            setAllowance(((_parsedAccountInfo$pa4 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa4 === void 0 ? void 0 : (_parsedAccountInfo$pa5 = _parsedAccountInfo$pa4.info) === null || _parsedAccountInfo$pa5 === void 0 ? void 0 : _parsedAccountInfo$pa5.delegate) === targetAddress ? (_parsedAccountInfo$pa6 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa6 === void 0 ? void 0 : (_parsedAccountInfo$pa7 = _parsedAccountInfo$pa6.info) === null || _parsedAccountInfo$pa7 === void 0 ? void 0 : (_parsedAccountInfo$pa8 = _parsedAccountInfo$pa7.delegatedAmount) === null || _parsedAccountInfo$pa8 === void 0 ? void 0 : _parsedAccountInfo$pa8.uiAmount : 0);
-          } else if (tronAddress && tokenAddress) {
-            let trc20Contract = await tronWeb.contract(ERC20ABI.abi, tokenAddress);
-            const _decimals = await trc20Contract.decimals().call();
-            const _userAllowance = await trc20Contract.allowance(tronAddress, targetAddress).call();
-            setDecimals(+_decimals);
-            setAllowance(+formatUnits(_userAllowance, _decimals));
-          } else {
-            setAllowance(0);
+        var _exit = false;
+        return _catch(function () {
+          function _temp5(_result2) {
+            if (_exit) return _result2;
+            var provider = new ethers.providers.Web3Provider(walletProvider);
+            var signer = provider === null || provider === void 0 ? void 0 : provider.getSigner();
+            if (!tokenAddress || !targetAddress || !signer || !signerAddress) return;
+            var erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer);
+            return Promise.resolve(erc20Contract.decimals()).then(function (decimals) {
+              return Promise.resolve(erc20Contract.allowance(signerAddress, targetAddress)).then(function (userAllowance) {
+                setDecimals(+decimals);
+                setAllowance(+formatUnits(userAllowance, decimals));
+              });
+            });
           }
-          return;
-        }
-        const provider = new ethers.providers.Web3Provider(walletProvider);
-        const signer = provider === null || provider === void 0 ? void 0 : provider.getSigner();
-        if (!tokenAddress || !targetAddress || !signer || !signerAddress) return;
-        const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer);
-        const decimals = await erc20Contract.decimals();
-        const userAllowance = await erc20Contract.allowance(signerAddress, targetAddress);
-        setDecimals(+decimals);
-        setAllowance(+formatUnits(userAllowance, decimals));
-      } catch (error) {
-        errorHandler(error);
+          var _temp4 = function () {
+            if (!isEVMChain(sourceChain)) {
+              var _temp3 = function _temp3() {
+                _exit = true;
+              };
+              var _temp2 = function () {
+                if (solanaAddress && tokenAddress && connection) {
+                  var mint = new PublicKey(tokenAddress);
+                  return Promise.resolve(getOrCreateAssociatedTokenAccount(connection, solanaAddress, mint, solanaAddress, signSolanaTransaction)).then(function (fromTokenAccount) {
+                    return Promise.resolve(connection.getParsedAccountInfo(fromTokenAccount.address)).then(function (accountInfo) {
+                      var _accountInfo$value, _parsedAccountInfo$pa, _parsedAccountInfo$pa2, _parsedAccountInfo$pa3, _parsedAccountInfo$pa4, _parsedAccountInfo$pa5, _parsedAccountInfo$pa6, _parsedAccountInfo$pa7, _parsedAccountInfo$pa8;
+                      console.log('solana token account: ', accountInfo);
+                      var parsedAccountInfo = accountInfo === null || accountInfo === void 0 ? void 0 : (_accountInfo$value = accountInfo.value) === null || _accountInfo$value === void 0 ? void 0 : _accountInfo$value.data;
+                      setDecimals((_parsedAccountInfo$pa = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa === void 0 ? void 0 : (_parsedAccountInfo$pa2 = _parsedAccountInfo$pa.info) === null || _parsedAccountInfo$pa2 === void 0 ? void 0 : (_parsedAccountInfo$pa3 = _parsedAccountInfo$pa2.tokenAmount) === null || _parsedAccountInfo$pa3 === void 0 ? void 0 : _parsedAccountInfo$pa3.decimals);
+                      setAllowance(((_parsedAccountInfo$pa4 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa4 === void 0 ? void 0 : (_parsedAccountInfo$pa5 = _parsedAccountInfo$pa4.info) === null || _parsedAccountInfo$pa5 === void 0 ? void 0 : _parsedAccountInfo$pa5.delegate) === targetAddress ? (_parsedAccountInfo$pa6 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa6 === void 0 ? void 0 : (_parsedAccountInfo$pa7 = _parsedAccountInfo$pa6.info) === null || _parsedAccountInfo$pa7 === void 0 ? void 0 : (_parsedAccountInfo$pa8 = _parsedAccountInfo$pa7.delegatedAmount) === null || _parsedAccountInfo$pa8 === void 0 ? void 0 : _parsedAccountInfo$pa8.uiAmount : 0);
+                    });
+                  });
+                } else {
+                  var _temp6 = function () {
+                    if (tronAddress && tokenAddress) {
+                      return Promise.resolve(tronWeb.contract(ERC20ABI.abi, tokenAddress)).then(function (trc20Contract) {
+                        return Promise.resolve(trc20Contract.decimals().call()).then(function (decimals) {
+                          return Promise.resolve(trc20Contract.allowance(tronAddress, targetAddress).call()).then(function (userAllowance) {
+                            setDecimals(+decimals);
+                            setAllowance(+formatUnits(userAllowance, decimals));
+                          });
+                        });
+                      });
+                    } else {
+                      setAllowance(0);
+                    }
+                  }();
+                  if (_temp6 && _temp6.then) return _temp6.then(function () {});
+                }
+              }();
+              return _temp2 && _temp2.then ? _temp2.then(_temp3) : _temp3(_temp2);
+            }
+          }();
+          return _temp4 && _temp4.then ? _temp4.then(_temp5) : _temp5(_temp4);
+        }, function (error) {
+          errorHandler(error);
+        });
+      } catch (e) {
+        Promise.reject(e);
       }
     })();
   }, [signerAddress, tokenAddress, targetAddress, sourceChain, solanaAddress, tronAddress, walletProvider]);
-  const approve = useCallback(async () => {
-    if (isEVMChain(sourceChain)) {
-      const provider = new ethers.providers.Web3Provider(walletProvider);
-      const signer = provider.getSigner();
-      if (!decimals || !tokenAddress || !signer || !targetAddress) return;
-      try {
-        const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer);
-        setApproving(true);
-        const approve = await erc20Contract.approve(targetAddress, parseUnits(amountToShow, decimals));
-        await approve.wait();
-        setApproving(false);
-        setAllowance(+amountToShow);
-      } catch (error) {
-        errorHandler(error);
-        setApproving(false);
-      }
-      return;
-    }
-    if (sourceChain === ChainName.TRON) {
-      if (!decimals || !tokenAddress || !targetAddress || !signTronTransaction) return;
-      try {
-        setApproving(true);
-        const functionSelector = 'approve(address,uint256)';
-        const parameter = [{
-          type: 'address',
-          value: targetAddress
-        }, {
-          type: 'uint256',
-          value: parseUnits(amountToShow, decimals).toString()
-        }];
-        const tx = await tronWeb.transactionBuilder.triggerSmartContract(tronWeb.address.toHex(tokenAddress), functionSelector, {}, parameter, tronWeb.address.toHex(tronAddress));
-        const signedTx = await signTronTransaction(tx.transaction);
-        await tronWeb.trx.sendRawTransaction(signedTx);
-        setApproving(false);
-        setAllowance(+amountToShow);
-      } catch (error) {
-        errorHandler(error);
-        setApproving(false);
-      }
-      return;
-    }
-    if (!signSolanaTransaction) return;
+  var approve = useCallback(function () {
     try {
-      setApproving(true);
-      const mint = new PublicKey(tokenAddress);
-      const toPublicKey = new PublicKey(targetAddress);
-      const fromTokenAccount = await getOrCreateAssociatedTokenAccount(connection, solanaAddress, mint, solanaAddress, signSolanaTransaction);
-      const transaction = new Transaction().add(createApproveTransferInstruction(fromTokenAccount.address, toPublicKey, solanaAddress, +amountToShow * Math.pow(10, decimals ?? 6), [], TOKEN_PROGRAM_ID));
-      const blockHash = await connection.getLatestBlockhash();
-      transaction.feePayer = solanaAddress;
-      transaction.recentBlockhash = await blockHash.blockhash;
-      const signed = await signSolanaTransaction(transaction);
-      await connection.sendRawTransaction(signed.serialize());
-      let accountInfo;
-      let allowAmount = 0;
-      let retryCount = 0;
-      do {
-        var _accountInfo, _accountInfo$value2, _parsedAccountInfo$pa9, _parsedAccountInfo$pa10, _parsedAccountInfo$pa11, _parsedAccountInfo$pa12, _parsedAccountInfo$pa13;
-        accountInfo = await connection.getParsedAccountInfo(fromTokenAccount.address);
-        const parsedAccountInfo = (_accountInfo = accountInfo) === null || _accountInfo === void 0 ? void 0 : (_accountInfo$value2 = _accountInfo.value) === null || _accountInfo$value2 === void 0 ? void 0 : _accountInfo$value2.data;
-        allowAmount = ((_parsedAccountInfo$pa9 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa9 === void 0 ? void 0 : (_parsedAccountInfo$pa10 = _parsedAccountInfo$pa9.info) === null || _parsedAccountInfo$pa10 === void 0 ? void 0 : _parsedAccountInfo$pa10.delegate) === targetAddress ? (_parsedAccountInfo$pa11 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa11 === void 0 ? void 0 : (_parsedAccountInfo$pa12 = _parsedAccountInfo$pa11.info) === null || _parsedAccountInfo$pa12 === void 0 ? void 0 : (_parsedAccountInfo$pa13 = _parsedAccountInfo$pa12.delegatedAmount) === null || _parsedAccountInfo$pa13 === void 0 ? void 0 : _parsedAccountInfo$pa13.uiAmount : 0;
-        await sleep(1000);
-      } while (allowAmount < +amountToShow || retryCount++ < 5);
-      setAllowance(+amountToShow);
-      setApproving(false);
+      var _temp17 = function _temp17(_result4) {
+        var _exit3 = false;
+        if (_exit2) return _result4;
+        function _temp15(_result5) {
+          if (_exit3) return _result5;
+          if (!signSolanaTransaction) return;
+          var _temp13 = _catch(function () {
+            setApproving(true);
+            var mint = new PublicKey(tokenAddress);
+            var toPublicKey = new PublicKey(targetAddress);
+            return Promise.resolve(getOrCreateAssociatedTokenAccount(connection, solanaAddress, mint, solanaAddress, signSolanaTransaction)).then(function (fromTokenAccount) {
+              var transaction = new Transaction().add(createApproveTransferInstruction(fromTokenAccount.address, toPublicKey, solanaAddress, +amountToShow * Math.pow(10, decimals != null ? decimals : 6), [], TOKEN_PROGRAM_ID));
+              return Promise.resolve(connection.getLatestBlockhash()).then(function (blockHash) {
+                transaction.feePayer = solanaAddress;
+                return Promise.resolve(blockHash.blockhash).then(function (_blockHash$blockhash) {
+                  transaction.recentBlockhash = _blockHash$blockhash;
+                  return Promise.resolve(signSolanaTransaction(transaction)).then(function (signed) {
+                    return Promise.resolve(connection.sendRawTransaction(signed.serialize())).then(function () {
+                      function _temp12() {
+                        setAllowance(+amountToShow);
+                        setApproving(false);
+                      }
+                      var accountInfo;
+                      var allowAmount = 0;
+                      var retryCount = 0;
+                      var _temp11 = _do(function () {
+                        return Promise.resolve(connection.getParsedAccountInfo(fromTokenAccount.address)).then(function (_connection$getParsed) {
+                          var _accountInfo, _accountInfo$value2, _parsedAccountInfo$pa9, _parsedAccountInfo$pa10, _parsedAccountInfo$pa11, _parsedAccountInfo$pa12, _parsedAccountInfo$pa13;
+                          accountInfo = _connection$getParsed;
+                          var parsedAccountInfo = (_accountInfo = accountInfo) === null || _accountInfo === void 0 ? void 0 : (_accountInfo$value2 = _accountInfo.value) === null || _accountInfo$value2 === void 0 ? void 0 : _accountInfo$value2.data;
+                          allowAmount = ((_parsedAccountInfo$pa9 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa9 === void 0 ? void 0 : (_parsedAccountInfo$pa10 = _parsedAccountInfo$pa9.info) === null || _parsedAccountInfo$pa10 === void 0 ? void 0 : _parsedAccountInfo$pa10.delegate) === targetAddress ? (_parsedAccountInfo$pa11 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa11 === void 0 ? void 0 : (_parsedAccountInfo$pa12 = _parsedAccountInfo$pa11.info) === null || _parsedAccountInfo$pa12 === void 0 ? void 0 : (_parsedAccountInfo$pa13 = _parsedAccountInfo$pa12.delegatedAmount) === null || _parsedAccountInfo$pa13 === void 0 ? void 0 : _parsedAccountInfo$pa13.uiAmount : 0;
+                          return Promise.resolve(sleep(1000)).then(function () {});
+                        });
+                      }, function () {
+                        return allowAmount < +amountToShow || retryCount++ < 5;
+                      });
+                      return _temp11 && _temp11.then ? _temp11.then(_temp12) : _temp12(_temp11);
+                    });
+                  });
+                });
+              });
+            });
+          }, function (e) {
+            errorHandler(e);
+            setApproving(false);
+          });
+          if (_temp13 && _temp13.then) return _temp13.then(function () {});
+        }
+        var _temp14 = function () {
+          if (sourceChain === ChainName.TRON) {
+            var _temp10 = function _temp10() {
+              _exit3 = true;
+            };
+            if (!decimals || !tokenAddress || !targetAddress || !signTronTransaction) {
+              _exit3 = true;
+              return;
+            }
+            var _temp9 = _catch(function () {
+              setApproving(true);
+              var functionSelector = 'approve(address,uint256)';
+              var parameter = [{
+                type: 'address',
+                value: targetAddress
+              }, {
+                type: 'uint256',
+                value: parseUnits(amountToShow, decimals).toString()
+              }];
+              return Promise.resolve(tronWeb.transactionBuilder.triggerSmartContract(tronWeb.address.toHex(tokenAddress), functionSelector, {}, parameter, tronWeb.address.toHex(tronAddress))).then(function (tx) {
+                return Promise.resolve(signTronTransaction(tx.transaction)).then(function (signedTx) {
+                  return Promise.resolve(tronWeb.trx.sendRawTransaction(signedTx)).then(function () {
+                    setApproving(false);
+                    setAllowance(+amountToShow);
+                  });
+                });
+              });
+            }, function (error) {
+              errorHandler(error);
+              setApproving(false);
+            });
+            return _temp9 && _temp9.then ? _temp9.then(_temp10) : _temp10(_temp9);
+          }
+        }();
+        return _temp14 && _temp14.then ? _temp14.then(_temp15) : _temp15(_temp14);
+      };
+      var _exit2 = false;
+      var _temp16 = function () {
+        if (isEVMChain(sourceChain)) {
+          var _temp8 = function _temp8() {
+            _exit2 = true;
+          };
+          var provider = new ethers.providers.Web3Provider(walletProvider);
+          var signer = provider.getSigner();
+          if (!decimals || !tokenAddress || !signer || !targetAddress) {
+            _exit2 = true;
+            return;
+          }
+          var _temp7 = _catch(function () {
+            var erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer);
+            setApproving(true);
+            return Promise.resolve(erc20Contract.approve(targetAddress, parseUnits(amountToShow, decimals))).then(function (approve) {
+              return Promise.resolve(approve.wait()).then(function () {
+                setApproving(false);
+                setAllowance(+amountToShow);
+              });
+            });
+          }, function (error) {
+            errorHandler(error);
+            setApproving(false);
+          });
+          return _temp7 && _temp7.then ? _temp7.then(_temp8) : _temp8(_temp7);
+        }
+      }();
+      return Promise.resolve(_temp16 && _temp16.then ? _temp16.then(_temp17) : _temp17(_temp16));
     } catch (e) {
-      errorHandler(e);
-      setApproving(false);
+      return Promise.reject(e);
     }
   }, [decimals, tokenAddress, walletProvider, targetAddress, tronAddress, signSolanaTransaction, signTronTransaction, amountToShow]);
-  return useMemo(() => ({
-    isApproved,
-    poolAddress,
-    approve
-  }), [isApproved, poolAddress, approve]);
+  return useMemo(function () {
+    return {
+      isApproved: isApproved,
+      poolAddress: poolAddress,
+      approve: approve
+    };
+  }, [isApproved, poolAddress, approve]);
 }
 
-const AddressInputWizard = () => {
-  const theme = useSelector(selectTheme);
+var AddressInputWizard = function AddressInputWizard() {
+  var theme = useSelector(selectTheme);
   return React.createElement("div", {
-    className: `coin-select`
+    className: "coin-select"
   }, React.createElement("p", null, "Select Target Address for Funding"), React.createElement("div", {
-    className: `address-input ${theme.colorMode}`
+    className: "address-input " + theme.colorMode
   }, React.createElement("span", null, "Target Address:"), React.createElement(AddressInput, null)));
 };
 
 function useCurrencyOptions() {
-  const dispatch = useDispatch();
-  const [options, setOptions] = useState('USDK');
-  const nodeProviderQuery = useSelector(selectNodeProviderQuery);
-  const originNetwork = useSelector(selectSourceChain);
-  const targetNetwork = useSelector(selectTargetChain);
-  useEffect(() => {
+  var dispatch = useDispatch();
+  var _useState = useState('USDK'),
+    options = _useState[0],
+    setOptions = _useState[1];
+  var nodeProviderQuery = useSelector(selectNodeProviderQuery);
+  var originNetwork = useSelector(selectSourceChain);
+  var targetNetwork = useSelector(selectTargetChain);
+  useEffect(function () {
     if (!nodeProviderQuery || !originNetwork || !targetNetwork) return;
-    (async function () {
+    (function () {
       try {
-        if (originNetwork === ChainName.FIAT || targetNetwork === ChainName.FIAT) {
-          setOptions('KEUR');
-          return;
-        }
-        const coins = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/get_currencies/${originNetwork}/${targetNetwork}`);
-        let tokenList = coins.Currencies.map(coin => coin.toUpperCase()) || ['USDK'];
-        if (originNetwork === ChainName.BTC || targetNetwork === ChainName.BTC) {
-          tokenList = ['WBTC'];
-        }
-        dispatch(setSelectedToken(tokenList[0]));
-        dispatch(setAvailableTokenList(tokenList));
-        setOptions(tokenList[0]);
+        return _catch(function () {
+          if (originNetwork === ChainName.FIAT || targetNetwork === ChainName.FIAT) {
+            setOptions('KEUR');
+            return;
+          }
+          return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/chains/get_currencies/" + originNetwork + "/" + targetNetwork)).then(function (coins) {
+            var tokenList = coins.Currencies.map(function (coin) {
+              return coin.toUpperCase();
+            }) || ['USDK'];
+            if (originNetwork === ChainName.BTC || targetNetwork === ChainName.BTC) {
+              tokenList = ['WBTC'];
+            }
+            dispatch(setSelectedToken(tokenList[0]));
+            dispatch(setAvailableTokenList(tokenList));
+            setOptions(tokenList[0]);
+          });
+        }, function (e) {
+          console.log('rpc disconnected', e);
+          toast.error('rpc disconnected');
+        });
       } catch (e) {
-        console.log('rpc disconnected', e);
-        toast.error('rpc disconnected');
+        Promise.reject(e);
       }
     })();
   }, [nodeProviderQuery, originNetwork, targetNetwork]);
-  return useMemo(() => ({
-    options
-  }), [options]);
+  return useMemo(function () {
+    return {
+      options: options
+    };
+  }, [options]);
 }
 
-const useWidth = () => {
-  const [width, setWidth] = useState(window.innerWidth);
-  useEffect(() => {
-    const handleResize = () => {
+var useWidth = function useWidth() {
+  var _useState = useState(window.innerWidth),
+    width = _useState[0],
+    setWidth = _useState[1];
+  useEffect(function () {
+    var handleResize = function handleResize() {
       setWidth(window.innerWidth);
     };
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    return function () {
+      return window.removeEventListener('resize', handleResize);
+    };
   }, []);
   return width;
 };
 
-function useSign({
-  setSigning
-}) {
-  const dispatch = useDispatch();
-  const [isSigned, setIsSigned] = useState(false);
-  const web3ModalAccountInfo = useWeb3ModalAccount();
-  const {
-    address: signerAddress
-  } = web3ModalAccountInfo || {
-    address: null,
-    chainId: null,
-    isConnected: null
-  };
-  const {
-    walletProvider
-  } = useWeb3ModalProvider();
-  const sourceNetwork = useSelector(selectSourceChain);
-  const errorHandler = useSelector(selectErrorHandler);
-  const amount = useSelector(selectAmount);
-  const sign = useCallback(async () => {
-    if (sourceNetwork !== ChainName.FIAT) {
-      errorHandler('Failed to sign');
-      return;
-    }
+function useSign(_ref) {
+  var setSigning = _ref.setSigning;
+  var dispatch = useDispatch();
+  var _useState = useState(false),
+    isSigned = _useState[0],
+    setIsSigned = _useState[1];
+  var web3ModalAccountInfo = useWeb3ModalAccount();
+  var _ref2 = web3ModalAccountInfo || {
+      address: null,
+      chainId: null,
+      isConnected: null
+    },
+    signerAddress = _ref2.address;
+  var _useWeb3ModalProvider = useWeb3ModalProvider(),
+    walletProvider = _useWeb3ModalProvider.walletProvider;
+  var sourceNetwork = useSelector(selectSourceChain);
+  var errorHandler = useSelector(selectErrorHandler);
+  var amount = useSelector(selectAmount);
+  var sign = useCallback(function () {
     try {
-      setSigning(true);
-      const provider = new ethers.providers.Web3Provider(walletProvider);
-      const signer = provider === null || provider === void 0 ? void 0 : provider.getSigner();
-      const message = `${amount} | ${signerAddress}`;
-      const signature = await (signer === null || signer === void 0 ? void 0 : signer.signMessage(message));
-      const hash = Base64.stringify(sha256$1(signature || ''));
-      setIsSigned(true);
-      dispatch(setSignature(hash));
-      setSigning(false);
-    } catch (error) {
-      errorHandler(error);
-      setSigning(false);
+      if (sourceNetwork !== ChainName.FIAT) {
+        errorHandler('Failed to sign');
+        return Promise.resolve();
+      }
+      var _temp = _catch(function () {
+        setSigning(true);
+        var provider = new ethers.providers.Web3Provider(walletProvider);
+        var signer = provider === null || provider === void 0 ? void 0 : provider.getSigner();
+        var message = amount + " | " + signerAddress;
+        return Promise.resolve(signer === null || signer === void 0 ? void 0 : signer.signMessage(message)).then(function (signature) {
+          var hash = Base64.stringify(sha256$1(signature || ''));
+          setIsSigned(true);
+          dispatch(setSignature(hash));
+          setSigning(false);
+        });
+      }, function (error) {
+        errorHandler(error);
+        setSigning(false);
+      });
+      return Promise.resolve(_temp && _temp.then ? _temp.then(function () {}) : void 0);
+    } catch (e) {
+      return Promise.reject(e);
     }
   }, [walletProvider, amount, sourceNetwork, signerAddress]);
-  return useMemo(() => ({
-    isSigned,
-    sign
-  }), [isSigned, sign]);
+  return useMemo(function () {
+    return {
+      isSigned: isSigned,
+      sign: sign
+    };
+  }, [isSigned, sign]);
 }
 
 var _assert = createCommonjsModule(function (module, exports) {
@@ -7789,8 +8540,8 @@ unwrapExports(sha256);
 var sha256_2 = sha256.sha256;
 
 function hash160(publicKey) {
-  const publicKeyBuffer = Buffer$1.from(publicKey, 'hex');
-  const hash160Buffer = crypto$1.hash160(publicKeyBuffer);
+  var publicKeyBuffer = Buffer$1.from(publicKey, 'hex');
+  var hash160Buffer = crypto$1.hash160(publicKeyBuffer);
   return hash160Buffer;
 }
 function createHTLCScript(senderAddress, senderPublicKey, recipientAddress, timeout, network) {
@@ -7799,51 +8550,51 @@ function createHTLCScript(senderAddress, senderPublicKey, recipientAddress, time
   console.log('recipientAddress = ' + recipientAddress);
   console.log('timeout = ' + timeout);
   console.log('network = ' + network);
-  let recipientAddressCheck;
+  var recipientAddressCheck;
   try {
     recipientAddressCheck = address.fromBech32(recipientAddress);
   } catch (error) {
-    throw new Error(`Failed to decode recipient address: ${error.message}`);
+    throw new Error("Failed to decode recipient address: " + error.message);
   }
   if (!recipientAddressCheck) {
     throw new Error('Failed to decode recipient address');
   }
-  const senderPKH = hash160(senderPublicKey);
+  var senderPKH = hash160(senderPublicKey);
   console.log('senderPKH:', senderPKH.toString('hex'));
-  const recipientPKH = recipientAddressCheck.data;
+  var recipientPKH = recipientAddressCheck.data;
   console.log('recipientPKH:', recipientPKH.toString('hex'));
-  const script$1 = script.compile([opcodes.OP_DUP, opcodes.OP_HASH160, recipientAddressCheck.data, opcodes.OP_EQUAL, opcodes.OP_IF, opcodes.OP_DUP, opcodes.OP_HASH160, recipientPKH, opcodes.OP_EQUALVERIFY, opcodes.OP_CHECKSIG, opcodes.OP_ELSE, script.number.encode(timeout), opcodes.OP_CHECKLOCKTIMEVERIFY, opcodes.OP_DROP, opcodes.OP_DUP, opcodes.OP_HASH160, senderPKH, opcodes.OP_EQUALVERIFY, opcodes.OP_CHECKSIG, opcodes.OP_ENDIF, Buffer$1.from(senderPublicKey, 'hex'), opcodes.OP_DROP]);
+  var script$1 = script.compile([opcodes.OP_DUP, opcodes.OP_HASH160, recipientAddressCheck.data, opcodes.OP_EQUAL, opcodes.OP_IF, opcodes.OP_DUP, opcodes.OP_HASH160, recipientPKH, opcodes.OP_EQUALVERIFY, opcodes.OP_CHECKSIG, opcodes.OP_ELSE, script.number.encode(timeout), opcodes.OP_CHECKLOCKTIMEVERIFY, opcodes.OP_DROP, opcodes.OP_DUP, opcodes.OP_HASH160, senderPKH, opcodes.OP_EQUALVERIFY, opcodes.OP_CHECKSIG, opcodes.OP_ENDIF, Buffer$1.from(senderPublicKey, 'hex'), opcodes.OP_DROP]);
   return script$1;
 }
 function htlcP2WSHAddress(htlcScript, network) {
-  const p2wsh = payments.p2wsh({
+  var p2wsh = payments.p2wsh({
     redeem: {
       output: htlcScript,
-      network
+      network: network
     },
-    network
+    network: network
   });
   return p2wsh.address;
 }
 function decodeBase64PSBT(base64Psbt) {
-  const psbtBuffer = Buffer$1.from(base64Psbt, 'base64');
-  const psbt = Transaction$1.fromPSBT(psbtBuffer, {
+  var psbtBuffer = Buffer$1.from(base64Psbt, 'base64');
+  var psbt = Transaction$1.fromPSBT(psbtBuffer, {
     allowUnknownInputs: true
   });
   return psbt;
 }
 function createReclaimPsbt(reclaimerAddress, htlcAmount, htlcTimeout, htlcScript, htlcOutput, network, fee) {
-  const htlcScriptHash = sha256_2(htlcScript);
-  const htlcScriptHex = Buffer$1.from(htlcScript).toString('hex');
+  var htlcScriptHash = sha256_2(htlcScript);
+  var htlcScriptHex = Buffer$1.from(htlcScript).toString('hex');
   console.log('htlcScriptHex = ' + htlcScriptHex);
-  const scriptPubKey = Script.encode(['OP_0', htlcScriptHash]);
-  const lockTimeBigEndian = Number(htlcTimeout) + 1;
-  const tx = new Transaction$1({
+  var scriptPubKey = Script.encode(['OP_0', htlcScriptHash]);
+  var lockTimeBigEndian = Number(htlcTimeout) + 1;
+  var tx = new Transaction$1({
     allowUnknownOutputs: true,
     lockTime: lockTimeBigEndian,
     version: 0
   });
-  const reclaimedAmount = BigInt(htlcAmount) - BigInt(fee);
+  var reclaimedAmount = BigInt(htlcAmount) - BigInt(fee);
   tx.addOutputAddress(reclaimerAddress, reclaimedAmount, network);
   tx.addInput({
     txid: htlcOutput.txid,
@@ -7856,25 +8607,24 @@ function createReclaimPsbt(reclaimerAddress, htlcAmount, htlcTimeout, htlcScript
     sequence: 0xfffffffe,
     sighashType: SigHash.ALL
   });
-  const psbt = tx.toPSBT(0);
+  var psbt = tx.toPSBT(0);
   console.log('txHex = ' + tx.hex);
-  const psbtB64 = base64.encode(psbt);
+  var psbtB64 = base64.encode(psbt);
   return psbtB64;
 }
 
-const PendingTxPopup = ({
-  handleHtlcContinue,
-  handleHtlcReclaim
-}) => {
-  const dispatch = useDispatch();
-  const theme = useSelector(selectTheme);
-  const pendingTxPopup = useSelector(selectPendingTxPopup);
-  const txData = useSelector(selectPendingTxData);
+var PendingTxPopup = function PendingTxPopup(_ref) {
+  var handleHtlcContinue = _ref.handleHtlcContinue,
+    handleHtlcReclaim = _ref.handleHtlcReclaim;
+  var dispatch = useDispatch();
+  var theme = useSelector(selectTheme);
+  var pendingTxPopup = useSelector(selectPendingTxPopup);
+  var txData = useSelector(selectPendingTxData);
   return React.createElement("div", {
-    className: `kima-modal pending-tx-popup ${theme.colorMode} ${pendingTxPopup ? 'open' : ''}`
+    className: "kima-modal pending-tx-popup " + theme.colorMode + " " + (pendingTxPopup ? 'open' : '')
   }, React.createElement("div", {
     className: 'modal-overlay',
-    onClick: () => {
+    onClick: function onClick() {
       dispatch(setPendingTxPopup(false));
     }
   }), React.createElement("div", {
@@ -7889,7 +8639,9 @@ const PendingTxPopup = ({
     className: 'control-buttons'
   }, React.createElement("button", {
     className: 'icon-button',
-    onClick: () => dispatch(setPendingTxPopup(false))
+    onClick: function onClick() {
+      return dispatch(setPendingTxPopup(false));
+    }
   }, React.createElement(Cross, {
     fill: theme.colorMode === 'light' ? 'black' : 'white'
   }))))), React.createElement("div", {
@@ -7900,15 +8652,15 @@ const PendingTxPopup = ({
     className: 'header-container'
   }, React.createElement("span", null, "Amount"), React.createElement("span", null, "Expire Time"), React.createElement("span", null, "Status"), React.createElement("span", null, "Hash"), React.createElement("span", null, "Action")), React.createElement("div", {
     className: 'tx-container'
-  }, txData.map((tx, index) => {
-    let date = new Date(+tx.expireTime * 1000);
-    let year = date.getFullYear();
-    let month = date.getMonth() + 1;
-    let day = date.getDate();
-    let hours = date.getHours();
-    let minutes = date.getMinutes();
-    let seconds = date.getSeconds();
-    let formattedDate = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }, txData.map(function (tx, index) {
+    var date = new Date(+tx.expireTime * 1000);
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1;
+    var day = date.getDate();
+    var hours = date.getHours();
+    var minutes = date.getMinutes();
+    var seconds = date.getSeconds();
+    var formattedDate = year + "-" + month.toString().padStart(2, '0') + "-" + day.toString().padStart(2, '0') + " " + hours.toString().padStart(2, '0') + ":" + minutes.toString().padStart(2, '0') + ":" + seconds.toString().padStart(2, '0');
     return React.createElement("div", {
       className: 'tx-item',
       key: index
@@ -7918,20 +8670,20 @@ const PendingTxPopup = ({
       className: 'icon-wrapper'
     }, (+tx.amount).toFixed(8), React.createElement(BTC, null))), React.createElement("span", {
       className: 'label'
-    }, `${formattedDate}`), React.createElement("span", {
+    }, "" + formattedDate), React.createElement("span", {
       className: 'label'
     }, tx.status), React.createElement("div", {
       className: 'label'
     }, React.createElement(ExternalLink, {
-      to: `https://${CHAIN_NAMES_TO_EXPLORER[ChainName.BTC]}/tx/${tx.hash}`
+      to: "https://" + CHAIN_NAMES_TO_EXPLORER[ChainName.BTC] + "/tx/" + tx.hash
     }, getShortenedAddress(tx.hash))), React.createElement("div", {
-      className: `action-button-container ${tx.status === 'Pending' || tx.status === 'Failed' ? '' : 'disabled'}`
+      className: "action-button-container " + (tx.status === 'Pending' || tx.status === 'Failed' ? '' : 'disabled')
     }, React.createElement("div", {
       className: 'action-button',
-      onClick: () => {
+      onClick: function onClick() {
         if (tx.status !== 'Pending' && tx.status !== 'Failed') return;
-        const now = new Date();
-        const currentTimestamp = Math.floor(now.getTime() / 1000);
+        var now = new Date();
+        var currentTimestamp = Math.floor(now.getTime() / 1000);
         console.log(currentTimestamp, tx.expireTime);
         if (currentTimestamp < +tx.expireTime) {
           toast.error('Please wait for until htlc is expired!');
@@ -7941,7 +8693,7 @@ const PendingTxPopup = ({
       }
     }, "Reclaim"), React.createElement("div", {
       className: 'action-button',
-      onClick: () => {
+      onClick: function onClick() {
         handleHtlcContinue(tx.expireTime, tx.hash, tx.amount);
         dispatch(setPendingTxPopup(false));
       }
@@ -11190,424 +11942,531 @@ axios.HttpStatusCode = HttpStatusCode;
 
 axios.default = axios;
 
-const getUTXOs = async (network, address) => {
-  const networkSubpath = network === BitcoinNetworkType.Testnet ? '/testnet' : '';
-  const url = `https://mempool.space${networkSubpath}/api/address/${address}/utxo`;
-  const response = await fetch(url);
-  return response.json();
-};
-async function broadcastTransaction(rawHex, networkSubpath = '') {
-  const url = `https://mempool.space${networkSubpath}/api/tx`;
-  try {
-    const response = await axios.post(url, rawHex);
-    return response.data;
-  } catch (error) {
-    throw error;
+var broadcastTransaction = function broadcastTransaction(rawHex, networkSubpath) {
+  if (networkSubpath === void 0) {
+    networkSubpath = '';
   }
-}
+  try {
+    var url = "https://mempool.space" + networkSubpath + "/api/tx";
+    return Promise.resolve(_catch(function () {
+      return Promise.resolve(axios.post(url, rawHex)).then(function (response) {
+        return response.data;
+      });
+    }, function (error) {
+      throw error;
+    }));
+  } catch (e) {
+    return Promise.reject(e);
+  }
+};
+var getUTXOs = function getUTXOs(network, address) {
+  try {
+    var networkSubpath = network === BitcoinNetworkType.Testnet ? '/testnet' : '';
+    var url = "https://mempool.space" + networkSubpath + "/api/address/" + address + "/utxo";
+    return Promise.resolve(fetch(url)).then(function (response) {
+      return response.json();
+    });
+  } catch (e) {
+    return Promise.reject(e);
+  }
+};
 
-const TransferWidget = ({
-  theme,
-  feeURL,
-  helpURL,
-  titleOption,
-  paymentTitleOption
-}) => {
-  const dispatch = useDispatch();
-  const mainRef = useRef(null);
-  const [isWizard, setWizard] = useState(false);
-  const [formStep, setFormStep] = useState(0);
-  const [wizardStep, setWizardStep] = useState(0);
-  const mode = useSelector(selectMode);
-  const dAppOption = useSelector(selectDappOption);
-  const amount = useSelector(selectAmount);
-  const feeDeduct = useSelector(selectFeeDeduct);
-  const sourceChain = useSelector(selectSourceChain);
-  const targetAddress = useSelector(selectTargetAddress);
-  const targetChain = useSelector(selectTargetChain);
-  const compliantOption = useSelector(selectCompliantOption);
-  const sourceCompliant = useSelector(selectSourceCompliant);
-  const targetCompliant = useSelector(selectTargetCompliant);
-  const errorHandler = useSelector(selectErrorHandler);
-  const keplrHandler = useSelector(selectKeplrHandler);
-  const closeHandler = useSelector(selectCloseHandler);
-  const {
-    options: selectedToken
-  } = useCurrencyOptions();
-  const backendUrl = useSelector(selectBackendUrl);
-  const nodeProviderQuery = useSelector(selectNodeProviderQuery);
-  const bankDetails = useSelector(selectBankDetails);
-  const kycStatus = useSelector(selectKycStatus);
-  const expireTime = useSelector(selectExpireTime);
-  const bitcoinAddress = useSelector(selectBitcoinAddress);
-  const bitcoinPubkey = useSelector(selectBitcoinPubkey);
-  const transactionOption = useSelector(selectTransactionOption);
-  const [isApproving, setApproving] = useState(false);
-  const [isSubmitting, setSubmitting] = useState(false);
-  const [isSigning, setSigning] = useState(false);
-  const [isBTCSigning, setBTCSigning] = useState(false);
-  const [isBTCSigned, setBTCSigned] = useState(false);
-  const [btcHash, setBTCHash] = useState('');
-  const [btcTimestamp, setBTCTimestamp] = useState(0);
-  const [isConfirming, setConfirming] = useState(false);
-  const [isVerifying, setVerifying] = useState(false);
-  const {
-    isReady,
-    walletAddress
-  } = useIsWalletReady();
-  const pendingTxs = useSelector(selectPendingTxs);
-  const {
-    isApproved: approved,
-    approve,
-    poolAddress
-  } = useAllowance({
-    setApproving
-  });
-  const {
-    isSigned,
-    sign
-  } = useSign({
-    setSigning
-  });
-  const {
-    serviceFee: fee
-  } = useServiceFee(isConfirming, feeURL);
-  const {
-    balance
-  } = useBalance();
-  const windowWidth = useWidth();
-  const isApproved = useMemo(() => {
+var TransferWidget = function TransferWidget(_ref) {
+  var _theme$backgroundColo;
+  var theme = _ref.theme,
+    feeURL = _ref.feeURL,
+    helpURL = _ref.helpURL,
+    titleOption = _ref.titleOption,
+    paymentTitleOption = _ref.paymentTitleOption;
+  var dispatch = useDispatch();
+  var mainRef = useRef(null);
+  var _useState = useState(false),
+    isWizard = _useState[0],
+    setWizard = _useState[1];
+  var _useState2 = useState(0),
+    formStep = _useState2[0],
+    setFormStep = _useState2[1];
+  var _useState3 = useState(0),
+    wizardStep = _useState3[0],
+    setWizardStep = _useState3[1];
+  var mode = useSelector(selectMode);
+  var dAppOption = useSelector(selectDappOption);
+  var amount = useSelector(selectAmount);
+  var feeDeduct = useSelector(selectFeeDeduct);
+  var sourceChain = useSelector(selectSourceChain);
+  var targetAddress = useSelector(selectTargetAddress);
+  var targetChain = useSelector(selectTargetChain);
+  var compliantOption = useSelector(selectCompliantOption);
+  var sourceCompliant = useSelector(selectSourceCompliant);
+  var targetCompliant = useSelector(selectTargetCompliant);
+  var errorHandler = useSelector(selectErrorHandler);
+  var keplrHandler = useSelector(selectKeplrHandler);
+  var closeHandler = useSelector(selectCloseHandler);
+  var _useCurrencyOptions = useCurrencyOptions(),
+    selectedToken = _useCurrencyOptions.options;
+  var backendUrl = useSelector(selectBackendUrl);
+  var nodeProviderQuery = useSelector(selectNodeProviderQuery);
+  var bankDetails = useSelector(selectBankDetails);
+  var kycStatus = useSelector(selectKycStatus);
+  var expireTime = useSelector(selectExpireTime);
+  var bitcoinAddress = useSelector(selectBitcoinAddress);
+  var bitcoinPubkey = useSelector(selectBitcoinPubkey);
+  var transactionOption = useSelector(selectTransactionOption);
+  var _useState4 = useState(false),
+    isApproving = _useState4[0],
+    setApproving = _useState4[1];
+  var _useState5 = useState(false),
+    isSubmitting = _useState5[0],
+    setSubmitting = _useState5[1];
+  var _useState6 = useState(false),
+    isSigning = _useState6[0],
+    setSigning = _useState6[1];
+  var _useState7 = useState(false),
+    isBTCSigning = _useState7[0],
+    setBTCSigning = _useState7[1];
+  var _useState8 = useState(false),
+    isBTCSigned = _useState8[0],
+    setBTCSigned = _useState8[1];
+  var _useState9 = useState(''),
+    btcHash = _useState9[0],
+    setBTCHash = _useState9[1];
+  var _useState10 = useState(0),
+    btcTimestamp = _useState10[0],
+    setBTCTimestamp = _useState10[1];
+  var _useState11 = useState(false),
+    isConfirming = _useState11[0],
+    setConfirming = _useState11[1];
+  var _useState12 = useState(false),
+    isVerifying = _useState12[0],
+    setVerifying = _useState12[1];
+  var _useIsWalletReady = useIsWalletReady(),
+    isReady = _useIsWalletReady.isReady,
+    walletAddress = _useIsWalletReady.walletAddress;
+  var pendingTxs = useSelector(selectPendingTxs);
+  var _useAllowance = useAllowance({
+      setApproving: setApproving
+    }),
+    approved = _useAllowance.isApproved,
+    approve = _useAllowance.approve,
+    poolAddress = _useAllowance.poolAddress;
+  var _useSign = useSign({
+      setSigning: setSigning
+    }),
+    isSigned = _useSign.isSigned,
+    sign = _useSign.sign;
+  var _useServiceFee = useServiceFee(isConfirming, feeURL),
+    fee = _useServiceFee.serviceFee;
+  var _useBalance = useBalance(),
+    balance = _useBalance.balance;
+  var windowWidth = useWidth();
+  var isApproved = useMemo(function () {
     if (sourceChain === ChainName.BTC) return isBTCSigned;
     return approved;
   }, [approved, isBTCSigned, sourceChain]);
-  useEffect(() => {
+  useEffect(function () {
     if (!walletAddress) return;
     dispatch(setTargetAddress(walletAddress));
     if (!compliantOption) return;
-    (async function () {
+    (function () {
       try {
-        const res = await fetchWrapper.post(`${backendUrl}/compliant`, JSON.stringify({
-          address: walletAddress
-        }));
-        dispatch(setSourceCompliant(res));
+        var _temp = _catch(function () {
+          return Promise.resolve(fetchWrapper.post(backendUrl + "/compliant", JSON.stringify({
+            address: walletAddress
+          }))).then(function (res) {
+            dispatch(setSourceCompliant(res));
+          });
+        }, function (e) {
+          toast$1.error('xplorisk check failed');
+          console.log('xplorisk check failed', e);
+        });
+        return _temp && _temp.then ? _temp.then(function () {}) : void 0;
       } catch (e) {
-        toast$1.error('xplorisk check failed');
-        console.log('xplorisk check failed', e);
+        Promise.reject(e);
       }
     })();
   }, [walletAddress, compliantOption]);
-  useEffect(() => {
+  useEffect(function () {
     if (!targetAddress || !compliantOption) return;
-    (async function () {
+    (function () {
       try {
-        const res = await fetchWrapper.post(`${backendUrl}/compliant`, JSON.stringify({
-          address: targetAddress
-        }));
-        dispatch(setTargetCompliant(res));
+        var _temp2 = _catch(function () {
+          return Promise.resolve(fetchWrapper.post(backendUrl + "/compliant", JSON.stringify({
+            address: targetAddress
+          }))).then(function (res) {
+            dispatch(setTargetCompliant(res));
+          });
+        }, function (e) {
+          toast$1.error('xplorisk check failed');
+          console.log('xplorisk check failed', e);
+        });
+        return _temp2 && _temp2.then ? _temp2.then(function () {}) : void 0;
       } catch (e) {
-        toast$1.error('xplorisk check failed');
-        console.log('xplorisk check failed', e);
+        Promise.reject(e);
       }
     })();
   }, [targetAddress, compliantOption]);
-  useEffect(() => {
+  useEffect(function () {
     if (!nodeProviderQuery) return;
-    (async function () {
-      const res = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/pool_balance`);
-      let poolsTable = [];
-      for (const pool of res.poolBalance) {
-        for (const token of pool.balance) {
-          poolsTable.push({
-            chain: CHAIN_NAMES_TO_STRING[pool.chainName],
-            symbol: token.tokenSymbol,
-            balance: +token.amount
-          });
+    try {
+      return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/chains/pool_balance")).then(function (res) {
+        var poolsTable = [];
+        for (var _iterator = _createForOfIteratorHelperLoose(res.poolBalance), _step; !(_step = _iterator()).done;) {
+          var pool = _step.value;
+          for (var _iterator2 = _createForOfIteratorHelperLoose(pool.balance), _step2; !(_step2 = _iterator2()).done;) {
+            var token = _step2.value;
+            poolsTable.push({
+              chain: CHAIN_NAMES_TO_STRING[pool.chainName],
+              symbol: token.tokenSymbol,
+              balance: +token.amount
+            });
+          }
         }
-      }
-      console.table(poolsTable);
-    })();
+        console.table(poolsTable);
+      });
+    } catch (e) {
+      Promise.reject(e);
+    }
   }, [nodeProviderQuery]);
-  useEffect(() => {
+  useEffect(function () {
     dispatch(setSelectedToken(selectedToken));
   }, [selectedToken]);
-  useEffect(() => {
+  useEffect(function () {
     if (!isReady) {
       if (formStep > 0) setFormStep(0);
       if (wizardStep > 0) setWizardStep(1);
     }
   }, [isReady, wizardStep, formStep, dAppOption]);
-  const checkPoolBalance = async () => {
-    const res = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/pool_balance`);
-    const poolBalance = res.poolBalance;
-    for (let i = 0; i < poolBalance.length; i++) {
-      if (poolBalance[i].chainName === targetChain) {
-        for (let j = 0; j < poolBalance[i].balance.length; j++) {
-          if (poolBalance[i].balance[j].tokenSymbol !== selectedToken) continue;
-          if (+poolBalance[i].balance[j].amount >= +amount + fee) {
-            return true;
+  var checkPoolBalance = function checkPoolBalance() {
+    try {
+      return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/chains/pool_balance")).then(function (res) {
+        var poolBalance = res.poolBalance;
+        for (var i = 0; i < poolBalance.length; i++) {
+          if (poolBalance[i].chainName === targetChain) {
+            for (var j = 0; j < poolBalance[i].balance.length; j++) {
+              if (poolBalance[i].balance[j].tokenSymbol !== selectedToken) continue;
+              if (+poolBalance[i].balance[j].amount >= +amount + fee) {
+                return true;
+              }
+              var symbol = selectedToken;
+              var errorString = "Tried to transfer " + amount + " " + symbol + ", but " + CHAIN_NAMES_TO_STRING[targetChain] + " pool has only " + +poolBalance[i].balance[j].amount + " " + symbol;
+              console.log(errorString);
+              toast$1.error(errorString);
+              toast$1.error(CHAIN_NAMES_TO_STRING[targetChain] + " pool has insufficient balance!");
+              errorHandler(errorString);
+              return false;
+            }
+            return false;
           }
-          const symbol = selectedToken;
-          const errorString = `Tried to transfer ${amount} ${symbol}, but ${CHAIN_NAMES_TO_STRING[targetChain]} pool has only ${+poolBalance[i].balance[j].amount} ${symbol}`;
-          console.log(errorString);
-          toast$1.error(errorString);
-          toast$1.error(`${CHAIN_NAMES_TO_STRING[targetChain]} pool has insufficient balance!`);
-          errorHandler(errorString);
-          return false;
         }
+        console.log(CHAIN_NAMES_TO_STRING[targetChain] + " pool error");
         return false;
-      }
+      });
+    } catch (e) {
+      return Promise.reject(e);
     }
-    console.log(`${CHAIN_NAMES_TO_STRING[targetChain]} pool error`);
-    return false;
   };
-  const handleBTCFinish = async (hash, htlcAddress, timestamp) => {
-    const params = JSON.stringify({
-      fromAddress: walletAddress,
-      senderPubkey: bitcoinPubkey,
-      amount: feeDeduct ? amount : (+amount + fee).toFixed(8),
-      txHash: hash,
-      htlcTimeout: timestamp.toString(),
-      htlcAddress
-    });
-    console.log(params);
-    await fetchWrapper.post(`${backendUrl}/auth`, params);
-    const result = await fetchWrapper.post(`${backendUrl}/htlc`, params);
-    console.log(result);
-    if ((result === null || result === void 0 ? void 0 : result.code) !== 0) {
-      errorHandler(result);
-      toast$1.error('Failed to submit htlc request!');
-      return;
-    }
-    do {
-      await sleep(10000);
-      try {
-        var _txInfo$status;
-        const txInfo = await fetchWrapper.get(`${backendUrl}/btc/transaction?hash=${hash}`);
-        if (txInfo !== null && txInfo !== void 0 && (_txInfo$status = txInfo.status) !== null && _txInfo$status !== void 0 && _txInfo$status.confirmed) {
-          setBTCSigning(false);
-          setBTCSigned(true);
-          setBTCHash(hash);
-          break;
-        }
-      } catch (e) {
-        console.log(e);
-      }
-    } while (1);
-  };
-  const handleHtlcContinue = async (expireTime, hash, amount) => {
-    setBTCTimestamp(expireTime);
-    setBTCSigning(false);
-    setBTCSigned(true);
-    setBTCHash(hash);
-    dispatch(setFeeDeduct(true));
-    dispatch(setAmount(amount));
-  };
-  const handleHtlcReclaim = async (expireTime, hash, amount) => {
-    const htlcScript = createHTLCScript(bitcoinAddress, bitcoinPubkey, poolAddress, expireTime, networks.testnet);
-    console.log('HTLC Script : ' + htlcScript.toString('hex'));
-    const htlcAddress = htlcP2WSHAddress(htlcScript, networks.testnet);
-    console.log('HTLC address : ' + htlcAddress);
-    const [htlcUnspentOutputs] = await Promise.all([getUTXOs(BitcoinNetworkType.Testnet, htlcAddress)]);
-    if (htlcUnspentOutputs.length === 0) {
-      alert('No unspent outputs found for HTLC address');
-      return;
-    }
-    const htlcUtxo = htlcUnspentOutputs[htlcUnspentOutputs.length - 1];
-    const fee = '5000';
-    const reclaimPsbtBase64 = createReclaimPsbt(bitcoinAddress, Math.round(+amount * 1e8).toString(), expireTime, htlcScript, htlcUtxo, networks.testnet, fee);
-    await signTransaction({
-      payload: {
-        network: {
-          type: BitcoinNetworkType.Testnet
-        },
-        message: 'Sign Reclaim Transaction',
-        psbtBase64: reclaimPsbtBase64,
-        broadcast: false,
-        inputsToSign: [{
-          address: bitcoinAddress,
-          signingIndexes: [0],
-          sigHash: SigHash.ALL
-        }]
-      },
-      onFinish: async response => {
-        console.log('response = ', response);
-        console.log('reponse.txId = ', response.txId);
-        const tx = decodeBase64PSBT(response.psbtBase64);
-        tx.finalize();
-        const rawTxHex = tx.hex;
-        console.log('rawTxHex = ' + rawTxHex);
-        try {
-          const broadcastResponse = await broadcastTransaction(rawTxHex, '/testnet');
-          console.log('broadcastResponse = ' + broadcastResponse);
-          console.log(broadcastResponse);
-          const params = JSON.stringify({
-            senderAddress: walletAddress,
-            txHash: hash
-          });
-          await fetchWrapper.post(`${backendUrl}/auth`, params);
-          const result = await fetchWrapper.post(`${backendUrl}/reclaim`, params);
+  var handleBTCFinish = function handleBTCFinish(hash, htlcAddress, timestamp) {
+    try {
+      var params = JSON.stringify({
+        fromAddress: walletAddress,
+        senderPubkey: bitcoinPubkey,
+        amount: feeDeduct ? amount : (+amount + fee).toFixed(8),
+        txHash: hash,
+        htlcTimeout: timestamp.toString(),
+        htlcAddress: htlcAddress
+      });
+      console.log(params);
+      return Promise.resolve(fetchWrapper.post(backendUrl + "/auth", params)).then(function () {
+        return Promise.resolve(fetchWrapper.post(backendUrl + "/htlc", params)).then(function (result) {
+          var _interrupt = false;
           console.log(result);
           if ((result === null || result === void 0 ? void 0 : result.code) !== 0) {
             errorHandler(result);
-            toast$1.error('Failed to submit htlc reclaim!');
+            toast$1.error('Failed to submit htlc request!');
             return;
           }
-        } catch (error) {
-          toast$1.error('Error broadcasting the transaction!');
-          console.error('Error broadcasting the transaction!', error);
-        }
-      },
-      onCancel: () => {
-        toast$1.error('Transaction cancelled!');
-      }
-    });
+          var _temp4 = _do(function () {
+            return Promise.resolve(sleep(10000)).then(function () {
+              var _temp3 = _catch(function () {
+                return Promise.resolve(fetchWrapper.get(backendUrl + "/btc/transaction?hash=" + hash)).then(function (txInfo) {
+                  var _txInfo$status;
+                  if (txInfo !== null && txInfo !== void 0 && (_txInfo$status = txInfo.status) !== null && _txInfo$status !== void 0 && _txInfo$status.confirmed) {
+                    setBTCSigning(false);
+                    setBTCSigned(true);
+                    setBTCHash(hash);
+                    _interrupt = true;
+                  }
+                });
+              }, function (e) {
+                console.log(e);
+              });
+              if (_temp3 && _temp3.then) return _temp3.then(function () {});
+            });
+          }, function () {
+            return !_interrupt && 1;
+          });
+          if (_temp4 && _temp4.then) return _temp4.then(function () {});
+        });
+      });
+    } catch (e) {
+      return Promise.reject(e);
+    }
   };
-  const handleSubmit = async () => {
-    if (fee < 0) {
-      toast$1.error('Fee is not calculated!');
-      errorHandler('Fee is not calculated!');
-      return;
+  var handleHtlcContinue = function handleHtlcContinue(expireTime, hash, amount) {
+    try {
+      setBTCTimestamp(expireTime);
+      setBTCSigning(false);
+      setBTCSigned(true);
+      setBTCHash(hash);
+      dispatch(setFeeDeduct(true));
+      dispatch(setAmount(amount));
+      return Promise.resolve();
+    } catch (e) {
+      return Promise.reject(e);
     }
-    if (dAppOption !== DAppOptions.LPDrain && balance < (feeDeduct ? +amount : +amount + fee)) {
-      toast$1.error('Insufficient balance!');
-      errorHandler('Insufficient balance!');
-      return;
-    }
-    if (sourceChain === ChainName.BTC && +amount < 0.00015) {
-      toast$1.error('Minimum BTC amount is 0.00015!');
-      errorHandler('Minimum BTC amount is 0.00015!');
-      return;
-    }
-    if (sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT) {
-      if (kycStatus !== 'approved') {
-        setVerifying(true);
-        dispatch(setBankPopup(true));
-        return;
-      }
-    }
-    if (sourceChain === ChainName.FIAT) {
-      if (!isSigned) {
-        sign();
-        return;
-      }
-    } else if (!isApproved && dAppOption !== DAppOptions.LPDrain && sourceChain !== ChainName.BTC) {
-      approve();
-      return;
-    }
-    if (sourceChain === ChainName.BTC && !isApproved) {
-      setBTCSigning(true);
-      const unixTimestamp = Math.floor(Date.now() / 1000) + (expireTime === '1 hour' ? 3600 : expireTime === '2 hours' ? 7200 : 10800);
-      setBTCTimestamp(unixTimestamp);
-      const htlcScript = createHTLCScript(bitcoinAddress, bitcoinPubkey, poolAddress, unixTimestamp, networks.testnet);
-      const htlcAddress = htlcP2WSHAddress(htlcScript, networks.testnet);
-      try {
-        await sendBtcTransaction({
+  };
+  var handleHtlcReclaim = function handleHtlcReclaim(expireTime, hash, amount) {
+    try {
+      var htlcScript = createHTLCScript(bitcoinAddress, bitcoinPubkey, poolAddress, expireTime, networks.testnet);
+      console.log('HTLC Script : ' + htlcScript.toString('hex'));
+      var htlcAddress = htlcP2WSHAddress(htlcScript, networks.testnet);
+      console.log('HTLC address : ' + htlcAddress);
+      return Promise.resolve(Promise.all([getUTXOs(BitcoinNetworkType.Testnet, htlcAddress)])).then(function (_ref2) {
+        var htlcUnspentOutputs = _ref2[0];
+        if (htlcUnspentOutputs.length === 0) {
+          alert('No unspent outputs found for HTLC address');
+          return;
+        }
+        var htlcUtxo = htlcUnspentOutputs[htlcUnspentOutputs.length - 1];
+        var fee = '5000';
+        var reclaimPsbtBase64 = createReclaimPsbt(bitcoinAddress, Math.round(+amount * 1e8).toString(), expireTime, htlcScript, htlcUtxo, networks.testnet, fee);
+        return Promise.resolve(signTransaction({
           payload: {
             network: {
               type: BitcoinNetworkType.Testnet
             },
-            recipients: [{
-              address: htlcAddress,
-              amountSats: BigInt(Math.round((feeDeduct ? +amount : +amount + fee) * 100000000))
-            }],
-            senderAddress: bitcoinAddress
+            message: 'Sign Reclaim Transaction',
+            psbtBase64: reclaimPsbtBase64,
+            broadcast: false,
+            inputsToSign: [{
+              address: bitcoinAddress,
+              signingIndexes: [0],
+              sigHash: SigHash.ALL
+            }]
           },
-          onFinish: async hash => {
-            handleBTCFinish(hash, htlcAddress, unixTimestamp);
-          },
-          onCancel: () => {
-            toast$1.error('Transaction cancelled.');
-            setBTCSigning(false);
-          }
-        });
-      } catch (e) {
-        setBTCSigning(false);
-        console.log(e);
-      }
-      return;
-    }
-    try {
-      if (sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT) return;
-      setSubmitting(true);
-      if (dAppOption === DAppOptions.LPDrain || dAppOption === DAppOptions.LPAdd) {
-        keplrHandler(walletAddress);
-        return;
-      }
-      if (!(await checkPoolBalance())) {
-        setSubmitting(false);
-        return;
-      }
-      let params;
-      let feeParam;
-      if (sourceChain === ChainName.BTC || targetChain === ChainName.BTC) {
-        feeParam = fee.toFixed(8);
-      } else {
-        feeParam = fee.toFixed(2);
-      }
-      if (sourceChain === ChainName.BTC) {
-        params = JSON.stringify({
-          originAddress: walletAddress,
-          originChain: sourceChain,
-          targetAddress: mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
-          targetChain: targetChain,
-          symbol: selectedToken,
-          amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
-          fee: feeParam,
-          htlcCreationHash: btcHash,
-          htlcCreationVout: 0,
-          htlcExpirationTimestamp: btcTimestamp.toString(),
-          htlcVersion: 'v1',
-          senderPubKey: bitcoinPubkey
-        });
-      } else {
-        params = JSON.stringify({
-          originAddress: walletAddress,
-          originChain: sourceChain,
-          targetAddress: mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
-          targetChain: targetChain,
-          symbol: selectedToken,
-          amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
-          fee: feeParam,
-          htlcCreationHash: '',
-          htlcCreationVout: 0,
-          htlcExpirationTimestamp: '0',
-          htlcVersion: '',
-          senderPubKey: ''
-        });
-      }
-      console.log(params);
-      await fetchWrapper.post(`${backendUrl}/auth`, params);
-      const result = await fetchWrapper.post(`${backendUrl}/submit`, params);
-      console.log(result);
-      if ((result === null || result === void 0 ? void 0 : result.code) !== 0) {
-        errorHandler(result);
-        toast$1.error('Failed to submit transaction!');
-        setSubmitting(false);
-        return;
-      }
-      let txId = -1;
-      for (const event of result.events) {
-        if (event.type === 'transaction_requested') {
-          for (const attr of event.attributes) {
-            if (attr.key === 'txId') {
-              txId = attr.value;
+          onFinish: function (response) {
+            try {
+              console.log('response = ', response);
+              console.log('reponse.txId = ', response.txId);
+              var tx = decodeBase64PSBT(response.psbtBase64);
+              tx.finalize();
+              var rawTxHex = tx.hex;
+              console.log('rawTxHex = ' + rawTxHex);
+              return Promise.resolve(_catch(function () {
+                return Promise.resolve(broadcastTransaction(rawTxHex, '/testnet')).then(function (broadcastResponse) {
+                  console.log('broadcastResponse = ' + broadcastResponse);
+                  console.log(broadcastResponse);
+                  var params = JSON.stringify({
+                    senderAddress: walletAddress,
+                    txHash: hash
+                  });
+                  return Promise.resolve(fetchWrapper.post(backendUrl + "/auth", params)).then(function () {
+                    return Promise.resolve(fetchWrapper.post(backendUrl + "/reclaim", params)).then(function (result) {
+                      console.log(result);
+                      if ((result === null || result === void 0 ? void 0 : result.code) !== 0) {
+                        errorHandler(result);
+                        toast$1.error('Failed to submit htlc reclaim!');
+                      }
+                    });
+                  });
+                });
+              }, function (error) {
+                toast$1.error('Error broadcasting the transaction!');
+                console.error('Error broadcasting the transaction!', error);
+              }));
+            } catch (e) {
+              return Promise.reject(e);
             }
+          },
+          onCancel: function onCancel() {
+            toast$1.error('Transaction cancelled!');
           }
-        }
-      }
-      console.log(txId);
-      setSubmitting(false);
-      dispatch(setTxId(txId));
-      dispatch(setSubmitted(true));
+        })).then(function () {});
+      });
     } catch (e) {
-      errorHandler(e);
-      setSubmitting(false);
-      console.log((e === null || e === void 0 ? void 0 : e.status) !== 500 ? 'rpc disconnected' : '', e);
-      toast$1.error('rpc disconnected');
-      toast$1.error('Failed to submit transaction');
+      return Promise.reject(e);
     }
   };
-  const onNext = () => {
+  var handleSubmit = function handleSubmit() {
+    try {
+      var _temp8 = function _temp8(_result2) {
+        var _exit2 = false;
+        if (_exit) return _result2;
+        return _catch(function () {
+          var _exit3 = false;
+          if (sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT) return;
+          setSubmitting(true);
+          if (dAppOption === DAppOptions.LPDrain || dAppOption === DAppOptions.LPAdd) {
+            keplrHandler(walletAddress);
+            return;
+          }
+          return Promise.resolve(checkPoolBalance()).then(function (_checkPoolBalance) {
+            if (!_checkPoolBalance) {
+              setSubmitting(false);
+              _exit2 = true;
+              return;
+            }
+            var params;
+            var feeParam;
+            if (sourceChain === ChainName.BTC || targetChain === ChainName.BTC) {
+              feeParam = fee.toFixed(8);
+            } else {
+              feeParam = fee.toFixed(2);
+            }
+            if (sourceChain === ChainName.BTC) {
+              params = JSON.stringify({
+                originAddress: walletAddress,
+                originChain: sourceChain,
+                targetAddress: mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
+                targetChain: targetChain,
+                symbol: selectedToken,
+                amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
+                fee: feeParam,
+                htlcCreationHash: btcHash,
+                htlcCreationVout: 0,
+                htlcExpirationTimestamp: btcTimestamp.toString(),
+                htlcVersion: 'v1',
+                senderPubKey: bitcoinPubkey
+              });
+            } else {
+              params = JSON.stringify({
+                originAddress: walletAddress,
+                originChain: sourceChain,
+                targetAddress: mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
+                targetChain: targetChain,
+                symbol: selectedToken,
+                amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
+                fee: feeParam,
+                htlcCreationHash: '',
+                htlcCreationVout: 0,
+                htlcExpirationTimestamp: '0',
+                htlcVersion: '',
+                senderPubKey: ''
+              });
+            }
+            console.log(params);
+            return Promise.resolve(fetchWrapper.post(backendUrl + "/auth", params)).then(function () {
+              return Promise.resolve(fetchWrapper.post(backendUrl + "/submit", params)).then(function (result) {
+                console.log(result);
+                if ((result === null || result === void 0 ? void 0 : result.code) !== 0) {
+                  errorHandler(result);
+                  toast$1.error('Failed to submit transaction!');
+                  setSubmitting(false);
+                  return;
+                }
+                var txId = -1;
+                for (var _iterator3 = _createForOfIteratorHelperLoose(result.events), _step3; !(_step3 = _iterator3()).done;) {
+                  var event = _step3.value;
+                  if (event.type === 'transaction_requested') {
+                    for (var _iterator4 = _createForOfIteratorHelperLoose(event.attributes), _step4; !(_step4 = _iterator4()).done;) {
+                      var attr = _step4.value;
+                      if (attr.key === 'txId') {
+                        txId = attr.value;
+                      }
+                    }
+                  }
+                }
+                console.log(txId);
+                setSubmitting(false);
+                dispatch(setTxId(txId));
+                dispatch(setSubmitted(true));
+              });
+            });
+          });
+        }, function (e) {
+          errorHandler(e);
+          setSubmitting(false);
+          console.log((e === null || e === void 0 ? void 0 : e.status) !== 500 ? 'rpc disconnected' : '', e);
+          toast$1.error('rpc disconnected');
+          toast$1.error('Failed to submit transaction');
+        });
+      };
+      var _exit = false;
+      if (fee < 0) {
+        toast$1.error('Fee is not calculated!');
+        errorHandler('Fee is not calculated!');
+        return Promise.resolve();
+      }
+      if (dAppOption !== DAppOptions.LPDrain && balance < (feeDeduct ? +amount : +amount + fee)) {
+        toast$1.error('Insufficient balance!');
+        errorHandler('Insufficient balance!');
+        return Promise.resolve();
+      }
+      if (sourceChain === ChainName.BTC && +amount < 0.00015) {
+        toast$1.error('Minimum BTC amount is 0.00015!');
+        errorHandler('Minimum BTC amount is 0.00015!');
+        return Promise.resolve();
+      }
+      if (sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT) {
+        if (kycStatus !== 'approved') {
+          setVerifying(true);
+          dispatch(setBankPopup(true));
+          return Promise.resolve();
+        }
+      }
+      if (sourceChain === ChainName.FIAT) {
+        if (!isSigned) {
+          sign();
+          return Promise.resolve();
+        }
+      } else if (!isApproved && dAppOption !== DAppOptions.LPDrain && sourceChain !== ChainName.BTC) {
+        approve();
+        return Promise.resolve();
+      }
+      var _temp7 = function () {
+        if (sourceChain === ChainName.BTC && !isApproved) {
+          var _temp6 = function _temp6() {
+            _exit = true;
+          };
+          setBTCSigning(true);
+          var unixTimestamp = Math.floor(Date.now() / 1000) + (expireTime === '1 hour' ? 3600 : expireTime === '2 hours' ? 7200 : 10800);
+          setBTCTimestamp(unixTimestamp);
+          var htlcScript = createHTLCScript(bitcoinAddress, bitcoinPubkey, poolAddress, unixTimestamp, networks.testnet);
+          var htlcAddress = htlcP2WSHAddress(htlcScript, networks.testnet);
+          var _temp5 = _catch(function () {
+            return Promise.resolve(sendBtcTransaction({
+              payload: {
+                network: {
+                  type: BitcoinNetworkType.Testnet
+                },
+                recipients: [{
+                  address: htlcAddress,
+                  amountSats: BigInt(Math.round((feeDeduct ? +amount : +amount + fee) * 100000000))
+                }],
+                senderAddress: bitcoinAddress
+              },
+              onFinish: function (hash) {
+                handleBTCFinish(hash, htlcAddress, unixTimestamp);
+                return Promise.resolve();
+              },
+              onCancel: function onCancel() {
+                toast$1.error('Transaction cancelled.');
+                setBTCSigning(false);
+              }
+            })).then(function () {});
+          }, function (e) {
+            setBTCSigning(false);
+            console.log(e);
+          });
+          return _temp5 && _temp5.then ? _temp5.then(_temp6) : _temp6(_temp5);
+        }
+      }();
+      return Promise.resolve(_temp7 && _temp7.then ? _temp7.then(_temp8) : _temp8(_temp7));
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  };
+  var onNext = function onNext() {
     var _mainRef$current;
     if (isWizard && wizardStep < 5) {
       if (wizardStep === 1 && !isReady) {
@@ -11635,7 +12494,9 @@ const TransferWidget = ({
       if (mode === ModeOptions.payment && wizardStep === 1 && fee >= 0 && (!compliantOption || sourceCompliant === 'low' && targetCompliant === 'low')) {
         setConfirming(true);
         setWizardStep(5);
-      } else setWizardStep(step => step + 1);
+      } else setWizardStep(function (step) {
+        return step + 1;
+      });
     }
     if (!isWizard && !formStep) {
       if (isReady) {
@@ -11682,10 +12543,12 @@ const TransferWidget = ({
     }
     (_mainRef$current = mainRef.current) === null || _mainRef$current === void 0 ? void 0 : _mainRef$current.click();
   };
-  const onBack = () => {
+  var onBack = function onBack() {
     if (isApproving || isSubmitting || isSigning) return;
     if (isWizard && wizardStep > 0) {
-      if (mode === ModeOptions.payment && wizardStep === 5) setWizardStep(1);else setWizardStep(step => step - 1);
+      if (mode === ModeOptions.payment && wizardStep === 5) setWizardStep(1);else setWizardStep(function (step) {
+        return step - 1;
+      });
       setConfirming(false);
     }
     if (!isWizard && formStep > 0) {
@@ -11696,7 +12559,7 @@ const TransferWidget = ({
       closeHandler();
     }
   };
-  const getButtonLabel = () => {
+  var getButtonLabel = function getButtonLabel() {
     if (isWizard && wizardStep === 5 || !isWizard && formStep === 1) {
       if (sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT) {
         if (isVerifying) return 'KYC Verifying...';
@@ -11717,50 +12580,58 @@ const TransferWidget = ({
     }
     return 'Next';
   };
-  useEffect(() => {
+  useEffect(function () {
     dispatch(setTheme(theme));
   }, [theme]);
-  useEffect(() => {
+  useEffect(function () {
     if (!nodeProviderQuery || sourceChain !== ChainName.BTC || !walletAddress) return;
-    const updatePendingTxs = async () => {
-      const result = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/transaction/get_htlc_transaction/${walletAddress}`);
-      const data = result === null || result === void 0 ? void 0 : result.htlcLockingTransaction;
-      const txData = [];
-      if (data.length > 0) {
-        for (const tx of data) {
-          let status = '';
-          if (tx.status !== 'Completed') {
-            status = 'Confirming';
-          } else if (tx.pull_status === 'htlc_pull_available') {
-            status = 'Pending';
-          } else if (tx.pull_status === 'htlc_pull_in_progress') {
-            status = 'In Progress';
-          } else if (tx.pull_status === 'htlc_pull_succeed') {
-            status = 'Completed';
-          } else if (tx.pull_status === 'htlc_pull_failed') {
-            status = 'Failed';
+    var updatePendingTxs = function updatePendingTxs() {
+      try {
+        return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/transaction/get_htlc_transaction/" + walletAddress)).then(function (result) {
+          var data = result === null || result === void 0 ? void 0 : result.htlcLockingTransaction;
+          var txData = [];
+          if (data.length > 0) {
+            for (var _iterator5 = _createForOfIteratorHelperLoose(data), _step5; !(_step5 = _iterator5()).done;) {
+              var tx = _step5.value;
+              var status = '';
+              if (tx.status !== 'Completed') {
+                status = 'Confirming';
+              } else if (tx.pull_status === 'htlc_pull_available') {
+                status = 'Pending';
+              } else if (tx.pull_status === 'htlc_pull_in_progress') {
+                status = 'In Progress';
+              } else if (tx.pull_status === 'htlc_pull_succeed') {
+                status = 'Completed';
+              } else if (tx.pull_status === 'htlc_pull_failed') {
+                status = 'Failed';
+              }
+              txData.push({
+                hash: tx.txHash,
+                amount: tx.amount,
+                expireTime: tx.htlcTimestamp,
+                status: status
+              });
+            }
+            dispatch(setPendingTxData(txData));
+            dispatch(setPendingTxs(txData.filter(function (tx) {
+              return tx.status === 'Pending' || tx.status === 'Confirming';
+            }).length));
           }
-          txData.push({
-            hash: tx.txHash,
-            amount: tx.amount,
-            expireTime: tx.htlcTimestamp,
-            status
-          });
-        }
-        dispatch(setPendingTxData(txData));
-        dispatch(setPendingTxs(txData.filter(tx => tx.status === 'Pending' || tx.status === 'Confirming').length));
+        });
+      } catch (e) {
+        return Promise.reject(e);
       }
     };
-    const timerId = setInterval(() => {
+    var timerId = setInterval(function () {
       updatePendingTxs();
     }, 10000);
     updatePendingTxs();
-    return () => {
+    return function () {
       clearInterval(timerId);
     };
   }, [sourceChain, nodeProviderQuery, walletAddress]);
   return React.createElement("div", {
-    className: `kima-card ${theme.colorMode} font-${theme.fontSize}`,
+    className: "kima-card " + theme.colorMode + " font-" + theme.fontSize,
     style: {
       fontFamily: theme.fontFamily,
       background: theme.colorMode === ColorModeOptions.light ? theme.backgroundColorLight : theme.backgroundColorDark
@@ -11781,7 +12652,7 @@ const TransferWidget = ({
     className: 'menu-button'
   }, "I need help")), React.createElement("button", {
     className: 'icon-button',
-    onClick: () => {
+    onClick: function onClick() {
       if (isApproving || isSubmitting || isSigning) return;
       dispatch(initialize());
       closeHandler();
@@ -11813,9 +12684,11 @@ const TransferWidget = ({
   })), React.createElement("div", {
     className: 'button-group'
   }, React.createElement(SecondaryButton, {
-    clickHandler: () => {
+    clickHandler: function clickHandler() {
       if (isApproving || isSubmitting || isSigning || isBTCSigning) return;
-      setWizard(prev => !prev);
+      setWizard(function (prev) {
+        return !prev;
+      });
     },
     disabled: isApproving || isSubmitting || isSigning || isBTCSigning,
     theme: theme.colorMode,
@@ -11854,7 +12727,7 @@ const TransferWidget = ({
         fontSize: '1em',
         borderRadius: '1em',
         border: '1px solid #66aae5',
-        background: theme.colorMode === ColorModeOptions.light ? 'white' : theme.backgroundColorDark ?? '#1b1e25'
+        background: theme.colorMode === ColorModeOptions.light ? 'white' : (_theme$backgroundColo = theme.backgroundColorDark) != null ? _theme$backgroundColo : '#1b1e25'
       }
     }
   }), React.createElement(PendingTxPopup, {
@@ -11863,89 +12736,128 @@ const TransferWidget = ({
   }));
 };
 
-const KimaTransactionWidget = ({
-  mode,
-  txId,
-  autoSwitchChain: _autoSwitchChain = true,
-  defaultToken: _defaultToken = 'USDK',
-  provider,
-  dAppOption: _dAppOption = DAppOptions.None,
-  theme,
-  titleOption,
-  paymentTitleOption,
-  useFIAT: _useFIAT = false,
-  helpURL: _helpURL = '',
-  compliantOption: _compliantOption = true,
-  transactionOption,
-  kimaBackendUrl,
-  kimaNodeProviderQuery,
-  kimaExplorer: _kimaExplorer = 'explorer.kima.finance',
-  feeURL: _feeURL = 'https://fee.kima.finance',
-  errorHandler: _errorHandler = () => void 0,
-  closeHandler: _closeHandler = () => void 0,
-  successHandler: _successHandler = () => void 0,
-  switchChainHandler: _switchChainHandler = () => void 0,
-  keplrHandler: _keplrHandler = () => void 0
-}) => {
-  const submitted = useSelector(selectSubmitted);
-  const dispatch = useDispatch();
-  const {
-    setThemeMode
-  } = useWeb3ModalTheme();
-  useEffect(() => {
+var KimaTransactionWidget = function KimaTransactionWidget(_ref) {
+  var mode = _ref.mode,
+    txId = _ref.txId,
+    _ref$autoSwitchChain = _ref.autoSwitchChain,
+    autoSwitchChain = _ref$autoSwitchChain === void 0 ? true : _ref$autoSwitchChain,
+    _ref$defaultToken = _ref.defaultToken,
+    defaultToken = _ref$defaultToken === void 0 ? 'USDK' : _ref$defaultToken,
+    provider = _ref.provider,
+    _ref$dAppOption = _ref.dAppOption,
+    dAppOption = _ref$dAppOption === void 0 ? DAppOptions.None : _ref$dAppOption,
+    theme = _ref.theme,
+    titleOption = _ref.titleOption,
+    paymentTitleOption = _ref.paymentTitleOption,
+    _ref$useFIAT = _ref.useFIAT,
+    useFIAT = _ref$useFIAT === void 0 ? false : _ref$useFIAT,
+    _ref$helpURL = _ref.helpURL,
+    helpURL = _ref$helpURL === void 0 ? '' : _ref$helpURL,
+    _ref$compliantOption = _ref.compliantOption,
+    compliantOption = _ref$compliantOption === void 0 ? true : _ref$compliantOption,
+    transactionOption = _ref.transactionOption,
+    kimaBackendUrl = _ref.kimaBackendUrl,
+    kimaNodeProviderQuery = _ref.kimaNodeProviderQuery,
+    _ref$kimaExplorer = _ref.kimaExplorer,
+    kimaExplorer = _ref$kimaExplorer === void 0 ? 'explorer.kima.finance' : _ref$kimaExplorer,
+    _ref$feeURL = _ref.feeURL,
+    feeURL = _ref$feeURL === void 0 ? 'https://fee.kima.finance' : _ref$feeURL,
+    _ref$errorHandler = _ref.errorHandler,
+    errorHandler = _ref$errorHandler === void 0 ? function () {
+      return void 0;
+    } : _ref$errorHandler,
+    _ref$closeHandler = _ref.closeHandler,
+    closeHandler = _ref$closeHandler === void 0 ? function () {
+      return void 0;
+    } : _ref$closeHandler,
+    _ref$successHandler = _ref.successHandler,
+    successHandler = _ref$successHandler === void 0 ? function () {
+      return void 0;
+    } : _ref$successHandler,
+    _ref$switchChainHandl = _ref.switchChainHandler,
+    switchChainHandler = _ref$switchChainHandl === void 0 ? function () {
+      return void 0;
+    } : _ref$switchChainHandl,
+    _ref$keplrHandler = _ref.keplrHandler,
+    keplrHandler = _ref$keplrHandler === void 0 ? function () {
+      return void 0;
+    } : _ref$keplrHandler;
+  var submitted = useSelector(selectSubmitted);
+  var dispatch = useDispatch();
+  var _useWeb3ModalTheme = useWeb3ModalTheme(),
+    setThemeMode = _useWeb3ModalTheme.setThemeMode;
+  useEffect(function () {
     dispatch(setTheme(theme));
     setThemeMode(theme.colorMode === ColorModeOptions.light ? 'light' : 'dark');
     if (transactionOption) dispatch(setTransactionOption(transactionOption));
-    dispatch(setKimaExplorer(_kimaExplorer));
-    dispatch(setCompliantOption(_compliantOption));
-    dispatch(setErrorHandler(_errorHandler));
-    dispatch(setKeplrHandler(_keplrHandler));
-    dispatch(setCloseHandler(_closeHandler));
-    dispatch(setSuccessHandler(_successHandler));
-    dispatch(setSwitchChainHandler(_switchChainHandler));
+    dispatch(setKimaExplorer(kimaExplorer));
+    dispatch(setCompliantOption(compliantOption));
+    dispatch(setErrorHandler(errorHandler));
+    dispatch(setKeplrHandler(keplrHandler));
+    dispatch(setCloseHandler(closeHandler));
+    dispatch(setSuccessHandler(successHandler));
+    dispatch(setSwitchChainHandler(switchChainHandler));
     dispatch(setBackendUrl(kimaBackendUrl));
     dispatch(setNodeProviderQuery(kimaNodeProviderQuery));
     dispatch(setMode(mode));
     dispatch(setProvider(provider));
-    dispatch(setDappOption(_dAppOption));
-    dispatch(setWalletAutoConnect(_autoSwitchChain));
-    dispatch(setSelectedToken(_defaultToken));
-    dispatch(setUseFIAT(_useFIAT));
-    if (_useFIAT) {
+    dispatch(setDappOption(dAppOption));
+    dispatch(setWalletAutoConnect(autoSwitchChain));
+    dispatch(setSelectedToken(defaultToken));
+    dispatch(setUseFIAT(useFIAT));
+    if (useFIAT) {
       dispatch(setTxId(txId || -1));
-      (async function () {
+      (function () {
         try {
-          const uuid = await fetchWrapper.get(`${kimaBackendUrl}/uuid`);
-          dispatch(setUuid(uuid));
-          console.log('depasify uuid: ', uuid);
+          var _temp = _catch(function () {
+            return Promise.resolve(fetchWrapper.get(kimaBackendUrl + "/uuid")).then(function (uuid) {
+              dispatch(setUuid(uuid));
+              console.log('depasify uuid: ', uuid);
+            });
+          }, function (e) {
+            console.log('uuid generate failed', e);
+          });
+          return _temp && _temp.then ? _temp.then(function () {}) : void 0;
         } catch (e) {
-          console.log('uuid generate failed', e);
+          Promise.reject(e);
         }
       })();
     }
     if (mode === ModeOptions.payment) {
       dispatch(setTargetChain((transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetChain) || ChainName.ETHEREUM));
-      if (_dAppOption === DAppOptions.LPAdd || _dAppOption === DAppOptions.LPDrain) {
+      if (dAppOption === DAppOptions.LPAdd || dAppOption === DAppOptions.LPDrain) {
         dispatch(setSourceChain((transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetChain) || ChainName.ETHEREUM));
       } else {
-        (async function () {
+        (function () {
           try {
-            const networks = await fetchWrapper.get(`${kimaNodeProviderQuery}/kima-finance/kima-blockchain/chains/get_available_chains/${(transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetChain) || ChainName.ETHEREUM}`);
-            dispatch(setSourceChain(networks.Chains[0]));
+            var _temp4 = function _temp4() {
+              return _catch(function () {
+                var _temp2 = function () {
+                  if (transactionOption !== null && transactionOption !== void 0 && transactionOption.targetAddress) {
+                    return Promise.resolve(fetchWrapper.post(kimaBackendUrl + "/compliant", JSON.stringify({
+                      address: transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress
+                    }))).then(function (compliantRes) {
+                      dispatch(setTargetCompliant(compliantRes));
+                    });
+                  }
+                }();
+                if (_temp2 && _temp2.then) return _temp2.then(function () {});
+              }, function (e) {
+                toast.error('xplorisk check failed');
+                console.log('xplorisk check failed', e);
+              });
+            };
+            var _temp3 = _catch(function () {
+              return Promise.resolve(fetchWrapper.get(kimaNodeProviderQuery + "/kima-finance/kima-blockchain/chains/get_available_chains/" + ((transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetChain) || ChainName.ETHEREUM))).then(function (networks) {
+                dispatch(setSourceChain(networks.Chains[0]));
+              });
+            }, function (e) {
+              toast.error('rpc disconnected!');
+              console.log('rpc disconnected', e);
+            });
+            return _temp3 && _temp3.then ? _temp3.then(_temp4) : _temp4(_temp3);
           } catch (e) {
-            toast.error('rpc disconnected!');
-            console.log('rpc disconnected', e);
-          }
-          try {
-            if (transactionOption !== null && transactionOption !== void 0 && transactionOption.targetAddress) {
-              const compliantRes = await fetchWrapper.post(`${kimaBackendUrl}/compliant`, JSON.stringify({
-                address: transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress
-              }));
-              dispatch(setTargetCompliant(compliantRes));
-            }
-          } catch (e) {
-            toast.error('xplorisk check failed');
-            console.log('xplorisk check failed', e);
+            Promise.reject(e);
           }
         })();
       }
@@ -11955,95 +12867,92 @@ const KimaTransactionWidget = ({
       dispatch(setTxId(txId || 1));
       dispatch(setSubmitted(true));
     }
-  }, [provider, theme, transactionOption, _errorHandler, _closeHandler, mode]);
-  useEffect(() => {
-    if (_dAppOption === DAppOptions.None && mode === ModeOptions.bridge) {
+  }, [provider, theme, transactionOption, errorHandler, closeHandler, mode]);
+  useEffect(function () {
+    if (dAppOption === DAppOptions.None && mode === ModeOptions.bridge) {
       dispatch(setTargetChain(''));
       dispatch(setSourceChain('ETH'));
     }
-  }, [_dAppOption, mode]);
+  }, [dAppOption, mode]);
   return submitted ? React.createElement(TransactionWidget, {
     theme: theme
   }) : React.createElement(TransferWidget, {
     theme: theme,
-    feeURL: _feeURL,
-    helpURL: _helpURL,
+    feeURL: feeURL,
+    helpURL: helpURL,
     titleOption: titleOption,
     paymentTitleOption: paymentTitleOption
   });
 };
 
-const {
-  ConnectionProvider,
-  WalletProvider: SolanaWalletProvider
-} = SolanaAdapter;
-const ethereum = {
+var ConnectionProvider = ConnectionProvider$1,
+  SolanaWalletProvider = WalletProvider$1;
+var ethereum = {
   chainId: 11155111,
   name: 'Ethereum Sepolia',
   currency: 'ETH',
   explorerUrl: 'https://sepolia.etherscan.io',
   rpcUrl: 'https://ethereum-sepolia-rpc.publicnode.com'
 };
-const bsc = {
+var bsc = {
   chainId: 97,
   name: 'BNB Smart Chain Testnet',
   currency: 'tBNB',
   explorerUrl: 'https://testnet.bscscan.com',
   rpcUrl: 'https://endpoints.omniatech.io/v1/bsc/testnet/public'
 };
-const polygon = {
+var polygon = {
   chainId: 80002,
   name: 'Amoy',
   currency: 'MATIC',
   explorerUrl: 'https://www.oklink.com/amoy',
   rpcUrl: 'https://rpc-amoy.polygon.technology'
 };
-const arbitrum = {
+var arbitrum = {
   chainId: 421614,
   name: 'Arbitrum Sepolia Testnet',
   currency: 'ETH',
   explorerUrl: 'https://sepolia.arbiscan.io/',
   rpcUrl: 'https://sepolia-rollup.arbitrum.io/rpc'
 };
-const optimism = {
+var optimism = {
   chainId: 11155420,
   name: 'OP Sepolia',
   currency: 'ETH',
   explorerUrl: 'https://sepolia-optimism.etherscan.io',
   rpcUrl: 'https://sepolia.optimism.io'
 };
-const avalanche = {
+var avalanche = {
   chainId: 43113,
   name: 'Avalanche Fuji Testnet',
   currency: 'AVAX',
   explorerUrl: 'https://testnet.snowtrace.io',
   rpcUrl: 'https://api.avax-test.network/ext/bc/C/rpc'
 };
-const zkEVM = {
+var zkEVM = {
   chainId: 2442,
   name: 'Polygon zkEVM Cardona Testnet',
   currency: 'ETH',
   explorerUrl: 'https://cardona-zkevm.polygonscan.com',
   rpcUrl: 'https://polygon-zkevm-cardona.blockpi.network/v1/rpc/public'
 };
-const metadata = {
+var metadata = {
   name: 'Kima Transaction Widget',
   description: 'Frontend widget for Kima integration for dApps',
   url: 'https://kima.network',
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 };
-const KimaProvider = ({
-  walletConnectProjectId,
-  children
-}) => {
-  const wallets = [new PhantomWalletAdapter(), new SolflareWalletAdapter(), new CloverWalletAdapter(), new Coin98WalletAdapter(), new SolongWalletAdapter(), new TorusWalletAdapter()];
-  const adapters = useMemo(function () {
-    const tronLinkAdapter = new TronLinkAdapter();
-    const ledger = new LedgerAdapter({
+var KimaProvider = function KimaProvider(_ref) {
+  var walletConnectProjectId = _ref.walletConnectProjectId,
+    children = _ref.children;
+  var wallets = [new PhantomWalletAdapter(), new SolflareWalletAdapter(), new CloverWalletAdapter(), new Coin98WalletAdapter(), new SolongWalletAdapter(), new TorusWalletAdapter()];
+  var adapters = useMemo(function () {
+    var tronLinkAdapter = new TronLinkAdapter();
+    var ledger = new LedgerAdapter({
       accountNumber: 2
     });
-    const tokenPocketAdapter = new TokenPocketAdapter();
-    const okxwalletAdapter = new OkxWalletAdapter();
+    var tokenPocketAdapter = new TokenPocketAdapter();
+    var okxwalletAdapter = new OkxWalletAdapter();
     return [tronLinkAdapter, tokenPocketAdapter, okxwalletAdapter, ledger];
   }, []);
   function onError(e) {
@@ -12053,7 +12962,7 @@ const KimaProvider = ({
       toast$1.error(e.message);
     } else toast$1.error(e.message);
   }
-  const onChainChanged = chainData => {
+  var onChainChanged = function onChainChanged(chainData) {
     toast$1.error('Please switch to Tron Nile Testnet!');
     if (chainData.chainId !== '0xcd8690dc') {
       adapters[0].switchChain('0xcd8690dc');
@@ -12061,7 +12970,7 @@ const KimaProvider = ({
   };
   createWeb3Modal({
     ethersConfig: defaultConfig({
-      metadata
+      metadata: metadata
     }),
     chains: [ethereum, bsc, polygon, arbitrum, optimism, avalanche, zkEVM],
     projectId: walletConnectProjectId || 'e579511a495b5c312b572b036e60555a',
