@@ -486,9 +486,9 @@ var Optimism = function Optimism(_ref) {
     fill: "#000000",
     stroke: "none"
   }, React__default.createElement("path", {
-    d: "M109 372 c-43 -22 -59 -38 -81 -81 -36 -68 -36 -114 0 -182 22 -43\r\n    38 -59 81 -81 68 -36 114 -36 182 0 43 22 59 38 81 81 36 68 36 114 0 182 -22\r\n    43 -38 59 -81 81 -31 16 -69 28 -91 28 -22 0 -60 -12 -91 -28z m79 -124 c16\r\n    -16 15 -60 -1 -82 -9 -12 -23 -17 -42 -14 -26 3 -30 8 -33 36 -5 54 44 92 76\r\n    60z m96 -1 c26 -19 13 -54 -24 -62 -17 -4 -30 -13 -30 -21 0 -8 -6 -14 -14\r\n    -14 -10 0 -12 9 -5 43 4 23 8 48 9 55 0 16 41 16 64 -1z"
+    d: "M109 372 c-43 -22 -59 -38 -81 -81 -36 -68 -36 -114 0 -182 22 -43\n    38 -59 81 -81 68 -36 114 -36 182 0 43 22 59 38 81 81 36 68 36 114 0 182 -22\n    43 -38 59 -81 81 -31 16 -69 28 -91 28 -22 0 -60 -12 -91 -28z m79 -124 c16\n    -16 15 -60 -1 -82 -9 -12 -23 -17 -42 -14 -26 3 -30 8 -33 36 -5 54 44 92 76\n    60z m96 -1 c26 -19 13 -54 -24 -62 -17 -4 -30 -13 -30 -21 0 -8 -6 -14 -14\n    -14 -10 0 -12 9 -5 43 4 23 8 48 9 55 0 16 41 16 64 -1z"
   }), React__default.createElement("path", {
-    d: "M140 219 c-14 -24 -7 -49 14 -49 15 0 28 34 19 56 -7 20 -21 17 -33\r\n    -7z"
+    d: "M140 219 c-14 -24 -7 -49 14 -49 15 0 28 34 19 56 -7 20 -21 17 -33\n    -7z"
   }), React__default.createElement("path", {
     d: "M247 233 c-12 -11 -8 -23 8 -23 8 0 15 7 15 15 0 16 -12 20 -23 8z"
   })));
@@ -543,13 +543,13 @@ var Copy = function Copy(_ref) {
     xmlns: 'http://www.w3.org/2000/svg',
     fill: fill
   }, rest), React__default.createElement("g", null, React__default.createElement("path", {
-    d: 'M35,270h45v45c0,8.284,6.716,15,15,15h200c8.284,0,15-6.716,15-15V75c0-8.284-6.716-15-15-15h-45V15\r\n     c0-8.284-6.716-15-15-15H35c-8.284,0-15,6.716-15,15v240C20,263.284,26.716,270,35,270z M280,300H110V90h170V300z M50,30h170v30H95\r\n     c-8.284,0-15,6.716-15,15v165H50V30z'
+    d: 'M35,270h45v45c0,8.284,6.716,15,15,15h200c8.284,0,15-6.716,15-15V75c0-8.284-6.716-15-15-15h-45V15\n     c0-8.284-6.716-15-15-15H35c-8.284,0-15,6.716-15,15v240C20,263.284,26.716,270,35,270z M280,300H110V90h170V300z M50,30h170v30H95\n     c-8.284,0-15,6.716-15,15v165H50V30z'
   }), React__default.createElement("path", {
     d: 'M155,120c-8.284,0-15,6.716-15,15s6.716,15,15,15h80c8.284,0,15-6.716,15-15s-6.716-15-15-15H155z'
   }), React__default.createElement("path", {
     d: 'M235,180h-80c-8.284,0-15,6.716-15,15s6.716,15,15,15h80c8.284,0,15-6.716,15-15S243.284,180,235,180z'
   }), React__default.createElement("path", {
-    d: 'M235,240h-80c-8.284,0-15,6.716-15,15c0,8.284,6.716,15,15,15h80c8.284,0,15-6.716,15-15C250,246.716,243.284,240,235,240z\r\n     '
+    d: 'M235,240h-80c-8.284,0-15,6.716-15,15c0,8.284,6.716,15,15,15h80c8.284,0,15-6.716,15-15C250,246.716,243.284,240,235,240z\n     '
   })));
 };
 
@@ -2825,6 +2825,7 @@ var WalletButton = function WalletButton(_ref) {
 };
 
 var CoinDropdown = function CoinDropdown() {
+  var _COIN_LIST;
   var ref = React.useRef();
   var _useState = React.useState(true),
     collapsed = _useState[0],
@@ -2832,7 +2833,7 @@ var CoinDropdown = function CoinDropdown() {
   var selectedCoin = reactRedux.useSelector(selectSelectedToken);
   var tokenList = reactRedux.useSelector(selectAvailableTokenList);
   var theme = reactRedux.useSelector(selectTheme);
-  var Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
+  var Icon = ((_COIN_LIST = COIN_LIST[selectedCoin || 'USDK']) === null || _COIN_LIST === void 0 ? void 0 : _COIN_LIST.icon) || COIN_LIST['USDK'].icon;
   React.useEffect(function () {
     var bodyMouseDowntHandler = function bodyMouseDowntHandler(e) {
       if (ref !== null && ref !== void 0 && ref.current && !ref.current.contains(e.target)) {
@@ -2857,11 +2858,12 @@ var CoinDropdown = function CoinDropdown() {
   }, React__default.createElement(Icon, null), selectedCoin), React__default.createElement("div", {
     className: "coin-menu " + theme.colorMode + " " + (collapsed ? 'collapsed' : '')
   }, tokenList.map(function (token) {
-    var CoinIcon = COIN_LIST[token].icon;
+    var _COIN_LIST$token, _COIN_LIST$token2;
+    var CoinIcon = COIN_LIST[token].icon || COIN_LIST['USDK'].icon;
     return React__default.createElement("div", {
       className: 'coin-item',
-      key: COIN_LIST[token].symbol
-    }, React__default.createElement(CoinIcon, null), React__default.createElement("p", null, COIN_LIST[token].symbol));
+      key: (_COIN_LIST$token = COIN_LIST[token]) === null || _COIN_LIST$token === void 0 ? void 0 : _COIN_LIST$token.symbol
+    }, React__default.createElement(CoinIcon, null), React__default.createElement("p", null, (_COIN_LIST$token2 = COIN_LIST[token]) === null || _COIN_LIST$token2 === void 0 ? void 0 : _COIN_LIST$token2.symbol));
   })));
 };
 
@@ -3830,6 +3832,7 @@ var ExpireTimeDropdown = function ExpireTimeDropdown() {
 };
 
 var SingleForm = function SingleForm(_ref) {
+  var _COIN_LIST;
   var paymentTitleOption = _ref.paymentTitleOption;
   var dispatch = reactRedux.useDispatch();
   var mode = reactRedux.useSelector(selectMode);
@@ -3846,7 +3849,7 @@ var SingleForm = function SingleForm(_ref) {
     amountValue = _useState[0],
     setAmountValue = _useState[1];
   var amount = reactRedux.useSelector(selectAmount);
-  var Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
+  var Icon = ((_COIN_LIST = COIN_LIST[selectedCoin || 'USDK']) === null || _COIN_LIST === void 0 ? void 0 : _COIN_LIST.icon) || COIN_LIST['USDK'].icon;
   var errorMessage = React.useMemo(function () {
     return compliantOption && targetCompliant !== 'low' ? "Target address has " + targetCompliant + " risk" : '';
   }, [compliantOption, targetCompliant]);
@@ -8062,7 +8065,7 @@ function output(out, instance) {
 exports.output = output;
 const assert = { number, bool, bytes, hash, exists, output };
 exports.default = assert;
-//# sourceMappingURL=_assert.js.map
+
 });
 
 unwrapExports(_assert);
@@ -8071,7 +8074,7 @@ var crypto = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.crypto = void 0;
 exports.crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
-//# sourceMappingURL=crypto.js.map
+
 });
 
 unwrapExports(crypto);
@@ -8273,7 +8276,7 @@ function randomBytes(bytesLength = 32) {
     throw new Error('crypto.getRandomValues must be defined');
 }
 exports.randomBytes = randomBytes;
-//# sourceMappingURL=utils.js.map
+
 });
 
 unwrapExports(utils);
@@ -8395,7 +8398,7 @@ class SHA2 extends utils.Hash {
     }
 }
 exports.SHA2 = SHA2;
-//# sourceMappingURL=_sha2.js.map
+
 });
 
 unwrapExports(_sha2);
@@ -8528,7 +8531,7 @@ class SHA224 extends SHA256 {
  */
 exports.sha256 = (0, utils.wrapConstructor)(() => new SHA256());
 exports.sha224 = (0, utils.wrapConstructor)(() => new SHA224());
-//# sourceMappingURL=sha256.js.map
+
 });
 
 unwrapExports(sha256);
