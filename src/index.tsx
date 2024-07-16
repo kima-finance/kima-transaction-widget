@@ -54,7 +54,7 @@ const bsc = {
   name: 'BNB Smart Chain Mainnet',
   currency: 'BNB',
   explorerUrl: 'https://bscscan.com',
-  rpcUrl: 'https://binance.llamarpc.com'
+  rpcUrl: 'https://bsc-dataseed.binance.org/'
 }
 
 const polygon = {
@@ -91,7 +91,7 @@ const avalanche = {
 
 const zkEVM = {
   chainId: 1101,
-  name: 'Polygon zkEVM Cardona Testnet',
+  name: 'Polygon zkEVM',
   currency: 'ETH',
   explorerUrl: 'https://zkevm.polygonscan.com',
   rpcUrl: 'https://rpc.ankr.com/polygon_zkevm'

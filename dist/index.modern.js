@@ -2125,7 +2125,7 @@ async function getOrCreateAssociatedTokenAccount(connection, payer, mint, owner,
 const TRON_USDK_OWNER_ADDRESS = 'TBVn4bsBN4DhtZ7D3vEVpAyqkvdFn7zmpU';
 
 const tronWeb = new TronWeb({
-  fullHost: 'https://api.nileex.io'
+  fullHost: 'https://api.trongrid.io'
 });
 tronWeb.setAddress(TRON_USDK_OWNER_ADDRESS);
 
@@ -7264,7 +7264,7 @@ function output(out, instance) {
 exports.output = output;
 const assert = { number, bool, bytes, hash, exists, output };
 exports.default = assert;
-//# sourceMappingURL=_assert.js.map
+
 });
 
 unwrapExports(_assert);
@@ -7273,7 +7273,7 @@ var crypto = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.crypto = void 0;
 exports.crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
-//# sourceMappingURL=crypto.js.map
+
 });
 
 unwrapExports(crypto);
@@ -7475,7 +7475,7 @@ function randomBytes(bytesLength = 32) {
     throw new Error('crypto.getRandomValues must be defined');
 }
 exports.randomBytes = randomBytes;
-//# sourceMappingURL=utils.js.map
+
 });
 
 unwrapExports(utils);
@@ -7597,7 +7597,7 @@ class SHA2 extends utils.Hash {
     }
 }
 exports.SHA2 = SHA2;
-//# sourceMappingURL=_sha2.js.map
+
 });
 
 unwrapExports(_sha2);
@@ -7730,7 +7730,7 @@ class SHA224 extends SHA256 {
  */
 exports.sha256 = (0, utils.wrapConstructor)(() => new SHA256());
 exports.sha224 = (0, utils.wrapConstructor)(() => new SHA224());
-//# sourceMappingURL=sha256.js.map
+
 });
 
 unwrapExports(sha256);
@@ -11924,7 +11924,7 @@ const bsc = {
   name: 'BNB Smart Chain Mainnet',
   currency: 'BNB',
   explorerUrl: 'https://bscscan.com',
-  rpcUrl: 'https://binance.llamarpc.com'
+  rpcUrl: 'https://bsc-dataseed.binance.org/'
 };
 const polygon = {
   chainId: 137,
@@ -11956,7 +11956,7 @@ const avalanche = {
 };
 const zkEVM = {
   chainId: 1101,
-  name: 'Polygon zkEVM Cardona Testnet',
+  name: 'Polygon zkEVM',
   currency: 'ETH',
   explorerUrl: 'https://zkevm.polygonscan.com',
   rpcUrl: 'https://rpc.ankr.com/polygon_zkevm'
