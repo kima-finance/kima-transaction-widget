@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Tooltip } from 'react-tooltip'
+// import { Tooltip } from 'react-tooltip'
 import { CrossIcon, FooterLogo, MinimizeIcon } from '../assets/icons'
 import Progressbar from './reusable/Progressbar'
 import { ExternalLink, NetworkLabel, StepBox } from './reusable'
@@ -123,7 +123,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       return
     }
 
-    console.log(data.status)
+    console.log(data.status, errorMessage)
     setErrorStep(-1)
     const status = data.status as string
 
@@ -299,12 +299,12 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
             }
           }}
         />
-        <Tooltip
+        {/* <Tooltip
           id='error-tooltip'
           className={`error-tooltip ${theme.colorMode}`}
           content={errorMessage}
           style={{ zIndex: 10000 }}
-        />
+        /> */}
       </div>
     </Provider>
   )

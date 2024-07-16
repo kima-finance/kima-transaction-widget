@@ -13,7 +13,6 @@ import { useWallet as useWallet$1, WalletProvider } from '@tronweb3/tronwallet-a
 import { AdapterState, WalletNotFoundError, WalletDisconnectedError } from '@tronweb3/tronwallet-abstract-adapter';
 import toast, { toast as toast$1, Toaster } from 'react-hot-toast';
 import { useWeb3ModalProvider, useSwitchNetwork, useWeb3ModalAccount, useWeb3ModalEvents, useWeb3Modal, useWeb3ModalTheme, createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react';
-import { Tooltip } from 'react-tooltip';
 import { WalletReadyState } from '@solana/wallet-adapter-base';
 import { getAddress, AddressPurpose, BitcoinNetworkType, signTransaction, sendBtcTransaction } from 'sats-connect';
 import { Contract } from '@ethersproject/contracts';
@@ -1261,9 +1260,7 @@ const Progressbar = ({
     className: 'step-info'
   }, index === loadingStep ? React.createElement(Loading180Ring, {
     fill: theme.colorMode === 'dark' ? 'white' : '#5aa0db'
-  }) : step >= index ? index === errorStep ? React.createElement(Warning, {
-    "data-tooltip-id": 'error-tooltip'
-  }) : React.createElement(Check, null) : null, React.createElement("span", null, item.title))))));
+  }) : step >= index ? index === errorStep ? React.createElement(Warning, null) : React.createElement(Check, null) : null, React.createElement("span", null, item.title))))));
 };
 
 const ExternalLink = ({
@@ -1299,8 +1296,7 @@ const NetworkLabel = ({
   }, React.createElement("div", {
     className: 'icon-wrapper'
   }, TargetInfo && React.createElement(TargetInfo.icon, null)), TargetInfo === null || TargetInfo === void 0 ? void 0 : TargetInfo.label), hasError && React.createElement("div", {
-    className: 'warning-container',
-    "data-tooltip-id": 'error-tooltip'
+    className: 'warning-container'
   }, React.createElement(Warning, null), React.createElement("span", null, "1 issue")));
 };
 
@@ -2342,12 +2338,13 @@ const WalletButton = ({
 };
 
 const CoinDropdown = () => {
+  var _COIN_LIST;
   const ref = useRef();
   const [collapsed, setCollapsed] = useState(true);
   const selectedCoin = useSelector(selectSelectedToken);
   const tokenList = useSelector(selectAvailableTokenList);
   const theme = useSelector(selectTheme);
-  const Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
+  const Icon = ((_COIN_LIST = COIN_LIST[selectedCoin || 'USDK']) === null || _COIN_LIST === void 0 ? void 0 : _COIN_LIST.icon) || COIN_LIST['USDK'].icon;
   useEffect(() => {
     const bodyMouseDowntHandler = e => {
       if (ref !== null && ref !== void 0 && ref.current && !ref.current.contains(e.target)) {
@@ -2368,11 +2365,12 @@ const CoinDropdown = () => {
   }, React.createElement(Icon, null), selectedCoin), React.createElement("div", {
     className: `coin-menu ${theme.colorMode} ${collapsed ? 'collapsed' : ''}`
   }, tokenList.map(token => {
-    const CoinIcon = COIN_LIST[token].icon;
+    var _COIN_LIST$token, _COIN_LIST$token2;
+    const CoinIcon = COIN_LIST[token].icon || COIN_LIST['USDK'].icon;
     return React.createElement("div", {
       className: 'coin-item',
-      key: COIN_LIST[token].symbol
-    }, React.createElement(CoinIcon, null), React.createElement("p", null, COIN_LIST[token].symbol));
+      key: (_COIN_LIST$token = COIN_LIST[token]) === null || _COIN_LIST$token === void 0 ? void 0 : _COIN_LIST$token.symbol
+    }, React.createElement(CoinIcon, null), React.createElement("p", null, (_COIN_LIST$token2 = COIN_LIST[token]) === null || _COIN_LIST$token2 === void 0 ? void 0 : _COIN_LIST$token2.symbol));
   })));
 };
 
@@ -2653,9 +2651,7 @@ const StepBox = ({
     className: 'info-item'
   }, index === loadingStep ? React.createElement(Loading180Ring, {
     fill: theme.colorMode === 'dark' ? 'white' : '#5aa0db'
-  }) : step >= index ? index === errorStep ? React.createElement(Warning, {
-    "data-tooltip-id": 'error-tooltip'
-  }) : React.createElement(Check, null) : null, React.createElement("p", null, item.title)), index === 0 && data !== null && data !== void 0 && data.kimaTxHash ? React.createElement("div", {
+  }) : step >= index ? index === errorStep ? React.createElement(Warning, null) : React.createElement(Check, null) : null, React.createElement("p", null, item.title)), index === 0 && data !== null && data !== void 0 && data.kimaTxHash ? React.createElement("div", {
     className: 'info-item'
   }, React.createElement("p", null, "Kima TX ID:", ' ', React.createElement(ExternalLink, {
     to: `https://${explorerUrl}/transactions/${data === null || data === void 0 ? void 0 : data.kimaTxHash}`
@@ -3057,7 +3053,7 @@ const TransactionWidget = ({
       setLoadingStep(0);
       return;
     }
-    console.log(data.status);
+    console.log(data.status, errorMessage);
     setErrorStep(-1);
     const status = data.status;
     if (status === TransactionStatus.AVAILABLE || status === TransactionStatus.PULLED) {
@@ -3188,13 +3184,6 @@ const TransactionWidget = ({
         background: 'transparent'
       }
     }
-  }), React.createElement(Tooltip, {
-    id: 'error-tooltip',
-    className: `error-tooltip ${theme.colorMode}`,
-    content: errorMessage,
-    style: {
-      zIndex: 10000
-    }
   })));
 };
 
@@ -3235,6 +3224,7 @@ const ExpireTimeDropdown = () => {
 const SingleForm = ({
   paymentTitleOption
 }) => {
+  var _COIN_LIST;
   const dispatch = useDispatch();
   const mode = useSelector(selectMode);
   const theme = useSelector(selectTheme);
@@ -3248,7 +3238,7 @@ const SingleForm = ({
   const targetNetwork = useSelector(selectTargetChain);
   const [amountValue, setAmountValue] = useState('');
   const amount = useSelector(selectAmount);
-  const Icon = COIN_LIST[selectedCoin || 'USDK'].icon;
+  const Icon = ((_COIN_LIST = COIN_LIST[selectedCoin || 'USDK']) === null || _COIN_LIST === void 0 ? void 0 : _COIN_LIST.icon) || COIN_LIST['USDK'].icon;
   const errorMessage = useMemo(() => compliantOption && targetCompliant !== 'low' ? `Target address has ${targetCompliant} risk` : '', [compliantOption, targetCompliant]);
   useEffect(() => {
     if (!errorMessage) return;
@@ -7316,7 +7306,7 @@ function output(out, instance) {
 exports.output = output;
 const assert = { number, bool, bytes, hash, exists, output };
 exports.default = assert;
-
+//# sourceMappingURL=_assert.js.map
 });
 
 unwrapExports(_assert);
@@ -7325,7 +7315,7 @@ var crypto = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.crypto = void 0;
 exports.crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
-
+//# sourceMappingURL=crypto.js.map
 });
 
 unwrapExports(crypto);
@@ -7527,7 +7517,7 @@ function randomBytes(bytesLength = 32) {
     throw new Error('crypto.getRandomValues must be defined');
 }
 exports.randomBytes = randomBytes;
-
+//# sourceMappingURL=utils.js.map
 });
 
 unwrapExports(utils);
@@ -7649,7 +7639,7 @@ class SHA2 extends utils.Hash {
     }
 }
 exports.SHA2 = SHA2;
-
+//# sourceMappingURL=_sha2.js.map
 });
 
 unwrapExports(_sha2);
@@ -7782,7 +7772,7 @@ class SHA224 extends SHA256 {
  */
 exports.sha256 = (0, utils.wrapConstructor)(() => new SHA256());
 exports.sha224 = (0, utils.wrapConstructor)(() => new SHA224());
-
+//# sourceMappingURL=sha256.js.map
 });
 
 unwrapExports(sha256);
