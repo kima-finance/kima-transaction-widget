@@ -143,7 +143,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setPercent(25)
       setErrorStep(1)
       setLoadingStep(-1)
-      console.error(data.failReason)
+      console.log(data.failReason)
       toast.error('Unavailable')
       setErrorMessage('Unavailable')
     } else if (status === TransactionStatus.KEYSIGNED) {
@@ -159,7 +159,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setPercent(90)
       setErrorStep(3)
       setLoadingStep(-1)
-      console.error(data.failReason)
+      console.log(data.failReason)
       toast.error('Failed to release tokens to target!')
       setErrorMessage('Failed to release tokens to target!')
     } else if (status === TransactionStatus.FAILEDTOPULL) {
@@ -167,7 +167,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setPercent(25)
       setErrorStep(1)
       setLoadingStep(-1)
-      console.error(data.failReason)
+      console.log(data.failReason)
       toast.error('Failed to pull tokens from source!')
       setErrorMessage('Failed to pull tokens from source!')
     } else if (status === TransactionStatus.COMPLETED) {
