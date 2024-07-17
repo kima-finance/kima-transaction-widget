@@ -12842,7 +12842,7 @@ var zkEVM = {
   name: 'Polygon zkEVM',
   currency: 'ETH',
   explorerUrl: 'https://zkevm.polygonscan.com',
-  rpcUrl: 'https://rpc.ankr.com/polygon_zkevm'
+  rpcUrl: 'https://zkevm-rpc.com'
 };
 var metadata = {
   name: 'Kima Transaction Widget',

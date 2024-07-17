@@ -94,7 +94,7 @@ const zkEVM = {
   name: 'Polygon zkEVM',
   currency: 'ETH',
   explorerUrl: 'https://zkevm.polygonscan.com',
-  rpcUrl: 'https://rpc.ankr.com/polygon_zkevm'
+  rpcUrl: 'https://zkevm-rpc.com'
 }
 
 // 3. Create modal
