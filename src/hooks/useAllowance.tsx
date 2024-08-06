@@ -23,7 +23,8 @@ import {
   selectServiceFee,
   selectTokenOptions,
   selectTargetChain,
-  selectFeeDeduct
+  selectFeeDeduct,
+  selectNetworkOption
 } from '../store/selectors'
 import { getOrCreateAssociatedTokenAccount } from '../utils/solana/getOrCreateAssociatedTokenAccount'
 import { PublicKey, Transaction } from '@solana/web3.js'
@@ -31,9 +32,9 @@ import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import { createApproveTransferInstruction } from '../utils/solana/createTransferInstruction'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
-import { tronWeb } from '../tronweb'
+import { tronWebMainnet, tronWebTestnet } from '../tronweb'
 import { fromHex } from '../utils/func'
-import { Web3ModalAccountInfo } from '../interface'
+import { NetworkOptions, Web3ModalAccountInfo } from '../interface'
 import {
   useWeb3ModalAccount,
   useWeb3ModalProvider
@@ -93,6 +94,7 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
     useTronWallet()
   const selectedCoin = useSelector(selectSelectedToken)
   const tokenOptions = useSelector(selectTokenOptions)
+  const networkOption = useSelector(selectNetworkOption)
   const tokenAddress = useMemo(() => {
     if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT) return ''
 
@@ -156,6 +158,10 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
   useEffect(() => {
     ;(async () => {
       try {
+        const tronWeb =
+          networkOption === NetworkOptions.mainnet
+            ? tronWebMainnet
+            : tronWebTestnet
         if (!isEVMChain(sourceChain)) {
           if (solanaAddress && tokenAddress && connection) {
             const mint = new PublicKey(tokenAddress)
@@ -226,7 +232,8 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
     sourceChain,
     solanaAddress,
     tronAddress,
-    walletProvider
+    walletProvider,
+    networkOption
   ])
 
   const approve = useCallback(async () => {
@@ -272,6 +279,11 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
           }
         ]
 
+        const tronWeb =
+          networkOption === NetworkOptions.mainnet
+            ? tronWebMainnet
+            : tronWebTestnet
+        console.log(tokenAddress, tronWeb)
         const tx = await tronWeb.transactionBuilder.triggerSmartContract(
           tronWeb.address.toHex(tokenAddress),
           functionSelector,
@@ -356,7 +368,8 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
     tronAddress,
     signSolanaTransaction,
     signTronTransaction,
-    amountToShow
+    amountToShow,
+    networkOption
   ])
 
   return useMemo(

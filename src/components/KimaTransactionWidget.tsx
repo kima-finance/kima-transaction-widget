@@ -7,7 +7,8 @@ import {
   TitleOption,
   PaymentTitleOption,
   DAppOptions,
-  ColorModeOptions
+  ColorModeOptions,
+  NetworkOptions
 } from '../interface'
 
 // store
@@ -36,7 +37,8 @@ import {
   setUuid,
   setKeplrHandler,
   setKimaExplorer,
-  setSelectedToken
+  setSelectedToken,
+  setNetworkOption
 } from '../store/optionSlice'
 import '../index.css'
 import { selectSubmitted } from '../store/selectors'
@@ -66,6 +68,7 @@ interface Props {
   kimaBackendUrl: string
   kimaNodeProviderQuery: string
   kimaExplorer?: string
+  networkOption?: NetworkOptions
   errorHandler?: (e: any) => void
   closeHandler?: (e: any) => void
   successHandler?: (e: any) => void
@@ -73,24 +76,12 @@ interface Props {
   keplrHandler?: (e: any) => void
 }
 
-/**
- * Returns the average of two numbers.
- *
- * @remarks
- * This method is part of the {@link core-library#Statistics | Statistics subsystem}.
- *
- * @param x - The first input number
- * @param y - The second input number
- * @returns The arithmetic mean of `x` and `y`
- *
- * @beta
- */
-
 export const KimaTransactionWidget = ({
   mode,
   txId,
   autoSwitchChain = true,
-  defaultToken = 'USDK',
+  defaultToken = 'USDT',
+  networkOption = NetworkOptions.testnet,
   provider,
   dAppOption = DAppOptions.None,
   theme,
@@ -135,6 +126,7 @@ export const KimaTransactionWidget = ({
     dispatch(setWalletAutoConnect(autoSwitchChain))
     dispatch(setSelectedToken(defaultToken))
     dispatch(setUseFIAT(useFIAT))
+    dispatch(setNetworkOption(networkOption))
     if (useFIAT) {
       dispatch(setTxId(txId || -1))
       ;(async function () {
@@ -196,7 +188,15 @@ export const KimaTransactionWidget = ({
       dispatch(setTxId(txId || 1))
       dispatch(setSubmitted(true))
     }
-  }, [provider, theme, transactionOption, errorHandler, closeHandler, mode])
+  }, [
+    provider,
+    theme,
+    transactionOption,
+    errorHandler,
+    closeHandler,
+    mode,
+    networkOption
+  ])
 
   useEffect(() => {
     if (dAppOption === DAppOptions.None && mode === ModeOptions.bridge) {

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { ReactNode, useMemo } from 'react'
 import { store } from './store'
 import { Provider } from 'react-redux'
 
@@ -24,6 +24,7 @@ import {
 import { toast } from 'react-hot-toast'
 import { SOLANA_HOST } from './utils/constants'
 import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react'
+import { NetworkOptions } from './interface'
 
 const { ConnectionProvider, WalletProvider: SolanaWalletProvider } =
   SolanaAdapter
@@ -36,12 +37,13 @@ export {
   CurrencyOptions,
   ModeOptions,
   DAppOptions,
+  NetworkOptions,
   CHAIN_STRING_TO_NAME,
   CHAIN_NAMES_TO_STRING
 } from './interface'
 export { KimaTransactionWidget } from './components/KimaTransactionWidget'
 
-const ethereum = {
+const ethereumSepolia = {
   chainId: 11155111,
   name: 'Ethereum Sepolia',
   currency: 'ETH',
@@ -49,7 +51,15 @@ const ethereum = {
   rpcUrl: 'https://ethereum-sepolia-rpc.publicnode.com'
 }
 
-const bsc = {
+const ethereum = {
+  chainId: 1,
+  name: 'Ethereum Mainnet',
+  currency: 'ETH',
+  explorerUrl: 'https://etherscan.io',
+  rpcUrl: 'https://eth.llamarpc.com'
+}
+
+const bscTestnet = {
   chainId: 97,
   name: 'BNB Smart Chain Testnet',
   currency: 'tBNB',
@@ -57,7 +67,15 @@ const bsc = {
   rpcUrl: 'https://endpoints.omniatech.io/v1/bsc/testnet/public'
 }
 
-const polygon = {
+const bsc = {
+  chainId: 56,
+  name: 'BNB Smart Chain Mainnet',
+  currency: 'BNB',
+  explorerUrl: 'https://bscscan.com',
+  rpcUrl: 'https://bsc-dataseed.binance.org/'
+}
+
+const polygonAmoy = {
   chainId: 80002,
   name: 'Amoy',
   currency: 'MATIC',
@@ -65,7 +83,15 @@ const polygon = {
   rpcUrl: 'https://rpc-amoy.polygon.technology'
 }
 
-const arbitrum = {
+const polygon = {
+  chainId: 137,
+  name: 'Polygon Mainnet',
+  currency: 'MATIC',
+  explorerUrl: 'https://polygonscan.com',
+  rpcUrl: 'https://polygon.llamarpc.com'
+}
+
+const arbitrumSepolia = {
   chainId: 421614,
   name: 'Arbitrum Sepolia Testnet',
   currency: 'ETH',
@@ -73,7 +99,15 @@ const arbitrum = {
   rpcUrl: 'https://sepolia-rollup.arbitrum.io/rpc'
 }
 
-const optimism = {
+const arbitrum = {
+  chainId: 42161,
+  name: 'Arbitrum Mainnet',
+  currency: 'ETH',
+  explorerUrl: 'https://arbiscan.io',
+  rpcUrl: 'https://arbitrum.llamarpc.com'
+}
+
+const optimismSepola = {
   chainId: 11155420,
   name: 'OP Sepolia',
   currency: 'ETH',
@@ -81,7 +115,15 @@ const optimism = {
   rpcUrl: 'https://sepolia.optimism.io'
 }
 
-const avalanche = {
+const optimism = {
+  chainId: 10,
+  name: 'OP Mainnet',
+  currency: 'ETH',
+  explorerUrl: 'https://optimistic.etherscan.io',
+  rpcUrl: 'https://optimism.llamarpc.com'
+}
+
+const avalancheFuji = {
   chainId: 43113,
   name: 'Avalanche Fuji Testnet',
   currency: 'AVAX',
@@ -89,12 +131,28 @@ const avalanche = {
   rpcUrl: 'https://api.avax-test.network/ext/bc/C/rpc'
 }
 
-const zkEVM = {
+const avalanche = {
+  chainId: 43114,
+  name: 'Avalanche Mainnet',
+  currency: 'AVAX',
+  explorerUrl: 'https://snowtrace.io',
+  rpcUrl: 'https://api.avax.network/ext/bc/C/rpc'
+}
+
+const zkEVMTestnet = {
   chainId: 2442,
   name: 'Polygon zkEVM Cardona Testnet',
   currency: 'ETH',
   explorerUrl: 'https://cardona-zkevm.polygonscan.com',
   rpcUrl: 'https://polygon-zkevm-cardona.blockpi.network/v1/rpc/public'
+}
+
+const zkEVM = {
+  chainId: 1101,
+  name: 'Polygon zkEVM',
+  currency: 'ETH',
+  explorerUrl: 'https://zkevm.polygonscan.com',
+  rpcUrl: 'https://zkevm-rpc.com'
 }
 
 // 3. Create modal
@@ -105,7 +163,17 @@ const metadata = {
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 }
 
-export const KimaProvider = ({ walletConnectProjectId, children }: any) => {
+interface Props {
+  walletConnectProjectId?: string
+  networkOption?: NetworkOptions
+  children: ReactNode
+}
+
+export const KimaProvider = ({
+  walletConnectProjectId,
+  networkOption = NetworkOptions.testnet,
+  children
+}: Props) => {
   const wallets = [
     new PhantomWalletAdapter(),
     new SolflareWalletAdapter(),
@@ -143,7 +211,18 @@ export const KimaProvider = ({ walletConnectProjectId, children }: any) => {
 
   createWeb3Modal({
     ethersConfig: defaultConfig({ metadata }),
-    chains: [ethereum, bsc, polygon, arbitrum, optimism, avalanche, zkEVM],
+    chains:
+      networkOption === NetworkOptions.mainnet
+        ? [ethereum, bsc, polygon, arbitrum, optimism, avalanche, zkEVM]
+        : [
+            ethereumSepolia,
+            bscTestnet,
+            polygonAmoy,
+            arbitrumSepolia,
+            optimismSepola,
+            avalancheFuji,
+            zkEVMTestnet
+          ],
     projectId: walletConnectProjectId || 'e579511a495b5c312b572b036e60555a',
     enableAnalytics: false,
     featuredWalletIds: [

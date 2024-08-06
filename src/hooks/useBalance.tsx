@@ -19,19 +19,20 @@ import {
   selectSourceChain,
   selectTokenOptions,
   selectBitcoinAddress,
-  selectBackendUrl
+  selectBackendUrl,
+  selectNetworkOption
 } from '../store/selectors'
 import { getOrCreateAssociatedTokenAccount } from '../utils/solana/getOrCreateAssociatedTokenAccount'
 import { PublicKey } from '@solana/web3.js'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
-import { tronWeb } from '../tronweb'
+import { tronWebTestnet, tronWebMainnet } from '../tronweb'
 import {
   useWeb3ModalAccount,
   useWeb3ModalProvider
 } from '@web3modal/ethers5/react'
 import { ethers } from 'ethers'
 import { ExternalProvider, JsonRpcFetchFunc } from '@ethersproject/providers'
-import { Web3ModalAccountInfo } from '../interface'
+import { NetworkOptions, Web3ModalAccountInfo } from '../interface'
 import { isEmptyObject } from '../helpers/functions'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 
@@ -78,6 +79,7 @@ export default function useBalance() {
   const kimaBackendUrl = useSelector(selectBackendUrl)
   const selectedCoin = useSelector(selectSelectedToken)
   const tokenOptions = useSelector(selectTokenOptions)
+  const networkOption = useSelector(selectNetworkOption)
   const tokenAddress = useMemo(() => {
     if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT) return ''
 
@@ -98,6 +100,10 @@ export default function useBalance() {
   useEffect(() => {
     ;(async () => {
       if (!tokenAddress) return
+      const tronWeb =
+        networkOption === NetworkOptions.mainnet
+          ? tronWebMainnet
+          : tronWebTestnet
       try {
         if (!isEVMChain(sourceChain)) {
           if (sourceChain === ChainName.SOLANA && solanaAddress && connection) {
@@ -176,7 +182,8 @@ export default function useBalance() {
     solanaAddress,
     tronAddress,
     btcAddress,
-    walletProvider
+    walletProvider,
+    networkOption
   ])
 
   return useMemo(

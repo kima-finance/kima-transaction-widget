@@ -1,4 +1,3 @@
-/// <reference types="react" />
 export declare enum ChainName {
     ETHEREUM = "ETH",
     POLYGON = "POL",
@@ -81,4 +80,5 @@ export declare type PendingTxData = {
     status: string;
     hash: string;
 };
+export declare const TRON_USDK_OWNER_ADDRESS = "TBVn4bsBN4DhtZ7D3vEVpAyqkvdFn7zmpU";
 export {};

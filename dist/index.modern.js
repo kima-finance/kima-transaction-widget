@@ -821,6 +821,10 @@ const COIN_LIST = {
     symbol: 'USDK',
     icon: USDT
   },
+  USDT: {
+    symbol: 'USDT',
+    icon: USDT
+  },
   KEUR: {
     symbol: 'KEUR',
     icon: KEUR
@@ -843,7 +847,13 @@ var TransactionStatus;
   TransactionStatus["UNAVAILABLE"] = "UnAvailable";
   TransactionStatus["KEYSIGNED"] = "KeySigned";
 })(TransactionStatus || (TransactionStatus = {}));
+const TRON_USDK_OWNER_ADDRESS = 'TBVn4bsBN4DhtZ7D3vEVpAyqkvdFn7zmpU';
 
+var NetworkOptions;
+(function (NetworkOptions) {
+  NetworkOptions["testnet"] = "testnet";
+  NetworkOptions["mainnet"] = "mainnet";
+})(NetworkOptions || (NetworkOptions = {}));
 var FontSizeOptions;
 (function (FontSizeOptions) {
   FontSizeOptions["large"] = "large";
@@ -859,6 +869,7 @@ var ModeOptions;
 var CurrencyOptions;
 (function (CurrencyOptions) {
   CurrencyOptions["USDK"] = "USDK";
+  CurrencyOptions["USDT"] = "USDT";
   CurrencyOptions["G$"] = "GDOLLAR";
 })(CurrencyOptions || (CurrencyOptions = {}));
 var ColorModeOptions;
@@ -877,6 +888,7 @@ const {
   createSlice
 } = toolkitRaw;
 const initialState = {
+  networkOption: NetworkOptions.testnet,
   theme: {},
   tokenOptions: {},
   pendingTxs: 0,
@@ -948,6 +960,9 @@ const optionSlice = createSlice({
       state.initChainFromProvider = false;
       state.targetNetworkFetching = false;
       state.signature = '';
+    },
+    setNetworkOption: (state, action) => {
+      state.networkOption = action.payload;
     },
     setPendingTxs: (state, action) => {
       state.pendingTxs = action.payload;
@@ -1094,6 +1109,7 @@ const optionSlice = createSlice({
 });
 const {
   initialize,
+  setNetworkOption,
   setTokenOptions,
   setKimaExplorer,
   setTheme,
@@ -1156,6 +1172,7 @@ const store = configureStore({
   })
 });
 
+const selectNetworkOption = state => state.option.networkOption;
 const selectTokenOptions = state => state.option.tokenOptions;
 const selectTheme = state => state.option.theme;
 const selectKimaExplorer = state => state.option.kimaExplorerUrl;
@@ -2170,12 +2187,14 @@ async function getOrCreateAssociatedTokenAccount(connection, payer, mint, owner,
   return account;
 }
 
-const TRON_USDK_OWNER_ADDRESS = 'TBVn4bsBN4DhtZ7D3vEVpAyqkvdFn7zmpU';
-
-const tronWeb = new TronWeb({
+const tronWebTestnet = new TronWeb({
   fullHost: 'https://api.nileex.io'
 });
-tronWeb.setAddress(TRON_USDK_OWNER_ADDRESS);
+const tronWebMainnet = new TronWeb({
+  fullHost: 'https://api.trongrid.io'
+});
+tronWebTestnet.setAddress(TRON_USDK_OWNER_ADDRESS);
+tronWebMainnet.setAddress(TRON_USDK_OWNER_ADDRESS);
 
 const formatterFloat = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 9
@@ -2222,6 +2241,7 @@ function useBalance() {
   const kimaBackendUrl = useSelector(selectBackendUrl);
   const selectedCoin = useSelector(selectSelectedToken);
   const tokenOptions = useSelector(selectTokenOptions);
+  const networkOption = useSelector(selectNetworkOption);
   const tokenAddress = useMemo(() => {
     if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT) return '';
     if (tokenOptions && typeof tokenOptions === 'object') {
@@ -2238,6 +2258,7 @@ function useBalance() {
   useEffect(() => {
     (async () => {
       if (!tokenAddress) return;
+      const tronWeb = networkOption === NetworkOptions.mainnet ? tronWebMainnet : tronWebTestnet;
       try {
         if (!isEVMChain(sourceChain)) {
           if (sourceChain === ChainName.SOLANA && solanaAddress && connection) {
@@ -2276,7 +2297,7 @@ function useBalance() {
         errorHandler(error);
       }
     })();
-  }, [signerAddress, tokenAddress, sourceChain, solanaAddress, tronAddress, btcAddress, walletProvider]);
+  }, [signerAddress, tokenAddress, sourceChain, solanaAddress, tronAddress, btcAddress, walletProvider, networkOption]);
   return useMemo(() => ({
     balance
   }), [balance]);
@@ -7001,6 +7022,7 @@ function useAllowance({
   } = useWallet$1();
   const selectedCoin = useSelector(selectSelectedToken);
   const tokenOptions = useSelector(selectTokenOptions);
+  const networkOption = useSelector(selectNetworkOption);
   const tokenAddress = useMemo(() => {
     if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT) return '';
     if (tokenOptions && typeof tokenOptions === 'object') {
@@ -7047,6 +7069,7 @@ function useAllowance({
   useEffect(() => {
     (async () => {
       try {
+        const tronWeb = networkOption === NetworkOptions.mainnet ? tronWebMainnet : tronWebTestnet;
         if (!isEVMChain(sourceChain)) {
           if (solanaAddress && tokenAddress && connection) {
             var _accountInfo$value, _parsedAccountInfo$pa, _parsedAccountInfo$pa2, _parsedAccountInfo$pa3, _parsedAccountInfo$pa4, _parsedAccountInfo$pa5, _parsedAccountInfo$pa6, _parsedAccountInfo$pa7, _parsedAccountInfo$pa8;
@@ -7080,7 +7103,7 @@ function useAllowance({
         errorHandler(error);
       }
     })();
-  }, [signerAddress, tokenAddress, targetAddress, sourceChain, solanaAddress, tronAddress, walletProvider]);
+  }, [signerAddress, tokenAddress, targetAddress, sourceChain, solanaAddress, tronAddress, walletProvider, networkOption]);
   const approve = useCallback(async () => {
     if (isEVMChain(sourceChain)) {
       const provider = new ethers.providers.Web3Provider(walletProvider);
@@ -7111,6 +7134,8 @@ function useAllowance({
           type: 'uint256',
           value: parseUnits(amountToShow, decimals).toString()
         }];
+        const tronWeb = networkOption === NetworkOptions.mainnet ? tronWebMainnet : tronWebTestnet;
+        console.log(tokenAddress, tronWeb);
         const tx = await tronWeb.transactionBuilder.triggerSmartContract(tronWeb.address.toHex(tokenAddress), functionSelector, {}, parameter, tronWeb.address.toHex(tronAddress));
         const signedTx = await signTronTransaction(tx.transaction);
         await tronWeb.trx.sendRawTransaction(signedTx);
@@ -7150,7 +7175,7 @@ function useAllowance({
       errorHandler(e);
       setApproving(false);
     }
-  }, [decimals, tokenAddress, walletProvider, targetAddress, tronAddress, signSolanaTransaction, signTronTransaction, amountToShow]);
+  }, [decimals, tokenAddress, walletProvider, targetAddress, tronAddress, signSolanaTransaction, signTronTransaction, amountToShow, networkOption]);
   return useMemo(() => ({
     isApproved,
     poolAddress,
@@ -11857,7 +11882,8 @@ const KimaTransactionWidget = ({
   mode,
   txId,
   autoSwitchChain: _autoSwitchChain = true,
-  defaultToken: _defaultToken = 'USDK',
+  defaultToken: _defaultToken = 'USDT',
+  networkOption: _networkOption = NetworkOptions.testnet,
   provider,
   dAppOption: _dAppOption = DAppOptions.None,
   theme,
@@ -11901,6 +11927,7 @@ const KimaTransactionWidget = ({
     dispatch(setWalletAutoConnect(_autoSwitchChain));
     dispatch(setSelectedToken(_defaultToken));
     dispatch(setUseFIAT(_useFIAT));
+    dispatch(setNetworkOption(_networkOption));
     if (_useFIAT) {
       dispatch(setTxId(txId || -1));
       (async function () {
@@ -11945,7 +11972,7 @@ const KimaTransactionWidget = ({
       dispatch(setTxId(txId || 1));
       dispatch(setSubmitted(true));
     }
-  }, [provider, theme, transactionOption, _errorHandler, _closeHandler, mode]);
+  }, [provider, theme, transactionOption, _errorHandler, _closeHandler, mode, _networkOption]);
   useEffect(() => {
     if (_dAppOption === DAppOptions.None && mode === ModeOptions.bridge) {
       dispatch(setTargetChain(''));
@@ -11967,54 +11994,103 @@ const {
   ConnectionProvider,
   WalletProvider: SolanaWalletProvider
 } = SolanaAdapter;
-const ethereum = {
+const ethereumSepolia = {
   chainId: 11155111,
   name: 'Ethereum Sepolia',
   currency: 'ETH',
   explorerUrl: 'https://sepolia.etherscan.io',
   rpcUrl: 'https://ethereum-sepolia-rpc.publicnode.com'
 };
-const bsc = {
+const ethereum = {
+  chainId: 1,
+  name: 'Ethereum Mainnet',
+  currency: 'ETH',
+  explorerUrl: 'https://etherscan.io',
+  rpcUrl: 'https://eth.llamarpc.com'
+};
+const bscTestnet = {
   chainId: 97,
   name: 'BNB Smart Chain Testnet',
   currency: 'tBNB',
   explorerUrl: 'https://testnet.bscscan.com',
   rpcUrl: 'https://endpoints.omniatech.io/v1/bsc/testnet/public'
 };
-const polygon = {
+const bsc = {
+  chainId: 56,
+  name: 'BNB Smart Chain Mainnet',
+  currency: 'BNB',
+  explorerUrl: 'https://bscscan.com',
+  rpcUrl: 'https://bsc-dataseed.binance.org/'
+};
+const polygonAmoy = {
   chainId: 80002,
   name: 'Amoy',
   currency: 'MATIC',
   explorerUrl: 'https://www.oklink.com/amoy',
   rpcUrl: 'https://rpc-amoy.polygon.technology'
 };
-const arbitrum = {
+const polygon = {
+  chainId: 137,
+  name: 'Polygon Mainnet',
+  currency: 'MATIC',
+  explorerUrl: 'https://polygonscan.com',
+  rpcUrl: 'https://polygon.llamarpc.com'
+};
+const arbitrumSepolia = {
   chainId: 421614,
   name: 'Arbitrum Sepolia Testnet',
   currency: 'ETH',
   explorerUrl: 'https://sepolia.arbiscan.io/',
   rpcUrl: 'https://sepolia-rollup.arbitrum.io/rpc'
 };
-const optimism = {
+const arbitrum = {
+  chainId: 42161,
+  name: 'Arbitrum Mainnet',
+  currency: 'ETH',
+  explorerUrl: 'https://arbiscan.io',
+  rpcUrl: 'https://arbitrum.llamarpc.com'
+};
+const optimismSepola = {
   chainId: 11155420,
   name: 'OP Sepolia',
   currency: 'ETH',
   explorerUrl: 'https://sepolia-optimism.etherscan.io',
   rpcUrl: 'https://sepolia.optimism.io'
 };
-const avalanche = {
+const optimism = {
+  chainId: 10,
+  name: 'OP Mainnet',
+  currency: 'ETH',
+  explorerUrl: 'https://optimistic.etherscan.io',
+  rpcUrl: 'https://optimism.llamarpc.com'
+};
+const avalancheFuji = {
   chainId: 43113,
   name: 'Avalanche Fuji Testnet',
   currency: 'AVAX',
   explorerUrl: 'https://testnet.snowtrace.io',
   rpcUrl: 'https://api.avax-test.network/ext/bc/C/rpc'
 };
-const zkEVM = {
+const avalanche = {
+  chainId: 43114,
+  name: 'Avalanche Mainnet',
+  currency: 'AVAX',
+  explorerUrl: 'https://snowtrace.io',
+  rpcUrl: 'https://api.avax.network/ext/bc/C/rpc'
+};
+const zkEVMTestnet = {
   chainId: 2442,
   name: 'Polygon zkEVM Cardona Testnet',
   currency: 'ETH',
   explorerUrl: 'https://cardona-zkevm.polygonscan.com',
   rpcUrl: 'https://polygon-zkevm-cardona.blockpi.network/v1/rpc/public'
+};
+const zkEVM = {
+  chainId: 1101,
+  name: 'Polygon zkEVM',
+  currency: 'ETH',
+  explorerUrl: 'https://zkevm.polygonscan.com',
+  rpcUrl: 'https://zkevm-rpc.com'
 };
 const metadata = {
   name: 'Kima Transaction Widget',
@@ -12024,6 +12100,7 @@ const metadata = {
 };
 const KimaProvider = ({
   walletConnectProjectId,
+  networkOption: _networkOption = NetworkOptions.testnet,
   children
 }) => {
   const wallets = [new PhantomWalletAdapter(), new SolflareWalletAdapter(), new CloverWalletAdapter(), new Coin98WalletAdapter(), new SolongWalletAdapter(), new TorusWalletAdapter()];
@@ -12053,7 +12130,7 @@ const KimaProvider = ({
     ethersConfig: defaultConfig({
       metadata
     }),
-    chains: [ethereum, bsc, polygon, arbitrum, optimism, avalanche, zkEVM],
+    chains: _networkOption === NetworkOptions.mainnet ? [ethereum, bsc, polygon, arbitrum, optimism, avalanche, zkEVM] : [ethereumSepolia, bscTestnet, polygonAmoy, arbitrumSepolia, optimismSepola, avalancheFuji, zkEVMTestnet],
     projectId: walletConnectProjectId || 'e579511a495b5c312b572b036e60555a',
     enableAnalytics: false,
     featuredWalletIds: ['c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96', 'a797aa35c0fadbfc1a53e7f675162ed5226968b44a19ee3d24385c64d1d3c393', '4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0']
@@ -12073,5 +12150,5 @@ const KimaProvider = ({
   }, children))));
 };
 
-export { CHAIN_NAMES_TO_STRING, CHAIN_STRING_TO_NAME, ColorModeOptions, CurrencyOptions, DAppOptions, FontSizeOptions, KimaProvider, KimaTransactionWidget, ModeOptions, ChainName as SupportNetworks };
+export { CHAIN_NAMES_TO_STRING, CHAIN_STRING_TO_NAME, ColorModeOptions, CurrencyOptions, DAppOptions, FontSizeOptions, KimaProvider, KimaTransactionWidget, ModeOptions, NetworkOptions, ChainName as SupportNetworks };
 //# sourceMappingURL=index.modern.js.map

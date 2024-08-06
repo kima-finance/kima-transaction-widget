@@ -5,6 +5,11 @@ import {
   TransactionStatus
 } from './utils/constants'
 
+export enum NetworkOptions {
+  testnet = 'testnet',
+  mainnet = 'mainnet'
+}
+
 export enum FontSizeOptions {
   large = 'large',
   medium = 'medium',
@@ -19,6 +24,7 @@ export enum ModeOptions {
 
 export enum CurrencyOptions {
   USDK = 'USDK',
+  USDT = 'USDT',
   G$ = 'GDOLLAR'
 }
 

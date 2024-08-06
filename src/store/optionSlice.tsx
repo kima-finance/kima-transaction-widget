@@ -5,6 +5,7 @@ const { createSlice } = toolkitRaw
 import {
   DAppOptions,
   ModeOptions,
+  NetworkOptions,
   ThemeOptions,
   TransactionOption
 } from '../interface'
@@ -71,9 +72,11 @@ export interface OptionState {
   kycStatus: string // kyc status from depasify
   pendingTxs: number // number of pending bitcoin transactions
   pendingTxData: Array<PendingTxData> // pending bitcoin transaction data
+  networkOption: NetworkOptions // specify testnet or mainnet
 }
 
 const initialState: OptionState = {
+  networkOption: NetworkOptions.testnet,
   theme: {},
   tokenOptions: {},
   pendingTxs: 0,
@@ -147,6 +150,9 @@ export const optionSlice = createSlice({
       state.initChainFromProvider = false
       state.targetNetworkFetching = false
       state.signature = ''
+    },
+    setNetworkOption: (state, action: PayloadAction<NetworkOptions>) => {
+      state.networkOption = action.payload
     },
     setPendingTxs: (state, action: PayloadAction<number>) => {
       state.pendingTxs = action.payload
@@ -294,6 +300,7 @@ export const optionSlice = createSlice({
 
 export const {
   initialize,
+  setNetworkOption,
   setTokenOptions,
   setKimaExplorer,
   setTheme,

@@ -89,19 +89,6 @@ export const CHAIN_NAMES_TO_EXPLORER: { [chainName: string]: string } = {
   [ChainName.BTC]: 'mempool.space/testnet'
 }
 
-// export const CHAIN_NAMES_TO_GECKO_ID: { [chainName: string]: string } = {
-//   [ChainName.ETHEREUM]: 'ethereum',
-//   [ChainName.POLYGON]: 'matic-network',
-//   [ChainName.AVALANCHE]: 'avalanche-2',
-//   [ChainName.SOLANA]: 'solana',
-//   [ChainName.BSC]: 'binancecoin',
-//   [ChainName.OPTIMISM]: 'ethereum',
-//   [ChainName.ARBITRUM]: 'ethereum',
-//   [ChainName.POLYGON_ZKEVM]: 'matic-network',
-//   [ChainName.TRON]: 'tron',
-//   [ChainName.BTC]: 'btc'
-// }
-
 export const CHAIN_IDS_TO_NAMES: { [chainId: number]: string } = {
   [SupportedChainId.ETHEREUM]: ChainName.ETHEREUM,
   [SupportedChainId.POLYGON]: ChainName.POLYGON,
@@ -196,11 +183,14 @@ export const COIN_LIST: CoinOptions = {
     symbol: 'USDK',
     icon: USDTIcon
   },
+  USDT: {
+    symbol: 'USDT',
+    icon: USDTIcon
+  },
   KEUR: {
     symbol: 'KEUR',
     icon: KEURICON
   },
-
   WBTC: {
     symbol: 'WBTC',
     icon: BTCIcon
@@ -235,3 +225,5 @@ export type PendingTxData = {
   status: string
   hash: string
 }
+
+export const TRON_USDK_OWNER_ADDRESS = 'TBVn4bsBN4DhtZ7D3vEVpAyqkvdFn7zmpU'
