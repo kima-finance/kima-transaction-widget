@@ -1,3 +1,4 @@
+/// <reference types="react" />
 export declare enum ChainName {
     ETHEREUM = "ETH",
     POLYGON = "POL",
@@ -11,7 +12,7 @@ export declare enum ChainName {
     FIAT = "FIAT",
     BTC = "BTC"
 }
-export declare enum SupportedChainId {
+export declare enum SupportedChainIdTestnet {
     ETHEREUM = 11155111,
     POLYGON = 80002,
     AVALANCHE = 43113,
@@ -20,8 +21,20 @@ export declare enum SupportedChainId {
     OPTIMISM = 11155420,
     POLYGON_ZKEM = 2442
 }
-export declare const CHAIN_NAMES_TO_IDS: {
-    [chainName: string]: SupportedChainId;
+export declare const CHAIN_NAMES_TO_IDS_TESTNET: {
+    [chainName: string]: SupportedChainIdTestnet;
+};
+export declare enum SupportedChainIdMainnet {
+    ETHEREUM = 1,
+    POLYGON = 137,
+    AVALANCHE = 43114,
+    BSC = 56,
+    ARBITRUM = 42161,
+    OPTIMISM = 10,
+    POLYGON_ZKEM = 1101
+}
+export declare const CHAIN_NAMES_TO_IDS_MAINNET: {
+    [chainName: string]: SupportedChainIdMainnet;
 };
 export declare const CHAIN_NAMES_TO_STRING: {
     [chainName: string]: string;
@@ -29,10 +42,16 @@ export declare const CHAIN_NAMES_TO_STRING: {
 export declare const CHAIN_STRING_TO_NAME: {
     [chainName: string]: ChainName;
 };
-export declare const CHAIN_NAMES_TO_EXPLORER: {
+export declare const CHAIN_NAMES_TO_EXPLORER_TESTNET: {
     [chainName: string]: string;
 };
-export declare const CHAIN_IDS_TO_NAMES: {
+export declare const CHAIN_NAMES_TO_EXPLORER_MAINNET: {
+    [chainName: string]: string;
+};
+export declare const CHAIN_IDS_TO_NAMES_TESTNET: {
+    [chainId: number]: string;
+};
+export declare const CHAIN_IDS_TO_NAMES_MAINNET: {
     [chainId: number]: string;
 };
 export declare const networkOptions: {

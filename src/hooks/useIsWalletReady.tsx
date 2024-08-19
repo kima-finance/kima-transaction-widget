@@ -11,15 +11,19 @@ import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-h
 import {
   isEVMChain,
   ChainName,
-  CHAIN_NAMES_TO_IDS,
-  CHAIN_IDS_TO_NAMES,
-  CHAIN_NAMES_TO_STRING,
-  SupportedChainId
+  CHAIN_IDS_TO_NAMES_MAINNET,
+  CHAIN_IDS_TO_NAMES_TESTNET,
+  CHAIN_NAMES_TO_IDS_TESTNET,
+  CHAIN_NAMES_TO_IDS_MAINNET,
+  SupportedChainIdTestnet,
+  SupportedChainIdMainnet,
+  CHAIN_NAMES_TO_STRING
 } from '../utils/constants'
 import { useSelector } from 'react-redux'
 import {
   selectBitcoinAddress,
   selectErrorHandler,
+  selectNetworkOption,
   selectSourceChain,
   selectTargetChain,
   selectTargetChainFetching,
@@ -31,7 +35,7 @@ import {
   useWeb3ModalProvider,
   useWeb3ModalEvents
 } from '@web3modal/ethers5/react'
-import { Web3ModalAccountInfo } from '../interface'
+import { NetworkOptions, Web3ModalAccountInfo } from '../interface'
 import { useDispatch } from 'react-redux'
 import {
   setBitcoinAddress,
@@ -79,6 +83,7 @@ function useIsWalletReady(): {
 
   const sourceChain = useSelector(selectSourceChain)
   const targetChain = useSelector(selectTargetChain)
+  const networkOption = useSelector(selectNetworkOption)
   const targetNetworkFetching = useSelector(selectTargetChainFetching)
   const correctChain = useMemo(() => {
     if (sourceChain === ChainName.FIAT && !targetNetworkFetching)
@@ -87,25 +92,13 @@ function useIsWalletReady(): {
   }, [sourceChain, targetChain, targetNetworkFetching])
   const hasEthInfo = isConnected && !!evmAddress
   const errorHandler = useSelector(selectErrorHandler)
-  const correctEvmNetwork = CHAIN_NAMES_TO_IDS[correctChain]
+  const correctEvmNetwork = useMemo(() => {
+    return networkOption === NetworkOptions.mainnet
+      ? CHAIN_NAMES_TO_IDS_MAINNET[correctChain]
+      : CHAIN_NAMES_TO_IDS_TESTNET[correctChain]
+  }, [networkOption, correctChain])
   const hasCorrectEvmNetwork = evmChainId === correctEvmNetwork
   const events = useWeb3ModalEvents()
-
-  // const [capabilityState, setCapabilityState] = useState<
-  //   'loading' | 'loaded' | 'missing' | 'cancelled'
-  // >('loading')
-  // const [capabilities, setCapabilities] = useState<Set<Capability>>()
-
-  // const capabilityMessage =
-  //   capabilityState === 'loading'
-  //     ? 'Checking capabilities...'
-  //     : capabilityState === 'cancelled'
-  //       ? 'Capability check cancelled by wallet. Please refresh the page and try again.'
-  //       : capabilityState === 'missing'
-  //         ? 'Could not find an installed Sats Connect capable wallet. Please install a wallet and try again.'
-  //         : !capabilities
-  //           ? 'Something went wrong with getting capabilities'
-  //           : undefined
 
   useEffect(() => {
     if (
@@ -115,42 +108,6 @@ function useIsWalletReady(): {
       localStorage.setItem('wallet', events.data?.properties?.name)
     }
   }, [events])
-
-  // useEffect(() => {
-  //   const runCapabilityCheck = async () => {
-  //     let runs = 0
-  //     const MAX_RUNS = 20
-  //     setCapabilityState('loading')
-
-  //     // the wallet's in-page script may not be loaded yet, so we'll try a few times
-  //     while (runs < MAX_RUNS) {
-  //       try {
-  //         await getCapabilities({
-  //           onFinish(response) {
-  //             setCapabilities(new Set(response))
-  //             setCapabilityState('loaded')
-  //           },
-  //           onCancel() {
-  //             setCapabilityState('cancelled')
-  //           },
-  //           payload: {
-  //             network: {
-  //               type: BitcoinNetworkType.Testnet
-  //             }
-  //           }
-  //         })
-  //       } catch (e) {
-  //         runs++
-  //         if (runs === MAX_RUNS) {
-  //           setCapabilityState('missing')
-  //         }
-  //       }
-  //       await new Promise((resolve) => setTimeout(resolve, 100))
-  //     }
-  //   }
-
-  //   runCapabilityCheck()
-  // }, [])
 
   const connectBitcoinWallet = useCallback(async () => {
     await getAddress({
@@ -191,6 +148,14 @@ function useIsWalletReady(): {
   }, [evmProvider, correctEvmNetwork, correctChain])
 
   return useMemo(() => {
+    const CHAIN_IDS_TO_NAMES =
+      networkOption === NetworkOptions.mainnet
+        ? CHAIN_IDS_TO_NAMES_MAINNET
+        : CHAIN_IDS_TO_NAMES_TESTNET
+    const SupportedChainId =
+      networkOption === NetworkOptions.mainnet
+        ? SupportedChainIdMainnet
+        : SupportedChainIdTestnet
     if (correctChain === ChainName.SOLANA) {
       if (solanaAddress) {
         return createWalletStatus(
@@ -291,7 +256,8 @@ function useIsWalletReady(): {
     bitcoinAddress,
     evmProvider,
     evmAddress,
-    evmChainId
+    evmChainId,
+    networkOption
   ])
 }
 

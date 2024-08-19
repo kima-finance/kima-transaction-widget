@@ -56,7 +56,7 @@ const ethereum = {
   name: 'Ethereum Mainnet',
   currency: 'ETH',
   explorerUrl: 'https://etherscan.io',
-  rpcUrl: 'https://eth.llamarpc.com'
+  rpcUrl: 'https://endpoints.omniatech.io/v1/eth/mainnet/public'
 }
 
 const bscTestnet = {

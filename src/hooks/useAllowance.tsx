@@ -8,8 +8,10 @@ import {
 } from '@solana/wallet-adapter-react'
 import {
   ChainName,
-  CHAIN_IDS_TO_NAMES,
-  CHAIN_NAMES_TO_IDS,
+  CHAIN_IDS_TO_NAMES_MAINNET,
+  CHAIN_IDS_TO_NAMES_TESTNET,
+  CHAIN_NAMES_TO_IDS_TESTNET,
+  CHAIN_NAMES_TO_IDS_MAINNET,
   isEVMChain
 } from '../utils/constants'
 import ERC20ABI from '../utils/ethereum/erc20ABI.json'
@@ -71,6 +73,7 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
   const dAppOption = useSelector(selectDappOption)
   const targetChain = useSelector(selectTargetChain)
   const feeDeduct = useSelector(selectFeeDeduct)
+  const networkOption = useSelector(selectNetworkOption)
   const sourceChain = useMemo(() => {
     if (
       selectedNetwork === ChainName.SOLANA ||
@@ -78,12 +81,20 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
       selectedNetwork === ChainName.BTC
     )
       return selectedNetwork
+    const CHAIN_NAMES_TO_IDS =
+      networkOption === NetworkOptions.mainnet
+        ? CHAIN_NAMES_TO_IDS_MAINNET
+        : CHAIN_NAMES_TO_IDS_TESTNET
+    const CHAIN_IDS_TO_NAMES =
+      networkOption === NetworkOptions.mainnet
+        ? CHAIN_IDS_TO_NAMES_MAINNET
+        : CHAIN_IDS_TO_NAMES_TESTNET
     if (CHAIN_NAMES_TO_IDS[selectedNetwork] !== evmChainId) {
       return CHAIN_IDS_TO_NAMES[evmChainId as number]
     }
 
     return selectedNetwork
-  }, [selectedNetwork, evmChainId])
+  }, [selectedNetwork, evmChainId, networkOption])
   const amount = useSelector(selectAmount)
   const serviceFee = useSelector(selectServiceFee)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
@@ -94,7 +105,6 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
     useTronWallet()
   const selectedCoin = useSelector(selectSelectedToken)
   const tokenOptions = useSelector(selectTokenOptions)
-  const networkOption = useSelector(selectNetworkOption)
   const tokenAddress = useMemo(() => {
     if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT) return ''
 
@@ -248,9 +258,14 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
         const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer)
 
         setApproving(true)
+
         const approve = await erc20Contract.approve(
           targetAddress,
-          parseUnits(amountToShow, decimals)
+          parseUnits(amountToShow, decimals),
+          networkOption === NetworkOptions.mainnet &&
+            sourceChain === ChainName.ETHEREUM
+            ? { gasLimit: 60000 }
+            : {}
         )
 
         await approve.wait()

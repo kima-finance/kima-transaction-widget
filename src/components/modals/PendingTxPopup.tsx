@@ -3,20 +3,32 @@ import { useDispatch, useSelector } from 'react-redux'
 import { BTCIcon, CrossIcon } from '../../assets/icons'
 import { setPendingTxPopup } from '../../store/optionSlice'
 import {
+  selectNetworkOption,
   selectPendingTxData,
   selectPendingTxPopup,
   selectTheme
 } from '../../store/selectors'
-import { CHAIN_NAMES_TO_EXPLORER, ChainName } from '../../utils/constants'
+import {
+  CHAIN_NAMES_TO_EXPLORER_MAINNET,
+  CHAIN_NAMES_TO_EXPLORER_TESTNET,
+  ChainName
+} from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 import { ExternalLink } from '../reusable'
 import toast from 'react-hot-toast'
+import { NetworkOptions } from '../../interface'
 
 const PendingTxPopup = ({ handleHtlcContinue, handleHtlcReclaim }) => {
   const dispatch = useDispatch()
   const theme = useSelector(selectTheme)
   const pendingTxPopup = useSelector(selectPendingTxPopup)
   const txData = useSelector(selectPendingTxData)
+  const networkOption = useSelector(selectNetworkOption)
+
+  const CHAIN_NAMES_TO_EXPLORER =
+    networkOption === NetworkOptions.mainnet
+      ? CHAIN_NAMES_TO_EXPLORER_MAINNET
+      : CHAIN_NAMES_TO_EXPLORER_TESTNET
 
   return (
     <div

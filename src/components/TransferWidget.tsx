@@ -67,7 +67,7 @@ import useServiceFee from '../hooks/useServiceFee'
 import useAllowance from '../hooks/useAllowance'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 import AddressInputWizard from './reusable/AddressInputWizard'
-import { HelpPopup, BankPopup, SolanaWalletConnectModal } from './modals'
+import { BankPopup, SolanaWalletConnectModal } from './modals'
 import useCurrencyOptions from '../hooks/useCurrencyOptions'
 import {
   ChainName,
@@ -948,7 +948,6 @@ export const TransferWidget = ({
       </div>
       <SolanaWalletConnectModal />
       <TronWalletConnectModal />
-      <HelpPopup />
       {sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT ? (
         <BankPopup setVerifying={setVerifying} isVerifying={isVerifying} />
       ) : null}

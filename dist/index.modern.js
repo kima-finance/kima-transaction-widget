@@ -697,24 +697,43 @@ var ChainName;
   ChainName["FIAT"] = "FIAT";
   ChainName["BTC"] = "BTC";
 })(ChainName || (ChainName = {}));
-var SupportedChainId;
-(function (SupportedChainId) {
-  SupportedChainId[SupportedChainId["ETHEREUM"] = 11155111] = "ETHEREUM";
-  SupportedChainId[SupportedChainId["POLYGON"] = 80002] = "POLYGON";
-  SupportedChainId[SupportedChainId["AVALANCHE"] = 43113] = "AVALANCHE";
-  SupportedChainId[SupportedChainId["BSC"] = 97] = "BSC";
-  SupportedChainId[SupportedChainId["ARBITRUM"] = 421614] = "ARBITRUM";
-  SupportedChainId[SupportedChainId["OPTIMISM"] = 11155420] = "OPTIMISM";
-  SupportedChainId[SupportedChainId["POLYGON_ZKEM"] = 2442] = "POLYGON_ZKEM";
-})(SupportedChainId || (SupportedChainId = {}));
-const CHAIN_NAMES_TO_IDS = {
-  [ChainName.ETHEREUM]: SupportedChainId.ETHEREUM,
-  [ChainName.POLYGON]: SupportedChainId.POLYGON,
-  [ChainName.AVALANCHE]: SupportedChainId.AVALANCHE,
-  [ChainName.BSC]: SupportedChainId.BSC,
-  [ChainName.OPTIMISM]: SupportedChainId.OPTIMISM,
-  [ChainName.ARBITRUM]: SupportedChainId.ARBITRUM,
-  [ChainName.POLYGON_ZKEVM]: SupportedChainId.POLYGON_ZKEM
+var SupportedChainIdTestnet;
+(function (SupportedChainIdTestnet) {
+  SupportedChainIdTestnet[SupportedChainIdTestnet["ETHEREUM"] = 11155111] = "ETHEREUM";
+  SupportedChainIdTestnet[SupportedChainIdTestnet["POLYGON"] = 80002] = "POLYGON";
+  SupportedChainIdTestnet[SupportedChainIdTestnet["AVALANCHE"] = 43113] = "AVALANCHE";
+  SupportedChainIdTestnet[SupportedChainIdTestnet["BSC"] = 97] = "BSC";
+  SupportedChainIdTestnet[SupportedChainIdTestnet["ARBITRUM"] = 421614] = "ARBITRUM";
+  SupportedChainIdTestnet[SupportedChainIdTestnet["OPTIMISM"] = 11155420] = "OPTIMISM";
+  SupportedChainIdTestnet[SupportedChainIdTestnet["POLYGON_ZKEM"] = 2442] = "POLYGON_ZKEM";
+})(SupportedChainIdTestnet || (SupportedChainIdTestnet = {}));
+const CHAIN_NAMES_TO_IDS_TESTNET = {
+  [ChainName.ETHEREUM]: SupportedChainIdTestnet.ETHEREUM,
+  [ChainName.POLYGON]: SupportedChainIdTestnet.POLYGON,
+  [ChainName.AVALANCHE]: SupportedChainIdTestnet.AVALANCHE,
+  [ChainName.BSC]: SupportedChainIdTestnet.BSC,
+  [ChainName.OPTIMISM]: SupportedChainIdTestnet.OPTIMISM,
+  [ChainName.ARBITRUM]: SupportedChainIdTestnet.ARBITRUM,
+  [ChainName.POLYGON_ZKEVM]: SupportedChainIdTestnet.POLYGON_ZKEM
+};
+var SupportedChainIdMainnet;
+(function (SupportedChainIdMainnet) {
+  SupportedChainIdMainnet[SupportedChainIdMainnet["ETHEREUM"] = 1] = "ETHEREUM";
+  SupportedChainIdMainnet[SupportedChainIdMainnet["POLYGON"] = 137] = "POLYGON";
+  SupportedChainIdMainnet[SupportedChainIdMainnet["AVALANCHE"] = 43114] = "AVALANCHE";
+  SupportedChainIdMainnet[SupportedChainIdMainnet["BSC"] = 56] = "BSC";
+  SupportedChainIdMainnet[SupportedChainIdMainnet["ARBITRUM"] = 42161] = "ARBITRUM";
+  SupportedChainIdMainnet[SupportedChainIdMainnet["OPTIMISM"] = 10] = "OPTIMISM";
+  SupportedChainIdMainnet[SupportedChainIdMainnet["POLYGON_ZKEM"] = 1101] = "POLYGON_ZKEM";
+})(SupportedChainIdMainnet || (SupportedChainIdMainnet = {}));
+const CHAIN_NAMES_TO_IDS_MAINNET = {
+  [ChainName.ETHEREUM]: SupportedChainIdMainnet.ETHEREUM,
+  [ChainName.POLYGON]: SupportedChainIdMainnet.POLYGON,
+  [ChainName.AVALANCHE]: SupportedChainIdMainnet.AVALANCHE,
+  [ChainName.BSC]: SupportedChainIdMainnet.BSC,
+  [ChainName.OPTIMISM]: SupportedChainIdMainnet.OPTIMISM,
+  [ChainName.ARBITRUM]: SupportedChainIdMainnet.ARBITRUM,
+  [ChainName.POLYGON_ZKEVM]: SupportedChainIdMainnet.POLYGON_ZKEM
 };
 const CHAIN_NAMES_TO_STRING = {
   [ChainName.ETHEREUM]: 'Ethereum',
@@ -742,7 +761,7 @@ const CHAIN_STRING_TO_NAME = {
   ['Pay with FIAT']: ChainName.FIAT,
   ['Bitcoin']: ChainName.BTC
 };
-const CHAIN_NAMES_TO_EXPLORER = {
+const CHAIN_NAMES_TO_EXPLORER_TESTNET = {
   [ChainName.ETHEREUM]: 'sepolia.etherscan.io',
   [ChainName.POLYGON]: 'www.oklink.com/amoy',
   [ChainName.AVALANCHE]: 'testnet.snowtrace.io',
@@ -754,14 +773,35 @@ const CHAIN_NAMES_TO_EXPLORER = {
   [ChainName.TRON]: 'nile.tronscan.org/#',
   [ChainName.BTC]: 'mempool.space/testnet'
 };
-const CHAIN_IDS_TO_NAMES = {
-  [SupportedChainId.ETHEREUM]: ChainName.ETHEREUM,
-  [SupportedChainId.POLYGON]: ChainName.POLYGON,
-  [SupportedChainId.AVALANCHE]: ChainName.AVALANCHE,
-  [SupportedChainId.BSC]: ChainName.BSC,
-  [SupportedChainId.OPTIMISM]: ChainName.OPTIMISM,
-  [SupportedChainId.ARBITRUM]: ChainName.ARBITRUM,
-  [SupportedChainId.POLYGON_ZKEM]: ChainName.POLYGON_ZKEVM
+const CHAIN_NAMES_TO_EXPLORER_MAINNET = {
+  [ChainName.ETHEREUM]: 'etherscan.io',
+  [ChainName.POLYGON]: 'polygonscan.com',
+  [ChainName.AVALANCHE]: 'snowtrace.io',
+  [ChainName.SOLANA]: 'solscan.io',
+  [ChainName.BSC]: 'bscscan.com',
+  [ChainName.OPTIMISM]: 'optimistic.etherscan.io',
+  [ChainName.ARBITRUM]: 'arbiscan.io',
+  [ChainName.POLYGON_ZKEVM]: 'zkevm.polygonscan.com',
+  [ChainName.TRON]: 'tronscan.org/#',
+  [ChainName.BTC]: 'mempool.space'
+};
+const CHAIN_IDS_TO_NAMES_TESTNET = {
+  [SupportedChainIdTestnet.ETHEREUM]: ChainName.ETHEREUM,
+  [SupportedChainIdTestnet.POLYGON]: ChainName.POLYGON,
+  [SupportedChainIdTestnet.AVALANCHE]: ChainName.AVALANCHE,
+  [SupportedChainIdTestnet.BSC]: ChainName.BSC,
+  [SupportedChainIdTestnet.OPTIMISM]: ChainName.OPTIMISM,
+  [SupportedChainIdTestnet.ARBITRUM]: ChainName.ARBITRUM,
+  [SupportedChainIdTestnet.POLYGON_ZKEM]: ChainName.POLYGON_ZKEVM
+};
+const CHAIN_IDS_TO_NAMES_MAINNET = {
+  [SupportedChainIdMainnet.ETHEREUM]: ChainName.ETHEREUM,
+  [SupportedChainIdMainnet.POLYGON]: ChainName.POLYGON,
+  [SupportedChainIdMainnet.AVALANCHE]: ChainName.AVALANCHE,
+  [SupportedChainIdMainnet.BSC]: ChainName.BSC,
+  [SupportedChainIdMainnet.OPTIMISM]: ChainName.OPTIMISM,
+  [SupportedChainIdMainnet.ARBITRUM]: ChainName.ARBITRUM,
+  [SupportedChainIdMainnet.POLYGON_ZKEM]: ChainName.POLYGON_ZKEVM
 };
 const networkOptions = [{
   id: ChainName.ARBITRUM,
@@ -1183,8 +1223,6 @@ const selectBitcoinAddress = state => state.option.bitcoinAddress;
 const selectBitcoinPubkey = state => state.option.bitcoinPubkey;
 const selectSolanaConnectModal = state => state.option.solanaConnectModal;
 const selectTronConnectModal = state => state.option.tronConnectModal;
-const selectHelpPopup = state => state.option.helpPopup;
-const selectHashPopup = state => state.option.hashPopup;
 const selectPendingTxPopup = state => state.option.pendingTxPopup;
 const selectBankPopup = state => state.option.bankPopup;
 const selectSolanaProvider = state => state.option.solanaProvider;
@@ -1768,6 +1806,7 @@ function useIsWalletReady() {
   };
   const sourceChain = useSelector(selectSourceChain);
   const targetChain = useSelector(selectTargetChain);
+  const networkOption = useSelector(selectNetworkOption);
   const targetNetworkFetching = useSelector(selectTargetChainFetching);
   const correctChain = useMemo(() => {
     if (sourceChain === ChainName.FIAT && !targetNetworkFetching) return targetChain;
@@ -1775,7 +1814,9 @@ function useIsWalletReady() {
   }, [sourceChain, targetChain, targetNetworkFetching]);
   const hasEthInfo = isConnected && !!evmAddress;
   const errorHandler = useSelector(selectErrorHandler);
-  const correctEvmNetwork = CHAIN_NAMES_TO_IDS[correctChain];
+  const correctEvmNetwork = useMemo(() => {
+    return networkOption === NetworkOptions.mainnet ? CHAIN_NAMES_TO_IDS_MAINNET[correctChain] : CHAIN_NAMES_TO_IDS_TESTNET[correctChain];
+  }, [networkOption, correctChain]);
   const hasCorrectEvmNetwork = evmChainId === correctEvmNetwork;
   const events = useWeb3ModalEvents();
   useEffect(() => {
@@ -1819,6 +1860,8 @@ function useIsWalletReady() {
     }
   }, [evmProvider, correctEvmNetwork, correctChain]);
   return useMemo(() => {
+    const CHAIN_IDS_TO_NAMES = networkOption === NetworkOptions.mainnet ? CHAIN_IDS_TO_NAMES_MAINNET : CHAIN_IDS_TO_NAMES_TESTNET;
+    const SupportedChainId = networkOption === NetworkOptions.mainnet ? SupportedChainIdMainnet : SupportedChainIdTestnet;
     if (correctChain === ChainName.SOLANA) {
       if (solanaAddress) {
         return createWalletStatus(true, undefined, connectBitcoinWallet, solanaAddress.toBase58());
@@ -1850,7 +1893,7 @@ function useIsWalletReady() {
       }
     }
     return createWalletStatus(false, '', connectBitcoinWallet, undefined);
-  }, [correctChain, autoSwitch, forceNetworkSwitch, connectBitcoinWallet, solanaAddress, tronAddress, hasEthInfo, correctEvmNetwork, hasCorrectEvmNetwork, bitcoinAddress, evmProvider, evmAddress, evmChainId]);
+  }, [correctChain, autoSwitch, forceNetworkSwitch, connectBitcoinWallet, solanaAddress, tronAddress, hasEthInfo, correctEvmNetwork, hasCorrectEvmNetwork, bitcoinAddress, evmProvider, evmAddress, evmChainId, networkOption]);
 }
 
 const getShortenedAddress = address => {
@@ -2220,13 +2263,16 @@ function useBalance() {
   } = useWeb3ModalProvider();
   const selectedNetwork = useSelector(selectSourceChain);
   const errorHandler = useSelector(selectErrorHandler);
+  const networkOption = useSelector(selectNetworkOption);
   const sourceChain = useMemo(() => {
     if (selectedNetwork === ChainName.SOLANA || selectedNetwork === ChainName.TRON || selectedNetwork === ChainName.BTC) return selectedNetwork;
+    const CHAIN_NAMES_TO_IDS = networkOption === NetworkOptions.mainnet ? CHAIN_NAMES_TO_IDS_MAINNET : CHAIN_NAMES_TO_IDS_TESTNET;
+    const CHAIN_IDS_TO_NAMES = networkOption === NetworkOptions.mainnet ? CHAIN_IDS_TO_NAMES_MAINNET : CHAIN_IDS_TO_NAMES_TESTNET;
     if (CHAIN_NAMES_TO_IDS[selectedNetwork] !== evmChainId) {
       return CHAIN_IDS_TO_NAMES[evmChainId];
     }
     return selectedNetwork;
-  }, [selectedNetwork, evmChainId]);
+  }, [selectedNetwork, evmChainId, networkOption]);
   const {
     publicKey: solanaAddress,
     signTransaction
@@ -2241,7 +2287,6 @@ function useBalance() {
   const kimaBackendUrl = useSelector(selectBackendUrl);
   const selectedCoin = useSelector(selectSelectedToken);
   const tokenOptions = useSelector(selectTokenOptions);
-  const networkOption = useSelector(selectNetworkOption);
   const tokenAddress = useMemo(() => {
     if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT) return '';
     if (tokenOptions && typeof tokenOptions === 'object') {
@@ -2661,6 +2706,8 @@ const StepBox = ({
 }) => {
   const theme = useSelector(selectTheme);
   const explorerUrl = useSelector(selectKimaExplorer);
+  const networkOption = useSelector(selectNetworkOption);
+  const CHAIN_NAMES_TO_EXPLORER = networkOption === NetworkOptions.mainnet ? CHAIN_NAMES_TO_EXPLORER_MAINNET : CHAIN_NAMES_TO_EXPLORER_TESTNET;
   return React.createElement("div", {
     className: 'kima-stepbox'
   }, React.createElement("div", {
@@ -2681,13 +2728,13 @@ const StepBox = ({
   }))) : null, index === 1 && data !== null && data !== void 0 && data.tssPullHash ? React.createElement("div", {
     className: 'info-item'
   }, React.createElement("p", null, CHAIN_NAMES_TO_STRING[(data === null || data === void 0 ? void 0 : data.sourceChain) || ChainName.ETHEREUM], ' ', "TX ID:", React.createElement(ExternalLink, {
-    to: `https://${CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.sourceChain) || ChainName.ETHEREUM]}/${(data === null || data === void 0 ? void 0 : data.sourceChain) === ChainName.TRON ? 'transaction' : 'tx'}/${data === null || data === void 0 ? void 0 : data.tssPullHash}${(data === null || data === void 0 ? void 0 : data.sourceChain) === ChainName.SOLANA ? '?cluster=devnet' : ''}`
+    to: `https://${CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.sourceChain) || ChainName.ETHEREUM]}/${(data === null || data === void 0 ? void 0 : data.sourceChain) === ChainName.TRON ? 'transaction' : 'tx'}/${data === null || data === void 0 ? void 0 : data.tssPullHash}${(data === null || data === void 0 ? void 0 : data.sourceChain) === ChainName.SOLANA && networkOption === NetworkOptions.testnet ? '?cluster=devnet' : ''}`
   }, getShortenedAddress((data === null || data === void 0 ? void 0 : data.tssPullHash) || '')), React.createElement(CopyButton, {
     text: (data === null || data === void 0 ? void 0 : data.tssPullHash) || ''
   }))) : null, index === 3 && data !== null && data !== void 0 && data.tssReleaseHash ? React.createElement("div", {
     className: 'info-item'
   }, React.createElement("p", null, CHAIN_NAMES_TO_STRING[(data === null || data === void 0 ? void 0 : data.targetChain) || ChainName.ETHEREUM], ' ', "TX ID:", React.createElement(ExternalLink, {
-    to: `https://${CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.targetChain) || ChainName.ETHEREUM]}/${(data === null || data === void 0 ? void 0 : data.targetChain) === ChainName.TRON ? 'transaction' : 'tx'}/${data === null || data === void 0 ? void 0 : data.tssReleaseHash}${(data === null || data === void 0 ? void 0 : data.targetChain) === ChainName.SOLANA ? '?cluster=devnet' : ''}`
+    to: `https://${CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.targetChain) || ChainName.ETHEREUM]}/${(data === null || data === void 0 ? void 0 : data.targetChain) === ChainName.TRON ? 'transaction' : 'tx'}/${data === null || data === void 0 ? void 0 : data.tssReleaseHash}${(data === null || data === void 0 ? void 0 : data.targetChain) === ChainName.SOLANA && networkOption === NetworkOptions.testnet ? '?cluster=devnet' : ''}`
   }, getShortenedAddress((data === null || data === void 0 ? void 0 : data.tssReleaseHash) || '')), React.createElement(CopyButton, {
     text: (data === null || data === void 0 ? void 0 : data.tssReleaseHash) || ''
   }))) : null))));
@@ -2742,254 +2789,6 @@ const TxButton = ({
     width: 16,
     fill: theme.colorMode === 'light' ? 'black' : 'white'
   }));
-};
-
-const HelpPopup = () => {
-  const dispatch = useDispatch();
-  const theme = useSelector(selectTheme);
-  const helpPopup = useSelector(selectHelpPopup);
-  return React.createElement("div", {
-    className: `kima-modal help-popup ${theme.colorMode} ${helpPopup ? 'open' : ''}`
-  }, React.createElement("div", {
-    className: 'modal-overlay',
-    onClick: () => {
-      dispatch(setHelpPopup(false));
-    }
-  }), React.createElement("div", {
-    className: 'modal-content-container'
-  }, React.createElement("div", {
-    className: 'kima-card-header'
-  }, React.createElement("div", {
-    className: 'topbar'
-  }, React.createElement("div", {
-    className: 'title'
-  }, React.createElement("h3", null, "Help")), React.createElement("div", {
-    className: 'control-buttons'
-  }, React.createElement("button", {
-    className: 'icon-button',
-    onClick: () => dispatch(setHelpPopup(false))
-  }, React.createElement(Cross, {
-    fill: theme.colorMode === 'light' ? 'black' : 'white'
-  }))))), React.createElement("div", {
-    className: 'modal-content'
-  }, React.createElement("p", null, "The SDK enables dApp developers to process Kima transactions on behalf of their clients. It will include visual and API components that communicate with the Kima RPC nodes. The developers can pick and choose the right level of integration, based on their usage scenario."))));
-};
-
-const HashPopup = ({
-  data
-}) => {
-  const dispatch = useDispatch();
-  const theme = useSelector(selectTheme);
-  const hashPopup = useSelector(selectHashPopup);
-  return React.createElement("div", {
-    className: `kima-modal hash-popup ${theme.colorMode} ${hashPopup ? 'open' : ''}`
-  }, React.createElement("div", {
-    className: 'modal-overlay',
-    onClick: () => {
-      dispatch(setHashPopup(false));
-    }
-  }), React.createElement("div", {
-    className: 'modal-content-container'
-  }, React.createElement("div", {
-    className: 'kima-card-header'
-  }, React.createElement("div", {
-    className: 'topbar'
-  }, React.createElement("div", {
-    className: 'title'
-  }, React.createElement("h3", null, "Transaction Hashes")), React.createElement("div", {
-    className: 'control-buttons'
-  }, React.createElement("button", {
-    className: 'icon-button',
-    onClick: () => dispatch(setHashPopup(false))
-  }, React.createElement(Cross, {
-    fill: theme.colorMode === 'light' ? 'black' : 'white'
-  }))))), React.createElement("div", {
-    className: 'modal-content'
-  }, React.createElement("div", {
-    className: 'hash-container'
-  }, React.createElement("div", {
-    className: 'hash-item'
-  }, React.createElement("span", null, "Kima tx:"), React.createElement(ExternalLink, {
-    to: 'https://explorer.kima.finance/transactions/718ABEE14755C1ACA617607F9353A55013EF855B0EA6E92EFD31A2F50A362524'
-  }, "718A...2524")), React.createElement("div", {
-    className: 'hash-item'
-  }, React.createElement("span", null, "Source tx:"), React.createElement(ExternalLink, {
-    to: `https://${CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.sourceChain) || ChainName.ETHEREUM]}/tx/${data === null || data === void 0 ? void 0 : data.tssPullHash}`
-  }, getShortenedAddress((data === null || data === void 0 ? void 0 : data.tssPullHash) || ''))), React.createElement("div", {
-    className: 'hash-item'
-  }, React.createElement("span", null, "Target tx:"), React.createElement(ExternalLink, {
-    to: `https://${CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.targetChain) || ChainName.ETHEREUM]}/tx/${data === null || data === void 0 ? void 0 : data.tssReleaseHash}`
-  }, getShortenedAddress((data === null || data === void 0 ? void 0 : data.tssReleaseHash) || '')))))));
-};
-
-const SolanaWalletConnectModal = () => {
-  const dispatch = useDispatch();
-  const theme = useSelector(selectTheme);
-  const connectModal = useSelector(selectSolanaConnectModal);
-  const selectedProvider = useSelector(selectSolanaProvider);
-  const {
-    select,
-    connect
-  } = useWallet();
-  const handleConnect = () => {
-    select(selectedProvider);
-    connect();
-    dispatch(setSolanaConnectModal(false));
-  };
-  return React.createElement("div", {
-    className: `kima-modal wallet-connect ${theme.colorMode} ${connectModal ? 'open' : ''}`
-  }, React.createElement("div", {
-    className: 'modal-overlay'
-  }), React.createElement("div", {
-    className: 'modal-content-container'
-  }, React.createElement("div", {
-    className: 'kima-card-header'
-  }, React.createElement("div", {
-    className: 'topbar'
-  }, React.createElement("div", {
-    className: 'title'
-  }, React.createElement("h3", null, "Connect Wallet")), React.createElement("div", {
-    className: 'control-buttons'
-  }, React.createElement("button", {
-    className: 'icon-button',
-    onClick: () => dispatch(setSolanaConnectModal(false))
-  }, React.createElement(Cross, {
-    fill: theme.colorMode === 'light' ? 'black' : 'white'
-  }))))), React.createElement("div", {
-    className: 'modal-content'
-  }, React.createElement(SolanaWalletSelect, null)), React.createElement("div", {
-    className: 'kima-card-footer',
-    style: {
-      justifyContent: 'flex-end',
-      marginTop: '2em'
-    }
-  }, React.createElement(SecondaryButton, {
-    clickHandler: () => dispatch(setSolanaConnectModal(false)),
-    theme: theme.colorMode
-  }, "Cancel"), React.createElement(PrimaryButton, {
-    clickHandler: handleConnect
-  }, "Connect"))));
-};
-
-const TronWalletConnectModal = () => {
-  const dispatch = useDispatch();
-  const theme = useSelector(selectTheme);
-  const connectModal = useSelector(selectTronConnectModal);
-  const selectedProvider = useSelector(selectSolanaProvider);
-  const {
-    select,
-    connect
-  } = useWallet$1();
-  const handleConnect = async () => {
-    try {
-      select(selectedProvider);
-      await connect();
-      dispatch(setTronConnectModal(false));
-    } catch (e) {
-      console.log(e);
-    }
-  };
-  return React.createElement("div", {
-    className: `kima-modal wallet-connect ${theme.colorMode} ${connectModal ? 'open' : ''}`
-  }, React.createElement("div", {
-    className: 'modal-overlay'
-  }), React.createElement("div", {
-    className: 'modal-content-container'
-  }, React.createElement("div", {
-    className: 'kima-card-header'
-  }, React.createElement("div", {
-    className: 'topbar'
-  }, React.createElement("div", {
-    className: 'title'
-  }, React.createElement("h3", null, "Connect Wallet")), React.createElement("div", {
-    className: 'control-buttons'
-  }, React.createElement("button", {
-    className: 'icon-button',
-    onClick: () => dispatch(setTronConnectModal(false))
-  }, React.createElement(Cross, {
-    fill: theme.colorMode === 'light' ? 'black' : 'white'
-  }))))), React.createElement("div", {
-    className: 'modal-content'
-  }, React.createElement(WalletSelect, null)), React.createElement("div", {
-    className: 'kima-card-footer',
-    style: {
-      justifyContent: 'flex-end',
-      marginTop: '2em'
-    }
-  }, React.createElement(SecondaryButton, {
-    clickHandler: () => dispatch(setTronConnectModal(false)),
-    theme: theme.colorMode
-  }, "Cancel"), React.createElement(PrimaryButton, {
-    clickHandler: handleConnect
-  }, "Connect"))));
-};
-
-const BankPopup = ({
-  setVerifying,
-  isVerifying
-}) => {
-  const dispatch = useDispatch();
-  const uuid = useSelector(selectUuid);
-  const theme = useSelector(selectTheme);
-  const bankPopup = useSelector(selectBankPopup);
-  const kimaBackendUrl = useSelector(selectBackendUrl);
-  useEffect(() => {
-    if (!kimaBackendUrl || !uuid || !isVerifying) return;
-    const timerId = setInterval(async () => {
-      try {
-        const res = await fetchWrapper.post(`${kimaBackendUrl}/kyc`, JSON.stringify({
-          uuid
-        }));
-        const kycResult = res.data;
-        console.log(kycResult);
-        if (!kycResult.length) {
-          console.log('failed to check kyc status');
-          toast$1.error('failed to check kyc status');
-        } else if (kycResult[0].status === 'approved') {
-          setVerifying(false);
-          dispatch(setKYCStatus('approved'));
-          toast$1.success('KYC is verified');
-        }
-      } catch (e) {
-        console.log('failed to check kyc status');
-        toast$1.error('failed to check kyc status');
-      }
-    }, 3000);
-    return () => {
-      clearInterval(timerId);
-    };
-  }, [kimaBackendUrl, uuid, isVerifying]);
-  return React.createElement("div", {
-    className: `kima-modal bank-popup ${theme.colorMode} ${bankPopup ? 'open' : ''}`
-  }, React.createElement("div", {
-    className: 'modal-overlay',
-    onClick: () => {
-      dispatch(setBankPopup(false));
-    }
-  }), React.createElement("div", {
-    className: 'modal-content-container'
-  }, React.createElement("div", {
-    className: 'kima-card-header'
-  }, React.createElement("div", {
-    className: 'topbar'
-  }, React.createElement("div", {
-    className: 'title'
-  }), React.createElement("div", {
-    className: 'control-buttons'
-  }, React.createElement("button", {
-    className: 'icon-button',
-    onClick: () => dispatch(setBankPopup(false))
-  }, React.createElement(Cross, {
-    fill: theme.colorMode === 'light' ? 'black' : 'white'
-  }))))), React.createElement("div", {
-    className: 'modal-content'
-  }, React.createElement("iframe", {
-    src: `https://sandbox.depasify.com/widgets/kyc?partner=kimastage&user_uuid=${uuid}`,
-    width: '100%',
-    height: '100%',
-    frameBorder: '0',
-    allow: 'camera'
-  }))));
 };
 
 const TransactionWidget = ({
@@ -3182,9 +2981,7 @@ const TransactionWidget = ({
     to: 'https://kima.finance'
   }, React.createElement(FooterLogo, {
     fill: theme.colorMode === 'light' ? 'black' : '#C5C5C5'
-  }))), React.createElement(HelpPopup, null), React.createElement(HashPopup, {
-    data: data
-  }), React.createElement(Toaster, {
+  }))), React.createElement(Toaster, {
     position: 'top-right',
     reverseOrder: false,
     containerStyle: {
@@ -6999,13 +6796,16 @@ function useAllowance({
   const dAppOption = useSelector(selectDappOption);
   const targetChain = useSelector(selectTargetChain);
   const feeDeduct = useSelector(selectFeeDeduct);
+  const networkOption = useSelector(selectNetworkOption);
   const sourceChain = useMemo(() => {
     if (selectedNetwork === ChainName.SOLANA || selectedNetwork === ChainName.TRON || selectedNetwork === ChainName.BTC) return selectedNetwork;
+    const CHAIN_NAMES_TO_IDS = networkOption === NetworkOptions.mainnet ? CHAIN_NAMES_TO_IDS_MAINNET : CHAIN_NAMES_TO_IDS_TESTNET;
+    const CHAIN_IDS_TO_NAMES = networkOption === NetworkOptions.mainnet ? CHAIN_IDS_TO_NAMES_MAINNET : CHAIN_IDS_TO_NAMES_TESTNET;
     if (CHAIN_NAMES_TO_IDS[selectedNetwork] !== evmChainId) {
       return CHAIN_IDS_TO_NAMES[evmChainId];
     }
     return selectedNetwork;
-  }, [selectedNetwork, evmChainId]);
+  }, [selectedNetwork, evmChainId, networkOption]);
   const amount = useSelector(selectAmount);
   const serviceFee = useSelector(selectServiceFee);
   const nodeProviderQuery = useSelector(selectNodeProviderQuery);
@@ -7022,7 +6822,6 @@ function useAllowance({
   } = useWallet$1();
   const selectedCoin = useSelector(selectSelectedToken);
   const tokenOptions = useSelector(selectTokenOptions);
-  const networkOption = useSelector(selectNetworkOption);
   const tokenAddress = useMemo(() => {
     if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT) return '';
     if (tokenOptions && typeof tokenOptions === 'object') {
@@ -7112,7 +6911,9 @@ function useAllowance({
       try {
         const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer);
         setApproving(true);
-        const approve = await erc20Contract.approve(targetAddress, parseUnits(amountToShow, decimals));
+        const approve = await erc20Contract.approve(targetAddress, parseUnits(amountToShow, decimals), networkOption === NetworkOptions.mainnet && sourceChain === ChainName.ETHEREUM ? {
+          gasLimit: 60000
+        } : {});
         await approve.wait();
         setApproving(false);
         setAllowance(+amountToShow);
@@ -7190,6 +6991,176 @@ const AddressInputWizard = () => {
   }, React.createElement("p", null, "Select Target Address for Funding"), React.createElement("div", {
     className: `address-input ${theme.colorMode}`
   }, React.createElement("span", null, "Target Address:"), React.createElement(AddressInput, null)));
+};
+
+const SolanaWalletConnectModal = () => {
+  const dispatch = useDispatch();
+  const theme = useSelector(selectTheme);
+  const connectModal = useSelector(selectSolanaConnectModal);
+  const selectedProvider = useSelector(selectSolanaProvider);
+  const {
+    select,
+    connect
+  } = useWallet();
+  const handleConnect = () => {
+    select(selectedProvider);
+    connect();
+    dispatch(setSolanaConnectModal(false));
+  };
+  return React.createElement("div", {
+    className: `kima-modal wallet-connect ${theme.colorMode} ${connectModal ? 'open' : ''}`
+  }, React.createElement("div", {
+    className: 'modal-overlay'
+  }), React.createElement("div", {
+    className: 'modal-content-container'
+  }, React.createElement("div", {
+    className: 'kima-card-header'
+  }, React.createElement("div", {
+    className: 'topbar'
+  }, React.createElement("div", {
+    className: 'title'
+  }, React.createElement("h3", null, "Connect Wallet")), React.createElement("div", {
+    className: 'control-buttons'
+  }, React.createElement("button", {
+    className: 'icon-button',
+    onClick: () => dispatch(setSolanaConnectModal(false))
+  }, React.createElement(Cross, {
+    fill: theme.colorMode === 'light' ? 'black' : 'white'
+  }))))), React.createElement("div", {
+    className: 'modal-content'
+  }, React.createElement(SolanaWalletSelect, null)), React.createElement("div", {
+    className: 'kima-card-footer',
+    style: {
+      justifyContent: 'flex-end',
+      marginTop: '2em'
+    }
+  }, React.createElement(SecondaryButton, {
+    clickHandler: () => dispatch(setSolanaConnectModal(false)),
+    theme: theme.colorMode
+  }, "Cancel"), React.createElement(PrimaryButton, {
+    clickHandler: handleConnect
+  }, "Connect"))));
+};
+
+const TronWalletConnectModal = () => {
+  const dispatch = useDispatch();
+  const theme = useSelector(selectTheme);
+  const connectModal = useSelector(selectTronConnectModal);
+  const selectedProvider = useSelector(selectSolanaProvider);
+  const {
+    select,
+    connect
+  } = useWallet$1();
+  const handleConnect = async () => {
+    try {
+      select(selectedProvider);
+      await connect();
+      dispatch(setTronConnectModal(false));
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  return React.createElement("div", {
+    className: `kima-modal wallet-connect ${theme.colorMode} ${connectModal ? 'open' : ''}`
+  }, React.createElement("div", {
+    className: 'modal-overlay'
+  }), React.createElement("div", {
+    className: 'modal-content-container'
+  }, React.createElement("div", {
+    className: 'kima-card-header'
+  }, React.createElement("div", {
+    className: 'topbar'
+  }, React.createElement("div", {
+    className: 'title'
+  }, React.createElement("h3", null, "Connect Wallet")), React.createElement("div", {
+    className: 'control-buttons'
+  }, React.createElement("button", {
+    className: 'icon-button',
+    onClick: () => dispatch(setTronConnectModal(false))
+  }, React.createElement(Cross, {
+    fill: theme.colorMode === 'light' ? 'black' : 'white'
+  }))))), React.createElement("div", {
+    className: 'modal-content'
+  }, React.createElement(WalletSelect, null)), React.createElement("div", {
+    className: 'kima-card-footer',
+    style: {
+      justifyContent: 'flex-end',
+      marginTop: '2em'
+    }
+  }, React.createElement(SecondaryButton, {
+    clickHandler: () => dispatch(setTronConnectModal(false)),
+    theme: theme.colorMode
+  }, "Cancel"), React.createElement(PrimaryButton, {
+    clickHandler: handleConnect
+  }, "Connect"))));
+};
+
+const BankPopup = ({
+  setVerifying,
+  isVerifying
+}) => {
+  const dispatch = useDispatch();
+  const uuid = useSelector(selectUuid);
+  const theme = useSelector(selectTheme);
+  const bankPopup = useSelector(selectBankPopup);
+  const kimaBackendUrl = useSelector(selectBackendUrl);
+  useEffect(() => {
+    if (!kimaBackendUrl || !uuid || !isVerifying) return;
+    const timerId = setInterval(async () => {
+      try {
+        const res = await fetchWrapper.post(`${kimaBackendUrl}/kyc`, JSON.stringify({
+          uuid
+        }));
+        const kycResult = res.data;
+        console.log(kycResult);
+        if (!kycResult.length) {
+          console.log('failed to check kyc status');
+          toast$1.error('failed to check kyc status');
+        } else if (kycResult[0].status === 'approved') {
+          setVerifying(false);
+          dispatch(setKYCStatus('approved'));
+          toast$1.success('KYC is verified');
+        }
+      } catch (e) {
+        console.log('failed to check kyc status');
+        toast$1.error('failed to check kyc status');
+      }
+    }, 3000);
+    return () => {
+      clearInterval(timerId);
+    };
+  }, [kimaBackendUrl, uuid, isVerifying]);
+  return React.createElement("div", {
+    className: `kima-modal bank-popup ${theme.colorMode} ${bankPopup ? 'open' : ''}`
+  }, React.createElement("div", {
+    className: 'modal-overlay',
+    onClick: () => {
+      dispatch(setBankPopup(false));
+    }
+  }), React.createElement("div", {
+    className: 'modal-content-container'
+  }, React.createElement("div", {
+    className: 'kima-card-header'
+  }, React.createElement("div", {
+    className: 'topbar'
+  }, React.createElement("div", {
+    className: 'title'
+  }), React.createElement("div", {
+    className: 'control-buttons'
+  }, React.createElement("button", {
+    className: 'icon-button',
+    onClick: () => dispatch(setBankPopup(false))
+  }, React.createElement(Cross, {
+    fill: theme.colorMode === 'light' ? 'black' : 'white'
+  }))))), React.createElement("div", {
+    className: 'modal-content'
+  }, React.createElement("iframe", {
+    src: `https://sandbox.depasify.com/widgets/kyc?partner=kimastage&user_uuid=${uuid}`,
+    width: '100%',
+    height: '100%',
+    frameBorder: '0',
+    allow: 'camera'
+  }))));
 };
 
 function useCurrencyOptions() {
@@ -7331,7 +7302,7 @@ function output(out, instance) {
 exports.output = output;
 const assert = { number, bool, bytes, hash, exists, output };
 exports.default = assert;
-//# sourceMappingURL=_assert.js.map
+
 });
 
 unwrapExports(_assert);
@@ -7340,7 +7311,7 @@ var crypto = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.crypto = void 0;
 exports.crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
-//# sourceMappingURL=crypto.js.map
+
 });
 
 unwrapExports(crypto);
@@ -7542,7 +7513,7 @@ function randomBytes(bytesLength = 32) {
     throw new Error('crypto.getRandomValues must be defined');
 }
 exports.randomBytes = randomBytes;
-//# sourceMappingURL=utils.js.map
+
 });
 
 unwrapExports(utils);
@@ -7664,7 +7635,7 @@ class SHA2 extends utils.Hash {
     }
 }
 exports.SHA2 = SHA2;
-//# sourceMappingURL=_sha2.js.map
+
 });
 
 unwrapExports(_sha2);
@@ -7797,7 +7768,7 @@ class SHA224 extends SHA256 {
  */
 exports.sha256 = (0, utils.wrapConstructor)(() => new SHA256());
 exports.sha224 = (0, utils.wrapConstructor)(() => new SHA224());
-//# sourceMappingURL=sha256.js.map
+
 });
 
 unwrapExports(sha256);
@@ -7885,6 +7856,8 @@ const PendingTxPopup = ({
   const theme = useSelector(selectTheme);
   const pendingTxPopup = useSelector(selectPendingTxPopup);
   const txData = useSelector(selectPendingTxData);
+  const networkOption = useSelector(selectNetworkOption);
+  const CHAIN_NAMES_TO_EXPLORER = networkOption === NetworkOptions.mainnet ? CHAIN_NAMES_TO_EXPLORER_MAINNET : CHAIN_NAMES_TO_EXPLORER_TESTNET;
   return React.createElement("div", {
     className: `kima-modal pending-tx-popup ${theme.colorMode} ${pendingTxPopup ? 'open' : ''}`
   }, React.createElement("div", {
@@ -11848,7 +11821,7 @@ const TransferWidget = ({
     clickHandler: onNext,
     isLoading: isApproving || isSubmitting || isSigning || isBTCSigning,
     disabled: isApproving || isSubmitting || isSigning || isBTCSigning
-  }, getButtonLabel()))), React.createElement(SolanaWalletConnectModal, null), React.createElement(TronWalletConnectModal, null), React.createElement(HelpPopup, null), sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT ? React.createElement(BankPopup, {
+  }, getButtonLabel()))), React.createElement(SolanaWalletConnectModal, null), React.createElement(TronWalletConnectModal, null), sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT ? React.createElement(BankPopup, {
     setVerifying: setVerifying,
     isVerifying: isVerifying
   }) : null, React.createElement(Toaster, {
@@ -12006,7 +11979,7 @@ const ethereum = {
   name: 'Ethereum Mainnet',
   currency: 'ETH',
   explorerUrl: 'https://etherscan.io',
-  rpcUrl: 'https://eth.llamarpc.com'
+  rpcUrl: 'https://endpoints.omniatech.io/v1/eth/mainnet/public'
 };
 const bscTestnet = {
   chainId: 97,
