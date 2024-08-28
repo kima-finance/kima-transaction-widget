@@ -5,15 +5,17 @@ import {
   KimaProvider,
   FontSizeOptions,
   ModeOptions,
-  ColorModeOptions
-  // DAppOptions,
-  // SupportNetworks
+  ColorModeOptions,
+  NetworkOptions
 } from 'kima-transaction-widget'
 import 'kima-transaction-widget/dist/index.css'
 
 const App = () => {
   return (
-    <KimaProvider walletConnectProjectId='e579511a495b5c312b572b036e60555a'>
+    <KimaProvider
+      walletConnectProjectId='e579511a495b5c312b572b036e60555a'
+      networkOption={NetworkOptions.testnet}
+    >
       <div
         style={{
           margin: '0 5vw'
@@ -26,9 +28,12 @@ const App = () => {
               fontSize: FontSizeOptions.medium
             }}
             mode={ModeOptions.bridge}
+            networkOption={NetworkOptions.testnet}
             // dAppOption={DAppOptions.LPAdd}
             kimaBackendUrl='http://localhost:3001'
             kimaNodeProviderQuery='https://api-testnet.kima.finance'
+            kimaExplorer='https://explorer-testnet.kima.finance'
+            feeURL='https://fee.kima.finance'
             // autoSwitchChain={false}
             // defaultToken={'USDK'}
             // useFIAT={true}

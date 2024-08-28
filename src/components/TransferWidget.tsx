@@ -67,7 +67,7 @@ import useServiceFee from '../hooks/useServiceFee'
 import useAllowance from '../hooks/useAllowance'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 import AddressInputWizard from './reusable/AddressInputWizard'
-import { HelpPopup, BankPopup, SolanaWalletConnectModal } from './modals'
+import { BankPopup, SolanaWalletConnectModal } from './modals'
 import useCurrencyOptions from '../hooks/useCurrencyOptions'
 import {
   ChainName,
@@ -144,6 +144,7 @@ export const TransferWidget = ({
   const transactionOption = useSelector(selectTransactionOption)
 
   // Hooks for wallet connection, allowance
+  const [isCancellingApprove, setCancellingApprove] = useState(false)
   const [isApproving, setApproving] = useState(false)
   const [isSubmitting, setSubmitting] = useState(false)
   const [isSigning, setSigning] = useState(false)
@@ -156,10 +157,11 @@ export const TransferWidget = ({
   const { isReady, walletAddress } = useIsWalletReady()
   const pendingTxs = useSelector(selectPendingTxs)
   const {
+    allowance,
     isApproved: approved,
     approve,
     poolAddress
-  } = useAllowance({ setApproving })
+  } = useAllowance({ setApproving, setCancellingApprove })
   const { isSigned, sign } = useSign({ setSigning })
   const { serviceFee: fee } = useServiceFee(isConfirming, feeURL)
   const { balance } = useBalance()
@@ -769,6 +771,11 @@ export const TransferWidget = ({
     return 'Next'
   }
 
+  const onCancelApprove = () => {
+    if (isCancellingApprove) return
+    approve(true)
+  }
+
   useEffect(() => {
     dispatch(setTheme(theme))
   }, [theme])
@@ -937,6 +944,16 @@ export const TransferWidget = ({
               ? 'Back'
               : 'Cancel'}
           </SecondaryButton>
+          {allowance > 0 &&
+          ((isWizard && wizardStep === 5) || (!isWizard && formStep === 1)) ? (
+            <PrimaryButton
+              clickHandler={onCancelApprove}
+              isLoading={isCancellingApprove}
+              disabled={isCancellingApprove}
+            >
+              {isCancellingApprove ? 'Cancelling Approval' : 'Cancel Approve'}
+            </PrimaryButton>
+          ) : null}
           <PrimaryButton
             clickHandler={onNext}
             isLoading={isApproving || isSubmitting || isSigning || isBTCSigning}
@@ -948,7 +965,6 @@ export const TransferWidget = ({
       </div>
       <SolanaWalletConnectModal />
       <TronWalletConnectModal />
-      <HelpPopup />
       {sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT ? (
         <BankPopup setVerifying={setVerifying} isVerifying={isVerifying} />
       ) : null}

@@ -2,11 +2,16 @@ import React from 'react'
 import { useSelector } from 'react-redux'
 import { CheckIcon, WarningIcon } from '../../assets/icons'
 import { Loading180Ring } from '../../assets/loading'
-import { TransactionData } from '../../interface'
-import { selectKimaExplorer, selectTheme } from '../../store/selectors'
+import { NetworkOptions, TransactionData } from '../../interface'
+import {
+  selectKimaExplorer,
+  selectNetworkOption,
+  selectTheme
+} from '../../store/selectors'
 import {
   ChainName,
-  CHAIN_NAMES_TO_EXPLORER,
+  CHAIN_NAMES_TO_EXPLORER_MAINNET,
+  CHAIN_NAMES_TO_EXPLORER_TESTNET,
   CHAIN_NAMES_TO_STRING
 } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
@@ -41,6 +46,11 @@ const stepInfo = [
 const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
   const theme = useSelector(selectTheme)
   const explorerUrl = useSelector(selectKimaExplorer)
+  const networkOption = useSelector(selectNetworkOption)
+  const CHAIN_NAMES_TO_EXPLORER =
+    networkOption === NetworkOptions.mainnet
+      ? CHAIN_NAMES_TO_EXPLORER_MAINNET
+      : CHAIN_NAMES_TO_EXPLORER_TESTNET
 
   return (
     <div className='kima-stepbox'>
@@ -89,7 +99,8 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                         data?.sourceChain || ChainName.ETHEREUM
                       ]
                     }/${data?.sourceChain === ChainName.TRON ? 'transaction' : 'tx'}/${data?.tssPullHash}${
-                      data?.sourceChain === ChainName.SOLANA
+                      data?.sourceChain === ChainName.SOLANA &&
+                      networkOption === NetworkOptions.testnet
                         ? '?cluster=devnet'
                         : ''
                     }`}
@@ -115,7 +126,8 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                         data?.targetChain || ChainName.ETHEREUM
                       ]
                     }/${data?.targetChain === ChainName.TRON ? 'transaction' : 'tx'}/${data?.tssReleaseHash}${
-                      data?.targetChain === ChainName.SOLANA
+                      data?.targetChain === ChainName.SOLANA &&
+                      networkOption === NetworkOptions.testnet
                         ? '?cluster=devnet'
                         : ''
                     }`}

@@ -1,6 +1,10 @@
 export { ChainName as SupportNetworks } from './utils/constants';
 export { CHAIN_STRING_TO_NAME, CHAIN_NAMES_TO_STRING } from './utils/constants';
 import { ChainName as SupportNetworks, TransactionStatus } from './utils/constants';
+export declare enum NetworkOptions {
+    testnet = "testnet",
+    mainnet = "mainnet"
+}
 export declare enum FontSizeOptions {
     large = "large",
     medium = "medium",
@@ -13,6 +17,7 @@ export declare enum ModeOptions {
 }
 export declare enum CurrencyOptions {
     USDK = "USDK",
+    USDT = "USDT",
     G$ = "GDOLLAR"
 }
 export declare enum ColorModeOptions {

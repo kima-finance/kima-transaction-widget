@@ -1,7 +1,9 @@
-export default function useAllowance({ setApproving }: {
+export default function useAllowance({ setApproving, setCancellingApprove }: {
     setApproving: any;
+    setCancellingApprove: any;
 }): {
     isApproved: boolean;
     poolAddress: string;
-    approve: () => Promise<void>;
+    approve: (isCancel?: boolean) => Promise<void>;
+    allowance: number;
 };

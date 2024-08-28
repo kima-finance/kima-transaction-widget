@@ -8,8 +8,10 @@ import {
 } from '@solana/wallet-adapter-react'
 import {
   ChainName,
-  CHAIN_IDS_TO_NAMES,
-  CHAIN_NAMES_TO_IDS,
+  CHAIN_IDS_TO_NAMES_MAINNET,
+  CHAIN_IDS_TO_NAMES_TESTNET,
+  CHAIN_NAMES_TO_IDS_TESTNET,
+  CHAIN_NAMES_TO_IDS_MAINNET,
   isEVMChain
 } from '../utils/constants'
 import ERC20ABI from '../utils/ethereum/erc20ABI.json'
@@ -23,7 +25,8 @@ import {
   selectServiceFee,
   selectTokenOptions,
   selectTargetChain,
-  selectFeeDeduct
+  selectFeeDeduct,
+  selectNetworkOption
 } from '../store/selectors'
 import { getOrCreateAssociatedTokenAccount } from '../utils/solana/getOrCreateAssociatedTokenAccount'
 import { PublicKey, Transaction } from '@solana/web3.js'
@@ -31,9 +34,9 @@ import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import { createApproveTransferInstruction } from '../utils/solana/createTransferInstruction'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
-import { tronWeb } from '../tronweb'
+import { tronWebMainnet, tronWebTestnet } from '../tronweb'
 import { fromHex } from '../utils/func'
-import { Web3ModalAccountInfo } from '../interface'
+import { NetworkOptions, Web3ModalAccountInfo } from '../interface'
 import {
   useWeb3ModalAccount,
   useWeb3ModalProvider
@@ -52,7 +55,13 @@ type ParsedAccountData = {
   space: number
 }
 
-export default function useAllowance({ setApproving }: { setApproving: any }) {
+export default function useAllowance({
+  setApproving,
+  setCancellingApprove
+}: {
+  setApproving: any
+  setCancellingApprove: any
+}) {
   const [allowance, setAllowance] = useState<number>(0)
   const [decimals, setDecimals] = useState<number | null>(null)
   const web3ModalAccountInfo: Web3ModalAccountInfo = useWeb3ModalAccount()
@@ -70,6 +79,7 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
   const dAppOption = useSelector(selectDappOption)
   const targetChain = useSelector(selectTargetChain)
   const feeDeduct = useSelector(selectFeeDeduct)
+  const networkOption = useSelector(selectNetworkOption)
   const sourceChain = useMemo(() => {
     if (
       selectedNetwork === ChainName.SOLANA ||
@@ -77,12 +87,20 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
       selectedNetwork === ChainName.BTC
     )
       return selectedNetwork
+    const CHAIN_NAMES_TO_IDS =
+      networkOption === NetworkOptions.mainnet
+        ? CHAIN_NAMES_TO_IDS_MAINNET
+        : CHAIN_NAMES_TO_IDS_TESTNET
+    const CHAIN_IDS_TO_NAMES =
+      networkOption === NetworkOptions.mainnet
+        ? CHAIN_IDS_TO_NAMES_MAINNET
+        : CHAIN_IDS_TO_NAMES_TESTNET
     if (CHAIN_NAMES_TO_IDS[selectedNetwork] !== evmChainId) {
       return CHAIN_IDS_TO_NAMES[evmChainId as number]
     }
 
     return selectedNetwork
-  }, [selectedNetwork, evmChainId])
+  }, [selectedNetwork, evmChainId, networkOption])
   const amount = useSelector(selectAmount)
   const serviceFee = useSelector(selectServiceFee)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
@@ -156,6 +174,10 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
   useEffect(() => {
     ;(async () => {
       try {
+        const tronWeb =
+          networkOption === NetworkOptions.mainnet
+            ? tronWebMainnet
+            : tronWebTestnet
         if (!isEVMChain(sourceChain)) {
           if (solanaAddress && tokenAddress && connection) {
             const mint = new PublicKey(tokenAddress)
@@ -226,145 +248,173 @@ export default function useAllowance({ setApproving }: { setApproving: any }) {
     sourceChain,
     solanaAddress,
     tronAddress,
-    walletProvider
-  ])
-
-  const approve = useCallback(async () => {
-    if (isEVMChain(sourceChain)) {
-      const provider = new ethers.providers.Web3Provider(
-        walletProvider as ExternalProvider | JsonRpcFetchFunc
-      )
-      const signer = provider.getSigner()
-      if (!decimals || !tokenAddress || !signer || !targetAddress) return
-
-      try {
-        const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer)
-
-        setApproving(true)
-        const approve = await erc20Contract.approve(
-          targetAddress,
-          parseUnits(amountToShow, decimals)
-        )
-
-        await approve.wait()
-        setApproving(false)
-        setAllowance(+amountToShow)
-      } catch (error) {
-        errorHandler(error)
-        setApproving(false)
-      }
-
-      return
-    }
-
-    if (sourceChain === ChainName.TRON) {
-      if (!decimals || !tokenAddress || !targetAddress || !signTronTransaction)
-        return
-
-      try {
-        setApproving(true)
-        const functionSelector = 'approve(address,uint256)'
-        const parameter = [
-          { type: 'address', value: targetAddress },
-          {
-            type: 'uint256',
-            value: parseUnits(amountToShow, decimals).toString()
-          }
-        ]
-
-        const tx = await tronWeb.transactionBuilder.triggerSmartContract(
-          tronWeb.address.toHex(tokenAddress),
-          functionSelector,
-          {},
-          parameter,
-          tronWeb.address.toHex(tronAddress)
-        )
-        const signedTx = await signTronTransaction(tx.transaction)
-        await tronWeb.trx.sendRawTransaction(signedTx)
-
-        setApproving(false)
-        setAllowance(+amountToShow)
-      } catch (error) {
-        errorHandler(error)
-        setApproving(false)
-      }
-      return
-    }
-
-    // Solana
-    if (!signSolanaTransaction) return
-
-    try {
-      setApproving(true)
-      const mint = new PublicKey(tokenAddress)
-      const toPublicKey = new PublicKey(targetAddress as string)
-      const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
-        connection,
-        solanaAddress as PublicKey,
-        mint,
-        solanaAddress as PublicKey,
-        signSolanaTransaction /* as SignerWalletAdapterProps['signTransaction']*/
-      )
-
-      const transaction = new Transaction().add(
-        createApproveTransferInstruction(
-          fromTokenAccount.address, // source
-          toPublicKey, // dest
-          solanaAddress as PublicKey,
-          +amountToShow * Math.pow(10, decimals ?? 6), // amount * LAMPORTS_PER_SOL,
-          [],
-          TOKEN_PROGRAM_ID
-        )
-      )
-
-      const blockHash = await connection.getLatestBlockhash()
-      transaction.feePayer = solanaAddress as PublicKey
-      transaction.recentBlockhash = await blockHash.blockhash
-      const signed = await signSolanaTransaction(transaction)
-
-      await connection.sendRawTransaction(signed.serialize())
-
-      let accountInfo
-      let allowAmount = 0
-      let retryCount = 0
-
-      do {
-        accountInfo = await connection.getParsedAccountInfo(
-          fromTokenAccount.address
-        )
-
-        const parsedAccountInfo = accountInfo?.value?.data as ParsedAccountData
-        allowAmount =
-          parsedAccountInfo.parsed?.info?.delegate === targetAddress
-            ? parsedAccountInfo.parsed?.info?.delegatedAmount?.uiAmount
-            : 0
-
-        await sleep(1000)
-      } while (allowAmount < +amountToShow || retryCount++ < 5)
-
-      setAllowance(+amountToShow)
-      setApproving(false)
-    } catch (e) {
-      errorHandler(e)
-      setApproving(false)
-    }
-  }, [
-    decimals,
-    tokenAddress,
     walletProvider,
-    targetAddress,
-    tronAddress,
-    signSolanaTransaction,
-    signTronTransaction,
-    amountToShow
+    networkOption
   ])
+
+  const approve = useCallback(
+    async (isCancel = false) => {
+      if (isEVMChain(sourceChain)) {
+        const provider = new ethers.providers.Web3Provider(
+          walletProvider as ExternalProvider | JsonRpcFetchFunc
+        )
+        const signer = provider.getSigner()
+        if (!decimals || !tokenAddress || !signer || !targetAddress) return
+
+        try {
+          const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer)
+
+          isCancel ? setCancellingApprove(true) : setApproving(true)
+
+          const approve = await erc20Contract.approve(
+            targetAddress,
+            parseUnits(isCancel ? '0' : amountToShow, decimals),
+            networkOption === NetworkOptions.mainnet &&
+              sourceChain === ChainName.ETHEREUM
+              ? { gasLimit: 60000 }
+              : {}
+          )
+
+          await approve.wait()
+          isCancel ? setCancellingApprove(false) : setApproving(false)
+          setAllowance(+amountToShow)
+        } catch (error) {
+          errorHandler(error)
+          isCancel ? setCancellingApprove(false) : setApproving(false)
+        }
+
+        return
+      }
+
+      if (sourceChain === ChainName.TRON) {
+        if (
+          !decimals ||
+          !tokenAddress ||
+          !targetAddress ||
+          !signTronTransaction
+        )
+          return
+
+        try {
+          isCancel ? setCancellingApprove(true) : setApproving(true)
+          const functionSelector = 'approve(address,uint256)'
+          const parameter = [
+            { type: 'address', value: targetAddress },
+            {
+              type: 'uint256',
+              value: parseUnits(
+                isCancel ? '0' : amountToShow,
+                decimals
+              ).toString()
+            }
+          ]
+
+          const tronWeb =
+            networkOption === NetworkOptions.mainnet
+              ? tronWebMainnet
+              : tronWebTestnet
+          const tx = await tronWeb.transactionBuilder.triggerSmartContract(
+            tronWeb.address.toHex(tokenAddress),
+            functionSelector,
+            {},
+            parameter,
+            tronWeb.address.toHex(tronAddress)
+          )
+          const signedTx = await signTronTransaction(tx.transaction)
+          await tronWeb.trx.sendRawTransaction(signedTx)
+
+          isCancel ? setCancellingApprove(false) : setApproving(false)
+          setAllowance(+amountToShow)
+        } catch (error) {
+          errorHandler(error)
+          isCancel ? setCancellingApprove(false) : setApproving(false)
+        }
+        return
+      }
+
+      // Solana
+      if (!signSolanaTransaction) return
+
+      try {
+        isCancel ? setCancellingApprove(true) : setApproving(true)
+        const mint = new PublicKey(tokenAddress)
+        const toPublicKey = new PublicKey(targetAddress as string)
+        const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
+          connection,
+          solanaAddress as PublicKey,
+          mint,
+          solanaAddress as PublicKey,
+          signSolanaTransaction /* as SignerWalletAdapterProps['signTransaction']*/
+        )
+
+        const transaction = new Transaction().add(
+          createApproveTransferInstruction(
+            fromTokenAccount.address, // source
+            toPublicKey, // dest
+            solanaAddress as PublicKey,
+            isCancel ? 0 : +amountToShow * Math.pow(10, decimals ?? 6), // amount * LAMPORTS_PER_SOL,
+            [],
+            TOKEN_PROGRAM_ID
+          )
+        )
+
+        const blockHash = await connection.getLatestBlockhash()
+        transaction.feePayer = solanaAddress as PublicKey
+        transaction.recentBlockhash = await blockHash.blockhash
+        const signed = await signSolanaTransaction(transaction)
+
+        await connection.sendRawTransaction(signed.serialize())
+
+        let accountInfo
+        let allowAmount = 0
+        let retryCount = 0
+
+        if (isCancel) {
+          do {
+            accountInfo = await connection.getParsedAccountInfo(
+              fromTokenAccount.address
+            )
+
+            const parsedAccountInfo = accountInfo?.value
+              ?.data as ParsedAccountData
+            allowAmount =
+              parsedAccountInfo.parsed?.info?.delegate === targetAddress
+                ? parsedAccountInfo.parsed?.info?.delegatedAmount?.uiAmount
+                : 0
+
+            await sleep(1000)
+          } while (allowAmount < +amountToShow || retryCount++ < 5)
+
+          setAllowance(+amountToShow)
+        } else {
+          setAllowance(0)
+        }
+        isCancel ? setCancellingApprove(false) : setApproving(false)
+      } catch (e) {
+        errorHandler(e)
+        isCancel ? setCancellingApprove(false) : setApproving(false)
+      }
+    },
+    [
+      decimals,
+      tokenAddress,
+      walletProvider,
+      targetAddress,
+      tronAddress,
+      signSolanaTransaction,
+      signTronTransaction,
+      amountToShow,
+      networkOption
+    ]
+  )
 
   return useMemo(
     () => ({
       isApproved,
       poolAddress,
-      approve
+      approve,
+      allowance
     }),
-    [isApproved, poolAddress, approve]
+    [isApproved, poolAddress, approve, allowance]
   )
 }

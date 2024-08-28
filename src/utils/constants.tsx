@@ -28,7 +28,7 @@ export enum ChainName {
   BTC = 'BTC'
 }
 
-export enum SupportedChainId {
+export enum SupportedChainIdTestnet {
   ETHEREUM = 11155111,
   POLYGON = 80002,
   AVALANCHE = 43113,
@@ -38,14 +38,38 @@ export enum SupportedChainId {
   POLYGON_ZKEM = 2442
 }
 
-export const CHAIN_NAMES_TO_IDS: { [chainName: string]: SupportedChainId } = {
-  [ChainName.ETHEREUM]: SupportedChainId.ETHEREUM,
-  [ChainName.POLYGON]: SupportedChainId.POLYGON,
-  [ChainName.AVALANCHE]: SupportedChainId.AVALANCHE,
-  [ChainName.BSC]: SupportedChainId.BSC,
-  [ChainName.OPTIMISM]: SupportedChainId.OPTIMISM,
-  [ChainName.ARBITRUM]: SupportedChainId.ARBITRUM,
-  [ChainName.POLYGON_ZKEVM]: SupportedChainId.POLYGON_ZKEM
+export const CHAIN_NAMES_TO_IDS_TESTNET: {
+  [chainName: string]: SupportedChainIdTestnet
+} = {
+  [ChainName.ETHEREUM]: SupportedChainIdTestnet.ETHEREUM,
+  [ChainName.POLYGON]: SupportedChainIdTestnet.POLYGON,
+  [ChainName.AVALANCHE]: SupportedChainIdTestnet.AVALANCHE,
+  [ChainName.BSC]: SupportedChainIdTestnet.BSC,
+  [ChainName.OPTIMISM]: SupportedChainIdTestnet.OPTIMISM,
+  [ChainName.ARBITRUM]: SupportedChainIdTestnet.ARBITRUM,
+  [ChainName.POLYGON_ZKEVM]: SupportedChainIdTestnet.POLYGON_ZKEM
+}
+
+export enum SupportedChainIdMainnet {
+  ETHEREUM = 1,
+  POLYGON = 137,
+  AVALANCHE = 43114,
+  BSC = 56,
+  ARBITRUM = 42161,
+  OPTIMISM = 10,
+  POLYGON_ZKEM = 1101
+}
+
+export const CHAIN_NAMES_TO_IDS_MAINNET: {
+  [chainName: string]: SupportedChainIdMainnet
+} = {
+  [ChainName.ETHEREUM]: SupportedChainIdMainnet.ETHEREUM,
+  [ChainName.POLYGON]: SupportedChainIdMainnet.POLYGON,
+  [ChainName.AVALANCHE]: SupportedChainIdMainnet.AVALANCHE,
+  [ChainName.BSC]: SupportedChainIdMainnet.BSC,
+  [ChainName.OPTIMISM]: SupportedChainIdMainnet.OPTIMISM,
+  [ChainName.ARBITRUM]: SupportedChainIdMainnet.ARBITRUM,
+  [ChainName.POLYGON_ZKEVM]: SupportedChainIdMainnet.POLYGON_ZKEM
 }
 
 export const CHAIN_NAMES_TO_STRING: { [chainName: string]: string } = {
@@ -76,40 +100,52 @@ export const CHAIN_STRING_TO_NAME: { [chainName: string]: ChainName } = {
   ['Bitcoin']: ChainName.BTC
 }
 
-export const CHAIN_NAMES_TO_EXPLORER: { [chainName: string]: string } = {
-  [ChainName.ETHEREUM]: 'sepolia.etherscan.io',
-  [ChainName.POLYGON]: 'www.oklink.com/amoy',
-  [ChainName.AVALANCHE]: 'testnet.snowtrace.io',
-  [ChainName.SOLANA]: 'solscan.io',
-  [ChainName.BSC]: 'testnet.bscscan.com',
-  [ChainName.OPTIMISM]: 'sepolia-optimism.etherscan.io',
-  [ChainName.ARBITRUM]: 'sepolia.arbiscan.io',
-  [ChainName.POLYGON_ZKEVM]: 'cardona-zkevm.polygonscan.com',
-  [ChainName.TRON]: 'nile.tronscan.org/#',
-  [ChainName.BTC]: 'mempool.space/testnet'
+export const CHAIN_NAMES_TO_EXPLORER_TESTNET: { [chainName: string]: string } =
+  {
+    [ChainName.ETHEREUM]: 'sepolia.etherscan.io',
+    [ChainName.POLYGON]: 'www.oklink.com/amoy',
+    [ChainName.AVALANCHE]: 'testnet.snowtrace.io',
+    [ChainName.SOLANA]: 'solscan.io',
+    [ChainName.BSC]: 'testnet.bscscan.com',
+    [ChainName.OPTIMISM]: 'sepolia-optimism.etherscan.io',
+    [ChainName.ARBITRUM]: 'sepolia.arbiscan.io',
+    [ChainName.POLYGON_ZKEVM]: 'cardona-zkevm.polygonscan.com',
+    [ChainName.TRON]: 'nile.tronscan.org/#',
+    [ChainName.BTC]: 'mempool.space/testnet'
+  }
+
+export const CHAIN_NAMES_TO_EXPLORER_MAINNET: { [chainName: string]: string } =
+  {
+    [ChainName.ETHEREUM]: 'etherscan.io',
+    [ChainName.POLYGON]: 'polygonscan.com',
+    [ChainName.AVALANCHE]: 'snowtrace.io',
+    [ChainName.SOLANA]: 'solscan.io',
+    [ChainName.BSC]: 'bscscan.com',
+    [ChainName.OPTIMISM]: 'optimistic.etherscan.io',
+    [ChainName.ARBITRUM]: 'arbiscan.io',
+    [ChainName.POLYGON_ZKEVM]: 'zkevm.polygonscan.com',
+    [ChainName.TRON]: 'tronscan.org/#',
+    [ChainName.BTC]: 'mempool.space'
+  }
+
+export const CHAIN_IDS_TO_NAMES_TESTNET: { [chainId: number]: string } = {
+  [SupportedChainIdTestnet.ETHEREUM]: ChainName.ETHEREUM,
+  [SupportedChainIdTestnet.POLYGON]: ChainName.POLYGON,
+  [SupportedChainIdTestnet.AVALANCHE]: ChainName.AVALANCHE,
+  [SupportedChainIdTestnet.BSC]: ChainName.BSC,
+  [SupportedChainIdTestnet.OPTIMISM]: ChainName.OPTIMISM,
+  [SupportedChainIdTestnet.ARBITRUM]: ChainName.ARBITRUM,
+  [SupportedChainIdTestnet.POLYGON_ZKEM]: ChainName.POLYGON_ZKEVM
 }
 
-// export const CHAIN_NAMES_TO_GECKO_ID: { [chainName: string]: string } = {
-//   [ChainName.ETHEREUM]: 'ethereum',
-//   [ChainName.POLYGON]: 'matic-network',
-//   [ChainName.AVALANCHE]: 'avalanche-2',
-//   [ChainName.SOLANA]: 'solana',
-//   [ChainName.BSC]: 'binancecoin',
-//   [ChainName.OPTIMISM]: 'ethereum',
-//   [ChainName.ARBITRUM]: 'ethereum',
-//   [ChainName.POLYGON_ZKEVM]: 'matic-network',
-//   [ChainName.TRON]: 'tron',
-//   [ChainName.BTC]: 'btc'
-// }
-
-export const CHAIN_IDS_TO_NAMES: { [chainId: number]: string } = {
-  [SupportedChainId.ETHEREUM]: ChainName.ETHEREUM,
-  [SupportedChainId.POLYGON]: ChainName.POLYGON,
-  [SupportedChainId.AVALANCHE]: ChainName.AVALANCHE,
-  [SupportedChainId.BSC]: ChainName.BSC,
-  [SupportedChainId.OPTIMISM]: ChainName.OPTIMISM,
-  [SupportedChainId.ARBITRUM]: ChainName.ARBITRUM,
-  [SupportedChainId.POLYGON_ZKEM]: ChainName.POLYGON_ZKEVM
+export const CHAIN_IDS_TO_NAMES_MAINNET: { [chainId: number]: string } = {
+  [SupportedChainIdMainnet.ETHEREUM]: ChainName.ETHEREUM,
+  [SupportedChainIdMainnet.POLYGON]: ChainName.POLYGON,
+  [SupportedChainIdMainnet.AVALANCHE]: ChainName.AVALANCHE,
+  [SupportedChainIdMainnet.BSC]: ChainName.BSC,
+  [SupportedChainIdMainnet.OPTIMISM]: ChainName.OPTIMISM,
+  [SupportedChainIdMainnet.ARBITRUM]: ChainName.ARBITRUM,
+  [SupportedChainIdMainnet.POLYGON_ZKEM]: ChainName.POLYGON_ZKEVM
 }
 
 export const networkOptions = [
@@ -196,11 +232,14 @@ export const COIN_LIST: CoinOptions = {
     symbol: 'USDK',
     icon: USDTIcon
   },
+  USDT: {
+    symbol: 'USDT',
+    icon: USDTIcon
+  },
   KEUR: {
     symbol: 'KEUR',
     icon: KEURICON
   },
-
   WBTC: {
     symbol: 'WBTC',
     icon: BTCIcon
@@ -235,3 +274,5 @@ export type PendingTxData = {
   status: string
   hash: string
 }
+
+export const TRON_USDK_OWNER_ADDRESS = 'TBVn4bsBN4DhtZ7D3vEVpAyqkvdFn7zmpU'

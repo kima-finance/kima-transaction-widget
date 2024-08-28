@@ -4,6 +4,8 @@ import { RootState } from '.'
  * Option
  */
 
+export const selectNetworkOption = (state: RootState) =>
+  state.option.networkOption
 export const selectTokenOptions = (state: RootState) =>
   state.option.tokenOptions
 export const selectTheme = (state: RootState) => state.option.theme

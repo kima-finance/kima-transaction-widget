@@ -1,1 +1,2 @@
-export declare const tronWeb: any;
+export declare const tronWebTestnet: any;
+export declare const tronWebMainnet: any;

@@ -1,4 +1,5 @@
 import { RootState } from '.';
+export declare const selectNetworkOption: (state: RootState) => any;
 export declare const selectTokenOptions: (state: RootState) => any;
 export declare const selectTheme: (state: RootState) => any;
 export declare const selectKimaExplorer: (state: RootState) => any;
