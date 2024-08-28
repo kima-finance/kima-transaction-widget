@@ -7359,7 +7359,8 @@ function fromHex(address) {
 }
 
 function useAllowance(_ref) {
-  var setApproving = _ref.setApproving;
+  var setApproving = _ref.setApproving,
+    setCancellingApprove = _ref.setCancellingApprove;
   var _useState = React.useState(0),
     allowance = _useState[0],
     setAllowance = _useState[1];
@@ -7522,45 +7523,57 @@ function useAllowance(_ref) {
       }
     })();
   }, [signerAddress, tokenAddress, targetAddress, sourceChain, solanaAddress, tronAddress, walletProvider, networkOption]);
-  var approve = React.useCallback(function () {
+  var approve = React.useCallback(function (isCancel) {
+    if (isCancel === void 0) {
+      isCancel = false;
+    }
     try {
-      var _temp17 = function _temp17(_result4) {
+      var _temp19 = function _temp19(_result4) {
         var _exit3 = false;
         if (_exit2) return _result4;
-        function _temp15(_result5) {
+        function _temp17(_result5) {
           if (_exit3) return _result5;
           if (!signSolanaTransaction) return;
-          var _temp13 = _catch(function () {
-            setApproving(true);
+          var _temp15 = _catch(function () {
+            isCancel ? setCancellingApprove(true) : setApproving(true);
             var mint = new web3_js.PublicKey(tokenAddress);
             var toPublicKey = new web3_js.PublicKey(targetAddress);
             return Promise.resolve(getOrCreateAssociatedTokenAccount(connection, solanaAddress, mint, solanaAddress, signSolanaTransaction)).then(function (fromTokenAccount) {
-              var transaction = new web3_js.Transaction().add(createApproveTransferInstruction(fromTokenAccount.address, toPublicKey, solanaAddress, +amountToShow * Math.pow(10, decimals != null ? decimals : 6), [], splToken.TOKEN_PROGRAM_ID));
+              var transaction = new web3_js.Transaction().add(createApproveTransferInstruction(fromTokenAccount.address, toPublicKey, solanaAddress, isCancel ? 0 : +amountToShow * Math.pow(10, decimals != null ? decimals : 6), [], splToken.TOKEN_PROGRAM_ID));
               return Promise.resolve(connection.getLatestBlockhash()).then(function (blockHash) {
                 transaction.feePayer = solanaAddress;
                 return Promise.resolve(blockHash.blockhash).then(function (_blockHash$blockhash) {
                   transaction.recentBlockhash = _blockHash$blockhash;
                   return Promise.resolve(signSolanaTransaction(transaction)).then(function (signed) {
                     return Promise.resolve(connection.sendRawTransaction(signed.serialize())).then(function () {
-                      function _temp12() {
-                        setAllowance(+amountToShow);
-                        setApproving(false);
+                      function _temp14() {
+                        isCancel ? setCancellingApprove(false) : setApproving(false);
                       }
                       var accountInfo;
                       var allowAmount = 0;
                       var retryCount = 0;
-                      var _temp11 = _do(function () {
-                        return Promise.resolve(connection.getParsedAccountInfo(fromTokenAccount.address)).then(function (_connection$getParsed) {
-                          var _accountInfo, _accountInfo$value2, _parsedAccountInfo$pa9, _parsedAccountInfo$pa10, _parsedAccountInfo$pa11, _parsedAccountInfo$pa12, _parsedAccountInfo$pa13;
-                          accountInfo = _connection$getParsed;
-                          var parsedAccountInfo = (_accountInfo = accountInfo) === null || _accountInfo === void 0 ? void 0 : (_accountInfo$value2 = _accountInfo.value) === null || _accountInfo$value2 === void 0 ? void 0 : _accountInfo$value2.data;
-                          allowAmount = ((_parsedAccountInfo$pa9 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa9 === void 0 ? void 0 : (_parsedAccountInfo$pa10 = _parsedAccountInfo$pa9.info) === null || _parsedAccountInfo$pa10 === void 0 ? void 0 : _parsedAccountInfo$pa10.delegate) === targetAddress ? (_parsedAccountInfo$pa11 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa11 === void 0 ? void 0 : (_parsedAccountInfo$pa12 = _parsedAccountInfo$pa11.info) === null || _parsedAccountInfo$pa12 === void 0 ? void 0 : (_parsedAccountInfo$pa13 = _parsedAccountInfo$pa12.delegatedAmount) === null || _parsedAccountInfo$pa13 === void 0 ? void 0 : _parsedAccountInfo$pa13.uiAmount : 0;
-                          return Promise.resolve(sleep(1000)).then(function () {});
-                        });
-                      }, function () {
-                        return allowAmount < +amountToShow || retryCount++ < 5;
-                      });
-                      return _temp11 && _temp11.then ? _temp11.then(_temp12) : _temp12(_temp11);
+                      var _temp13 = function () {
+                        if (isCancel) {
+                          var _temp12 = function _temp12() {
+                            setAllowance(+amountToShow);
+                          };
+                          var _temp11 = _do(function () {
+                            return Promise.resolve(connection.getParsedAccountInfo(fromTokenAccount.address)).then(function (_connection$getParsed) {
+                              var _accountInfo, _accountInfo$value2, _parsedAccountInfo$pa9, _parsedAccountInfo$pa10, _parsedAccountInfo$pa11, _parsedAccountInfo$pa12, _parsedAccountInfo$pa13;
+                              accountInfo = _connection$getParsed;
+                              var parsedAccountInfo = (_accountInfo = accountInfo) === null || _accountInfo === void 0 ? void 0 : (_accountInfo$value2 = _accountInfo.value) === null || _accountInfo$value2 === void 0 ? void 0 : _accountInfo$value2.data;
+                              allowAmount = ((_parsedAccountInfo$pa9 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa9 === void 0 ? void 0 : (_parsedAccountInfo$pa10 = _parsedAccountInfo$pa9.info) === null || _parsedAccountInfo$pa10 === void 0 ? void 0 : _parsedAccountInfo$pa10.delegate) === targetAddress ? (_parsedAccountInfo$pa11 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa11 === void 0 ? void 0 : (_parsedAccountInfo$pa12 = _parsedAccountInfo$pa11.info) === null || _parsedAccountInfo$pa12 === void 0 ? void 0 : (_parsedAccountInfo$pa13 = _parsedAccountInfo$pa12.delegatedAmount) === null || _parsedAccountInfo$pa13 === void 0 ? void 0 : _parsedAccountInfo$pa13.uiAmount : 0;
+                              return Promise.resolve(sleep(1000)).then(function () {});
+                            });
+                          }, function () {
+                            return allowAmount < +amountToShow || retryCount++ < 5;
+                          });
+                          return _temp11 && _temp11.then ? _temp11.then(_temp12) : _temp12(_temp11);
+                        } else {
+                          setAllowance(0);
+                        }
+                      }();
+                      return _temp13 && _temp13.then ? _temp13.then(_temp14) : _temp14(_temp13);
                     });
                   });
                 });
@@ -7568,11 +7581,11 @@ function useAllowance(_ref) {
             });
           }, function (e) {
             errorHandler(e);
-            setApproving(false);
+            isCancel ? setCancellingApprove(false) : setApproving(false);
           });
-          if (_temp13 && _temp13.then) return _temp13.then(function () {});
+          if (_temp15 && _temp15.then) return _temp15.then(function () {});
         }
-        var _temp14 = function () {
+        var _temp16 = function () {
           if (sourceChain === exports.SupportNetworks.TRON) {
             var _temp10 = function _temp10() {
               _exit3 = true;
@@ -7582,36 +7595,35 @@ function useAllowance(_ref) {
               return;
             }
             var _temp9 = _catch(function () {
-              setApproving(true);
+              isCancel ? setCancellingApprove(true) : setApproving(true);
               var functionSelector = 'approve(address,uint256)';
               var parameter = [{
                 type: 'address',
                 value: targetAddress
               }, {
                 type: 'uint256',
-                value: units.parseUnits(amountToShow, decimals).toString()
+                value: units.parseUnits(isCancel ? '0' : amountToShow, decimals).toString()
               }];
               var tronWeb = networkOption === exports.NetworkOptions.mainnet ? tronWebMainnet : tronWebTestnet;
-              console.log(tokenAddress, tronWeb);
               return Promise.resolve(tronWeb.transactionBuilder.triggerSmartContract(tronWeb.address.toHex(tokenAddress), functionSelector, {}, parameter, tronWeb.address.toHex(tronAddress))).then(function (tx) {
                 return Promise.resolve(signTronTransaction(tx.transaction)).then(function (signedTx) {
                   return Promise.resolve(tronWeb.trx.sendRawTransaction(signedTx)).then(function () {
-                    setApproving(false);
+                    isCancel ? setCancellingApprove(false) : setApproving(false);
                     setAllowance(+amountToShow);
                   });
                 });
               });
             }, function (error) {
               errorHandler(error);
-              setApproving(false);
+              isCancel ? setCancellingApprove(false) : setApproving(false);
             });
             return _temp9 && _temp9.then ? _temp9.then(_temp10) : _temp10(_temp9);
           }
         }();
-        return _temp14 && _temp14.then ? _temp14.then(_temp15) : _temp15(_temp14);
+        return _temp16 && _temp16.then ? _temp16.then(_temp17) : _temp17(_temp16);
       };
       var _exit2 = false;
-      var _temp16 = function () {
+      var _temp18 = function () {
         if (isEVMChain(sourceChain)) {
           var _temp8 = function _temp8() {
             _exit2 = true;
@@ -7624,23 +7636,23 @@ function useAllowance(_ref) {
           }
           var _temp7 = _catch(function () {
             var erc20Contract = new contracts.Contract(tokenAddress, ERC20ABI.abi, signer);
-            setApproving(true);
-            return Promise.resolve(erc20Contract.approve(targetAddress, units.parseUnits(amountToShow, decimals), networkOption === exports.NetworkOptions.mainnet && sourceChain === exports.SupportNetworks.ETHEREUM ? {
+            isCancel ? setCancellingApprove(true) : setApproving(true);
+            return Promise.resolve(erc20Contract.approve(targetAddress, units.parseUnits(isCancel ? '0' : amountToShow, decimals), networkOption === exports.NetworkOptions.mainnet && sourceChain === exports.SupportNetworks.ETHEREUM ? {
               gasLimit: 60000
             } : {})).then(function (approve) {
               return Promise.resolve(approve.wait()).then(function () {
-                setApproving(false);
+                isCancel ? setCancellingApprove(false) : setApproving(false);
                 setAllowance(+amountToShow);
               });
             });
           }, function (error) {
             errorHandler(error);
-            setApproving(false);
+            isCancel ? setCancellingApprove(false) : setApproving(false);
           });
           return _temp7 && _temp7.then ? _temp7.then(_temp8) : _temp8(_temp7);
         }
       }();
-      return Promise.resolve(_temp16 && _temp16.then ? _temp16.then(_temp17) : _temp17(_temp16));
+      return Promise.resolve(_temp18 && _temp18.then ? _temp18.then(_temp19) : _temp19(_temp18));
     } catch (e) {
       return Promise.reject(e);
     }
@@ -7649,9 +7661,10 @@ function useAllowance(_ref) {
     return {
       isApproved: isApproved,
       poolAddress: poolAddress,
-      approve: approve
+      approve: approve,
+      allowance: allowance
     };
-  }, [isApproved, poolAddress, approve]);
+  }, [isApproved, poolAddress, approve, allowance]);
 }
 
 var AddressInputWizard = function AddressInputWizard() {
@@ -8013,7 +8026,7 @@ function output(out, instance) {
 exports.output = output;
 const assert = { number, bool, bytes, hash, exists, output };
 exports.default = assert;
-
+//# sourceMappingURL=_assert.js.map
 });
 
 unwrapExports(_assert);
@@ -8022,7 +8035,7 @@ var crypto = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.crypto = void 0;
 exports.crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
-
+//# sourceMappingURL=crypto.js.map
 });
 
 unwrapExports(crypto);
@@ -8224,7 +8237,7 @@ function randomBytes(bytesLength = 32) {
     throw new Error('crypto.getRandomValues must be defined');
 }
 exports.randomBytes = randomBytes;
-
+//# sourceMappingURL=utils.js.map
 });
 
 unwrapExports(utils);
@@ -8346,7 +8359,7 @@ class SHA2 extends utils.Hash {
     }
 }
 exports.SHA2 = SHA2;
-
+//# sourceMappingURL=_sha2.js.map
 });
 
 unwrapExports(_sha2);
@@ -8479,7 +8492,7 @@ class SHA224 extends SHA256 {
  */
 exports.sha256 = (0, utils.wrapConstructor)(() => new SHA256());
 exports.sha224 = (0, utils.wrapConstructor)(() => new SHA224());
-
+//# sourceMappingURL=sha256.js.map
 });
 
 unwrapExports(sha256);
@@ -11961,39 +11974,44 @@ var TransferWidget = function TransferWidget(_ref) {
   var bitcoinPubkey = reactRedux.useSelector(selectBitcoinPubkey);
   var transactionOption = reactRedux.useSelector(selectTransactionOption);
   var _useState4 = React.useState(false),
-    isApproving = _useState4[0],
-    setApproving = _useState4[1];
+    isCancellingApprove = _useState4[0],
+    setCancellingApprove = _useState4[1];
   var _useState5 = React.useState(false),
-    isSubmitting = _useState5[0],
-    setSubmitting = _useState5[1];
+    isApproving = _useState5[0],
+    setApproving = _useState5[1];
   var _useState6 = React.useState(false),
-    isSigning = _useState6[0],
-    setSigning = _useState6[1];
+    isSubmitting = _useState6[0],
+    setSubmitting = _useState6[1];
   var _useState7 = React.useState(false),
-    isBTCSigning = _useState7[0],
-    setBTCSigning = _useState7[1];
+    isSigning = _useState7[0],
+    setSigning = _useState7[1];
   var _useState8 = React.useState(false),
-    isBTCSigned = _useState8[0],
-    setBTCSigned = _useState8[1];
-  var _useState9 = React.useState(''),
-    btcHash = _useState9[0],
-    setBTCHash = _useState9[1];
-  var _useState10 = React.useState(0),
-    btcTimestamp = _useState10[0],
-    setBTCTimestamp = _useState10[1];
-  var _useState11 = React.useState(false),
-    isConfirming = _useState11[0],
-    setConfirming = _useState11[1];
+    isBTCSigning = _useState8[0],
+    setBTCSigning = _useState8[1];
+  var _useState9 = React.useState(false),
+    isBTCSigned = _useState9[0],
+    setBTCSigned = _useState9[1];
+  var _useState10 = React.useState(''),
+    btcHash = _useState10[0],
+    setBTCHash = _useState10[1];
+  var _useState11 = React.useState(0),
+    btcTimestamp = _useState11[0],
+    setBTCTimestamp = _useState11[1];
   var _useState12 = React.useState(false),
-    isVerifying = _useState12[0],
-    setVerifying = _useState12[1];
+    isConfirming = _useState12[0],
+    setConfirming = _useState12[1];
+  var _useState13 = React.useState(false),
+    isVerifying = _useState13[0],
+    setVerifying = _useState13[1];
   var _useIsWalletReady = useIsWalletReady(),
     isReady = _useIsWalletReady.isReady,
     walletAddress = _useIsWalletReady.walletAddress;
   var pendingTxs = reactRedux.useSelector(selectPendingTxs);
   var _useAllowance = useAllowance({
-      setApproving: setApproving
+      setApproving: setApproving,
+      setCancellingApprove: setCancellingApprove
     }),
+    allowance = _useAllowance.allowance,
     approved = _useAllowance.isApproved,
     approve = _useAllowance.approve,
     poolAddress = _useAllowance.poolAddress;
@@ -12528,6 +12546,10 @@ var TransferWidget = function TransferWidget(_ref) {
     }
     return 'Next';
   };
+  var onCancelApprove = function onCancelApprove() {
+    if (isCancellingApprove) return;
+    approve(true);
+  };
   React.useEffect(function () {
     dispatch(setTheme(theme));
   }, [theme]);
@@ -12650,7 +12672,11 @@ var TransferWidget = function TransferWidget(_ref) {
     clickHandler: onBack,
     theme: theme.colorMode,
     disabled: isApproving || isSubmitting || isSigning || isBTCSigning
-  }, isWizard && wizardStep > 0 || !isWizard && formStep > 0 ? 'Back' : 'Cancel'), React__default.createElement(PrimaryButton, {
+  }, isWizard && wizardStep > 0 || !isWizard && formStep > 0 ? 'Back' : 'Cancel'), allowance > 0 && (isWizard && wizardStep === 5 || !isWizard && formStep === 1) ? React__default.createElement(PrimaryButton, {
+    clickHandler: onCancelApprove,
+    isLoading: isCancellingApprove,
+    disabled: isCancellingApprove
+  }, isCancellingApprove ? 'Cancelling Approval' : 'Cancel Approve') : null, React__default.createElement(PrimaryButton, {
     clickHandler: onNext,
     isLoading: isApproving || isSubmitting || isSigning || isBTCSigning,
     disabled: isApproving || isSubmitting || isSigning || isBTCSigning

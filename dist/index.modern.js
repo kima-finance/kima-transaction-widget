@@ -6775,7 +6775,8 @@ function fromHex(address) {
 }
 
 function useAllowance({
-  setApproving
+  setApproving,
+  setCancellingApprove
 }) {
   const [allowance, setAllowance] = useState(0);
   const [decimals, setDecimals] = useState(null);
@@ -6903,58 +6904,57 @@ function useAllowance({
       }
     })();
   }, [signerAddress, tokenAddress, targetAddress, sourceChain, solanaAddress, tronAddress, walletProvider, networkOption]);
-  const approve = useCallback(async () => {
+  const approve = useCallback(async (isCancel = false) => {
     if (isEVMChain(sourceChain)) {
       const provider = new ethers.providers.Web3Provider(walletProvider);
       const signer = provider.getSigner();
       if (!decimals || !tokenAddress || !signer || !targetAddress) return;
       try {
         const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer);
-        setApproving(true);
-        const approve = await erc20Contract.approve(targetAddress, parseUnits(amountToShow, decimals), networkOption === NetworkOptions.mainnet && sourceChain === ChainName.ETHEREUM ? {
+        isCancel ? setCancellingApprove(true) : setApproving(true);
+        const approve = await erc20Contract.approve(targetAddress, parseUnits(isCancel ? '0' : amountToShow, decimals), networkOption === NetworkOptions.mainnet && sourceChain === ChainName.ETHEREUM ? {
           gasLimit: 60000
         } : {});
         await approve.wait();
-        setApproving(false);
+        isCancel ? setCancellingApprove(false) : setApproving(false);
         setAllowance(+amountToShow);
       } catch (error) {
         errorHandler(error);
-        setApproving(false);
+        isCancel ? setCancellingApprove(false) : setApproving(false);
       }
       return;
     }
     if (sourceChain === ChainName.TRON) {
       if (!decimals || !tokenAddress || !targetAddress || !signTronTransaction) return;
       try {
-        setApproving(true);
+        isCancel ? setCancellingApprove(true) : setApproving(true);
         const functionSelector = 'approve(address,uint256)';
         const parameter = [{
           type: 'address',
           value: targetAddress
         }, {
           type: 'uint256',
-          value: parseUnits(amountToShow, decimals).toString()
+          value: parseUnits(isCancel ? '0' : amountToShow, decimals).toString()
         }];
         const tronWeb = networkOption === NetworkOptions.mainnet ? tronWebMainnet : tronWebTestnet;
-        console.log(tokenAddress, tronWeb);
         const tx = await tronWeb.transactionBuilder.triggerSmartContract(tronWeb.address.toHex(tokenAddress), functionSelector, {}, parameter, tronWeb.address.toHex(tronAddress));
         const signedTx = await signTronTransaction(tx.transaction);
         await tronWeb.trx.sendRawTransaction(signedTx);
-        setApproving(false);
+        isCancel ? setCancellingApprove(false) : setApproving(false);
         setAllowance(+amountToShow);
       } catch (error) {
         errorHandler(error);
-        setApproving(false);
+        isCancel ? setCancellingApprove(false) : setApproving(false);
       }
       return;
     }
     if (!signSolanaTransaction) return;
     try {
-      setApproving(true);
+      isCancel ? setCancellingApprove(true) : setApproving(true);
       const mint = new PublicKey(tokenAddress);
       const toPublicKey = new PublicKey(targetAddress);
       const fromTokenAccount = await getOrCreateAssociatedTokenAccount(connection, solanaAddress, mint, solanaAddress, signSolanaTransaction);
-      const transaction = new Transaction().add(createApproveTransferInstruction(fromTokenAccount.address, toPublicKey, solanaAddress, +amountToShow * Math.pow(10, decimals ?? 6), [], TOKEN_PROGRAM_ID));
+      const transaction = new Transaction().add(createApproveTransferInstruction(fromTokenAccount.address, toPublicKey, solanaAddress, isCancel ? 0 : +amountToShow * Math.pow(10, decimals ?? 6), [], TOKEN_PROGRAM_ID));
       const blockHash = await connection.getLatestBlockhash();
       transaction.feePayer = solanaAddress;
       transaction.recentBlockhash = await blockHash.blockhash;
@@ -6963,25 +6963,30 @@ function useAllowance({
       let accountInfo;
       let allowAmount = 0;
       let retryCount = 0;
-      do {
-        var _accountInfo, _accountInfo$value2, _parsedAccountInfo$pa9, _parsedAccountInfo$pa10, _parsedAccountInfo$pa11, _parsedAccountInfo$pa12, _parsedAccountInfo$pa13;
-        accountInfo = await connection.getParsedAccountInfo(fromTokenAccount.address);
-        const parsedAccountInfo = (_accountInfo = accountInfo) === null || _accountInfo === void 0 ? void 0 : (_accountInfo$value2 = _accountInfo.value) === null || _accountInfo$value2 === void 0 ? void 0 : _accountInfo$value2.data;
-        allowAmount = ((_parsedAccountInfo$pa9 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa9 === void 0 ? void 0 : (_parsedAccountInfo$pa10 = _parsedAccountInfo$pa9.info) === null || _parsedAccountInfo$pa10 === void 0 ? void 0 : _parsedAccountInfo$pa10.delegate) === targetAddress ? (_parsedAccountInfo$pa11 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa11 === void 0 ? void 0 : (_parsedAccountInfo$pa12 = _parsedAccountInfo$pa11.info) === null || _parsedAccountInfo$pa12 === void 0 ? void 0 : (_parsedAccountInfo$pa13 = _parsedAccountInfo$pa12.delegatedAmount) === null || _parsedAccountInfo$pa13 === void 0 ? void 0 : _parsedAccountInfo$pa13.uiAmount : 0;
-        await sleep(1000);
-      } while (allowAmount < +amountToShow || retryCount++ < 5);
-      setAllowance(+amountToShow);
-      setApproving(false);
+      if (isCancel) {
+        do {
+          var _accountInfo, _accountInfo$value2, _parsedAccountInfo$pa9, _parsedAccountInfo$pa10, _parsedAccountInfo$pa11, _parsedAccountInfo$pa12, _parsedAccountInfo$pa13;
+          accountInfo = await connection.getParsedAccountInfo(fromTokenAccount.address);
+          const parsedAccountInfo = (_accountInfo = accountInfo) === null || _accountInfo === void 0 ? void 0 : (_accountInfo$value2 = _accountInfo.value) === null || _accountInfo$value2 === void 0 ? void 0 : _accountInfo$value2.data;
+          allowAmount = ((_parsedAccountInfo$pa9 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa9 === void 0 ? void 0 : (_parsedAccountInfo$pa10 = _parsedAccountInfo$pa9.info) === null || _parsedAccountInfo$pa10 === void 0 ? void 0 : _parsedAccountInfo$pa10.delegate) === targetAddress ? (_parsedAccountInfo$pa11 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa11 === void 0 ? void 0 : (_parsedAccountInfo$pa12 = _parsedAccountInfo$pa11.info) === null || _parsedAccountInfo$pa12 === void 0 ? void 0 : (_parsedAccountInfo$pa13 = _parsedAccountInfo$pa12.delegatedAmount) === null || _parsedAccountInfo$pa13 === void 0 ? void 0 : _parsedAccountInfo$pa13.uiAmount : 0;
+          await sleep(1000);
+        } while (allowAmount < +amountToShow || retryCount++ < 5);
+        setAllowance(+amountToShow);
+      } else {
+        setAllowance(0);
+      }
+      isCancel ? setCancellingApprove(false) : setApproving(false);
     } catch (e) {
       errorHandler(e);
-      setApproving(false);
+      isCancel ? setCancellingApprove(false) : setApproving(false);
     }
   }, [decimals, tokenAddress, walletProvider, targetAddress, tronAddress, signSolanaTransaction, signTronTransaction, amountToShow, networkOption]);
   return useMemo(() => ({
     isApproved,
     poolAddress,
-    approve
-  }), [isApproved, poolAddress, approve]);
+    approve,
+    allowance
+  }), [isApproved, poolAddress, approve, allowance]);
 }
 
 const AddressInputWizard = () => {
@@ -7302,7 +7307,7 @@ function output(out, instance) {
 exports.output = output;
 const assert = { number, bool, bytes, hash, exists, output };
 exports.default = assert;
-
+//# sourceMappingURL=_assert.js.map
 });
 
 unwrapExports(_assert);
@@ -7311,7 +7316,7 @@ var crypto = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.crypto = void 0;
 exports.crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
-
+//# sourceMappingURL=crypto.js.map
 });
 
 unwrapExports(crypto);
@@ -7513,7 +7518,7 @@ function randomBytes(bytesLength = 32) {
     throw new Error('crypto.getRandomValues must be defined');
 }
 exports.randomBytes = randomBytes;
-
+//# sourceMappingURL=utils.js.map
 });
 
 unwrapExports(utils);
@@ -7635,7 +7640,7 @@ class SHA2 extends utils.Hash {
     }
 }
 exports.SHA2 = SHA2;
-
+//# sourceMappingURL=_sha2.js.map
 });
 
 unwrapExports(_sha2);
@@ -7768,7 +7773,7 @@ class SHA224 extends SHA256 {
  */
 exports.sha256 = (0, utils.wrapConstructor)(() => new SHA256());
 exports.sha224 = (0, utils.wrapConstructor)(() => new SHA224());
-
+//# sourceMappingURL=sha256.js.map
 });
 
 unwrapExports(sha256);
@@ -11230,6 +11235,7 @@ const TransferWidget = ({
   const bitcoinAddress = useSelector(selectBitcoinAddress);
   const bitcoinPubkey = useSelector(selectBitcoinPubkey);
   const transactionOption = useSelector(selectTransactionOption);
+  const [isCancellingApprove, setCancellingApprove] = useState(false);
   const [isApproving, setApproving] = useState(false);
   const [isSubmitting, setSubmitting] = useState(false);
   const [isSigning, setSigning] = useState(false);
@@ -11245,11 +11251,13 @@ const TransferWidget = ({
   } = useIsWalletReady();
   const pendingTxs = useSelector(selectPendingTxs);
   const {
+    allowance,
     isApproved: approved,
     approve,
     poolAddress
   } = useAllowance({
-    setApproving
+    setApproving,
+    setCancellingApprove
   });
   const {
     isSigned,
@@ -11705,6 +11713,10 @@ const TransferWidget = ({
     }
     return 'Next';
   };
+  const onCancelApprove = () => {
+    if (isCancellingApprove) return;
+    approve(true);
+  };
   useEffect(() => {
     dispatch(setTheme(theme));
   }, [theme]);
@@ -11817,7 +11829,11 @@ const TransferWidget = ({
     clickHandler: onBack,
     theme: theme.colorMode,
     disabled: isApproving || isSubmitting || isSigning || isBTCSigning
-  }, isWizard && wizardStep > 0 || !isWizard && formStep > 0 ? 'Back' : 'Cancel'), React.createElement(PrimaryButton, {
+  }, isWizard && wizardStep > 0 || !isWizard && formStep > 0 ? 'Back' : 'Cancel'), allowance > 0 && (isWizard && wizardStep === 5 || !isWizard && formStep === 1) ? React.createElement(PrimaryButton, {
+    clickHandler: onCancelApprove,
+    isLoading: isCancellingApprove,
+    disabled: isCancellingApprove
+  }, isCancellingApprove ? 'Cancelling Approval' : 'Cancel Approve') : null, React.createElement(PrimaryButton, {
     clickHandler: onNext,
     isLoading: isApproving || isSubmitting || isSigning || isBTCSigning,
     disabled: isApproving || isSubmitting || isSigning || isBTCSigning
