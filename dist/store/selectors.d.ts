@@ -15,6 +15,7 @@ export declare const selectHashPopup: (state: RootState) => any;
 export declare const selectPendingTxPopup: (state: RootState) => any;
 export declare const selectBankPopup: (state: RootState) => any;
 export declare const selectSolanaProvider: (state: RootState) => any;
+export declare const selectTronProvider: (state: RootState) => any;
 export declare const selectProvider: (state: RootState) => any;
 export declare const selectDappOption: (state: RootState) => any;
 export declare const selectWalletAutoConnect: (state: RootState) => any;

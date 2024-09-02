@@ -950,6 +950,7 @@ const initialState = {
   provider: undefined,
   dAppOption: DAppOptions.None,
   solanaProvider: undefined,
+  tronProvider: undefined,
   submitted: false,
   amount: '',
   feeDeduct: false,
@@ -1064,6 +1065,9 @@ const optionSlice = createSlice({
     setSolanaProvider: (state, action) => {
       state.solanaProvider = action.payload;
     },
+    setTronProvider: (state, action) => {
+      state.tronProvider = action.payload;
+    },
     setSubmitted: (state, action) => {
       state.submitted = action.payload;
     },
@@ -1165,6 +1169,7 @@ const {
   setPendingTxPopup,
   setBankPopup,
   setSolanaProvider,
+  setTronProvider,
   setProvider,
   setDappOption,
   setWalletAutoConnect,
@@ -1226,6 +1231,7 @@ const selectTronConnectModal = state => state.option.tronConnectModal;
 const selectPendingTxPopup = state => state.option.pendingTxPopup;
 const selectBankPopup = state => state.option.bankPopup;
 const selectSolanaProvider = state => state.option.solanaProvider;
+const selectTronProvider = state => state.option.tronProvider;
 const selectDappOption = state => state.option.dAppOption;
 const selectWalletAutoConnect = state => state.option.walletAutoConnect;
 const selectSubmitted = state => state.option.submitted;
@@ -1680,7 +1686,7 @@ const SolanaWalletSelect = () => {
 
 const WalletSelect = () => {
   const theme = useSelector(selectTheme);
-  const selectedProvider = useSelector(selectSolanaProvider);
+  const selectedProvider = useSelector(selectTronProvider);
   const sliderRef = useRef();
   const dispatch = useDispatch();
   const {
@@ -1757,7 +1763,7 @@ const WalletSelect = () => {
     className: 'wallet-container'
   }, detected.map((wallet, index) => React.createElement("div", {
     className: `card-item ${theme.colorMode} ${wallet.adapter.name === selectedProvider ? 'active' : ''}`,
-    onClick: () => dispatch(setSolanaProvider(wallet.adapter.name)),
+    onClick: () => dispatch(setTronProvider(wallet.adapter.name)),
     key: `${wallet.adapter.name}-${index}`
   }, React.createElement("img", {
     src: wallet.adapter.icon,
@@ -7051,7 +7057,7 @@ const TronWalletConnectModal = () => {
   const dispatch = useDispatch();
   const theme = useSelector(selectTheme);
   const connectModal = useSelector(selectTronConnectModal);
-  const selectedProvider = useSelector(selectSolanaProvider);
+  const selectedProvider = useSelector(selectTronProvider);
   const {
     select,
     connect

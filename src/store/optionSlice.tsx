@@ -43,6 +43,7 @@ export interface OptionState {
   provider: any // Ethereum wallet provider
   dAppOption: DAppOptions // specify which dApp is using this widget
   solanaProvider: any // selected solana wallet provider - phantom, solflare or ...
+  tronProvider: any //selected tron wallet provider - tronlink, okxwallet or ...
   submitted: boolean // if transaction is submitted, shows Transaction Widget to monitor status
   amount: string // amount input
   feeDeduct: boolean // whether deduct fee from amount or not
@@ -98,6 +99,7 @@ const initialState: OptionState = {
   provider: undefined,
   dAppOption: DAppOptions.None,
   solanaProvider: undefined,
+  tronProvider: undefined,
   submitted: false,
   amount: '',
   feeDeduct: false,
@@ -214,6 +216,9 @@ export const optionSlice = createSlice({
     setSolanaProvider: (state, action: PayloadAction<any>) => {
       state.solanaProvider = action.payload
     },
+    setTronProvider: (state, action: PayloadAction<any>) => {
+      state.tronProvider = action.payload
+    },
     setSubmitted: (state, action: PayloadAction<boolean>) => {
       state.submitted = action.payload
     },
@@ -316,6 +321,7 @@ export const {
   setPendingTxPopup,
   setBankPopup,
   setSolanaProvider,
+  setTronProvider,
   setProvider,
   setDappOption,
   setWalletAutoConnect,

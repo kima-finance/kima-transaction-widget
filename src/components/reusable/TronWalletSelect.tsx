@@ -3,13 +3,13 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import { AdapterState } from '@tronweb3/tronwallet-abstract-adapter'
 import { ArrowIcon } from '../../assets/icons'
-import { selectSolanaProvider, selectTheme } from '../../store/selectors'
+import { selectTronProvider, selectTheme } from '../../store/selectors'
 import ExternalLink from './ExternalLink'
-import { setSolanaProvider } from '../../store/optionSlice'
+import { setTronProvider } from '../../store/optionSlice'
 
 const WalletSelect = () => {
   const theme = useSelector(selectTheme)
-  const selectedProvider = useSelector(selectSolanaProvider)
+  const selectedProvider = useSelector(selectTronProvider)
   const sliderRef = useRef<any>()
 
   const dispatch = useDispatch()
@@ -95,7 +95,7 @@ const WalletSelect = () => {
               className={`card-item ${theme.colorMode} ${
                 wallet.adapter.name === selectedProvider ? 'active' : ''
               }`}
-              onClick={() => dispatch(setSolanaProvider(wallet.adapter.name))}
+              onClick={() => dispatch(setTronProvider(wallet.adapter.name))}
               key={`${wallet.adapter.name}-${index}`}
             >
               <img src={wallet.adapter.icon} alt={wallet.adapter.name} />
