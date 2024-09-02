@@ -979,6 +979,7 @@ var initialState = {
   provider: undefined,
   dAppOption: exports.DAppOptions.None,
   solanaProvider: undefined,
+  tronProvider: undefined,
   submitted: false,
   amount: '',
   feeDeduct: false,
@@ -1103,6 +1104,9 @@ var optionSlice = createSlice({
     setSolanaProvider: function setSolanaProvider(state, action) {
       state.solanaProvider = action.payload;
     },
+    setTronProvider: function setTronProvider(state, action) {
+      state.tronProvider = action.payload;
+    },
     setSubmitted: function setSubmitted(state, action) {
       state.submitted = action.payload;
     },
@@ -1202,6 +1206,7 @@ var _optionSlice$actions = optionSlice.actions,
   setPendingTxPopup = _optionSlice$actions.setPendingTxPopup,
   setBankPopup = _optionSlice$actions.setBankPopup,
   setSolanaProvider = _optionSlice$actions.setSolanaProvider,
+  setTronProvider = _optionSlice$actions.setTronProvider,
   setProvider = _optionSlice$actions.setProvider,
   setDappOption = _optionSlice$actions.setDappOption,
   setWalletAutoConnect = _optionSlice$actions.setWalletAutoConnect,
@@ -1453,6 +1458,9 @@ var selectBankPopup = function selectBankPopup(state) {
 };
 var selectSolanaProvider = function selectSolanaProvider(state) {
   return state.option.solanaProvider;
+};
+var selectTronProvider = function selectTronProvider(state) {
+  return state.option.tronProvider;
 };
 var selectDappOption = function selectDappOption(state) {
   return state.option.dAppOption;
@@ -2011,7 +2019,7 @@ var SolanaWalletSelect = function SolanaWalletSelect() {
 
 var WalletSelect = function WalletSelect() {
   var theme = reactRedux.useSelector(selectTheme);
-  var selectedProvider = reactRedux.useSelector(selectSolanaProvider);
+  var selectedProvider = reactRedux.useSelector(selectTronProvider);
   var sliderRef = React.useRef();
   var dispatch = reactRedux.useDispatch();
   var _useWallet = tronwalletAdapterReactHooks.useWallet(),
@@ -2092,7 +2100,7 @@ var WalletSelect = function WalletSelect() {
     return React__default.createElement("div", {
       className: "card-item " + theme.colorMode + " " + (wallet.adapter.name === selectedProvider ? 'active' : ''),
       onClick: function onClick() {
-        return dispatch(setSolanaProvider(wallet.adapter.name));
+        return dispatch(setTronProvider(wallet.adapter.name));
       },
       key: wallet.adapter.name + "-" + index
     }, React__default.createElement("img", {
@@ -7732,7 +7740,7 @@ var TronWalletConnectModal = function TronWalletConnectModal() {
   var dispatch = reactRedux.useDispatch();
   var theme = reactRedux.useSelector(selectTheme);
   var connectModal = reactRedux.useSelector(selectTronConnectModal);
-  var selectedProvider = reactRedux.useSelector(selectSolanaProvider);
+  var selectedProvider = reactRedux.useSelector(selectTronProvider);
   var _useWallet = tronwalletAdapterReactHooks.useWallet(),
     select = _useWallet.select,
     connect = _useWallet.connect;

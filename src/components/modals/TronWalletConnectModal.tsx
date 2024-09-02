@@ -4,7 +4,7 @@ import { CrossIcon } from '../../assets/icons'
 import { setTronConnectModal } from '../../store/optionSlice'
 import {
   selectTronConnectModal,
-  selectSolanaProvider,
+  selectTronProvider,
   selectTheme
 } from '../../store/selectors'
 
@@ -15,7 +15,7 @@ const TronWalletConnectModal = () => {
   const dispatch = useDispatch()
   const theme = useSelector(selectTheme)
   const connectModal = useSelector(selectTronConnectModal)
-  const selectedProvider = useSelector(selectSolanaProvider)
+  const selectedProvider = useSelector(selectTronProvider)
   const { select, connect } = useWallet()
 
   const handleConnect = async () => {

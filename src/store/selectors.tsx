@@ -30,6 +30,8 @@ export const selectPendingTxPopup = (state: RootState) =>
 export const selectBankPopup = (state: RootState) => state.option.bankPopup
 export const selectSolanaProvider = (state: RootState) =>
   state.option.solanaProvider
+export const selectTronProvider = (state: RootState) =>
+  state.option.tronProvider
 export const selectProvider = (state: RootState) => state.option.provider
 export const selectDappOption = (state: RootState) => state.option.dAppOption
 export const selectWalletAutoConnect = (state: RootState) =>
