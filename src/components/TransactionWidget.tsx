@@ -108,7 +108,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
         toast.error('rpc disconnected')
         console.log('rpc disconnected', e)
       }
-    }, 1000)
+    }, 10000)
 
     return () => {
       clearInterval(timerId)
