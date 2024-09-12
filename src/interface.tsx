@@ -24,7 +24,9 @@ export enum ModeOptions {
 
 export enum CurrencyOptions {
   USDK = 'USDK',
+  USDC = 'USDC',
   USDT = 'USDT',
+  WBTC = 'WBTC',
   G$ = 'GDOLLAR'
 }
 
@@ -43,6 +45,7 @@ export interface TransactionOption {
   targetChain: SupportNetworks
   targetAddress: string
   amount: number
+  currency: string
 }
 
 export interface TitleOption {
