@@ -7219,12 +7219,13 @@ const BankPopup = ({
 function useCurrencyOptions() {
   const dispatch = useDispatch();
   const [options, setOptions] = useState('USDK');
+  const mode = useSelector(selectMode);
   const transactionOption = useSelector(selectTransactionOption);
   const nodeProviderQuery = useSelector(selectNodeProviderQuery);
   const originNetwork = useSelector(selectSourceChain);
   const targetNetwork = useSelector(selectTargetChain);
   useEffect(() => {
-    if (!nodeProviderQuery || !originNetwork || !targetNetwork || !transactionOption) return;
+    if (!nodeProviderQuery || !originNetwork || !targetNetwork || !transactionOption && mode === ModeOptions.payment) return;
     (async function () {
       try {
         if (originNetwork === ChainName.FIAT || targetNetwork === ChainName.FIAT) {
@@ -7236,7 +7237,7 @@ function useCurrencyOptions() {
         if (originNetwork === ChainName.BTC || targetNetwork === ChainName.BTC) {
           tokenList = ['WBTC'];
         }
-        if (transactionOption.currency && tokenList.findIndex(item => item === transactionOption.currency) >= 0) {
+        if (transactionOption !== null && transactionOption !== void 0 && transactionOption.currency && tokenList.findIndex(item => item === transactionOption.currency) >= 0) {
           dispatch(setSelectedToken(transactionOption.currency));
           setOptions(transactionOption.currency);
         } else {
@@ -7249,7 +7250,7 @@ function useCurrencyOptions() {
         toast.error('rpc disconnected');
       }
     })();
-  }, [nodeProviderQuery, originNetwork, targetNetwork, transactionOption]);
+  }, [nodeProviderQuery, originNetwork, targetNetwork, transactionOption, mode]);
   return useMemo(() => ({
     options
   }), [options]);

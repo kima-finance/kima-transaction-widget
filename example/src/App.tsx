@@ -6,8 +6,7 @@ import {
   FontSizeOptions,
   ModeOptions,
   ColorModeOptions,
-  NetworkOptions,
-  SupportNetworks
+  NetworkOptions
 } from 'kima-transaction-widget'
 import 'kima-transaction-widget/dist/index.css'
 
@@ -50,12 +49,12 @@ const App = () => {
             //     fontWeight: '500'
             //   }
             // }}
-            transactionOption={{
-              targetChain: SupportNetworks.SOLANA,
-              targetAddress: 'TQfYistjV6aMKSC1jxUfkvnsRnjG2KEoFv',
-              amount: 5,
-              currency: 'USDC'
-            }}
+            // transactionOption={{
+            //   targetChain: SupportNetworks.SOLANA,
+            //   targetAddress: 'TQfYistjV6aMKSC1jxUfkvnsRnjG2KEoFv',
+            //   amount: 5,
+            //   currency: 'USDC'
+            // }}
             // txId={-1}
             errorHandler={(e: any) => {
               console.log('error:', e)
