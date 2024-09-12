@@ -7,6 +7,7 @@ import {
   ModeOptions,
   ColorModeOptions,
   NetworkOptions
+  // DAppOptions
 } from 'kima-transaction-widget'
 import 'kima-transaction-widget/dist/index.css'
 
@@ -14,7 +15,7 @@ const App = () => {
   return (
     <KimaProvider
       walletConnectProjectId='e579511a495b5c312b572b036e60555a'
-      networkOption={NetworkOptions.testnet}
+      networkOption={NetworkOptions.mainnet}
     >
       <div
         style={{
@@ -28,11 +29,11 @@ const App = () => {
               fontSize: FontSizeOptions.medium
             }}
             mode={ModeOptions.bridge}
-            networkOption={NetworkOptions.testnet}
+            networkOption={NetworkOptions.mainnet}
             // dAppOption={DAppOptions.LPAdd}
             kimaBackendUrl='http://localhost:3001'
-            kimaNodeProviderQuery='https://api-testnet.kima.finance'
-            kimaExplorer='https://explorer-testnet.kima.finance'
+            kimaNodeProviderQuery='https://api.staging.kima.finance'
+            kimaExplorer='https://explorer.staging.kima.finance'
             feeURL='https://fee.kima.finance'
             // autoSwitchChain={false}
             // defaultToken={'USDK'}

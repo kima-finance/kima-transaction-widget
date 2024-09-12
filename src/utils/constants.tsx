@@ -11,7 +11,8 @@ import {
   BankIcon,
   KEURICON,
   TronIcon,
-  BTCIcon
+  BTCIcon,
+  USDCIcon
 } from '../assets/icons'
 
 export enum ChainName {
@@ -235,6 +236,10 @@ export const COIN_LIST: CoinOptions = {
   USDT: {
     symbol: 'USDT',
     icon: USDTIcon
+  },
+  USDC: {
+    symbol: 'USDC',
+    icon: USDCIcon
   },
   KEUR: {
     symbol: 'KEUR',

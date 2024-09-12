@@ -6,9 +6,12 @@ import {
   selectTheme
 } from '../../store/selectors'
 import { COIN_LIST } from '../../utils/constants'
+import { useDispatch } from 'react-redux'
+import { setSelectedToken } from '../../store/optionSlice'
 
 const CoinDropdown = () => {
   const ref = useRef<any>()
+  const dispatch = useDispatch()
   const [collapsed, setCollapsed] = useState(true)
   const selectedCoin = useSelector(selectSelectedToken)
   const tokenList = useSelector(selectAvailableTokenList)
@@ -46,7 +49,13 @@ const CoinDropdown = () => {
         {tokenList.map((token) => {
           const CoinIcon = COIN_LIST[token].icon || COIN_LIST['USDK'].icon
           return (
-            <div className='coin-item' key={COIN_LIST[token]?.symbol}>
+            <div
+              className='coin-item'
+              key={COIN_LIST[token]?.symbol}
+              onClick={() => {
+                dispatch(setSelectedToken(COIN_LIST[token]?.symbol))
+              }}
+            >
               {<CoinIcon />}
               <p>{COIN_LIST[token]?.symbol}</p>
             </div>
