@@ -81,12 +81,13 @@ export default function useServiceFee(
       const sourceChainResult: any = await fetchWrapper.get(
         `${feeURL}/fee/${sourceChain}`
       )
-      sourceFee = sourceChainResult.fee.split('-')[0]
+
+      sourceFee = sourceChainResult?.fee?.split('-')[0]
 
       const targetChainResult: any = await fetchWrapper.get(
         `${feeURL}/fee/${targetChain}`
       )
-      targetFee = targetChainResult.fee.split('-')[0]
+      targetFee = targetChainResult?.fee?.split('-')[0]
 
       let fee = +sourceFee + +targetFee
       dispatch(setServiceFee(fee))
