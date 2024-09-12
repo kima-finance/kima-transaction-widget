@@ -51,7 +51,6 @@ export default function useCurrencyOptions() {
           tokenList = ['WBTC']
         }
 
-        console.log(tokenList, transactionOption)
         if (
           transactionOption.currency &&
           tokenList.findIndex((item) => item === transactionOption.currency) >=

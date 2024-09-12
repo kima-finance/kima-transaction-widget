@@ -3276,7 +3276,7 @@ var StepBox = function StepBox(_ref) {
     }) : step >= index ? index === errorStep ? React__default.createElement(Warning, null) : React__default.createElement(Check, null) : null, React__default.createElement("p", null, item.title)), index === 0 && data !== null && data !== void 0 && data.kimaTxHash ? React__default.createElement("div", {
       className: 'info-item'
     }, React__default.createElement("p", null, "Kima TX ID:", ' ', React__default.createElement(ExternalLink, {
-      to: "https://" + explorerUrl + "/transactions/" + (data === null || data === void 0 ? void 0 : data.kimaTxHash)
+      to: explorerUrl + "/transactions/" + (data === null || data === void 0 ? void 0 : data.kimaTxHash)
     }, getShortenedAddress((data === null || data === void 0 ? void 0 : data.kimaTxHash) || '')), React__default.createElement(CopyButton, {
       text: data === null || data === void 0 ? void 0 : data.kimaTxHash
     }))) : null, index === 1 && data !== null && data !== void 0 && data.tssPullHash ? React__default.createElement("div", {
@@ -3799,9 +3799,11 @@ function useServiceFee(isConfirming, feeURL) {
         var sourceFee = 0;
         var targetFee = 0;
         return Promise.resolve(fetchWrapper.get(feeURL + "/fee/" + sourceChain)).then(function (sourceChainResult) {
-          sourceFee = sourceChainResult.fee.split('-')[0];
+          var _sourceChainResult$fe;
+          sourceFee = sourceChainResult === null || sourceChainResult === void 0 ? void 0 : (_sourceChainResult$fe = sourceChainResult.fee) === null || _sourceChainResult$fe === void 0 ? void 0 : _sourceChainResult$fe.split('-')[0];
           return Promise.resolve(fetchWrapper.get(feeURL + "/fee/" + targetChain)).then(function (targetChainResult) {
-            targetFee = targetChainResult.fee.split('-')[0];
+            var _targetChainResult$fe;
+            targetFee = targetChainResult === null || targetChainResult === void 0 ? void 0 : (_targetChainResult$fe = targetChainResult.fee) === null || _targetChainResult$fe === void 0 ? void 0 : _targetChainResult$fe.split('-')[0];
             var fee = +sourceFee + +targetFee;
             dispatch(setServiceFee(fee));
           });
@@ -7941,7 +7943,6 @@ function useCurrencyOptions() {
             if (originNetwork === exports.SupportNetworks.BTC || targetNetwork === exports.SupportNetworks.BTC) {
               tokenList = ['WBTC'];
             }
-            console.log(tokenList, transactionOption);
             if (transactionOption.currency && tokenList.findIndex(function (item) {
               return item === transactionOption.currency;
             }) >= 0) {

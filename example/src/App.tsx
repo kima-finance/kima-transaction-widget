@@ -28,7 +28,8 @@ const App = () => {
               colorMode: ColorModeOptions.light,
               fontSize: FontSizeOptions.medium
             }}
-            mode={ModeOptions.payment}
+            // mode={ModeOptions.payment}
+            mode={ModeOptions.bridge}
             networkOption={NetworkOptions.mainnet}
             // dAppOption={DAppOptions.LPAdd}
             kimaBackendUrl='http://localhost:3001'
