@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 import {
+  selectMode,
   selectNodeProviderQuery,
   selectSourceChain,
   selectTargetChain,
@@ -11,10 +12,12 @@ import { ChainName } from '../utils/constants'
 import { useDispatch } from 'react-redux'
 import { setAvailableTokenList, setSelectedToken } from '../store/optionSlice'
 import toast from 'react-hot-toast'
+import { ModeOptions } from '../interface'
 
 export default function useCurrencyOptions() {
   const dispatch = useDispatch()
   const [options, setOptions] = useState('USDK')
+  const mode = useSelector(selectMode)
   const transactionOption = useSelector(selectTransactionOption)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
   const originNetwork = useSelector(selectSourceChain)
@@ -25,7 +28,7 @@ export default function useCurrencyOptions() {
       !nodeProviderQuery ||
       !originNetwork ||
       !targetNetwork ||
-      !transactionOption
+      (!transactionOption && mode === ModeOptions.payment)
     )
       return
     ;(async function () {
@@ -52,7 +55,7 @@ export default function useCurrencyOptions() {
         }
 
         if (
-          transactionOption.currency &&
+          transactionOption?.currency &&
           tokenList.findIndex((item) => item === transactionOption.currency) >=
             0
         ) {
@@ -68,7 +71,7 @@ export default function useCurrencyOptions() {
         toast.error('rpc disconnected')
       }
     })()
-  }, [nodeProviderQuery, originNetwork, targetNetwork, transactionOption])
+  }, [nodeProviderQuery, originNetwork, targetNetwork, transactionOption, mode])
 
   return useMemo(
     () => ({

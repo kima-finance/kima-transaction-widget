@@ -7923,12 +7923,13 @@ function useCurrencyOptions() {
   var _useState = React.useState('USDK'),
     options = _useState[0],
     setOptions = _useState[1];
+  var mode = reactRedux.useSelector(selectMode);
   var transactionOption = reactRedux.useSelector(selectTransactionOption);
   var nodeProviderQuery = reactRedux.useSelector(selectNodeProviderQuery);
   var originNetwork = reactRedux.useSelector(selectSourceChain);
   var targetNetwork = reactRedux.useSelector(selectTargetChain);
   React.useEffect(function () {
-    if (!nodeProviderQuery || !originNetwork || !targetNetwork || !transactionOption) return;
+    if (!nodeProviderQuery || !originNetwork || !targetNetwork || !transactionOption && mode === exports.ModeOptions.payment) return;
     (function () {
       try {
         return _catch(function () {
@@ -7943,7 +7944,7 @@ function useCurrencyOptions() {
             if (originNetwork === exports.SupportNetworks.BTC || targetNetwork === exports.SupportNetworks.BTC) {
               tokenList = ['WBTC'];
             }
-            if (transactionOption.currency && tokenList.findIndex(function (item) {
+            if (transactionOption !== null && transactionOption !== void 0 && transactionOption.currency && tokenList.findIndex(function (item) {
               return item === transactionOption.currency;
             }) >= 0) {
               dispatch(setSelectedToken(transactionOption.currency));
@@ -7962,7 +7963,7 @@ function useCurrencyOptions() {
         Promise.reject(e);
       }
     })();
-  }, [nodeProviderQuery, originNetwork, targetNetwork, transactionOption]);
+  }, [nodeProviderQuery, originNetwork, targetNetwork, transactionOption, mode]);
   return React.useMemo(function () {
     return {
       options: options
