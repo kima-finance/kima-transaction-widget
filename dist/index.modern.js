@@ -943,7 +943,9 @@ var ModeOptions;
 var CurrencyOptions;
 (function (CurrencyOptions) {
   CurrencyOptions["USDK"] = "USDK";
+  CurrencyOptions["USDC"] = "USDC";
   CurrencyOptions["USDT"] = "USDT";
+  CurrencyOptions["WBTC"] = "WBTC";
   CurrencyOptions["G$"] = "GDOLLAR";
 })(CurrencyOptions || (CurrencyOptions = {}));
 var ColorModeOptions;
@@ -7216,11 +7218,12 @@ const BankPopup = ({
 function useCurrencyOptions() {
   const dispatch = useDispatch();
   const [options, setOptions] = useState('USDK');
+  const transactionOption = useSelector(selectTransactionOption);
   const nodeProviderQuery = useSelector(selectNodeProviderQuery);
   const originNetwork = useSelector(selectSourceChain);
   const targetNetwork = useSelector(selectTargetChain);
   useEffect(() => {
-    if (!nodeProviderQuery || !originNetwork || !targetNetwork) return;
+    if (!nodeProviderQuery || !originNetwork || !targetNetwork || !transactionOption) return;
     (async function () {
       try {
         if (originNetwork === ChainName.FIAT || targetNetwork === ChainName.FIAT) {
@@ -7232,15 +7235,21 @@ function useCurrencyOptions() {
         if (originNetwork === ChainName.BTC || targetNetwork === ChainName.BTC) {
           tokenList = ['WBTC'];
         }
-        dispatch(setSelectedToken(tokenList[0]));
+        console.log(tokenList, transactionOption);
+        if (transactionOption.currency && tokenList.findIndex(item => item === transactionOption.currency) >= 0) {
+          dispatch(setSelectedToken(transactionOption.currency));
+          setOptions(transactionOption.currency);
+        } else {
+          dispatch(setSelectedToken(tokenList[0]));
+          setOptions(tokenList[0]);
+        }
         dispatch(setAvailableTokenList(tokenList));
-        setOptions(tokenList[0]);
       } catch (e) {
         console.log('rpc disconnected', e);
         toast.error('rpc disconnected');
       }
     })();
-  }, [nodeProviderQuery, originNetwork, targetNetwork]);
+  }, [nodeProviderQuery, originNetwork, targetNetwork, transactionOption]);
   return useMemo(() => ({
     options
   }), [options]);
@@ -11916,7 +11925,6 @@ const KimaTransactionWidget = ({
   mode,
   txId,
   autoSwitchChain: _autoSwitchChain = true,
-  defaultToken: _defaultToken = 'USDT',
   networkOption: _networkOption = NetworkOptions.testnet,
   provider,
   dAppOption: _dAppOption = DAppOptions.None,
@@ -11959,7 +11967,6 @@ const KimaTransactionWidget = ({
     dispatch(setProvider(provider));
     dispatch(setDappOption(_dAppOption));
     dispatch(setWalletAutoConnect(_autoSwitchChain));
-    dispatch(setSelectedToken(_defaultToken));
     dispatch(setUseFIAT(_useFIAT));
     dispatch(setNetworkOption(_networkOption));
     if (_useFIAT) {

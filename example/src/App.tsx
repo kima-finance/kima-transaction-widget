@@ -6,8 +6,8 @@ import {
   FontSizeOptions,
   ModeOptions,
   ColorModeOptions,
-  NetworkOptions
-  // DAppOptions
+  NetworkOptions,
+  SupportNetworks
 } from 'kima-transaction-widget'
 import 'kima-transaction-widget/dist/index.css'
 
@@ -28,13 +28,13 @@ const App = () => {
               colorMode: ColorModeOptions.light,
               fontSize: FontSizeOptions.medium
             }}
-            mode={ModeOptions.bridge}
+            mode={ModeOptions.payment}
             networkOption={NetworkOptions.mainnet}
             // dAppOption={DAppOptions.LPAdd}
             kimaBackendUrl='http://localhost:3001'
             kimaNodeProviderQuery='https://api.staging.kima.finance'
             kimaExplorer='https://explorer.staging.kima.finance'
-            feeURL='https://fee.kima.finance'
+            feeURL='https://fee.aegean.kima.finance'
             // autoSwitchChain={false}
             // defaultToken={'USDK'}
             // useFIAT={true}
@@ -49,11 +49,12 @@ const App = () => {
             //     fontWeight: '500'
             //   }
             // }}
-            // transactionOption={{
-            //   targetChain: SupportNetworks.SOLANA,
-            //   targetAddress: 'TQfYistjV6aMKSC1jxUfkvnsRnjG2KEoFv',
-            //   amount: 5
-            // }}
+            transactionOption={{
+              targetChain: SupportNetworks.SOLANA,
+              targetAddress: 'TQfYistjV6aMKSC1jxUfkvnsRnjG2KEoFv',
+              amount: 5,
+              currency: 'USDC'
+            }}
             // txId={-1}
             errorHandler={(e: any) => {
               console.log('error:', e)

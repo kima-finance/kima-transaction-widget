@@ -37,7 +37,6 @@ import {
   setUuid,
   setKeplrHandler,
   setKimaExplorer,
-  setSelectedToken,
   setNetworkOption
 } from '../store/optionSlice'
 import '../index.css'
@@ -55,7 +54,6 @@ interface Props {
   mode: ModeOptions
   txId?: number
   useFIAT?: boolean
-  defaultToken?: string
   autoSwitchChain?: boolean
   dAppOption?: DAppOptions
   provider?: Web3Provider
@@ -80,7 +78,6 @@ export const KimaTransactionWidget = ({
   mode,
   txId,
   autoSwitchChain = true,
-  defaultToken = 'USDT',
   networkOption = NetworkOptions.testnet,
   provider,
   dAppOption = DAppOptions.None,
@@ -124,7 +121,6 @@ export const KimaTransactionWidget = ({
     dispatch(setProvider(provider))
     dispatch(setDappOption(dAppOption))
     dispatch(setWalletAutoConnect(autoSwitchChain))
-    dispatch(setSelectedToken(defaultToken))
     dispatch(setUseFIAT(useFIAT))
     dispatch(setNetworkOption(networkOption))
     if (useFIAT) {

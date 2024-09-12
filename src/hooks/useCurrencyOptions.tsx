@@ -4,7 +4,8 @@ import { fetchWrapper } from '../helpers/fetch-wrapper'
 import {
   selectNodeProviderQuery,
   selectSourceChain,
-  selectTargetChain
+  selectTargetChain,
+  selectTransactionOption
 } from '../store/selectors'
 import { ChainName } from '../utils/constants'
 import { useDispatch } from 'react-redux'
@@ -14,12 +15,19 @@ import toast from 'react-hot-toast'
 export default function useCurrencyOptions() {
   const dispatch = useDispatch()
   const [options, setOptions] = useState('USDK')
+  const transactionOption = useSelector(selectTransactionOption)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
   const originNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
 
   useEffect(() => {
-    if (!nodeProviderQuery || !originNetwork || !targetNetwork) return
+    if (
+      !nodeProviderQuery ||
+      !originNetwork ||
+      !targetNetwork ||
+      !transactionOption
+    )
+      return
     ;(async function () {
       try {
         if (
@@ -43,15 +51,25 @@ export default function useCurrencyOptions() {
           tokenList = ['WBTC']
         }
 
-        dispatch(setSelectedToken(tokenList[0]))
+        console.log(tokenList, transactionOption)
+        if (
+          transactionOption.currency &&
+          tokenList.findIndex((item) => item === transactionOption.currency) >=
+            0
+        ) {
+          dispatch(setSelectedToken(transactionOption.currency))
+          setOptions(transactionOption.currency)
+        } else {
+          dispatch(setSelectedToken(tokenList[0]))
+          setOptions(tokenList[0])
+        }
         dispatch(setAvailableTokenList(tokenList))
-        setOptions(tokenList[0])
       } catch (e) {
         console.log('rpc disconnected', e)
         toast.error('rpc disconnected')
       }
     })()
-  }, [nodeProviderQuery, originNetwork, targetNetwork])
+  }, [nodeProviderQuery, originNetwork, targetNetwork, transactionOption])
 
   return useMemo(
     () => ({

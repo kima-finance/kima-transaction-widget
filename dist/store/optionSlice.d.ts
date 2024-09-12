@@ -101,6 +101,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -174,6 +175,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -247,6 +249,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -320,6 +323,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -393,6 +397,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -466,6 +471,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -539,6 +545,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -612,6 +619,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -685,6 +693,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -758,6 +767,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -831,6 +841,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -904,6 +915,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -977,6 +989,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -1050,6 +1063,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -1123,6 +1137,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -1196,6 +1211,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -1269,6 +1285,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -1342,6 +1359,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -1415,6 +1433,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -1488,6 +1507,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -1561,6 +1581,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -1634,6 +1655,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -1707,6 +1729,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -1780,6 +1803,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -1853,6 +1877,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -1926,6 +1951,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -1999,6 +2025,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -2072,6 +2099,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -2145,6 +2173,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -2218,6 +2247,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -2291,6 +2321,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -2364,6 +2395,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -2437,6 +2469,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -2510,6 +2543,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -2583,6 +2617,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -2656,6 +2691,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -2729,6 +2765,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -2802,6 +2839,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -2875,6 +2913,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -2948,6 +2987,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -3021,6 +3061,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -3094,6 +3135,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -3167,6 +3209,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -3240,6 +3283,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -3313,6 +3357,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -3386,6 +3431,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -3459,6 +3505,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -3532,6 +3579,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -3605,6 +3653,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;
@@ -3678,6 +3727,7 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
             targetChain: import("../interface").SupportNetworks;
             targetAddress: string;
             amount: number;
+            currency: string;
         } | undefined;
         errorHandler: Function;
         keplrHandler: Function;

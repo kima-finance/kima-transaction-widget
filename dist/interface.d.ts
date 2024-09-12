@@ -17,7 +17,9 @@ export declare enum ModeOptions {
 }
 export declare enum CurrencyOptions {
     USDK = "USDK",
+    USDC = "USDC",
     USDT = "USDT",
+    WBTC = "WBTC",
     G$ = "GDOLLAR"
 }
 export declare enum ColorModeOptions {
@@ -33,6 +35,7 @@ export interface TransactionOption {
     targetChain: SupportNetworks;
     targetAddress: string;
     amount: number;
+    currency: string;
 }
 export interface TitleOption {
     initialTitle?: string;

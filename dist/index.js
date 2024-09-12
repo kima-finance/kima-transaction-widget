@@ -978,7 +978,9 @@ var TRON_USDK_OWNER_ADDRESS = 'TBVn4bsBN4DhtZ7D3vEVpAyqkvdFn7zmpU';
 })(exports.ModeOptions || (exports.ModeOptions = {}));
 (function (CurrencyOptions) {
   CurrencyOptions["USDK"] = "USDK";
+  CurrencyOptions["USDC"] = "USDC";
   CurrencyOptions["USDT"] = "USDT";
+  CurrencyOptions["WBTC"] = "WBTC";
   CurrencyOptions["G$"] = "GDOLLAR";
 })(exports.CurrencyOptions || (exports.CurrencyOptions = {}));
 (function (ColorModeOptions) {
@@ -7919,11 +7921,12 @@ function useCurrencyOptions() {
   var _useState = React.useState('USDK'),
     options = _useState[0],
     setOptions = _useState[1];
+  var transactionOption = reactRedux.useSelector(selectTransactionOption);
   var nodeProviderQuery = reactRedux.useSelector(selectNodeProviderQuery);
   var originNetwork = reactRedux.useSelector(selectSourceChain);
   var targetNetwork = reactRedux.useSelector(selectTargetChain);
   React.useEffect(function () {
-    if (!nodeProviderQuery || !originNetwork || !targetNetwork) return;
+    if (!nodeProviderQuery || !originNetwork || !targetNetwork || !transactionOption) return;
     (function () {
       try {
         return _catch(function () {
@@ -7938,9 +7941,17 @@ function useCurrencyOptions() {
             if (originNetwork === exports.SupportNetworks.BTC || targetNetwork === exports.SupportNetworks.BTC) {
               tokenList = ['WBTC'];
             }
-            dispatch(setSelectedToken(tokenList[0]));
+            console.log(tokenList, transactionOption);
+            if (transactionOption.currency && tokenList.findIndex(function (item) {
+              return item === transactionOption.currency;
+            }) >= 0) {
+              dispatch(setSelectedToken(transactionOption.currency));
+              setOptions(transactionOption.currency);
+            } else {
+              dispatch(setSelectedToken(tokenList[0]));
+              setOptions(tokenList[0]);
+            }
             dispatch(setAvailableTokenList(tokenList));
-            setOptions(tokenList[0]);
           });
         }, function (e) {
           console.log('rpc disconnected', e);
@@ -7950,7 +7961,7 @@ function useCurrencyOptions() {
         Promise.reject(e);
       }
     })();
-  }, [nodeProviderQuery, originNetwork, targetNetwork]);
+  }, [nodeProviderQuery, originNetwork, targetNetwork, transactionOption]);
   return React.useMemo(function () {
     return {
       options: options
@@ -12764,8 +12775,6 @@ var KimaTransactionWidget = function KimaTransactionWidget(_ref) {
     txId = _ref.txId,
     _ref$autoSwitchChain = _ref.autoSwitchChain,
     autoSwitchChain = _ref$autoSwitchChain === void 0 ? true : _ref$autoSwitchChain,
-    _ref$defaultToken = _ref.defaultToken,
-    defaultToken = _ref$defaultToken === void 0 ? 'USDT' : _ref$defaultToken,
     _ref$networkOption = _ref.networkOption,
     networkOption = _ref$networkOption === void 0 ? exports.NetworkOptions.testnet : _ref$networkOption,
     provider = _ref.provider,
@@ -12828,7 +12837,6 @@ var KimaTransactionWidget = function KimaTransactionWidget(_ref) {
     dispatch(setProvider(provider));
     dispatch(setDappOption(dAppOption));
     dispatch(setWalletAutoConnect(autoSwitchChain));
-    dispatch(setSelectedToken(defaultToken));
     dispatch(setUseFIAT(useFIAT));
     dispatch(setNetworkOption(networkOption));
     if (useFIAT) {
