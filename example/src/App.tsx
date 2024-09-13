@@ -6,7 +6,9 @@ import {
   FontSizeOptions,
   ModeOptions,
   ColorModeOptions,
-  NetworkOptions
+  NetworkOptions,
+  DAppOptions,
+  SupportNetworks
 } from 'kima-transaction-widget'
 import 'kima-transaction-widget/dist/index.css'
 
@@ -27,10 +29,10 @@ const App = () => {
               colorMode: ColorModeOptions.light,
               fontSize: FontSizeOptions.medium
             }}
-            // mode={ModeOptions.payment}
-            mode={ModeOptions.bridge}
+            mode={ModeOptions.payment}
+            // mode={ModeOptions.bridge}
             networkOption={NetworkOptions.mainnet}
-            // dAppOption={DAppOptions.LPAdd}
+            dAppOption={DAppOptions.LPDrain}
             kimaBackendUrl='https://demo.staging.kima.finance/backend'
             kimaNodeProviderQuery='https://api.staging.kima.finance'
             kimaExplorer='https://explorer.staging.kima.finance'
@@ -49,12 +51,12 @@ const App = () => {
             //     fontWeight: '500'
             //   }
             // }}
-            // transactionOption={{
-            //   targetChain: SupportNetworks.SOLANA,
-            //   targetAddress: 'TQfYistjV6aMKSC1jxUfkvnsRnjG2KEoFv',
-            //   amount: 5,
-            //   currency: 'USDC'
-            // }}
+            transactionOption={{
+              targetChain: SupportNetworks.ETHEREUM,
+              targetAddress: '0x10c033E050e10510a951a56e4A14B4CD3de6CA67',
+              amount: 5,
+              currency: 'USDC'
+            }}
             // txId={-1}
             errorHandler={(e: any) => {
               console.log('error:', e)

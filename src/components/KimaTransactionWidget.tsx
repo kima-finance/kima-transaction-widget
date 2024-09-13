@@ -37,7 +37,8 @@ import {
   setUuid,
   setKeplrHandler,
   setKimaExplorer,
-  setNetworkOption
+  setNetworkOption,
+  setSelectedToken
 } from '../store/optionSlice'
 import '../index.css'
 import { selectSubmitted } from '../store/selectors'
@@ -148,6 +149,7 @@ export const KimaTransactionWidget = ({
         dispatch(
           setSourceChain(transactionOption?.targetChain || ChainName.ETHEREUM)
         )
+        dispatch(setSelectedToken(transactionOption?.currency || 'USDK'))
       } else {
         ;(async function () {
           try {
