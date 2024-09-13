@@ -31,7 +31,7 @@ const App = () => {
             mode={ModeOptions.bridge}
             networkOption={NetworkOptions.mainnet}
             // dAppOption={DAppOptions.LPAdd}
-            kimaBackendUrl='http://localhost:3001'
+            kimaBackendUrl='https://demo.staging.kima.finance/backend'
             kimaNodeProviderQuery='https://api.staging.kima.finance'
             kimaExplorer='https://explorer.staging.kima.finance'
             feeURL='https://fee.aegean.kima.finance'

@@ -1,20 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
-import {
-  selectAvailableTokenList,
-  selectSelectedToken,
-  selectTheme
-} from '../../store/selectors'
+import { selectSelectedToken, selectTheme } from '../../store/selectors'
 import { COIN_LIST } from '../../utils/constants'
 import { useDispatch } from 'react-redux'
 import { setSelectedToken } from '../../store/optionSlice'
+import useCurrencyOptions from '../../hooks/useCurrencyOptions'
 
 const CoinDropdown = () => {
   const ref = useRef<any>()
   const dispatch = useDispatch()
   const [collapsed, setCollapsed] = useState(true)
   const selectedCoin = useSelector(selectSelectedToken)
-  const tokenList = useSelector(selectAvailableTokenList)
+  const { tokenList } = useCurrencyOptions()
   const theme = useSelector(selectTheme)
   const Icon = COIN_LIST[selectedCoin || 'USDK']?.icon || COIN_LIST['USDK'].icon
 
