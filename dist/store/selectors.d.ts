@@ -35,7 +35,6 @@ export declare const selectBackendUrl: (state: RootState) => any;
 export declare const selectNodeProviderQuery: (state: RootState) => any;
 export declare const selectTxId: (state: RootState) => any;
 export declare const selectSelectedToken: (state: RootState) => any;
-export declare const selectAvailableTokenList: (state: RootState) => any;
 export declare const selectCompliantOption: (state: RootState) => any;
 export declare const selectSourceCompliant: (state: RootState) => any;
 export declare const selectTargetCompliant: (state: RootState) => any;

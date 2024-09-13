@@ -49,7 +49,6 @@ export interface OptionState {
     txId: number;
     selectedToken: string;
     expireTime: string;
-    avilableTokenList: Array<string>;
     compliantOption: boolean;
     sourceCompliant: string;
     targetCompliant: string;
@@ -116,7 +115,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -190,7 +188,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -264,7 +261,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -338,7 +334,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -412,7 +407,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -486,7 +480,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -560,7 +553,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -634,7 +626,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -708,7 +699,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -782,7 +772,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -856,7 +845,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -930,7 +918,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1004,7 +991,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1078,7 +1064,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1152,7 +1137,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1226,7 +1210,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1300,7 +1283,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1374,7 +1356,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1448,7 +1429,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1522,7 +1502,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1596,7 +1575,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1670,7 +1648,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1744,7 +1721,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1818,7 +1794,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1892,7 +1867,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -1966,7 +1940,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -2040,7 +2013,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -2114,7 +2086,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -2188,7 +2159,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -2262,7 +2232,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -2336,7 +2305,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -2410,7 +2378,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -2484,7 +2451,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -2558,7 +2524,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -2632,7 +2597,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -2706,7 +2670,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -2780,7 +2743,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -2854,7 +2816,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -2928,7 +2889,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -2950,80 +2910,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         }[];
         networkOption: NetworkOptions;
     }, action: PayloadAction<string>) => void;
-    setAvailableTokenList: (state: {
-        theme: {
-            colorMode?: import("../interface").ColorModeOptions | undefined;
-            fontSize?: import("../interface").FontSizeOptions | undefined;
-            fontFamily?: string | undefined;
-            backgroundColorLight?: string | undefined;
-            backgroundColorDark?: string | undefined;
-        };
-        mode: ModeOptions;
-        sourceChain: string;
-        targetChain: string;
-        targetAddress: string;
-        bitcoinAddress: string;
-        bitcoinPubkey: string;
-        tokenOptions: {
-            [x: string]: {
-                [x: string]: string;
-            };
-        };
-        solanaConnectModal: boolean;
-        tronConnectModal: boolean;
-        helpPopup: boolean;
-        hashPopup: boolean;
-        bankPopup: boolean;
-        pendingTxPopup: boolean;
-        walletAutoConnect: boolean;
-        provider: any;
-        dAppOption: DAppOptions;
-        solanaProvider: any;
-        tronProvider: any;
-        submitted: boolean;
-        amount: string;
-        feeDeduct: boolean;
-        transactionOption?: {
-            targetChain: import("../interface").SupportNetworks;
-            targetAddress: string;
-            amount: number;
-            currency: string;
-        } | undefined;
-        errorHandler: Function;
-        keplrHandler: Function;
-        closeHandler: Function;
-        successHandler: Function;
-        switchChainHandler: Function;
-        initChainFromProvider: boolean;
-        serviceFee: number;
-        backendUrl: string;
-        nodeProviderQuery: string;
-        kimaExplorerUrl: string;
-        txId: number;
-        selectedToken: string;
-        expireTime: string;
-        avilableTokenList: Array<string>;
-        compliantOption: boolean;
-        sourceCompliant: string;
-        targetCompliant: string;
-        useFIAT: boolean;
-        bankDetails: {
-            iban: string;
-            recipient: string;
-        };
-        targetNetworkFetching: boolean;
-        signature: string;
-        uuid: string;
-        kycStatus: string;
-        pendingTxs: number;
-        pendingTxData: {
-            expireTime: string;
-            amount: string;
-            status: string;
-            hash: string;
-        }[];
-        networkOption: NetworkOptions;
-    }, action: PayloadAction<Array<string>>) => void;
     setCompliantOption: (state: {
         theme: {
             colorMode?: import("../interface").ColorModeOptions | undefined;
@@ -3076,7 +2962,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -3150,7 +3035,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -3224,7 +3108,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -3298,7 +3181,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -3372,7 +3254,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -3446,7 +3327,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -3520,7 +3400,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -3594,7 +3473,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -3668,7 +3546,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -3742,7 +3619,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         txId: number;
         selectedToken: string;
         expireTime: string;
-        avilableTokenList: Array<string>;
         compliantOption: boolean;
         sourceCompliant: string;
         targetCompliant: string;
@@ -3765,6 +3641,6 @@ export declare const optionSlice: toolkitRaw.Slice<OptionState, {
         networkOption: NetworkOptions;
     }, action: PayloadAction<string>) => void;
 }, "option", "option", toolkitRaw.SliceSelectors<OptionState>>;
-export declare const initialize: toolkitRaw.ActionCreatorWithoutPayload<any>, setNetworkOption: toolkitRaw.ActionCreatorWithPayload<NetworkOptions, any>, setTokenOptions: toolkitRaw.ActionCreatorWithPayload<TokenOptions, any>, setKimaExplorer: toolkitRaw.ActionCreatorWithPayload<string, any>, setTheme: toolkitRaw.ActionCreatorWithPayload<ThemeOptions, any>, setSourceChain: toolkitRaw.ActionCreatorWithPayload<string, any>, setTargetChain: toolkitRaw.ActionCreatorWithPayload<string, any>, setTargetAddress: toolkitRaw.ActionCreatorWithPayload<string, any>, setBitcoinAddress: toolkitRaw.ActionCreatorWithPayload<string, any>, setBitcoinPubkey: toolkitRaw.ActionCreatorWithPayload<string, any>, setSolanaConnectModal: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setTronConnectModal: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setHelpPopup: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setHashPopup: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setPendingTxPopup: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setBankPopup: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setSolanaProvider: toolkitRaw.ActionCreatorWithPayload<any, any>, setTronProvider: toolkitRaw.ActionCreatorWithPayload<any, any>, setProvider: toolkitRaw.ActionCreatorWithPayload<any, any>, setDappOption: toolkitRaw.ActionCreatorWithPayload<DAppOptions, any>, setWalletAutoConnect: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setSubmitted: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setTransactionOption: toolkitRaw.ActionCreatorWithPayload<TransactionOption, any>, setAmount: toolkitRaw.ActionCreatorWithPayload<string, any>, setErrorHandler: toolkitRaw.ActionCreatorWithPayload<Function, any>, setKeplrHandler: toolkitRaw.ActionCreatorWithPayload<Function, any>, setCloseHandler: toolkitRaw.ActionCreatorWithPayload<Function, any>, setSuccessHandler: toolkitRaw.ActionCreatorWithPayload<Function, any>, setSwitchChainHandler: toolkitRaw.ActionCreatorWithPayload<Function, any>, setInitChainFromProvider: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setServiceFee: toolkitRaw.ActionCreatorWithPayload<number, any>, setMode: toolkitRaw.ActionCreatorWithPayload<ModeOptions, any>, setFeeDeduct: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setBackendUrl: toolkitRaw.ActionCreatorWithPayload<string, any>, setNodeProviderQuery: toolkitRaw.ActionCreatorWithPayload<string, any>, setTxId: toolkitRaw.ActionCreatorWithPayload<number, any>, setSelectedToken: toolkitRaw.ActionCreatorWithPayload<string, any>, setAvailableTokenList: toolkitRaw.ActionCreatorWithPayload<string[], any>, setCompliantOption: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setSourceCompliant: toolkitRaw.ActionCreatorWithPayload<string, any>, setTargetCompliant: toolkitRaw.ActionCreatorWithPayload<string, any>, setUseFIAT: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setBankDetails: toolkitRaw.ActionCreatorWithPayload<BankDetails, any>, setTargetChainFetching: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setSignature: toolkitRaw.ActionCreatorWithPayload<string, any>, setUuid: toolkitRaw.ActionCreatorWithPayload<string, any>, setKYCStatus: toolkitRaw.ActionCreatorWithPayload<string, any>, setExpireTime: toolkitRaw.ActionCreatorWithPayload<string, any>, setPendingTxData: toolkitRaw.ActionCreatorWithPayload<PendingTxData[], any>, setPendingTxs: toolkitRaw.ActionCreatorWithPayload<number, any>;
+export declare const initialize: toolkitRaw.ActionCreatorWithoutPayload<any>, setNetworkOption: toolkitRaw.ActionCreatorWithPayload<NetworkOptions, any>, setTokenOptions: toolkitRaw.ActionCreatorWithPayload<TokenOptions, any>, setKimaExplorer: toolkitRaw.ActionCreatorWithPayload<string, any>, setTheme: toolkitRaw.ActionCreatorWithPayload<ThemeOptions, any>, setSourceChain: toolkitRaw.ActionCreatorWithPayload<string, any>, setTargetChain: toolkitRaw.ActionCreatorWithPayload<string, any>, setTargetAddress: toolkitRaw.ActionCreatorWithPayload<string, any>, setBitcoinAddress: toolkitRaw.ActionCreatorWithPayload<string, any>, setBitcoinPubkey: toolkitRaw.ActionCreatorWithPayload<string, any>, setSolanaConnectModal: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setTronConnectModal: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setHelpPopup: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setHashPopup: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setPendingTxPopup: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setBankPopup: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setSolanaProvider: toolkitRaw.ActionCreatorWithPayload<any, any>, setTronProvider: toolkitRaw.ActionCreatorWithPayload<any, any>, setProvider: toolkitRaw.ActionCreatorWithPayload<any, any>, setDappOption: toolkitRaw.ActionCreatorWithPayload<DAppOptions, any>, setWalletAutoConnect: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setSubmitted: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setTransactionOption: toolkitRaw.ActionCreatorWithPayload<TransactionOption, any>, setAmount: toolkitRaw.ActionCreatorWithPayload<string, any>, setErrorHandler: toolkitRaw.ActionCreatorWithPayload<Function, any>, setKeplrHandler: toolkitRaw.ActionCreatorWithPayload<Function, any>, setCloseHandler: toolkitRaw.ActionCreatorWithPayload<Function, any>, setSuccessHandler: toolkitRaw.ActionCreatorWithPayload<Function, any>, setSwitchChainHandler: toolkitRaw.ActionCreatorWithPayload<Function, any>, setInitChainFromProvider: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setServiceFee: toolkitRaw.ActionCreatorWithPayload<number, any>, setMode: toolkitRaw.ActionCreatorWithPayload<ModeOptions, any>, setFeeDeduct: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setBackendUrl: toolkitRaw.ActionCreatorWithPayload<string, any>, setNodeProviderQuery: toolkitRaw.ActionCreatorWithPayload<string, any>, setTxId: toolkitRaw.ActionCreatorWithPayload<number, any>, setSelectedToken: toolkitRaw.ActionCreatorWithPayload<string, any>, setCompliantOption: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setSourceCompliant: toolkitRaw.ActionCreatorWithPayload<string, any>, setTargetCompliant: toolkitRaw.ActionCreatorWithPayload<string, any>, setUseFIAT: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setBankDetails: toolkitRaw.ActionCreatorWithPayload<BankDetails, any>, setTargetChainFetching: toolkitRaw.ActionCreatorWithPayload<boolean, any>, setSignature: toolkitRaw.ActionCreatorWithPayload<string, any>, setUuid: toolkitRaw.ActionCreatorWithPayload<string, any>, setKYCStatus: toolkitRaw.ActionCreatorWithPayload<string, any>, setExpireTime: toolkitRaw.ActionCreatorWithPayload<string, any>, setPendingTxData: toolkitRaw.ActionCreatorWithPayload<PendingTxData[], any>, setPendingTxs: toolkitRaw.ActionCreatorWithPayload<number, any>;
 declare const _default: toolkitRaw.Reducer<OptionState, toolkitRaw.UnknownAction, OptionState>;
 export default _default;

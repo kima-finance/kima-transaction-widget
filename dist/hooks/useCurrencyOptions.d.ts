@@ -1,3 +1,3 @@
 export default function useCurrencyOptions(): {
-    options: string;
+    tokenList: string[];
 };

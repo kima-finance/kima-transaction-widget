@@ -1001,7 +1001,6 @@ const initialState = {
   nodeProviderQuery: '',
   txId: -1,
   selectedToken: 'USDK',
-  avilableTokenList: ['USDK'],
   compliantOption: true,
   sourceCompliant: 'low',
   targetCompliant: 'low',
@@ -1152,9 +1151,6 @@ const optionSlice = createSlice({
     setSelectedToken: (state, action) => {
       state.selectedToken = action.payload;
     },
-    setAvailableTokenList: (state, action) => {
-      state.avilableTokenList = action.payload;
-    },
     setCompliantOption: (state, action) => {
       state.compliantOption = action.payload;
     },
@@ -1225,7 +1221,6 @@ const {
   setNodeProviderQuery,
   setTxId,
   setSelectedToken,
-  setAvailableTokenList,
   setCompliantOption,
   setSourceCompliant,
   setTargetCompliant,
@@ -1284,7 +1279,6 @@ const selectBackendUrl = state => state.option.backendUrl;
 const selectNodeProviderQuery = state => state.option.nodeProviderQuery;
 const selectTxId = state => state.option.txId;
 const selectSelectedToken = state => state.option.selectedToken;
-const selectAvailableTokenList = state => state.option.avilableTokenList;
 const selectCompliantOption = state => state.option.compliantOption;
 const selectSourceCompliant = state => state.option.sourceCompliant;
 const selectTargetCompliant = state => state.option.targetCompliant;
@@ -2445,13 +2439,53 @@ const WalletButton = ({
   }, balance.toFixed(selectedCoin === 'WBTC' ? 8 : 2), ' ', selectedNetwork === ChainName.BTC ? 'BTC' : selectedCoin, " available") : null);
 };
 
+function useCurrencyOptions() {
+  const dispatch = useDispatch();
+  const [tokenList, setTokenList] = useState(['USDK']);
+  const mode = useSelector(selectMode);
+  const transactionOption = useSelector(selectTransactionOption);
+  const nodeProviderQuery = useSelector(selectNodeProviderQuery);
+  const originNetwork = useSelector(selectSourceChain);
+  const targetNetwork = useSelector(selectTargetChain);
+  useEffect(() => {
+    if (!nodeProviderQuery || !originNetwork || !targetNetwork || !transactionOption && mode === ModeOptions.payment) return;
+    (async function () {
+      try {
+        if (originNetwork === ChainName.FIAT || targetNetwork === ChainName.FIAT) {
+          dispatch(setSelectedToken('KEUR'));
+          return;
+        }
+        const coins = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/get_currencies/${originNetwork}/${targetNetwork}`);
+        let _tokenList = coins.Currencies.map(coin => coin.toUpperCase()) || ['USDK'];
+        if (originNetwork === ChainName.BTC || targetNetwork === ChainName.BTC) {
+          _tokenList = ['WBTC'];
+        }
+        if (transactionOption !== null && transactionOption !== void 0 && transactionOption.currency && _tokenList.findIndex(item => item === transactionOption.currency) >= 0) {
+          dispatch(setSelectedToken(transactionOption.currency));
+        } else {
+          dispatch(setSelectedToken(_tokenList[0]));
+        }
+        setTokenList(_tokenList);
+      } catch (e) {
+        console.log('rpc disconnected', e);
+        toast.error('rpc disconnected');
+      }
+    })();
+  }, [nodeProviderQuery, originNetwork, targetNetwork, transactionOption, mode]);
+  return useMemo(() => ({
+    tokenList
+  }), [tokenList]);
+}
+
 const CoinDropdown = () => {
   var _COIN_LIST;
   const ref = useRef();
   const dispatch = useDispatch();
   const [collapsed, setCollapsed] = useState(true);
   const selectedCoin = useSelector(selectSelectedToken);
-  const tokenList = useSelector(selectAvailableTokenList);
+  const {
+    tokenList
+  } = useCurrencyOptions();
   const theme = useSelector(selectTheme);
   const Icon = ((_COIN_LIST = COIN_LIST[selectedCoin || 'USDK']) === null || _COIN_LIST === void 0 ? void 0 : _COIN_LIST.icon) || COIN_LIST['USDK'].icon;
   useEffect(() => {
@@ -7216,46 +7250,6 @@ const BankPopup = ({
   }))));
 };
 
-function useCurrencyOptions() {
-  const dispatch = useDispatch();
-  const [options, setOptions] = useState('USDK');
-  const mode = useSelector(selectMode);
-  const transactionOption = useSelector(selectTransactionOption);
-  const nodeProviderQuery = useSelector(selectNodeProviderQuery);
-  const originNetwork = useSelector(selectSourceChain);
-  const targetNetwork = useSelector(selectTargetChain);
-  useEffect(() => {
-    if (!nodeProviderQuery || !originNetwork || !targetNetwork || !transactionOption && mode === ModeOptions.payment) return;
-    (async function () {
-      try {
-        if (originNetwork === ChainName.FIAT || targetNetwork === ChainName.FIAT) {
-          setOptions('KEUR');
-          return;
-        }
-        const coins = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/get_currencies/${originNetwork}/${targetNetwork}`);
-        let tokenList = coins.Currencies.map(coin => coin.toUpperCase()) || ['USDK'];
-        if (originNetwork === ChainName.BTC || targetNetwork === ChainName.BTC) {
-          tokenList = ['WBTC'];
-        }
-        if (transactionOption !== null && transactionOption !== void 0 && transactionOption.currency && tokenList.findIndex(item => item === transactionOption.currency) >= 0) {
-          dispatch(setSelectedToken(transactionOption.currency));
-          setOptions(transactionOption.currency);
-        } else {
-          dispatch(setSelectedToken(tokenList[0]));
-          setOptions(tokenList[0]);
-        }
-        dispatch(setAvailableTokenList(tokenList));
-      } catch (e) {
-        console.log('rpc disconnected', e);
-        toast.error('rpc disconnected');
-      }
-    })();
-  }, [nodeProviderQuery, originNetwork, targetNetwork, transactionOption, mode]);
-  return useMemo(() => ({
-    options
-  }), [options]);
-}
-
 const useWidth = () => {
   const [width, setWidth] = useState(window.innerWidth);
   useEffect(() => {
@@ -11279,9 +11273,7 @@ const TransferWidget = ({
   const errorHandler = useSelector(selectErrorHandler);
   const keplrHandler = useSelector(selectKeplrHandler);
   const closeHandler = useSelector(selectCloseHandler);
-  const {
-    options: selectedToken
-  } = useCurrencyOptions();
+  const selectedToken = useSelector(selectSelectedToken);
   const backendUrl = useSelector(selectBackendUrl);
   const nodeProviderQuery = useSelector(selectNodeProviderQuery);
   const bankDetails = useSelector(selectBankDetails);
@@ -11378,9 +11370,6 @@ const TransferWidget = ({
       console.table(poolsTable);
     })();
   }, [nodeProviderQuery]);
-  useEffect(() => {
-    dispatch(setSelectedToken(selectedToken));
-  }, [selectedToken]);
   useEffect(() => {
     if (!isReady) {
       if (formStep > 0) setFormStep(0);
@@ -11586,7 +11575,6 @@ const TransferWidget = ({
       }
       if (!(await checkPoolBalance())) {
         setSubmitting(false);
-        return;
       }
       let params;
       let feeParam;

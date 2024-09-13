@@ -29,7 +29,6 @@ import {
   setFeeDeduct,
   setPendingTxData,
   setPendingTxs,
-  setSelectedToken,
   setSourceCompliant,
   setSubmitted,
   setTargetAddress,
@@ -60,7 +59,8 @@ import {
   selectExpireTime,
   selectBitcoinAddress,
   selectBitcoinPubkey,
-  selectPendingTxs
+  selectPendingTxs,
+  selectSelectedToken
 } from '../store/selectors'
 import useIsWalletReady from '../hooks/useIsWalletReady'
 import useServiceFee from '../hooks/useServiceFee'
@@ -68,7 +68,6 @@ import useAllowance from '../hooks/useAllowance'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 import AddressInputWizard from './reusable/AddressInputWizard'
 import { BankPopup, SolanaWalletConnectModal } from './modals'
-import useCurrencyOptions from '../hooks/useCurrencyOptions'
 import {
   ChainName,
   CHAIN_NAMES_TO_STRING,
@@ -133,7 +132,7 @@ export const TransferWidget = ({
   const errorHandler = useSelector(selectErrorHandler)
   const keplrHandler = useSelector(selectKeplrHandler)
   const closeHandler = useSelector(selectCloseHandler)
-  const { options: selectedToken } = useCurrencyOptions()
+  const selectedToken = useSelector(selectSelectedToken)
   const backendUrl = useSelector(selectBackendUrl)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
   const bankDetails = useSelector(selectBankDetails)
@@ -231,10 +230,6 @@ export const TransferWidget = ({
       console.table(poolsTable)
     })()
   }, [nodeProviderQuery])
-
-  useEffect(() => {
-    dispatch(setSelectedToken(selectedToken))
-  }, [selectedToken])
 
   useEffect(() => {
     if (!isReady) {
@@ -542,7 +537,7 @@ export const TransferWidget = ({
 
       if (!(await checkPoolBalance())) {
         setSubmitting(false)
-        return
+        // return
       }
 
       let params

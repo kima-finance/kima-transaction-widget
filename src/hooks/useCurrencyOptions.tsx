@@ -10,13 +10,13 @@ import {
 } from '../store/selectors'
 import { ChainName } from '../utils/constants'
 import { useDispatch } from 'react-redux'
-import { setAvailableTokenList, setSelectedToken } from '../store/optionSlice'
+import { setSelectedToken } from '../store/optionSlice'
 import toast from 'react-hot-toast'
 import { ModeOptions } from '../interface'
 
 export default function useCurrencyOptions() {
   const dispatch = useDispatch()
-  const [options, setOptions] = useState('USDK')
+  const [tokenList, setTokenList] = useState<Array<string>>(['USDK'])
   const mode = useSelector(selectMode)
   const transactionOption = useSelector(selectTransactionOption)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
@@ -37,35 +37,33 @@ export default function useCurrencyOptions() {
           originNetwork === ChainName.FIAT ||
           targetNetwork === ChainName.FIAT
         ) {
-          setOptions('KEUR')
+          dispatch(setSelectedToken('KEUR'))
           return
         }
         const coins: any = await fetchWrapper.get(
           `${nodeProviderQuery}/kima-finance/kima-blockchain/chains/get_currencies/${originNetwork}/${targetNetwork}`
         )
 
-        let tokenList = coins.Currencies.map((coin: string) =>
+        let _tokenList = coins.Currencies.map((coin: string) =>
           coin.toUpperCase()
         ) || ['USDK']
         if (
           originNetwork === ChainName.BTC ||
           targetNetwork === ChainName.BTC
         ) {
-          tokenList = ['WBTC']
+          _tokenList = ['WBTC']
         }
 
         if (
           transactionOption?.currency &&
-          tokenList.findIndex((item) => item === transactionOption.currency) >=
+          _tokenList.findIndex((item) => item === transactionOption.currency) >=
             0
         ) {
           dispatch(setSelectedToken(transactionOption.currency))
-          setOptions(transactionOption.currency)
         } else {
-          dispatch(setSelectedToken(tokenList[0]))
-          setOptions(tokenList[0])
+          dispatch(setSelectedToken(_tokenList[0]))
         }
-        dispatch(setAvailableTokenList(tokenList))
+        setTokenList(_tokenList)
       } catch (e) {
         console.log('rpc disconnected', e)
         toast.error('rpc disconnected')
@@ -75,8 +73,8 @@ export default function useCurrencyOptions() {
 
   return useMemo(
     () => ({
-      options
+      tokenList
     }),
-    [options]
+    [tokenList]
   )
 }

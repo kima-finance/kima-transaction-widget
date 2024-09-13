@@ -1042,7 +1042,6 @@ var initialState = {
   nodeProviderQuery: '',
   txId: -1,
   selectedToken: 'USDK',
-  avilableTokenList: ['USDK'],
   compliantOption: true,
   sourceCompliant: 'low',
   targetCompliant: 'low',
@@ -1193,9 +1192,6 @@ var optionSlice = createSlice({
     setSelectedToken: function setSelectedToken(state, action) {
       state.selectedToken = action.payload;
     },
-    setAvailableTokenList: function setAvailableTokenList(state, action) {
-      state.avilableTokenList = action.payload;
-    },
     setCompliantOption: function setCompliantOption(state, action) {
       state.compliantOption = action.payload;
     },
@@ -1263,7 +1259,6 @@ var _optionSlice$actions = optionSlice.actions,
   setNodeProviderQuery = _optionSlice$actions.setNodeProviderQuery,
   setTxId = _optionSlice$actions.setTxId,
   setSelectedToken = _optionSlice$actions.setSelectedToken,
-  setAvailableTokenList = _optionSlice$actions.setAvailableTokenList,
   setCompliantOption = _optionSlice$actions.setCompliantOption,
   setSourceCompliant = _optionSlice$actions.setSourceCompliant,
   setTargetCompliant = _optionSlice$actions.setTargetCompliant,
@@ -1547,9 +1542,6 @@ var selectTxId = function selectTxId(state) {
 };
 var selectSelectedToken = function selectSelectedToken(state) {
   return state.option.selectedToken;
-};
-var selectAvailableTokenList = function selectAvailableTokenList(state) {
-  return state.option.avilableTokenList;
 };
 var selectCompliantOption = function selectCompliantOption(state) {
   return state.option.compliantOption;
@@ -2900,6 +2892,57 @@ var WalletButton = function WalletButton(_ref) {
   }, balance.toFixed(selectedCoin === 'WBTC' ? 8 : 2), ' ', selectedNetwork === exports.SupportNetworks.BTC ? 'BTC' : selectedCoin, " available") : null);
 };
 
+function useCurrencyOptions() {
+  var dispatch = reactRedux.useDispatch();
+  var _useState = React.useState(['USDK']),
+    tokenList = _useState[0],
+    setTokenList = _useState[1];
+  var mode = reactRedux.useSelector(selectMode);
+  var transactionOption = reactRedux.useSelector(selectTransactionOption);
+  var nodeProviderQuery = reactRedux.useSelector(selectNodeProviderQuery);
+  var originNetwork = reactRedux.useSelector(selectSourceChain);
+  var targetNetwork = reactRedux.useSelector(selectTargetChain);
+  React.useEffect(function () {
+    if (!nodeProviderQuery || !originNetwork || !targetNetwork || !transactionOption && mode === exports.ModeOptions.payment) return;
+    (function () {
+      try {
+        return _catch(function () {
+          if (originNetwork === exports.SupportNetworks.FIAT || targetNetwork === exports.SupportNetworks.FIAT) {
+            dispatch(setSelectedToken('KEUR'));
+            return;
+          }
+          return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/chains/get_currencies/" + originNetwork + "/" + targetNetwork)).then(function (coins) {
+            var _tokenList = coins.Currencies.map(function (coin) {
+              return coin.toUpperCase();
+            }) || ['USDK'];
+            if (originNetwork === exports.SupportNetworks.BTC || targetNetwork === exports.SupportNetworks.BTC) {
+              _tokenList = ['WBTC'];
+            }
+            if (transactionOption !== null && transactionOption !== void 0 && transactionOption.currency && _tokenList.findIndex(function (item) {
+              return item === transactionOption.currency;
+            }) >= 0) {
+              dispatch(setSelectedToken(transactionOption.currency));
+            } else {
+              dispatch(setSelectedToken(_tokenList[0]));
+            }
+            setTokenList(_tokenList);
+          });
+        }, function (e) {
+          console.log('rpc disconnected', e);
+          toast__default.error('rpc disconnected');
+        });
+      } catch (e) {
+        Promise.reject(e);
+      }
+    })();
+  }, [nodeProviderQuery, originNetwork, targetNetwork, transactionOption, mode]);
+  return React.useMemo(function () {
+    return {
+      tokenList: tokenList
+    };
+  }, [tokenList]);
+}
+
 var CoinDropdown = function CoinDropdown() {
   var _COIN_LIST;
   var ref = React.useRef();
@@ -2908,7 +2951,8 @@ var CoinDropdown = function CoinDropdown() {
     collapsed = _useState[0],
     setCollapsed = _useState[1];
   var selectedCoin = reactRedux.useSelector(selectSelectedToken);
-  var tokenList = reactRedux.useSelector(selectAvailableTokenList);
+  var _useCurrencyOptions = useCurrencyOptions(),
+    tokenList = _useCurrencyOptions.tokenList;
   var theme = reactRedux.useSelector(selectTheme);
   var Icon = ((_COIN_LIST = COIN_LIST[selectedCoin || 'USDK']) === null || _COIN_LIST === void 0 ? void 0 : _COIN_LIST.icon) || COIN_LIST['USDK'].icon;
   React.useEffect(function () {
@@ -7918,59 +7962,6 @@ var BankPopup = function BankPopup(_ref) {
   }))));
 };
 
-function useCurrencyOptions() {
-  var dispatch = reactRedux.useDispatch();
-  var _useState = React.useState('USDK'),
-    options = _useState[0],
-    setOptions = _useState[1];
-  var mode = reactRedux.useSelector(selectMode);
-  var transactionOption = reactRedux.useSelector(selectTransactionOption);
-  var nodeProviderQuery = reactRedux.useSelector(selectNodeProviderQuery);
-  var originNetwork = reactRedux.useSelector(selectSourceChain);
-  var targetNetwork = reactRedux.useSelector(selectTargetChain);
-  React.useEffect(function () {
-    if (!nodeProviderQuery || !originNetwork || !targetNetwork || !transactionOption && mode === exports.ModeOptions.payment) return;
-    (function () {
-      try {
-        return _catch(function () {
-          if (originNetwork === exports.SupportNetworks.FIAT || targetNetwork === exports.SupportNetworks.FIAT) {
-            setOptions('KEUR');
-            return;
-          }
-          return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/chains/get_currencies/" + originNetwork + "/" + targetNetwork)).then(function (coins) {
-            var tokenList = coins.Currencies.map(function (coin) {
-              return coin.toUpperCase();
-            }) || ['USDK'];
-            if (originNetwork === exports.SupportNetworks.BTC || targetNetwork === exports.SupportNetworks.BTC) {
-              tokenList = ['WBTC'];
-            }
-            if (transactionOption !== null && transactionOption !== void 0 && transactionOption.currency && tokenList.findIndex(function (item) {
-              return item === transactionOption.currency;
-            }) >= 0) {
-              dispatch(setSelectedToken(transactionOption.currency));
-              setOptions(transactionOption.currency);
-            } else {
-              dispatch(setSelectedToken(tokenList[0]));
-              setOptions(tokenList[0]);
-            }
-            dispatch(setAvailableTokenList(tokenList));
-          });
-        }, function (e) {
-          console.log('rpc disconnected', e);
-          toast__default.error('rpc disconnected');
-        });
-      } catch (e) {
-        Promise.reject(e);
-      }
-    })();
-  }, [nodeProviderQuery, originNetwork, targetNetwork, transactionOption, mode]);
-  return React.useMemo(function () {
-    return {
-      options: options
-    };
-  }, [options]);
-}
-
 var useWidth = function useWidth() {
   var _useState = React.useState(window.innerWidth),
     width = _useState[0],
@@ -12025,8 +12016,7 @@ var TransferWidget = function TransferWidget(_ref) {
   var errorHandler = reactRedux.useSelector(selectErrorHandler);
   var keplrHandler = reactRedux.useSelector(selectKeplrHandler);
   var closeHandler = reactRedux.useSelector(selectCloseHandler);
-  var _useCurrencyOptions = useCurrencyOptions(),
-    selectedToken = _useCurrencyOptions.options;
+  var selectedToken = reactRedux.useSelector(selectSelectedToken);
   var backendUrl = reactRedux.useSelector(selectBackendUrl);
   var nodeProviderQuery = reactRedux.useSelector(selectNodeProviderQuery);
   var bankDetails = reactRedux.useSelector(selectBankDetails);
@@ -12155,9 +12145,6 @@ var TransferWidget = function TransferWidget(_ref) {
       Promise.reject(e);
     }
   }, [nodeProviderQuery]);
-  React.useEffect(function () {
-    dispatch(setSelectedToken(selectedToken));
-  }, [selectedToken]);
   React.useEffect(function () {
     if (!isReady) {
       if (formStep > 0) setFormStep(0);
@@ -12328,10 +12315,7 @@ var TransferWidget = function TransferWidget(_ref) {
   var handleSubmit = function handleSubmit() {
     try {
       var _temp8 = function _temp8(_result2) {
-        var _exit2 = false;
-        if (_exit) return _result2;
-        return _catch(function () {
-          var _exit3 = false;
+        return _exit ? _result2 : _catch(function () {
           if (sourceChain === exports.SupportNetworks.FIAT || targetChain === exports.SupportNetworks.FIAT) return;
           setSubmitting(true);
           if (dAppOption === exports.DAppOptions.LPDrain || dAppOption === exports.DAppOptions.LPAdd) {
@@ -12341,8 +12325,6 @@ var TransferWidget = function TransferWidget(_ref) {
           return Promise.resolve(checkPoolBalance()).then(function (_checkPoolBalance) {
             if (!_checkPoolBalance) {
               setSubmitting(false);
-              _exit2 = true;
-              return;
             }
             var params;
             var feeParam;

@@ -61,7 +61,6 @@ export interface OptionState {
   txId: number // transaction id to monitor it's status
   selectedToken: string // Currently selected token
   expireTime: string // Bitcoi HTLC expiration time
-  avilableTokenList: Array<string> // Available token list by source, target chain
   compliantOption: boolean // option to check compliant addresses
   sourceCompliant: string // source address is compliant or not
   targetCompliant: string // target address is compliant or not
@@ -114,7 +113,6 @@ const initialState: OptionState = {
   nodeProviderQuery: '',
   txId: -1,
   selectedToken: 'USDK',
-  avilableTokenList: ['USDK'],
   compliantOption: true,
   sourceCompliant: 'low',
   targetCompliant: 'low',
@@ -267,9 +265,6 @@ export const optionSlice = createSlice({
     setSelectedToken: (state, action: PayloadAction<string>) => {
       state.selectedToken = action.payload
     },
-    setAvailableTokenList: (state, action: PayloadAction<Array<string>>) => {
-      state.avilableTokenList = action.payload
-    },
     setCompliantOption: (state, action: PayloadAction<boolean>) => {
       state.compliantOption = action.payload
     },
@@ -341,7 +336,6 @@ export const {
   setNodeProviderQuery,
   setTxId,
   setSelectedToken,
-  setAvailableTokenList,
   setCompliantOption,
   setSourceCompliant,
   setTargetCompliant,
