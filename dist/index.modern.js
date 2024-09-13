@@ -11974,6 +11974,7 @@ const KimaTransactionWidget = ({
       dispatch(setTargetChain((transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetChain) || ChainName.ETHEREUM));
       if (_dAppOption === DAppOptions.LPAdd || _dAppOption === DAppOptions.LPDrain) {
         dispatch(setSourceChain((transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetChain) || ChainName.ETHEREUM));
+        dispatch(setSelectedToken((transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.currency) || 'USDK'));
       } else {
         (async function () {
           try {
