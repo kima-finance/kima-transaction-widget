@@ -7,7 +7,6 @@ import {
   ModeOptions,
   ColorModeOptions,
   NetworkOptions,
-  DAppOptions,
   SupportNetworks
 } from 'kima-transaction-widget'
 import 'kima-transaction-widget/dist/index.css'
@@ -29,14 +28,15 @@ const App = () => {
               colorMode: ColorModeOptions.light,
               fontSize: FontSizeOptions.medium
             }}
-            mode={ModeOptions.payment}
+            mode={ModeOptions.status}
             // mode={ModeOptions.bridge}
             networkOption={NetworkOptions.mainnet}
-            dAppOption={DAppOptions.LPDrain}
-            kimaBackendUrl='https://demo.staging.kima.finance/backend'
-            kimaNodeProviderQuery='https://api.staging.kima.finance'
-            kimaExplorer='https://explorer.staging.kima.finance'
-            feeURL='https://fee.aegean.kima.finance'
+            // dAppOption={DAppOptions.LPDrain}
+            kimaBackendUrl='https://demo-testnet.kima.finance/backend'
+            kimaNodeProviderQuery='https://api-testnet.kima.finance'
+            kimaExplorer='https://explorer-testnet.kima.finance'
+            feeURL='https://fee.kima.finance'
+            kimaGraphqlProviderQuery='https://graphql-testnet.kima.finance/v1/graphql'
             // autoSwitchChain={false}
             // defaultToken={'USDK'}
             // useFIAT={true}
@@ -57,7 +57,7 @@ const App = () => {
               amount: 5,
               currency: 'USDC'
             }}
-            // txId={-1}
+            txId={1}
             errorHandler={(e: any) => {
               console.log('error:', e)
             }}

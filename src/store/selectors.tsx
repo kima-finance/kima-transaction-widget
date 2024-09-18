@@ -58,6 +58,8 @@ export const selectFeeDeduct = (state: RootState) => state.option.feeDeduct
 export const selectBackendUrl = (state: RootState) => state.option.backendUrl
 export const selectNodeProviderQuery = (state: RootState) =>
   state.option.nodeProviderQuery
+export const selectGraphqlProviderQuery = (state: RootState) =>
+  state.option.graphqlProviderQuery
 export const selectTxId = (state: RootState) => state.option.txId
 export const selectSelectedToken = (state: RootState) =>
   state.option.selectedToken

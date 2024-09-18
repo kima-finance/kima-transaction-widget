@@ -1000,7 +1000,8 @@ var initialState = {
   tokenOptions: {},
   pendingTxs: 0,
   pendingTxData: [],
-  kimaExplorerUrl: 'explorer.kima.finance',
+  kimaExplorerUrl: 'https://explorer.kima.finance',
+  graphqlProviderQuery: 'https://graphql.kima.finance',
   mode: exports.ModeOptions.bridge,
   sourceChain: '',
   targetChain: '',
@@ -1186,6 +1187,9 @@ var optionSlice = createSlice({
     setNodeProviderQuery: function setNodeProviderQuery(state, action) {
       state.nodeProviderQuery = action.payload;
     },
+    setGraphqlProviderQuery: function setGraphqlProviderQuery(state, action) {
+      state.graphqlProviderQuery = action.payload;
+    },
     setTxId: function setTxId(state, action) {
       state.txId = action.payload;
     },
@@ -1257,6 +1261,7 @@ var _optionSlice$actions = optionSlice.actions,
   setFeeDeduct = _optionSlice$actions.setFeeDeduct,
   setBackendUrl = _optionSlice$actions.setBackendUrl,
   setNodeProviderQuery = _optionSlice$actions.setNodeProviderQuery,
+  setGraphqlProviderQuery = _optionSlice$actions.setGraphqlProviderQuery,
   setTxId = _optionSlice$actions.setTxId,
   setSelectedToken = _optionSlice$actions.setSelectedToken,
   setCompliantOption = _optionSlice$actions.setCompliantOption,
@@ -1536,6 +1541,9 @@ var selectBackendUrl = function selectBackendUrl(state) {
 };
 var selectNodeProviderQuery = function selectNodeProviderQuery(state) {
   return state.option.nodeProviderQuery;
+};
+var selectGraphqlProviderQuery = function selectGraphqlProviderQuery(state) {
+  return state.option.graphqlProviderQuery;
 };
 var selectTxId = function selectTxId(state) {
   return state.option.txId;
@@ -3422,13 +3430,28 @@ var TransactionWidget = function TransactionWidget(_ref) {
   var dAppOption = reactRedux.useSelector(selectDappOption);
   var closeHandler = reactRedux.useSelector(selectCloseHandler);
   var successHandler = reactRedux.useSelector(selectSuccessHandler);
-  var nodeProviderQuery = reactRedux.useSelector(selectNodeProviderQuery);
+  var graphqlProviderQuery = reactRedux.useSelector(selectGraphqlProviderQuery);
   React.useEffect(function () {
-    if (!nodeProviderQuery || txId < 0) return;
-    var timerId = setInterval(function () {
+    if (!graphqlProviderQuery || txId < 0) return;
+    var updateTxData = function updateTxData() {
       try {
         return Promise.resolve(_catch(function () {
-          function _temp2() {
+          var data;
+          var isLP = dAppOption === exports.DAppOptions.LPAdd || dAppOption === exports.DAppOptions.LPDrain;
+          console.log(graphqlProviderQuery, txId);
+          return Promise.resolve(fetchWrapper.post(graphqlProviderQuery, JSON.stringify({
+            query: "query TransactionDetailsKima($txId: String) {\n                  " + (isLP ? 'liquidity_transaction_data' : 'transaction_data') + "(where: { tx_id: { _eq: " + txId.toString() + " } }, limit: 1) {\n                    failreason\n                    pullfailcount\n                    pullhash\n                    releasefailcount\n                    releasehash\n                    txstatus\n                    amount\n                    creator\n                    fee\n                    originaddress\n                    originchain\n                    symbol\n                    targetaddress\n                    targetchain\n                    tx_id\n                  }\n                }"
+          }))).then(function (result) {
+            var _result$data, _result$data$transact;
+            if (!(result !== null && result !== void 0 && (_result$data = result.data) !== null && _result$data !== void 0 && (_result$data$transact = _result$data.transaction_data) !== null && _result$data$transact !== void 0 && _result$data$transact.length)) {
+              return;
+            }
+            if (isLP) {
+              data = result === null || result === void 0 ? void 0 : result.data.liquidity_transaction_data[0];
+            } else {
+              data = result === null || result === void 0 ? void 0 : result.data.transaction_data[0];
+            }
+            console.log(data);
             if (!data) return;
             if (isLP) {
               setData({
@@ -3463,26 +3486,7 @@ var TransactionWidget = function TransactionWidget(_ref) {
                 });
               }, 3000);
             }
-          }
-          var data;
-          var result;
-          var isLP = dAppOption === exports.DAppOptions.LPAdd || dAppOption === exports.DAppOptions.LPDrain;
-          var _temp = function () {
-            if (isLP) {
-              return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/transaction/liquidity_transaction_data/" + txId)).then(function (_fetchWrapper$get) {
-                var _result2;
-                result = _fetchWrapper$get;
-                data = (_result2 = result) === null || _result2 === void 0 ? void 0 : _result2.LiquidityTransactionData;
-              });
-            } else {
-              return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/transaction/transaction_data/" + txId)).then(function (_fetchWrapper$get2) {
-                var _result3;
-                result = _fetchWrapper$get2;
-                data = (_result3 = result) === null || _result3 === void 0 ? void 0 : _result3.transactionData;
-              });
-            }
-          }();
-          return _temp && _temp.then ? _temp.then(_temp2) : _temp2(_temp);
+          });
         }, function (e) {
           toast.toast.error('rpc disconnected');
           console.log('rpc disconnected', e);
@@ -3490,11 +3494,15 @@ var TransactionWidget = function TransactionWidget(_ref) {
       } catch (e) {
         return Promise.reject(e);
       }
+    };
+    var timerId = setInterval(function () {
+      updateTxData();
     }, 10000);
+    updateTxData();
     return function () {
       clearInterval(timerId);
     };
-  }, [nodeProviderQuery, txId, dAppOption]);
+  }, [graphqlProviderQuery, txId, dAppOption]);
   React.useEffect(function () {
     if (!data) {
       setStep(0);
@@ -12777,9 +12785,11 @@ var KimaTransactionWidget = function KimaTransactionWidget(_ref) {
     kimaBackendUrl = _ref.kimaBackendUrl,
     kimaNodeProviderQuery = _ref.kimaNodeProviderQuery,
     _ref$kimaExplorer = _ref.kimaExplorer,
-    kimaExplorer = _ref$kimaExplorer === void 0 ? 'explorer.kima.finance' : _ref$kimaExplorer,
+    kimaExplorer = _ref$kimaExplorer === void 0 ? 'https://explorer.kima.finance' : _ref$kimaExplorer,
     _ref$feeURL = _ref.feeURL,
     feeURL = _ref$feeURL === void 0 ? 'https://fee.kima.finance' : _ref$feeURL,
+    _ref$kimaGraphqlProvi = _ref.kimaGraphqlProviderQuery,
+    kimaGraphqlProviderQuery = _ref$kimaGraphqlProvi === void 0 ? 'https://graphql.kima.finance/v1/graphql' : _ref$kimaGraphqlProvi,
     _ref$errorHandler = _ref.errorHandler,
     errorHandler = _ref$errorHandler === void 0 ? function () {
       return void 0;
@@ -12817,6 +12827,7 @@ var KimaTransactionWidget = function KimaTransactionWidget(_ref) {
     dispatch(setSwitchChainHandler(switchChainHandler));
     dispatch(setBackendUrl(kimaBackendUrl));
     dispatch(setNodeProviderQuery(kimaNodeProviderQuery));
+    dispatch(setGraphqlProviderQuery(kimaGraphqlProviderQuery));
     dispatch(setMode(mode));
     dispatch(setProvider(provider));
     dispatch(setDappOption(dAppOption));

@@ -57,6 +57,7 @@ export interface OptionState {
   serviceFee: number // service fee from kima node
   backendUrl: string // URL for kima-transaction-backend component
   nodeProviderQuery: string // REST API endpoint to query kima node
+  graphqlProviderQuery: string // Graphql endpoint to query kima transaction data
   kimaExplorerUrl: string // URL for kima explore (testnet, staging or demo)
   txId: number // transaction id to monitor it's status
   selectedToken: string // Currently selected token
@@ -81,7 +82,8 @@ const initialState: OptionState = {
   tokenOptions: {},
   pendingTxs: 0,
   pendingTxData: [],
-  kimaExplorerUrl: 'explorer.kima.finance',
+  kimaExplorerUrl: 'https://explorer.kima.finance',
+  graphqlProviderQuery: 'https://graphql.kima.finance',
   mode: ModeOptions.bridge,
   sourceChain: '',
   targetChain: '',
@@ -259,6 +261,9 @@ export const optionSlice = createSlice({
     setNodeProviderQuery: (state, action: PayloadAction<string>) => {
       state.nodeProviderQuery = action.payload
     },
+    setGraphqlProviderQuery: (state, action: PayloadAction<string>) => {
+      state.graphqlProviderQuery = action.payload
+    },
     setTxId: (state, action: PayloadAction<number>) => {
       state.txId = action.payload
     },
@@ -334,6 +339,7 @@ export const {
   setFeeDeduct,
   setBackendUrl,
   setNodeProviderQuery,
+  setGraphqlProviderQuery,
   setTxId,
   setSelectedToken,
   setCompliantOption,
