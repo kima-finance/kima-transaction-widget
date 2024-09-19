@@ -57,9 +57,11 @@ export interface OptionState {
   serviceFee: number // service fee from kima node
   backendUrl: string // URL for kima-transaction-backend component
   nodeProviderQuery: string // REST API endpoint to query kima node
+  graphqlProviderQuery: string // Graphql endpoint to query kima transaction data
   kimaExplorerUrl: string // URL for kima explore (testnet, staging or demo)
   txId: number // transaction id to monitor it's status
-  selectedToken: string // Currently selected token
+  sourceCurrency: string // Currently selected token for source chain
+  targetCurrency: string // Currently selected token for target chain
   expireTime: string // Bitcoi HTLC expiration time
   compliantOption: boolean // option to check compliant addresses
   sourceCompliant: string // source address is compliant or not
@@ -81,7 +83,8 @@ const initialState: OptionState = {
   tokenOptions: {},
   pendingTxs: 0,
   pendingTxData: [],
-  kimaExplorerUrl: 'explorer.kima.finance',
+  kimaExplorerUrl: 'https://explorer.kima.finance',
+  graphqlProviderQuery: 'https://graphql.kima.finance',
   mode: ModeOptions.bridge,
   sourceChain: '',
   targetChain: '',
@@ -112,7 +115,8 @@ const initialState: OptionState = {
   backendUrl: '',
   nodeProviderQuery: '',
   txId: -1,
-  selectedToken: 'USDK',
+  sourceCurrency: 'USDK',
+  targetCurrency: 'USDK',
   compliantOption: true,
   sourceCompliant: 'low',
   targetCompliant: 'low',
@@ -259,11 +263,17 @@ export const optionSlice = createSlice({
     setNodeProviderQuery: (state, action: PayloadAction<string>) => {
       state.nodeProviderQuery = action.payload
     },
+    setGraphqlProviderQuery: (state, action: PayloadAction<string>) => {
+      state.graphqlProviderQuery = action.payload
+    },
     setTxId: (state, action: PayloadAction<number>) => {
       state.txId = action.payload
     },
-    setSelectedToken: (state, action: PayloadAction<string>) => {
-      state.selectedToken = action.payload
+    setSourceCurrency: (state, action: PayloadAction<string>) => {
+      state.sourceCurrency = action.payload
+    },
+    setTargetCurrency: (state, action: PayloadAction<string>) => {
+      state.targetCurrency = action.payload
     },
     setCompliantOption: (state, action: PayloadAction<boolean>) => {
       state.compliantOption = action.payload
@@ -334,8 +344,10 @@ export const {
   setFeeDeduct,
   setBackendUrl,
   setNodeProviderQuery,
+  setGraphqlProviderQuery,
   setTxId,
-  setSelectedToken,
+  setSourceCurrency,
+  setTargetCurrency,
   setCompliantOption,
   setSourceCompliant,
   setTargetCompliant,

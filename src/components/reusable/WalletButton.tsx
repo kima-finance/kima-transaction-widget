@@ -7,7 +7,7 @@ import {
 } from '../../store/optionSlice'
 import {
   selectCompliantOption,
-  selectSelectedToken,
+  selectSourceCurrency,
   selectSourceChain,
   selectSourceCompliant,
   selectTheme
@@ -23,7 +23,7 @@ import { useWeb3Modal } from '@web3modal/ethers5/react'
 const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const dispatch = useDispatch()
   const theme = useSelector(selectTheme)
-  const selectedCoin = useSelector(selectSelectedToken)
+  const selectedCoin = useSelector(selectSourceCurrency)
   const sourceCompliant = useSelector(selectSourceCompliant)
   const compliantOption = useSelector(selectCompliantOption)
   const selectedNetwork = useSelector(selectSourceChain)

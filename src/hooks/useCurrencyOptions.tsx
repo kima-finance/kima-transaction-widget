@@ -10,9 +10,9 @@ import {
 } from '../store/selectors'
 import { ChainName } from '../utils/constants'
 import { useDispatch } from 'react-redux'
-import { setSelectedToken } from '../store/optionSlice'
 import toast from 'react-hot-toast'
 import { ModeOptions } from '../interface'
+import { setSourceCurrency, setTargetCurrency } from '../store/optionSlice'
 
 export default function useCurrencyOptions() {
   const dispatch = useDispatch()
@@ -37,7 +37,8 @@ export default function useCurrencyOptions() {
           originNetwork === ChainName.FIAT ||
           targetNetwork === ChainName.FIAT
         ) {
-          dispatch(setSelectedToken('KEUR'))
+          dispatch(setSourceCurrency('KEUR'))
+          dispatch(setTargetCurrency('KEUR'))
           return
         }
         const coins: any = await fetchWrapper.get(
@@ -59,9 +60,11 @@ export default function useCurrencyOptions() {
           _tokenList.findIndex((item) => item === transactionOption.currency) >=
             0
         ) {
-          dispatch(setSelectedToken(transactionOption.currency))
+          dispatch(setSourceCurrency(transactionOption.currency))
+          dispatch(setTargetCurrency(transactionOption.currency))
         } else {
-          dispatch(setSelectedToken(_tokenList[0]))
+          dispatch(setSourceCurrency(_tokenList[0]))
+          dispatch(setTargetCurrency(_tokenList[0]))
         }
         setTokenList(_tokenList)
       } catch (e) {

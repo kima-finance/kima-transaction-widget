@@ -7,7 +7,6 @@ import {
   ModeOptions,
   ColorModeOptions,
   NetworkOptions,
-  DAppOptions,
   SupportNetworks
 } from 'kima-transaction-widget'
 import 'kima-transaction-widget/dist/index.css'
@@ -29,16 +28,17 @@ const App = () => {
               colorMode: ColorModeOptions.light,
               fontSize: FontSizeOptions.medium
             }}
-            mode={ModeOptions.payment}
-            // mode={ModeOptions.bridge}
+            mode={ModeOptions.status}
+            txId={2}
+            // mode={ModeOptions.payment}
             networkOption={NetworkOptions.mainnet}
-            dAppOption={DAppOptions.LPDrain}
+            // dAppOption={DAppOptions.LPDrain}
             kimaBackendUrl='https://demo.staging.kima.finance/backend'
             kimaNodeProviderQuery='https://api.staging.kima.finance'
             kimaExplorer='https://explorer.staging.kima.finance'
-            feeURL='https://fee.aegean.kima.finance'
+            feeURL='https://fee.kima.finance'
+            kimaGraphqlProviderQuery='https://graphql.staging.kima.finance/v1/graphql'
             // autoSwitchChain={false}
-            // defaultToken={'USDK'}
             // useFIAT={true}
             // titleOption={{
             //   initialTitle: 'New Purchase'
@@ -52,12 +52,11 @@ const App = () => {
             //   }
             // }}
             transactionOption={{
-              targetChain: SupportNetworks.ETHEREUM,
+              targetChain: SupportNetworks.POLYGON,
               targetAddress: '0x10c033E050e10510a951a56e4A14B4CD3de6CA67',
               amount: 5,
               currency: 'USDC'
             }}
-            // txId={-1}
             errorHandler={(e: any) => {
               console.log('error:', e)
             }}

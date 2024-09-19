@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-// import { Tooltip } from 'react-tooltip'
 import { CrossIcon, FooterLogo, MinimizeIcon } from '../assets/icons'
 import Progressbar from './reusable/Progressbar'
 import { ExternalLink, NetworkLabel, StepBox } from './reusable'
@@ -19,7 +18,7 @@ import { useSelector } from 'react-redux'
 import {
   selectCloseHandler,
   selectDappOption,
-  selectNodeProviderQuery,
+  selectGraphqlProviderQuery,
   selectSuccessHandler,
   selectTxId
 } from '../store/selectors'
@@ -41,30 +40,55 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const dAppOption = useSelector(selectDappOption)
   const closeHandler = useSelector(selectCloseHandler)
   const successHandler = useSelector(selectSuccessHandler)
-  const nodeProviderQuery = useSelector(selectNodeProviderQuery)
+  const graphqlProviderQuery = useSelector(selectGraphqlProviderQuery)
 
   useEffect(() => {
-    if (!nodeProviderQuery || txId < 0) return
-    const timerId = setInterval(async () => {
-      // Monitor last transaction for now until transaction_data endpoint is ready
+    if (!graphqlProviderQuery || txId < 0) return
+
+    const updateTxData = async () => {
       try {
         let data
-        let result: any
+        // let result: any
         const isLP =
           dAppOption === DAppOptions.LPAdd || dAppOption === DAppOptions.LPDrain
 
-        if (isLP) {
-          result = await fetchWrapper.get(
-            `${nodeProviderQuery}/kima-finance/kima-blockchain/transaction/liquidity_transaction_data/${txId}`
-          )
-          data = result?.LiquidityTransactionData
-        } else {
-          result = await fetchWrapper.get(
-            `${nodeProviderQuery}/kima-finance/kima-blockchain/transaction/transaction_data/${txId}`
-          )
-          data = result?.transactionData
+        console.log(graphqlProviderQuery, txId)
+        const result: any = await fetchWrapper.post(
+          graphqlProviderQuery,
+          JSON.stringify({
+            query: `query TransactionDetailsKima($txId: String) {
+                  ${isLP ? 'liquidity_transaction_data' : 'transaction_data'}(where: { tx_id: { _eq: ${txId.toString()} } }, limit: 1) {
+                    failreason
+                    pullfailcount
+                    pullhash
+                    releasefailcount
+                    releasehash
+                    txstatus
+                    amount
+                    creator
+                    fee
+                    originaddress
+                    originchain
+                    symbol
+                    targetaddress
+                    targetchain
+                    tx_id
+                  }
+                }`
+          })
+        )
+
+        if (!result?.data?.transaction_data?.length) {
+          return
         }
 
+        if (isLP) {
+          data = result?.data.liquidity_transaction_data[0]
+        } else {
+          data = result?.data.transaction_data[0]
+        }
+
+        console.log(data)
         if (!data) return
 
         // Status of last transaction
@@ -79,7 +103,8 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
               dAppOption === DAppOptions.LPDrain ? data.tssReleaseHash : '',
             failReason: data.failReason,
             amount: +data.amount,
-            symbol: data.symbol,
+            sourceSymbol: data.symbol,
+            targetSymbol: data.symbol,
             kimaTxHash: data.kimaTxHash
           })
         } else {
@@ -91,7 +116,8 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
             tssReleaseHash: data.tssReleaseHash,
             failReason: data.failReason,
             amount: +data.amount,
-            symbol: data.symbol,
+            sourceSymbol: data.symbol,
+            targetSymbol: data.symbol,
             kimaTxHash: data.kimaTxHash
           })
         }
@@ -108,12 +134,19 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
         toast.error('rpc disconnected')
         console.log('rpc disconnected', e)
       }
+    }
+
+    const timerId = setInterval(() => {
+      // Monitor last transaction for now until transaction_data endpoint is ready
+      updateTxData()
     }, 10000)
+
+    updateTxData()
 
     return () => {
       clearInterval(timerId)
     }
-  }, [nodeProviderQuery, txId, dAppOption])
+  }, [graphqlProviderQuery, txId, dAppOption])
 
   useEffect(() => {
     if (!data) {
@@ -195,7 +228,8 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
             <div className='title'>
               <h3>
                 Transferring {formatterFloat.format(data?.amount || 0)}{' '}
-                {data?.symbol || 'USDK'}&nbsp;&nbsp;
+                {`${data?.sourceSymbol || 'USDK'} → ${data?.targetSymbol || 'USDK'}`}
+                &nbsp;&nbsp;
                 {`(${percent}%)`}
               </h3>
             </div>

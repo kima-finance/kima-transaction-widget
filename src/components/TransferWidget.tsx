@@ -60,7 +60,7 @@ import {
   selectBitcoinAddress,
   selectBitcoinPubkey,
   selectPendingTxs,
-  selectSelectedToken
+  selectSourceCurrency
 } from '../store/selectors'
 import useIsWalletReady from '../hooks/useIsWalletReady'
 import useServiceFee from '../hooks/useServiceFee'
@@ -114,7 +114,8 @@ export const TransferWidget = ({
   const mainRef = useRef<HTMLDivElement>(null)
 
   // State variables for UI
-  const [isWizard, setWizard] = useState(false)
+  // const [isWizard, setWizard] = useState(false)
+  const isWizard = false
   const [formStep, setFormStep] = useState(0)
   const [wizardStep, setWizardStep] = useState(0)
 
@@ -132,7 +133,7 @@ export const TransferWidget = ({
   const errorHandler = useSelector(selectErrorHandler)
   const keplrHandler = useSelector(selectKeplrHandler)
   const closeHandler = useSelector(selectCloseHandler)
-  const selectedToken = useSelector(selectSelectedToken)
+  const selectedToken = useSelector(selectSourceCurrency)
   const backendUrl = useSelector(selectBackendUrl)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
   const bankDetails = useSelector(selectBankDetails)
@@ -918,7 +919,7 @@ export const TransferWidget = ({
           />
         </ExternalLink>
         <div className='button-group'>
-          <SecondaryButton
+          {/* <SecondaryButton
             clickHandler={() => {
               if (isApproving || isSubmitting || isSigning || isBTCSigning)
                 return
@@ -929,7 +930,7 @@ export const TransferWidget = ({
             style={{ style: { width: '12em', marginLeft: 'auto' } }}
           >
             Switch to {isWizard ? 'Form' : 'Wizard'}
-          </SecondaryButton>
+          </SecondaryButton> */}
           <SecondaryButton
             clickHandler={onBack}
             theme={theme.colorMode}
@@ -944,7 +945,13 @@ export const TransferWidget = ({
             <PrimaryButton
               clickHandler={onCancelApprove}
               isLoading={isCancellingApprove}
-              disabled={isCancellingApprove}
+              disabled={
+                isCancellingApprove ||
+                isApproving ||
+                isSubmitting ||
+                isSigning ||
+                isBTCSigning
+              }
             >
               {isCancellingApprove ? 'Cancelling Approval' : 'Cancel Approve'}
             </PrimaryButton>

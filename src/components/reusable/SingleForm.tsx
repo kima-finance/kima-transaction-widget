@@ -9,10 +9,10 @@ import {
   selectTargetChain,
   selectTheme,
   selectTransactionOption,
-  selectSelectedToken,
   selectServiceFee,
   selectFeeDeduct,
-  selectAmount
+  selectAmount,
+  selectTargetCurrency
 } from '../../store/selectors'
 import { BankInput, CoinDropdown, CustomCheckbox, WalletButton } from './'
 import { setAmount, setFeeDeduct } from '../../store/optionSlice'
@@ -36,12 +36,13 @@ const SingleForm = ({
   const compliantOption = useSelector(selectCompliantOption)
   const targetCompliant = useSelector(selectTargetCompliant)
   const transactionOption = useSelector(selectTransactionOption)
-  const selectedCoin = useSelector(selectSelectedToken)
   const sourceNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
   const [amountValue, setAmountValue] = useState('')
   const amount = useSelector(selectAmount)
-  const Icon = COIN_LIST[selectedCoin || 'USDK']?.icon || COIN_LIST['USDK'].icon
+  const targetCurrency = useSelector(selectTargetCurrency)
+  const TargetIcon =
+    COIN_LIST[targetCurrency || 'USDK']?.icon || COIN_LIST['USDK'].icon
 
   const errorMessage = useMemo(
     () =>
@@ -69,8 +70,9 @@ const SingleForm = ({
         </p>
       ) : null}
       <div className='form-item'>
-        <span className='label'>Source Network</span>
+        <span className='label'>Source Network:</span>
         <NetworkDropdown />
+        <CoinDropdown />
       </div>
 
       <div
@@ -86,7 +88,8 @@ const SingleForm = ({
         {mode === ModeOptions.bridge && (
           <div className='form-item'>
             <span className='label'>Target Network:</span>
-            <NetworkDropdown isOriginChain={false} />
+            <NetworkDropdown isSourceChain={false} />
+            <CoinDropdown isSourceChain={false} />
           </div>
         )}
       </div>
@@ -120,7 +123,6 @@ const SingleForm = ({
                 dispatch(setAmount(_amount.toFixed(decimal)))
               }}
             />
-            <CoinDropdown />
           </div>
         </div>
       ) : (
@@ -129,8 +131,8 @@ const SingleForm = ({
           <div className={`amount-label ${theme.colorMode}`}>
             <span>{transactionOption?.amount || ''}</span>
             <div className='coin-wrapper'>
-              {<Icon />}
-              {selectedCoin}
+              {<TargetIcon />}
+              {targetCurrency}
             </div>
           </div>
         </div>

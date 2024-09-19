@@ -38,7 +38,8 @@ import {
   setKeplrHandler,
   setKimaExplorer,
   setNetworkOption,
-  setSelectedToken
+  setGraphqlProviderQuery,
+  setTargetCurrency
 } from '../store/optionSlice'
 import '../index.css'
 import { selectSubmitted } from '../store/selectors'
@@ -66,6 +67,7 @@ interface Props {
   paymentTitleOption?: PaymentTitleOption
   kimaBackendUrl: string
   kimaNodeProviderQuery: string
+  kimaGraphqlProviderQuery: string
   kimaExplorer?: string
   networkOption?: NetworkOptions
   errorHandler?: (e: any) => void
@@ -91,8 +93,9 @@ export const KimaTransactionWidget = ({
   transactionOption,
   kimaBackendUrl,
   kimaNodeProviderQuery,
-  kimaExplorer = 'explorer.kima.finance',
+  kimaExplorer = 'https://explorer.kima.finance',
   feeURL = 'https://fee.kima.finance',
+  kimaGraphqlProviderQuery = 'https://graphql.kima.finance/v1/graphql',
   errorHandler = () => void 0,
   closeHandler = () => void 0,
   successHandler = () => void 0,
@@ -118,6 +121,7 @@ export const KimaTransactionWidget = ({
     dispatch(setSwitchChainHandler(switchChainHandler))
     dispatch(setBackendUrl(kimaBackendUrl))
     dispatch(setNodeProviderQuery(kimaNodeProviderQuery))
+    dispatch(setGraphqlProviderQuery(kimaGraphqlProviderQuery))
     dispatch(setMode(mode))
     dispatch(setProvider(provider))
     dispatch(setDappOption(dAppOption))
@@ -149,7 +153,7 @@ export const KimaTransactionWidget = ({
         dispatch(
           setSourceChain(transactionOption?.targetChain || ChainName.ETHEREUM)
         )
-        dispatch(setSelectedToken(transactionOption?.currency || 'USDK'))
+        dispatch(setTargetCurrency(transactionOption?.currency || 'USDK'))
       } else {
         ;(async function () {
           try {
