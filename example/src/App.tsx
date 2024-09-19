@@ -15,7 +15,7 @@ const App = () => {
   return (
     <KimaProvider
       walletConnectProjectId='e579511a495b5c312b572b036e60555a'
-      networkOption={NetworkOptions.mainnet}
+      networkOption={NetworkOptions.testnet}
     >
       <div
         style={{
@@ -28,16 +28,16 @@ const App = () => {
               colorMode: ColorModeOptions.light,
               fontSize: FontSizeOptions.medium
             }}
-            mode={ModeOptions.status}
-            txId={2}
-            // mode={ModeOptions.payment}
-            networkOption={NetworkOptions.mainnet}
+            // mode={ModeOptions.status}
+            // txId={2}
+            mode={ModeOptions.bridge}
+            networkOption={NetworkOptions.testnet}
             // dAppOption={DAppOptions.LPDrain}
-            kimaBackendUrl='https://demo.staging.kima.finance/backend'
-            kimaNodeProviderQuery='https://api.staging.kima.finance'
-            kimaExplorer='https://explorer.staging.kima.finance'
+            kimaBackendUrl='http://localhost:3001'
+            kimaNodeProviderQuery='https://api-testnet.kima.finance'
+            kimaExplorer='https://explorer-testnet.kima.finance'
             feeURL='https://fee.kima.finance'
-            kimaGraphqlProviderQuery='https://graphql.staging.kima.finance/v1/graphql'
+            kimaGraphqlProviderQuery='https://graphql-testnet.kima.finance/v1/graphql'
             // autoSwitchChain={false}
             // useFIAT={true}
             // titleOption={{

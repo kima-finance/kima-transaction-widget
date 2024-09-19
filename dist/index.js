@@ -7940,7 +7940,7 @@ function output(out, instance) {
 exports.output = output;
 const assert = { number, bool, bytes, hash, exists, output };
 exports.default = assert;
-//# sourceMappingURL=_assert.js.map
+
 });
 
 unwrapExports(_assert);
@@ -7949,7 +7949,7 @@ var crypto = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.crypto = void 0;
 exports.crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
-//# sourceMappingURL=crypto.js.map
+
 });
 
 unwrapExports(crypto);
@@ -8151,7 +8151,7 @@ function randomBytes(bytesLength = 32) {
     throw new Error('crypto.getRandomValues must be defined');
 }
 exports.randomBytes = randomBytes;
-//# sourceMappingURL=utils.js.map
+
 });
 
 unwrapExports(utils);
@@ -8273,7 +8273,7 @@ class SHA2 extends utils.Hash {
     }
 }
 exports.SHA2 = SHA2;
-//# sourceMappingURL=_sha2.js.map
+
 });
 
 unwrapExports(_sha2);
@@ -8406,7 +8406,7 @@ class SHA224 extends SHA256 {
  */
 exports.sha256 = (0, utils.wrapConstructor)(() => new SHA256());
 exports.sha224 = (0, utils.wrapConstructor)(() => new SHA224());
-//# sourceMappingURL=sha256.js.map
+
 });
 
 unwrapExports(sha256);
@@ -11874,7 +11874,8 @@ var TransferWidget = function TransferWidget(_ref) {
   var errorHandler = reactRedux.useSelector(selectErrorHandler);
   var keplrHandler = reactRedux.useSelector(selectKeplrHandler);
   var closeHandler = reactRedux.useSelector(selectCloseHandler);
-  var selectedToken = reactRedux.useSelector(selectSourceCurrency);
+  var sourceCurrency = reactRedux.useSelector(selectSourceCurrency);
+  var targetCurrency = reactRedux.useSelector(selectTargetCurrency);
   var backendUrl = reactRedux.useSelector(selectBackendUrl);
   var nodeProviderQuery = reactRedux.useSelector(selectNodeProviderQuery);
   var bankDetails = reactRedux.useSelector(selectBankDetails);
@@ -12016,11 +12017,11 @@ var TransferWidget = function TransferWidget(_ref) {
         for (var i = 0; i < poolBalance.length; i++) {
           if (poolBalance[i].chainName === targetChain) {
             for (var j = 0; j < poolBalance[i].balance.length; j++) {
-              if (poolBalance[i].balance[j].tokenSymbol !== selectedToken) continue;
+              if (poolBalance[i].balance[j].tokenSymbol !== sourceCurrency) continue;
               if (+poolBalance[i].balance[j].amount >= +amount + fee) {
                 return true;
               }
-              var symbol = selectedToken;
+              var symbol = sourceCurrency;
               var errorString = "Tried to transfer " + amount + " " + symbol + ", but " + CHAIN_NAMES_TO_STRING[targetChain] + " pool has only " + +poolBalance[i].balance[j].amount + " " + symbol;
               console.log(errorString);
               toast.toast.error(errorString);
@@ -12197,7 +12198,8 @@ var TransferWidget = function TransferWidget(_ref) {
                 originChain: sourceChain,
                 targetAddress: mode === exports.ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
                 targetChain: targetChain,
-                symbol: selectedToken,
+                originSymbol: sourceCurrency,
+                targetSymbol: targetCurrency,
                 amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
                 fee: feeParam,
                 htlcCreationHash: btcHash,
@@ -12212,7 +12214,8 @@ var TransferWidget = function TransferWidget(_ref) {
                 originChain: sourceChain,
                 targetAddress: mode === exports.ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
                 targetChain: targetChain,
-                symbol: selectedToken,
+                originSymbol: sourceCurrency,
+                targetSymbol: targetCurrency,
                 amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
                 fee: feeParam,
                 htlcCreationHash: '',

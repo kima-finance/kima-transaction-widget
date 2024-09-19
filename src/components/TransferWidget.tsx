@@ -60,7 +60,8 @@ import {
   selectBitcoinAddress,
   selectBitcoinPubkey,
   selectPendingTxs,
-  selectSourceCurrency
+  selectSourceCurrency,
+  selectTargetCurrency
 } from '../store/selectors'
 import useIsWalletReady from '../hooks/useIsWalletReady'
 import useServiceFee from '../hooks/useServiceFee'
@@ -133,7 +134,8 @@ export const TransferWidget = ({
   const errorHandler = useSelector(selectErrorHandler)
   const keplrHandler = useSelector(selectKeplrHandler)
   const closeHandler = useSelector(selectCloseHandler)
-  const selectedToken = useSelector(selectSourceCurrency)
+  const sourceCurrency = useSelector(selectSourceCurrency)
+  const targetCurrency = useSelector(selectTargetCurrency)
   const backendUrl = useSelector(selectBackendUrl)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
   const bankDetails = useSelector(selectBankDetails)
@@ -248,12 +250,12 @@ export const TransferWidget = ({
     for (let i = 0; i < poolBalance.length; i++) {
       if (poolBalance[i].chainName === targetChain) {
         for (let j = 0; j < poolBalance[i].balance.length; j++) {
-          if (poolBalance[i].balance[j].tokenSymbol !== selectedToken) continue
+          if (poolBalance[i].balance[j].tokenSymbol !== sourceCurrency) continue
           if (+poolBalance[i].balance[j].amount >= +amount + fee) {
             return true
           }
 
-          const symbol = selectedToken
+          const symbol = sourceCurrency
           const errorString = `Tried to transfer ${amount} ${symbol}, but ${
             CHAIN_NAMES_TO_STRING[targetChain]
           } pool has only ${+poolBalance[i].balance[j].amount} ${symbol}`
@@ -558,7 +560,8 @@ export const TransferWidget = ({
               ? transactionOption?.targetAddress
               : targetAddress,
           targetChain: targetChain,
-          symbol: selectedToken,
+          originSymbol: sourceCurrency,
+          targetSymbol: targetCurrency,
           amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
           fee: feeParam,
           htlcCreationHash: btcHash,
@@ -576,7 +579,8 @@ export const TransferWidget = ({
               ? transactionOption?.targetAddress
               : targetAddress,
           targetChain: targetChain,
-          symbol: selectedToken,
+          originSymbol: sourceCurrency,
+          targetSymbol: targetCurrency,
           amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
           fee: feeParam,
           htlcCreationHash: '',
