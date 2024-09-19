@@ -38,8 +38,8 @@ import {
   setKeplrHandler,
   setKimaExplorer,
   setNetworkOption,
-  setSelectedToken,
-  setGraphqlProviderQuery
+  setGraphqlProviderQuery,
+  setTargetCurrency
 } from '../store/optionSlice'
 import '../index.css'
 import { selectSubmitted } from '../store/selectors'
@@ -153,7 +153,7 @@ export const KimaTransactionWidget = ({
         dispatch(
           setSourceChain(transactionOption?.targetChain || ChainName.ETHEREUM)
         )
-        dispatch(setSelectedToken(transactionOption?.currency || 'USDK'))
+        dispatch(setTargetCurrency(transactionOption?.currency || 'USDK'))
       } else {
         ;(async function () {
           try {

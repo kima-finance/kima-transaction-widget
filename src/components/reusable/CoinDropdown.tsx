@@ -1,19 +1,31 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { selectSelectedToken, selectTheme } from '../../store/selectors'
+import {
+  selectSourceCurrency,
+  selectTargetCurrency,
+  selectTheme
+} from '../../store/selectors'
 import { COIN_LIST } from '../../utils/constants'
 import { useDispatch } from 'react-redux'
-import { setSelectedToken } from '../../store/optionSlice'
 import useCurrencyOptions from '../../hooks/useCurrencyOptions'
+import { setSourceCurrency, setTargetCurrency } from '../../store/optionSlice'
 
-const CoinDropdown = () => {
+const CoinDropdown = ({
+  isSourceChain = true
+}: {
+  isSourceChain?: boolean
+}) => {
   const ref = useRef<any>()
   const dispatch = useDispatch()
   const [collapsed, setCollapsed] = useState(true)
-  const selectedCoin = useSelector(selectSelectedToken)
+  const sourceCurrency = useSelector(selectSourceCurrency)
+  const targetCurrency = useSelector(selectTargetCurrency)
   const { tokenList } = useCurrencyOptions()
   const theme = useSelector(selectTheme)
-  const Icon = COIN_LIST[selectedCoin || 'USDK']?.icon || COIN_LIST['USDK'].icon
+  const Icon = useMemo(() => {
+    const selectedCoin = isSourceChain ? sourceCurrency : targetCurrency
+    return COIN_LIST[selectedCoin || 'USDK']?.icon || COIN_LIST['USDK'].icon
+  }, [sourceCurrency, targetCurrency, isSourceChain])
 
   useEffect(() => {
     const bodyMouseDowntHandler = (e: any) => {
@@ -38,7 +50,7 @@ const CoinDropdown = () => {
     >
       <div className='coin-wrapper'>
         {<Icon />}
-        {selectedCoin}
+        {isSourceChain ? sourceCurrency : targetCurrency}
       </div>
       <div
         className={`coin-menu ${theme.colorMode} ${collapsed ? 'collapsed' : ''}`}
@@ -50,7 +62,11 @@ const CoinDropdown = () => {
               className='coin-item'
               key={COIN_LIST[token]?.symbol}
               onClick={() => {
-                dispatch(setSelectedToken(COIN_LIST[token]?.symbol))
+                if (isSourceChain) {
+                  dispatch(setSourceCurrency(COIN_LIST[token]?.symbol))
+                } else {
+                  dispatch(setTargetCurrency(COIN_LIST[token]?.symbol))
+                }
               }}
             >
               {<CoinIcon />}

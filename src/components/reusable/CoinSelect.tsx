@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import {
-  selectSelectedToken,
+  selectSourceCurrency,
   selectMode,
   selectTheme,
   selectSourceChain,
@@ -16,7 +16,7 @@ const CoinSelect = () => {
   const dispatch = useDispatch()
   const theme = useSelector(selectTheme)
   const mode = useSelector(selectMode)
-  const selectedCoin = useSelector(selectSelectedToken)
+  const selectedCoin = useSelector(selectSourceCurrency)
   const sourceNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
   const [amountValue, setAmountValue] = useState('')

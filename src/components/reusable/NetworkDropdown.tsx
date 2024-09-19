@@ -23,7 +23,7 @@ import { fetchWrapper } from '../../helpers/fetch-wrapper'
 import toast from 'react-hot-toast'
 
 const NetworkDropdown = React.memo(
-  ({ isOriginChain = true }: { isOriginChain?: boolean }) => {
+  ({ isSourceChain = true }: { isSourceChain?: boolean }) => {
     const [collapsed, setCollapsed] = useState(true)
     const [availableNetworks, setAvailableNetworks] = useState<
       Array<ChainName>
@@ -41,14 +41,14 @@ const NetworkDropdown = React.memo(
     const selectedNetwork = useMemo(() => {
       const index = networkOptions.findIndex(
         (option) =>
-          option.id === (isOriginChain ? originNetwork : targetNetwork)
+          option.id === (isSourceChain ? originNetwork : targetNetwork)
       )
       if (index >= 0) return networkOptions[index]
       return networkOptions[3]
     }, [originNetwork, targetNetwork, networkOptions])
 
     const networks = useMemo(() => {
-      if (isOriginChain && mode === ModeOptions.bridge) {
+      if (isSourceChain && mode === ModeOptions.bridge) {
         return networkOptions
       }
 
@@ -58,7 +58,7 @@ const NetworkDropdown = React.memo(
       )
     }, [
       networkOptions,
-      isOriginChain,
+      isSourceChain,
       availableNetworks,
       dAppOption,
       originNetwork
@@ -84,7 +84,7 @@ const NetworkDropdown = React.memo(
 
           setAvailableNetworks(chains)
 
-          if (isOriginChain && !targetNetwork) {
+          if (isSourceChain && !targetNetwork) {
             dispatch(setTargetChain(chains[0]))
           }
 
@@ -110,7 +110,7 @@ const NetworkDropdown = React.memo(
       originNetwork,
       targetNetwork,
       mode,
-      isOriginChain,
+      isSourceChain,
       useFIAT
     ])
 
@@ -161,7 +161,7 @@ const NetworkDropdown = React.memo(
           collapsed ? 'collapsed' : ''
         }`}
         onClick={() => {
-          if (!autoSwitchChain && isOriginChain) return
+          if (!autoSwitchChain && isSourceChain) return
           setCollapsed((prev) => !prev)
         }}
         ref={ref}
@@ -180,7 +180,7 @@ const NetworkDropdown = React.memo(
               className='network-menu-item'
               key={network.label}
               onClick={async () => {
-                if (isOriginChain) {
+                if (isSourceChain) {
                   dispatch(setTargetChainFetching(true))
                   dispatch(setSourceChain(network.id))
                   sourceChangeRef.current = true

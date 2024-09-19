@@ -60,7 +60,8 @@ export interface OptionState {
   graphqlProviderQuery: string // Graphql endpoint to query kima transaction data
   kimaExplorerUrl: string // URL for kima explore (testnet, staging or demo)
   txId: number // transaction id to monitor it's status
-  selectedToken: string // Currently selected token
+  sourceCurrency: string // Currently selected token for source chain
+  targetCurrency: string // Currently selected token for target chain
   expireTime: string // Bitcoi HTLC expiration time
   compliantOption: boolean // option to check compliant addresses
   sourceCompliant: string // source address is compliant or not
@@ -114,7 +115,8 @@ const initialState: OptionState = {
   backendUrl: '',
   nodeProviderQuery: '',
   txId: -1,
-  selectedToken: 'USDK',
+  sourceCurrency: 'USDK',
+  targetCurrency: 'USDK',
   compliantOption: true,
   sourceCompliant: 'low',
   targetCompliant: 'low',
@@ -267,8 +269,11 @@ export const optionSlice = createSlice({
     setTxId: (state, action: PayloadAction<number>) => {
       state.txId = action.payload
     },
-    setSelectedToken: (state, action: PayloadAction<string>) => {
-      state.selectedToken = action.payload
+    setSourceCurrency: (state, action: PayloadAction<string>) => {
+      state.sourceCurrency = action.payload
+    },
+    setTargetCurrency: (state, action: PayloadAction<string>) => {
+      state.targetCurrency = action.payload
     },
     setCompliantOption: (state, action: PayloadAction<boolean>) => {
       state.compliantOption = action.payload
@@ -341,7 +346,8 @@ export const {
   setNodeProviderQuery,
   setGraphqlProviderQuery,
   setTxId,
-  setSelectedToken,
+  setSourceCurrency,
+  setTargetCurrency,
   setCompliantOption,
   setSourceCompliant,
   setTargetCompliant,

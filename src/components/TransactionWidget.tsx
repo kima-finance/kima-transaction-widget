@@ -103,7 +103,8 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
               dAppOption === DAppOptions.LPDrain ? data.tssReleaseHash : '',
             failReason: data.failReason,
             amount: +data.amount,
-            symbol: data.symbol,
+            sourceSymbol: data.symbol,
+            targetSymbol: data.symbol,
             kimaTxHash: data.kimaTxHash
           })
         } else {
@@ -115,7 +116,8 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
             tssReleaseHash: data.tssReleaseHash,
             failReason: data.failReason,
             amount: +data.amount,
-            symbol: data.symbol,
+            sourceSymbol: data.symbol,
+            targetSymbol: data.symbol,
             kimaTxHash: data.kimaTxHash
           })
         }
@@ -226,7 +228,8 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
             <div className='title'>
               <h3>
                 Transferring {formatterFloat.format(data?.amount || 0)}{' '}
-                {data?.symbol || 'USDK'}&nbsp;&nbsp;
+                {`${data?.sourceSymbol || 'USDK'} → ${data?.targetSymbol || 'USDK'}`}
+                &nbsp;&nbsp;
                 {`(${percent}%)`}
               </h3>
             </div>

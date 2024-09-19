@@ -61,8 +61,10 @@ export const selectNodeProviderQuery = (state: RootState) =>
 export const selectGraphqlProviderQuery = (state: RootState) =>
   state.option.graphqlProviderQuery
 export const selectTxId = (state: RootState) => state.option.txId
-export const selectSelectedToken = (state: RootState) =>
-  state.option.selectedToken
+export const selectSourceCurrency = (state: RootState) =>
+  state.option.sourceCurrency
+export const selectTargetCurrency = (state: RootState) =>
+  state.option.targetCurrency
 export const selectCompliantOption = (state: RootState) =>
   state.option.compliantOption
 export const selectSourceCompliant = (state: RootState) =>

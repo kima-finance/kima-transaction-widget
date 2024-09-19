@@ -17,7 +17,7 @@ import {
 import ERC20ABI from '../utils/ethereum/erc20ABI.json'
 import {
   selectAmount,
-  selectSelectedToken,
+  selectSourceCurrency,
   selectDappOption,
   selectErrorHandler,
   selectNodeProviderQuery,
@@ -109,7 +109,7 @@ export default function useAllowance({
     useSolanaWallet()
   const { address: tronAddress, signTransaction: signTronTransaction } =
     useTronWallet()
-  const selectedCoin = useSelector(selectSelectedToken)
+  const selectedCoin = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
   const tokenAddress = useMemo(() => {
     if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT) return ''
