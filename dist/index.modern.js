@@ -7256,7 +7256,7 @@ function output(out, instance) {
 exports.output = output;
 const assert = { number, bool, bytes, hash, exists, output };
 exports.default = assert;
-//# sourceMappingURL=_assert.js.map
+
 });
 
 unwrapExports(_assert);
@@ -7265,7 +7265,7 @@ var crypto = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.crypto = void 0;
 exports.crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
-//# sourceMappingURL=crypto.js.map
+
 });
 
 unwrapExports(crypto);
@@ -7467,7 +7467,7 @@ function randomBytes(bytesLength = 32) {
     throw new Error('crypto.getRandomValues must be defined');
 }
 exports.randomBytes = randomBytes;
-//# sourceMappingURL=utils.js.map
+
 });
 
 unwrapExports(utils);
@@ -7589,7 +7589,7 @@ class SHA2 extends utils.Hash {
     }
 }
 exports.SHA2 = SHA2;
-//# sourceMappingURL=_sha2.js.map
+
 });
 
 unwrapExports(_sha2);
@@ -7722,7 +7722,7 @@ class SHA224 extends SHA256 {
  */
 exports.sha256 = (0, utils.wrapConstructor)(() => new SHA256());
 exports.sha224 = (0, utils.wrapConstructor)(() => new SHA224());
-//# sourceMappingURL=sha256.js.map
+
 });
 
 unwrapExports(sha256);
@@ -11172,7 +11172,8 @@ const TransferWidget = ({
   const errorHandler = useSelector(selectErrorHandler);
   const keplrHandler = useSelector(selectKeplrHandler);
   const closeHandler = useSelector(selectCloseHandler);
-  const selectedToken = useSelector(selectSourceCurrency);
+  const sourceCurrency = useSelector(selectSourceCurrency);
+  const targetCurrency = useSelector(selectTargetCurrency);
   const backendUrl = useSelector(selectBackendUrl);
   const nodeProviderQuery = useSelector(selectNodeProviderQuery);
   const bankDetails = useSelector(selectBankDetails);
@@ -11281,11 +11282,11 @@ const TransferWidget = ({
     for (let i = 0; i < poolBalance.length; i++) {
       if (poolBalance[i].chainName === targetChain) {
         for (let j = 0; j < poolBalance[i].balance.length; j++) {
-          if (poolBalance[i].balance[j].tokenSymbol !== selectedToken) continue;
+          if (poolBalance[i].balance[j].tokenSymbol !== sourceCurrency) continue;
           if (+poolBalance[i].balance[j].amount >= +amount + fee) {
             return true;
           }
-          const symbol = selectedToken;
+          const symbol = sourceCurrency;
           const errorString = `Tried to transfer ${amount} ${symbol}, but ${CHAIN_NAMES_TO_STRING[targetChain]} pool has only ${+poolBalance[i].balance[j].amount} ${symbol}`;
           console.log(errorString);
           toast$1.error(errorString);
@@ -11488,7 +11489,8 @@ const TransferWidget = ({
           originChain: sourceChain,
           targetAddress: mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
           targetChain: targetChain,
-          symbol: selectedToken,
+          originSymbol: sourceCurrency,
+          targetSymbol: targetCurrency,
           amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
           fee: feeParam,
           htlcCreationHash: btcHash,
@@ -11503,7 +11505,8 @@ const TransferWidget = ({
           originChain: sourceChain,
           targetAddress: mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
           targetChain: targetChain,
-          symbol: selectedToken,
+          originSymbol: sourceCurrency,
+          targetSymbol: targetCurrency,
           amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
           fee: feeParam,
           htlcCreationHash: '',
