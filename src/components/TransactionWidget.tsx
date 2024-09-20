@@ -52,7 +52,6 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
         const isLP =
           dAppOption === DAppOptions.LPAdd || dAppOption === DAppOptions.LPDrain
 
-        console.log(graphqlProviderQuery, txId)
         const result: any = await fetchWrapper.post(
           graphqlProviderQuery,
           JSON.stringify({
@@ -69,7 +68,8 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                     fee
                     originaddress
                     originchain
-                    symbol
+                    originsymbol
+                    targetsymbol
                     targetaddress
                     targetchain
                     tx_id
@@ -88,37 +88,36 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
           data = result?.data.transaction_data[0]
         }
 
-        console.log(data)
         if (!data) return
 
         // Status of last transaction
         if (isLP) {
           setData({
-            status: data.status,
-            sourceChain: data.chain,
-            targetChain: data.chain,
+            status: data.txstatus,
+            sourceChain: data.originchain,
+            targetChain: data.targetchain,
             tssPullHash:
-              dAppOption === DAppOptions.LPAdd ? data.tssReleaseHash : '',
+              dAppOption === DAppOptions.LPAdd ? data.releaseHash : '',
             tssReleaseHash:
-              dAppOption === DAppOptions.LPDrain ? data.tssReleaseHash : '',
-            failReason: data.failReason,
+              dAppOption === DAppOptions.LPDrain ? data.releaseHash : '',
+            failReason: data.failreason,
             amount: +data.amount,
-            sourceSymbol: data.symbol,
-            targetSymbol: data.symbol,
-            kimaTxHash: data.kimaTxHash
+            sourceSymbol: data.originsymbol,
+            targetSymbol: data.targetsymbol,
+            kimaTxHash: data.kimahash
           })
         } else {
           setData({
-            status: data.status,
-            sourceChain: data.originChain,
-            targetChain: data.targetChain,
-            tssPullHash: data.tssPullHash,
-            tssReleaseHash: data.tssReleaseHash,
-            failReason: data.failReason,
+            status: data.txstatus,
+            sourceChain: data.originchain,
+            targetChain: data.targetchain,
+            tssPullHash: data.pullhash,
+            tssReleaseHash: data.releasehash,
+            failReason: data.failreason,
             amount: +data.amount,
-            sourceSymbol: data.symbol,
-            targetSymbol: data.symbol,
-            kimaTxHash: data.kimaTxHash
+            sourceSymbol: data.originsymbol,
+            targetSymbol: data.targetsymbol,
+            kimaTxHash: data.kimahash
           })
         }
 
