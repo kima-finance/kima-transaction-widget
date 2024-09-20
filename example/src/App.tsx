@@ -7,7 +7,8 @@ import {
   ModeOptions,
   ColorModeOptions,
   NetworkOptions,
-  SupportNetworks
+  SupportNetworks,
+  DAppOptions
 } from 'kima-transaction-widget'
 import 'kima-transaction-widget/dist/index.css'
 
@@ -30,9 +31,9 @@ const App = () => {
             }}
             // mode={ModeOptions.status}
             // txId={2}
-            mode={ModeOptions.bridge}
+            mode={ModeOptions.payment}
             networkOption={NetworkOptions.testnet}
-            // dAppOption={DAppOptions.LPDrain}
+            dAppOption={DAppOptions.LPDrain}
             kimaBackendUrl='http://localhost:3001'
             kimaNodeProviderQuery='https://api-testnet.kima.finance'
             kimaExplorer='https://explorer-testnet.kima.finance'
@@ -55,7 +56,7 @@ const App = () => {
               targetChain: SupportNetworks.POLYGON,
               targetAddress: '0x10c033E050e10510a951a56e4A14B4CD3de6CA67',
               amount: 5,
-              currency: 'USDC'
+              currency: 'USDK'
             }}
             errorHandler={(e: any) => {
               console.log('error:', e)

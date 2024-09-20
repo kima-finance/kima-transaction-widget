@@ -2805,7 +2805,6 @@ const TransactionWidget = ({
         var _result$data, _result$data$transact;
         let data;
         const isLP = dAppOption === DAppOptions.LPAdd || dAppOption === DAppOptions.LPDrain;
-        console.log(graphqlProviderQuery, txId);
         const result = await fetchWrapper.post(graphqlProviderQuery, JSON.stringify({
           query: `query TransactionDetailsKima($txId: String) {
                   ${isLP ? 'liquidity_transaction_data' : 'transaction_data'}(where: { tx_id: { _eq: ${txId.toString()} } }, limit: 1) {
@@ -2820,7 +2819,8 @@ const TransactionWidget = ({
                     fee
                     originaddress
                     originchain
-                    symbol
+                    originsymbol
+                    targetsymbol
                     targetaddress
                     targetchain
                     tx_id
@@ -2835,33 +2835,32 @@ const TransactionWidget = ({
         } else {
           data = result === null || result === void 0 ? void 0 : result.data.transaction_data[0];
         }
-        console.log(data);
         if (!data) return;
         if (isLP) {
           setData({
-            status: data.status,
-            sourceChain: data.chain,
-            targetChain: data.chain,
-            tssPullHash: dAppOption === DAppOptions.LPAdd ? data.tssReleaseHash : '',
-            tssReleaseHash: dAppOption === DAppOptions.LPDrain ? data.tssReleaseHash : '',
-            failReason: data.failReason,
+            status: data.txstatus,
+            sourceChain: data.originchain,
+            targetChain: data.targetchain,
+            tssPullHash: dAppOption === DAppOptions.LPAdd ? data.releaseHash : '',
+            tssReleaseHash: dAppOption === DAppOptions.LPDrain ? data.releaseHash : '',
+            failReason: data.failreason,
             amount: +data.amount,
-            sourceSymbol: data.symbol,
-            targetSymbol: data.symbol,
-            kimaTxHash: data.kimaTxHash
+            sourceSymbol: data.originsymbol,
+            targetSymbol: data.targetsymbol,
+            kimaTxHash: data.kimahash
           });
         } else {
           setData({
-            status: data.status,
-            sourceChain: data.originChain,
-            targetChain: data.targetChain,
-            tssPullHash: data.tssPullHash,
-            tssReleaseHash: data.tssReleaseHash,
-            failReason: data.failReason,
+            status: data.txstatus,
+            sourceChain: data.originchain,
+            targetChain: data.targetchain,
+            tssPullHash: data.pullhash,
+            tssReleaseHash: data.releasehash,
+            failReason: data.failreason,
             amount: +data.amount,
-            sourceSymbol: data.symbol,
-            targetSymbol: data.symbol,
-            kimaTxHash: data.kimaTxHash
+            sourceSymbol: data.originsymbol,
+            targetSymbol: data.targetsymbol,
+            kimaTxHash: data.kimahash
           });
         }
         if (data.status === TransactionStatus.COMPLETED) {
@@ -7256,7 +7255,7 @@ function output(out, instance) {
 exports.output = output;
 const assert = { number, bool, bytes, hash, exists, output };
 exports.default = assert;
-
+//# sourceMappingURL=_assert.js.map
 });
 
 unwrapExports(_assert);
@@ -7265,7 +7264,7 @@ var crypto = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.crypto = void 0;
 exports.crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
-
+//# sourceMappingURL=crypto.js.map
 });
 
 unwrapExports(crypto);
@@ -7467,7 +7466,7 @@ function randomBytes(bytesLength = 32) {
     throw new Error('crypto.getRandomValues must be defined');
 }
 exports.randomBytes = randomBytes;
-
+//# sourceMappingURL=utils.js.map
 });
 
 unwrapExports(utils);
@@ -7589,7 +7588,7 @@ class SHA2 extends utils.Hash {
     }
 }
 exports.SHA2 = SHA2;
-
+//# sourceMappingURL=_sha2.js.map
 });
 
 unwrapExports(_sha2);
@@ -7722,7 +7721,7 @@ class SHA224 extends SHA256 {
  */
 exports.sha256 = (0, utils.wrapConstructor)(() => new SHA256());
 exports.sha224 = (0, utils.wrapConstructor)(() => new SHA224());
-
+//# sourceMappingURL=sha256.js.map
 });
 
 unwrapExports(sha256);
