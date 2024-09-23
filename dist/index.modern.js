@@ -11281,11 +11281,11 @@ const TransferWidget = ({
     for (let i = 0; i < poolBalance.length; i++) {
       if (poolBalance[i].chainName === targetChain) {
         for (let j = 0; j < poolBalance[i].balance.length; j++) {
-          if (poolBalance[i].balance[j].tokenSymbol !== sourceCurrency) continue;
+          if (poolBalance[i].balance[j].tokenSymbol !== targetCurrency) continue;
           if (+poolBalance[i].balance[j].amount >= +amount + fee) {
             return true;
           }
-          const symbol = sourceCurrency;
+          const symbol = targetCurrency;
           const errorString = `Tried to transfer ${amount} ${symbol}, but ${CHAIN_NAMES_TO_STRING[targetChain]} pool has only ${+poolBalance[i].balance[j].amount} ${symbol}`;
           console.log(errorString);
           toast$1.error(errorString);
@@ -11474,6 +11474,7 @@ const TransferWidget = ({
       }
       if (!(await checkPoolBalance())) {
         setSubmitting(false);
+        return;
       }
       let params;
       let feeParam;
@@ -11908,7 +11909,7 @@ const polygonAmoy = {
   name: 'Amoy',
   currency: 'MATIC',
   explorerUrl: 'https://www.oklink.com/amoy',
-  rpcUrl: 'https://rpc-amoy.polygon.technology'
+  rpcUrl: 'https://polygon-rpc.com/'
 };
 const polygon = {
   chainId: 137,

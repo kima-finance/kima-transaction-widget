@@ -80,7 +80,7 @@ const polygonAmoy = {
   name: 'Amoy',
   currency: 'MATIC',
   explorerUrl: 'https://www.oklink.com/amoy',
-  rpcUrl: 'https://rpc-amoy.polygon.technology'
+  rpcUrl: 'https://polygon-rpc.com/'
 }
 
 const polygon = {

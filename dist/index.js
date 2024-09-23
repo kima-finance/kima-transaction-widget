@@ -12015,11 +12015,11 @@ var TransferWidget = function TransferWidget(_ref) {
         for (var i = 0; i < poolBalance.length; i++) {
           if (poolBalance[i].chainName === targetChain) {
             for (var j = 0; j < poolBalance[i].balance.length; j++) {
-              if (poolBalance[i].balance[j].tokenSymbol !== sourceCurrency) continue;
+              if (poolBalance[i].balance[j].tokenSymbol !== targetCurrency) continue;
               if (+poolBalance[i].balance[j].amount >= +amount + fee) {
                 return true;
               }
-              var symbol = sourceCurrency;
+              var symbol = targetCurrency;
               var errorString = "Tried to transfer " + amount + " " + symbol + ", but " + CHAIN_NAMES_TO_STRING[targetChain] + " pool has only " + +poolBalance[i].balance[j].amount + " " + symbol;
               console.log(errorString);
               toast.toast.error(errorString);
@@ -12172,7 +12172,10 @@ var TransferWidget = function TransferWidget(_ref) {
   var handleSubmit = function handleSubmit() {
     try {
       var _temp8 = function _temp8(_result2) {
-        return _exit ? _result2 : _catch(function () {
+        var _exit2 = false;
+        if (_exit) return _result2;
+        return _catch(function () {
+          var _exit3 = false;
           if (sourceChain === exports.SupportNetworks.FIAT || targetChain === exports.SupportNetworks.FIAT) return;
           setSubmitting(true);
           if (dAppOption === exports.DAppOptions.LPDrain || dAppOption === exports.DAppOptions.LPAdd) {
@@ -12182,6 +12185,8 @@ var TransferWidget = function TransferWidget(_ref) {
           return Promise.resolve(checkPoolBalance()).then(function (_checkPoolBalance) {
             if (!_checkPoolBalance) {
               setSubmitting(false);
+              _exit2 = true;
+              return;
             }
             var params;
             var feeParam;
@@ -12742,7 +12747,7 @@ var polygonAmoy = {
   name: 'Amoy',
   currency: 'MATIC',
   explorerUrl: 'https://www.oklink.com/amoy',
-  rpcUrl: 'https://rpc-amoy.polygon.technology'
+  rpcUrl: 'https://polygon-rpc.com/'
 };
 var polygon = {
   chainId: 137,
