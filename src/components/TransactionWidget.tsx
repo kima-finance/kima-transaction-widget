@@ -65,7 +65,6 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                     txstatus
                     amount
                     creator
-                    fee
                     originaddress
                     originchain
                     originsymbol

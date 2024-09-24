@@ -7255,7 +7255,7 @@ function output(out, instance) {
 exports.output = output;
 const assert = { number, bool, bytes, hash, exists, output };
 exports.default = assert;
-//# sourceMappingURL=_assert.js.map
+
 });
 
 unwrapExports(_assert);
@@ -7264,7 +7264,7 @@ var crypto = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.crypto = void 0;
 exports.crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
-//# sourceMappingURL=crypto.js.map
+
 });
 
 unwrapExports(crypto);
@@ -7466,7 +7466,7 @@ function randomBytes(bytesLength = 32) {
     throw new Error('crypto.getRandomValues must be defined');
 }
 exports.randomBytes = randomBytes;
-//# sourceMappingURL=utils.js.map
+
 });
 
 unwrapExports(utils);
@@ -7588,7 +7588,7 @@ class SHA2 extends utils.Hash {
     }
 }
 exports.SHA2 = SHA2;
-//# sourceMappingURL=_sha2.js.map
+
 });
 
 unwrapExports(_sha2);
@@ -7721,7 +7721,7 @@ class SHA224 extends SHA256 {
  */
 exports.sha256 = (0, utils.wrapConstructor)(() => new SHA256());
 exports.sha224 = (0, utils.wrapConstructor)(() => new SHA224());
-//# sourceMappingURL=sha256.js.map
+
 });
 
 unwrapExports(sha256);
@@ -11909,14 +11909,14 @@ const polygonAmoy = {
   name: 'Amoy',
   currency: 'MATIC',
   explorerUrl: 'https://www.oklink.com/amoy',
-  rpcUrl: 'https://polygon-rpc.com/'
+  rpcUrl: 'https://rpc-amoy.polygon.technology'
 };
 const polygon = {
   chainId: 137,
   name: 'Polygon Mainnet',
   currency: 'MATIC',
   explorerUrl: 'https://polygonscan.com',
-  rpcUrl: 'https://polygon.llamarpc.com'
+  rpcUrl: 'https://polygon-rpc.com/'
 };
 const arbitrumSepolia = {
   chainId: 421614,
@@ -11930,7 +11930,7 @@ const arbitrum = {
   name: 'Arbitrum Mainnet',
   currency: 'ETH',
   explorerUrl: 'https://arbiscan.io',
-  rpcUrl: 'https://arbitrum.llamarpc.com'
+  rpcUrl: 'https://arb1.arbitrum.io/rpc'
 };
 const optimismSepola = {
   chainId: 11155420,
@@ -11944,7 +11944,7 @@ const optimism = {
   name: 'OP Mainnet',
   currency: 'ETH',
   explorerUrl: 'https://optimistic.etherscan.io',
-  rpcUrl: 'https://optimism.llamarpc.com'
+  rpcUrl: 'https://mainnet.optimism.io'
 };
 const avalancheFuji = {
   chainId: 43113,
