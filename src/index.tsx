@@ -80,7 +80,7 @@ const polygonAmoy = {
   name: 'Amoy',
   currency: 'MATIC',
   explorerUrl: 'https://www.oklink.com/amoy',
-  rpcUrl: 'https://polygon-rpc.com/'
+  rpcUrl: 'https://rpc-amoy.polygon.technology'
 }
 
 const polygon = {
@@ -88,7 +88,7 @@ const polygon = {
   name: 'Polygon Mainnet',
   currency: 'MATIC',
   explorerUrl: 'https://polygonscan.com',
-  rpcUrl: 'https://polygon.llamarpc.com'
+  rpcUrl: 'https://polygon-rpc.com/'
 }
 
 const arbitrumSepolia = {
@@ -104,7 +104,7 @@ const arbitrum = {
   name: 'Arbitrum Mainnet',
   currency: 'ETH',
   explorerUrl: 'https://arbiscan.io',
-  rpcUrl: 'https://arbitrum.llamarpc.com'
+  rpcUrl: 'https://arb1.arbitrum.io/rpc'
 }
 
 const optimismSepola = {
@@ -120,7 +120,7 @@ const optimism = {
   name: 'OP Mainnet',
   currency: 'ETH',
   explorerUrl: 'https://optimistic.etherscan.io',
-  rpcUrl: 'https://optimism.llamarpc.com'
+  rpcUrl: 'https://mainnet.optimism.io'
 }
 
 const avalancheFuji = {
