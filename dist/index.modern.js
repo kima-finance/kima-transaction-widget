@@ -2816,7 +2816,6 @@ const TransactionWidget = ({
                     txstatus
                     amount
                     creator
-                    fee
                     originaddress
                     originchain
                     originsymbol
