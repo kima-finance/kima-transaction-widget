@@ -94,7 +94,10 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
           })
         )
 
-        if (!result?.data?.transaction_data?.length) {
+        if (
+          (isLP && !result?.data?.liquidity_transaction_data?.length) ||
+          (!isLP && !result?.data?.transaction_data?.length)
+        ) {
           return
         }
 
