@@ -357,9 +357,9 @@ Used to specify url of kima block explorer.
 
 ```tsx
 <KimaProvider
-  walletConnectProjectId="e579511a495b5c312b572b036e60555a"
+  walletConnectProjectId='e579511a495b5c312b572b036e60555a'
   networkOption={NetworkOptions.testnet}
-  >
+>
   {/ * etc */}
 </KimaProvider>
 ```

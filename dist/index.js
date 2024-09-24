@@ -2785,6 +2785,7 @@ function useCurrencyOptions() {
   var nodeProviderQuery = reactRedux.useSelector(selectNodeProviderQuery);
   var originNetwork = reactRedux.useSelector(selectSourceChain);
   var targetNetwork = reactRedux.useSelector(selectTargetChain);
+  var dAppOption = reactRedux.useSelector(selectDappOption);
   React.useEffect(function () {
     if (!nodeProviderQuery || !originNetwork || !targetNetwork || !transactionOption && mode === exports.ModeOptions.payment) return;
     (function () {
@@ -2811,7 +2812,11 @@ function useCurrencyOptions() {
               dispatch(setSourceCurrency(_tokenList[0]));
               dispatch(setTargetCurrency(_tokenList[0]));
             }
-            setTokenList(_tokenList);
+            if (dAppOption !== exports.DAppOptions.None) {
+              setTokenList([(transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.currency) || 'USDK']);
+            } else {
+              setTokenList(_tokenList);
+            }
           });
         }, function (e) {
           console.log('rpc disconnected', e);
@@ -2821,7 +2826,7 @@ function useCurrencyOptions() {
         Promise.reject(e);
       }
     })();
-  }, [nodeProviderQuery, originNetwork, targetNetwork, transactionOption, mode]);
+  }, [nodeProviderQuery, originNetwork, targetNetwork, transactionOption, mode, dAppOption]);
   return React.useMemo(function () {
     return {
       tokenList: tokenList
@@ -3329,7 +3334,7 @@ var TransactionWidget = function TransactionWidget(_ref) {
           var data;
           var isLP = dAppOption === exports.DAppOptions.LPAdd || dAppOption === exports.DAppOptions.LPDrain;
           return Promise.resolve(fetchWrapper.post(graphqlProviderQuery, JSON.stringify({
-            query: "query TransactionDetailsKima($txId: String) {\n                  " + (isLP ? 'liquidity_transaction_data' : 'transaction_data') + "(where: { tx_id: { _eq: " + txId.toString() + " } }, limit: 1) {\n                    failreason\n                    pullfailcount\n                    pullhash\n                    releasefailcount\n                    releasehash\n                    txstatus\n                    amount\n                    creator\n                    originaddress\n                    originchain\n                    originsymbol\n                    targetsymbol\n                    targetaddress\n                    targetchain\n                    tx_id\n                  }\n                }"
+            query: isLP ? "query TransactionDetailsKima($txId: String) {\n                  liquidity_transaction_data(where: { tx_id: { _eq: " + txId.toString() + " } }, limit: 1) {\n                    failreason\n                    pullfailcount\n                    pullhash\n                    releasefailcount\n                    releasehash\n                    txstatus\n                    amount\n                    creator\n                    chain\n                    providerchainaddress\n                    symbol\n                    tx_id\n                  }\n                }" : "query TransactionDetailsKima($txId: String) {\n                  transaction_data(where: { tx_id: { _eq: " + txId.toString() + " } }, limit: 1) {\n                    failreason\n                    pullfailcount\n                    pullhash\n                    releasefailcount\n                    releasehash\n                    txstatus\n                    amount\n                    creator\n                    originaddress\n                    originchain\n                    originsymbol\n                    targetsymbol\n                    targetaddress\n                    targetchain\n                    tx_id\n                  }\n                }"
           }))).then(function (result) {
             var _result$data, _result$data$transact;
             if (!(result !== null && result !== void 0 && (_result$data = result.data) !== null && _result$data !== void 0 && (_result$data$transact = _result$data.transaction_data) !== null && _result$data$transact !== void 0 && _result$data$transact.length)) {
@@ -3344,14 +3349,14 @@ var TransactionWidget = function TransactionWidget(_ref) {
             if (isLP) {
               setData({
                 status: data.txstatus,
-                sourceChain: data.originchain,
-                targetChain: data.targetchain,
+                sourceChain: data.chain,
+                targetChain: data.chain,
                 tssPullHash: dAppOption === exports.DAppOptions.LPAdd ? data.releaseHash : '',
                 tssReleaseHash: dAppOption === exports.DAppOptions.LPDrain ? data.releaseHash : '',
                 failReason: data.failreason,
                 amount: +data.amount,
-                sourceSymbol: data.originsymbol,
-                targetSymbol: data.targetsymbol,
+                sourceSymbol: data.symbol,
+                targetSymbol: data.symbol,
                 kimaTxHash: data.kimahash
               });
             } else {
