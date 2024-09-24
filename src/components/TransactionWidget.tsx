@@ -55,8 +55,25 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
         const result: any = await fetchWrapper.post(
           graphqlProviderQuery,
           JSON.stringify({
-            query: `query TransactionDetailsKima($txId: String) {
-                  ${isLP ? 'liquidity_transaction_data' : 'transaction_data'}(where: { tx_id: { _eq: ${txId.toString()} } }, limit: 1) {
+            query: isLP
+              ? `query TransactionDetailsKima($txId: String) {
+                  liquidity_transaction_data(where: { tx_id: { _eq: ${txId.toString()} } }, limit: 1) {
+                    failreason
+                    pullfailcount
+                    pullhash
+                    releasefailcount
+                    releasehash
+                    txstatus
+                    amount
+                    creator
+                    chain
+                    providerchainaddress
+                    symbol
+                    tx_id
+                  }
+                }`
+              : `query TransactionDetailsKima($txId: String) {
+                  transaction_data(where: { tx_id: { _eq: ${txId.toString()} } }, limit: 1) {
                     failreason
                     pullfailcount
                     pullhash
@@ -93,16 +110,16 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
         if (isLP) {
           setData({
             status: data.txstatus,
-            sourceChain: data.originchain,
-            targetChain: data.targetchain,
+            sourceChain: data.chain,
+            targetChain: data.chain,
             tssPullHash:
               dAppOption === DAppOptions.LPAdd ? data.releaseHash : '',
             tssReleaseHash:
               dAppOption === DAppOptions.LPDrain ? data.releaseHash : '',
             failReason: data.failreason,
             amount: +data.amount,
-            sourceSymbol: data.originsymbol,
-            targetSymbol: data.targetsymbol,
+            sourceSymbol: data.symbol,
+            targetSymbol: data.symbol,
             kimaTxHash: data.kimahash
           })
         } else {

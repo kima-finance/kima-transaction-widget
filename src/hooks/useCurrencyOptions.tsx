@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 import {
+  selectDappOption,
   selectMode,
   selectNodeProviderQuery,
   selectSourceChain,
@@ -11,7 +12,7 @@ import {
 import { ChainName } from '../utils/constants'
 import { useDispatch } from 'react-redux'
 import toast from 'react-hot-toast'
-import { ModeOptions } from '../interface'
+import { DAppOptions, ModeOptions } from '../interface'
 import { setSourceCurrency, setTargetCurrency } from '../store/optionSlice'
 
 export default function useCurrencyOptions() {
@@ -22,6 +23,7 @@ export default function useCurrencyOptions() {
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
   const originNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
+  const dAppOption = useSelector(selectDappOption)
 
   useEffect(() => {
     if (
@@ -41,6 +43,7 @@ export default function useCurrencyOptions() {
           dispatch(setTargetCurrency('KEUR'))
           return
         }
+
         const coins: any = await fetchWrapper.get(
           `${nodeProviderQuery}/kima-finance/kima-blockchain/chains/get_currencies/${originNetwork}/${targetNetwork}`
         )
@@ -66,13 +69,25 @@ export default function useCurrencyOptions() {
           dispatch(setSourceCurrency(_tokenList[0]))
           dispatch(setTargetCurrency(_tokenList[0]))
         }
-        setTokenList(_tokenList)
+
+        if (dAppOption !== DAppOptions.None) {
+          setTokenList([transactionOption?.currency || 'USDK'])
+        } else {
+          setTokenList(_tokenList)
+        }
       } catch (e) {
         console.log('rpc disconnected', e)
         toast.error('rpc disconnected')
       }
     })()
-  }, [nodeProviderQuery, originNetwork, targetNetwork, transactionOption, mode])
+  }, [
+    nodeProviderQuery,
+    originNetwork,
+    targetNetwork,
+    transactionOption,
+    mode,
+    dAppOption
+  ])
 
   return useMemo(
     () => ({
