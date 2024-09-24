@@ -2807,7 +2807,7 @@ const TransactionWidget = ({
     if (!graphqlProviderQuery || txId < 0) return;
     const updateTxData = async () => {
       try {
-        var _result$data, _result$data$transact;
+        var _result$data, _result$data$liquidit, _result$data2, _result$data2$transac;
         let data;
         const isLP = dAppOption === DAppOptions.LPAdd || dAppOption === DAppOptions.LPDrain;
         const result = await fetchWrapper.post(graphqlProviderQuery, JSON.stringify({
@@ -2846,7 +2846,7 @@ const TransactionWidget = ({
                   }
                 }`
         }));
-        if (!(result !== null && result !== void 0 && (_result$data = result.data) !== null && _result$data !== void 0 && (_result$data$transact = _result$data.transaction_data) !== null && _result$data$transact !== void 0 && _result$data$transact.length)) {
+        if (isLP && !(result !== null && result !== void 0 && (_result$data = result.data) !== null && _result$data !== void 0 && (_result$data$liquidit = _result$data.liquidity_transaction_data) !== null && _result$data$liquidit !== void 0 && _result$data$liquidit.length) || !isLP && !(result !== null && result !== void 0 && (_result$data2 = result.data) !== null && _result$data2 !== void 0 && (_result$data2$transac = _result$data2.transaction_data) !== null && _result$data2$transac !== void 0 && _result$data2$transac.length)) {
           return;
         }
         if (isLP) {
