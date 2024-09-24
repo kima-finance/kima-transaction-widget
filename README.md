@@ -353,6 +353,41 @@ Used to specify url of kima block explorer.
 
 - `keplrHandler: (e: any) => void`: Callback function to handle Keplr wallet events.
 
+## Kima Provider
+
+```tsx
+<KimaProvider
+  walletConnectProjectId="e579511a495b5c312b572b036e60555a"
+  networkOption={NetworkOptions.testnet}
+  >
+  {/ * etc */}
+</KimaProvider>
+```
+
+Used to provide the widget with wallet connection and chain switching functionality.
+
+### `walletConnectProjectId`
+
+Used to specify the WalletConnect project id. A default value is provided, but you can specify your own. To create a project, visit [Reown Cloud](https://cloud.reown.com/sign-in) and sign up for a free account (WalletConnect is now called Reown).
+
+- Required: `false`
+- Type: `string`
+
+### `networkOption`
+
+Used to specify the network type.
+
+```ts
+enum NetworkOptions {
+  testnet = 'testnet',
+  mainnet = 'mainnet'
+}
+```
+
+- Required: `false`
+- Type: `NetworkOptions`
+- Default: `NetworkOptions.testnet`
+
 ## Note
 
 [How to fix Polyfill node core module error](https://www.alchemy.com/blog/how-to-polyfill-node-core-modules-in-webpack-5)
