@@ -119,9 +119,9 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
             sourceChain: data.chain,
             targetChain: data.chain,
             tssPullHash:
-              dAppOption === DAppOptions.LPAdd ? data.releaseHash : '',
+              dAppOption === DAppOptions.LPAdd ? data.releasehash : '',
             tssReleaseHash:
-              dAppOption === DAppOptions.LPDrain ? data.releaseHash : '',
+              dAppOption === DAppOptions.LPDrain ? data.releasehash : '',
             failReason: data.failreason,
             amount: +data.amount,
             sourceSymbol: data.symbol,
