@@ -2825,6 +2825,7 @@ const TransactionWidget = ({
                     providerchainaddress
                     symbol
                     tx_id
+                    kimahash
                   }
                 }` : `query TransactionDetailsKima($txId: String) {
                   transaction_data(where: { tx_id: { _eq: ${txId.toString()} } }, limit: 1) {
@@ -2843,6 +2844,7 @@ const TransactionWidget = ({
                     targetaddress
                     targetchain
                     tx_id
+                    kimahash
                   }
                 }`
         }));
@@ -2854,6 +2856,7 @@ const TransactionWidget = ({
         } else {
           data = result === null || result === void 0 ? void 0 : result.data.transaction_data[0];
         }
+        console.log(data);
         if (!data) return;
         if (isLP) {
           setData({

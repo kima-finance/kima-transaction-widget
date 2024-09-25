@@ -70,6 +70,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                     providerchainaddress
                     symbol
                     tx_id
+                    kimahash
                   }
                 }`
               : `query TransactionDetailsKima($txId: String) {
@@ -89,6 +90,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                     targetaddress
                     targetchain
                     tx_id
+                    kimahash
                   }
                 }`
           })
@@ -107,6 +109,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
           data = result?.data.transaction_data[0]
         }
 
+        console.log(data)
         if (!data) return
 
         // Status of last transaction
