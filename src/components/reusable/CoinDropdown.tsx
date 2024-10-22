@@ -9,6 +9,7 @@ import { COIN_LIST } from '../../utils/constants'
 import { useDispatch } from 'react-redux'
 import useCurrencyOptions from '../../hooks/useCurrencyOptions'
 import { setSourceCurrency, setTargetCurrency } from '../../store/optionSlice'
+import Arrow from '../../assets/icons/Arrow'
 
 const CoinDropdown = ({
   isSourceChain = true
@@ -43,7 +44,7 @@ const CoinDropdown = ({
   return (
     <div
       className={`coin-dropdown ${theme.colorMode} ${
-        collapsed ? 'collapsed' : ''
+        collapsed ? 'collapsed' : 'toggled'
       }`}
       onClick={() => setCollapsed((prev) => !prev)}
       ref={ref}
@@ -53,13 +54,13 @@ const CoinDropdown = ({
         {isSourceChain ? sourceCurrency : targetCurrency}
       </div>
       <div
-        className={`coin-menu ${theme.colorMode} ${collapsed ? 'collapsed' : ''}`}
+        className={`coin-menu ${theme.colorMode} ${collapsed ? 'collapsed' : 'toggled'}`}
       >
         {tokenList.map((token) => {
           const CoinIcon = COIN_LIST[token].icon || COIN_LIST['USDK'].icon
           return (
             <div
-              className='coin-item'
+              className={`coin-item ${theme.colorMode}`}
               key={COIN_LIST[token]?.symbol}
               onClick={() => {
                 if (isSourceChain) {
@@ -74,6 +75,9 @@ const CoinDropdown = ({
             </div>
           )
         })}
+      </div>
+      <div className={`dropdown-icon ${collapsed ? 'toggled' : 'collapsed'}`}>
+        <Arrow fill='none' />
       </div>
     </div>
   )

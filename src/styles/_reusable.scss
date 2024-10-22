@@ -259,6 +259,29 @@
       }
     }
 
+    .dropdown-icon {
+      margin-left: auto;
+      box-sizing: content-box;
+      position: absolute;
+      width: 0.8em;
+      height: 0.8em;
+      @include transition;
+
+      &.collapsed {
+        right: 1.1em;
+        top: 1.7em;
+        transform: rotate(-180deg);
+      }
+
+      &.toggled {
+        box-sizing: content-box;
+        position: absolute;
+        right: 2em;
+        top: 1em;
+        transform: rotate(0deg);
+      }
+    }
+
     .network-select {
       position: relative;
 
@@ -463,36 +486,44 @@
       }
 
       .coin-dropdown {
+        margin-left: 1em;
         position: relative;
-        border-radius: 1em;
-        padding: 0.5em;
-        padding-right: 3em;
-        height: 2.8em;
+        width: 10%;
+        max-width: 140px;
+        border-radius: 50px;
+        border: 0.5px solid $financeIcon;
+        padding-left: 1em;
+        padding-right: 2em;
+        height: 4em;
         display: flex;
         align-items: center;
-        margin-left: 0.5em;
         cursor: pointer;
         box-sizing: content-box;
+        @include transition();
 
         .coin-wrapper {
           display: flex;
           align-items: center;
           border-radius: 1em;
           font-size: 1em;
-          font-weight: 500;
+          font-weight: 700;
           padding: 0.2em;
           padding-right: 0.5em;
-          // background: white;
-          color: black;
 
           svg {
-            width: 1.5em;
-            height: 1.5em;
             margin-right: 0.5em;
           }
         }
 
+        &.light {
+          color: black;
+          background: $financeLighter;
+        }
+
         &.dark {
+          color:white;
+          background: $financeDark !important;
+
           .coin-wrapper {
             // background: $borderSecondary;
             color: white;
@@ -500,8 +531,8 @@
         }
 
         &:before {
+          box-sizing: content-box;
           position: absolute;
-          content: '';
           width: 0.8em;
           height: 0.8em;
           right: 1.1em;
@@ -514,27 +545,31 @@
         }
 
         .coin-menu {
-          box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+          border: 0.5px solid $financeIcon;
+          border-top: none;
+          border-radius: 0 0 30px 30px;
           position: absolute;
           z-index: 100;
           max-height: 10em;
           width: 100%;
-          top: calc(100% - 0.5em);
-          left: 0;
+          top: 100%;
+          left: -0.5px;
           overflow: hidden;
           @include transition;
           padding: 0.5em 0;
 
           .coin-item {
-            padding: 0em 1em;
+            margin: 0.2em 1em;
+            padding: 0.2em 1em;
+            border-radius: 20px;
+            width: 60%;
+            max-width: 240px;
             @include transition;
             display: flex;
+            justify-content: start;
+            flex-direction: row;
             align-items: center;
 
-            svg {
-              width: 2.5em;
-              height: 2.5em;
-            }
 
             p {
               width: 100%;
@@ -542,17 +577,23 @@
               margin: 0;
             }
 
-            &:hover {
+            &.light:hover {
               background: $hover;
+            }
+
+            &.dark:hover {
+              background: $financeDarker;
             }
           }
 
           &.light {
-            background: white;
+            color: black;
+            background: $financeLighter;
           }
 
           &.dark {
-            background: $progressbarDark;
+            color: white;
+            background: $financeDark;
           }
 
           &.collapsed {
@@ -562,11 +603,16 @@
         }
 
         &.light {
-          background: $progressbarLight;
+          background: $financeLighter !important;
+        }
 
-          &:before {
-            border-color: black;
-          }
+        &.dark {
+          background: $financeDark !important;
+        }
+
+        &.toggled {
+          border-bottom: none;
+          border-radius: 30px 30px 0 0;
         }
 
         &.collapsed {
@@ -703,29 +749,6 @@
         cursor: pointer;
         box-sizing: content-box;
         @include transition();
-
-        .dropdown-icon {
-          margin-left: auto;
-          box-sizing: content-box;
-          position: absolute;
-          width: 0.8em;
-          height: 0.8em;
-          @include transition;
-
-          &.collapsed {
-            right: 1.1em;
-            top: 1.7em;
-            transform: rotate(-180deg);
-          }
-
-          &.toggled {
-            box-sizing: content-box;
-            position: absolute;
-            right: 2em;
-            top: 1em;
-            transform: rotate(0deg);
-          }
-        }
 
         .network-wrapper {
           display: flex;

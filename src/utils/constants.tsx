@@ -13,7 +13,8 @@ import {
   TronIcon,
   BTCIcon,
   USDCIcon,
-  PolygonzkEVMIcon
+  PolygonzkEVMIcon,
+  USDKIcon
 } from '../assets/icons'
 
 export enum ChainName {
@@ -232,7 +233,7 @@ type CoinOptions = {
 export const COIN_LIST: CoinOptions = {
   USDK: {
     symbol: 'USDK',
-    icon: USDTIcon
+    icon: USDKIcon
   },
   USDT: {
     symbol: 'USDT',
