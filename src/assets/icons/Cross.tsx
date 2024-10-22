@@ -1,17 +1,24 @@
 import React from 'react'
 
-const Cross = ({ width = 32, height = 32, fill = 'white', ...rest }) => {
+const Cross = ({ width = 60, height = 60, fill = 'white', ...rest }) => {
   return (
     <svg
+      xmlns='http://www.w3.org/2000/svg'
       width={width}
       height={height}
-      viewBox='0 0 11 11'
-      xmlns='http://www.w3.org/2000/svg'
+      viewBox='0 0 25 26'
+      fill={fill}
       {...rest}
     >
       <path
-        d='M9.656 1.688L5.944 5.4L9.656 9.112L8.712 10.056L5 6.344L1.288 10.056L0.344 9.112L4.056 5.4L0.344 1.688L1.288 0.743999L5 4.456L8.712 0.743999L9.656 1.688Z'
-        fill={fill}
+        d='M0.832764 1.33276L24.1673 24.6673'
+        stroke='#778DA3'
+        stroke-width='2'
+      />
+      <path
+        d='M0.832764 24.6673L24.1673 1.3328'
+        stroke='#778DA3'
+        stroke-width='2'
       />
     </svg>
   )

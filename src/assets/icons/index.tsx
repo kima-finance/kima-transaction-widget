@@ -8,6 +8,7 @@ export { default as ArrowIcon } from './Arrow'
 export { default as EthereumIcon } from './Ethereum'
 export { default as SolanaIcon } from './Solana'
 export { default as PolygonIcon } from './Polygon'
+export { default as PolygonzkEVMIcon } from './Polygon_zkEVM';
 export { default as AvalancheIcon } from './Avalanche'
 export { default as ArbitrumIcon } from './Arbitrum'
 export { default as OptimismIcon } from './Optimism'
