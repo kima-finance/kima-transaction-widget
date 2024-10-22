@@ -72,7 +72,7 @@
             //   color: $textSecondary;
             // }
 
-            >svg {
+            > svg {
               width: 1em;
               height: 1em;
             }
@@ -143,7 +143,7 @@
       width: 100%;
       position: relative;
 
-      >div {
+      > div {
         position: relative;
         height: fit-content;
         width: 50%;
@@ -280,7 +280,10 @@
     }
 
     .single-form {
-      padding-left: 5em;
+      font-family: 'Manrope';
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
 
       @include breakpoint(phablet) {
         padding-left: 0;
@@ -298,7 +301,7 @@
           margin-top: 2em;
         }
 
-        >span {
+        > span {
           font-size: 1.16em;
           width: 10em;
         }
@@ -688,9 +691,12 @@
 
       .network-dropdown {
         position: relative;
-        border-radius: 1em;
+        width: 30%;
+        max-width: 300px;
+        border-radius: 50px;
+        border: 0.5px solid $financeIcon;
         padding-left: 1em;
-        padding-right: 3em;
+        padding-right: 2em;
         height: 4em;
         display: flex;
         align-items: center;
@@ -698,27 +704,53 @@
         box-sizing: content-box;
         @include transition();
 
+        .dropdown-icon {
+          margin-left: auto;
+          box-sizing: content-box;
+          position: absolute;
+          width: 0.8em;
+          height: 0.8em;
+          @include transition;
+
+          &.collapsed {
+            right: 1.1em;
+            top: 1.7em;
+            transform: rotate(-180deg);
+          }
+
+          &.toggled {
+            box-sizing: content-box;
+            position: absolute;
+            right: 2em;
+            top: 1em;
+            transform: rotate(0deg);
+          }
+        }
+
         .network-wrapper {
           display: flex;
+          justify-content: start;
           align-items: center;
           border-radius: 1em;
           font-size: 1.2em;
-          font-weight: 500;
+          font-weight: 700;
           padding: 0.2em;
           padding-right: 0.5em;
           color: black;
           z-index: inherit;
           width: 9.5em;
 
-          span {
-            text-align: center;
-            width: 100%;
+          .icon {
+            display: flex;
+            justify-content: center;
+            padding: 4px 4px;
+            border-radius: 40px;
+            background-color: white;
+            margin-right: 1em;
           }
 
-          svg {
-            width: 1.8em;
-            height: 1.8em;
-            margin-right: 0.5em;
+          span {
+            text-align: center;
           }
         }
 
@@ -731,7 +763,6 @@
         &:before {
           box-sizing: content-box;
           position: absolute;
-          content: '';
           width: 0.8em;
           height: 0.8em;
           right: 1.1em;
@@ -744,61 +775,81 @@
         }
 
         .network-menu {
-          box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+          border: 0.5px solid $financeIcon;
+          border-top: none;
+          border-radius: 0 0 30px 30px;
           position: absolute;
-          z-index: 100;
+          z-index: 1000;
           max-height: 12em;
           width: 100%;
-          top: calc(100% - 0.5em);
-          left: 0;
-          padding: 0.5em 0;
+          top: 100%;
+          left: -0.5px;
           overflow-x: clip;
           overflow-y: scroll;
           @include transition;
 
           &-item {
-            padding: 0.5em 1em;
+            margin: 0.5em 1em;
+            padding: 0.8em 0.5em;
+            border-radius: 20px;
+            width: 60%;
+            max-width: 240px;
             @include transition;
             display: flex;
+            justify-content: start;
+            flex-direction: row;
             align-items: center;
 
-            svg {
-              width: 2em;
-              height: 2em;
+            .icon {
+              display: flex;
+              justify-content: center;
+              padding: 4px 4px;
+              border-radius: 40px;
+              background-color: white;
             }
 
             p {
-              width: 100%;
               text-align: center;
-              margin: 0;
+              margin-left: 1em;
+              margin-top: 0;
+              margin-bottom: 0;
               font-size: 1.2em;
             }
 
-            &:hover {
+            &.light:hover {
               background: $hover;
             }
-          }
 
-          &.light {
-            background: white;
-          }
-
-          &.dark {
-            background: $progressbarDark;
+            &.dark:hover {
+              background: $financeDarker;
+            }
           }
 
           &.collapsed {
             max-height: 0;
             opacity: 0;
           }
+
+          &.light {
+            background-color: $financeLighter;
+          }
+
+          &.dark {
+            background: $financeDark;
+          }
         }
 
         &.light {
-          background: $progressbarLight;
+          background: $financeLighter !important;
+        }
 
-          &:before {
-            border-color: black;
-          }
+        &.dark {
+          background: $financeDark !important;
+        }
+
+        &.toggled {
+          border-bottom: none;
+          border-radius: 30px 30px 0 0;
         }
 
         &.collapsed {
@@ -924,7 +975,7 @@
         justify-content: center;
         margin-top: 2em;
 
-        >span {
+        > span {
           margin-right: 1.5em;
           font-size: 1.2em;
         }
@@ -965,7 +1016,7 @@
           }
         }
 
-        >input {
+        > input {
           border: 1px solid $borderSecondary;
           border-radius: 0.8em;
           height: 3em;
@@ -1004,7 +1055,7 @@
       padding: 0 8em;
       font-size: 1.2em;
 
-      >p {
+      > p {
         text-align: center;
         font-weight: bold;
         font-size: 1.3em;
@@ -1103,7 +1154,7 @@
         }
       }
 
-      >span {
+      > span {
         margin-left: 0.5em;
       }
     }
@@ -1251,7 +1302,7 @@
     column-gap: 0.5em;
     padding-top: 1em;
 
-    >svg {
+    > svg {
       width: 1em;
       height: 1em;
     }
@@ -1336,8 +1387,6 @@
       }
     }
   }
-
-  
 
   .secondary-button {
     border-radius: 0.8em;
@@ -1426,7 +1475,8 @@
     }
   }
 
-  .error-tooltip, .popup-tooltip {
+  .error-tooltip,
+  .popup-tooltip {
     &.dark {
       color: black;
       background-color: white;

@@ -21,6 +21,7 @@ import useNetworkOptions from '../../hooks/useNetworkOptions'
 import { DAppOptions, ModeOptions } from '../../interface'
 import { fetchWrapper } from '../../helpers/fetch-wrapper'
 import toast from 'react-hot-toast'
+import Arrow from '../../assets/icons/Arrow'
 
 const NetworkDropdown = React.memo(
   ({ isSourceChain = true }: { isSourceChain?: boolean }) => {
@@ -158,7 +159,7 @@ const NetworkDropdown = React.memo(
     return (
       <div
         className={`network-dropdown ${theme.colorMode} ${
-          collapsed ? 'collapsed' : ''
+          collapsed ? 'collapsed' : 'toggled'
         }`}
         onClick={() => {
           if (!autoSwitchChain && isSourceChain) return
@@ -167,17 +168,17 @@ const NetworkDropdown = React.memo(
         ref={ref}
       >
         <div className='network-wrapper'>
-          {<selectedNetwork.icon />}
+          <div className='icon'>{<selectedNetwork.icon />}</div>
           <span>{selectedNetwork.label}</span>
         </div>
         <div
-          className={`network-menu custom-scrollbar ${theme.colorMode} ${
-            collapsed ? 'collapsed' : ''
+          className={`network-menu ${networks.length > 1 && 'custom-scrollbar'} ${theme.colorMode} ${
+            collapsed ? 'collapsed' : 'toggled'
           }`}
         >
           {networks.map((network) => (
             <div
-              className='network-menu-item'
+              className={`network-menu-item ${theme.colorMode}`}
               key={network.label}
               onClick={async () => {
                 if (isSourceChain) {
@@ -190,7 +191,7 @@ const NetworkDropdown = React.memo(
                 }
               }}
             >
-              {<network.icon />}
+              <div className='icon'>{<network.icon />}</div>
               <p>{network.label}</p>
             </div>
           ))}
@@ -205,6 +206,9 @@ const NetworkDropdown = React.memo(
               <p>pay with FIAT</p>
             </div>
           ) : null} */}
+        </div>
+        <div className={`dropdown-icon ${collapsed ? 'toggled' : 'collapsed'}`}>
+          <Arrow fill='none'/>
         </div>
       </div>
     )

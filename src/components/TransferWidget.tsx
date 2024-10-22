@@ -858,7 +858,7 @@ export const TransferWidget = ({
                   : 'Transfer Details'
                 : titleOption?.initialTitle
                   ? titleOption?.initialTitle
-                  : 'New Transfer'}
+                  : 'New Purchase'}
             </h3>
           </div>
           <div className='control-buttons'>

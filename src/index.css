@@ -1,5 +1,21 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import 'react-tooltip/dist/react-tooltip.css';
+@font-face {
+  font-family: "Manrope";
+  src: url("../src/assets/fonts/Manrope-ExtraLight.eot");
+  src: url("../src/assets/fonts/Manrope-ExtraLight.eot?#iefix") format("embedded-opentype"), url("../src/assets/fonts/Manrope-ExtraLight.woff2") format("woff2"), url("../src/assets/fonts/Manrope-ExtraLight.woff") format("woff");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Sohne";
+  src: url("../src/assets/fonts/SohneBreit-Buch.eot");
+  src: url("../src/assets/fonts/SohneBreit-Buch.eot?#iefix") format("embedded-opentype"), url("../src/assets/fonts/SohneBreit-Buch.woff2") format("woff2"), url("../src/assets/fonts/SohneBreit-Buch.woff") format("woff"), url("../src/assets/fonts/SohneBreit-Buch.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
 .kima-card {
   position: relative;
 }
@@ -18,6 +34,9 @@
   display: flex;
   align-items: center;
   font-size: 1.2em;
+  font-family: "Sohne";
+  font-weight: 400;
+  letter-spacing: 1px;
 }
 .kima-card .kima-card-header .topbar .title h3 {
   margin: 0;
@@ -42,9 +61,10 @@
 }
 .kima-card .kima-card-header .topbar .control-buttons .icon-button {
   background: transparent;
-  border: none;
-  font-size: 1em;
-  padding: 1px 6px;
+  border: 1px solid rgba(119, 141, 163, 0.3019607843);
+  border-radius: 40px;
+  font-size: 10px;
+  padding: 2px 6px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
@@ -55,18 +75,27 @@
   cursor: default;
 }
 .kima-card .kima-card-header .topbar .control-buttons .icon-button svg {
-  width: 1em;
-  height: 1em;
+  width: 22px;
+  height: 22px;
+  padding: 5px;
 }
 .kima-card .kima-card-header .topbar .control-buttons .icon-button:first-of-type svg {
   margin-top: 0.5em;
 }
-.kima-card .kima-card-header .topbar .control-buttons a, .kima-card .kima-card-header .topbar .control-buttons .menu-button {
+.kima-card .kima-card-header .topbar .control-buttons a {
   margin-left: auto;
-  margin-right: 0.5em;
-  color: #5aa0db;
+  color: #778DA3;
   text-decoration: none;
   cursor: pointer;
+  margin-right: 1em;
+}
+.kima-card .kima-card-header .topbar .control-buttons .menu-button {
+  font-family: "Manrope";
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px 4px 10px;
+  border: 1px solid rgba(119, 141, 163, 0.3019607843);
+  border-radius: 50px;
 }
 .kima-card .kima-card-header .topbar .control-buttons .maximize {
   color: #5aa0db;
@@ -361,7 +390,10 @@
   margin: 0 auto;
 }
 .kima-card .kima-card-content .single-form {
-  padding-left: 5em;
+  font-family: "Manrope";
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 @media (max-width: 768px) {
   .kima-card .kima-card-content .single-form {
@@ -584,7 +616,7 @@
   margin: 0;
 }
 .kima-card .kima-card-content .single-form .coin-dropdown .coin-menu .coin-item:hover {
-  background: rgba(90, 160, 219, 0.5019607843);
+  background: #D6E4EA;
 }
 .kima-card .kima-card-content .single-form .coin-dropdown .coin-menu.light {
   background: white;
@@ -671,7 +703,7 @@
   margin: 0;
 }
 .kima-card .kima-card-content .single-form .expire-time-dropdown .expire-time-menu .expire-time-item:hover {
-  background: rgba(90, 160, 219, 0.5019607843);
+  background: #D6E4EA;
 }
 .kima-card .kima-card-content .single-form .expire-time-dropdown .expire-time-menu.light {
   background: white;
@@ -698,9 +730,12 @@
 }
 .kima-card .kima-card-content .single-form .network-dropdown {
   position: relative;
-  border-radius: 1em;
+  width: 30%;
+  max-width: 300px;
+  border-radius: 50px;
+  border: 0.5px solid #86B8CE;
   padding-left: 1em;
-  padding-right: 3em;
+  padding-right: 2em;
   height: 4em;
   display: flex;
   align-items: center;
@@ -708,26 +743,49 @@
   box-sizing: content-box;
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
+.kima-card .kima-card-content .single-form .network-dropdown .dropdown-icon {
+  margin-left: auto;
+  box-sizing: content-box;
+  position: absolute;
+  width: 0.8em;
+  height: 0.8em;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.kima-card .kima-card-content .single-form .network-dropdown .dropdown-icon.collapsed {
+  right: 1.1em;
+  top: 1.7em;
+  transform: rotate(-180deg);
+}
+.kima-card .kima-card-content .single-form .network-dropdown .dropdown-icon.toggled {
+  box-sizing: content-box;
+  position: absolute;
+  right: 2em;
+  top: 1em;
+  transform: rotate(0deg);
+}
 .kima-card .kima-card-content .single-form .network-dropdown .network-wrapper {
   display: flex;
+  justify-content: start;
   align-items: center;
   border-radius: 1em;
   font-size: 1.2em;
-  font-weight: 500;
+  font-weight: 700;
   padding: 0.2em;
   padding-right: 0.5em;
   color: black;
   z-index: inherit;
   width: 9.5em;
 }
+.kima-card .kima-card-content .single-form .network-dropdown .network-wrapper .icon {
+  display: flex;
+  justify-content: center;
+  padding: 4px 4px;
+  border-radius: 40px;
+  background-color: white;
+  margin-right: 1em;
+}
 .kima-card .kima-card-content .single-form .network-dropdown .network-wrapper span {
   text-align: center;
-  width: 100%;
-}
-.kima-card .kima-card-content .single-form .network-dropdown .network-wrapper svg {
-  width: 1.8em;
-  height: 1.8em;
-  margin-right: 0.5em;
 }
 .kima-card .kima-card-content .single-form .network-dropdown.dark .network-wrapper {
   color: white;
@@ -735,7 +793,6 @@
 .kima-card .kima-card-content .single-form .network-dropdown:before {
   box-sizing: content-box;
   position: absolute;
-  content: "";
   width: 0.8em;
   height: 0.8em;
   right: 1.1em;
@@ -747,52 +804,70 @@
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 .kima-card .kima-card-content .single-form .network-dropdown .network-menu {
-  box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+  border: 0.5px solid #86B8CE;
+  border-top: none;
+  border-radius: 0 0 30px 30px;
   position: absolute;
-  z-index: 100;
+  z-index: 1000;
   max-height: 12em;
   width: 100%;
-  top: calc(100% - 0.5em);
-  left: 0;
-  padding: 0.5em 0;
+  top: 100%;
+  left: -0.5px;
   overflow-x: clip;
   overflow-y: scroll;
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 .kima-card .kima-card-content .single-form .network-dropdown .network-menu-item {
-  padding: 0.5em 1em;
+  margin: 0.5em 1em;
+  padding: 0.8em 0.5em;
+  border-radius: 20px;
+  width: 60%;
+  max-width: 240px;
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
   display: flex;
+  justify-content: start;
+  flex-direction: row;
   align-items: center;
 }
-.kima-card .kima-card-content .single-form .network-dropdown .network-menu-item svg {
-  width: 2em;
-  height: 2em;
+.kima-card .kima-card-content .single-form .network-dropdown .network-menu-item .icon {
+  display: flex;
+  justify-content: center;
+  padding: 4px 4px;
+  border-radius: 40px;
+  background-color: white;
 }
 .kima-card .kima-card-content .single-form .network-dropdown .network-menu-item p {
-  width: 100%;
   text-align: center;
-  margin: 0;
+  margin-left: 1em;
+  margin-top: 0;
+  margin-bottom: 0;
   font-size: 1.2em;
 }
-.kima-card .kima-card-content .single-form .network-dropdown .network-menu-item:hover {
-  background: rgba(90, 160, 219, 0.5019607843);
+.kima-card .kima-card-content .single-form .network-dropdown .network-menu-item.light:hover {
+  background: #D6E4EA;
 }
-.kima-card .kima-card-content .single-form .network-dropdown .network-menu.light {
-  background: white;
-}
-.kima-card .kima-card-content .single-form .network-dropdown .network-menu.dark {
-  background: #4f5156;
+.kima-card .kima-card-content .single-form .network-dropdown .network-menu-item.dark:hover {
+  background: #2C303E;
 }
 .kima-card .kima-card-content .single-form .network-dropdown .network-menu.collapsed {
   max-height: 0;
   opacity: 0;
 }
-.kima-card .kima-card-content .single-form .network-dropdown.light {
-  background: #e3e3e3;
+.kima-card .kima-card-content .single-form .network-dropdown .network-menu.light {
+  background-color: #EDF2F5;
 }
-.kima-card .kima-card-content .single-form .network-dropdown.light:before {
-  border-color: black;
+.kima-card .kima-card-content .single-form .network-dropdown .network-menu.dark {
+  background: #4A5068;
+}
+.kima-card .kima-card-content .single-form .network-dropdown.light {
+  background: #EDF2F5 !important;
+}
+.kima-card .kima-card-content .single-form .network-dropdown.dark {
+  background: #4A5068 !important;
+}
+.kima-card .kima-card-content .single-form .network-dropdown.toggled {
+  border-bottom: none;
+  border-radius: 30px 30px 0 0;
 }
 .kima-card .kima-card-content .single-form .network-dropdown.collapsed:before {
   transform: rotate(135deg);
@@ -1302,7 +1377,7 @@
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 .kima-card .dropdown-menu .menu-item:hover {
-  background: rgba(90, 160, 219, 0.5019607843);
+  background: #D6E4EA;
 }
 .kima-card .dropdown-menu.light {
   background: white;
@@ -1315,7 +1390,8 @@
   opacity: 0;
   pointer-events: none;
 }
-.kima-card .error-tooltip.dark, .kima-card .popup-tooltip.dark {
+.kima-card .error-tooltip.dark,
+.kima-card .popup-tooltip.dark {
   color: black;
   background-color: white;
 }
@@ -1550,11 +1626,28 @@
   width: 16em;
 }
 
+@font-face {
+  font-family: "Manrope";
+  src: url("../src/assets/fonts/Manrope-ExtraLight.eot");
+  src: url("../src/assets/fonts/Manrope-ExtraLight.eot?#iefix") format("embedded-opentype"), url("../src/assets/fonts/Manrope-ExtraLight.woff2") format("woff2"), url("../src/assets/fonts/Manrope-ExtraLight.woff") format("woff");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Sohne";
+  src: url("../src/assets/fonts/SohneBreit-Buch.eot");
+  src: url("../src/assets/fonts/SohneBreit-Buch.eot?#iefix") format("embedded-opentype"), url("../src/assets/fonts/SohneBreit-Buch.woff2") format("woff2"), url("../src/assets/fonts/SohneBreit-Buch.woff") format("woff"), url("../src/assets/fonts/SohneBreit-Buch.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
 .kima-card {
-  border-radius: 1em;
+  border: 2px solid rgba(119, 141, 163, 0.3019607843);
+  border-radius: 42px;
   width: 100%;
-  padding: 2em;
-  box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+  padding: 30px 40px;
+  box-shadow: 0px 0px 30px 0px rgba(134, 184, 206, 0.5);
   font-family: "Poppins", sans-serif;
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
   transition-delay: 0.2s;
@@ -1563,7 +1656,6 @@
 .kima-card.light {
   background: white;
   color: black;
-  border: 1px solid #66aae5;
 }
 .kima-card.light .kima-card-header .kima-card-network-label .label {
   background: #e3e3e3;
@@ -1577,7 +1669,6 @@
 .kima-card.dark {
   background: #1b1e25;
   color: white;
-  border: 1px solid #2c4963;
 }
 .kima-card.dark .kima-card-header .kima-card-network-label .label {
   background: #4f5156;
@@ -1665,12 +1756,21 @@
   width: 6px;
 }
 .kima-card .custom-scrollbar::-webkit-scrollbar-track {
-  background: white;
   border-radius: 3px;
+  margin-top: 0.5em;
+  margin-bottom: 1.5em;
+}
+.kima-card .custom-scrollbar::-webkit-scrollbar-button {
+  height: 20px;
 }
 .kima-card .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #a19f9f;
   border-radius: 3px;
+}
+.kima-card .custom-scrollbar.light::-webkit-scrollbar-thumb {
+  background: #86B8CE;
+}
+.kima-card .custom-scrollbar.dark::-webkit-scrollbar-thumb {
+  background: #778DA3;
 }
 .kima-card .slide-area {
   width: 40em;

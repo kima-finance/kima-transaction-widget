@@ -3,6 +3,13 @@ $fontMedium: 14px;
 $fontSmall: 10px;
 
 // colors
+$finance: #778DA3;
+$financeGrey: #778DA34D;
+$financeLight: #F7F8F9;
+$financeLighter: #EDF2F5;
+$financeDark: #4A5068;
+$financeDarker: #2C303E;
+$financeIcon: #86B8CE;
 $backgroundDark: #1b1e25;
 $backgroundDarker: #0c0f17;
 $border: #66aae5;
@@ -13,7 +20,7 @@ $progressbarLight: #e3e3e3;
 $progressbarDark: #4f5156;
 $primary: #66aae5;
 $secondary: #e3e3e3;
-$hover: #5aa0db80;
+$hover: #D6E4EA;
 
 @mixin transition() {
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
