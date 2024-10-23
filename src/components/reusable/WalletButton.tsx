@@ -12,13 +12,13 @@ import {
   selectSourceCompliant,
   selectTheme
 } from '../../store/selectors'
-import PrimaryButton from './PrimaryButton'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
 import { ChainName } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 import { connectWalletBtn } from '../../utils/testId'
 import useBalance from '../../hooks/useBalance'
 import { useWeb3Modal } from '@web3modal/ethers5/react'
+import { WalletIcon } from '../../assets/icons'
 
 const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const dispatch = useDispatch()
@@ -70,9 +70,14 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
       }`}
       data-testid={connectWalletBtn}
     >
-      <PrimaryButton clickHandler={handleClick}>
-        {isReady ? `${getShortenedAddress(walletAddress || '')}` : 'Wallet'}
-      </PrimaryButton>
+      <button
+        className={`${isReady ? 'connected' : 'disconnected'} ${theme.colorMode}`}
+        onClick={handleClick}
+      >
+        {isReady && `${getShortenedAddress(walletAddress || '')}`}
+        {!isReady && <WalletIcon />}
+        {!isReady && "Connect Wallet"}
+      </button>
 
       {isReady ? (
         <p className='balance-info'>
