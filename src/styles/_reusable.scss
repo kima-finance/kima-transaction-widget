@@ -327,6 +327,26 @@
         > span {
           font-size: 1.16em;
           width: 10em;
+          
+          @include breakpoint(mobile) {
+            margin-bottom: auto;
+            width: 20em;
+          }
+        }
+
+        .items {
+          display: flex;
+          flex-direction: row;
+          justify-content: start;
+          gap: 1em;
+          flex-grow: 1;
+          align-items: center;
+
+          @include breakpoint(mobile){
+            flex-direction: column;
+            justify-content: center;
+            align-items: end;
+          }
         }
 
         .network-item {
@@ -385,7 +405,34 @@
             width: 13.7em;
 
             input {
-              width: 100%;
+              // width: 100%;
+            }
+          }
+
+          .coin-wrapper {
+            display: flex;
+            align-items: center;
+            color: white;
+            border: 0.5px solid;
+            border-radius: 50px;
+            height: 4em;
+            padding: 0 1em;
+            width: 8em;
+
+            svg {
+              margin-right: 1em;
+            }
+
+            &.light {
+              background-color: $financeLighter;
+              border-color:$financeIcon;
+              color: black;
+            }
+
+            &.dark {
+              background-color: $financeDark;
+              border-color: $finance;
+              color: white;
             }
           }
         }
@@ -399,11 +446,6 @@
 
           &.dark {
             background-color: $progressbarDark;
-
-            .coin-wrapper {
-              background: $borderSecondary;
-              color: white;
-            }
           }
 
           span {
@@ -432,16 +474,19 @@
         }
 
         input {
-          border: 1px solid $borderSecondary;
-          border-radius: 0.8em;
-          height: 3em;
+          border-radius: 50px;
+          // height: 3em;
           background: transparent;
-          color: white;
           outline: none;
           font: unset;
-          width: 10em;
-          padding: 0.3em 0.5em 0.3em 1em;
+          width: 5em;
+          padding: 1em 2em;
           box-sizing: content-box;
+          font-size: 1.2em;
+
+          ::placeholder {
+            color: $finance;
+          }
 
           &.kima-address-input {
             width: 20em;
@@ -450,11 +495,17 @@
               width: 12em;
             }
           }
-        }
 
-        &.light {
-          input {
+          &.light {
+            border: 1px solid $financeIcon;
             color: black;
+            background-color: white;
+          }
+
+          &.dark {
+            border: 1px solid $finance;
+            color: white;
+            background-color: $financeDark;
           }
         }
 
@@ -486,9 +537,9 @@
       }
 
       .coin-dropdown {
-        margin-left: 1em;
         position: relative;
         width: 10%;
+        min-width: 80px;
         max-width: 140px;
         border-radius: 50px;
         border: 0.5px solid $financeIcon;
@@ -736,7 +787,8 @@
 
       .network-dropdown {
         position: relative;
-        width: 30%;
+        width: 19.5em;
+        min-width: 150px;
         max-width: 300px;
         border-radius: 50px;
         border: 0.5px solid $financeIcon;
@@ -748,6 +800,10 @@
         cursor: pointer;
         box-sizing: content-box;
         @include transition();
+
+        @include breakpoint("max-width: 586px"){
+          width: 30%;
+        }
 
         .network-wrapper {
           display: flex;
@@ -909,7 +965,7 @@
       font-size: 1.16em;
       display: flex;
       align-items: center;
-      
+
       button {
         cursor: pointer;
         display: flex;
@@ -945,7 +1001,7 @@
 
         &.light {
           color: black;
-          background-color: $finance;
+          background-color: $hover;
         }
 
         &.dark {
@@ -973,7 +1029,7 @@
         align-items: flex-start;
 
         .balance-info {
-          margin-left: 0;
+          margin-left: auto;
         }
       }
     }

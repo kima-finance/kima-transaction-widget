@@ -11,14 +11,21 @@ import { selectTargetAddress } from '../../store/selectors'
  * @returns
  */
 
-const AddressInput = () => {
+const AddressInput = ({
+  theme,
+  placeholder
+}: {
+  theme: string
+  placeholder: string
+}) => {
   const dispatch = useDispatch()
   const targetAddress = useSelector(selectTargetAddress)
 
   return (
     <input
-      className='kima-address-input'
+      className={`kima-address-input ${theme}`}
       type='text'
+      placeholder={placeholder}
       value={targetAddress}
       onChange={(e) => dispatch(setTargetAddress(e.target.value))}
     />

@@ -71,8 +71,10 @@ const SingleForm = ({
       ) : null}
       <div className='form-item'>
         <span className='label'>Source Network:</span>
-        <NetworkDropdown />
-        <CoinDropdown />
+        <div className='items'>
+          <NetworkDropdown />
+          <CoinDropdown />
+        </div>
       </div>
 
       <div
@@ -88,8 +90,10 @@ const SingleForm = ({
         {mode === ModeOptions.bridge && (
           <div className='form-item'>
             <span className='label'>Target Network:</span>
-            <NetworkDropdown isSourceChain={false} />
-            <CoinDropdown isSourceChain={false} />
+            <div className='items'>
+              <NetworkDropdown isSourceChain={false} />
+              <CoinDropdown isSourceChain={false} />
+            </div>
           </div>
         )}
       </div>
@@ -100,7 +104,10 @@ const SingleForm = ({
         ) : (
           <div className={`form-item ${theme.colorMode}`}>
             <span className='label'>Target Address:</span>
-            <AddressInput />
+            <AddressInput
+              theme={theme.colorMode as string}
+              placeholder='Input target address'
+            />
           </div>
         )
       ) : null}
@@ -108,9 +115,11 @@ const SingleForm = ({
       {mode === ModeOptions.bridge ? (
         <div className={`form-item ${theme.colorMode}`}>
           <span className='label'>Amount:</span>
-          <div className='amount-label-container'>
+          <div className={`amount-label-container items ${theme.colorMode}`}>
             <input
+              className={`${theme.colorMode}`}
               type='number'
+              placeholder='Amount'
               value={amountValue || ''}
               onChange={(e) => {
                 let _amount = +e.target.value
@@ -128,9 +137,25 @@ const SingleForm = ({
       ) : (
         <div className={`form-item ${theme.colorMode}`}>
           <span className='label'>Amount:</span>
-          <div className={`amount-label ${theme.colorMode}`}>
-            <span>{transactionOption?.amount || ''}</span>
-            <div className='coin-wrapper'>
+          <div className={`amount-label-container items ${theme.colorMode}`}>
+            <input
+              className={`${theme.colorMode}`}
+              type='number'
+              placeholder='Amount'
+              value={transactionOption?.amount || amountValue || ''}
+              onChange={(e) => {
+                let _amount = +e.target.value
+                const decimal =
+                  sourceNetwork === ChainName.BTC ||
+                  targetNetwork === ChainName.BTC
+                    ? 8
+                    : 2
+                setAmountValue(e.target.value)
+                dispatch(setAmount(_amount.toFixed(decimal)))
+              }}
+              disabled={transactionOption?.amount !== undefined}
+            />
+            <div className={`coin-wrapper ${theme.colorMode}`}>
               {<TargetIcon />}
               {targetCurrency}
             </div>

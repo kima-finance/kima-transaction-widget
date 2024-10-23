@@ -434,6 +434,27 @@
   font-size: 1.16em;
   width: 10em;
 }
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .single-form .form-item > span {
+    margin-bottom: auto;
+    width: 20em;
+  }
+}
+.kima-card .kima-card-content .single-form .form-item .items {
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  gap: 1em;
+  flex-grow: 1;
+  align-items: center;
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .single-form .form-item .items {
+    flex-direction: column;
+    justify-content: center;
+    align-items: end;
+  }
+}
 .kima-card .kima-card-content .single-form .form-item .network-item {
   display: flex;
   align-items: center;
@@ -480,9 +501,29 @@
   .kima-card .kima-card-content .single-form .form-item .amount-label-container {
     width: 13.7em;
   }
-  .kima-card .kima-card-content .single-form .form-item .amount-label-container input {
-    width: 100%;
-  }
+}
+.kima-card .kima-card-content .single-form .form-item .amount-label-container .coin-wrapper {
+  display: flex;
+  align-items: center;
+  color: white;
+  border: 0.5px solid;
+  border-radius: 50px;
+  height: 4em;
+  padding: 0 1em;
+  width: 8em;
+}
+.kima-card .kima-card-content .single-form .form-item .amount-label-container .coin-wrapper svg {
+  margin-right: 1em;
+}
+.kima-card .kima-card-content .single-form .form-item .amount-label-container .coin-wrapper.light {
+  background-color: #EDF2F5;
+  border-color: #86B8CE;
+  color: black;
+}
+.kima-card .kima-card-content .single-form .form-item .amount-label-container .coin-wrapper.dark {
+  background-color: #4A5068;
+  border-color: #778DA3;
+  color: white;
 }
 .kima-card .kima-card-content .single-form .form-item .amount-label {
   display: flex;
@@ -493,10 +534,6 @@
 }
 .kima-card .kima-card-content .single-form .form-item .amount-label.dark {
   background-color: #4f5156;
-}
-.kima-card .kima-card-content .single-form .form-item .amount-label.dark .coin-wrapper {
-  background: #979797;
-  color: white;
 }
 .kima-card .kima-card-content .single-form .form-item .amount-label span {
   font-size: 1.1em;
@@ -520,16 +557,17 @@
   margin-right: 0.5em;
 }
 .kima-card .kima-card-content .single-form .form-item input {
-  border: 1px solid #979797;
-  border-radius: 0.8em;
-  height: 3em;
+  border-radius: 50px;
   background: transparent;
-  color: white;
   outline: none;
   font: unset;
-  width: 10em;
-  padding: 0.3em 0.5em 0.3em 1em;
+  width: 5em;
+  padding: 1em 2em;
   box-sizing: content-box;
+  font-size: 1.2em;
+}
+.kima-card .kima-card-content .single-form .form-item input ::placeholder {
+  color: #778DA3;
 }
 .kima-card .kima-card-content .single-form .form-item input.kima-address-input {
   width: 20em;
@@ -539,8 +577,15 @@
     width: 12em;
   }
 }
-.kima-card .kima-card-content .single-form .form-item.light input {
+.kima-card .kima-card-content .single-form .form-item input.light {
+  border: 1px solid #86B8CE;
   color: black;
+  background-color: white;
+}
+.kima-card .kima-card-content .single-form .form-item input.dark {
+  border: 1px solid #778DA3;
+  color: white;
+  background-color: #4A5068;
 }
 .kima-card .kima-card-content .single-form .form-item .error {
   color: red;
@@ -566,9 +611,9 @@
   }
 }
 .kima-card .kima-card-content .single-form .coin-dropdown {
-  margin-left: 1em;
   position: relative;
   width: 10%;
+  min-width: 80px;
   max-width: 140px;
   border-radius: 50px;
   border: 0.5px solid #86B8CE;
@@ -772,7 +817,8 @@
 }
 .kima-card .kima-card-content .single-form .network-dropdown {
   position: relative;
-  width: 30%;
+  width: 19.5em;
+  min-width: 150px;
   max-width: 300px;
   border-radius: 50px;
   border: 0.5px solid #86B8CE;
@@ -784,6 +830,11 @@
   cursor: pointer;
   box-sizing: content-box;
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+@media (max-width: 586px) {
+  .kima-card .kima-card-content .single-form .network-dropdown {
+    width: 30%;
+  }
 }
 .kima-card .kima-card-content .single-form .network-dropdown .network-wrapper {
   display: flex;
@@ -950,7 +1001,7 @@
 }
 .kima-card .kima-card-content .wallet-button .connected.light {
   color: black;
-  background-color: #778DA3;
+  background-color: #D6E4EA;
 }
 .kima-card .kima-card-content .wallet-button .connected.dark {
   color: #F7F8F9;
@@ -973,7 +1024,7 @@
     align-items: flex-start;
   }
   .kima-card .kima-card-content .wallet-button .balance-info {
-    margin-left: 0;
+    margin-left: auto;
   }
 }
 .kima-card .kima-card-content .account-dropdown {
