@@ -135,7 +135,7 @@
       margin: 0 0 0 1em;
     }
 
-    button {
+    .primary-button-wrapper {
       margin-left: 1em;
     }
 
@@ -143,16 +143,11 @@
       p {
         display: none;
       }
-
-      .button-group button:first-of-type {
-        display: none;
-      }
     }
 
     @include breakpoint(mobile) {
       flex-direction: column;
       max-height: unset;
-      padding-top: 0em;
 
       .button-group {
         margin-left: unset;

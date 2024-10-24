@@ -125,14 +125,11 @@
   font-size: 0.8em;
   margin: 0 0 0 1em;
 }
-.kima-card .kima-card-footer button {
+.kima-card .kima-card-footer .primary-button-wrapper {
   margin-left: 1em;
 }
 @media (max-width: 768px) {
   .kima-card .kima-card-footer p {
-    display: none;
-  }
-  .kima-card .kima-card-footer .button-group button:first-of-type {
     display: none;
   }
 }
@@ -140,7 +137,6 @@
   .kima-card .kima-card-footer {
     flex-direction: column;
     max-height: unset;
-    padding-top: 0em;
   }
   .kima-card .kima-card-footer .button-group {
     margin-left: unset;
@@ -1413,14 +1409,18 @@
   column-gap: 0.5em;
   cursor: pointer;
 }
+.kima-card .primary-button-wrapper {
+  background: linear-gradient(to right, #8d77cc, #7bd5fb, #b2f79c);
+  padding: 2px;
+  border-radius: 30px;
+}
 .kima-card .primary-button {
-  background: #66aae5;
-  border-radius: 0.8em;
-  width: 10em;
-  height: 3em;
+  background: black;
+  border-radius: 30px;
+  width: fit-content;
+  padding: 1em 2em;
   cursor: pointer;
   color: white;
-  font-size: 1em;
   font-weight: bold;
   font-family: inherit;
   border: none;
@@ -1429,6 +1429,9 @@
   align-items: center;
   justify-content: center;
   letter-spacing: 0;
+}
+.kima-card .primary-button.light {
+  background-color: black;
 }
 .kima-card .primary-button:hover, .kima-card .primary-button:disabled {
   opacity: 0.7;
@@ -1457,24 +1460,26 @@
   }
 }
 .kima-card .secondary-button {
-  border-radius: 0.8em;
-  width: 10em;
-  height: 3em;
+  border-radius: 30px;
+  width: fit-content;
+  padding: 0.5em 2em;
+  height: 3.5em;
+  background-color: transparent;
   cursor: pointer;
-  font-size: 1em;
   font-weight: bold;
   font-family: inherit;
-  border: none;
+  border-radius: 30px;
+  border: 1px solid;
   letter-spacing: 0;
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 .kima-card .secondary-button.dark {
   color: white;
-  background: #4f5156;
+  border-color: white;
 }
 .kima-card .secondary-button.light {
   color: black;
-  background: #e3e3e3;
+  border-color: black;
 }
 .kima-card .secondary-button:hover, .kima-card .secondary-button:disabled {
   opacity: 0.7;
@@ -1835,12 +1840,6 @@
     max-width: 100vh !important;
     font-size: 12px !important;
     padding: 1.5em;
-    border-radius: 0;
-  }
-}
-@media (max-width: 500px) {
-  .kima-card {
-    padding: 1em;
   }
 }
 .kima-card-content {
