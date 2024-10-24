@@ -19,7 +19,7 @@ import {
   selectSourceCurrency,
   selectTargetCurrency
 } from '../../store/selectors'
-import { ChainName, networkOptions } from '../../utils/constants'
+import { ChainName, COIN_LIST, networkOptions } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 
 const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
@@ -53,6 +53,11 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
   )
   const sourceCurrency = useSelector(selectSourceCurrency)
   const targetCurrency = useSelector(selectTargetCurrency)
+
+  const SourceCoinIcon =
+    COIN_LIST[sourceCurrency].icon || COIN_LIST['USDK'].icon
+  const TargetCoinIcon =
+    COIN_LIST[targetCurrency].icon || COIN_LIST['USDK'].icon
 
   const sourceWalletAddress = useMemo(() => {
     return getShortenedAddress(walletAddress || '')
@@ -88,11 +93,11 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
         <div>
           <div className='detail-item'>
             <span className='label'>IBAN:</span>
-            <p>ES6621000418401234567891</p>
-            <span className='kima-card-network-label'>
+            <span className={`kima-card-network-label ${theme.colorMode}`}>
               <originNetworkOption.icon />
               FIAT
             </span>
+            <p>ES6621000418401234567891</p>
           </div>
           <div className='detail-item'>
             <span className='label'>Recipient:</span>
@@ -110,21 +115,23 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
       ) : (
         <div className='detail-item'>
           <span className='label'>Source wallet:</span>
-          <p>
+          <span className={`kima-card-network-label ${theme.colorMode}`}>
+            <originNetworkOption.icon />
+            {originNetworkOption.label}
+          </span>
+          <p className={theme.colorMode}>
             {dAppOption === DAppOptions.LPDrain
               ? targetWalletAddress
               : sourceWalletAddress}
           </p>
-          <span className='kima-card-network-label'>
-            <originNetworkOption.icon />
-            {originNetworkOption.label}
-          </span>
         </div>
       )}
       <div className='detail-item'>
         <span className='label'>Amount:</span>
         <p>
-          {amountToShow} {sourceCurrency} → {targetCurrency}
+          <SourceCoinIcon /> {"   "}
+          {amountToShow} {sourceCurrency} → <TargetCoinIcon />
+          {targetCurrency}
         </p>
       </div>
       {targetNetwork === ChainName.FIAT ? (
@@ -132,7 +139,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
           <div className='detail-item'>
             <span className='label'>IBAN:</span>
             <p>{bankDetails.iban}</p>
-            <span className='kima-card-network-label'>
+            <span className={`kima-card-network-label ${theme.colorMode}`}>
               <targetNetworkOption.icon />
               FIAT
             </span>
@@ -145,15 +152,15 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
       ) : (
         <div className='detail-item'>
           <span className='label'>Target wallet:</span>
-          <p>
+          <span className={`kima-card-network-label ${theme.colorMode}`}>
+            <targetNetworkOption.icon />
+            {targetNetworkOption.label}
+          </span>
+          <p className={theme.colorMode}>
             {dAppOption === DAppOptions.LPDrain
               ? sourceWalletAddress
               : targetWalletAddress}
           </p>
-          <span className='kima-card-network-label'>
-            <targetNetworkOption.icon />
-            {targetNetworkOption.label}
-          </span>
         </div>
       )}
     </div>

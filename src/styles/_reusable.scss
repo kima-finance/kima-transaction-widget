@@ -3,6 +3,7 @@
     .kima-progressbar {
       height: 1em;
       width: 100%;
+      max-width: 900px;
       position: relative;
       border-radius: 1em;
       margin-bottom: 4em;
@@ -1169,8 +1170,7 @@
 
       > p {
         text-align: center;
-        font-weight: bold;
-        font-size: 1.3em;
+        font-size: 0.9em;
       }
 
       .detail-item {
@@ -1179,8 +1179,24 @@
         align-items: center;
         border-top: 1px solid $secondary;
 
+        &:first-of-type {
+          border-top: none;
+        }
+
         p {
           margin: 0;
+          border-radius: 50px;
+          padding: 1em 1.5em;
+        
+          &.light {
+            background-color: $financeLighter;
+            color: black
+          }
+
+          &.dark {
+            background-color: $finance;
+            color: white;
+          }
         }
 
         .label {
@@ -1190,13 +1206,20 @@
 
         .kima-card-network-label {
           display: flex;
-          padding: 0.3em 0.5em 0.3em 0.5em;
-          border-radius: 1em;
-          margin-left: 1em;
-        }
+          padding: 0.8em 0.5em;
+          width: 12em;
+          border-radius: 50px;
+          margin-right: 1em;
 
-        &:last-of-type {
-          border-bottom: 1px solid $secondary;
+          &.light {
+            background-color: $hover;
+            color: black;
+          }
+
+          &.dark {
+            background-color: $financeDark;
+            color: white;
+          }
         }
 
         .signature {
@@ -1413,11 +1436,6 @@
     align-items: center;
     column-gap: 0.5em;
     padding-top: 1em;
-
-    > svg {
-      width: 1em;
-      height: 1em;
-    }
 
     .label {
       display: flex;

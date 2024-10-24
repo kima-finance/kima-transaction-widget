@@ -191,6 +191,7 @@
 .kima-card .kima-card-content .kima-progressbar {
   height: 1em;
   width: 100%;
+  max-width: 900px;
   position: relative;
   border-radius: 1em;
   margin-bottom: 4em;
@@ -1191,8 +1192,7 @@
 }
 .kima-card .kima-card-content .confirm-details > p {
   text-align: center;
-  font-weight: bold;
-  font-size: 1.3em;
+  font-size: 0.9em;
 }
 .kima-card .kima-card-content .confirm-details .detail-item {
   padding: 1em 2em;
@@ -1200,8 +1200,21 @@
   align-items: center;
   border-top: 1px solid #e3e3e3;
 }
+.kima-card .kima-card-content .confirm-details .detail-item:first-of-type {
+  border-top: none;
+}
 .kima-card .kima-card-content .confirm-details .detail-item p {
   margin: 0;
+  border-radius: 50px;
+  padding: 1em 1.5em;
+}
+.kima-card .kima-card-content .confirm-details .detail-item p.light {
+  background-color: #EDF2F5;
+  color: black;
+}
+.kima-card .kima-card-content .confirm-details .detail-item p.dark {
+  background-color: #778DA3;
+  color: white;
 }
 .kima-card .kima-card-content .confirm-details .detail-item .label {
   font-weight: bold;
@@ -1209,12 +1222,18 @@
 }
 .kima-card .kima-card-content .confirm-details .detail-item .kima-card-network-label {
   display: flex;
-  padding: 0.3em 0.5em 0.3em 0.5em;
-  border-radius: 1em;
-  margin-left: 1em;
+  padding: 0.8em 0.5em;
+  width: 12em;
+  border-radius: 50px;
+  margin-right: 1em;
 }
-.kima-card .kima-card-content .confirm-details .detail-item:last-of-type {
-  border-bottom: 1px solid #e3e3e3;
+.kima-card .kima-card-content .confirm-details .detail-item .kima-card-network-label.light {
+  background-color: #D6E4EA;
+  color: black;
+}
+.kima-card .kima-card-content .confirm-details .detail-item .kima-card-network-label.dark {
+  background-color: #4A5068;
+  color: white;
 }
 .kima-card .kima-card-content .confirm-details .detail-item .signature {
   max-width: 65%;
@@ -1387,10 +1406,6 @@
   align-items: center;
   column-gap: 0.5em;
   padding-top: 1em;
-}
-.kima-card .kima-card-network-label > svg {
-  width: 1em;
-  height: 1em;
 }
 .kima-card .kima-card-network-label .label {
   display: flex;
@@ -1856,7 +1871,6 @@
 }
 .kima-card-content {
   width: 100%;
-  margin: 2em 0;
   opacity: 1;
   max-height: 40em;
   position: relative;
