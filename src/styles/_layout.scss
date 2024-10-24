@@ -3,6 +3,9 @@
 .kima-card {
   position: relative;
   .kima-card-header {
+    display: flex;
+    flex-direction: column;
+
     .topbar {
       display: flex;
       align-items: center;
@@ -105,6 +108,11 @@
           cursor: pointer;
         }
       }
+    }
+    h4 {
+      font-weight: 300;
+      font-size: 1em;
+      margin: none !important;
     }
   }
 

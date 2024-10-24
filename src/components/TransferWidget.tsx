@@ -852,13 +852,17 @@ export const TransferWidget = ({
         <div className='topbar'>
           <div className='title'>
             <h3>
-              {(isWizard && wizardStep === 3) || (!isWizard && formStep > 0)
-                ? titleOption?.confirmTitle
-                  ? titleOption?.confirmTitle
-                  : 'Transfer Details'
-                : titleOption?.initialTitle
-                  ? titleOption?.initialTitle
-                  : 'New Purchase'}
+              {formStep === 0
+                ? titleOption?.initialTitle
+                  ? titleOption.initialTitle
+                  : mode === ModeOptions.payment
+                    ? 'New Purchase'
+                    : 'New Transfer'
+                : titleOption?.confirmTitle
+                  ? titleOption.confirmTitle
+                  : mode === ModeOptions.payment
+                    ? 'Confirm Purchase'
+                    : 'Transfer Details'}
             </h3>
           </div>
           <div className='control-buttons'>
@@ -883,6 +887,15 @@ export const TransferWidget = ({
             </button>
           </div>
         </div>
+        <h4 className='subtitle'>
+          {mode === ModeOptions.payment
+            ? formStep === 0
+              ? paymentTitleOption?.title
+                ? paymentTitleOption.title
+                : ''
+              : `Step ${allowance > 0 ? '2' : '1'} of 2 ${allowance > 0 ? 'Submit Transaction' : 'Approval'}`
+            : ''}
+        </h4>
       </div>
 
       <div className='kima-card-content' ref={mainRef}>
@@ -907,8 +920,8 @@ export const TransferWidget = ({
               }
             />
           )
-        ) : formStep === 0 ? (
-          <SingleForm paymentTitleOption={paymentTitleOption} />
+        ) : formStep === 0 || mode === ModeOptions.payment ? (
+          <SingleForm />
         ) : (
           <ConfirmDetails
             isApproved={sourceChain === ChainName.FIAT ? isSigned : isApproved}

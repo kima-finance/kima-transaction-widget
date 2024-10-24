@@ -16,18 +16,14 @@ import {
 } from '../../store/selectors'
 import { BankInput, CoinDropdown, CustomCheckbox, WalletButton } from './'
 import { setAmount, setFeeDeduct } from '../../store/optionSlice'
-import { ModeOptions, PaymentTitleOption } from '../../interface'
+import { ModeOptions } from '../../interface'
 import AddressInput from './AddressInput'
 import NetworkDropdown from './NetworkDropdown'
 import { COIN_LIST, ChainName } from '../../utils/constants'
 import { formatterFloat } from '../../helpers/functions'
 import ExpireTimeDropdown from './ExpireTimeDropdown'
 
-const SingleForm = ({
-  paymentTitleOption
-}: {
-  paymentTitleOption?: PaymentTitleOption
-}) => {
+const SingleForm = ({}) => {
   const dispatch = useDispatch()
   const mode = useSelector(selectMode)
   const theme = useSelector(selectTheme)
@@ -64,11 +60,6 @@ const SingleForm = ({
 
   return (
     <div className='single-form'>
-      {mode === ModeOptions.payment ? (
-        <p className='payment-title' style={paymentTitleOption?.style}>
-          {paymentTitleOption?.title}
-        </p>
-      ) : null}
       <div className='form-item'>
         <span className='label'>Source Network:</span>
         <div className='items'>

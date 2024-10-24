@@ -1454,12 +1454,14 @@
     background: linear-gradient(to right, #8d77cc, #7bd5fb, #b2f79c);
     padding: 2px;
     border-radius: 30px;
+    max-height: 48px;
   }
 
   .primary-button {
     background: black;
     border-radius: 30px;
     width: fit-content;
+    max-height: 48px;
     padding: 1em 2em;
     cursor: pointer;
     color: white;
@@ -1514,6 +1516,7 @@
     width: fit-content;
     padding: 0.5em 2em;
     height: 3.5em;
+    max-height: 48px;
     background-color: transparent;
     cursor: pointer;
     font-weight: bold;
