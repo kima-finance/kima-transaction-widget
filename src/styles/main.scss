@@ -17,7 +17,7 @@
   transition-delay: 0.2s;
 
   &.light {
-    background: white;
+    background: $financeLight;
     color: black;
 
     .kima-card-header .kima-card-network-label .label {
@@ -36,7 +36,7 @@
   }
 
   &.dark {
-    background: $backgroundDark;
+    background: $financeDarker;
     color: white;
 
     .kima-card-header .kima-card-network-label .label {

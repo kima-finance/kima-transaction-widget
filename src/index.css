@@ -1825,7 +1825,7 @@
   /* Firefox */
 }
 .kima-card.light {
-  background: white;
+  background: #F7F8F9;
   color: black;
 }
 .kima-card.light .kima-card-header .kima-card-network-label .label {
@@ -1838,7 +1838,7 @@
   background: white;
 }
 .kima-card.dark {
-  background: #1b1e25;
+  background: #2C303E;
   color: white;
 }
 .kima-card.dark .kima-card-header .kima-card-network-label .label {
