@@ -917,11 +917,6 @@ export const TransferWidget = ({
       </div>
 
       <div className='kima-card-footer'>
-        <ExternalLink to={'https://kima.finance'}>
-          <FooterLogo
-            fill={theme.colorMode === 'light' ? 'black' : '#C5C5C5'}
-          />
-        </ExternalLink>
         <div className='button-group'>
           {/* <SecondaryButton
             clickHandler={() => {
@@ -1004,6 +999,12 @@ export const TransferWidget = ({
         handleHtlcContinue={handleHtlcContinue}
         handleHtlcReclaim={handleHtlcReclaim}
       />
+      <div className={`floating-footer ${theme.colorMode}`}>
+        <span>Powered by</span>
+        <FooterLogo fill='black' />
+        <strong>Network</strong>
+      </div>
+
       {/* <Tooltip
         id='popup-tooltip'
         className={`popup-tooltip ${theme.colorMode}`}

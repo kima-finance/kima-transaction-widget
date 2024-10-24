@@ -119,6 +119,8 @@
     }
   }
 
+  
+
   input::-webkit-outer-spin-button,
   input::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -163,7 +165,7 @@
       background: $financeIcon;
     }
   }
-  
+
   .custom-scrollbar.dark {
     &::-webkit-scrollbar-thumb {
       background: $finance;

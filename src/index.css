@@ -107,6 +107,7 @@
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
   max-height: 3em;
   padding-top: 2em;
+  padding-bottom: 2em;
   opacity: 1;
   box-sizing: content-box;
 }
@@ -144,6 +145,42 @@
   .kima-card .kima-card-footer .button-group {
     margin-left: unset;
   }
+}
+.kima-card .floating-footer {
+  color: black;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  text-decoration: none;
+  position: absolute;
+  left: 35%;
+  pointer-events: none;
+  padding: 0.1em 1em;
+  border-radius: 20px;
+}
+@media (max-width: 500px) {
+  .kima-card .floating-footer {
+    left: 20%;
+  }
+}
+@media (max-width: 768px) {
+  .kima-card .floating-footer {
+    left: 30%;
+  }
+}
+.kima-card .floating-footer.light {
+  background-color: #D6E4EA;
+}
+.kima-card .floating-footer.dark {
+  background-color: #778DA3;
+}
+.kima-card .floating-footer span {
+  margin-right: 0.5em;
+  font-weight: 400;
+}
+.kima-card .floating-footer strong {
+  margin-left: 0.5em;
+  font-size: 0.9em;
 }
 
 .kima-card .kima-card-content .kima-progressbar {

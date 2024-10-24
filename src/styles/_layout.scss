@@ -114,6 +114,7 @@
     @include transition;
     max-height: 3em;
     padding-top: 2em;
+    padding-bottom: 2em;
     opacity: 1;
     box-sizing: content-box;
 
@@ -156,6 +157,45 @@
       .button-group {
         margin-left: unset;
       }
+    }
+  }
+
+  .floating-footer {
+    color: black;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    text-decoration: none;
+    position: absolute;
+    left: 35%;
+    pointer-events: none;
+    padding: 0.1em 1em;
+    border-radius: 20px;
+
+    @include breakpoint(mobile) {
+      left: 20%;
+    }
+
+    @include breakpoint(phablet) {
+      left: 30%;
+    }
+
+    &.light {
+      background-color: $hover;
+    }
+
+    &.dark {
+      background-color: $finance;
+    }
+
+    span {
+      margin-right: 0.5em;
+      font-weight: 400;
+    }
+
+    strong {
+      margin-left: 0.5em;
+      font-size: 0.9em;
     }
   }
 }
