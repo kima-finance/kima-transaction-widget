@@ -1382,6 +1382,10 @@
       display: flex;
       align-items: center;
 
+      @include breakpoint(mobile){
+        justify-content: end;
+      }
+
       .custom-checkbox-content {
         display: flex;
         align-items: center;

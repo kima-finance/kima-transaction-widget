@@ -195,7 +195,7 @@
   .kima-card .kima-card-footer {
     flex-direction: column;
     max-height: unset;
-    margin-top: 2em;
+    margin-top: 4em;
   }
   .kima-card .kima-card-footer .button-group {
     margin-left: unset;
@@ -1415,6 +1415,11 @@
   margin-top: 1em;
   display: flex;
   align-items: center;
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .kima-custom-checkbox {
+    justify-content: end;
+  }
 }
 .kima-card .kima-card-content .kima-custom-checkbox .custom-checkbox-content {
   display: flex;

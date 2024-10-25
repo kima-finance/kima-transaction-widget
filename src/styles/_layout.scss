@@ -215,7 +215,7 @@
     @include breakpoint(mobile) {
       flex-direction: column;
       max-height: unset;
-      margin-top: 2em;
+      margin-top: 4em;
 
       .button-group {
         margin-left: unset;
