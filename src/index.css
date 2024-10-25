@@ -195,6 +195,7 @@
   .kima-card .kima-card-footer {
     flex-direction: column;
     max-height: unset;
+    margin-top: 2em;
   }
   .kima-card .kima-card-footer .button-group {
     margin-left: unset;
