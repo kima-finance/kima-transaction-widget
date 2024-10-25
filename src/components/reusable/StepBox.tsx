@@ -57,8 +57,8 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
         {stepInfo.map((item, index) => (
           <div key={item.title} className='step-item'>
             <div
-              className={`info-item ${step === index && 'active'} 
-                  ${step >= index ? (index === errorStep ? 'error' : 'completed') : ''} 
+              className={`info-item
+                  ${step >= index ? (index === loadingStep ? 'active' : index === errorStep ? 'error' : 'completed') : ''} 
                   ${step < index && 'locked'} ${theme.colorMode}`}
             >
               {step < index && <Lock />}

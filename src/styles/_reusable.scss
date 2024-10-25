@@ -1506,6 +1506,16 @@
                 left: -0.6em;
               }
             }
+
+            &.error {
+              svg {
+                position: absolute;
+                margin-top: -0.3em;
+                width: 1.2em;
+                height: 2em;
+                left: 0;
+              }
+            }
           }
 
           @include breakpoint(phablet) {

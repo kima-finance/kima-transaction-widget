@@ -1517,6 +1517,13 @@
   height: 2.5em;
   left: -0.6em;
 }
+.kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item.error svg {
+  position: absolute;
+  margin-top: -0.3em;
+  width: 1.2em;
+  height: 2em;
+  left: 0;
+}
 @media (max-width: 768px) {
   .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item:first-of-type {
     padding-left: 0;
