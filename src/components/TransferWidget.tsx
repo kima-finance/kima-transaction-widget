@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { CrossIcon, FooterLogo } from '../assets/icons'
+import { CrossIcon, ErrorIcon, FooterLogo } from '../assets/icons'
 import {
   ConfirmDetails,
   ExternalLink,
@@ -188,7 +188,7 @@ export const TransferWidget = ({
         )
         dispatch(setSourceCompliant(res))
       } catch (e) {
-        toast.error('xplorisk check failed')
+        toast.error('xplorisk check failed', { icon: <ErrorIcon /> })
         console.log('xplorisk check failed', e)
       }
     })()
@@ -206,7 +206,7 @@ export const TransferWidget = ({
         )
         dispatch(setTargetCompliant(res))
       } catch (e) {
-        toast.error('xplorisk check failed')
+        toast.error('xplorisk check failed', { icon: <ErrorIcon /> })
         console.log('xplorisk check failed', e)
       }
     })()
@@ -260,10 +260,11 @@ export const TransferWidget = ({
             CHAIN_NAMES_TO_STRING[targetChain]
           } pool has only ${+poolBalance[i].balance[j].amount} ${symbol}`
           console.log(errorString)
-          toast.error(errorString)
+          toast.error(errorString, { icon: <ErrorIcon /> })
 
           toast.error(
-            `${CHAIN_NAMES_TO_STRING[targetChain]} pool has insufficient balance!`
+            `${CHAIN_NAMES_TO_STRING[targetChain]} pool has insufficient balance!`,
+            { icon: <ErrorIcon /> }
           )
           errorHandler(errorString)
           return false
@@ -293,7 +294,7 @@ export const TransferWidget = ({
 
     if (result?.code !== 0) {
       errorHandler(result)
-      toast.error('Failed to submit htlc request!')
+      toast.error('Failed to submit htlc request!', { icon: <ErrorIcon /> })
       return
     }
 
@@ -413,23 +414,27 @@ export const TransferWidget = ({
 
           if (result?.code !== 0) {
             errorHandler(result)
-            toast.error('Failed to submit htlc reclaim!')
+            toast.error('Failed to submit htlc reclaim!', {
+              icon: <ErrorIcon />
+            })
             return
           }
         } catch (error) {
-          toast.error('Error broadcasting the transaction!')
+          toast.error('Error broadcasting the transaction!', {
+            icon: <ErrorIcon />
+          })
           console.error('Error broadcasting the transaction!', error)
         }
       },
       onCancel: () => {
-        toast.error('Transaction cancelled!')
+        toast.error('Transaction cancelled!', { icon: <ErrorIcon /> })
       }
     })
   }
 
   const handleSubmit = async () => {
     if (fee < 0) {
-      toast.error('Fee is not calculated!')
+      toast.error('Fee is not calculated!', { icon: <ErrorIcon /> })
       errorHandler('Fee is not calculated!')
       return
     }
@@ -438,14 +443,14 @@ export const TransferWidget = ({
       dAppOption !== DAppOptions.LPDrain &&
       balance < (feeDeduct ? +amount : +amount + fee)
     ) {
-      toast.error('Insufficient balance!')
+      toast.error('Insufficient balance!', { icon: <ErrorIcon /> })
       errorHandler('Insufficient balance!')
 
       return
     }
 
     if (sourceChain === ChainName.BTC && +amount < 0.00015) {
-      toast.error('Minimum BTC amount is 0.00015!')
+      toast.error('Minimum BTC amount is 0.00015!', { icon: <ErrorIcon /> })
       errorHandler('Minimum BTC amount is 0.00015!')
       return
     }
@@ -513,7 +518,7 @@ export const TransferWidget = ({
             handleBTCFinish(hash, htlcAddress, unixTimestamp)
           },
           onCancel: () => {
-            toast.error('Transaction cancelled.')
+            toast.error('Transaction cancelled.', { icon: <ErrorIcon /> })
             setBTCSigning(false)
           }
         })
@@ -602,7 +607,7 @@ export const TransferWidget = ({
 
       if (result?.code !== 0) {
         errorHandler(result)
-        toast.error('Failed to submit transaction!')
+        toast.error('Failed to submit transaction!', { icon: <ErrorIcon /> })
         setSubmitting(false)
         return
       }
@@ -627,15 +632,15 @@ export const TransferWidget = ({
       errorHandler(e)
       setSubmitting(false)
       console.log(e?.status !== 500 ? 'rpc disconnected' : '', e)
-      toast.error('rpc disconnected')
-      toast.error('Failed to submit transaction')
+      toast.error('rpc disconnected', { icon: <ErrorIcon /> })
+      toast.error('Failed to submit transaction', { icon: <ErrorIcon /> })
     }
   }
 
   const onNext = () => {
     if (isWizard && wizardStep < 5) {
       if (wizardStep === 1 && !isReady) {
-        toast.error('Wallet is not connected!')
+        toast.error('Wallet is not connected!', { icon: <ErrorIcon /> })
         errorHandler('Wallet is not connected!')
         return
       }
@@ -653,7 +658,9 @@ export const TransferWidget = ({
       }
 
       if (fee > 0 && fee > +amount && feeDeduct) {
-        toast.error('Fee is greater than amount to transfer!')
+        toast.error('Fee is greater than amount to transfer!', {
+          icon: <ErrorIcon />
+        })
         errorHandler('Fee is greater than amount to transfer!')
         return
       }
@@ -674,24 +681,27 @@ export const TransferWidget = ({
       if (isReady) {
         if (targetChain === ChainName.FIAT) {
           if (!bankDetails.iban) {
-            toast.error('Invalid IBAN!')
+            toast.error('Invalid IBAN!', { icon: <ErrorIcon /> })
             errorHandler('Invalid IBAN!')
             return
           }
           if (!bankDetails.recipient) {
-            toast.error('Invalid Recipient Address!')
+            toast.error('Invalid Recipient Address!', { icon: <ErrorIcon /> })
             errorHandler('Invalid Recipient Address!')
             return
           }
         }
         if (+amount <= 0) {
-          toast.error('Invalid amount!')
+          toast.error(
+            'Invalid amount!',
+            { icon: <ErrorIcon /> }
+          )
           errorHandler('Invalid amount!')
           return
         }
 
         if (fee < 0) {
-          toast.error('Fee is not calculated!')
+          toast.error('Fee is not calculated!', { icon: <ErrorIcon /> })
           errorHandler('Fee is not calculated!')
           return
         }
@@ -702,7 +712,9 @@ export const TransferWidget = ({
           return
 
         if (fee > 0 && fee > +amount && feeDeduct) {
-          toast.error('Fee is greater than amount to transfer!')
+          toast.error('Fee is greater than amount to transfer!', {
+            icon: <ErrorIcon />
+          })
           errorHandler('Fee is greater than amount to transfer!')
           return
         }
@@ -713,7 +725,7 @@ export const TransferWidget = ({
         }
         return
       } else {
-        toast.error('Wallet is not connected!')
+        toast.error('Wallet is not connected!', { icon: <ErrorIcon /> })
         errorHandler('Wallet is not connected!')
       }
     }
@@ -999,12 +1011,10 @@ export const TransferWidget = ({
             color:
               theme.colorMode === ColorModeOptions.light ? 'black' : 'white',
             fontSize: '1em',
-            borderRadius: '1em',
-            border: '1px solid #66aae5',
+            borderRadius: '50px',
+            border: '1px solid #B900004D',
             background:
-              theme.colorMode === ColorModeOptions.light
-                ? 'white'
-                : theme.backgroundColorDark ?? '#1b1e25'
+              theme.colorMode === ColorModeOptions.light ? '#F7F8F9' : '#242732'
           }
         }}
       />
