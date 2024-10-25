@@ -1,8 +1,7 @@
 import React, { Dispatch, SetStateAction } from 'react'
 import { useSelector } from 'react-redux'
-import { CheckIcon, WarningIcon } from '../../assets/icons'
-import { Loading180Ring } from '../../assets/loading'
 import { selectTheme } from '../../store/selectors'
+import { CheckIcon, Loader, Lock, WarningIcon } from '../../assets/icons'
 
 interface Props {
   step: number
@@ -47,23 +46,26 @@ const Progressbar = ({ step, errorStep, setFocus, loadingStep }: Props) => {
         {stepInfo.map((item, index) => (
           <div
             key={item.title}
-            className={`step ${step >= index ? 'active' : ''}`}
+            className={`step ${step === index && 'active'} 
+                  ${step >= index ? (index === errorStep ? 'error' : 'completed') : ''} 
+                  ${step < index && 'locked'} ${theme.colorMode}`}
             onClick={() => {
               if (index < 4) setFocus(index)
             }}
           >
             <div className='step-info'>
-              {index === loadingStep ? (
-                <Loading180Ring
-                  fill={theme.colorMode === 'dark' ? 'white' : '#5aa0db'}
-                />
-              ) : step >= index ? (
-                index === errorStep ? (
+              {step < index && <Lock />}
+
+              {step >= index ? (
+                index === loadingStep ? (
+                  <Loader className='loader' />
+                ) : index === errorStep ? (
                   <WarningIcon />
                 ) : (
                   <CheckIcon />
                 )
               ) : null}
+
               <span>{item.title}</span>
             </div>
           </div>

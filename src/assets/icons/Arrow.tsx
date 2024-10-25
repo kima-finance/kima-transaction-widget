@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Arrow = ({ width = 22, height = 25, fill = 'black', ...rest }) => {
+const Arrow = ({ width = 22, height = 25, fill = 'none', ...rest }) => {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'

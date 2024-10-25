@@ -128,11 +128,11 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
       )}
       <div className='detail-item'>
         <span className='label'>Amount:</span>
-        <p>
+        <span>
           <SourceCoinIcon /> {"   "}
           {amountToShow} {sourceCurrency} → <TargetCoinIcon />
           {targetCurrency}
-        </p>
+        </span>
       </div>
       {targetNetwork === ChainName.FIAT ? (
         <div>

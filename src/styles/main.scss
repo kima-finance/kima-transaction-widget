@@ -113,7 +113,40 @@
     }
   }
 
+  a:link {
+    color: inherit;
+    background-color: transparent;
+    text-decoration: none;
+  }
   
+  a:visited {
+    color: $financeIcon;
+    background-color: transparent;
+    text-decoration: none;
+  }
+  
+  a:hover {
+    color: $financeIcon;
+    background-color: transparent;
+    text-decoration: underline;
+  }
+  
+  a:active {
+    color: $financeDark;
+    background-color: transparent;
+    text-decoration: underline;
+  }
+
+  .loader {
+    transform-origin: center;
+    animation: spin 2s linear infinite;
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  }
 
   input::-webkit-outer-spin-button,
   input::-webkit-inner-spin-button {

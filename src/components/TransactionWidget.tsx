@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { CrossIcon, FooterLogo, MinimizeIcon } from '../assets/icons'
 import Progressbar from './reusable/Progressbar'
-import { ExternalLink, NetworkLabel, StepBox } from './reusable'
+import { NetworkLabel, StepBox } from './reusable'
 import '../index.css'
 import {
   ColorModeOptions,
@@ -258,14 +258,12 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
             {!minimized ? (
               <div className='control-buttons'>
                 <button
-                  className='icon-button'
+                  className='icon-button minimize'
                   onClick={() => {
                     setMinimized(true)
                   }}
                 >
-                  <MinimizeIcon
-                    fill={theme.colorMode === 'light' ? 'black' : 'white'}
-                  />
+                  <MinimizeIcon />
                 </button>
                 {loadingStep < 0 ? (
                   <button
@@ -289,7 +287,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
               </div>
             )}
           </div>
-          {data?.sourceChain && data?.targetChain && (
+          {!minimized && data?.sourceChain && data?.targetChain && (
             <NetworkLabel
               sourceChain={data?.sourceChain}
               targetChain={data?.targetChain}
@@ -321,13 +319,6 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
           />
         </div>
 
-        <div className='kima-card-footer'>
-          <ExternalLink to={'https://kima.finance'}>
-            <FooterLogo
-              fill={theme.colorMode === 'light' ? 'black' : '#C5C5C5'}
-            />
-          </ExternalLink>
-        </div>
         <Toaster
           position='top-right'
           reverseOrder={false}
@@ -351,6 +342,11 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
             }
           }}
         />
+        <div className={`floating-footer ${theme.colorMode}`}>
+          <span>Powered by</span>
+          <FooterLogo fill='black' />
+          <strong>Network</strong>
+        </div>
         {/* <Tooltip
           id='error-tooltip'
           className={`error-tooltip ${theme.colorMode}`}

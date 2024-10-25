@@ -1,7 +1,6 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
-import { CheckIcon, WarningIcon } from '../../assets/icons'
-import { Loading180Ring } from '../../assets/loading'
+import { CheckIcon, Loader, Lock, WarningIcon } from '../../assets/icons'
 import { NetworkOptions, TransactionData } from '../../interface'
 import {
   selectKimaExplorer,
@@ -57,13 +56,17 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
       <div className='content-wrapper'>
         {stepInfo.map((item, index) => (
           <div key={item.title} className='step-item'>
-            <div className='info-item'>
-              {index === loadingStep ? (
-                <Loading180Ring
-                  fill={theme.colorMode === 'dark' ? 'white' : '#5aa0db'}
-                />
-              ) : step >= index ? (
-                index === errorStep ? (
+            <div
+              className={`info-item ${step === index && 'active'} 
+                  ${step >= index ? (index === errorStep ? 'error' : 'completed') : ''} 
+                  ${step < index && 'locked'} ${theme.colorMode}`}
+            >
+              {step < index && <Lock />}
+
+              {step >= index ? (
+                index === loadingStep ? (
+                  <Loader className='loader' />
+                ) : index === errorStep ? (
                   <WarningIcon />
                 ) : (
                   <CheckIcon />

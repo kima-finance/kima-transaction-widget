@@ -72,6 +72,13 @@
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
+.kima-card .kima-card-header .topbar .control-buttons .icon-button.minimize {
+  border: none;
+}
+.kima-card .kima-card-header .topbar .control-buttons .icon-button:nth-of-type(2) {
+  margin-left: 1em;
+  padding: 4px 6px;
+}
 .kima-card .kima-card-header .topbar .control-buttons .icon-button:hover, .kima-card .kima-card-header .topbar .control-buttons .icon-button:disabled {
   opacity: 0.6;
 }
@@ -102,13 +109,55 @@
   border-radius: 50px;
 }
 .kima-card .kima-card-header .topbar .control-buttons .maximize {
-  color: #5aa0db;
+  color: #86B8CE;
   cursor: pointer;
+}
+.kima-card .kima-card-header .header-network-labels {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1em;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-header .header-network-labels {
+    margin-top: 1em;
+  }
+}
+.kima-card .kima-card-header .header-network-labels .arrow {
+  transform: rotate(-90deg);
 }
 .kima-card .kima-card-header h4 {
   font-weight: 300;
   font-size: 1em;
   margin: none !important;
+}
+.kima-card .kima-card-header .kima-card-network-label {
+  display: flex;
+  padding: 0.8em 0.5em;
+  width: 12em;
+  border-radius: 50px;
+  margin-right: 1em;
+}
+.kima-card .kima-card-header .kima-card-network-label.light {
+  background-color: #D6E4EA;
+  color: black;
+}
+.kima-card .kima-card-header .kima-card-network-label.dark {
+  background-color: #4A5068;
+  color: white;
+}
+.kima-card .kima-card-header p {
+  margin: 0;
+  border-radius: 50px;
+  padding: 1em 1.5em;
+}
+.kima-card .kima-card-header p.light {
+  background-color: #EDF2F5;
+  color: black;
+}
+.kima-card .kima-card-header p.dark {
+  background-color: #778DA3;
+  color: white;
 }
 .kima-card .kima-card-footer {
   display: flex;
@@ -190,11 +239,12 @@
 
 .kima-card .kima-card-content .kima-progressbar {
   height: 1em;
-  width: 100%;
+  width: 95%;
   max-width: 900px;
   position: relative;
   border-radius: 1em;
   margin-bottom: 4em;
+  margin-left: 1em;
 }
 @media (max-width: 768px) {
   .kima-card .kima-card-content .kima-progressbar {
@@ -207,7 +257,7 @@
   height: 100%;
   width: 100%;
   border-radius: 1em;
-  background: linear-gradient(90deg, #85d2dd 8.08%, #579dda 96.15%);
+  background: linear-gradient(90deg, #adf4a6, #80d7f5, #9990d5);
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
   transition-duration: 1000ms;
 }
@@ -220,44 +270,131 @@
   padding-bottom: 4em;
 }
 .kima-card .kima-card-content .kima-progressbar .step-indicators .step {
-  width: 1.4em;
-  height: 1.4em;
-  margin-top: -0.2em;
+  width: 3em;
+  height: 3em;
+  margin-top: -1em;
   position: relative;
+  border-radius: 40px;
 }
-.kima-card .kima-card-content .kima-progressbar .step-indicators .step:before {
-  content: "";
-  border-radius: 100%;
+@media (max-width: 768px) {
+  .kima-card .kima-card-content .kima-progressbar .step-indicators .step {
+    width: 2em;
+    height: 2em;
+    margin-top: -0.5em;
+  }
+}
+.kima-card .kima-card-content .kima-progressbar .step-indicators .step svg {
   position: absolute;
-  left: 0.3em;
-  top: 0.3em;
-  width: 0.8em;
-  height: 0.8em;
-  background: white;
-  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.15);
-  box-sizing: content-box;
 }
-.kima-card .kima-card-content .kima-progressbar .step-indicators .step.active:before {
-  width: 1em;
-  height: 1em;
-  left: 0;
-  top: 0;
-  background: #5aa0db;
-  border: 0.2em solid white;
+.kima-card .kima-card-content .kima-progressbar .step-indicators .step.completed svg, .kima-card .kima-card-content .kima-progressbar .step-indicators .step.active svg {
+  top: -4em;
+  left: 4em;
+  width: 3em;
+  height: 4em;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-content .kima-progressbar .step-indicators .step.completed svg, .kima-card .kima-card-content .kima-progressbar .step-indicators .step.active svg {
+    width: 2em;
+    height: 2em;
+    top: -3em;
+    left: 0.8em;
+  }
+}
+.kima-card .kima-card-content .kima-progressbar .step-indicators .step.completed:first-of-type svg, .kima-card .kima-card-content .kima-progressbar .step-indicators .step.active:first-of-type svg {
+  left: 2em;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-content .kima-progressbar .step-indicators .step.completed:first-of-type svg, .kima-card .kima-card-content .kima-progressbar .step-indicators .step.active:first-of-type svg {
+    left: 0.8em;
+  }
+}
+.kima-card .kima-card-content .kima-progressbar .step-indicators .step.completed:last-of-type svg, .kima-card .kima-card-content .kima-progressbar .step-indicators .step.active:last-of-type svg {
+  left: auto;
+  right: 1em;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-content .kima-progressbar .step-indicators .step.completed:last-of-type svg, .kima-card .kima-card-content .kima-progressbar .step-indicators .step.active:last-of-type svg {
+    right: -0.3em;
+  }
+}
+.kima-card .kima-card-content .kima-progressbar .step-indicators .step.locked svg {
+  top: -3em;
+  left: 4.5em;
+  width: 2em;
+  height: 2em;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-content .kima-progressbar .step-indicators .step.locked svg {
+    top: -2.5em;
+    left: 1.3em;
+    width: 1em;
+    height: 1em;
+  }
+}
+.kima-card .kima-card-content .kima-progressbar .step-indicators .step.locked:first-of-type svg {
+  left: 2.5em;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-content .kima-progressbar .step-indicators .step.locked:first-of-type svg {
+    left: 1.2em;
+  }
+}
+.kima-card .kima-card-content .kima-progressbar .step-indicators .step.locked:last-of-type svg {
+  left: auto;
+  right: 1.5em;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-content .kima-progressbar .step-indicators .step.locked:last-of-type svg {
+    right: 0.2em;
+  }
+}
+.kima-card .kima-card-content .kima-progressbar .step-indicators .step.error svg {
+  top: -2.8em;
+  left: 4.7em;
+  width: 1.5em;
+  height: 1.5em;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-content .kima-progressbar .step-indicators .step.error svg {
+    top: -2.5em;
+    left: 1.3em;
+    width: 1em;
+    height: 1em;
+  }
+}
+.kima-card .kima-card-content .kima-progressbar .step-indicators .step.error:first-of-type svg {
+  left: 2.7em;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-content .kima-progressbar .step-indicators .step.error:first-of-type svg {
+    left: 1.3em;
+  }
+}
+.kima-card .kima-card-content .kima-progressbar .step-indicators .step.error:last-of-type svg {
+  left: auto;
+  right: 1.7em;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-content .kima-progressbar .step-indicators .step.error:last-of-type svg {
+    right: 0.2em;
+  }
+}
+.kima-card .kima-card-content .kima-progressbar .step-indicators .step.light {
+  background-color: white;
+}
+.kima-card .kima-card-content .kima-progressbar .step-indicators .step.dark {
+  background-color: #4A5068;
 }
 .kima-card .kima-card-content .kima-progressbar .step-indicators .step .step-info {
   position: absolute;
   width: 10em;
   left: -4em;
-  top: 2em;
+  top: 3.5em;
   display: flex;
   justify-content: center;
   align-items: center;
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
-}
-.kima-card .kima-card-content .kima-progressbar .step-indicators .step .step-info > svg {
-  width: 1em;
-  height: 1em;
+  font-weight: 300;
 }
 .kima-card .kima-card-content .kima-progressbar .step-indicators .step .step-info span {
   text-align: center;
@@ -270,6 +407,7 @@
     flex-direction: column;
     position: relative;
     margin-left: -0.3em;
+    top: 3em;
   }
   .kima-card .kima-card-content .kima-progressbar .step-indicators .step .step-info span {
     font-size: 0.66em;
@@ -277,14 +415,7 @@
     overflow: hidden;
     white-space: nowrap;
     margin-left: 0;
-    margin-top: 1em;
     width: 100%;
-  }
-  .kima-card .kima-card-content .kima-progressbar .step-indicators .step .step-info svg {
-    position: absolute;
-    top: 0;
-    width: 0.8em;
-    height: 0.8em;
   }
   .kima-card .kima-card-content .kima-progressbar .step-indicators .step .step-info:hover {
     align-items: center;
@@ -298,18 +429,35 @@
   }
 }
 .kima-card .kima-card-content .kima-progressbar .step-indicators .step:first-of-type .step-info {
-  left: 0;
+  left: -2em;
   justify-content: flex-start;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-content .kima-progressbar .step-indicators .step:first-of-type .step-info {
+    left: -0.5em;
+  }
+  .kima-card .kima-card-content .kima-progressbar .step-indicators .step:first-of-type .step-info > span {
+    margin: 0 !important;
+  }
+}
+.kima-card .kima-card-content .kima-progressbar .step-indicators .step:first-of-type .step-info > span {
+  margin-left: 1.5em;
 }
 .kima-card .kima-card-content .kima-progressbar .step-indicators .step:last-of-type .step-info {
   left: unset;
-  right: 0;
+  right: -1em;
   justify-content: flex-end;
 }
 @media (max-width: 768px) {
   .kima-card .kima-card-content .kima-progressbar .step-indicators .step:last-of-type .step-info {
     right: 1em;
   }
+  .kima-card .kima-card-content .kima-progressbar .step-indicators .step:last-of-type .step-info > span {
+    margin: 0 !important;
+  }
+}
+.kima-card .kima-card-content .kima-progressbar .step-indicators .step:last-of-type .step-info > span {
+  margin-right: 1em;
 }
 .kima-card .kima-card-content .kima-tooltip {
   padding-top: 2em;
@@ -1303,10 +1451,16 @@
   border-radius: 1em;
   padding: 1.5em 2em;
 }
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .kima-stepbox .content-wrapper {
+    flex: 1;
+  }
+}
 .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item {
   display: flex;
   align-items: center;
   margin: 0.3em 0;
+  justify-content: space-between;
 }
 .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item {
   position: relative;
@@ -1326,9 +1480,10 @@
 }
 .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item:first-of-type svg {
   position: absolute;
-  margin-top: 0.3em;
-  width: 1em;
-  height: 1em;
+  margin-top: -0.3em;
+  width: 2em;
+  height: 2em;
+  left: -0.3em;
 }
 .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item:not(:first-of-type) p {
   margin: 0;
@@ -1345,15 +1500,24 @@
   opacity: 0.7;
 }
 .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item:not(:first-of-type) p .copy-btn svg {
-  width: 1em;
-  height: 1em;
+  width: 1.5em;
+  height: 1.5em;
   margin-left: 0.5em;
 }
+.kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item.locked svg {
+  position: absolute;
+  margin-top: -0.1em;
+  width: 1.2em;
+  height: 1.2em;
+  left: 0;
+}
+.kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item.active svg {
+  margin-top: -0.6em;
+  width: 2.5em;
+  height: 2.5em;
+  left: -0.6em;
+}
 @media (max-width: 768px) {
-  .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item {
-    flex-direction: column;
-    align-items: flex-start;
-  }
   .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item:first-of-type {
     padding-left: 0;
   }
@@ -1898,6 +2062,35 @@
   opacity: 0;
   max-height: 0;
   pointer-events: none;
+}
+.kima-card a:link {
+  color: inherit;
+  background-color: transparent;
+  text-decoration: none;
+}
+.kima-card a:visited {
+  color: #86B8CE;
+  background-color: transparent;
+  text-decoration: none;
+}
+.kima-card a:hover {
+  color: #86B8CE;
+  background-color: transparent;
+  text-decoration: underline;
+}
+.kima-card a:active {
+  color: #4A5068;
+  background-color: transparent;
+  text-decoration: underline;
+}
+.kima-card .loader {
+  transform-origin: center;
+  animation: spin 2s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 .kima-card input::-webkit-outer-spin-button,
 .kima-card input::-webkit-inner-spin-button {
