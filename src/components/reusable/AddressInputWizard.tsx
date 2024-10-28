@@ -12,7 +12,7 @@ const AddressInputWizard = () => {
 
       <div className={`address-input ${theme.colorMode}`}>
         <span>Target Address:</span>
-        <AddressInput />
+        <AddressInput theme={theme.colorMode as string} placeholder='Target address'/>
       </div>
     </div>
   )
