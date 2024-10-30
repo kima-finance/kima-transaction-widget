@@ -882,7 +882,7 @@ export const TransferWidget = ({
               <div className='menu-button'>I need help</div>
             </ExternalLink>
             <button
-              className='icon-button'
+              className='cross-icon-button'
               onClick={() => {
                 if (isApproving || isSubmitting || isSigning) return
                 dispatch(initialize())
@@ -938,7 +938,7 @@ export const TransferWidget = ({
         )}
       </div>
 
-      <div className={`kima-card-footer ${mode}`}>
+      <div className={`kima-card-footer ${mode === ModeOptions.bridge && formStep === 0 && 'bridge'}`}>
         <div className='button-group'>
           {/* <SecondaryButton
             clickHandler={() => {

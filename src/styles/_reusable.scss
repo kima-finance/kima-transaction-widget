@@ -3,7 +3,7 @@
     .kima-progressbar {
       height: 7px;
       width: 95%;
-      max-width: 900px;
+      max-width: 930px;
       position: relative;
       border-radius: 16px;
       margin-bottom: 64px;
@@ -11,7 +11,7 @@
 
       @include breakpoint(mobile) {
         width: 7px;
-        height: 95%;
+        height: 320px;
         max-height: 560px;
       }
 
@@ -519,8 +519,8 @@
 
     .single-form {
       font-family: 'Manrope';
-      font-size: 14px;
-      font-weight: 700;
+      font-size: 16px;
+      font-weight: 500;
       letter-spacing: 0.5px;
 
       @include breakpoint(phablet) {
@@ -540,12 +540,18 @@
         }
 
         > span {
-          font-size: 14px;
           width: 140px;
+          margin-right: 100px;
+
+          @include breakpoint(phablet){
+            margin-right: 20px;
+          }
 
           @include breakpoint(mobile) {
+            margin-right: 0;
             margin-bottom: auto;
           }
+
         }
 
         .items {
@@ -661,7 +667,6 @@
             display: flex;
             align-items: center;
             border-radius: 1em;
-            font-size: 1em;
             font-weight: 500;
             padding: 0.2em;
             padding-right: 0.5em;
@@ -686,7 +691,6 @@
           width: 85px;
           padding: 15px 35px;
           box-sizing: content-box;
-          font-size: 14px;
 
           ::placeholder {
             color: $finance;
@@ -744,7 +748,7 @@
 
       .coin-dropdown {
         position: relative;
-        width: 80px;
+        width: 90px;
         border-radius: 50px;
         border: 0.5px solid $financeIcon;
         padding-left: 12px;
@@ -760,8 +764,6 @@
           display: flex;
           align-items: center;
           border-radius: 12px;
-          font-size: 12px;
-          font-weight: 500;
           padding: 2.5px;
           padding-right: 6px;
 
@@ -817,7 +819,6 @@
             margin: 2.5px 12px;
             padding: 2.5px 12px;
             border-radius: 20px;
-            width: 70px;
             max-width: 240px;
             @include transition;
             display: flex;
@@ -829,7 +830,6 @@
               width: 100%;
               text-align: center;
               margin: 0;
-              font-size: 12px;
             }
 
             &.light:hover {
@@ -1015,8 +1015,6 @@
           justify-content: start;
           align-items: center;
           border-radius: 15px;
-          font-size: 14px;
-          font-weight: 700;
           padding: 3px;
           padding-right: 7px;
           color: black;
@@ -1093,7 +1091,6 @@
               margin-left: 20px;
               margin-top: 0;
               margin-bottom: 0;
-              font-size: 14px;
             }
 
             &.light:hover {
@@ -1162,10 +1159,9 @@
     .wallet-button {
       display: flex;
       align-items: center;
-      width: 270px;
 
-      @include breakpoint('max-width: 586px') {
-        width: 220px;
+      @include breakpoint(phablet) {
+        width: 430px;
       }
 
       @include breakpoint(phablet) {
@@ -1175,10 +1171,6 @@
         .balance-info {
           margin-left: auto;
         }
-      }
-
-      &.connected {
-        width: 430px;
       }
 
       button {
@@ -1399,7 +1391,8 @@
         p {
           margin: 0;
           border-radius: 50px;
-          padding: 1em 1.5em;
+          padding: 16px 24px;
+          text-align: center;
 
           &.light {
             background-color: $financeLighter;
@@ -1427,7 +1420,7 @@
           }
         }
 
-        .kima-card-network-container{
+        .kima-card-network-container {
           width: 210px;
         }
 
@@ -1461,7 +1454,8 @@
           display: flex;
           flex-direction: row;
           align-items: center;
-          word-spacing: 2px;
+          width: 100%;
+          justify-content: center;
 
           svg {
             margin-right: 6px;
@@ -1488,10 +1482,14 @@
     }
 
     .kima-custom-checkbox {
-      margin-left: 11.5em;
-      margin-top: 1em;
+      margin-left: 240px;
+      margin-top: 16px;
       display: flex;
       align-items: center;
+
+      @include breakpoint(phablet) {
+        margin-left: 160px;
+      }
 
       @include breakpoint(mobile) {
         justify-content: end;
@@ -1551,7 +1549,7 @@
         }
 
         @include breakpoint('min-width: 500px') {
-          width: 400px;
+          min-width: 420px;
         }
 
         @include breakpoint(mobile) {
@@ -1803,7 +1801,7 @@
     background: black;
     border-radius: 30px;
     width: fit-content;
-    height: 50px;
+    height: 45px;
     padding: 13px 27px;
     cursor: pointer;
     color: white;

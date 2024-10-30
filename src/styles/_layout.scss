@@ -25,7 +25,11 @@
 
         h3 {
           margin: 0;
-          font-size: $fontLarge;
+          font-size: 32px;
+
+          @include breakpoint(phablet) {
+            font-size: 24px;
+          }
         }
 
         span {
@@ -84,13 +88,40 @@
           }
 
           svg {
-            width: 22px;
+            width: 30px;
             height: 22px;
             padding: 5px;
           }
 
           &:first-of-type svg {
             margin-top: 7px;
+          }
+        }
+
+        .cross-icon-button{
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: 4px;
+          width: 60px;
+          height: 60px;
+          border-radius: 9999px;
+          background: transparent;
+          cursor: pointer;
+          border: 1px solid $financeGrey;
+
+          svg {
+            width: 24px;
+            height: 24px;
+          }
+
+          &:hover,
+          &:disabled {
+            opacity: 0.6;
+          }
+
+          &:disabled {
+            cursor: default;
           }
         }
 
@@ -141,7 +172,8 @@
     h4 {
       font-weight: 300;
       font-size: 14px;
-      margin: none !important;
+      margin-top: 20px;
+      margin-bottom: 30px;
     }
 
     .kima-card-network-label {
@@ -150,7 +182,6 @@
       // width: 190px;
       border-radius: 50px;
       margin-right: 12px;
-      font-size: 14px;
 
       .icon {
         border-radius: 9999px;
@@ -161,8 +192,7 @@
       }
 
       @include breakpoint(mobile) {
-        width: 100px;
-        font-size: 12px;
+        font-size: 14px;
       }
 
       &.light {
@@ -228,6 +258,8 @@
     }
 
     @include breakpoint(phablet) {
+      margin-top: 40px;
+
       p {
         display: none;
       }
@@ -238,7 +270,7 @@
       max-height: unset;
 
       &.bridge {
-        margin-top: 100px;
+        margin-top: 170px;
       }
 
       .button-group {
@@ -254,11 +286,11 @@
     pointer-events: none;
     font-family: 'Manrope';
 
-    @include breakpoint(phablet){
+    @include breakpoint(phablet) {
       right: 31%;
     }
 
-    @include breakpoint(mobile){
+    @include breakpoint(mobile) {
       right: 24%;
     }
 

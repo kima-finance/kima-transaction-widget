@@ -269,7 +269,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                 </button>
                 {loadingStep < 0 ? (
                   <button
-                    className='icon-button'
+                    className='cross-icon-button'
                     onClick={() => {
                       dispatch(initialize())
                       closeHandler()

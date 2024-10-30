@@ -2,16 +2,16 @@
 @import 'react-tooltip/dist/react-tooltip.css';
 @font-face {
   font-family: "Manrope";
-  src: url("../src/assets/fonts/Manrope-ExtraLight.eot");
-  src: url("../src/assets/fonts/Manrope-ExtraLight.eot?#iefix") format("embedded-opentype"), url("../src/assets/fonts/Manrope-ExtraLight.woff2") format("woff2"), url("../src/assets/fonts/Manrope-ExtraLight.woff") format("woff");
+  src: url("/assets/fonts/Manrope-ExtraLight.eot");
+  src: url("/assets/fonts/Manrope-ExtraLight.eot?#iefix") format("embedded-opentype"), url("/assets/fonts/Manrope-ExtraLight.woff2") format("woff2"), url("/assets/fonts/Manrope-ExtraLight.woff") format("woff");
   font-weight: 200;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Sohne";
-  src: url("../src/assets/fonts/SohneBreit-Buch.eot");
-  src: url("../src/assets/fonts/SohneBreit-Buch.eot?#iefix") format("embedded-opentype"), url("../src/assets/fonts/SohneBreit-Buch.woff2") format("woff2"), url("../src/assets/fonts/SohneBreit-Buch.woff") format("woff"), url("../src/assets/fonts/SohneBreit-Buch.ttf") format("truetype");
+  src: url("/assets/fonts/SohneBreit-Buch.eot");
+  src: url("/assets/fonts/SohneBreit-Buch.eot?#iefix") format("embedded-opentype"), url("/assets/fonts/SohneBreit-Buch.woff2") format("woff2"), url("/assets/fonts/SohneBreit-Buch.woff") format("woff"), url("/assets/fonts/SohneBreit-Buch.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -43,7 +43,12 @@
 }
 .kima-card .kima-card-header .topbar .title h3 {
   margin: 0;
-  font-size: 24px;
+  font-size: 32px;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-header .topbar .title h3 {
+    font-size: 24px;
+  }
 }
 .kima-card .kima-card-header .topbar .title span {
   color: #5aa0db;
@@ -85,12 +90,34 @@
   cursor: default;
 }
 .kima-card .kima-card-header .topbar .control-buttons .icon-button svg {
-  width: 22px;
+  width: 30px;
   height: 22px;
   padding: 5px;
 }
 .kima-card .kima-card-header .topbar .control-buttons .icon-button:first-of-type svg {
   margin-top: 7px;
+}
+.kima-card .kima-card-header .topbar .control-buttons .cross-icon-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4px;
+  width: 60px;
+  height: 60px;
+  border-radius: 9999px;
+  background: transparent;
+  cursor: pointer;
+  border: 1px solid rgba(119, 141, 163, 0.3019607843);
+}
+.kima-card .kima-card-header .topbar .control-buttons .cross-icon-button svg {
+  width: 24px;
+  height: 24px;
+}
+.kima-card .kima-card-header .topbar .control-buttons .cross-icon-button:hover, .kima-card .kima-card-header .topbar .control-buttons .cross-icon-button:disabled {
+  opacity: 0.6;
+}
+.kima-card .kima-card-header .topbar .control-buttons .cross-icon-button:disabled {
+  cursor: default;
 }
 .kima-card .kima-card-header .topbar .control-buttons a {
   margin-left: auto;
@@ -132,14 +159,14 @@
 .kima-card .kima-card-header h4 {
   font-weight: 300;
   font-size: 14px;
-  margin: none !important;
+  margin-top: 20px;
+  margin-bottom: 30px;
 }
 .kima-card .kima-card-header .kima-card-network-label {
   display: flex;
   padding: 13px 18px;
   border-radius: 50px;
   margin-right: 12px;
-  font-size: 14px;
 }
 .kima-card .kima-card-header .kima-card-network-label .icon {
   border-radius: 9999px;
@@ -150,8 +177,7 @@
 }
 @media (max-width: 500px) {
   .kima-card .kima-card-header .kima-card-network-label {
-    width: 100px;
-    font-size: 12px;
+    font-size: 14px;
   }
 }
 .kima-card .kima-card-header .kima-card-network-label.light {
@@ -206,6 +232,9 @@
   margin-left: 1em;
 }
 @media (max-width: 768px) {
+  .kima-card .kima-card-footer {
+    margin-top: 40px;
+  }
   .kima-card .kima-card-footer p {
     display: none;
   }
@@ -216,7 +245,7 @@
     max-height: unset;
   }
   .kima-card .kima-card-footer.bridge {
-    margin-top: 100px;
+    margin-top: 170px;
   }
   .kima-card .kima-card-footer .button-group {
     margin-left: unset;
@@ -272,7 +301,7 @@
 .kima-card .kima-card-content .kima-progressbar {
   height: 7px;
   width: 95%;
-  max-width: 900px;
+  max-width: 930px;
   position: relative;
   border-radius: 16px;
   margin-bottom: 64px;
@@ -281,7 +310,7 @@
 @media (max-width: 500px) {
   .kima-card .kima-card-content .kima-progressbar {
     width: 7px;
-    height: 95%;
+    height: 320px;
     max-height: 560px;
   }
 }
@@ -733,8 +762,8 @@
 }
 .kima-card .kima-card-content .single-form {
   font-family: "Manrope";
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 500;
   letter-spacing: 0.5px;
 }
 @media (max-width: 768px) {
@@ -753,11 +782,17 @@
   margin-top: 16px;
 }
 .kima-card .kima-card-content .single-form .form-item > span {
-  font-size: 14px;
   width: 140px;
+  margin-right: 100px;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-content .single-form .form-item > span {
+    margin-right: 20px;
+  }
 }
 @media (max-width: 500px) {
   .kima-card .kima-card-content .single-form .form-item > span {
+    margin-right: 0;
     margin-bottom: auto;
   }
 }
@@ -857,7 +892,6 @@
   display: flex;
   align-items: center;
   border-radius: 1em;
-  font-size: 1em;
   font-weight: 500;
   padding: 0.2em;
   padding-right: 0.5em;
@@ -878,7 +912,6 @@
   width: 85px;
   padding: 15px 35px;
   box-sizing: content-box;
-  font-size: 14px;
 }
 .kima-card .kima-card-content .single-form .form-item input ::placeholder {
   color: #778da3;
@@ -928,7 +961,7 @@
 }
 .kima-card .kima-card-content .single-form .coin-dropdown {
   position: relative;
-  width: 80px;
+  width: 90px;
   border-radius: 50px;
   border: 0.5px solid #86b8ce;
   padding-left: 12px;
@@ -944,8 +977,6 @@
   display: flex;
   align-items: center;
   border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
   padding: 2.5px;
   padding-right: 6px;
 }
@@ -994,7 +1025,6 @@
   margin: 2.5px 12px;
   padding: 2.5px 12px;
   border-radius: 20px;
-  width: 70px;
   max-width: 240px;
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
   display: flex;
@@ -1006,7 +1036,6 @@
   width: 100%;
   text-align: center;
   margin: 0;
-  font-size: 12px;
 }
 .kima-card .kima-card-content .single-form .coin-dropdown .coin-menu .coin-item.light:hover {
   background: #d6e4ea;
@@ -1156,8 +1185,6 @@
   justify-content: start;
   align-items: center;
   border-radius: 15px;
-  font-size: 14px;
-  font-weight: 700;
   padding: 3px;
   padding-right: 7px;
   color: black;
@@ -1226,7 +1253,6 @@
   margin-left: 20px;
   margin-top: 0;
   margin-bottom: 0;
-  font-size: 14px;
 }
 .kima-card .kima-card-content .single-form .network-dropdown .network-menu-item.light:hover {
   background: #d6e4ea;
@@ -1275,11 +1301,10 @@
 .kima-card .kima-card-content .wallet-button {
   display: flex;
   align-items: center;
-  width: 270px;
 }
-@media (max-width: 586px) {
+@media (max-width: 768px) {
   .kima-card .kima-card-content .wallet-button {
-    width: 220px;
+    width: 430px;
   }
 }
 @media (max-width: 768px) {
@@ -1290,9 +1315,6 @@
   .kima-card .kima-card-content .wallet-button .balance-info {
     margin-left: auto;
   }
-}
-.kima-card .kima-card-content .wallet-button.connected {
-  width: 430px;
 }
 .kima-card .kima-card-content .wallet-button button {
   cursor: pointer;
@@ -1488,7 +1510,8 @@
 .kima-card .kima-card-content .confirm-details .detail-item p {
   margin: 0;
   border-radius: 50px;
-  padding: 1em 1.5em;
+  padding: 16px 24px;
+  text-align: center;
 }
 .kima-card .kima-card-content .confirm-details .detail-item p.light {
   background-color: #edf2f5;
@@ -1541,7 +1564,8 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  word-spacing: 2px;
+  width: 100%;
+  justify-content: center;
 }
 .kima-card .kima-card-content .confirm-details .detail-item .amount-container svg {
   margin-right: 6px;
@@ -1566,10 +1590,15 @@
   }
 }
 .kima-card .kima-card-content .kima-custom-checkbox {
-  margin-left: 11.5em;
-  margin-top: 1em;
+  margin-left: 240px;
+  margin-top: 16px;
   display: flex;
   align-items: center;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-content .kima-custom-checkbox {
+    margin-left: 160px;
+  }
 }
 @media (max-width: 500px) {
   .kima-card .kima-card-content .kima-custom-checkbox {
@@ -1623,7 +1652,7 @@
 }
 @media (min-width: 500px) {
   .kima-card .kima-card-content .kima-stepbox .content-wrapper {
-    width: 400px;
+    min-width: 420px;
   }
 }
 @media (max-width: 500px) {
@@ -1830,7 +1859,7 @@
   background: black;
   border-radius: 30px;
   width: fit-content;
-  height: 50px;
+  height: 45px;
   padding: 13px 27px;
   cursor: pointer;
   color: white;
@@ -2182,16 +2211,16 @@
 
 @font-face {
   font-family: "Manrope";
-  src: url("../src/assets/fonts/Manrope-ExtraLight.eot");
-  src: url("../src/assets/fonts/Manrope-ExtraLight.eot?#iefix") format("embedded-opentype"), url("../src/assets/fonts/Manrope-ExtraLight.woff2") format("woff2"), url("../src/assets/fonts/Manrope-ExtraLight.woff") format("woff");
+  src: url("/assets/fonts/Manrope-ExtraLight.eot");
+  src: url("/assets/fonts/Manrope-ExtraLight.eot?#iefix") format("embedded-opentype"), url("/assets/fonts/Manrope-ExtraLight.woff2") format("woff2"), url("/assets/fonts/Manrope-ExtraLight.woff") format("woff");
   font-weight: 200;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Sohne";
-  src: url("../src/assets/fonts/SohneBreit-Buch.eot");
-  src: url("../src/assets/fonts/SohneBreit-Buch.eot?#iefix") format("embedded-opentype"), url("../src/assets/fonts/SohneBreit-Buch.woff2") format("woff2"), url("../src/assets/fonts/SohneBreit-Buch.woff") format("woff"), url("../src/assets/fonts/SohneBreit-Buch.ttf") format("truetype");
+  src: url("/assets/fonts/SohneBreit-Buch.eot");
+  src: url("/assets/fonts/SohneBreit-Buch.eot?#iefix") format("embedded-opentype"), url("/assets/fonts/SohneBreit-Buch.woff2") format("woff2"), url("/assets/fonts/SohneBreit-Buch.woff") format("woff"), url("/assets/fonts/SohneBreit-Buch.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
