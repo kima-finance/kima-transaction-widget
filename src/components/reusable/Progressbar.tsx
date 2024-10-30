@@ -35,12 +35,15 @@ const Progressbar = ({ step, errorStep, setFocus, loadingStep }: Props) => {
   return (
     <div className='kima-progressbar'>
       <div
-        className='value'
-        style={{
-          width: `calc(${(step * 100) / 4}% + ${
-            step > 0 && step < 3 ? 0.5 : 0
-          }em)`
-        }}
+        className={`value step-${step*100 / 4}`}
+        // style={{
+        //   width: `calc(${(step * 100) / 4}% + ${
+        //     step > 0 && step < 3 ? 0.5 : 0
+        //   }em)`,
+        //   height: `calc(${(step * 100) / 4}% + ${
+        //     step > 0 && step < 3 ? 0.5 : 0
+        //   }em)`
+        // }}
       />
       <div className='step-indicators'>
         {stepInfo.map((item, index) => (

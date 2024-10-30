@@ -53,7 +53,7 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
 
   return (
     <div className='kima-stepbox'>
-      <div className='content-wrapper'>
+      <div className={`content-wrapper ${theme.colorMode}`}>
         {stepInfo.map((item, index) => (
           <div key={item.title} className='step-item'>
             <div
@@ -75,9 +75,9 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
               <p>{item.title}</p>
             </div>
             {index === 0 && data?.kimaTxHash ? (
-              <div className='info-item'>
+              <div className={`info-item ${theme.colorMode}`}>
+                <p>Kima TX ID: </p>
                 <p>
-                  Kima TX ID:{' '}
                   <ExternalLink
                     to={`${explorerUrl}/transactions/${data?.kimaTxHash}`}
                   >
@@ -88,7 +88,7 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
               </div>
             ) : null}
             {index === 1 && data?.tssPullHash ? (
-              <div className='info-item'>
+              <div className={`info-item ${theme.colorMode}`}>
                 <p>
                   {
                     CHAIN_NAMES_TO_STRING[
@@ -96,6 +96,8 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                     ]
                   }{' '}
                   TX ID:
+                </p>
+                <p>
                   <ExternalLink
                     to={`https://${
                       CHAIN_NAMES_TO_EXPLORER[
@@ -115,7 +117,7 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
               </div>
             ) : null}
             {index === 3 && data?.tssReleaseHash ? (
-              <div className='info-item'>
+              <div className={`info-item ${theme.colorMode}`}>
                 <p>
                   {
                     CHAIN_NAMES_TO_STRING[
@@ -123,6 +125,8 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                     ]
                   }{' '}
                   TX ID:
+                </p>
+                <p>
                   <ExternalLink
                     to={`https://${
                       CHAIN_NAMES_TO_EXPLORER[

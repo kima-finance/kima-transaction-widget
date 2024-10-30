@@ -22,6 +22,7 @@ import NetworkDropdown from './NetworkDropdown'
 import { COIN_LIST, ChainName } from '../../utils/constants'
 import { formatterFloat } from '../../helpers/functions'
 import ExpireTimeDropdown from './ExpireTimeDropdown'
+import useIsWalletReady from '../../hooks/useIsWalletReady'
 
 const SingleForm = ({}) => {
   const dispatch = useDispatch()
@@ -34,6 +35,7 @@ const SingleForm = ({}) => {
   const transactionOption = useSelector(selectTransactionOption)
   const sourceNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
+  const { isReady } = useIsWalletReady()
   const [amountValue, setAmountValue] = useState('')
   const amount = useSelector(selectAmount)
   const targetCurrency = useSelector(selectTargetCurrency)
@@ -73,7 +75,9 @@ const SingleForm = ({}) => {
           sourceNetwork === ChainName.FIAT ? 'reverse' : ''
         }`}
       >
-        <div className='form-item wallet-button-item'>
+        <div
+          className={`form-item wallet-button-item ${isReady && 'connected'}`}
+        >
           <span className='label'>Connect wallet:</span>
           <WalletButton />
         </div>

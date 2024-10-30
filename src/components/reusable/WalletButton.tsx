@@ -65,7 +65,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
 
   return (
     <div
-      className={`wallet-button ${theme.colorMode} ${
+      className={`wallet-button ${isReady ? 'connected' : 'disconnected'} ${theme.colorMode} ${
         errorBelow ? 'error-below' : ''
       }`}
       data-testid={connectWalletBtn}
@@ -76,7 +76,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
       >
         {isReady && `${getShortenedAddress(walletAddress || '')}`}
         {!isReady && <WalletIcon />}
-        {!isReady && "Connect Wallet"}
+        {!isReady && 'Connect Wallet'}
       </button>
 
       {isReady ? (

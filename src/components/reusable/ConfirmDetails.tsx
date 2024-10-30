@@ -94,7 +94,9 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
           <div className='detail-item'>
             <span className='label'>IBAN:</span>
             <span className={`kima-card-network-label ${theme.colorMode}`}>
-              <originNetworkOption.icon />
+              <div className='icon'>
+                <originNetworkOption.icon />
+              </div>
               FIAT
             </span>
             <p>ES6621000418401234567891</p>
@@ -115,21 +117,27 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
       ) : (
         <div className='detail-item'>
           <span className='label'>Source wallet:</span>
-          <span className={`kima-card-network-label ${theme.colorMode}`}>
-            <originNetworkOption.icon />
-            {originNetworkOption.label}
-          </span>
-          <p className={theme.colorMode}>
-            {dAppOption === DAppOptions.LPDrain
-              ? targetWalletAddress
-              : sourceWalletAddress}
-          </p>
+          <div className='network-details'>
+            <div className='kima-card-network-container'>
+              <span className={`kima-card-network-label ${theme.colorMode}`}>
+                <div className='icon'>
+                  <originNetworkOption.icon />
+                </div>
+                {originNetworkOption.label}
+              </span>
+            </div>
+            <p className={theme.colorMode}>
+              {dAppOption === DAppOptions.LPDrain
+                ? targetWalletAddress
+                : sourceWalletAddress}
+            </p>
+          </div>
         </div>
       )}
       <div className='detail-item'>
         <span className='label'>Amount:</span>
-        <span>
-          <SourceCoinIcon /> {"   "}
+        <span className='amount-container'>
+          <SourceCoinIcon /> {'   '}
           {amountToShow} {sourceCurrency} → <TargetCoinIcon />
           {targetCurrency}
         </span>
@@ -140,7 +148,9 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
             <span className='label'>IBAN:</span>
             <p>{bankDetails.iban}</p>
             <span className={`kima-card-network-label ${theme.colorMode}`}>
-              <targetNetworkOption.icon />
+              <div className='icon'>
+                <targetNetworkOption.icon />
+              </div>
               FIAT
             </span>
           </div>
@@ -152,15 +162,21 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
       ) : (
         <div className='detail-item'>
           <span className='label'>Target wallet:</span>
-          <span className={`kima-card-network-label ${theme.colorMode}`}>
-            <targetNetworkOption.icon />
-            {targetNetworkOption.label}
-          </span>
-          <p className={theme.colorMode}>
-            {dAppOption === DAppOptions.LPDrain
-              ? sourceWalletAddress
-              : targetWalletAddress}
-          </p>
+          <div className='network-details'>
+            <div className='kima-card-network-container'>
+              <span className={`kima-card-network-label ${theme.colorMode}`}>
+                <div className='icon'>
+                  <targetNetworkOption.icon />
+                </div>
+                {targetNetworkOption.label}
+              </span>
+            </div>
+            <p className={theme.colorMode}>
+              {dAppOption === DAppOptions.LPDrain
+                ? sourceWalletAddress
+                : targetWalletAddress}
+            </p>
+          </div>
         </div>
       )}
     </div>

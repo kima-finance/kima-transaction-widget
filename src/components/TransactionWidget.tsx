@@ -213,7 +213,9 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setErrorStep(3)
       setLoadingStep(-1)
       console.log(data.failReason)
-      toast.error('Failed to release tokens to target!', { icon: <ErrorIcon /> })
+      toast.error('Failed to release tokens to target!', {
+        icon: <ErrorIcon />
+      })
       setErrorMessage('Failed to release tokens to target!')
     } else if (status === TransactionStatus.FAILEDTOPULL) {
       setStep(1)
@@ -291,7 +293,6 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
             <NetworkLabel
               sourceChain={data?.sourceChain}
               targetChain={data?.targetChain}
-              hasError={errorStep >= 0}
             />
           )}
         </div>
@@ -345,10 +346,12 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
             }
           }}
         />
-        <div className={`floating-footer ${theme.colorMode}`}>
-          <span>Powered by</span>
-          <FooterLogo fill='black' />
-          <strong>Network</strong>
+        <div className='floating-footer'>
+          <div className={`items ${theme.colorMode}`}>
+            <span>Powered by</span>
+            <FooterLogo fill='black' />
+            <strong>Network</strong>
+          </div>
         </div>
         {/* <Tooltip
           id='error-tooltip'

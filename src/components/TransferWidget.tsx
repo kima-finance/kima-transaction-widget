@@ -692,10 +692,7 @@ export const TransferWidget = ({
           }
         }
         if (+amount <= 0) {
-          toast.error(
-            'Invalid amount!',
-            { icon: <ErrorIcon /> }
-          )
+          toast.error('Invalid amount!', { icon: <ErrorIcon /> })
           errorHandler('Invalid amount!')
           return
         }
@@ -941,7 +938,7 @@ export const TransferWidget = ({
         )}
       </div>
 
-      <div className='kima-card-footer'>
+      <div className={`kima-card-footer ${mode}`}>
         <div className='button-group'>
           {/* <SecondaryButton
             clickHandler={() => {
@@ -1022,10 +1019,12 @@ export const TransferWidget = ({
         handleHtlcContinue={handleHtlcContinue}
         handleHtlcReclaim={handleHtlcReclaim}
       />
-      <div className={`floating-footer ${theme.colorMode}`}>
-        <span>Powered by</span>
-        <FooterLogo fill='black' />
-        <strong>Network</strong>
+      <div className='floating-footer'>
+        <div className={`items ${theme.colorMode}`}>
+          <span>Powered by</span>
+          <FooterLogo fill='black' />
+          <strong>Network</strong>
+        </div>
       </div>
 
       {/* <Tooltip

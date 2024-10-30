@@ -1,16 +1,18 @@
 .kima-card {
   .kima-card-content {
     .kima-progressbar {
-      height: 1em;
+      height: 7px;
       width: 95%;
       max-width: 900px;
       position: relative;
-      border-radius: 1em;
-      margin-bottom: 4em;
-      margin-left: 1em;
+      border-radius: 16px;
+      margin-bottom: 64px;
+      margin-left: 16px;
 
-      @include breakpoint(phablet) {
-        font-size: 1.5em;
+      @include breakpoint(mobile) {
+        width: 7px;
+        height: 95%;
+        max-height: 560px;
       }
 
       .value {
@@ -18,31 +20,80 @@
         z-index: 10;
         height: 100%;
         width: 100%;
-        border-radius: 1em;
+        border-radius: 16px;
         background: linear-gradient(90deg, #adf4a6, #80d7f5, #9990d5);
         @include transition;
         transition-duration: 1000ms;
+
+        &.step-25 {
+          width: calc(25% + 0.5em);
+        }
+
+        &.step-50 {
+          width: calc(50% + 0.5em);
+        }
+
+        &.step-75 {
+          width: calc(75% + 0.5em);
+        }
+
+        &.step-100 {
+          width: calc(100%);
+        }
+
+        @include breakpoint(mobile) {
+          background: linear-gradient(180deg, #adf4a6, #80d7f5, #9990d5);
+          width: 7px !important;
+          &.step-25 {
+            height: calc(25% + 0.5em);
+          }
+
+          &.step-50 {
+            height: calc(50% + 0.5em);
+          }
+
+          &.step-75 {
+            height: calc(75% + 0.5em);
+          }
+
+          &.step-100 {
+            height: calc(100%);
+          }
+        }
       }
 
       .step-indicators {
         position: relative;
         z-index: 20;
         display: flex;
+        flex-direction: row;
         justify-content: space-between;
-        margin: 0 -0.2em;
-        padding-bottom: 4em;
+        margin: 0 -3.2px;
+        padding-bottom: 64px;
+
+        @include breakpoint(mobile) {
+          flex-direction: column;
+          gap: 40px;
+        }
 
         .step {
-          width: 3em;
-          height: 3em;
-          margin-top: -1em;
+          width: 48px;
+          height: 48px;
+          margin-top: -21px;
           position: relative;
           border-radius: 40px;
 
           @include breakpoint(phablet) {
-            width: 2em;
-            height: 2em;
-            margin-top: -0.5em;
+            width: 32px;
+            height: 32px;
+            margin-top: -12px;
+          }
+
+          @include breakpoint(mobile) {
+            width: 48px;
+            height: 48px;
+            margin-top: -10px;
+            margin-left: -17px;
           }
 
           svg {
@@ -51,37 +102,49 @@
 
           &.completed,
           &.active {
+            border: 1px solid $financeIcon;
+
             svg {
-              top: -4em;
-              left: 4em;
-              width: 3em;
-              height: 4em;
+              top: -52px;
+              left: 68px;
+              width: 41px;
+              height: 41px;
 
               @include breakpoint(phablet) {
-                width: 2em;
-                height: 2em;
-                top: -3em;
-                left: 0.8em;
+                width: 32px;
+                height: 32px;
+                top: -45px;
+                left: 40px;
+              }
+
+              @include breakpoint(mobile) {
+                width: 41px;
+                height: 41px;
+                top: -42px;
+                left: 43px;
               }
             }
 
             &:first-of-type {
               svg {
-                left: 2em;
+                left: -41px;
 
                 @include breakpoint(phablet) {
-                  left: 0.8em;
+                  left: 13px;
+                }
+
+                @include breakpoint(mobile) {
+                  left: 16px;
                 }
               }
             }
 
             &:last-of-type {
               svg {
-                left: auto;
-                right: 1em;
+                right: 20px;
 
                 @include breakpoint(phablet) {
-                  right: -0.3em;
+                  right: -5px;
                 }
               }
             }
@@ -89,73 +152,95 @@
 
           &.locked {
             svg {
-              top: -3em;
-              left: 4.5em;
-              width: 2em;
-              height: 2em;
+              top: -48px;
+              left: 72px;
+              width: 32px;
+              height: 32px;
 
               @include breakpoint(phablet) {
-                top: -2.5em;
-                left: 1.3em;
-                width: 1em;
-                height: 1em;
+                top: -40px;
+                left: 46px;
+                width: 20px;
+                height: 20px;
+              }
+
+              @include breakpoint(mobile) {
+                width: 32px;
+                height: 32px;
+                left: 48px;
+                top: -38px;
               }
             }
 
             &:first-of-type {
               svg {
-                left: 2.5em;
+                left: 40px;
 
                 @include breakpoint(phablet) {
-                  left: 1.2em;
+                  left: 19px;
+                }
+
+                @include breakpoint(mobile) {
+                  left: 21px;
                 }
               }
             }
 
             &:last-of-type {
               svg {
-                left: auto;
-                right: 1.5em;
+                right: 24px;
 
                 @include breakpoint(phablet) {
-                  right: 0.2em;
+                  right: 3px;
                 }
               }
             }
           }
 
           &.error {
+            border: 1px solid $financeIcon;
+
             svg {
-              top: -2.8em;
-              left: 4.7em;
-              width: 1.5em;
-              height: 1.5em;
+              top: -45px;
+              left: 75px;
+              width: 24px;
+              height: 24px;
 
               @include breakpoint(phablet) {
-                top: -2.5em;
-                left: 1.3em;
-                width: 1em;
-                height: 1em;
+                top: -38px;
+                left: 47px;
+                width: 16px;
+                height: 16px;
+              }
+
+              @include breakpoint(mobile) {
+                top: -35px;
+                left: 52px;
+                width: 24px;
+                height: 24px;
               }
             }
 
             &:first-of-type {
               svg {
-                left: 2.7em;
+                left: -32px;
 
                 @include breakpoint(phablet) {
-                  left: 1.3em;
+                  left: 20px;
+                }
+
+                @include breakpoint(mobile) {
+                  left: 25px;
                 }
               }
             }
 
             &:last-of-type {
               svg {
-                left: auto;
-                right: 1.7em;
+                right: 60px;
 
                 @include breakpoint(phablet) {
-                  right: 0.2em;
+                  right: 3px;
                 }
               }
             }
@@ -171,37 +256,35 @@
 
           .step-info {
             position: absolute;
-            width: 10em;
-            left: -4em;
-            top: 3.5em;
+            width: 160px;
+            left: -64px;
+            top: 56px;
             display: flex;
             justify-content: center;
             align-items: center;
             @include transition;
             font-weight: 300;
 
-            // &:hover {
-            //   color: $textSecondary;
-            // }
-
             span {
               text-align: center;
-              margin-left: 0.5em;
+              margin-left: 24px;
+              font-size: 14px;
+
+              @include breakpoint(mobile) {
+                position: absolute;
+                top: -30px;
+              }
             }
 
             @include breakpoint(phablet) {
-              width: 3em;
-              left: -0.5em;
+              width: 110px;
+              left: -35px;
               flex-direction: column;
               position: relative;
-              margin-left: -0.3em;
-              top: 3em;
+              margin-left: -5px;
+              top: 45px;
 
               span {
-                font-size: 0.66em;
-                text-overflow: ellipsis;
-                overflow: hidden;
-                white-space: nowrap;
                 margin-left: 0;
                 width: 100%;
               }
@@ -221,37 +304,49 @@
           }
 
           &:first-of-type .step-info {
-            left: -2em;
+            left: 45px;
             justify-content: flex-start;
 
             @include breakpoint(phablet) {
-              left: -0.5em;
-
-              > span {
-                margin: 0 !important;
-              }
+              left: -8px;
             }
 
             > span {
-              margin-left: 1.5em;
+              margin-left: -45px;
+              left: 91px;
+            }
+          }
+
+          &:nth-of-type(even) .step-info {
+            > span {
+              @include breakpoint(mobile) {
+                left: 100px;
+              }
+            }
+          }
+
+          &:nth-of-type(3) .step-info {
+            > span {
+              @include breakpoint(mobile) {
+                left: 83px;
+              }
             }
           }
 
           &:last-of-type .step-info {
-            left: unset;
-            right: -1em;
             justify-content: flex-end;
 
             @include breakpoint(phablet) {
-              right: 1em;
+              right: 77px;
 
               > span {
                 margin: 0 !important;
+                left: 75px;
               }
             }
 
             > span {
-              margin-right: 1em;
+              margin-right: 45px;
             }
           }
         }
@@ -383,21 +478,21 @@
       margin-left: auto;
       box-sizing: content-box;
       position: absolute;
-      width: 0.8em;
-      height: 0.8em;
+      width: 10px;
+      height: 10px;
       @include transition;
 
       &.collapsed {
-        right: 1.1em;
-        top: 1.7em;
+        right: 10px;
+        top: 24px;
         transform: rotate(-180deg);
       }
 
       &.toggled {
         box-sizing: content-box;
         position: absolute;
-        right: 2em;
-        top: 1em;
+        right: 20px;
+        top: 14px;
         transform: rotate(0deg);
       }
     }
@@ -424,7 +519,7 @@
 
     .single-form {
       font-family: 'Manrope';
-      font-size: 12px;
+      font-size: 14px;
       font-weight: 700;
       letter-spacing: 0.5px;
 
@@ -441,16 +536,15 @@
         align-items: center;
 
         &:not(:first-of-type) {
-          margin-top: 2em;
+          margin-top: 16px;
         }
 
         > span {
-          font-size: 1.16em;
-          width: 10em;
+          font-size: 14px;
+          width: 140px;
 
           @include breakpoint(mobile) {
             margin-bottom: auto;
-            width: 20em;
           }
         }
 
@@ -458,7 +552,7 @@
           display: flex;
           flex-direction: row;
           justify-content: start;
-          gap: 1em;
+          gap: 10px;
           flex-grow: 1;
           align-items: center;
 
@@ -519,28 +613,18 @@
 
         .amount-label-container {
           display: flex;
-          align-items: center;
-
-          @include breakpoint(mobile) {
-            width: 13.7em;
-
-            input {
-              // width: 100%;
-            }
-          }
 
           .coin-wrapper {
             display: flex;
             align-items: center;
-            color: white;
             border: 0.5px solid;
             border-radius: 50px;
-            height: 4em;
-            padding: 0 1em;
-            width: 8em;
+            height: 50px;
+            padding: 0 14px;
+            width: 110px;
 
             svg {
-              margin-right: 1em;
+              margin-right: 14px;
             }
 
             &.light {
@@ -599,20 +683,24 @@
           background: transparent;
           outline: none;
           font: unset;
-          width: 5em;
-          padding: 1em 2em;
+          width: 85px;
+          padding: 15px 35px;
           box-sizing: content-box;
-          font-size: 1.2em;
+          font-size: 14px;
 
           ::placeholder {
             color: $finance;
           }
 
           &.kima-address-input {
-            width: 20em;
+            width: 325px;
+
+            @include breakpoint('max-width: 585px') {
+              width: 280px;
+            }
 
             @include breakpoint(mobile) {
-              width: 12em;
+              width: 150px;
             }
           }
 
@@ -636,17 +724,15 @@
         }
 
         &.wallet-button-item {
-          @include breakpoint(phablet) {
-            align-items: flex-start;
+          &.connected {
+            @include breakpoint(phablet) {
+              align-items: flex-start;
+            }
           }
 
           @include breakpoint(mobile) {
             .wallet-button {
               align-items: flex-end;
-
-              button {
-                width: 12em;
-              }
             }
           }
         }
@@ -658,14 +744,12 @@
 
       .coin-dropdown {
         position: relative;
-        width: 10%;
-        min-width: 80px;
-        max-width: 140px;
+        width: 80px;
         border-radius: 50px;
         border: 0.5px solid $financeIcon;
-        padding-left: 1em;
-        padding-right: 2em;
-        height: 4em;
+        padding-left: 12px;
+        padding-right: 24px;
+        height: 50px;
         display: flex;
         align-items: center;
         cursor: pointer;
@@ -675,14 +759,14 @@
         .coin-wrapper {
           display: flex;
           align-items: center;
-          border-radius: 1em;
-          font-size: 1em;
-          font-weight: 700;
-          padding: 0.2em;
-          padding-right: 0.5em;
+          border-radius: 12px;
+          font-size: 12px;
+          font-weight: 500;
+          padding: 2.5px;
+          padding-right: 6px;
 
           svg {
-            margin-right: 0.5em;
+            margin-right: 6px;
           }
         }
 
@@ -730,10 +814,10 @@
           padding: 0.5em 0;
 
           .coin-item {
-            margin: 0.2em 1em;
-            padding: 0.2em 1em;
+            margin: 2.5px 12px;
+            padding: 2.5px 12px;
             border-radius: 20px;
-            width: 60%;
+            width: 70px;
             max-width: 240px;
             @include transition;
             display: flex;
@@ -745,6 +829,7 @@
               width: 100%;
               text-align: center;
               margin: 0;
+              font-size: 12px;
             }
 
             &.light:hover {
@@ -907,14 +992,14 @@
 
       .network-dropdown {
         position: relative;
-        width: 19.5em;
+        width: 230px;
         min-width: 150px;
         max-width: 300px;
         border-radius: 50px;
         border: 0.5px solid $financeIcon;
-        padding-left: 1em;
-        padding-right: 2em;
-        height: 4em;
+        padding-left: 12px;
+        padding-right: 24px;
+        height: 50px;
         display: flex;
         align-items: center;
         cursor: pointer;
@@ -922,21 +1007,20 @@
         @include transition();
 
         @include breakpoint('max-width: 586px') {
-          width: 30%;
+          width: 185px;
         }
 
         .network-wrapper {
           display: flex;
           justify-content: start;
           align-items: center;
-          border-radius: 1em;
-          font-size: 1.2em;
+          border-radius: 15px;
+          font-size: 14px;
           font-weight: 700;
-          padding: 0.2em;
-          padding-right: 0.5em;
+          padding: 3px;
+          padding-right: 7px;
           color: black;
           z-index: inherit;
-          width: 9.5em;
 
           .icon {
             display: flex;
@@ -944,7 +1028,7 @@
             padding: 4px 4px;
             border-radius: 40px;
             background-color: white;
-            margin-right: 1em;
+            margin-right: 14px;
           }
 
           span {
@@ -978,7 +1062,7 @@
           border-radius: 0 0 30px 30px;
           position: absolute;
           z-index: 1000;
-          max-height: 12em;
+          max-height: 200px;
           width: 100%;
           top: 100%;
           left: -0.5px;
@@ -987,11 +1071,10 @@
           @include transition;
 
           &-item {
-            margin: 0.5em 1em;
-            padding: 0.8em 0.5em;
+            margin: 7px 14px;
+            padding: 11px 7px;
             border-radius: 20px;
-            width: 60%;
-            max-width: 240px;
+            width: 220x;
             @include transition;
             display: flex;
             justify-content: start;
@@ -1007,11 +1090,10 @@
             }
 
             p {
-              text-align: center;
-              margin-left: 1em;
+              margin-left: 20px;
               margin-top: 0;
               margin-bottom: 0;
-              font-size: 1.2em;
+              font-size: 14px;
             }
 
             &.light:hover {
@@ -1060,10 +1142,6 @@
         &.dark {
           background: $progressbarDark;
         }
-
-        @include breakpoint(mobile) {
-          width: 10em;
-        }
       }
 
       .dynamic-area {
@@ -1076,30 +1154,49 @@
         }
 
         .form-item {
-          margin-top: 2em;
+          margin-top: 16px;
         }
       }
     }
 
     .wallet-button {
-      font-size: 1.16em;
       display: flex;
       align-items: center;
+      width: 270px;
+
+      @include breakpoint('max-width: 586px') {
+        width: 220px;
+      }
+
+      @include breakpoint(phablet) {
+        flex-direction: column;
+        align-items: flex-start;
+
+        .balance-info {
+          margin-left: auto;
+        }
+      }
+
+      &.connected {
+        width: 430px;
+      }
 
       button {
         cursor: pointer;
         display: flex;
-        width: 16em;
-        max-width: 300px;
+        width: 270px;
         align-items: center;
-        height: 3.5em;
+        height: 50px;
         border: none;
         border-radius: 50px;
-        padding: 0 1em;
-        font-size: 1.2em;
-        max-height: 48px;
+        padding: 0 24px;
+        font-size: 16px;
         color: white;
         background-color: $finance;
+
+        @include breakpoint('max-width: 586px') {
+          width: 220px;
+        }
       }
 
       p {
@@ -1142,15 +1239,6 @@
       .balance-info {
         margin-left: 1em;
         color: $finance;
-      }
-
-      @include breakpoint(phablet) {
-        flex-direction: column;
-        align-items: flex-start;
-
-        .balance-info {
-          margin-left: auto;
-        }
       }
     }
 
@@ -1261,7 +1349,7 @@
           box-sizing: content-box;
 
           &.kima-address-input {
-            width: 20em;
+            width: 330px;
           }
         }
 
@@ -1284,19 +1372,25 @@
     }
 
     .confirm-details {
-      padding: 0 8em;
-      font-size: 1.2em;
+      padding: 0 80px;
+      font-size: 16px;
+      font-family: 'Manrope';
 
       > p {
         text-align: center;
-        font-size: 0.9em;
+        font-size: 14px;
       }
 
       .detail-item {
-        padding: 1em 2em;
+        padding: 16px 32px;
         display: flex;
+        flex-direction: row;
         align-items: center;
         border-top: 1px solid $secondary;
+
+        @include breakpoint(phablet) {
+          padding: 16px 0;
+        }
 
         &:first-of-type {
           border-top: none;
@@ -1319,16 +1413,38 @@
         }
 
         .label {
-          font-weight: bold;
+          font-weight: bolder;
           width: 10em;
+        }
+
+        .network-details {
+          display: flex;
+          flex-direction: row;
+          gap: 14px;
+
+          @include breakpoint(mobile) {
+            flex-direction: column;
+          }
+        }
+
+        .kima-card-network-container{
+          width: 210px;
         }
 
         .kima-card-network-label {
           display: flex;
-          padding: 0.8em 0.5em;
-          width: 12em;
+          flex-direction: row;
+          padding: 4px 18px;
           border-radius: 50px;
-          margin-right: 1em;
+          height: 50px;
+
+          .icon {
+            display: flex;
+            justify-content: center;
+            border-radius: 9999px;
+            background-color: white;
+            padding: 4px;
+          }
 
           &.light {
             background-color: $hover;
@@ -1341,38 +1457,33 @@
           }
         }
 
+        .amount-container {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          word-spacing: 2px;
+
+          svg {
+            margin-right: 6px;
+          }
+        }
+
         .signature {
           max-width: 65%;
           word-wrap: break-word;
         }
-      }
 
-      &.light {
-        .kima-card-network-label {
-          background: $progressbarLight;
-        }
-      }
-
-      &.dark {
-        .kima-card-network-label {
-          background: $progressbarDark;
+        @include breakpoint(mobile) {
+          align-items: start;
         }
       }
 
       @include breakpoint(phablet) {
-        padding: 0 2em;
+        padding: 0 20px;
       }
 
       @include breakpoint(mobile) {
         padding: 0;
-
-        .detail-item {
-          padding: 1em 1em 1em 0;
-
-          .label {
-            width: 8em;
-          }
-        }
       }
     }
 
@@ -1382,7 +1493,7 @@
       display: flex;
       align-items: center;
 
-      @include breakpoint(mobile){
+      @include breakpoint(mobile) {
         justify-content: end;
       }
 
@@ -1420,23 +1531,52 @@
     .kima-stepbox {
       display: flex;
       justify-content: center;
+      font-family: 'Manrope';
+      font-size: 14px;
 
       .content-wrapper {
         display: flex;
         flex-direction: column;
-        border: 1px solid $border;
-        border-radius: 1em;
-        padding: 1.5em 2em;
+        border: 1px solid $financeIcon;
+        border-radius: 30px;
+        padding: 12px 24px;
+
+        &.light {
+          background-color: $financeLighter;
+        }
+
+        &.dark {
+          background-color: $financeDark;
+          color: white;
+        }
+
+        @include breakpoint('min-width: 500px') {
+          width: 400px;
+        }
 
         @include breakpoint(mobile) {
-          flex: 1;
+          padding: 12px 24px;
+          gap: 5px;
+          justify-content: space-between;
+          border: none;
+          background-color: transparent !important;
         }
 
         .step-item {
           display: flex;
+          flex-direction: row;
           align-items: center;
-          margin: 0.3em 0;
+          margin: 5px 0;
           justify-content: space-between;
+
+          @include breakpoint(mobile) {
+            flex-direction: column;
+            align-items: end;
+
+            &:nth-of-type(4) {
+              margin-top: 25px;
+            }
+          }
 
           .info-item {
             position: relative;
@@ -1451,27 +1591,33 @@
             }
 
             &:first-of-type {
-              width: 11em;
+              width: 155px;
 
               p {
-                margin: 0 0 0 1.5em;
+                margin: 0 0 0 21px;
               }
 
               svg {
                 position: absolute;
-                margin-top: -0.3em;
-                width: 2em;
-                height: 2em;
-                left: -0.3em;
+                margin-top: -4.2px;
+                width: 28px;
+                height: 28px;
+                left: -4.5px;
+
+                @include breakpoint(mobile) {
+                  top: 0;
+                }
               }
             }
 
             &:not(:first-of-type) {
+              display: flex;
+              flex-direction: row;
               p {
                 margin: 0;
 
                 a {
-                  margin-left: 0.5em;
+                  margin-left: 7px;
                 }
 
                 .copy-btn {
@@ -1484,9 +1630,9 @@
                   }
 
                   svg {
-                    width: 1.5em;
-                    height: 1.5em;
-                    margin-left: 0.5em;
+                    width: 21px;
+                    height: 21px;
+                    margin-left: 7px;
                   }
                 }
               }
@@ -1494,29 +1640,27 @@
 
             &.locked {
               svg {
-                position: absolute;
-                margin-top: -0.1em;
-                width: 1.2em;
-                height: 1.2em;
+                margin-top: 0.5px;
+                width: 17px;
+                height: 17px;
                 left: 0;
               }
             }
 
             &.active {
               svg {
-                margin-top: -0.6em;
-                width: 2.5em;
-                height: 2.5em;
-                left: -0.6em;
+                margin-top: -8.5px;
+                width: 35px;
+                height: 35px;
+                left: -8.5px;
               }
             }
 
             &.error {
               svg {
-                position: absolute;
-                margin-top: -0.3em;
-                width: 1.2em;
-                height: 2em;
+                margin-top: -4.5px;
+                width: 17px;
+                height: 28px;
                 left: 0;
               }
             }
@@ -1529,8 +1673,34 @@
               }
 
               &:not(:first-of-type) {
-                padding-left: 1.5em;
-                padding-top: 0.2em;
+                padding-left: 21px;
+                padding-top: 3px;
+                margin-top: 10px;
+              }
+            }
+          }
+
+          @include breakpoint(mobile) {
+            .info-item {
+              gap: 5px;
+              justify-content: end;
+
+              &:first-of-type {
+                display: none;
+              }
+
+              &:not(:first-of-type) {
+                padding: 6px 12px;
+                border-radius: 30px;
+
+                &.light {
+                  background-color: $hover;
+                }
+
+                &.dark {
+                  background-color: $financeDark;
+                  color: white;
+                }
               }
             }
           }
@@ -1589,8 +1759,7 @@
   .kima-card-network-label {
     display: flex;
     align-items: center;
-    column-gap: 0.5em;
-    padding-top: 1em;
+    gap: 10px;
 
     .label {
       display: flex;
@@ -1634,8 +1803,8 @@
     background: black;
     border-radius: 30px;
     width: fit-content;
-    max-height: 48px;
-    padding: 1em 2em;
+    height: 50px;
+    padding: 13px 27px;
     cursor: pointer;
     color: white;
     font-weight: bold;
@@ -1661,19 +1830,17 @@
     }
 
     .loading-indicator {
-      margin-right: 0.5em;
+      margin-right: 7px;
 
       svg {
-        width: 1.5em;
-        height: 1.5em;
-        margin-top: 0.3em;
+        width: 20px;
+        height: 20px;
+        margin-top: 4px;
         fill: white !important;
       }
     }
 
     @include breakpoint(mobile) {
-      width: 8em;
-
       &:hover {
         opacity: 1;
       }
@@ -1687,9 +1854,8 @@
   .secondary-button {
     border-radius: 30px;
     width: fit-content;
-    padding: 0.5em 2em;
-    height: 3.5em;
-    max-height: 48px;
+    padding: 7px 27px;
+    height: 50px;
     background-color: transparent;
     cursor: pointer;
     font-weight: bold;
