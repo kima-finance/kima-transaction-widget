@@ -1,6 +1,4 @@
-$font-path: "/assets/fonts" !default; // for production
-
-// $font-path: "../src/assets/fonts" !default; // for dev
+$font-path: "./fonts" !default;
 
 @font-face {
     font-family: 'Manrope';
@@ -19,8 +17,7 @@ $font-path: "/assets/fonts" !default; // for production
     src: url('#{$font-path}/SohneBreit-Buch.eot');
     src: url('#{$font-path}/SohneBreit-Buch.eot?#iefix') format('embedded-opentype'),
         url('#{$font-path}/SohneBreit-Buch.woff2') format('woff2'),
-        url('#{$font-path}/SohneBreit-Buch.woff') format('woff'),
-        url('#{$font-path}/SohneBreit-Buch.ttf') format('truetype');
+        url('#{$font-path}/SohneBreit-Buch.woff') format('woff');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
