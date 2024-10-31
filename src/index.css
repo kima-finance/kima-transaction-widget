@@ -236,6 +236,23 @@
   align-items: center;
   box-sizing: content-box;
   margin-left: auto;
+  flex-direction: row;
+  gap: 20px;
+}
+.kima-card .kima-card-footer .button-group.confirm {
+  margin-top: 20px;
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-footer .button-group.confirm {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .kima-card .kima-card-footer .button-group.confirm .primary-button-wrapper:last-of-type {
+    grid-column: span 2/span 2;
+  }
+  .kima-card .kima-card-footer .button-group.confirm * {
+    margin-left: auto;
+  }
 }
 .kima-card .kima-card-footer svg {
   width: 10em;
@@ -244,9 +261,6 @@
 .kima-card .kima-card-footer p {
   font-size: 0.8em;
   margin: 0 0 0 1em;
-}
-.kima-card .kima-card-footer .primary-button-wrapper {
-  margin-left: 1em;
 }
 @media (max-width: 768px) {
   .kima-card .kima-card-footer {
@@ -276,6 +290,7 @@
   justify-content: center;
   pointer-events: none;
   font-family: "Manrope";
+  right: 0;
 }
 .kima-card .floating-footer .items {
   display: flex;

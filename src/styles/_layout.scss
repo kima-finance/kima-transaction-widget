@@ -255,6 +255,29 @@
       align-items: center;
       box-sizing: content-box;
       margin-left: auto;
+      flex-direction: row;
+      gap: 20px;
+    
+
+      &.confirm {
+        margin-top: 20px;
+
+        @include breakpoint(mobile){
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+
+          .primary-button-wrapper {
+
+            &:last-of-type{
+              grid-column: span 2 / span 2;
+            }
+          }
+
+          * {
+            margin-left: auto;
+          }
+        }
+      }
     }
 
     svg {
@@ -265,10 +288,6 @@
     p {
       font-size: 0.8em;
       margin: 0 0 0 1em;
-    }
-
-    .primary-button-wrapper {
-      margin-left: 1em;
     }
 
     @include breakpoint(phablet) {
@@ -301,6 +320,7 @@
     justify-content: center;
     pointer-events: none;
     font-family: 'Manrope';
+    right: 0;
 
     .items {
       display: flex;
