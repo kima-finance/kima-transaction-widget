@@ -296,17 +296,11 @@
   .floating-footer {
     color: black;
     position: absolute;
-    right: 37%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
     pointer-events: none;
     font-family: 'Manrope';
-
-    @include breakpoint(phablet) {
-      right: 31%;
-    }
-
-    @include breakpoint(mobile) {
-      right: 24%;
-    }
 
     .items {
       display: flex;

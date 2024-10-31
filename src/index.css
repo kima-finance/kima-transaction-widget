@@ -11,7 +11,7 @@
 @font-face {
   font-family: "Sohne";
   src: url("./fonts/SohneBreit-Buch.eot");
-  src: url("./fonts/SohneBreit-Buch.eot?#iefix") format("embedded-opentype"), url("./fonts/SohneBreit-Buch.woff2") format("woff2"), url("./fonts/SohneBreit-Buch.woff") format("woff"), url("./fonts/SohneBreit-Buch.ttf") format("truetype");
+  src: url("./fonts/SohneBreit-Buch.eot?#iefix") format("embedded-opentype"), url("./fonts/SohneBreit-Buch.woff2") format("woff2"), url("./fonts/SohneBreit-Buch.woff") format("woff");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -271,19 +271,11 @@
 .kima-card .floating-footer {
   color: black;
   position: absolute;
-  right: 37%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
   pointer-events: none;
   font-family: "Manrope";
-}
-@media (max-width: 768px) {
-  .kima-card .floating-footer {
-    right: 31%;
-  }
-}
-@media (max-width: 500px) {
-  .kima-card .floating-footer {
-    right: 24%;
-  }
 }
 .kima-card .floating-footer .items {
   display: flex;
@@ -2249,7 +2241,7 @@
 @font-face {
   font-family: "Sohne";
   src: url("./fonts/SohneBreit-Buch.eot");
-  src: url("./fonts/SohneBreit-Buch.eot?#iefix") format("embedded-opentype"), url("./fonts/SohneBreit-Buch.woff2") format("woff2"), url("./fonts/SohneBreit-Buch.woff") format("woff"), url("./fonts/SohneBreit-Buch.ttf") format("truetype");
+  src: url("./fonts/SohneBreit-Buch.eot?#iefix") format("embedded-opentype"), url("./fonts/SohneBreit-Buch.woff2") format("woff2"), url("./fonts/SohneBreit-Buch.woff") format("woff");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
