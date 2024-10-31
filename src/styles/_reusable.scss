@@ -527,6 +527,10 @@
         padding-left: 0;
       }
 
+      @include breakpoint(mobile) {
+        font-size: 12px;
+      }
+
       .bank-input {
         margin-top: 2em;
       }
@@ -1182,9 +1186,13 @@
         border: none;
         border-radius: 50px;
         padding: 0 24px;
-        font-size: 16px;
         color: white;
         background-color: $finance;
+        font-size: 16px;
+
+        @include breakpoint(mobile) {
+          font-size: 12px;
+        }
 
         @include breakpoint('max-width: 586px') {
           width: 220px;
@@ -1813,6 +1821,7 @@
     align-items: center;
     justify-content: center;
     letter-spacing: 0;
+    font-size: 16px;
 
     &.light {
       background-color: black;
@@ -1861,6 +1870,7 @@
     border-radius: 30px;
     border: 1px solid;
     letter-spacing: 0;
+    font-size: 16px;
     @include transition;
 
     &.dark {

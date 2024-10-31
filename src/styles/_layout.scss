@@ -28,7 +28,7 @@
           font-size: 32px;
 
           @include breakpoint(phablet) {
-            font-size: 24px;
+            font-size: 26px;
           }
         }
 
@@ -91,6 +91,10 @@
             width: 30px;
             height: 22px;
             padding: 5px;
+
+            @include breakpoint(phablet) {
+              width: 25px;
+            }
           }
 
           &:first-of-type svg {
@@ -110,9 +114,19 @@
           cursor: pointer;
           border: 1px solid $financeGrey;
 
+          @include breakpoint(phablet){
+            width: 50px;
+            height: 50px;
+          }
+
           svg {
             width: 24px;
             height: 24px;
+
+            @include breakpoint(phablet){
+              width: 20px;
+              height: 20px;
+            }
           }
 
           &:hover,

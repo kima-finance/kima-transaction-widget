@@ -2,16 +2,16 @@
 @import 'react-tooltip/dist/react-tooltip.css';
 @font-face {
   font-family: "Manrope";
-  src: url("/assets/fonts/Manrope-ExtraLight.eot");
-  src: url("/assets/fonts/Manrope-ExtraLight.eot?#iefix") format("embedded-opentype"), url("/assets/fonts/Manrope-ExtraLight.woff2") format("woff2"), url("/assets/fonts/Manrope-ExtraLight.woff") format("woff");
+  src: url("./fonts/Manrope-ExtraLight.eot");
+  src: url("./fonts/Manrope-ExtraLight.eot?#iefix") format("embedded-opentype"), url("./fonts/Manrope-ExtraLight.woff2") format("woff2"), url("./fonts/Manrope-ExtraLight.woff") format("woff");
   font-weight: 200;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Sohne";
-  src: url("/assets/fonts/SohneBreit-Buch.eot");
-  src: url("/assets/fonts/SohneBreit-Buch.eot?#iefix") format("embedded-opentype"), url("/assets/fonts/SohneBreit-Buch.woff2") format("woff2"), url("/assets/fonts/SohneBreit-Buch.woff") format("woff"), url("/assets/fonts/SohneBreit-Buch.ttf") format("truetype");
+  src: url("./fonts/SohneBreit-Buch.eot");
+  src: url("./fonts/SohneBreit-Buch.eot?#iefix") format("embedded-opentype"), url("./fonts/SohneBreit-Buch.woff2") format("woff2"), url("./fonts/SohneBreit-Buch.woff") format("woff"), url("./fonts/SohneBreit-Buch.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -47,7 +47,7 @@
 }
 @media (max-width: 768px) {
   .kima-card .kima-card-header .topbar .title h3 {
-    font-size: 24px;
+    font-size: 26px;
   }
 }
 .kima-card .kima-card-header .topbar .title span {
@@ -94,6 +94,11 @@
   height: 22px;
   padding: 5px;
 }
+@media (max-width: 768px) {
+  .kima-card .kima-card-header .topbar .control-buttons .icon-button svg {
+    width: 25px;
+  }
+}
 .kima-card .kima-card-header .topbar .control-buttons .icon-button:first-of-type svg {
   margin-top: 7px;
 }
@@ -109,9 +114,21 @@
   cursor: pointer;
   border: 1px solid rgba(119, 141, 163, 0.3019607843);
 }
+@media (max-width: 768px) {
+  .kima-card .kima-card-header .topbar .control-buttons .cross-icon-button {
+    width: 50px;
+    height: 50px;
+  }
+}
 .kima-card .kima-card-header .topbar .control-buttons .cross-icon-button svg {
   width: 24px;
   height: 24px;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-header .topbar .control-buttons .cross-icon-button svg {
+    width: 20px;
+    height: 20px;
+  }
 }
 .kima-card .kima-card-header .topbar .control-buttons .cross-icon-button:hover, .kima-card .kima-card-header .topbar .control-buttons .cross-icon-button:disabled {
   opacity: 0.6;
@@ -771,6 +788,11 @@
     padding-left: 0;
   }
 }
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .single-form {
+    font-size: 12px;
+  }
+}
 .kima-card .kima-card-content .single-form .bank-input {
   margin-top: 2em;
 }
@@ -1325,9 +1347,14 @@
   border: none;
   border-radius: 50px;
   padding: 0 24px;
-  font-size: 16px;
   color: white;
   background-color: #778da3;
+  font-size: 16px;
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .wallet-button button {
+    font-size: 12px;
+  }
 }
 @media (max-width: 586px) {
   .kima-card .kima-card-content .wallet-button button {
@@ -1871,6 +1898,7 @@
   align-items: center;
   justify-content: center;
   letter-spacing: 0;
+  font-size: 16px;
 }
 .kima-card .primary-button.light {
   background-color: black;
@@ -1910,6 +1938,7 @@
   border-radius: 30px;
   border: 1px solid;
   letter-spacing: 0;
+  font-size: 16px;
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 .kima-card .secondary-button.dark {
@@ -2211,16 +2240,16 @@
 
 @font-face {
   font-family: "Manrope";
-  src: url("/assets/fonts/Manrope-ExtraLight.eot");
-  src: url("/assets/fonts/Manrope-ExtraLight.eot?#iefix") format("embedded-opentype"), url("/assets/fonts/Manrope-ExtraLight.woff2") format("woff2"), url("/assets/fonts/Manrope-ExtraLight.woff") format("woff");
+  src: url("./fonts/Manrope-ExtraLight.eot");
+  src: url("./fonts/Manrope-ExtraLight.eot?#iefix") format("embedded-opentype"), url("./fonts/Manrope-ExtraLight.woff2") format("woff2"), url("./fonts/Manrope-ExtraLight.woff") format("woff");
   font-weight: 200;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Sohne";
-  src: url("/assets/fonts/SohneBreit-Buch.eot");
-  src: url("/assets/fonts/SohneBreit-Buch.eot?#iefix") format("embedded-opentype"), url("/assets/fonts/SohneBreit-Buch.woff2") format("woff2"), url("/assets/fonts/SohneBreit-Buch.woff") format("woff"), url("/assets/fonts/SohneBreit-Buch.ttf") format("truetype");
+  src: url("./fonts/SohneBreit-Buch.eot");
+  src: url("./fonts/SohneBreit-Buch.eot?#iefix") format("embedded-opentype"), url("./fonts/SohneBreit-Buch.woff2") format("woff2"), url("./fonts/SohneBreit-Buch.woff") format("woff"), url("./fonts/SohneBreit-Buch.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
