@@ -178,6 +178,20 @@
       gap: 16px;
       margin-top: 20px;
 
+      p {
+        padding: 0;
+      }
+
+      @include breakpoint('max-width: 390px'){
+        p {
+          display: none;
+        }
+
+        .arrow {
+          transform: rotate(-180deg);
+        }
+      }
+
       .arrow {
         transform: rotate(-90deg);
       }

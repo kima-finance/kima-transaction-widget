@@ -1,6 +1,13 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
-import { CheckIcon, Loader, Lock, WarningIcon } from '../../assets/icons'
+import {
+  CheckIcon,
+  EthereumIcon,
+  Loader,
+  Lock,
+  USDKIcon,
+  WarningIcon
+} from '../../assets/icons'
 import { NetworkOptions, TransactionData } from '../../interface'
 import {
   selectKimaExplorer,
@@ -11,7 +18,8 @@ import {
   ChainName,
   CHAIN_NAMES_TO_EXPLORER_MAINNET,
   CHAIN_NAMES_TO_EXPLORER_TESTNET,
-  CHAIN_NAMES_TO_STRING
+  CHAIN_NAMES_TO_STRING,
+  getNetworkOption
 } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 import CopyButton from './CopyButton'
@@ -46,6 +54,9 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
   const theme = useSelector(selectTheme)
   const explorerUrl = useSelector(selectKimaExplorer)
   const networkOption = useSelector(selectNetworkOption)
+  const SourceInfo = getNetworkOption(data?.sourceChain as string)
+  const TargetInfo = getNetworkOption(data?.targetChain as string)
+
   const CHAIN_NAMES_TO_EXPLORER =
     networkOption === NetworkOptions.mainnet
       ? CHAIN_NAMES_TO_EXPLORER_MAINNET
@@ -76,7 +87,10 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
             </div>
             {index === 0 && data?.kimaTxHash ? (
               <div className={`info-item ${theme.colorMode}`}>
-                <p>Kima TX ID: </p>
+                <div className='icon'>
+                  <USDKIcon />
+                </div>
+                <p className='chain-name'>Kima TX ID:</p>
                 <p>
                   <ExternalLink
                     to={`${explorerUrl}/transactions/${data?.kimaTxHash}`}
@@ -88,8 +102,11 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
               </div>
             ) : null}
             {index === 1 && data?.tssPullHash ? (
-              <div className={`info-item ${theme.colorMode}`}>
-                <p>
+              <div className={`info-item ${theme.colorMode} source-chain`}>
+                <div className='icon'>
+                  {SourceInfo ? <SourceInfo.icon /> : <EthereumIcon />}
+                </div>
+                <p className='chain-name'>
                   {
                     CHAIN_NAMES_TO_STRING[
                       data?.sourceChain || ChainName.ETHEREUM
@@ -117,8 +134,11 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
               </div>
             ) : null}
             {index === 3 && data?.tssReleaseHash ? (
-              <div className={`info-item ${theme.colorMode}`}>
-                <p>
+              <div className={`info-item ${theme.colorMode} target-chain`}>
+                <div className='icon'>
+                  {TargetInfo ? <TargetInfo.icon /> : <EthereumIcon />}
+                </div>
+                <p className='chain-name'>
                   {
                     CHAIN_NAMES_TO_STRING[
                       data?.targetChain || ChainName.ETHEREUM

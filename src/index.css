@@ -170,6 +170,17 @@
   gap: 16px;
   margin-top: 20px;
 }
+.kima-card .kima-card-header .header-network-labels p {
+  padding: 0;
+}
+@media (max-width: 390px) {
+  .kima-card .kima-card-header .header-network-labels p {
+    display: none;
+  }
+  .kima-card .kima-card-header .header-network-labels .arrow {
+    transform: rotate(-180deg);
+  }
+}
 .kima-card .kima-card-header .header-network-labels .arrow {
   transform: rotate(-90deg);
 }
@@ -1704,18 +1715,29 @@
   align-items: center;
   margin: 5px 0;
   justify-content: space-between;
+  gap: 20px;
 }
 @media (max-width: 500px) {
   .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item {
     flex-direction: column;
     align-items: end;
   }
-  .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item:nth-of-type(4) {
-    margin-top: 25px;
-  }
 }
 .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item {
   position: relative;
+  align-items: center;
+}
+.kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item .icon {
+  border-radius: 9999px;
+  background-color: white;
+  padding: 4px;
+  display: flex;
+  justify-content: center;
+}
+@media (min-width: 501px) {
+  .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item .icon {
+    display: none;
+  }
 }
 .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item a {
   text-decoration: underline;
@@ -1723,6 +1745,11 @@
 .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item p {
   display: flex;
   align-items: center;
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item p.chain-name {
+    display: none;
+  }
 }
 .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item:first-of-type {
   width: 155px;
@@ -1811,6 +1838,12 @@
   .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item:not(:first-of-type).dark {
     background-color: #4a5068;
     color: white;
+  }
+  .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item.source-chain {
+    margin-top: 20px;
+  }
+  .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item.target-chain {
+    margin-top: 60px;
   }
 }
 .kima-card .card-item {

@@ -21,7 +21,7 @@ const NetworkLabel = ({ sourceChain, targetChain }: Props) => {
           <div className='icon'>
             <SourceInfo.icon />
           </div>
-          {SourceInfo.label}
+          <p>{SourceInfo.label}</p>
         </span>
       )}
 
@@ -36,7 +36,7 @@ const NetworkLabel = ({ sourceChain, targetChain }: Props) => {
           <div className='icon'>
             <TargetInfo.icon />
           </div>
-          {TargetInfo.label}
+          <p>{TargetInfo.label}</p>
         </span>
       )}
 
