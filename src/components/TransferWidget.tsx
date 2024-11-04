@@ -897,13 +897,7 @@ export const TransferWidget = ({
           </div>
         </div>
         <h4 className='subtitle'>
-          {mode === ModeOptions.payment
-            ? formStep === 0
-              ? paymentTitleOption?.title
-                ? paymentTitleOption.title
-                : ''
-              : `Step ${allowance > 0 ? '2' : '1'} of 2 ${allowance > 0 ? 'Submit Transaction' : 'Approval'}`
-            : ''}
+          {mode === ModeOptions.payment && formStep === 0 && paymentTitleOption?.title}
         </h4>
       </div>
 
@@ -929,7 +923,7 @@ export const TransferWidget = ({
               }
             />
           )
-        ) : formStep === 0 || mode === ModeOptions.payment ? (
+        ) : formStep === 0 ? (
           <SingleForm />
         ) : (
           <ConfirmDetails
@@ -941,7 +935,9 @@ export const TransferWidget = ({
       <div
         className={`kima-card-footer ${mode === ModeOptions.bridge && formStep === 0 && 'bridge'}`}
       >
-        <div className={`button-group ${formStep !== 0 && allowance > 0 && 'confirm'}`}>
+        <div
+          className={`button-group ${formStep !== 0 && allowance > 0 && 'confirm'}`}
+        >
           {/* <SecondaryButton
             clickHandler={() => {
               if (isApproving || isSubmitting || isSigning || isBTCSigning)
