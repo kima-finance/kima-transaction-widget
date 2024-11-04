@@ -897,7 +897,9 @@ export const TransferWidget = ({
           </div>
         </div>
         <h4 className='subtitle'>
-          {mode === ModeOptions.payment && formStep === 0 && paymentTitleOption?.title}
+          {mode === ModeOptions.payment &&
+            formStep === 0 &&
+            paymentTitleOption?.title}
         </h4>
       </div>
 
@@ -1020,7 +1022,7 @@ export const TransferWidget = ({
       <div className='floating-footer'>
         <div className={`items ${theme.colorMode}`}>
           <span>Powered by</span>
-          <FooterLogo fill='black' />
+          <FooterLogo width={50} fill='black' />
           <strong>Network</strong>
         </div>
       </div>

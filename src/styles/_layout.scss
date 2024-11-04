@@ -339,15 +339,12 @@
     .items {
       display: flex;
       flex-direction: row;
-      display: flex;
-      flex-direction: row;
+      justify-content: center;
       align-items: center;
       text-decoration: none;
       padding: 2px 8px;
       border-radius: 20px;
       width: 200px;
-      justify-content: center;
-      align-items: center;
       font-size: 14px;
 
       &.light {
@@ -365,8 +362,9 @@
 
       strong {
         margin-left: 7px;
-        font-size: 12px;
+        font-size: 14px;
         font-family: 'Poppins';
+        margin-top: 4px;
       }
     }
   }
