@@ -1476,8 +1476,12 @@
           display: flex;
           flex-direction: row;
           align-items: center;
-          width: 100%;
-          justify-content: center;
+          margin-left: 10px;
+
+          @include breakpoint('max-width: 385px') {
+            width: 100%;
+            justify-content: end;
+          }
 
           svg {
             margin-right: 6px;
