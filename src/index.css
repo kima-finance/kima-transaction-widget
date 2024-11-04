@@ -431,8 +431,8 @@
   border: 1px solid #86b8ce;
 }
 .kima-card .kima-card-content .kima-progressbar .step-indicators .step.completed svg, .kima-card .kima-card-content .kima-progressbar .step-indicators .step.active svg {
-  top: -52px;
-  left: 68px;
+  top: -53px;
+  left: 67px;
   width: 41px;
   height: 41px;
 }
