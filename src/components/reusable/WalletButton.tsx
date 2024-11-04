@@ -35,8 +35,6 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const { open } = useWeb3Modal()
   const { width, updateWidth } = useWidth()
 
-  console.log('width: ', width)
-
   useEffect(() => {
     if (width === 0) {
       updateWidth(window.innerWidth)

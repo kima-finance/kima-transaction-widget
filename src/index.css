@@ -1567,16 +1567,20 @@
   background: #4f5156;
 }
 .kima-card .kima-card-content .confirm-details {
-  padding: 0 80px;
   font-size: 16px;
   font-family: "Manrope";
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .confirm-details {
+    font-size: 12px;
+  }
 }
 .kima-card .kima-card-content .confirm-details > p {
   text-align: center;
   font-size: 14px;
 }
 .kima-card .kima-card-content .confirm-details .detail-item {
-  padding: 16px 32px;
+  padding: 16px 20px;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -1593,8 +1597,16 @@
 .kima-card .kima-card-content .confirm-details .detail-item p {
   margin: 0;
   border-radius: 50px;
-  padding: 16px 24px;
+  padding: 16px;
   text-align: center;
+  flex-grow: 2;
+  font-size: 14px;
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .confirm-details .detail-item p {
+    width: 210px;
+    font-size: 12px;
+  }
 }
 .kima-card .kima-card-content .confirm-details .detail-item p.light {
   background-color: #edf2f5;
@@ -1612,10 +1624,13 @@
   display: flex;
   flex-direction: row;
   gap: 14px;
+  flex-grow: 2;
 }
 @media (max-width: 500px) {
   .kima-card .kima-card-content .confirm-details .detail-item .network-details {
     flex-direction: column;
+    align-items: end;
+    margin-left: auto;
   }
 }
 .kima-card .kima-card-content .confirm-details .detail-item .kima-card-network-container {
@@ -1649,7 +1664,7 @@
   align-items: center;
   margin-left: 10px;
 }
-@media (max-width: 385px) {
+@media (max-width: 500px) {
   .kima-card .kima-card-content .confirm-details .detail-item .amount-container {
     width: 100%;
     justify-content: end;

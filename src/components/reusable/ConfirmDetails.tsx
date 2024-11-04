@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { formatterFloat } from '../../helpers/functions'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
@@ -21,6 +21,7 @@ import {
 } from '../../store/selectors'
 import { ChainName, COIN_LIST, networkOptions } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
+import useWidth from '../../hooks/useWidth'
 
 const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
   const feeDeduct = useSelector(selectFeeDeduct)
@@ -53,6 +54,11 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
   )
   const sourceCurrency = useSelector(selectSourceCurrency)
   const targetCurrency = useSelector(selectTargetCurrency)
+  const { width, updateWidth } = useWidth()
+
+  useEffect(() => {
+    width === 0 && updateWidth(window.innerWidth)
+  }, [])
 
   const SourceCoinIcon =
     COIN_LIST[sourceCurrency].icon || COIN_LIST['USDK'].icon
@@ -60,7 +66,9 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
     COIN_LIST[targetCurrency].icon || COIN_LIST['USDK'].icon
 
   const sourceWalletAddress = useMemo(() => {
-    return getShortenedAddress(walletAddress || '')
+    return width >= 916
+      ? walletAddress
+      : getShortenedAddress(walletAddress || '')
   }, [walletAddress])
 
   const targetWalletAddress = useMemo(() => {
@@ -127,9 +135,13 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
               </span>
             </div>
             <p className={theme.colorMode}>
-              {dAppOption === DAppOptions.LPDrain
-                ? targetWalletAddress
-                : sourceWalletAddress}
+            {width >= 916
+                ? dAppOption === DAppOptions.LPDrain
+                  ? targetAddress
+                  : walletAddress
+                : dAppOption === DAppOptions.LPDrain
+                  ? targetWalletAddress
+                  : sourceWalletAddress}
             </p>
           </div>
         </div>
@@ -172,9 +184,13 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
               </span>
             </div>
             <p className={theme.colorMode}>
-              {dAppOption === DAppOptions.LPDrain
-                ? sourceWalletAddress
-                : targetWalletAddress}
+              {width >= 916
+                ? dAppOption === DAppOptions.LPDrain
+                  ? walletAddress
+                  : targetAddress
+                : dAppOption === DAppOptions.LPDrain
+                  ? sourceWalletAddress
+                  : targetWalletAddress}
             </p>
           </div>
         </div>
