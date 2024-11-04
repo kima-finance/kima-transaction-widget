@@ -10,12 +10,6 @@ export enum NetworkOptions {
   mainnet = 'mainnet'
 }
 
-export enum FontSizeOptions {
-  large = 'large',
-  medium = 'medium',
-  small = 'small'
-}
-
 export enum ModeOptions {
   payment = 'payment',
   bridge = 'bridge',
@@ -66,8 +60,6 @@ export interface CompliantOption {
 
 export interface ThemeOptions {
   colorMode?: ColorModeOptions
-  fontSize?: FontSizeOptions
-  fontFamily?: string
   backgroundColorLight?: string
   backgroundColorDark?: string
 }

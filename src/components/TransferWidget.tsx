@@ -848,9 +848,8 @@ export const TransferWidget = ({
 
   return (
     <div
-      className={`kima-card ${theme.colorMode} font-${theme.fontSize}`}
+      className={`kima-card ${theme.colorMode}`}
       style={{
-        fontFamily: theme.fontFamily,
         background:
           theme.colorMode === ColorModeOptions.light
             ? theme.backgroundColorLight
