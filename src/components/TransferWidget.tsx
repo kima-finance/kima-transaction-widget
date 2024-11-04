@@ -167,7 +167,7 @@ export const TransferWidget = ({
   const { isSigned, sign } = useSign({ setSigning })
   const { serviceFee: fee } = useServiceFee(isConfirming, feeURL)
   const { balance } = useBalance()
-  const windowWidth = useWidth()
+  const {width: windowWidth} = useWidth()
   const isApproved = useMemo(() => {
     if (sourceChain === ChainName.BTC) return isBTCSigned
     return approved

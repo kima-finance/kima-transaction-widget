@@ -4,7 +4,6 @@ import { CheckIcon, CopyIcon, WarningIcon } from '../../assets/icons'
 import { Loading180Ring } from '../../assets/loading'
 import { TransactionData } from '../../interface'
 import { selectTheme } from '../../store/selectors'
-import { useWidth } from '../../styles/hooks'
 import {
   ChainName,
   CHAIN_NAMES_TO_EXPLORER,
@@ -13,6 +12,7 @@ import {
 } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 import ExternalLink from './ExternalLink'
+import useWidth from '../../hooks/useWidth'
 
 interface Props {
   step: number
@@ -23,7 +23,7 @@ interface Props {
 }
 
 const Tooltip = ({ step, focus, errorStep, loadingStep, data }: Props) => {
-  const windowWidth = useWidth()
+  const {width: windowWidth} = useWidth()
   const theme = useSelector(selectTheme)
   const [copyClicked, setCopyClicked] = useState(false)
 

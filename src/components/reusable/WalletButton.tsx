@@ -33,9 +33,15 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
     useIsWalletReady()
   const { balance } = useBalance()
   const { open } = useWeb3Modal()
-  const width = useWidth()
+  const { width, updateWidth } = useWidth()
 
   console.log('width: ', width)
+
+  useEffect(() => {
+    if (width === 0) {
+      updateWidth(window.innerWidth)
+    }
+  }, [])
 
   const handleClick = () => {
     if (selectedNetwork === ChainName.SOLANA) {
