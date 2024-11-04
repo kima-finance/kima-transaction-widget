@@ -739,8 +739,26 @@
 
         &.wallet-button-item {
           &.connected {
-            @include breakpoint(phablet) {
-              align-items: flex-start;
+            align-items: flex-start;
+
+            button {
+              padding: 0 16px;
+
+              @include breakpoint('min-width: 585xp') {
+                width: 220px;
+              }
+
+              @include breakpoint('min-width: 640px') {
+                width: 400px;
+              }
+
+              @include breakpoint('max-width: 585px') {
+                width: 265px;
+              }
+
+              @include breakpoint(mobile) {
+                width: 200px;
+              }
             }
           }
 
@@ -1172,15 +1190,15 @@
 
     .wallet-button {
       display: flex;
-      align-items: center;
+      flex-direction: column;
 
       @include breakpoint(phablet) {
         width: 430px;
       }
 
       @include breakpoint(phablet) {
-        flex-direction: column;
         align-items: flex-start;
+        flex-direction: column;
 
         .balance-info {
           margin-left: auto;
@@ -1198,7 +1216,7 @@
         padding: 0 24px;
         color: white;
         background-color: $finance;
-        font-size: 16px;
+        font-size: 14px;
 
         @include breakpoint('max-width: 586px') {
           width: 220px;
@@ -1206,7 +1224,16 @@
 
         @include breakpoint(mobile) {
           font-size: 12px;
-          width: 200px;
+          width: 195px;
+        }
+
+        &.shortened {
+          justify-content: center;
+          font-size: 14px;
+
+          @include breakpoint(mobile) {
+            font-size: 12px;
+          }
         }
       }
 
@@ -1225,8 +1252,6 @@
       }
 
       .connected {
-        justify-content: center;
-
         &.light {
           color: black;
           background-color: $hover;

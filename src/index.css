@@ -990,9 +990,30 @@
   font-size: 0.8em;
   margin-left: 1em;
 }
-@media (max-width: 768px) {
-  .kima-card .kima-card-content .single-form .form-item.wallet-button-item.connected {
-    align-items: flex-start;
+.kima-card .kima-card-content .single-form .form-item.wallet-button-item.connected {
+  align-items: flex-start;
+}
+.kima-card .kima-card-content .single-form .form-item.wallet-button-item.connected button {
+  padding: 0 16px;
+}
+@media (min-width: 585xp) {
+  .kima-card .kima-card-content .single-form .form-item.wallet-button-item.connected button {
+    width: 220px;
+  }
+}
+@media (min-width: 640px) {
+  .kima-card .kima-card-content .single-form .form-item.wallet-button-item.connected button {
+    width: 400px;
+  }
+}
+@media (max-width: 585px) {
+  .kima-card .kima-card-content .single-form .form-item.wallet-button-item.connected button {
+    width: 265px;
+  }
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .single-form .form-item.wallet-button-item.connected button {
+    width: 200px;
   }
 }
 @media (max-width: 500px) {
@@ -1351,7 +1372,7 @@
 }
 .kima-card .kima-card-content .wallet-button {
   display: flex;
-  align-items: center;
+  flex-direction: column;
 }
 @media (max-width: 768px) {
   .kima-card .kima-card-content .wallet-button {
@@ -1360,8 +1381,8 @@
 }
 @media (max-width: 768px) {
   .kima-card .kima-card-content .wallet-button {
-    flex-direction: column;
     align-items: flex-start;
+    flex-direction: column;
   }
   .kima-card .kima-card-content .wallet-button .balance-info {
     margin-left: auto;
@@ -1378,7 +1399,7 @@
   padding: 0 24px;
   color: white;
   background-color: #778da3;
-  font-size: 16px;
+  font-size: 14px;
 }
 @media (max-width: 586px) {
   .kima-card .kima-card-content .wallet-button button {
@@ -1388,7 +1409,16 @@
 @media (max-width: 500px) {
   .kima-card .kima-card-content .wallet-button button {
     font-size: 12px;
-    width: 200px;
+    width: 195px;
+  }
+}
+.kima-card .kima-card-content .wallet-button button.shortened {
+  justify-content: center;
+  font-size: 14px;
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .wallet-button button.shortened {
+    font-size: 12px;
   }
 }
 .kima-card .kima-card-content .wallet-button p {
@@ -1401,9 +1431,6 @@
   color: red;
   font-size: 0.8em;
   margin-left: 1em;
-}
-.kima-card .kima-card-content .wallet-button .connected {
-  justify-content: center;
 }
 .kima-card .kima-card-content .wallet-button .connected.light {
   color: black;
