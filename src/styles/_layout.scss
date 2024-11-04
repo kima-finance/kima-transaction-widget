@@ -1,6 +1,11 @@
+@import 'fonts';
+
 .kima-card {
   position: relative;
   .kima-card-header {
+    display: flex;
+    flex-direction: column;
+
     .topbar {
       display: flex;
       align-items: center;
@@ -14,10 +19,17 @@
       .title {
         display: flex;
         align-items: center;
-        font-size: 1.2em;
+        font-family: 'Sohne';
+        font-weight: 400;
+        letter-spacing: 1px;
 
         h3 {
           margin: 0;
+          font-size: 32px;
+
+          @include breakpoint(phablet) {
+            font-size: 26px;
+          }
         }
 
         span {
@@ -51,11 +63,20 @@
 
         .icon-button {
           background: transparent;
-          border: none;
-          font-size: 1em;
-          padding: 1px 6px;
+          border: 1px solid $financeGrey;
+          border-radius: 40px;
+          padding: 2px 8px;
           cursor: pointer;
           @include transition;
+
+          &.minimize {
+            border: none;
+          }
+
+          &:nth-of-type(2) {
+            margin-left: 13px;
+            padding: 4px 6px;
+          }
 
           &:hover,
           &:disabled {
@@ -67,27 +88,165 @@
           }
 
           svg {
-            width: 1em;
-            height: 1em;
+            width: 30px;
+            height: 22px;
+            padding: 5px;
+
+            @include breakpoint(phablet) {
+              width: 25px;
+            }
           }
 
           &:first-of-type svg {
-            margin-top: 0.5em;
+            margin-top: 7px;
           }
         }
 
-        a, .menu-button {
+        .cross-icon-button{
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: 4px;
+          width: 60px;
+          height: 60px;
+          border-radius: 9999px;
+          background: transparent;
+          cursor: pointer;
+          border: 1px solid $financeGrey;
+
+          @include breakpoint(phablet){
+            width: 50px;
+            height: 50px;
+          }
+
+          svg {
+            width: 24px;
+            height: 24px;
+
+            @include breakpoint(phablet){
+              width: 20px;
+              height: 20px;
+            }
+          }
+
+          &:hover,
+          &:disabled {
+            opacity: 0.6;
+          }
+
+          &:disabled {
+            cursor: default;
+          }
+        }
+
+        a {
           margin-left: auto;
-          margin-right: .5em;
-          color: $textSecondary;
+          color: $finance;
           text-decoration: none;
           cursor: pointer;
+          margin-right: 1em;
+        }
+
+        .menu-button {
+          font-family: 'Manrope';
+          font-size: 14px;
+          font-weight: 500;
+          padding: 4px 10px 4px 10px;
+          border: 1px solid $financeGrey;
+          border-radius: 50px;
+
+          &:hover {
+            background-color: $hover;
+          }
+
+          @include breakpoint(mobile) {
+            font-size: $fontSmall;
+          }
         }
 
         .maximize {
-          color: $textSecondary;
+          color: $financeIcon;
           cursor: pointer;
         }
+      }
+    }
+
+    .header-network-labels {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 16px;
+      margin-top: 20px;
+
+      p {
+        padding: 0;
+      }
+
+      @include breakpoint('max-width: 390px'){
+        p {
+          display: none;
+        }
+
+        .arrow {
+          transform: rotate(-180deg);
+        }
+      }
+
+      .arrow {
+        transform: rotate(-90deg);
+      }
+    }
+
+    h4 {
+      font-weight: 300;
+      font-size: 14px;
+      margin-top: 20px;
+      margin-bottom: 30px;
+    }
+
+    .kima-card-network-label {
+      display: flex;
+      padding: 13px 18px;
+      // width: 190px;
+      border-radius: 50px;
+      margin-right: 12px;
+
+      .icon {
+        border-radius: 9999px;
+        background-color: white;
+        padding: 4px;
+        display: flex;
+        justify-content: center;
+      }
+
+      @include breakpoint(mobile) {
+        font-size: 14px;
+      }
+
+      &.light {
+        background-color: $hover;
+        color: black;
+      }
+
+      &.dark {
+        background-color: $financeDark;
+        color: white;
+      }
+    }
+
+    p {
+      margin: 0;
+      border-radius: 50px;
+      padding: 1em 1.5em;
+
+      &.light {
+        background-color: $financeLighter;
+        color: black;
+      }
+
+      &.dark {
+        background-color: $finance;
+        color: white;
       }
     }
   }
@@ -96,16 +255,43 @@
     display: flex;
     align-items: center;
     @include transition;
-    max-height: 3em;
-    padding-top: 2em;
+    max-height: 50px;
+    padding-top: 32px;
+    padding-bottom: 32px;
     opacity: 1;
     box-sizing: content-box;
+    font-family: 'Manrope';
+    font-size: 14px;
+    font-weight: 700;
 
     .button-group {
       display: flex;
       align-items: center;
       box-sizing: content-box;
       margin-left: auto;
+      flex-direction: row;
+      gap: 20px;
+    
+
+      &.confirm {
+        margin-top: 20px;
+
+        @include breakpoint(mobile){
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+
+          .primary-button-wrapper {
+
+            &:last-of-type{
+              grid-column: span 2 / span 2;
+            }
+          }
+
+          * {
+            margin-left: auto;
+          }
+        }
+      }
     }
 
     svg {
@@ -118,16 +304,10 @@
       margin: 0 0 0 1em;
     }
 
-    button {
-      margin-left: 1em;
-    }
-
     @include breakpoint(phablet) {
-      p {
-        display: none;
-      }
+      margin-top: 40px;
 
-      .button-group button:first-of-type {
+      p {
         display: none;
       }
     }
@@ -135,10 +315,56 @@
     @include breakpoint(mobile) {
       flex-direction: column;
       max-height: unset;
-      padding-top: 0em;
+
+      &.bridge {
+        margin-top: 170px;
+      }
 
       .button-group {
         margin-left: unset;
+      }
+    }
+  }
+
+  .floating-footer {
+    color: black;
+    position: absolute;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+    font-family: 'Manrope';
+    right: 0;
+
+    .items {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      text-decoration: none;
+      padding: 2px 8px;
+      border-radius: 20px;
+      width: 220px;
+      font-size: 14px;
+
+      &.light {
+        background-color: $hover;
+      }
+
+      &.dark {
+        background-color: $finance;
+      }
+
+      span {
+        margin-right: 8px;
+        font-weight: 400;
+      }
+
+      strong {
+        margin-left: 7px;
+        font-size: 14px;
+        font-family: 'Poppins';
+        margin-top: 4px;
       }
     }
   }

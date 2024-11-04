@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { CrossIcon, FooterLogo, MinimizeIcon } from '../assets/icons'
+import { CrossIcon, ErrorIcon, FooterLogo, MinimizeIcon } from '../assets/icons'
 import Progressbar from './reusable/Progressbar'
-import { ExternalLink, NetworkLabel, StepBox } from './reusable'
+import { NetworkLabel, StepBox } from './reusable'
 import '../index.css'
 import {
   ColorModeOptions,
@@ -152,7 +152,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
           }, 3000)
         }
       } catch (e) {
-        toast.error('rpc disconnected')
+        toast.error('rpc disconnected', { icon: <ErrorIcon /> })
         console.log('rpc disconnected', e)
       }
     }
@@ -197,7 +197,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setErrorStep(1)
       setLoadingStep(-1)
       console.log(data.failReason)
-      toast.error('Unavailable')
+      toast.error('Unavailable', { icon: <ErrorIcon /> })
       setErrorMessage('Unavailable')
     } else if (status === TransactionStatus.KEYSIGNED) {
       setStep(3)
@@ -213,7 +213,9 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setErrorStep(3)
       setLoadingStep(-1)
       console.log(data.failReason)
-      toast.error('Failed to release tokens to target!')
+      toast.error('Failed to release tokens to target!', {
+        icon: <ErrorIcon />
+      })
       setErrorMessage('Failed to release tokens to target!')
     } else if (status === TransactionStatus.FAILEDTOPULL) {
       setStep(1)
@@ -221,7 +223,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setErrorStep(1)
       setLoadingStep(-1)
       console.log(data.failReason)
-      toast.error('Failed to pull tokens from source!')
+      toast.error('Failed to pull tokens from source!', { icon: <ErrorIcon /> })
       setErrorMessage('Failed to pull tokens from source!')
     } else if (status === TransactionStatus.COMPLETED) {
       setStep(4)
@@ -258,18 +260,16 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
             {!minimized ? (
               <div className='control-buttons'>
                 <button
-                  className='icon-button'
+                  className='icon-button minimize'
                   onClick={() => {
                     setMinimized(true)
                   }}
                 >
-                  <MinimizeIcon
-                    fill={theme.colorMode === 'light' ? 'black' : 'white'}
-                  />
+                  <MinimizeIcon />
                 </button>
                 {loadingStep < 0 ? (
                   <button
-                    className='icon-button'
+                    className='cross-icon-button'
                     onClick={() => {
                       dispatch(initialize())
                       closeHandler()
@@ -289,11 +289,10 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
               </div>
             )}
           </div>
-          {data?.sourceChain && data?.targetChain && (
+          {!minimized && data?.sourceChain && data?.targetChain && (
             <NetworkLabel
               sourceChain={data?.sourceChain}
               targetChain={data?.targetChain}
-              hasError={errorStep >= 0}
             />
           )}
         </div>
@@ -321,13 +320,6 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
           />
         </div>
 
-        <div className='kima-card-footer'>
-          <ExternalLink to={'https://kima.finance'}>
-            <FooterLogo
-              fill={theme.colorMode === 'light' ? 'black' : '#C5C5C5'}
-            />
-          </ExternalLink>
-        </div>
         <Toaster
           position='top-right'
           reverseOrder={false}
@@ -345,12 +337,22 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
               color:
                 theme.colorMode === ColorModeOptions.light ? 'black' : 'white',
               fontSize: '1em',
-              borderRadius: '1em',
-              border: '1px solid #66aae5',
-              background: 'transparent'
+              borderRadius: '50px',
+              border: '1px solid #B900004D',
+              background:
+                theme.colorMode === ColorModeOptions.light
+                  ? '#F7F8F9'
+                  : '#242732'
             }
           }}
         />
+        <div className='floating-footer'>
+          <div className={`items ${theme.colorMode}`}>
+            <span>Powered by</span>
+            <FooterLogo fill='black' />
+            <strong>Network</strong>
+          </div>
+        </div>
         {/* <Tooltip
           id='error-tooltip'
           className={`error-tooltip ${theme.colorMode}`}

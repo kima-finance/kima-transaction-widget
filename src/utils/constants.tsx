@@ -12,7 +12,9 @@ import {
   KEURICON,
   TronIcon,
   BTCIcon,
-  USDCIcon
+  USDCIcon,
+  PolygonzkEVMIcon,
+  USDKIcon
 } from '../assets/icons'
 
 export enum ChainName {
@@ -193,7 +195,7 @@ export const networkOptions = [
   {
     id: ChainName.POLYGON_ZKEVM,
     label: 'Polygon zkEVM',
-    icon: PolygonIcon
+    icon: PolygonzkEVMIcon
   },
   {
     id: ChainName.SOLANA,
@@ -231,7 +233,7 @@ type CoinOptions = {
 export const COIN_LIST: CoinOptions = {
   USDK: {
     symbol: 'USDK',
-    icon: USDTIcon
+    icon: USDKIcon
   },
   USDT: {
     symbol: 'USDT',

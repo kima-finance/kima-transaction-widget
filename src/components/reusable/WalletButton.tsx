@@ -12,13 +12,15 @@ import {
   selectSourceCompliant,
   selectTheme
 } from '../../store/selectors'
-import PrimaryButton from './PrimaryButton'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
 import { ChainName } from '../../utils/constants'
-import { getShortenedAddress } from '../../utils/functions'
+// import { getShortenedAddress } from '../../utils/functions'
 import { connectWalletBtn } from '../../utils/testId'
 import useBalance from '../../hooks/useBalance'
 import { useWeb3Modal } from '@web3modal/ethers5/react'
+import { WalletIcon } from '../../assets/icons'
+import useWidth from '../../hooks/useWidth'
+import { getShortenedAddress } from '../../utils/functions'
 
 const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const dispatch = useDispatch()
@@ -31,6 +33,13 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
     useIsWalletReady()
   const { balance } = useBalance()
   const { open } = useWeb3Modal()
+  const { width, updateWidth } = useWidth()
+
+  useEffect(() => {
+    if (width === 0) {
+      updateWidth(window.innerWidth)
+    }
+  }, [])
 
   const handleClick = () => {
     if (selectedNetwork === ChainName.SOLANA) {
@@ -65,14 +74,23 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
 
   return (
     <div
-      className={`wallet-button ${theme.colorMode} ${
+      className={`wallet-button ${isReady ? 'connected' : 'disconnected'} ${theme.colorMode} ${
         errorBelow ? 'error-below' : ''
       }`}
       data-testid={connectWalletBtn}
     >
-      <PrimaryButton clickHandler={handleClick}>
-        {isReady ? `${getShortenedAddress(walletAddress || '')}` : 'Wallet'}
-      </PrimaryButton>
+      <button
+        className={`${isReady ? 'connected' : 'disconnected'} ${width < 640 && 'shortened'} ${theme.colorMode}`}
+        onClick={handleClick}
+      >
+        {isReady
+          ? width >= 640
+            ? `${walletAddress || ''}`
+            : getShortenedAddress(walletAddress || '')
+          : ''}
+        {!isReady && <WalletIcon />}
+        {!isReady && 'Connect Wallet'}
+      </button>
 
       {isReady ? (
         <p className='balance-info'>

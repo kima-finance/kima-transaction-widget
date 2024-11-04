@@ -104,11 +104,15 @@ export const KimaTransactionWidget = ({
 }: Props) => {
   const submitted = useSelector(selectSubmitted)
   const dispatch = useDispatch()
-  const { setThemeMode } = useWeb3ModalTheme()
+  const { setThemeMode, setThemeVariables } = useWeb3ModalTheme()
 
   useEffect(() => {
     dispatch(setTheme(theme))
     setThemeMode(theme.colorMode === ColorModeOptions.light ? 'light' : 'dark')
+    setThemeVariables({
+      "--w3m-font-family": "Manrope, sans-serif",
+      "--w3m-border-radius-master": "42px",
+    })
 
     if (transactionOption) dispatch(setTransactionOption(transactionOption))
 

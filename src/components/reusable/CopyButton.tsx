@@ -24,7 +24,7 @@ const CopyButton = ({ text }: Props) => {
         navigator.clipboard.writeText(text)
       }}
     >
-      {copyClicked ? <CheckIcon fill='#979797' /> : <CopyIcon />}
+      {copyClicked ? <CheckIcon /> : <CopyIcon />}
     </span>
   )
 }

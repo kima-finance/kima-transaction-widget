@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Minimize = ({ width = 16, height = 1, fill = 'white', ...rest }) => {
+const Minimize = ({ width = 16, height = 1, fill = '#86B8CE', ...rest }) => {
   return (
     <svg
       width={width}

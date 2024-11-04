@@ -1,7 +1,13 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
-import { CheckIcon, WarningIcon } from '../../assets/icons'
-import { Loading180Ring } from '../../assets/loading'
+import {
+  CheckIcon,
+  EthereumIcon,
+  Loader,
+  Lock,
+  USDKIcon,
+  WarningIcon
+} from '../../assets/icons'
 import { NetworkOptions, TransactionData } from '../../interface'
 import {
   selectKimaExplorer,
@@ -12,7 +18,8 @@ import {
   ChainName,
   CHAIN_NAMES_TO_EXPLORER_MAINNET,
   CHAIN_NAMES_TO_EXPLORER_TESTNET,
-  CHAIN_NAMES_TO_STRING
+  CHAIN_NAMES_TO_STRING,
+  getNetworkOption
 } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 import CopyButton from './CopyButton'
@@ -47,6 +54,9 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
   const theme = useSelector(selectTheme)
   const explorerUrl = useSelector(selectKimaExplorer)
   const networkOption = useSelector(selectNetworkOption)
+  const SourceInfo = getNetworkOption(data?.sourceChain as string)
+  const TargetInfo = getNetworkOption(data?.targetChain as string)
+
   const CHAIN_NAMES_TO_EXPLORER =
     networkOption === NetworkOptions.mainnet
       ? CHAIN_NAMES_TO_EXPLORER_MAINNET
@@ -54,16 +64,20 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
 
   return (
     <div className='kima-stepbox'>
-      <div className='content-wrapper'>
+      <div className={`content-wrapper ${theme.colorMode}`}>
         {stepInfo.map((item, index) => (
           <div key={item.title} className='step-item'>
-            <div className='info-item'>
-              {index === loadingStep ? (
-                <Loading180Ring
-                  fill={theme.colorMode === 'dark' ? 'white' : '#5aa0db'}
-                />
-              ) : step >= index ? (
-                index === errorStep ? (
+            <div
+              className={`info-item
+                  ${step >= index ? (index === loadingStep ? 'active' : index === errorStep ? 'error' : 'completed') : ''} 
+                  ${step < index && 'locked'} ${theme.colorMode}`}
+            >
+              {step < index && <Lock />}
+
+              {step >= index ? (
+                index === loadingStep ? (
+                  <Loader className='loader' />
+                ) : index === errorStep ? (
                   <WarningIcon />
                 ) : (
                   <CheckIcon />
@@ -72,9 +86,12 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
               <p>{item.title}</p>
             </div>
             {index === 0 && data?.kimaTxHash ? (
-              <div className='info-item'>
+              <div className={`info-item ${theme.colorMode}`}>
+                <div className='icon'>
+                  <USDKIcon />
+                </div>
+                <p className='chain-name'>Kima TX ID:</p>
                 <p>
-                  Kima TX ID:{' '}
                   <ExternalLink
                     to={`${explorerUrl}/transactions/${data?.kimaTxHash}`}
                   >
@@ -85,14 +102,19 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
               </div>
             ) : null}
             {index === 1 && data?.tssPullHash ? (
-              <div className='info-item'>
-                <p>
+              <div className={`info-item ${theme.colorMode} source-chain`}>
+                <div className='icon'>
+                  {SourceInfo ? <SourceInfo.icon /> : <EthereumIcon />}
+                </div>
+                <p className='chain-name'>
                   {
                     CHAIN_NAMES_TO_STRING[
                       data?.sourceChain || ChainName.ETHEREUM
                     ]
                   }{' '}
                   TX ID:
+                </p>
+                <p>
                   <ExternalLink
                     to={`https://${
                       CHAIN_NAMES_TO_EXPLORER[
@@ -112,14 +134,19 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
               </div>
             ) : null}
             {index === 3 && data?.tssReleaseHash ? (
-              <div className='info-item'>
-                <p>
+              <div className={`info-item ${theme.colorMode} target-chain`}>
+                <div className='icon'>
+                  {TargetInfo ? <TargetInfo.icon /> : <EthereumIcon />}
+                </div>
+                <p className='chain-name'>
                   {
                     CHAIN_NAMES_TO_STRING[
                       data?.targetChain || ChainName.ETHEREUM
                     ]
                   }{' '}
                   TX ID:
+                </p>
+                <p>
                   <ExternalLink
                     to={`https://${
                       CHAIN_NAMES_TO_EXPLORER[

@@ -30,7 +30,6 @@ const { ConnectionProvider, WalletProvider: SolanaWalletProvider } =
   SolanaAdapter
 
 export {
-  FontSizeOptions,
   ColorModeOptions,
   ThemeOptions,
   SupportNetworks,
