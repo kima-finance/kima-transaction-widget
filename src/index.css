@@ -959,6 +959,17 @@
 .kima-card .kima-card-content .single-form .form-item input.kima-address-input {
   width: 325px;
 }
+@media (min-width: 640px) {
+  .kima-card .kima-card-content .single-form .form-item input.kima-address-input {
+    padding: 15px;
+    width: 371px;
+  }
+}
+@media (max-width: 640px) {
+  .kima-card .kima-card-content .single-form .form-item input.kima-address-input {
+    font-size: 14px;
+  }
+}
 @media (max-width: 585px) {
   .kima-card .kima-card-content .single-form .form-item input.kima-address-input {
     width: 280px;
@@ -967,6 +978,7 @@
 @media (max-width: 500px) {
   .kima-card .kima-card-content .single-form .form-item input.kima-address-input {
     width: 150px;
+    font-size: 12px;
   }
 }
 .kima-card .kima-card-content .single-form .form-item input.light {

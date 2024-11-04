@@ -702,12 +702,22 @@
           &.kima-address-input {
             width: 325px;
 
+            @include breakpoint('min-width: 640px') {
+              padding: 15px;
+              width: 371px;
+            }
+
+            @include breakpoint('max-width: 640px') {
+              font-size: 14px;
+            }
+
             @include breakpoint('max-width: 585px') {
               width: 280px;
             }
 
             @include breakpoint(mobile) {
               width: 150px;
+              font-size: 12px;
             }
           }
 
