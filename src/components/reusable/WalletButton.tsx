@@ -79,9 +79,11 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
         className={`${isReady ? 'connected' : 'disconnected'} ${width < 640 && 'shortened'} ${theme.colorMode}`}
         onClick={handleClick}
       >
-        {isReady && width >= 640
-          ? `${walletAddress || ''}`
-          : getShortenedAddress(walletAddress || '')}
+        {isReady
+          ? width >= 640
+            ? `${walletAddress || ''}`
+            : getShortenedAddress(walletAddress || '')
+          : ''}
         {!isReady && <WalletIcon />}
         {!isReady && 'Connect Wallet'}
       </button>
