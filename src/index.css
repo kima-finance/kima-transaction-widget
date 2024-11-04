@@ -950,6 +950,7 @@
   width: 100px;
   padding: 15px 20px;
   box-sizing: content-box;
+  font-size: 14px;
 }
 .kima-card .kima-card-content .single-form .form-item input ::placeholder {
   color: #778da3;
@@ -961,11 +962,6 @@
   .kima-card .kima-card-content .single-form .form-item input.kima-address-input {
     padding: 15px;
     width: 371px;
-  }
-}
-@media (max-width: 640px) {
-  .kima-card .kima-card-content .single-form .form-item input.kima-address-input {
-    font-size: 14px;
   }
 }
 @media (max-width: 585px) {
