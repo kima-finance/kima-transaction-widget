@@ -1220,6 +1220,11 @@
     width: 185px;
   }
 }
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .single-form .network-dropdown {
+    width: 165px;
+  }
+}
 .kima-card .kima-card-content .single-form .network-dropdown .network-wrapper {
   display: flex;
   justify-content: start;
@@ -1369,14 +1374,15 @@
   background-color: #778da3;
   font-size: 16px;
 }
-@media (max-width: 500px) {
-  .kima-card .kima-card-content .wallet-button button {
-    font-size: 12px;
-  }
-}
 @media (max-width: 586px) {
   .kima-card .kima-card-content .wallet-button button {
     width: 220px;
+  }
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .wallet-button button {
+    font-size: 12px;
+    width: 200px;
   }
 }
 .kima-card .kima-card-content .wallet-button p {

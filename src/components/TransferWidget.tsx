@@ -941,7 +941,7 @@ export const TransferWidget = ({
       <div
         className={`kima-card-footer ${mode === ModeOptions.bridge && formStep === 0 && 'bridge'}`}
       >
-        <div className={`button-group ${formStep !== 0 && 'confirm'}`}>
+        <div className={`button-group ${formStep !== 0 && allowance > 0 && 'confirm'}`}>
           {/* <SecondaryButton
             clickHandler={() => {
               if (isApproving || isSubmitting || isSigning || isBTCSigning)

@@ -1013,6 +1013,10 @@
           width: 185px;
         }
 
+        @include breakpoint(mobile) {
+          width: 165px;
+        }
+
         .network-wrapper {
           display: flex;
           justify-content: start;
@@ -1189,12 +1193,13 @@
         background-color: $finance;
         font-size: 16px;
 
-        @include breakpoint(mobile) {
-          font-size: 12px;
-        }
-
         @include breakpoint('max-width: 586px') {
           width: 220px;
+        }
+
+        @include breakpoint(mobile) {
+          font-size: 12px;
+          width: 200px;
         }
       }
 
