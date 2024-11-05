@@ -2836,7 +2836,9 @@ function useCurrencyOptions() {
 
 var CoinDropdown = function CoinDropdown(_ref) {
   var _ref$isSourceChain = _ref.isSourceChain,
-    isSourceChain = _ref$isSourceChain === void 0 ? true : _ref$isSourceChain;
+    isSourceChain = _ref$isSourceChain === void 0 ? true : _ref$isSourceChain,
+    _ref$disabled = _ref.disabled,
+    disabled = _ref$disabled === void 0 ? false : _ref$disabled;
   var ref = React.useRef();
   var dispatch = reactRedux.useDispatch();
   var _useState = React.useState(true),
@@ -2864,9 +2866,10 @@ var CoinDropdown = function CoinDropdown(_ref) {
     };
   }, [setCollapsed]);
   return React__default.createElement("div", {
-    className: "coin-dropdown " + theme.colorMode + " " + (collapsed ? 'collapsed' : ''),
+    className: "coin-dropdown " + theme.colorMode + " " + (collapsed ? 'collapsed' : '') + " " + (disabled ? 'disabled' : ''),
     onClick: function onClick() {
-      return setCollapsed(function (prev) {
+      if (disabled) return;
+      setCollapsed(function (prev) {
         return !prev;
       });
     },
@@ -2896,7 +2899,9 @@ var CoinDropdown = function CoinDropdown(_ref) {
 
 var NetworkDropdown = React__default.memo(function (_ref) {
   var _ref$isSourceChain = _ref.isSourceChain,
-    isSourceChain = _ref$isSourceChain === void 0 ? true : _ref$isSourceChain;
+    isSourceChain = _ref$isSourceChain === void 0 ? true : _ref$isSourceChain,
+    _ref$disabled = _ref.disabled,
+    disabled = _ref$disabled === void 0 ? false : _ref$disabled;
   var _useState = React.useState(true),
     collapsed = _useState[0],
     setCollapsed = _useState[1];
@@ -3010,8 +3015,9 @@ var NetworkDropdown = React__default.memo(function (_ref) {
     };
   }, [setCollapsed]);
   return React__default.createElement("div", {
-    className: "network-dropdown " + theme.colorMode + " " + (collapsed ? 'collapsed' : ''),
+    className: "network-dropdown " + theme.colorMode + " " + (collapsed ? 'collapsed' : '') + " " + (disabled ? 'disabled' : ''),
     onClick: function onClick() {
+      if (disabled) return;
       if (!autoSwitchChain && isSourceChain) return;
       setCollapsed(function (prev) {
         return !prev;
@@ -3587,6 +3593,7 @@ var SingleForm = function SingleForm(_ref) {
   var dispatch = reactRedux.useDispatch();
   var mode = reactRedux.useSelector(selectMode);
   var theme = reactRedux.useSelector(selectTheme);
+  var dAppOption = reactRedux.useSelector(selectDappOption);
   var feeDeduct = reactRedux.useSelector(selectFeeDeduct);
   var serviceFee = reactRedux.useSelector(selectServiceFee);
   var compliantOption = reactRedux.useSelector(selectCompliantOption);
@@ -3620,7 +3627,11 @@ var SingleForm = function SingleForm(_ref) {
     className: 'form-item'
   }, React__default.createElement("span", {
     className: 'label'
-  }, "Source Network:"), React__default.createElement(NetworkDropdown, null), React__default.createElement(CoinDropdown, null)), React__default.createElement("div", {
+  }, "Source Network:"), React__default.createElement(NetworkDropdown, {
+    disabled: dAppOption === exports.DAppOptions.LPAdd || dAppOption === exports.DAppOptions.LPDrain
+  }), React__default.createElement(CoinDropdown, {
+    disabled: dAppOption === exports.DAppOptions.LPAdd || dAppOption === exports.DAppOptions.LPDrain
+  })), React__default.createElement("div", {
     className: "dynamic-area " + (sourceNetwork === exports.SupportNetworks.FIAT ? 'reverse' : '')
   }, React__default.createElement("div", {
     className: 'form-item wallet-button-item'
@@ -7944,7 +7955,7 @@ function output(out, instance) {
 exports.output = output;
 const assert = { number, bool, bytes, hash, exists, output };
 exports.default = assert;
-
+//# sourceMappingURL=_assert.js.map
 });
 
 unwrapExports(_assert);
@@ -7953,7 +7964,7 @@ var crypto = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.crypto = void 0;
 exports.crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
-
+//# sourceMappingURL=crypto.js.map
 });
 
 unwrapExports(crypto);
@@ -8155,7 +8166,7 @@ function randomBytes(bytesLength = 32) {
     throw new Error('crypto.getRandomValues must be defined');
 }
 exports.randomBytes = randomBytes;
-
+//# sourceMappingURL=utils.js.map
 });
 
 unwrapExports(utils);
@@ -8277,7 +8288,7 @@ class SHA2 extends utils.Hash {
     }
 }
 exports.SHA2 = SHA2;
-
+//# sourceMappingURL=_sha2.js.map
 });
 
 unwrapExports(_sha2);
@@ -8410,7 +8421,7 @@ class SHA224 extends SHA256 {
  */
 exports.sha256 = (0, utils.wrapConstructor)(() => new SHA256());
 exports.sha224 = (0, utils.wrapConstructor)(() => new SHA224());
-
+//# sourceMappingURL=sha256.js.map
 });
 
 unwrapExports(sha256);

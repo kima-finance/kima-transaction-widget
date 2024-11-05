@@ -12,11 +12,12 @@ import {
   selectServiceFee,
   selectFeeDeduct,
   selectAmount,
-  selectTargetCurrency
+  selectTargetCurrency,
+  selectDappOption
 } from '../../store/selectors'
 import { BankInput, CoinDropdown, CustomCheckbox, WalletButton } from './'
 import { setAmount, setFeeDeduct } from '../../store/optionSlice'
-import { ModeOptions, PaymentTitleOption } from '../../interface'
+import { DAppOptions, ModeOptions, PaymentTitleOption } from '../../interface'
 import AddressInput from './AddressInput'
 import NetworkDropdown from './NetworkDropdown'
 import { COIN_LIST, ChainName } from '../../utils/constants'
@@ -31,6 +32,7 @@ const SingleForm = ({
   const dispatch = useDispatch()
   const mode = useSelector(selectMode)
   const theme = useSelector(selectTheme)
+  const dAppOption = useSelector(selectDappOption)
   const feeDeduct = useSelector(selectFeeDeduct)
   const serviceFee = useSelector(selectServiceFee)
   const compliantOption = useSelector(selectCompliantOption)
@@ -71,8 +73,18 @@ const SingleForm = ({
       ) : null}
       <div className='form-item'>
         <span className='label'>Source Network:</span>
-        <NetworkDropdown />
-        <CoinDropdown />
+        <NetworkDropdown
+          disabled={
+            dAppOption === DAppOptions.LPAdd ||
+            dAppOption === DAppOptions.LPDrain
+          }
+        />
+        <CoinDropdown
+          disabled={
+            dAppOption === DAppOptions.LPAdd ||
+            dAppOption === DAppOptions.LPDrain
+          }
+        />
       </div>
 
       <div

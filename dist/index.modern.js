@@ -2380,7 +2380,8 @@ function useCurrencyOptions() {
 }
 
 const CoinDropdown = ({
-  isSourceChain: _isSourceChain = true
+  isSourceChain: _isSourceChain = true,
+  disabled: _disabled = false
 }) => {
   const ref = useRef();
   const dispatch = useDispatch();
@@ -2408,8 +2409,11 @@ const CoinDropdown = ({
     };
   }, [setCollapsed]);
   return React.createElement("div", {
-    className: `coin-dropdown ${theme.colorMode} ${collapsed ? 'collapsed' : ''}`,
-    onClick: () => setCollapsed(prev => !prev),
+    className: `coin-dropdown ${theme.colorMode} ${collapsed ? 'collapsed' : ''} ${_disabled ? 'disabled' : ''}`,
+    onClick: () => {
+      if (_disabled) return;
+      setCollapsed(prev => !prev);
+    },
     ref: ref
   }, React.createElement("div", {
     className: 'coin-wrapper'
@@ -2435,7 +2439,8 @@ const CoinDropdown = ({
 };
 
 const NetworkDropdown = React.memo(({
-  isSourceChain: _isSourceChain = true
+  isSourceChain: _isSourceChain = true,
+  disabled: _disabled = false
 }) => {
   const [collapsed, setCollapsed] = useState(true);
   const [availableNetworks, setAvailableNetworks] = useState([]);
@@ -2523,8 +2528,9 @@ const NetworkDropdown = React.memo(({
     };
   }, [setCollapsed]);
   return React.createElement("div", {
-    className: `network-dropdown ${theme.colorMode} ${collapsed ? 'collapsed' : ''}`,
+    className: `network-dropdown ${theme.colorMode} ${collapsed ? 'collapsed' : ''} ${_disabled ? 'disabled' : ''}`,
     onClick: () => {
+      if (_disabled) return;
       if (!autoSwitchChain && _isSourceChain) return;
       setCollapsed(prev => !prev);
     },
@@ -3085,6 +3091,7 @@ const SingleForm = ({
   const dispatch = useDispatch();
   const mode = useSelector(selectMode);
   const theme = useSelector(selectTheme);
+  const dAppOption = useSelector(selectDappOption);
   const feeDeduct = useSelector(selectFeeDeduct);
   const serviceFee = useSelector(selectServiceFee);
   const compliantOption = useSelector(selectCompliantOption);
@@ -3114,7 +3121,11 @@ const SingleForm = ({
     className: 'form-item'
   }, React.createElement("span", {
     className: 'label'
-  }, "Source Network:"), React.createElement(NetworkDropdown, null), React.createElement(CoinDropdown, null)), React.createElement("div", {
+  }, "Source Network:"), React.createElement(NetworkDropdown, {
+    disabled: dAppOption === DAppOptions.LPAdd || dAppOption === DAppOptions.LPDrain
+  }), React.createElement(CoinDropdown, {
+    disabled: dAppOption === DAppOptions.LPAdd || dAppOption === DAppOptions.LPDrain
+  })), React.createElement("div", {
     className: `dynamic-area ${sourceNetwork === ChainName.FIAT ? 'reverse' : ''}`
   }, React.createElement("div", {
     className: 'form-item wallet-button-item'
@@ -7277,7 +7288,7 @@ function output(out, instance) {
 exports.output = output;
 const assert = { number, bool, bytes, hash, exists, output };
 exports.default = assert;
-
+//# sourceMappingURL=_assert.js.map
 });
 
 unwrapExports(_assert);
@@ -7286,7 +7297,7 @@ var crypto = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.crypto = void 0;
 exports.crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
-
+//# sourceMappingURL=crypto.js.map
 });
 
 unwrapExports(crypto);
@@ -7488,7 +7499,7 @@ function randomBytes(bytesLength = 32) {
     throw new Error('crypto.getRandomValues must be defined');
 }
 exports.randomBytes = randomBytes;
-
+//# sourceMappingURL=utils.js.map
 });
 
 unwrapExports(utils);
@@ -7610,7 +7621,7 @@ class SHA2 extends utils.Hash {
     }
 }
 exports.SHA2 = SHA2;
-
+//# sourceMappingURL=_sha2.js.map
 });
 
 unwrapExports(_sha2);
@@ -7743,7 +7754,7 @@ class SHA224 extends SHA256 {
  */
 exports.sha256 = (0, utils.wrapConstructor)(() => new SHA256());
 exports.sha224 = (0, utils.wrapConstructor)(() => new SHA224());
-
+//# sourceMappingURL=sha256.js.map
 });
 
 unwrapExports(sha256);
