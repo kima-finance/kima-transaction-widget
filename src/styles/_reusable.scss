@@ -1410,7 +1410,7 @@
       font-size: 16px;
       font-family: 'Manrope';
 
-      @include breakpoint(mobile){
+      @include breakpoint(mobile) {
         font-size: 12px;
       }
 
@@ -1792,45 +1792,48 @@
   }
 
   .card-item {
-    width: 10em;
-    height: 9em;
-    border-radius: 1em;
+    width: 100%;
+    height: 80px;
+    border-radius: 24px;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    flex-direction: row;
     align-items: center;
     cursor: pointer;
     text-decoration: none;
     color: inherit;
     @include transition;
+    padding: 0 25px;
+    gap: 20px;
+    border: 1px solid $financeGrey;
 
-    svg,
-    img {
-      width: 3em;
-      height: 3em;
-      border-radius: 100%;
+    img,
+    svg {
+      width: 60px;
+      height: 60px;
+
+      @include breakpoint(mobile){
+        width: 40px;
+        height: 40px;
+      }
     }
 
     span {
-      font-weight: bold;
-      margin-top: 1em;
+      font-weight: 500;
+      font-family: 'Manrope';
       text-align: center;
+      font-size: 18px;
+
+      @include breakpoint(mobile){
+        font-size: 14px;
+      }
     }
 
     &.light {
-      background: $progressbarLight;
+      background: $financeLighter;
     }
 
     &.dark {
-      background: $progressbarDark;
-    }
-
-    &.active {
-      background: $border;
-
-      span {
-        color: white;
-      }
+      background: $financeDarkest;
     }
 
     &:hover {

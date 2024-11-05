@@ -11,7 +11,6 @@
   border-radius: 42px;
   width: 100%;
   padding: 30px 40px;
-  font-family: 'Poppins', sans-serif;
   @include transition;
   transition-delay: 0.2s;
   max-width: 900px;
@@ -184,26 +183,6 @@
   .custom-scrollbar.dark {
     &::-webkit-scrollbar-thumb {
       background: $finance;
-    }
-  }
-
-  .slide-area {
-    width: 40em;
-    padding: 2em;
-    margin: 0 auto;
-    overflow: hidden;
-    overflow-x: scroll;
-    mask-image: linear-gradient(
-      90deg,
-      #00000020 0%,
-      black 5%,
-      black 95%,
-      #00000020 100%
-    );
-    position: relative;
-
-    @include breakpoint(phablet) {
-      width: calc(100% - 4em);
     }
   }
 
