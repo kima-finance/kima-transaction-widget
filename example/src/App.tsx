@@ -7,8 +7,7 @@ import {
   ModeOptions,
   ColorModeOptions,
   NetworkOptions,
-  SupportNetworks,
-  DAppOptions
+  SupportNetworks
   // DAppOptions
 } from 'kima-transaction-widget'
 import 'kima-transaction-widget/dist/index.css'
@@ -32,9 +31,9 @@ const App = () => {
             }}
             // mode={ModeOptions.status}
             // txId={2}
-            mode={ModeOptions.payment}
+            mode={ModeOptions.bridge}
             networkOption={NetworkOptions.testnet}
-            dAppOption={DAppOptions.LPAdd}
+            // dAppOption={DAppOptions.LPAdd}
             kimaBackendUrl='http://localhost:3001'
             kimaNodeProviderQuery='https://api-testnet.kima.finance'
             kimaExplorer='https://explorer-testnet.kima.finance'

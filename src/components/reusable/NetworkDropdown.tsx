@@ -23,7 +23,13 @@ import { fetchWrapper } from '../../helpers/fetch-wrapper'
 import toast from 'react-hot-toast'
 
 const NetworkDropdown = React.memo(
-  ({ isSourceChain = true }: { isSourceChain?: boolean }) => {
+  ({
+    isSourceChain = true,
+    disabled = false
+  }: {
+    isSourceChain?: boolean
+    disabled?: boolean
+  }) => {
     const [collapsed, setCollapsed] = useState(true)
     const [availableNetworks, setAvailableNetworks] = useState<
       Array<ChainName>
@@ -159,8 +165,9 @@ const NetworkDropdown = React.memo(
       <div
         className={`network-dropdown ${theme.colorMode} ${
           collapsed ? 'collapsed' : ''
-        }`}
+        } ${disabled ? 'disabled' : ''}`}
         onClick={() => {
+          if (disabled) return
           if (!autoSwitchChain && isSourceChain) return
           setCollapsed((prev) => !prev)
         }}

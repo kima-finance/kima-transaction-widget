@@ -11,9 +11,11 @@ import useCurrencyOptions from '../../hooks/useCurrencyOptions'
 import { setSourceCurrency, setTargetCurrency } from '../../store/optionSlice'
 
 const CoinDropdown = ({
-  isSourceChain = true
+  isSourceChain = true,
+  disabled = false
 }: {
   isSourceChain?: boolean
+  disabled?: boolean
 }) => {
   const ref = useRef<any>()
   const dispatch = useDispatch()
@@ -44,8 +46,11 @@ const CoinDropdown = ({
     <div
       className={`coin-dropdown ${theme.colorMode} ${
         collapsed ? 'collapsed' : ''
-      }`}
-      onClick={() => setCollapsed((prev) => !prev)}
+      } ${disabled ? 'disabled' : ''}`}
+      onClick={() => {
+        if (disabled) return
+        setCollapsed((prev) => !prev)
+      }}
       ref={ref}
     >
       <div className='coin-wrapper'>
