@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { CrossIcon } from '../../assets/icons'
 import { setTronConnectModal } from '../../store/optionSlice'
@@ -9,7 +9,7 @@ import {
 } from '../../store/selectors'
 
 import { useWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
-import { PrimaryButton, SecondaryButton, TronWalletSelect } from '../reusable'
+import { TronWalletSelect } from '../reusable'
 
 const TronWalletConnectModal = () => {
   const dispatch = useDispatch()
@@ -18,15 +18,21 @@ const TronWalletConnectModal = () => {
   const selectedProvider = useSelector(selectTronProvider)
   const { select, connect } = useWallet()
 
-  const handleConnect = async () => {
-    try {
-      select(selectedProvider)
-      await connect()
-      dispatch(setTronConnectModal(false))
-    } catch (e) {
-      console.log(e)
+  useEffect(() => {
+    const handleConnect = async () => {
+      try {
+        select(selectedProvider)
+        await connect()
+        dispatch(setTronConnectModal(false))
+      } catch (e) {
+        console.log(e)
+      }
     }
-  }
+
+    if (selectedProvider) {
+      handleConnect()
+    }
+  }, [selectedProvider])
 
   return (
     <div
@@ -35,7 +41,7 @@ const TronWalletConnectModal = () => {
       }`}
     >
       <div className='modal-overlay' />
-      <div className='modal-content-container'>
+      <div className={`modal-content-container ${theme.colorMode}`}>
         <div className='kima-card-header'>
           <div className='topbar'>
             <div className='title'>
@@ -55,18 +61,6 @@ const TronWalletConnectModal = () => {
         </div>
         <div className='modal-content'>
           <TronWalletSelect />
-        </div>
-        <div
-          className='kima-card-footer'
-          style={{ justifyContent: 'flex-end', marginTop: '2em' }}
-        >
-          <SecondaryButton
-            clickHandler={() => dispatch(setTronConnectModal(false))}
-            theme={theme.colorMode}
-          >
-            Cancel
-          </SecondaryButton>
-          <PrimaryButton clickHandler={handleConnect}>Connect</PrimaryButton>
         </div>
       </div>
     </div>

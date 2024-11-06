@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import { AdapterState } from '@tronweb3/tronwallet-abstract-adapter'
-import { ArrowIcon } from '../../assets/icons'
 import { selectTronProvider, selectTheme } from '../../store/selectors'
 import ExternalLink from './ExternalLink'
 import { setTronProvider } from '../../store/optionSlice'
@@ -59,35 +58,9 @@ const WalletSelect = () => {
     })
   })
 
-  const slideLeft = () => {
-    let temp = 0
-    const timerId = setInterval(() => {
-      sliderRef.current.scrollLeft -= 10
-      if (temp++ === 20) clearInterval(timerId)
-    }, 10)
-  }
-
-  const slideRight = () => {
-    let temp = 0
-    const timerId = setInterval(() => {
-      sliderRef.current.scrollLeft += 10
-      if (temp++ === 20) clearInterval(timerId)
-    }, 10)
-  }
 
   return (
     <div className={`wallet-select`}>
-      <p>Please select:</p>
-      <div className='scroll-button'>
-        <ArrowIcon
-          fill={theme.colorMode === 'light' ? 'black' : 'white'}
-          onClick={slideLeft}
-        />
-        <ArrowIcon
-          fill={theme.colorMode === 'light' ? 'black' : 'white'}
-          onClick={slideRight}
-        />
-      </div>
       <div className='slide-area hide-scrollbar' ref={sliderRef}>
         <div className='wallet-container'>
           {detected.map((wallet, index) => (
@@ -110,9 +83,7 @@ const WalletSelect = () => {
             >
               <img src={wallet.adapter.icon} alt={wallet.adapter.name} />
               <span>
-                Install
-                <br />
-                {wallet.adapter.name}
+                Install {wallet.adapter.name}
               </span>
             </ExternalLink>
           ))}
