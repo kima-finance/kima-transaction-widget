@@ -235,11 +235,8 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   return (
     <Provider store={store}>
       <div
-        className={`kima-card transaction-card ${theme.colorMode} font-${
-          theme.fontSize
-        } ${minimized ? 'minimized' : ''}`}
+        className={`kima-card transaction-card ${theme.colorMode} ${minimized ? 'minimized' : ''}`}
         style={{
-          fontFamily: theme.fontFamily,
           background:
             theme.colorMode === ColorModeOptions.light
               ? theme.backgroundColorLight
