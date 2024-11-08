@@ -234,7 +234,7 @@ export const KimaProvider = ({
   return (
     <Provider store={store}>
       <ConnectionProvider endpoint={SOLANA_HOST}>
-        <SolanaWalletProvider wallets={wallets}>
+        <SolanaWalletProvider wallets={wallets} autoConnect={true}>
           <TronWalletProvider
             onError={onError}
             autoConnect={false}

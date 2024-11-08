@@ -2,6 +2,7 @@ import React, { useEffect, useMemo } from 'react'
 import { toast } from 'react-hot-toast'
 import { useDispatch, useSelector } from 'react-redux'
 import {
+  setAccountDetailsModal,
   setSolanaConnectModal,
   setTronConnectModal
 } from '../../store/optionSlice'
@@ -21,6 +22,7 @@ import { useWeb3Modal } from '@web3modal/ethers5/react'
 import { WalletIcon } from '../../assets/icons'
 import useWidth from '../../hooks/useWidth'
 import { getShortenedAddress } from '../../utils/functions'
+import { useWallet } from '@solana/wallet-adapter-react'
 
 const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const dispatch = useDispatch()
@@ -29,6 +31,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const sourceCompliant = useSelector(selectSourceCompliant)
   const compliantOption = useSelector(selectCompliantOption)
   const selectedNetwork = useSelector(selectSourceChain)
+  const { connected: isSolanaConnected } = useWallet()
   const { isReady, statusMessage, walletAddress, connectBitcoinWallet } =
     useIsWalletReady()
   const { balance } = useBalance()
@@ -43,7 +46,9 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
 
   const handleClick = () => {
     if (selectedNetwork === ChainName.SOLANA) {
-      dispatch(setSolanaConnectModal(true))
+      isSolanaConnected
+        ? dispatch(setAccountDetailsModal(true))
+        : dispatch(setSolanaConnectModal(true))
       return
     }
 

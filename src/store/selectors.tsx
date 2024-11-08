@@ -23,6 +23,8 @@ export const selectSolanaConnectModal = (state: RootState) =>
   state.option.solanaConnectModal
 export const selectTronConnectModal = (state: RootState) =>
   state.option.tronConnectModal
+export const selectAccountDetailsModal = (state: RootState) =>
+  state.option.accountDetailsModal
 export const selectHelpPopup = (state: RootState) => state.option.helpPopup
 export const selectHashPopup = (state: RootState) => state.option.hashPopup
 export const selectPendingTxPopup = (state: RootState) =>
