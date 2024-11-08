@@ -1,4 +1,4 @@
-// ./core/coreSlice.ts
+// ./core/slice.ts
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import {
@@ -7,7 +7,9 @@ import {
   NetworkOptions,
   ThemeOptions,
   TransactionOption
-} from '../interface'
+} from '@interface'
+
+import { KIMA_EXPLORER_URL, GRAPHQL_PROVIDER_QUERY_URL } from './constants'
 
 // Define types for TokenOptions and CoreState
 export type AddressOption = {
@@ -57,8 +59,8 @@ const initialState: CoreState = {
   networkOption: NetworkOptions.testnet,
   theme: {}, // Define your default theme object here
   tokenOptions: {},
-  kimaExplorerUrl: 'https://explorer.kima.finance',
-  graphqlProviderQuery: 'https://graphql.kima.finance',
+  kimaExplorerUrl: KIMA_EXPLORER_URL,
+  graphqlProviderQuery: GRAPHQL_PROVIDER_QUERY_URL,
   mode: ModeOptions.bridge,
   sourceChain: '',
   targetChain: '',
@@ -114,7 +116,7 @@ export const coreSlice = createSlice({
       state.backendUrl = ''
       state.nodeProviderQuery = ''
       state.graphqlProviderQuery = ''
-      state.kimaExplorerUrl = 'https://explorer.kima.finance'
+      state.kimaExplorerUrl = KIMA_EXPLORER_URL
       state.sourceCurrency = 'USDK'
       state.targetCurrency = 'USDK'
       state.amount = ''
