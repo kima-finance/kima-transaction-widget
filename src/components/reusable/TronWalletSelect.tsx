@@ -2,17 +2,22 @@ import React, { useEffect, useMemo, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import { AdapterState } from '@tronweb3/tronwallet-abstract-adapter'
-import { selectTronProvider, selectTheme } from '../../store/selectors'
+import { selectTheme } from '../../store/selectors'
 import ExternalLink from './ExternalLink'
-import { setTronProvider } from '../../store/optionSlice'
+import { setTronConnectModal } from '../../store/optionSlice'
 
 const WalletSelect = () => {
   const theme = useSelector(selectTheme)
-  const selectedProvider = useSelector(selectTronProvider)
   const sliderRef = useRef<any>()
 
   const dispatch = useDispatch()
-  const { wallets } = useWallet()
+  const {
+    wallets,
+    select,
+    wallet: currentWallet,
+    connect,
+    connected
+  } = useWallet()
   const [detected, undetected] = useMemo(() => {
     const detected: any[] = []
     const undetected: any[] = []
@@ -58,6 +63,15 @@ const WalletSelect = () => {
     })
   })
 
+  useEffect(() => {
+    connected && dispatch(setTronConnectModal(false))
+  }, [connected])
+
+  const connectWallet = async (walletName) => {
+    currentWallet?.adapter.name === walletName
+      ? await connect()
+      : select(walletName)
+  }
 
   return (
     <div className={`wallet-select`}>
@@ -65,14 +79,14 @@ const WalletSelect = () => {
         <div className='wallet-container'>
           {detected.map((wallet, index) => (
             <div
-              className={`card-item ${theme.colorMode} ${
-                wallet.adapter.name === selectedProvider ? 'active' : ''
-              }`}
-              onClick={() => dispatch(setTronProvider(wallet.adapter.name))}
+              className={`card-item ${theme.colorMode}`}
+              onClick={() => connectWallet(wallet.adapter.name)}
               key={`${wallet.adapter.name}-${index}`}
             >
-              <img src={wallet.adapter.icon} alt={wallet.adapter.name} />
-              <span>{wallet.adapter.name}</span>
+              <div className='wallet-item'>
+                <img src={wallet.adapter.icon} alt={wallet.adapter.name} />
+                <span>{wallet.adapter.name}</span>
+              </div>
             </div>
           ))}
           {undetected.map((wallet, index) => (
@@ -81,10 +95,10 @@ const WalletSelect = () => {
               className={`card-item ${theme.colorMode}`}
               key={`${wallet.adapter.name}-${index}`}
             >
-              <img src={wallet.adapter.icon} alt={wallet.adapter.name} />
-              <span>
-                Install {wallet.adapter.name}
-              </span>
+              <div className='wallet-item'>
+                <img src={wallet.adapter.icon} alt={wallet.adapter.name} />
+                <span>Install {wallet.adapter.name}</span>
+              </div>
             </ExternalLink>
           ))}
         </div>

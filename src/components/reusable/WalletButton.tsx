@@ -22,7 +22,8 @@ import { useWeb3Modal } from '@web3modal/ethers5/react'
 import { WalletIcon } from '../../assets/icons'
 import useWidth from '../../hooks/useWidth'
 import { getShortenedAddress } from '../../utils/functions'
-import { useWallet } from '@solana/wallet-adapter-react'
+import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
+import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 
 const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const dispatch = useDispatch()
@@ -31,7 +32,8 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const sourceCompliant = useSelector(selectSourceCompliant)
   const compliantOption = useSelector(selectCompliantOption)
   const selectedNetwork = useSelector(selectSourceChain)
-  const { connected: isSolanaConnected } = useWallet()
+  const { connected: isSolanaConnected } = useSolanaWallet()
+  const { connected: isTronConnected } = useTronWallet()
   const { isReady, statusMessage, walletAddress, connectBitcoinWallet } =
     useIsWalletReady()
   const { balance } = useBalance()
@@ -53,7 +55,9 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
     }
 
     if (selectedNetwork === ChainName.TRON) {
-      dispatch(setTronConnectModal(true))
+      isTronConnected
+        ? dispatch(setAccountDetailsModal(true))
+        : dispatch(setTronConnectModal(true))
       return
     }
 

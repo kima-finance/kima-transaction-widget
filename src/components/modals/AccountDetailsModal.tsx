@@ -21,7 +21,8 @@ import {
   CHAIN_NAMES_TO_EXPLORER_TESTNET,
   networkOptions
 } from '../../utils/constants'
-import { useWallet } from '@solana/wallet-adapter-react'
+import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
+import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import useGetSolBalance from '../../hooks/useGetSolBalance'
 
 const AccountDetailsModal = () => {
@@ -30,11 +31,11 @@ const AccountDetailsModal = () => {
   const networkOption = useSelector(selectNetworkOption)
   const accountDetailsModal = useSelector(selectAccountDetailsModal)
   const { walletAddress } = useIsWalletReady()
-  const { disconnect: solanaWalletDisconnect } = useWallet()
+  const { disconnect: solanaWalletDisconnect } = useSolanaWallet()
+  const { disconnect: tronWalletDisconnect } = useTronWallet()
   const solBalance = useGetSolBalance()
   const selectedNetwork = useSelector(selectSourceChain)
 
-    
   // get the network details
   const networkDetails = useMemo(
     () => networkOptions.find(({ id }) => id === selectedNetwork),
@@ -49,7 +50,7 @@ const AccountDetailsModal = () => {
         ? CHAIN_NAMES_TO_EXPLORER_TESTNET[selectedNetwork]
         : CHAIN_NAMES_TO_EXPLORER_MAINNET[selectedNetwork]
 
-    const mainUrlParams = `${selectedNetwork === 'SOL' ? 'account' : '#/address'}/${walletAddress}`
+    const mainUrlParams = `${selectedNetwork === 'SOL' ? 'account' : 'address'}/${walletAddress}`
     const urlSufix = `${selectedNetwork === 'SOL' ? `?cluster=${networkOption === 'testnet' ? 'devnet' : 'mainnet'}` : ''}`
 
     return `https://${baseUrl}/${mainUrlParams}${urlSufix}`
@@ -59,7 +60,7 @@ const AccountDetailsModal = () => {
   const handleDisconnect = () => {
     selectedNetwork === 'SOL'
       ? solanaWalletDisconnect()
-      : console.log('tron disconnect...')
+      : tronWalletDisconnect()
 
     dispatch(setAccountDetailsModal(false))
   }
@@ -100,9 +101,9 @@ const AccountDetailsModal = () => {
           </div>
           <SecondaryButton className='block-explorer'>
             <ExternalLink className='link' to={explorerUrl}>
-              <ExplorerIcon fill='#778DA3'/>
+              <ExplorerIcon fill='#778DA3' />
               <p>Block explorer</p>
-              <ExternalUrlIcon fill='#778DA3'/>
+              <ExternalUrlIcon fill='#778DA3' />
             </ExternalLink>
           </SecondaryButton>
           <PrimaryButton clickHandler={handleDisconnect}>

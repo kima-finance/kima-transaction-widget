@@ -196,7 +196,7 @@ export const KimaProvider = ({
   function onError(e: WalletError) {
     if (e instanceof WalletNotFoundError) {
       toast.error(e.message)
-    } else if (e instanceof WalletDisconnectedError) {
+    } else if (e instanceof WalletDisconnectedError) { 
       toast.error(e.message)
     } else toast.error(e.message)
   }
@@ -237,7 +237,7 @@ export const KimaProvider = ({
         <SolanaWalletProvider wallets={wallets} autoConnect={true}>
           <TronWalletProvider
             onError={onError}
-            autoConnect={false}
+            autoConnect={true}
             disableAutoConnectOnLoad={true}
             adapters={adapters}
             onChainChanged={onChainChanged}
