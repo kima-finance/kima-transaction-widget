@@ -9,7 +9,15 @@ import {
   TransactionOption
 } from '@interface'
 
-import { KIMA_EXPLORER_URL, GRAPHQL_PROVIDER_QUERY_URL } from './constants'
+import {
+  KIMA_EXPLORER_URL,
+  GRAPHQL_PROVIDER_QUERY_URL,
+  DEFAULT_SOURCE_CURRENCY,
+  DEFAULT_TARGET_CURRENCY,
+  DEFAULT_MODE,
+  DEFAULT_SERVICE_FEE,
+  DEFAULT_COMPLIANCE_STATUS
+} from './constants'
 
 // Define types for TokenOptions and CoreState
 export type AddressOption = {
@@ -77,16 +85,16 @@ const initialState: CoreState = {
   successHandler: () => void 0,
   switchChainHandler: () => void 0,
   initChainFromProvider: false,
-  serviceFee: -1,
+  serviceFee: DEFAULT_SERVICE_FEE,
   backendUrl: '',
   nodeProviderQuery: '',
   graphqlProviderQuery: '',
   txId: -1,
-  sourceCurrency: 'USDK',
-  targetCurrency: 'USDK',
+  sourceCurrency: DEFAULT_SOURCE_CURRENCY,
+  targetCurrency: DEFAULT_TARGET_CURRENCY,
   compliantOption: true,
-  sourceCompliant: 'low',
-  targetCompliant: 'low',
+  sourceCompliant: DEFAULT_COMPLIANCE_STATUS,
+  targetCompliant: DEFAULT_COMPLIANCE_STATUS,
   targetNetworkFetching: false
 }
 
