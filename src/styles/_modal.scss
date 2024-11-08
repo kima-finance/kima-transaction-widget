@@ -106,6 +106,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      margin-bottom: 20px;
 
       h2,
       h3 {
@@ -117,6 +118,7 @@
         flex-direction: row;
         align-items: center;
         gap: 10px;
+        margin-top: 20px;
 
         svg {
           width: 25px;
@@ -128,6 +130,7 @@
     .secondary-button {
       margin-bottom: 20px;
       width: fit-content !important;
+      color: $financeIcon;
 
       a {
         display: flex;
