@@ -17,7 +17,7 @@ const SolanaWalletConnectModal = () => {
 
   return (
     <div>
-      <AccountDetailsModal chain='SOL' />
+      <AccountDetailsModal />
       <div
         className={`kima-modal wallet-connect ${connectModal ? 'open' : ''}`}
       >

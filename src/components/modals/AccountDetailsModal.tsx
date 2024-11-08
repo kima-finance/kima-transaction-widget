@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import {
   selectAccountDetailsModal,
   selectNetworkOption,
+  selectSourceChain,
   selectTheme
 } from '../../store/selectors'
 import { setAccountDetailsModal } from '../../store/optionSlice'
@@ -23,7 +24,7 @@ import {
 import { useWallet } from '@solana/wallet-adapter-react'
 import useGetSolBalance from '../../hooks/useGetSolBalance'
 
-const AccountDetailsModal = ({ chain }: { chain: string }) => {
+const AccountDetailsModal = () => {
   const dispatch = useDispatch()
   const theme = useSelector(selectTheme)
   const networkOption = useSelector(selectNetworkOption)
@@ -31,11 +32,13 @@ const AccountDetailsModal = ({ chain }: { chain: string }) => {
   const { walletAddress } = useIsWalletReady()
   const { disconnect: solanaWalletDisconnect } = useWallet()
   const solBalance = useGetSolBalance()
+  const selectedNetwork = useSelector(selectSourceChain)
 
+    
   // get the network details
   const networkDetails = useMemo(
-    () => networkOptions.find(({ id }) => id === chain),
-    [chain]
+    () => networkOptions.find(({ id }) => id === selectedNetwork),
+    [selectedNetwork]
   )
 
   // construct the explorer url based on network option
@@ -43,18 +46,18 @@ const AccountDetailsModal = ({ chain }: { chain: string }) => {
   const explorerUrl = useMemo(() => {
     const baseUrl =
       networkOption === 'testnet'
-        ? CHAIN_NAMES_TO_EXPLORER_TESTNET[chain]
-        : CHAIN_NAMES_TO_EXPLORER_MAINNET[chain]
+        ? CHAIN_NAMES_TO_EXPLORER_TESTNET[selectedNetwork]
+        : CHAIN_NAMES_TO_EXPLORER_MAINNET[selectedNetwork]
 
-    const mainUrlParams = `${chain === 'SOL' ? 'account' : '#/address'}/${walletAddress}`
-    const urlSufix = `${chain === 'SOL' ? `?cluster=${networkOption === 'testnet' ? 'devnet' : 'mainnet'}` : ''}`
+    const mainUrlParams = `${selectedNetwork === 'SOL' ? 'account' : '#/address'}/${walletAddress}`
+    const urlSufix = `${selectedNetwork === 'SOL' ? `?cluster=${networkOption === 'testnet' ? 'devnet' : 'mainnet'}` : ''}`
 
     return `https://${baseUrl}/${mainUrlParams}${urlSufix}`
-  }, [walletAddress, networkOption, chain])
+  }, [walletAddress, networkOption, selectedNetwork])
 
   // handle disconnection scenario
   const handleDisconnect = () => {
-    chain === 'SOL'
+    selectedNetwork === 'SOL'
       ? solanaWalletDisconnect()
       : console.log('tron disconnect...')
 
@@ -92,7 +95,7 @@ const AccountDetailsModal = ({ chain }: { chain: string }) => {
               <CopyButton text={walletAddress as string} />
             </div>
             <h3>
-              {chain === 'SOL' ? solBalance : 0} {chain}
+              {selectedNetwork === 'SOL' ? solBalance : 0} {selectedNetwork}
             </h3>
           </div>
           <SecondaryButton className='block-explorer'>
