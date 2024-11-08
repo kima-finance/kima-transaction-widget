@@ -24,6 +24,7 @@ import {
 import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import useGetSolBalance from '../../hooks/useGetSolBalance'
+import useGetTronBalance from '../../hooks/useGetTrxBalance'
 
 const AccountDetailsModal = () => {
   const dispatch = useDispatch()
@@ -34,6 +35,7 @@ const AccountDetailsModal = () => {
   const { disconnect: solanaWalletDisconnect } = useSolanaWallet()
   const { disconnect: tronWalletDisconnect } = useTronWallet()
   const solBalance = useGetSolBalance()
+  const tronBalance = useGetTronBalance()
   const selectedNetwork = useSelector(selectSourceChain)
 
   // get the network details
@@ -96,7 +98,7 @@ const AccountDetailsModal = () => {
               <CopyButton text={walletAddress as string} />
             </div>
             <h3>
-              {selectedNetwork === 'SOL' ? solBalance : 0} {selectedNetwork}
+              {selectedNetwork === 'SOL' ? solBalance : tronBalance} {selectedNetwork}
             </h3>
           </div>
           <SecondaryButton className='block-explorer'>
