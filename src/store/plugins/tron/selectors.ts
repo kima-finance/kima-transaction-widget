@@ -6,5 +6,5 @@ import { RootState } from '../../index'
  * Tron Plugin Selectors
  */
 
-export const selectTronConnectModal = (state: RootState) => state.option.tronConnectModal
-export const selectTronProvider = (state: RootState) => state.option.tronProvider
+export const selectTronConnectModal = (state: RootState) => state.tron.tronConnectModal
+export const selectTronProvider = (state: RootState) => state.tron.tronProvider
