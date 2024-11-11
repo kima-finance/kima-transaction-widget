@@ -31,8 +31,12 @@ export const selectBitcoinAddress = (state: RootState) =>
   state.option.bitcoinAddress
 export const selectBitcoinPubkey = (state: RootState) =>
   state.option.bitcoinPubkey
+
+//Solana
 export const selectSolanaConnectModal = (state: RootState) =>
   state.option.solanaConnectModal
+
+//Tron
 export const selectTronConnectModal = (state: RootState) =>
   state.option.tronConnectModal
 export const selectAccountDetailsModal = (state: RootState) =>
@@ -48,6 +52,8 @@ export const selectHashPopup = (state: RootState) => state.option.hashPopup
 export const selectPendingTxPopup = (state: RootState) =>
   state.option.pendingTxPopup
 export const selectBankPopup = (state: RootState) => state.option.bankPopup
+
+//Solana
 export const selectSolanaProvider = (state: RootState) =>
   state.option.solanaProvider
 
