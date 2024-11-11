@@ -876,7 +876,7 @@ export const TransferWidget = ({
           <div className='control-buttons'>
             {pendingTxs > 0 ? <TxButton theme={theme} /> : null}
             <ExternalLink
-              to={helpURL ? helpURL : 'https://docs.kima.finance/demo'}
+              to={helpURL ? helpURL : 'https://docs.kima.network/kima-network/try-kima-with-the-demo-app'}
             >
               <div className='menu-button'>I need help</div>
             </ExternalLink>
