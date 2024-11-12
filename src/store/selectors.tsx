@@ -36,6 +36,9 @@ export const selectBitcoinAddress = (state: RootState) =>
 export const selectBitcoinPubkey = (state: RootState) =>
   state.option.bitcoinPubkey
 
+// Bitcoin
+export const selectExpireTime = (state: RootState) => state.option.expireTime
+
 // Solana
 export const selectSolanaConnectModal = (state: RootState) =>
   state.option.solanaConnectModal
@@ -151,14 +154,13 @@ export const selectTargetChainFetching = (state: RootState) =>
 // Core
 export const selectTxId = (state: RootState) => state.option.txId
 
-//Unmarked:
-
+// Solana & Tron | Should be seggregated
 export const selectAccountDetailsModal = (state: RootState) =>
   state.option.accountDetailsModal
+
+// Fiat
 export const selectUseFIAT = (state: RootState) => state.option.useFIAT
 export const selectBankDetails = (state: RootState) => state.option.bankDetails
-
 export const selectSignature = (state: RootState) => state.option.signature
 export const selectUuid = (state: RootState) => state.option.uuid
 export const selectKycStatus = (state: RootState) => state.option.kycStatus
-export const selectExpireTime = (state: RootState) => state.option.expireTime
