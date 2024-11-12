@@ -37,7 +37,6 @@ interface CoreState {
   tokenOptions: TokenOptions // token options from blockchain endpoint
   helpPopup: boolean // shows popup to show help instructions
   hashPopup: boolean // shows popup to show hashes of transactions
-  pendingTxPopup: boolean // shows popup to show pending transactions
   dAppOption: DAppOptions // specify which dApp is using this widget
   submitted: boolean // if transaction is submitted, shows Transaction Widget
   amount: string // amount input
@@ -75,7 +74,6 @@ const initialState: CoreState = {
   targetAddress: '',
   helpPopup: false,
   hashPopup: false,
-  pendingTxPopup: false,
   dAppOption: DAppOptions.None,
   submitted: false,
   amount: '',
@@ -116,7 +114,6 @@ export const coreSlice = createSlice({
       state.tokenOptions = {}
       state.helpPopup = false
       state.hashPopup = false
-      state.pendingTxPopup = false
       state.errorHandler = () => void 0
       state.closeHandler = () => void 0
       state.successHandler = () => void 0
@@ -155,9 +152,6 @@ export const coreSlice = createSlice({
     },
     setHashPopup: (state, action: PayloadAction<boolean>) => {
       state.hashPopup = action.payload
-    },
-    setPendingTxPopup: (state, action: PayloadAction<boolean>) => {
-      state.pendingTxPopup = action.payload
     },
     setDappOption: (state, action: PayloadAction<DAppOptions>) => {
       state.dAppOption = action.payload
@@ -240,7 +234,6 @@ export const {
   setTargetAddress,
   setHelpPopup,
   setHashPopup,
-  setPendingTxPopup,
   setDappOption,
   setSubmitted,
   setTransactionOption,

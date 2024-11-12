@@ -15,7 +15,6 @@ export const selectTargetChain = (state: RootState) => state.core.targetChain
 export const selectTargetAddress = (state: RootState) => state.core.targetAddress
 export const selectHelpPopup = (state: RootState) => state.core.helpPopup
 export const selectHashPopup = (state: RootState) => state.core.hashPopup
-export const selectPendingTxPopup = (state: RootState) => state.core.pendingTxPopup
 export const selectDappOption = (state: RootState) => state.core.dAppOption
 export const selectSubmitted = (state: RootState) => state.core.submitted
 export const selectTransactionOption = (state: RootState) => state.core.transactionOption
@@ -38,3 +37,6 @@ export const selectCompliantOption = (state: RootState) => state.core.compliantO
 export const selectSourceCompliant = (state: RootState) => state.core.sourceCompliant
 export const selectTargetCompliant = (state: RootState) => state.core.targetCompliant
 export const selectTargetChainFetching = (state: RootState) => state.core.targetNetworkFetching
+export const selectPendingTxs = (state: RootState) => state.core.pendingTxs
+export const selectPendingTxData = (state: RootState) => state.core.pendingTxData
+export const selectTxId = (state: RootState) => state.core.txId
