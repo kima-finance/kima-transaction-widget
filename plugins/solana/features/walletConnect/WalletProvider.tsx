@@ -1,22 +1,44 @@
 // plugins/solana/features/walletConnect/WalletProvider.tsx
+import React, { ReactNode } from 'react'
 import {
   ConnectionProvider,
   WalletProvider as SolanaWalletProvider
 } from '@solana/wallet-adapter-react'
 import {
   PhantomWalletAdapter,
-  SolflareWalletAdapter
+  SolflareWalletAdapter,
+  CloverWalletAdapter,
+  Coin98WalletAdapter,
+  SolongWalletAdapter,
+  TorusWalletAdapter
 } from '@solana/wallet-adapter-wallets'
+import { getHostEndpoint } from './utils/constants'
 
-const SolanaWalletProviderComponent = ({ children }) => (
-  <ConnectionProvider endpoint={process.env.SOLANA_HOST}>
-    <SolanaWalletProvider
-      wallets={[new PhantomWalletAdapter(), new SolflareWalletAdapter()]}
-      autoConnect={true}
-    >
-      {children}
-    </SolanaWalletProvider>
-  </ConnectionProvider>
-)
+interface WalletProviderProps {
+  children: ReactNode
+  networkOption: string
+}
 
-export default SolanaWalletProviderComponent
+const WalletProvider = ({ children, networkOption }: WalletProviderProps) => {
+  const endpoint = getHostEndpoint(networkOption)
+
+  return (
+    <ConnectionProvider endpoint={endpoint}>
+      <SolanaWalletProvider
+        wallets={[
+          new PhantomWalletAdapter(),
+          new SolflareWalletAdapter(),
+          new CloverWalletAdapter(),
+          new Coin98WalletAdapter(),
+          new SolongWalletAdapter(),
+          new TorusWalletAdapter()
+        ]}
+        autoConnect={true}
+      >
+        {children}
+      </SolanaWalletProvider>
+    </ConnectionProvider>
+  )
+}
+
+export default WalletProvider

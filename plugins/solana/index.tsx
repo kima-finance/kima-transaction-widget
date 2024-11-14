@@ -1,14 +1,14 @@
 // plugins/solana/index.tsx
-import { store } from '../../store';
-import { registerPlugin } from '../../store/pluginSlice';
-import SolanaProviderComponent from './features/walletConnect/SolanaProvider';
+import { store } from '../../store'
+import { registerPlugin } from '../../store/pluginSlice'
+import WalletProvider from './features/walletConnect/WalletProvider'
 
 const SolanaPlugin = {
   id: 'solana',
-  provider: SolanaProviderComponent  // Only passing provider, without specifics
-};
+  provider: WalletProvider
+}
 
 // Register Solana plugin generically
-store.dispatch(registerPlugin(SolanaPlugin));
+store.dispatch(registerPlugin(SolanaPlugin))
 
-export default SolanaPlugin;
+export default SolanaPlugin
