@@ -9,8 +9,11 @@ export type Cluster = 'devnet' | 'testnet' | 'mainnet'
 // Set the current cluster to 'devnet'
 export const CLUSTER: Cluster = 'devnet'
 
-// Export the Solana host URL based on the cluster
-export const SOLANA_HOST = clusterApiUrl(CLUSTER)
+export function getHostEndpoint(networkOption: string): String {
+  const cluster: Cluster = networkOption == 'mainnet' ? 'mainnet' : 'devnet'
+  const SOLANA_HOST = clusterApiUrl(cluster)
+  return SOLANA_HOST
+}
 
 // Enumeration for Chain Names
 export enum ChainName {
