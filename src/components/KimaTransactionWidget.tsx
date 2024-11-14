@@ -77,7 +77,7 @@ interface Props {
   keplrHandler?: (e: any) => void
 }
 
-export const KimaTransactionWidget = ({
+const KimaTransactionWidget = ({
   mode,
   txId,
   autoSwitchChain = true,
@@ -223,3 +223,6 @@ export const KimaTransactionWidget = ({
     />
   )
 }
+
+
+export default KimaTransactionWidget;

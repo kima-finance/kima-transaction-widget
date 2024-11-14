@@ -5,5 +5,8 @@ import React from 'react';
  * @props
  * @returns
  */
-declare const AddressInput: () => React.JSX.Element;
+declare const AddressInput: ({ theme, placeholder }: {
+    theme: string;
+    placeholder: string;
+}) => React.JSX.Element;
 export default AddressInput;

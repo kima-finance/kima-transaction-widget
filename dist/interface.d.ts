@@ -5,11 +5,6 @@ export declare enum NetworkOptions {
     testnet = "testnet",
     mainnet = "mainnet"
 }
-export declare enum FontSizeOptions {
-    large = "large",
-    medium = "medium",
-    small = "small"
-}
 export declare enum ModeOptions {
     payment = "payment",
     bridge = "bridge",
@@ -52,8 +47,6 @@ export interface CompliantOption {
 }
 export interface ThemeOptions {
     colorMode?: ColorModeOptions;
-    fontSize?: FontSizeOptions;
-    fontFamily?: string;
     backgroundColorLight?: string;
     backgroundColorDark?: string;
 }
