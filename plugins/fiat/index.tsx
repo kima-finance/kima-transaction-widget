@@ -1,13 +1,11 @@
 // plugins/fiat/index.tsx
-import { store } from '../../store';
-import { registerPlugin } from '../../store/pluginSlice';
+import { store } from '../../store'
+import { registerPlugin } from '../../store/pluginSlice'
 
 const FiatPlugin = {
-  id: 'fiat',
-  // Add any setup or provider logic here, if needed
-  provider: ({ children }) => <div>{children}</div>  // Placeholder for Fiat integration logic
-};
+  id: 'fiat'
+}
 
-store.dispatch(registerPlugin(FiatPlugin));
+store.dispatch(registerPlugin(FiatPlugin))
 
-export default FiatPlugin;
+export default FiatPlugin
