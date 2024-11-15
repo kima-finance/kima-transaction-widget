@@ -1,14 +1,16 @@
 // plugins/tron/index.tsx
-import { store } from '../../store';
-import { registerPlugin } from '../../store/pluginSlice';
-import TronProvider from './features/walletConnect/TronProvider';
+import { store } from '../../store'
+import { registerPlugin } from '../../store/pluginSlice'
+import WalletProvider from './features/walletConnect/WalletProvider'
 
 const TronPlugin = {
   id: 'tron',
-  provider: TronProvider
-};
+  provider: ({ children, networkOption }) => (
+    <WalletProvider networkOption={networkOption}>{children}</WalletProvider>
+  )
+}
 
-// Register the Tron plugin generically in the store
-store.dispatch(registerPlugin(TronPlugin));
+// Register the Tron plugin in the store
+store.dispatch(registerPlugin(TronPlugin))
 
-export default TronPlugin;
+export default TronPlugin
