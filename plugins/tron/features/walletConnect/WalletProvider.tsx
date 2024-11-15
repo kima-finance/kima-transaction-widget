@@ -1,4 +1,4 @@
-// plugins/tron/features/walletConnect/TronProvider.tsx
+// plugins/tron/features/walletConnect/walletProvider.tsx
 import React, { ReactNode, useMemo } from 'react'
 import {
   WalletProvider as TronWalletProvider,
@@ -14,12 +14,12 @@ import {
 } from '@tronweb3/tronwallet-abstract-adapter'
 import { toast } from 'react-hot-toast'
 
-interface TronProviderProps {
+interface WalletProviderProps {
   children: ReactNode
   networkOption: string
 }
 
-const TronProvider = ({ children, networkOption }: TronProviderProps) => {
+const WalletProvider = ({ children, networkOption }: WalletProviderProps) => {
   const adapters = useMemo(
     () => [
       new TronLinkAdapter(),
