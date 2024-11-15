@@ -6,9 +6,7 @@ import { SolanaIcon } from '../assets/icons'
 // Define the type for Cluster
 export type Cluster = 'devnet' | 'testnet' | 'mainnet'
 
-// Set the current cluster to 'devnet'
-export const CLUSTER: Cluster = 'devnet'
-
+// Choose endpoint based on network option
 export function getHostEndpoint(networkOption: string): String {
   const cluster: Cluster = networkOption == 'mainnet' ? 'mainnet' : 'devnet'
   const SOLANA_HOST = clusterApiUrl(cluster)
