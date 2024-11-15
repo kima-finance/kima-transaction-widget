@@ -42,15 +42,18 @@ const WalletProvider = ({ children, networkOption }: WalletProviderProps) => {
 
   const onChainChanged = (chainData) => {
     if (networkOption === 'testnet') {
-      if (chainData.chainId !== '0x3e9') {
-        // Shasta Testnet Chain ID
-        adapters[0].switchChain('0x3e9')
+      if (chainData.chainId === '0xcd8690dc') {
+        // Nile Testnet Chain ID
+        toast.error('Please switch to Tron Shasta Testnet!')
+        adapters[0].switchChain('0x3e9') // Shasta Testnet Chain ID
+      } else if (chainData.chainId !== '0x3e9') {
+        adapters[0].switchChain('0x3e9') // Ensure Shasta if not already
       }
-    } else if (networkOption === 'mainnet') {
-      if (chainData.chainId !== '0x2b6653dc') {
-        // Tron Mainnet Chain ID
-        adapters[0].switchChain('0x2b6653dc')
-      }
+    } else if (
+      networkOption === 'mainnet' &&
+      chainData.chainId !== '0x2b6653dc'
+    ) {
+      adapters[0].switchChain('0x2b6653dc') // Mainnet Chain ID for Tron
     }
   }
 
