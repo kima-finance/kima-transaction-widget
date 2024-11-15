@@ -9,7 +9,7 @@ const pluginSlice = createSlice({
   reducers: {
     registerPlugin: (state, action) => {
       const { id, provider } = action.payload
-      state.plugins[id] = { provider } // Store provider component generically
+      state.plugins[id] = { provider } // Store provider function, allowing props to be passed
     }
   }
 })
