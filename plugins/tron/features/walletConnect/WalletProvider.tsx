@@ -1,7 +1,7 @@
-// plugins/tron/features/walletConnect/walletProvider.tsx
+// plugins/tron/features/walletConnect/WalletProvider.tsx
 import React, { ReactNode, useMemo } from 'react'
 import {
-  WalletProvider as TronWalletProvider,
+  WalletProvider as TronWalletProviderBase,
   TronLinkAdapter,
   LedgerAdapter,
   OkxWalletAdapter,
@@ -47,19 +47,19 @@ const WalletProvider = ({ children, networkOption }: WalletProviderProps) => {
         adapters[0].switchChain('0xcd8690dc')
       }
     }
-    // Logic can be extended for mainnet if needed
+    // Additional logic for mainnet can be added here if needed
   }
 
   return (
-    <TronWalletProvider
+    <TronWalletProviderBase
       adapters={adapters}
       autoConnect={true}
       onError={onError}
       onChainChanged={onChainChanged}
     >
       {children}
-    </TronWalletProvider>
+    </TronWalletProviderBase>
   )
 }
 
-export default TronProvider
+export default WalletProvider
