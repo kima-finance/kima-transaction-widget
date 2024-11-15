@@ -48,8 +48,8 @@ import { TransferWidget } from './TransferWidget'
 import { ChainName } from '../utils/constants'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 import { Web3Provider } from '@ethersproject/providers'
-import { useWeb3ModalTheme } from '@web3modal/ethers5/react'
 import toast from 'react-hot-toast'
+import { useAppKitTheme } from '@reown/appkit/react'
 
 interface Props {
   theme: ThemeOptions
@@ -104,7 +104,7 @@ export const KimaTransactionWidget = ({
 }: Props) => {
   const submitted = useSelector(selectSubmitted)
   const dispatch = useDispatch()
-  const { setThemeMode } = useWeb3ModalTheme()
+  const { setThemeMode } = useAppKitTheme()
 
   useEffect(() => {
     dispatch(setTheme(theme))

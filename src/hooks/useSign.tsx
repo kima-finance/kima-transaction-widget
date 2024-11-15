@@ -9,25 +9,21 @@ import {
   selectSourceChain
 } from '../store/selectors'
 import { setSignature } from '../store/optionSlice'
-import {
-  useWeb3ModalAccount,
-  useWeb3ModalProvider
-} from '@web3modal/ethers5/react'
-import { Web3ModalAccountInfo } from '../interface'
 import { ethers } from 'ethers'
 import { ExternalProvider, JsonRpcFetchFunc } from '@ethersproject/providers'
+import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
 
 export default function useSign({ setSigning }: { setSigning: any }) {
   const dispatch = useDispatch()
   const [isSigned, setIsSigned] = useState<boolean>(false)
-  const web3ModalAccountInfo: Web3ModalAccountInfo = useWeb3ModalAccount()
-  const { address: signerAddress } = web3ModalAccountInfo || {
+  const appkitAccountInfo = useAppKitAccount()
+  const { address: signerAddress } = appkitAccountInfo || {
     address: null,
     chainId: null,
     isConnected: null
   }
 
-  const { walletProvider } = useWeb3ModalProvider()
+  const { walletProvider } = useAppKitProvider('eip155')
   const sourceNetwork = useSelector(selectSourceChain)
   const errorHandler = useSelector(selectErrorHandler)
   const amount = useSelector(selectAmount)

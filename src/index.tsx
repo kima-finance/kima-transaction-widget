@@ -22,9 +22,11 @@ import {
   WalletNotFoundError
 } from '@tronweb3/tronwallet-abstract-adapter'
 import { toast } from 'react-hot-toast'
-import { SOLANA_HOST } from './utils/constants'
-import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react'
+import { mainnetChains, SOLANA_HOST, testnetChains } from './utils/constants'
 import { NetworkOptions } from './interface'
+import { Ethers5Adapter } from '@reown/appkit-adapter-ethers5'
+import { createAppKit } from '@reown/appkit/react'
+import { ModalContext } from './contexts/useModal'
 
 const { ConnectionProvider, WalletProvider: SolanaWalletProvider } =
   SolanaAdapter
@@ -43,119 +45,7 @@ export {
 } from './interface'
 export { KimaTransactionWidget } from './components/KimaTransactionWidget'
 
-const ethereumSepolia = {
-  chainId: 11155111,
-  name: 'Ethereum Sepolia',
-  currency: 'ETH',
-  explorerUrl: 'https://sepolia.etherscan.io',
-  rpcUrl: 'https://ethereum-sepolia-rpc.publicnode.com'
-}
-
-const ethereum = {
-  chainId: 1,
-  name: 'Ethereum Mainnet',
-  currency: 'ETH',
-  explorerUrl: 'https://etherscan.io',
-  rpcUrl: 'https://endpoints.omniatech.io/v1/eth/mainnet/public'
-}
-
-const bscTestnet = {
-  chainId: 97,
-  name: 'BNB Smart Chain Testnet',
-  currency: 'tBNB',
-  explorerUrl: 'https://testnet.bscscan.com',
-  rpcUrl: 'https://endpoints.omniatech.io/v1/bsc/testnet/public'
-}
-
-const bsc = {
-  chainId: 56,
-  name: 'BNB Smart Chain Mainnet',
-  currency: 'BNB',
-  explorerUrl: 'https://bscscan.com',
-  rpcUrl: 'https://bsc-dataseed.binance.org/'
-}
-
-const polygonAmoy = {
-  chainId: 80002,
-  name: 'Amoy',
-  currency: 'MATIC',
-  explorerUrl: 'https://www.oklink.com/amoy',
-  rpcUrl: 'https://rpc-amoy.polygon.technology'
-}
-
-const polygon = {
-  chainId: 137,
-  name: 'Polygon Mainnet',
-  currency: 'MATIC',
-  explorerUrl: 'https://polygonscan.com',
-  rpcUrl: 'https://polygon-rpc.com/'
-}
-
-const arbitrumSepolia = {
-  chainId: 421614,
-  name: 'Arbitrum Sepolia Testnet',
-  currency: 'ETH',
-  explorerUrl: 'https://sepolia.arbiscan.io/',
-  rpcUrl: 'https://sepolia-rollup.arbitrum.io/rpc'
-}
-
-const arbitrum = {
-  chainId: 42161,
-  name: 'Arbitrum Mainnet',
-  currency: 'ETH',
-  explorerUrl: 'https://arbiscan.io',
-  rpcUrl: 'https://arb1.arbitrum.io/rpc'
-}
-
-const optimismSepola = {
-  chainId: 11155420,
-  name: 'OP Sepolia',
-  currency: 'ETH',
-  explorerUrl: 'https://sepolia-optimism.etherscan.io',
-  rpcUrl: 'https://sepolia.optimism.io'
-}
-
-const optimism = {
-  chainId: 10,
-  name: 'OP Mainnet',
-  currency: 'ETH',
-  explorerUrl: 'https://optimistic.etherscan.io',
-  rpcUrl: 'https://mainnet.optimism.io'
-}
-
-const avalancheFuji = {
-  chainId: 43113,
-  name: 'Avalanche Fuji Testnet',
-  currency: 'AVAX',
-  explorerUrl: 'https://testnet.snowtrace.io',
-  rpcUrl: 'https://api.avax-test.network/ext/bc/C/rpc'
-}
-
-const avalanche = {
-  chainId: 43114,
-  name: 'Avalanche Mainnet',
-  currency: 'AVAX',
-  explorerUrl: 'https://snowtrace.io',
-  rpcUrl: 'https://api.avax.network/ext/bc/C/rpc'
-}
-
-const zkEVMTestnet = {
-  chainId: 2442,
-  name: 'Polygon zkEVM Cardona Testnet',
-  currency: 'ETH',
-  explorerUrl: 'https://cardona-zkevm.polygonscan.com',
-  rpcUrl: 'https://polygon-zkevm-cardona.blockpi.network/v1/rpc/public'
-}
-
-const zkEVM = {
-  chainId: 1101,
-  name: 'Polygon zkEVM',
-  currency: 'ETH',
-  explorerUrl: 'https://zkevm.polygonscan.com',
-  rpcUrl: 'https://zkevm-rpc.com'
-}
-
-// 3. Create modal
+// Metadata object for reown project (optional)
 const metadata = {
   name: 'Kima Transaction Widget',
   description: 'Frontend widget for Kima integration for dApps',
@@ -209,27 +99,18 @@ export const KimaProvider = ({
     }
   }
 
-  createWeb3Modal({
-    ethersConfig: defaultConfig({ metadata }),
-    chains:
-      networkOption === NetworkOptions.mainnet
-        ? [ethereum, bsc, polygon, arbitrum, optimism, avalanche, zkEVM]
-        : [
-            ethereumSepolia,
-            bscTestnet,
-            polygonAmoy,
-            arbitrumSepolia,
-            optimismSepola,
-            avalancheFuji,
-            zkEVMTestnet
-          ],
+  // create the appkit instance
+  const modal = createAppKit({
+    adapters: [new Ethers5Adapter()],
+    metadata: metadata,
+    networks:
+      networkOption === NetworkOptions.mainnet ? mainnetChains : testnetChains,
     projectId: walletConnectProjectId || 'e579511a495b5c312b572b036e60555a',
-    enableAnalytics: false,
-    featuredWalletIds: [
-      'c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96',
-      'a797aa35c0fadbfc1a53e7f675162ed5226968b44a19ee3d24385c64d1d3c393',
-      '4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0'
-    ]
+    features: {
+      email: false,
+      socials: [],
+      analytics: true // Optional - defaults to your Cloud configuration
+    }
   })
 
   return (
@@ -243,7 +124,9 @@ export const KimaProvider = ({
             adapters={adapters}
             onChainChanged={onChainChanged}
           >
-            {children}
+            <ModalContext.Provider value={modal}>
+              {children}
+            </ModalContext.Provider>
           </TronWalletProvider>
         </SolanaWalletProvider>
       </ConnectionProvider>

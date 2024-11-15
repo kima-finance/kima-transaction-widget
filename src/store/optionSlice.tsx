@@ -74,7 +74,7 @@ export interface OptionState {
   kycStatus: string // kyc status from depasify
   pendingTxs: number // number of pending bitcoin transactions
   pendingTxData: Array<PendingTxData> // pending bitcoin transaction data
-  networkOption: NetworkOptions // specify testnet or mainnet
+  networkOption: NetworkOptions, // specify testnet or mainnet
 }
 
 const initialState: OptionState = {

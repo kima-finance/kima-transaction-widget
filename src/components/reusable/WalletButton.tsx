@@ -18,7 +18,8 @@ import { ChainName } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 import { connectWalletBtn } from '../../utils/testId'
 import useBalance from '../../hooks/useBalance'
-import { useWeb3Modal } from '@web3modal/ethers5/react'
+import { useAppKit, useAppKitTheme } from '@reown/appkit/react'
+import { ColorModeOptions } from '../../interface'
 
 const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const dispatch = useDispatch()
@@ -30,7 +31,13 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const { isReady, statusMessage, walletAddress, connectBitcoinWallet } =
     useIsWalletReady()
   const { balance } = useBalance()
-  const { open } = useWeb3Modal()
+  const { open } = useAppKit()
+
+  const { setThemeMode } = useAppKitTheme()
+
+  useEffect(() => {
+    setThemeMode(theme.colorMode === ColorModeOptions.light ? 'light' : 'dark')
+  }, [theme])
 
   const handleClick = () => {
     if (selectedNetwork === ChainName.SOLANA) {

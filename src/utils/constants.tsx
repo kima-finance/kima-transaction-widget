@@ -14,6 +14,41 @@ import {
   BTCIcon,
   USDCIcon
 } from '../assets/icons'
+import {
+  arbitrum,
+  arbitrumSepolia,
+  avalanche,
+  avalancheFuji,
+  bsc,
+  bscTestnet,
+  mainnet,
+  optimism,
+  optimismSepolia,
+  polygon,
+  polygonAmoy,
+  polygonZkEvm,
+  polygonZkEvmCardona,
+  sepolia
+} from '@reown/appkit/networks'
+
+export const mainnetChains: any = [
+  mainnet,
+  bsc,
+  arbitrum,
+  optimism,
+  avalanche,
+  polygonZkEvm
+]
+
+export const testnetChains: any = [
+  sepolia,
+  bscTestnet,
+  polygonAmoy,
+  arbitrumSepolia,
+  optimismSepolia,
+  avalancheFuji,
+  polygonZkEvmCardona
+]
 
 export enum ChainName {
   ETHEREUM = 'ETH',
@@ -59,6 +94,30 @@ export enum SupportedChainIdMainnet {
   ARBITRUM = 42161,
   OPTIMISM = 10,
   POLYGON_ZKEM = 1101
+}
+
+export const CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET: {
+  [chainName: string]: any
+} = {
+  [ChainName.ETHEREUM]: mainnet,
+  [ChainName.POLYGON]: polygon,
+  [ChainName.AVALANCHE]: avalanche,
+  [ChainName.BSC]: bsc,
+  [ChainName.OPTIMISM]: optimism,
+  [ChainName.ARBITRUM]: arbitrum,
+  [ChainName.POLYGON_ZKEVM]: polygonZkEvm
+}
+
+export const CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET: {
+  [chainName: string]: any
+} = {
+  [ChainName.ETHEREUM]: sepolia,
+  [ChainName.POLYGON]: polygonAmoy,
+  [ChainName.AVALANCHE]: avalancheFuji,
+  [ChainName.BSC]: bscTestnet,
+  [ChainName.OPTIMISM]: optimismSepolia,
+  [ChainName.ARBITRUM]: arbitrumSepolia,
+  [ChainName.POLYGON_ZKEVM]: polygonZkEvmCardona
 }
 
 export const CHAIN_NAMES_TO_IDS_MAINNET: {
