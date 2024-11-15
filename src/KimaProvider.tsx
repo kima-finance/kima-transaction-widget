@@ -7,7 +7,7 @@ import { selectAllPlugins } from './store/pluginSlice'
 
 interface KimaProviderProps {
   walletConnectProjectId: string
-  networkOption: string // Define types based on NetworkOptions
+  networkOption: string
   children: ReactNode
 }
 
@@ -18,7 +18,6 @@ const KimaProvider = ({
 }: KimaProviderProps) => {
   const plugins = useSelector(selectAllPlugins)
 
-  // Initialize plugins with walletConnectProjectId and networkOption
   useEffect(() => {
     plugins.forEach((plugin) => {
       if (plugin.initialize) {
@@ -27,14 +26,20 @@ const KimaProvider = ({
     })
   }, [walletConnectProjectId, networkOption, plugins])
 
-  // Dynamically wrap children with each registered plugin provider, passing networkOption
+  // Dynamically wrap children with each registered plugin provider, defaulting to children if no provider
   const WrappedProviders = plugins.reduce(
     (Wrapped, plugin) => {
-      return ({ children }) => (
-        <plugin.provider networkOption={networkOption}>
+      return ({ children }) =>
+        plugin.provider ? (
+          <plugin.provider
+            networkOption={networkOption}
+            walletConnectProjectId={walletConnectProjectId}
+          >
+            <Wrapped>{children}</Wrapped>
+          </plugin.provider>
+        ) : (
           <Wrapped>{children}</Wrapped>
-        </plugin.provider>
-      )
+        )
     },
     ({ children }) => <>{children}</>
   )
