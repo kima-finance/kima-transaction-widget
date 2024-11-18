@@ -1,11 +1,12 @@
 // plugins/evm/index.tsx
 import { store } from '../../store'
 import { registerPlugin } from '../../store/pluginSlice'
-import { setupWeb3Modal } from './config/modalConfig'
+import { setupAppKitModal } from './config/modalConfig'
 
 const EVMPlugin = {
   id: 'evm',
-  initialize: (walletConnectProjectId) => setupWeb3Modal(walletConnectProjectId)
+  initialize: (walletConnectProjectId) =>
+    setupAppKitModal(walletConnectProjectId)
 }
 
 store.dispatch(registerPlugin(EVMPlugin))

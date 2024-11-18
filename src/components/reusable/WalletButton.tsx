@@ -18,12 +18,12 @@ import { ChainName } from '../../utils/constants'
 // import { getShortenedAddress } from '../../utils/functions'
 import { connectWalletBtn } from '../../utils/testId'
 import useBalance from '../../hooks/useBalance'
-import { useWeb3Modal } from '@web3modal/ethers5/react'
 import { WalletIcon } from '../../assets/icons'
 import useWidth from '../../hooks/useWidth'
 import { getShortenedAddress } from '../../utils/functions'
 import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
+import { useAppKit } from '@reown/appkit/react'
 
 const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const dispatch = useDispatch()
@@ -37,7 +37,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const { isReady, statusMessage, walletAddress, connectBitcoinWallet } =
     useIsWalletReady()
   const { balance } = useBalance()
-  const { open } = useWeb3Modal()
+  const { open } = useAppKit()
   const { width, updateWidth } = useWidth()
 
   useEffect(() => {
@@ -72,11 +72,11 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
 
     console.info('Handling click: Case', 4)
     try {
-      console.info('Attempting to open Web3Modal')
+      console.info('Attempting to open AppKitModal')
       await open() // Ensure await usage
-      console.info('Web3Modal opened successfully')
+      console.info('AppKitModal opened successfully')
     } catch (error) {
-      console.error('Failed to open Web3Modal', error)
+      console.error('Failed to open AppKitModal', error)
     }
   }
 

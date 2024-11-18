@@ -17,7 +17,9 @@ import {
   CHAIN_NAMES_TO_IDS_MAINNET,
   SupportedChainIdTestnet,
   SupportedChainIdMainnet,
-  CHAIN_NAMES_TO_STRING
+  CHAIN_NAMES_TO_STRING,
+  CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET,
+  CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET
 } from '../utils/constants'
 import { useSelector } from 'react-redux'
 import {
@@ -29,13 +31,7 @@ import {
   selectTargetChainFetching,
   selectWalletAutoConnect
 } from '../store/selectors'
-import {
-  useSwitchNetwork,
-  useWeb3ModalAccount,
-  useWeb3ModalProvider,
-  useWeb3ModalEvents
-} from '@web3modal/ethers5/react'
-import { NetworkOptions, Web3ModalAccountInfo } from '../interface'
+import { NetworkOptions } from '../interface'
 import { useDispatch } from 'react-redux'
 import {
   setBitcoinAddress,
@@ -43,6 +39,14 @@ import {
   setSourceChain
 } from '../store/optionSlice'
 import toast from 'react-hot-toast'
+import {
+  useAppKitAccount,
+  useAppKitEvents,
+  useAppKitNetwork,
+  useAppKitProvider
+} from '@reown/appkit/react'
+import { useModal } from '../contexts/useModal'
+import { mainnet, sepolia } from '@reown/appkit/networks'
 
 const createWalletStatus = (
   isReady: boolean,
@@ -66,16 +70,13 @@ function useIsWalletReady(): {
   const autoSwitch = useSelector(selectWalletAutoConnect)
   const { publicKey: solanaAddress } = useSolanaWallet()
   const { address: tronAddress } = useTronWallet()
-  const { walletProvider: evmProvider } = useWeb3ModalProvider()
-  const { switchNetwork } = useSwitchNetwork()
+  const { walletProvider: evmProvider } = useAppKitProvider('eip155')
   const bitcoinAddress = useSelector(selectBitcoinAddress)
-  const web3ModalAccountInfo: Web3ModalAccountInfo = useWeb3ModalAccount()
+  const appkitAccountInfo = useAppKitAccount()
+  const { chainId: evmChainId } = useAppKitNetwork()
+  const modal = useModal()
 
-  const {
-    address: evmAddress,
-    chainId: evmChainId,
-    isConnected
-  } = web3ModalAccountInfo || {
+  const { address: evmAddress, isConnected } = appkitAccountInfo || {
     address: null,
     chainId: null,
     isConnected: null
@@ -94,11 +95,11 @@ function useIsWalletReady(): {
   const errorHandler = useSelector(selectErrorHandler)
   const correctEvmNetwork = useMemo(() => {
     return networkOption === NetworkOptions.mainnet
-      ? CHAIN_NAMES_TO_IDS_MAINNET[correctChain]
-      : CHAIN_NAMES_TO_IDS_TESTNET[correctChain]
+      ? CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET[correctChain] || mainnet
+      : CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET[correctChain] || sepolia
   }, [networkOption, correctChain])
-  const hasCorrectEvmNetwork = evmChainId === correctEvmNetwork
-  const events = useWeb3ModalEvents()
+  const hasCorrectEvmNetwork = evmChainId === correctEvmNetwork.id
+  const events = useAppKitEvents()
 
   useEffect(() => {
     if (
@@ -139,8 +140,8 @@ function useIsWalletReady(): {
 
       try {
         const wallet = localStorage.getItem('wallet')
-        if (wallet === 'Phantom' && correctEvmNetwork !== 11155111) return
-        await switchNetwork(correctEvmNetwork)
+        if (wallet === 'Phantom' && correctEvmNetwork.id !== 11155111) return
+        await modal.switchNetwork(correctEvmNetwork)
       } catch (e) {
         errorHandler(e)
       }
@@ -234,7 +235,7 @@ function useIsWalletReady(): {
           return createWalletStatus(
             false,
             `Wallet not connected to ${
-              CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[correctEvmNetwork]]
+              CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[correctEvmNetwork.id]]
             }`,
             connectBitcoinWallet,
             evmAddress

@@ -17,6 +17,23 @@ import {
   USDKIcon
 } from '../assets/icons'
 
+import {
+  arbitrum,
+  arbitrumSepolia,
+  avalanche,
+  avalancheFuji,
+  bsc,
+  bscTestnet,
+  mainnet,
+  optimism,
+  optimismSepolia,
+  polygon,
+  polygonAmoy,
+  polygonZkEvm,
+  polygonZkEvmCardona,
+  sepolia
+} from '@reown/appkit/networks'
+
 export enum ChainName {
   ETHEREUM = 'ETH',
   POLYGON = 'POL',
@@ -31,6 +48,25 @@ export enum ChainName {
   BTC = 'BTC'
 }
 
+export const mainnetChains: any = [
+  mainnet,
+  bsc,
+  arbitrum,
+  optimism,
+  avalanche,
+  polygonZkEvm
+]
+
+export const testnetChains: any = [
+  sepolia,
+  bscTestnet,
+  polygonAmoy,
+  arbitrumSepolia,
+  optimismSepolia,
+  avalancheFuji,
+  polygonZkEvmCardona
+]
+
 export enum SupportedChainIdTestnet {
   ETHEREUM = 11155111,
   POLYGON = 80002,
@@ -39,6 +75,30 @@ export enum SupportedChainIdTestnet {
   ARBITRUM = 421614,
   OPTIMISM = 11155420,
   POLYGON_ZKEM = 2442
+}
+
+export const CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET: {
+  [chainName: string]: any
+} = {
+  [ChainName.ETHEREUM]: mainnet,
+  [ChainName.POLYGON]: polygon,
+  [ChainName.AVALANCHE]: avalanche,
+  [ChainName.BSC]: bsc,
+  [ChainName.OPTIMISM]: optimism,
+  [ChainName.ARBITRUM]: arbitrum,
+  [ChainName.POLYGON_ZKEVM]: polygonZkEvm
+}
+
+export const CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET: {
+  [chainName: string]: any
+} = {
+  [ChainName.ETHEREUM]: sepolia,
+  [ChainName.POLYGON]: polygonAmoy,
+  [ChainName.AVALANCHE]: avalancheFuji,
+  [ChainName.BSC]: bscTestnet,
+  [ChainName.OPTIMISM]: optimismSepolia,
+  [ChainName.ARBITRUM]: arbitrumSepolia,
+  [ChainName.POLYGON_ZKEVM]: polygonZkEvmCardona
 }
 
 export const CHAIN_NAMES_TO_IDS_TESTNET: {

@@ -4,6 +4,11 @@ import { Provider } from 'react-redux'
 import { useSelector } from 'react-redux'
 import { store } from './store'
 import { selectAllPlugins } from './store/pluginSlice'
+import { testnetChains } from './utils/constants'
+import { createAppKit } from '@reown/appkit/react'
+import { Ethers5Adapter } from '@reown/appkit-adapter-ethers5'
+import { ModalContext } from './contexts/useModal'
+import { setupAppKitModal } from '../plugins/evm/config/modalConfig'
 
 interface KimaProviderProps {
   walletConnectProjectId: string
@@ -30,17 +35,21 @@ const KimaProvider = ({
   // Dynamically wrap children with each registered plugin provider, defaulting to children if no provider
   const WrappedProviders: WrappedComponent = plugins.reduce<WrappedComponent>(
     (Wrapped, plugin) => {
-      return ({ children }) =>
-        plugin?.provider ? (
+      return ({ children }) => (
+        // TODO: move this context to corresponding plugin (EVM)
+        <ModalContext.Provider
+          value={setupAppKitModal(walletConnectProjectId, networkOption)}
+        >
+          plugin?.provider ? (
           <plugin.provider
             networkOption={networkOption}
             walletConnectProjectId={walletConnectProjectId}
           >
             <Wrapped>{children}</Wrapped>
           </plugin.provider>
-        ) : (
-          <Wrapped>{children}</Wrapped>
-        )
+          ) : (<Wrapped>{children}</Wrapped>)
+        </ModalContext.Provider>
+      )
     },
     ({ children }) => <>{children}</>
   )
