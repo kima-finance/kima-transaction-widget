@@ -92,7 +92,7 @@
     "@solana/wallet-adapter-base": "^0.9.18",
     "@solana/wallet-adapter-react": "^0.15.20",
     "@solana/wallet-adapter-wallets": "^0.19.3",
-    "@solana/web3.js": "^1.66.1",
+    "@solana/web3.js": "^1.95.4",
     "@tronweb3/tronwallet-abstract-adapter": "^1.1.0",
     "@tronweb3/tronwallet-adapter-ledger": "^1.1.8",
     "@tronweb3/tronwallet-adapter-okxwallet": "^1.0.2",

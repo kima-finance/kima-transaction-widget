@@ -6,8 +6,7 @@ import {
   FontSizeOptions,
   ModeOptions,
   ColorModeOptions,
-  NetworkOptions,
-  SupportNetworks
+  NetworkOptions
   // DAppOptions
 } from 'kima-transaction-widget'
 import 'kima-transaction-widget/dist/index.css'
@@ -16,7 +15,7 @@ const App = () => {
   return (
     <KimaProvider
       walletConnectProjectId='e579511a495b5c312b572b036e60555a'
-      networkOption={NetworkOptions.testnet}
+      networkOption={NetworkOptions.mainnet}
     >
       <div
         style={{
@@ -32,13 +31,13 @@ const App = () => {
             // mode={ModeOptions.status}
             // txId={2}
             mode={ModeOptions.bridge}
-            networkOption={NetworkOptions.testnet}
+            networkOption={NetworkOptions.mainnet}
             // dAppOption={DAppOptions.LPAdd}
             kimaBackendUrl='http://localhost:3001'
-            kimaNodeProviderQuery='https://api-testnet.kima.finance'
-            kimaExplorer='https://explorer-testnet.kima.finance'
-            feeURL='https://fee.kima.finance'
-            kimaGraphqlProviderQuery='https://graphql-testnet.kima.finance/v1/graphql'
+            kimaNodeProviderQuery='https://api.kima.network'
+            kimaExplorer='https://explorer.kima.network'
+            feeURL='https://fee.aegean.kima.finance'
+            kimaGraphqlProviderQuery='https://graphql.kima.network/v1/graphql'
             // autoSwitchChain={false}
             // useFIAT={true}
             // titleOption={{
@@ -52,12 +51,12 @@ const App = () => {
             //     fontWeight: '500'
             //   }
             // }}
-            transactionOption={{
-              targetChain: SupportNetworks.POLYGON,
-              targetAddress: '0x10c033E050e10510a951a56e4A14B4CD3de6CA67',
-              amount: 5,
-              currency: 'USDK'
-            }}
+            // transactionOption={{
+            //   targetChain: SupportNetworks.POLYGON,
+            //   targetAddress: '0x10c033E050e10510a951a56e4A14B4CD3de6CA67',
+            //   amount: 5,
+            //   currency: 'USDK'
+            // }}
             errorHandler={(e: any) => {
               console.log('error:', e)
             }}

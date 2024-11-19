@@ -883,8 +883,8 @@ const getNetworkOption = id => {
   if (index < 0) return;
   return networkOptions[index];
 };
-const CLUSTER = 'devnet';
-const SOLANA_HOST = clusterApiUrl(CLUSTER);
+const SOLANA_HOST_DEVNET = clusterApiUrl('devnet');
+const SOLANA_HOST_MAINNET = clusterApiUrl('mainnet-beta');
 const isEVMChain = chainId => chainId === ChainName.ETHEREUM || chainId === ChainName.POLYGON || chainId === ChainName.AVALANCHE || chainId === ChainName.BSC || chainId === ChainName.OPTIMISM || chainId === ChainName.ARBITRUM || chainId === ChainName.POLYGON_ZKEVM;
 const COIN_LIST = {
   USDK: {
@@ -7288,7 +7288,7 @@ function output(out, instance) {
 exports.output = output;
 const assert = { number, bool, bytes, hash, exists, output };
 exports.default = assert;
-//# sourceMappingURL=_assert.js.map
+
 });
 
 unwrapExports(_assert);
@@ -7297,7 +7297,7 @@ var crypto = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.crypto = void 0;
 exports.crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
-//# sourceMappingURL=crypto.js.map
+
 });
 
 unwrapExports(crypto);
@@ -7499,7 +7499,7 @@ function randomBytes(bytesLength = 32) {
     throw new Error('crypto.getRandomValues must be defined');
 }
 exports.randomBytes = randomBytes;
-//# sourceMappingURL=utils.js.map
+
 });
 
 unwrapExports(utils);
@@ -7621,7 +7621,7 @@ class SHA2 extends utils.Hash {
     }
 }
 exports.SHA2 = SHA2;
-//# sourceMappingURL=_sha2.js.map
+
 });
 
 unwrapExports(_sha2);
@@ -7754,7 +7754,7 @@ class SHA224 extends SHA256 {
  */
 exports.sha256 = (0, utils.wrapConstructor)(() => new SHA256());
 exports.sha224 = (0, utils.wrapConstructor)(() => new SHA224());
-//# sourceMappingURL=sha256.js.map
+
 });
 
 unwrapExports(sha256);
@@ -12053,7 +12053,7 @@ const KimaProvider = ({
   return React.createElement(Provider, {
     store: store
   }, React.createElement(ConnectionProvider, {
-    endpoint: SOLANA_HOST
+    endpoint: _networkOption === NetworkOptions.mainnet ? SOLANA_HOST_MAINNET : SOLANA_HOST_DEVNET
   }, React.createElement(SolanaWalletProvider, {
     wallets: wallets
   }, React.createElement(WalletProvider, {

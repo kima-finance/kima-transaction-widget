@@ -212,9 +212,8 @@ export const getNetworkOption = (id: string) => {
   return networkOptions[index]
 }
 
-export type Cluster = 'devnet' | 'testnet' | 'mainnet'
-export const CLUSTER: Cluster = 'devnet'
-export const SOLANA_HOST = clusterApiUrl(CLUSTER)
+export const SOLANA_HOST_DEVNET = clusterApiUrl('devnet')
+export const SOLANA_HOST_MAINNET = clusterApiUrl('mainnet-beta')
 export const isEVMChain = (chainId: string) =>
   chainId === ChainName.ETHEREUM ||
   chainId === ChainName.POLYGON ||
