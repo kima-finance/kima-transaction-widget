@@ -93,7 +93,7 @@ const KimaTransactionWidget = ({
   transactionOption,
   kimaBackendUrl,
   kimaNodeProviderQuery,
-  kimaExplorer = 'https://explorer.kima.finance',
+  kimaExplorer = 'https://explorer.kima.network',
   //feeURL = 'https://fee.kima.finance',
   kimaGraphqlProviderQuery = 'https://graphql.kima.finance/v1/graphql',
   errorHandler = () => void 0,

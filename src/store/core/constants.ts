@@ -2,7 +2,7 @@
 import { ModeOptions } from '@interface'
 
 // URLs
-export const KIMA_EXPLORER_URL = 'https://explorer.kima.finance' //keep
+export const KIMA_EXPLORER_URL = 'https://explorer.kima.network' //keep
 export const GRAPHQL_PROVIDER_QUERY_URL = 'https://graphql.kima.finance' //move
 
 // Default Values
