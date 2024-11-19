@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch /*, useSelector*/ } from 'react-redux'
 import {
   TransactionOption,
   ThemeOptions,
@@ -20,47 +20,47 @@ import {
   setTxId,
   setSubmitted,
   setTransactionOption,
-  setAmount,
+  //setAmount,
   setSuccessHandler,
   setBackendUrl,
   setNodeProviderQuery,
   setTargetChain,
-  setTargetAddress,
+  //setTargetAddress,
   setSourceChain,
-  setTargetCompliant,
-  setCompliantOption,
-  setUseFIAT,
+  //  setTargetCompliant,
+  //  setCompliantOption,
+  //  setUseFIAT,
   setProvider,
   setWalletAutoConnect,
   setDappOption,
   setSwitchChainHandler,
-  setUuid,
+  //  setUuid,
   setKeplrHandler,
   setKimaExplorer,
   setNetworkOption,
-  setGraphqlProviderQuery,
-  setTargetCurrency
+  setGraphqlProviderQuery
+  //setTargetCurrency
 } from '../store/optionSlice'
 import '../index.css'
-import { selectSubmitted } from '../store/selectors'
+//import { selectSubmitted } from '../store/selectors'
 import { TransactionWidget } from './TransactionWidget'
-import { TransferWidget } from './TransferWidget'
-import { ChainName } from '../utils/constants'
-import { fetchWrapper } from '../helpers/fetch-wrapper'
+//import { TransferWidget } from './TransferWidget'
+//import { ChainName } from '../utils/constants'
+//import { fetchWrapper } from '../helpers/fetch-wrapper'
 import { Web3Provider } from '@ethersproject/providers'
-import toast from 'react-hot-toast'
+//import toast from 'react-hot-toast'
 import { useAppKitTheme } from '@reown/appkit/react'
 
 interface Props {
   theme: ThemeOptions
   mode: ModeOptions
   txId?: number
-  useFIAT?: boolean
+  //useFIAT?: boolean
   autoSwitchChain?: boolean
   dAppOption?: DAppOptions
   provider?: Web3Provider
   titleOption?: TitleOption
-  compliantOption?: boolean
+  //compliantOption?: boolean
   helpURL?: string
   feeURL?: string
   transactionOption?: TransactionOption
@@ -85,16 +85,16 @@ const KimaTransactionWidget = ({
   provider,
   dAppOption = DAppOptions.None,
   theme,
-  titleOption,
-  paymentTitleOption,
-  useFIAT = false,
-  helpURL = '',
-  compliantOption = true,
+  //titleOption,
+  //paymentTitleOption,
+  //useFIAT = false,
+  //helpURL = '',
+  //compliantOption = true,
   transactionOption,
   kimaBackendUrl,
   kimaNodeProviderQuery,
   kimaExplorer = 'https://explorer.kima.finance',
-  feeURL = 'https://fee.kima.finance',
+  //feeURL = 'https://fee.kima.finance',
   kimaGraphqlProviderQuery = 'https://graphql.kima.finance/v1/graphql',
   errorHandler = () => void 0,
   closeHandler = () => void 0,
@@ -102,7 +102,7 @@ const KimaTransactionWidget = ({
   switchChainHandler = () => void 0,
   keplrHandler = () => void 0
 }: Props) => {
-  const submitted = useSelector(selectSubmitted)
+  //const submitted = useSelector(selectSubmitted)
   const dispatch = useDispatch()
   const { setThemeMode, setThemeVariables } = useAppKitTheme()
 
@@ -117,7 +117,7 @@ const KimaTransactionWidget = ({
     if (transactionOption) dispatch(setTransactionOption(transactionOption))
 
     dispatch(setKimaExplorer(kimaExplorer))
-    dispatch(setCompliantOption(compliantOption))
+    //dispatch(setCompliantOption(compliantOption))
     dispatch(setErrorHandler(errorHandler))
     dispatch(setKeplrHandler(keplrHandler))
     dispatch(setCloseHandler(closeHandler))
@@ -130,70 +130,70 @@ const KimaTransactionWidget = ({
     dispatch(setProvider(provider))
     dispatch(setDappOption(dAppOption))
     dispatch(setWalletAutoConnect(autoSwitchChain))
-    dispatch(setUseFIAT(useFIAT))
+    //dispatch(setUseFIAT(useFIAT))
     dispatch(setNetworkOption(networkOption))
-    if (useFIAT) {
-      dispatch(setTxId(txId || -1))
-      ;(async function () {
-        try {
-          const uuid = await fetchWrapper.get(`${kimaBackendUrl}/uuid`)
-          dispatch(setUuid(uuid))
-          console.log('depasify uuid: ', uuid)
-        } catch (e) {
-          console.log('uuid generate failed', e)
-        }
-      })()
-    }
+    //if (useFIAT) {
+    //  dispatch(setTxId(txId || -1))
+    //  ;(async function () {
+    //    try {
+    //      const uuid = await fetchWrapper.get(`${kimaBackendUrl}/uuid`)
+    //      dispatch(setUuid(uuid))
+    //      console.log('depasify uuid: ', uuid)
+    //    } catch (e) {
+    //      console.log('uuid generate failed', e)
+    //    }
+    //  })()
+    //}
 
-    if (mode === ModeOptions.payment) {
-      dispatch(
-        setTargetChain(transactionOption?.targetChain || ChainName.ETHEREUM)
-      )
+    //  if (mode === ModeOptions.payment) {
+    //    dispatch(
+    //      setTargetChain(transactionOption?.targetChain || ChainName.ETHEREUM)
+    //    )
 
-      if (
-        dAppOption === DAppOptions.LPAdd ||
-        dAppOption === DAppOptions.LPDrain
-      ) {
-        dispatch(
-          setSourceChain(transactionOption?.targetChain || ChainName.ETHEREUM)
-        )
-        dispatch(setTargetCurrency(transactionOption?.currency || 'USDK'))
-      } else {
-        ;(async function () {
-          try {
-            const networks: any = await fetchWrapper.get(
-              `${kimaNodeProviderQuery}/kima-finance/kima-blockchain/chains/get_available_chains/${
-                transactionOption?.targetChain || ChainName.ETHEREUM
-              }`
-            )
-            dispatch(setSourceChain(networks.Chains[0]))
-          } catch (e) {
-            toast.error('rpc disconnected!')
-            console.log('rpc disconnected', e)
-          }
+    //    if (
+    //      dAppOption === DAppOptions.LPAdd ||
+    //      dAppOption === DAppOptions.LPDrain
+    //    ) {
+    //      dispatch(
+    //        setSourceChain(transactionOption?.targetChain || ChainName.ETHEREUM)
+    //      )
+    //      dispatch(setTargetCurrency(transactionOption?.currency || 'USDK'))
+    //    } else {
+    //      ;(async function () {
+    //        try {
+    //          const networks: any = await fetchWrapper.get(
+    //            `${kimaNodeProviderQuery}/kima-finance/kima-blockchain/chains/get_available_chains/${
+    //              transactionOption?.targetChain || ChainName.ETHEREUM
+    //            }`
+    //          )
+    //          dispatch(setSourceChain(networks.Chains[0]))
+    //        } catch (e) {
+    //          toast.error('rpc disconnected!')
+    //          console.log('rpc disconnected', e)
+    //        }
 
-          try {
-            if (transactionOption?.targetAddress) {
-              const compliantRes = await fetchWrapper.post(
-                `${kimaBackendUrl}/compliant`,
-                JSON.stringify({
-                  address: transactionOption?.targetAddress
-                })
-              )
-              dispatch(setTargetCompliant(compliantRes))
-            }
-          } catch (e) {
-            toast.error('xplorisk check failed')
-            console.log('xplorisk check failed', e)
-          }
-        })()
-      }
-      dispatch(setTargetAddress(transactionOption?.targetAddress || ''))
-      dispatch(setAmount(transactionOption?.amount.toString() || ''))
-    } else if (mode === ModeOptions.status) {
-      dispatch(setTxId(txId || 1))
-      dispatch(setSubmitted(true))
-    }
+    //        try {
+    //          if (transactionOption?.targetAddress) {
+    //            const compliantRes = await fetchWrapper.post(
+    //              `${kimaBackendUrl}/compliant`,
+    //              JSON.stringify({
+    //                address: transactionOption?.targetAddress
+    //              })
+    //            )
+    //            dispatch(setTargetCompliant(compliantRes))
+    //          }
+    //        } catch (e) {
+    //          toast.error('xplorisk check failed')
+    //          console.log('xplorisk check failed', e)
+    //        }
+    //      })()
+    //    }
+    //    dispatch(setTargetAddress(transactionOption?.targetAddress || ''))
+    //    dispatch(setAmount(transactionOption?.amount.toString() || ''))
+    //  } else if (mode === ModeOptions.status) {
+    //    dispatch(setTxId(txId || 1))
+    //    dispatch(setSubmitted(true))
+    //  }
   }, [
     provider,
     theme,
@@ -208,20 +208,25 @@ const KimaTransactionWidget = ({
     if (dAppOption === DAppOptions.None && mode === ModeOptions.bridge) {
       dispatch(setTargetChain(''))
       dispatch(setSourceChain('ETH'))
+    } else if (mode === ModeOptions.status) {
+      dispatch(setTxId(txId || 1))
+      dispatch(setSubmitted(true))
     }
   }, [dAppOption, mode])
 
-  return submitted ? (
-    <TransactionWidget theme={theme} />
-  ) : (
-    <TransferWidget
-      theme={theme}
-      feeURL={feeURL}
-      helpURL={helpURL}
-      titleOption={titleOption}
-      paymentTitleOption={paymentTitleOption}
-    />
-  )
+  //return submitted ? (
+  //  <TransactionWidget theme={theme} />
+  //) : (
+  //  <TransferWidget
+  //    theme={theme}
+  //    feeURL={feeURL}
+  //    helpURL={helpURL}
+  //    titleOption={titleOption}
+  //    paymentTitleOption={paymentTitleOption}
+  //  />
+  //)
+  //
+  return <TransactionWidget theme={theme} />
 }
 
 export default KimaTransactionWidget
