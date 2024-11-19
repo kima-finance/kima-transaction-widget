@@ -23,7 +23,7 @@ interface Props {
 }
 
 const Tooltip = ({ step, focus, errorStep, loadingStep, data }: Props) => {
-  const {width: windowWidth} = useWidth()
+  const { width: windowWidth } = useWidth()
   const theme = useSelector(selectTheme)
   const [copyClicked, setCopyClicked] = useState(false)
 
@@ -64,7 +64,7 @@ const Tooltip = ({ step, focus, errorStep, loadingStep, data }: Props) => {
             <div className='info-item'>
               <p>
                 Kima TX ID:{' '}
-                <ExternalLink to='https://explorer.kima.finance/transactions/718ABEE14755C1ACA617607F9353A55013EF855B0EA6E92EFD31A2F50A362524'>
+                <ExternalLink to='https://explorer.kima.network/transactions/718ABEE14755C1ACA617607F9353A55013EF855B0EA6E92EFD31A2F50A362524'>
                   718A...2524
                 </ExternalLink>
                 <div
@@ -149,8 +149,8 @@ const Tooltip = ({ step, focus, errorStep, loadingStep, data }: Props) => {
                   focus === 0
                     ? '1em'
                     : focus === 4
-                    ? 'calc(100% - 3em)'
-                    : `calc(${focus * 25}% - 1em)`
+                      ? 'calc(100% - 3em)'
+                      : `calc(${focus * 25}% - 1em)`
               }}
             />
           )}

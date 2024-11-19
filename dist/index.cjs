@@ -1,20 +1,65 @@
+"use strict";
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+// src/index.tsx
+var src_exports = {};
+__export(src_exports, {
+  CHAIN_NAMES_TO_STRING: () => CHAIN_NAMES_TO_STRING,
+  CHAIN_STRING_TO_NAME: () => CHAIN_STRING_TO_NAME,
+  ColorModeOptions: () => ColorModeOptions,
+  CurrencyOptions: () => CurrencyOptions,
+  DAppOptions: () => DAppOptions,
+  KimaProvider: () => KimaProvider_default,
+  KimaTransactionWidget: () => KimaTransactionWidget_default,
+  ModeOptions: () => ModeOptions,
+  NetworkOptions: () => NetworkOptions,
+  SupportNetworks: () => ChainName
+});
+module.exports = __toCommonJS(src_exports);
+
 // src/KimaProvider.tsx
-import React33, { useMemo } from "react";
-import { Provider, useSelector } from "react-redux";
+var import_react33 = __toESM(require("react"), 1);
+var import_react_redux = require("react-redux");
 
 // src/store/index.tsx
-import * as toolkitRaw2 from "@reduxjs/toolkit";
+var toolkitRaw2 = __toESM(require("@reduxjs/toolkit"), 1);
 
 // src/store/optionSlice.tsx
-import * as toolkitRaw from "@reduxjs/toolkit";
+var toolkitRaw = __toESM(require("@reduxjs/toolkit"), 1);
 
 // src/utils/constants.tsx
-import { clusterApiUrl } from "@solana/web3.js";
+var import_web3 = require("@solana/web3.js");
 
 // src/assets/icons/Cross.tsx
-import React from "react";
+var import_react = __toESM(require("react"), 1);
 var Cross = ({ width = 60, height = 60, fill = "white", ...rest }) => {
-  return /* @__PURE__ */ React.createElement(
+  return /* @__PURE__ */ import_react.default.createElement(
     "svg",
     {
       xmlns: "http://www.w3.org/2000/svg",
@@ -24,7 +69,7 @@ var Cross = ({ width = 60, height = 60, fill = "white", ...rest }) => {
       fill,
       ...rest
     },
-    /* @__PURE__ */ React.createElement(
+    /* @__PURE__ */ import_react.default.createElement(
       "path",
       {
         d: "M0.832764 1.33276L24.1673 24.6673",
@@ -32,7 +77,7 @@ var Cross = ({ width = 60, height = 60, fill = "white", ...rest }) => {
         "stroke-width": "2"
       }
     ),
-    /* @__PURE__ */ React.createElement(
+    /* @__PURE__ */ import_react.default.createElement(
       "path",
       {
         d: "M0.832764 24.6673L24.1673 1.3328",
@@ -45,9 +90,9 @@ var Cross = ({ width = 60, height = 60, fill = "white", ...rest }) => {
 var Cross_default = Cross;
 
 // src/assets/icons/Minimize.tsx
-import React2 from "react";
+var import_react2 = __toESM(require("react"), 1);
 var Minimize = ({ width = 16, height = 1, fill = "#86B8CE", ...rest }) => {
-  return /* @__PURE__ */ React2.createElement(
+  return /* @__PURE__ */ import_react2.default.createElement(
     "svg",
     {
       width,
@@ -56,15 +101,15 @@ var Minimize = ({ width = 16, height = 1, fill = "#86B8CE", ...rest }) => {
       xmlns: "http://www.w3.org/2000/svg",
       ...rest
     },
-    /* @__PURE__ */ React2.createElement("rect", { width: "11", height: "1", fill })
+    /* @__PURE__ */ import_react2.default.createElement("rect", { width: "11", height: "1", fill })
   );
 };
 var Minimize_default = Minimize;
 
 // src/assets/icons/FooterLogo.tsx
-import React3 from "react";
+var import_react3 = __toESM(require("react"), 1);
 var FooterLogo = ({ width = 40, height = 40, fill = "#C5C5C5", ...rest }) => {
-  return /* @__PURE__ */ React3.createElement(
+  return /* @__PURE__ */ import_react3.default.createElement(
     "svg",
     {
       xmlns: "http://www.w3.org/2000/svg",
@@ -74,28 +119,28 @@ var FooterLogo = ({ width = 40, height = 40, fill = "#C5C5C5", ...rest }) => {
       fill,
       ...rest
     },
-    /* @__PURE__ */ React3.createElement(
+    /* @__PURE__ */ import_react3.default.createElement(
       "path",
       {
         d: "M30.1884 10.576C30.1884 9.5081 30.7939 8.62496 31.9158 8.62496C32.8449 8.6572 33.5977 9.53173 33.5977 10.576V17.2908C33.5977 17.4584 33.7284 17.5938 33.8901 17.5938H36.8246C36.9863 17.5938 37.117 17.4584 37.117 17.2908V9.83256C37.117 7.1144 35.5699 5.34813 33.1021 5.34813C31.3974 5.34813 30.2755 6.11523 29.5579 6.94895C29.5455 6.96399 29.5268 6.96184 29.5144 6.9468C28.8632 6.04648 27.8304 5.34813 26.3497 5.34813C25.0038 5.34813 23.8612 5.92829 23.2971 6.78349C23.2784 6.77705 23.2971 6.78349 23.2763 6.77705V5.93259C23.2763 5.76499 23.1457 5.62962 22.9839 5.62962H20.0702C19.9085 5.62962 19.7778 5.76714 19.7778 5.93259V17.293C19.7778 17.4606 19.9085 17.596 20.0702 17.596H22.9839C23.1457 17.596 23.2763 17.4606 23.2763 17.293V10.5782C23.2763 9.51025 23.8819 8.62711 24.981 8.62711C25.9225 8.65934 26.6857 9.53388 26.6857 10.5782V17.293C26.6857 17.4606 26.8163 17.596 26.9781 17.596H29.8918C30.0536 17.596 30.1842 17.4606 30.1842 17.293V10.5782L30.1884 10.576ZM45.6134 17.2887C45.6134 17.4563 45.744 17.5917 45.9058 17.5917H48.7075C48.8692 17.5917 48.9999 17.4563 48.9999 17.2887V10.1807C48.9999 7.1144 47.0713 5.34813 43.7739 5.34813C42.5711 5.33739 40.9203 5.69838 39.9643 6.1711C39.8648 6.22052 39.8025 6.32796 39.8025 6.44184V8.89141C39.8025 9.11703 40.0307 9.26099 40.2256 9.16215C41.051 8.74314 41.9946 8.44017 42.9858 8.44017C44.4354 8.41009 45.6092 9.25455 45.6092 10.3225V10.4084C45.6092 10.576 45.4329 10.6856 45.294 10.5997C44.7527 10.2666 43.8651 9.97437 42.9174 9.97437C40.4724 9.97437 38.4546 11.5086 38.4546 13.8314C38.4546 16.3411 40.4724 17.8753 42.8054 17.8753C44.1513 17.8753 45.2048 17.3166 45.6092 16.8525V17.293L45.6134 17.2887ZM45.659 13.8292C45.659 14.7811 44.649 15.2925 43.6847 15.2925C42.7204 15.2925 41.6897 14.7811 41.6897 13.8292C41.6897 12.8773 42.6768 12.3896 43.6847 12.3896C44.6926 12.3896 45.659 12.901 45.659 13.8292Z",
         fill
       }
     ),
-    /* @__PURE__ */ React3.createElement(
+    /* @__PURE__ */ import_react3.default.createElement(
       "path",
       {
         d: "M14.1994 17.594H17.1131C17.2749 17.594 17.4055 17.4586 17.4055 17.291V5.92846C17.4055 5.76086 17.2749 5.62549 17.1131 5.62549H14.1994C14.0376 5.62549 13.907 5.76086 13.907 5.92846V17.2889C13.907 17.4565 14.0376 17.5918 14.1994 17.5918",
         fill
       }
     ),
-    /* @__PURE__ */ React3.createElement(
+    /* @__PURE__ */ import_react3.default.createElement(
       "path",
       {
         d: "M15.6801 0H15.6324C14.4378 0 13.488 0.960487 13.488 2.2218C13.488 3.48311 14.4378 4.41996 15.6324 4.41996H15.6801C16.8497 4.41996 17.8244 3.45947 17.8244 2.2218C17.8244 0.984123 16.8497 0 15.6801 0Z",
         fill
       }
     ),
-    /* @__PURE__ */ React3.createElement(
+    /* @__PURE__ */ import_react3.default.createElement(
       "path",
       {
         d: "M10.9746 14.199C10.591 13.8122 10.1015 13.6038 9.60589 13.5758C7.70213 13.5114 7.42839 11.874 7.42839 11.4615C7.42839 11.0102 7.73117 9.43092 9.60174 9.36861C10.0974 9.33852 10.5868 9.13224 10.9705 8.74332C11.8166 7.89027 11.8332 6.48714 11.0099 5.61046C10.593 5.16567 10.0393 4.9422 9.48561 4.94005H9.47109C8.93605 4.94005 8.39893 5.15063 7.98624 5.56748C7.53208 6.02516 7.34129 6.6397 7.34129 7.2478C7.34129 7.78069 7.00118 9.24183 5.41887 9.24183C4.82368 9.24183 4.19947 9.42232 3.74323 9.90579C3.72249 9.92728 3.70797 9.95091 3.68931 9.9724V9.96381C3.58147 10.082 3.55866 9.98744 3.56073 9.92513V1.01C3.56073 0.842402 3.43008 0.707031 3.26833 0.707031H0.292407C0.13065 0.707031 0 0.842402 0 1.01V17.3662C0 17.5338 0.13065 17.6692 0.292407 17.6692H3.27247C3.43423 17.6692 3.56488 17.5338 3.56488 17.3662V13.015C3.56488 12.9506 3.58562 12.8582 3.69553 12.9763V12.9699C3.71212 12.9914 3.72664 13.0129 3.7453 13.0344C4.20154 13.52 4.81746 13.6983 5.42301 13.6983C7.00533 13.6983 7.34544 15.3486 7.34544 15.6923C7.34544 16.1651 7.53623 16.915 7.99039 17.3727C8.40515 17.7917 8.94435 18.0001 9.48146 18.0001C10.0372 18.0001 10.593 17.7766 11.0119 17.3297C11.4143 16.8999 11.6175 16.3456 11.6175 15.7912V15.7783C11.6175 15.2046 11.3997 14.6309 10.9705 14.1968",
@@ -107,9 +152,9 @@ var FooterLogo = ({ width = 40, height = 40, fill = "#C5C5C5", ...rest }) => {
 var FooterLogo_default = FooterLogo;
 
 // src/assets/icons/Check.tsx
-import React4 from "react";
+var import_react4 = __toESM(require("react"), 1);
 var Check = ({ width = 60, height = 60, fill = "#86B8CE", ...rest }) => {
-  return /* @__PURE__ */ React4.createElement(
+  return /* @__PURE__ */ import_react4.default.createElement(
     "svg",
     {
       xmlns: "http://www.w3.org/2000/svg",
@@ -119,7 +164,7 @@ var Check = ({ width = 60, height = 60, fill = "#86B8CE", ...rest }) => {
       fill,
       ...rest
     },
-    /* @__PURE__ */ React4.createElement(
+    /* @__PURE__ */ import_react4.default.createElement(
       "path",
       {
         d: "M6.90529 21.9045C6.64003 21.6385 6.51271 21.3283 6.52332 20.9737C6.53393 20.6191 6.67231 20.3088 6.93845 20.0429C7.20371 19.7991 7.51318 19.6715 7.86686 19.66C8.22055 19.6484 8.53002 19.7761 8.79528 20.0429L13.5037 24.7633L13.9679 25.2287L14.4321 25.694C14.6973 25.96 14.8247 26.2702 14.8141 26.6248C14.8034 26.9794 14.6651 27.2897 14.3989 27.5556C14.1337 27.7994 13.8242 27.927 13.4705 27.9385C13.1168 27.9501 12.8074 27.8224 12.5421 27.5556L6.90529 21.9045ZM20.9641 24.73L32.2377 13.4277C32.503 13.1618 32.8125 13.0346 33.1661 13.0461C33.5198 13.0577 33.8293 13.1959 34.0946 13.461C34.3377 13.7269 34.465 14.0372 34.4765 14.3918C34.488 14.7463 34.3607 15.0566 34.0946 15.3225L21.8925 27.5556C21.6273 27.8215 21.3178 27.9545 20.9641 27.9545C20.6105 27.9545 20.301 27.8215 20.0357 27.5556L14.3989 21.9045C14.1558 21.6607 14.0342 21.3562 14.0342 20.991C14.0342 20.6257 14.1558 20.3097 14.3989 20.0429C14.6642 19.777 14.9794 19.644 15.3446 19.644C15.7098 19.644 16.0245 19.777 16.2889 20.0429L20.9641 24.73ZM26.5678 15.3558L21.8925 20.0429C21.6494 20.2867 21.3457 20.4086 20.9814 20.4086C20.6171 20.4086 20.3019 20.2867 20.0357 20.0429C19.7705 19.777 19.6378 19.4614 19.6378 19.0962C19.6378 18.731 19.7705 18.4149 20.0357 18.1481L24.7109 13.461C24.9541 13.2172 25.2583 13.0953 25.6234 13.0953C25.9886 13.0953 26.3034 13.2172 26.5678 13.461C26.833 13.7269 26.9657 14.0425 26.9657 14.4077C26.9657 14.7729 26.833 15.089 26.5678 15.3558Z",
@@ -131,9 +176,9 @@ var Check = ({ width = 60, height = 60, fill = "#86B8CE", ...rest }) => {
 var Check_default = Check;
 
 // src/assets/icons/Warning.tsx
-import React5 from "react";
+var import_react5 = __toESM(require("react"), 1);
 var Warning = ({ width = 14, height = 13, ...rest }) => {
-  return /* @__PURE__ */ React5.createElement(
+  return /* @__PURE__ */ import_react5.default.createElement(
     "svg",
     {
       width,
@@ -142,7 +187,7 @@ var Warning = ({ width = 14, height = 13, ...rest }) => {
       xmlns: "http://www.w3.org/2000/svg",
       ...rest
     },
-    /* @__PURE__ */ React5.createElement(
+    /* @__PURE__ */ import_react5.default.createElement(
       "path",
       {
         d: "M13.8418 11.0561L8.16007 0.683372C8.04697 0.476647 7.87973 0.304041 7.67598 0.183764C7.47223 0.0634876 7.23954 0 7.00245 0C6.76537 0 6.53267 0.0634876 6.32893 0.183764C6.12518 0.304041 5.95794 0.476647 5.84484 0.683372L0.167185 11.0561C0.05491 11.2556 -0.00270098 11.4807 9.72867e-05 11.7091C0.00289555 11.9376 0.0660053 12.1613 0.183133 12.358C0.300261 12.5546 0.467315 12.7174 0.667636 12.8301C0.867956 12.9427 1.09454 13.0013 1.3248 13H12.6842C12.9121 12.9997 13.1361 12.9408 13.3342 12.829C13.5323 12.7172 13.6977 12.5563 13.8144 12.3621C13.931 12.1678 13.9949 11.9469 13.9997 11.7208C14.0045 11.4947 13.9501 11.2713 13.8418 11.0723V11.0561ZM6.47887 3.26032C6.47887 3.10964 6.5392 2.96513 6.6466 2.85858C6.754 2.75203 6.89966 2.69218 7.05154 2.69218C7.20342 2.69218 7.34908 2.75203 7.45648 2.85858C7.56388 2.96513 7.62421 3.10964 7.62421 3.26032V8.13015C7.62421 8.28083 7.56388 8.42534 7.45648 8.53189C7.34908 8.63844 7.20342 8.6983 7.05154 8.6983C6.89966 8.6983 6.754 8.63844 6.6466 8.53189C6.5392 8.42534 6.47887 8.28083 6.47887 8.13015V3.26032ZM7.05154 11.3158C6.90592 11.3158 6.76356 11.273 6.64248 11.1927C6.52139 11.1125 6.42702 10.9984 6.37129 10.8649C6.31556 10.7314 6.30098 10.5845 6.32939 10.4428C6.3578 10.3011 6.42793 10.171 6.5309 10.0688C6.63387 9.96667 6.76507 9.8971 6.9079 9.86892C7.05072 9.84073 7.19877 9.8552 7.33331 9.91048C7.46785 9.96577 7.58284 10.0594 7.66375 10.1795C7.74465 10.2997 7.78783 10.4409 7.78783 10.5854C7.78783 10.6813 7.76879 10.7763 7.73179 10.8649C7.69479 10.9535 7.64055 11.034 7.57218 11.1019C7.50381 11.1697 7.42264 11.2235 7.33331 11.2602C7.24398 11.2969 7.14823 11.3158 7.05154 11.3158Z",
@@ -154,12 +199,12 @@ var Warning = ({ width = 14, height = 13, ...rest }) => {
 var Warning_default = Warning;
 
 // src/assets/icons/ArrowRight.tsx
-import React6 from "react";
+var import_react6 = __toESM(require("react"), 1);
 
 // src/assets/icons/Arrow.tsx
-import React7 from "react";
+var import_react7 = __toESM(require("react"), 1);
 var Arrow = ({ width = 22, height = 25, fill = "none", ...rest }) => {
-  return /* @__PURE__ */ React7.createElement(
+  return /* @__PURE__ */ import_react7.default.createElement(
     "svg",
     {
       xmlns: "http://www.w3.org/2000/svg",
@@ -169,8 +214,8 @@ var Arrow = ({ width = 22, height = 25, fill = "none", ...rest }) => {
       fill,
       ...rest
     },
-    /* @__PURE__ */ React7.createElement("path", { d: "M10.9974 0L10.9974 16.625", stroke: "#778DA3", "stroke-width": "2" }),
-    /* @__PURE__ */ React7.createElement(
+    /* @__PURE__ */ import_react7.default.createElement("path", { d: "M10.9974 0L10.9974 16.625", stroke: "#778DA3", "stroke-width": "2" }),
+    /* @__PURE__ */ import_react7.default.createElement(
       "path",
       {
         d: "M21.1249 14.2734L16.8822 18.5161C13.758 21.6403 8.69272 21.6403 5.56853 18.5161L1.32589 14.2734",
@@ -183,9 +228,9 @@ var Arrow = ({ width = 22, height = 25, fill = "none", ...rest }) => {
 var Arrow_default = Arrow;
 
 // src/assets/icons/Lock.tsx
-import React8 from "react";
+var import_react8 = __toESM(require("react"), 1);
 var Lock = ({ width = 24, height = 27, fill = "none", ...rest }) => {
-  return /* @__PURE__ */ React8.createElement(
+  return /* @__PURE__ */ import_react8.default.createElement(
     "svg",
     {
       xmlns: "http://www.w3.org/2000/svg",
@@ -195,7 +240,7 @@ var Lock = ({ width = 24, height = 27, fill = "none", ...rest }) => {
       fill: "none",
       ...rest
     },
-    /* @__PURE__ */ React8.createElement(
+    /* @__PURE__ */ import_react8.default.createElement(
       "rect",
       {
         x: "1.25",
@@ -207,7 +252,7 @@ var Lock = ({ width = 24, height = 27, fill = "none", ...rest }) => {
         "stroke-width": "1.86364"
       }
     ),
-    /* @__PURE__ */ React8.createElement(
+    /* @__PURE__ */ import_react8.default.createElement(
       "path",
       {
         d: "M11.9004 18.7014L11.9004 16.0376",
@@ -217,7 +262,7 @@ var Lock = ({ width = 24, height = 27, fill = "none", ...rest }) => {
         "stroke-linejoin": "round"
       }
     ),
-    /* @__PURE__ */ React8.createElement(
+    /* @__PURE__ */ import_react8.default.createElement(
       "path",
       {
         d: "M17.2341 9.37815V6.35642C17.2341 3.61173 15.0091 1.38672 12.2644 1.38672H11.5486C8.80387 1.38672 6.57886 3.61173 6.57886 6.35642L6.57886 9.37815",
@@ -230,9 +275,9 @@ var Lock = ({ width = 24, height = 27, fill = "none", ...rest }) => {
 var Lock_default = Lock;
 
 // src/assets/icons/Ethereum.tsx
-import React9 from "react";
+var import_react9 = __toESM(require("react"), 1);
 var Ethereum = ({ width = 30, height = 30, ...rest }) => {
-  return /* @__PURE__ */ React9.createElement(
+  return /* @__PURE__ */ import_react9.default.createElement(
     "svg",
     {
       xmlns: "http://www.w3.org/2000/svg",
@@ -242,31 +287,31 @@ var Ethereum = ({ width = 30, height = 30, ...rest }) => {
       fill: "none",
       ...rest
     },
-    /* @__PURE__ */ React9.createElement("path", { d: "M10.9966 13.3093V0L0 18.3307L10.9966 13.3093Z", fill: "#8A92B2" }),
-    /* @__PURE__ */ React9.createElement(
+    /* @__PURE__ */ import_react9.default.createElement("path", { d: "M10.9966 13.3093V0L0 18.3307L10.9966 13.3093Z", fill: "#8A92B2" }),
+    /* @__PURE__ */ import_react9.default.createElement(
       "path",
       {
         d: "M10.9966 24.8639V13.3093L0 18.3307L10.9966 24.8639ZM10.9966 13.3093L21.9933 18.3307L10.9966 0V13.3093Z",
         fill: "#62688F"
       }
     ),
-    /* @__PURE__ */ React9.createElement(
+    /* @__PURE__ */ import_react9.default.createElement(
       "path",
       {
         d: "M10.9966 13.3093V24.8639L21.9933 18.3307L10.9966 13.3093Z",
         fill: "#454A75"
       }
     ),
-    /* @__PURE__ */ React9.createElement("path", { d: "M10.9966 26.9561L0 20.4297L10.9966 36V26.9561Z", fill: "#8A92B2" }),
-    /* @__PURE__ */ React9.createElement("path", { d: "M22 20.4297L10.9966 26.9561V36L22 20.4297Z", fill: "#62688F" })
+    /* @__PURE__ */ import_react9.default.createElement("path", { d: "M10.9966 26.9561L0 20.4297L10.9966 36V26.9561Z", fill: "#8A92B2" }),
+    /* @__PURE__ */ import_react9.default.createElement("path", { d: "M22 20.4297L10.9966 26.9561V36L22 20.4297Z", fill: "#62688F" })
   );
 };
 var Ethereum_default = Ethereum;
 
 // src/assets/icons/Solana.tsx
-import React10 from "react";
+var import_react10 = __toESM(require("react"), 1);
 var Solana = ({ width = 30, height = 30, ...rest }) => {
-  return /* @__PURE__ */ React10.createElement(
+  return /* @__PURE__ */ import_react10.default.createElement(
     "svg",
     {
       xmlns: "http://www.w3.org/2000/svg",
@@ -276,14 +321,14 @@ var Solana = ({ width = 30, height = 30, ...rest }) => {
       fill: "none",
       ...rest
     },
-    /* @__PURE__ */ React10.createElement(
+    /* @__PURE__ */ import_react10.default.createElement(
       "path",
       {
         d: "M22.2506 4.97063C22.1771 5.05109 22.0851 5.11367 21.984 5.14943C21.8828 5.19413 21.7725 5.21201 21.6622 5.21201H0.835479C0.0998792 5.21201 -0.277116 4.31801 0.237804 3.78161L3.65835 0.25032C3.73191 0.16986 3.82386 0.107281 3.9342 0.0625809C4.03534 0.017881 4.14568 0 4.25602 0H25.1655C25.9102 0 26.2781 0.902938 25.7539 1.43934L22.2506 4.97063ZM22.2506 20.7586C22.0943 20.9106 21.8828 21 21.6622 21H0.835479C0.0998792 21 -0.277116 20.1239 0.237804 19.6054L3.65835 16.1545C3.73191 16.0741 3.83305 16.0115 3.9342 15.9757C4.03534 15.931 4.14568 15.9132 4.25602 15.9132H25.1655C25.9102 15.9132 26.2781 16.7982 25.7539 17.3167L22.2506 20.7586ZM22.2506 8.19796C22.0943 8.04598 21.8828 7.95658 21.6622 7.95658H0.835479C0.0998792 7.95658 -0.277116 8.8327 0.237804 9.35121L3.65835 12.802C3.73191 12.8825 3.83305 12.9451 3.9342 12.9808C4.03534 13.0255 4.14568 13.0434 4.25602 13.0434H25.1655C25.9102 13.0434 26.2781 12.1584 25.7539 11.6398L22.2506 8.19796Z",
         fill: "url(#paint0_linear_721_5435)"
       }
     ),
-    /* @__PURE__ */ React10.createElement("defs", null, /* @__PURE__ */ React10.createElement(
+    /* @__PURE__ */ import_react10.default.createElement("defs", null, /* @__PURE__ */ import_react10.default.createElement(
       "linearGradient",
       {
         id: "paint0_linear_721_5435",
@@ -293,17 +338,17 @@ var Solana = ({ width = 30, height = 30, ...rest }) => {
         y2: "-0.89642",
         gradientUnits: "userSpaceOnUse"
       },
-      /* @__PURE__ */ React10.createElement("stop", { "stop-color": "#CF41E8" }),
-      /* @__PURE__ */ React10.createElement("stop", { offset: "1", "stop-color": "#10F2B0" })
+      /* @__PURE__ */ import_react10.default.createElement("stop", { "stop-color": "#CF41E8" }),
+      /* @__PURE__ */ import_react10.default.createElement("stop", { offset: "1", "stop-color": "#10F2B0" })
     ))
   );
 };
 var Solana_default = Solana;
 
 // src/assets/icons/Polygon.tsx
-import React11 from "react";
+var import_react11 = __toESM(require("react"), 1);
 var Polygon = ({ width = 30, height = 30, ...rest }) => {
-  return /* @__PURE__ */ React11.createElement(
+  return /* @__PURE__ */ import_react11.default.createElement(
     "svg",
     {
       xmlns: "http://www.w3.org/2000/svg",
@@ -313,7 +358,7 @@ var Polygon = ({ width = 30, height = 30, ...rest }) => {
       fill: "none",
       ...rest
     },
-    /* @__PURE__ */ React11.createElement(
+    /* @__PURE__ */ import_react11.default.createElement(
       "path",
       {
         d: "M22.7154 7.64095C22.1671 7.34421 21.4621 7.34421 20.8355 7.64095L16.4491 10.089L13.4726 11.6469L9.16449 14.095C8.61619 14.3917 7.91123 14.3917 7.2846 14.095L3.91645 12.1662C3.36815 11.8694 2.9765 11.276 2.9765 10.6083V6.89911C2.9765 6.30564 3.28982 5.71217 3.91645 5.34125L7.2846 3.48665C7.8329 3.18991 8.53786 3.18991 9.16449 3.48665L12.5326 5.41543C13.0809 5.71217 13.4726 6.30564 13.4726 6.97329V9.42136L16.4491 7.78932V5.26706C16.4491 4.67359 16.1358 4.08012 15.5091 3.7092L9.24282 0.222552C8.69452 -0.074184 7.98956 -0.074184 7.36292 0.222552L0.939948 3.78338C0.313316 4.08012 0 4.67359 0 5.26706V12.2404C0 12.8338 0.313316 13.4273 0.939948 13.7982L7.2846 17.2849C7.8329 17.5816 8.53786 17.5816 9.16449 17.2849L13.4726 14.911L16.4491 13.2789L20.7572 10.905C21.3055 10.6083 22.0104 10.6083 22.6371 10.905L26.0052 12.7596C26.5535 13.0564 26.9452 13.6499 26.9452 14.3175V18.0267C26.9452 18.6202 26.6319 19.2136 26.0052 19.5846L22.7154 21.4392C22.1671 21.7359 21.4621 21.7359 20.8355 21.4392L17.4674 19.5846C16.9191 19.2878 16.5274 18.6944 16.5274 18.0267V15.6528L13.5509 17.2849V19.7329C13.5509 20.3264 13.8642 20.9199 14.4909 21.2908L20.8355 24.7774C21.3838 25.0742 22.0888 25.0742 22.7154 24.7774L29.0601 21.2908C29.6084 20.9941 30 20.4006 30 19.7329V12.6855C30 12.092 29.6867 11.4985 29.0601 11.1276L22.7154 7.64095Z",
@@ -325,9 +370,9 @@ var Polygon = ({ width = 30, height = 30, ...rest }) => {
 var Polygon_default = Polygon;
 
 // src/assets/icons/Polygon_zkEVM.tsx
-import React12 from "react";
+var import_react12 = __toESM(require("react"), 1);
 var PolygonzkEVM = ({ width = 29, height = 32, ...rest }) => {
-  return /* @__PURE__ */ React12.createElement(
+  return /* @__PURE__ */ import_react12.default.createElement(
     "svg",
     {
       version: "1.1",
@@ -336,7 +381,7 @@ var PolygonzkEVM = ({ width = 29, height = 32, ...rest }) => {
       height,
       ...rest
     },
-    /* @__PURE__ */ React12.createElement(
+    /* @__PURE__ */ import_react12.default.createElement(
       "path",
       {
         d: "M0 0 C2.640625 1.33984375 2.640625 1.33984375 5.25 2.9375 C6.12140625 3.46214844 6.9928125 3.98679687 7.890625 4.52734375 C10 6 10 6 11 8 C11.17484831 10.2873598 11.26720049 12.58141443 11.3125 14.875 C11.34988281 16.10992188 11.38726563 17.34484375 11.42578125 18.6171875 C11 22 11 22 9.2578125 24.26953125 C7.07701959 25.94096941 4.94591023 27.4452404 2.5625 28.8125 C1.82128906 29.25207031 1.08007812 29.69164063 0.31640625 30.14453125 C-2.63165451 31.23327544 -4.0243054 30.95990148 -7 30 C-9.640625 28.66015625 -9.640625 28.66015625 -12.25 27.0625 C-13.12140625 26.53785156 -13.9928125 26.01320313 -14.890625 25.47265625 C-17 24 -17 24 -18 22 C-18.17484831 19.7126402 -18.26720049 17.41858557 -18.3125 15.125 C-18.34988281 13.89007813 -18.38726563 12.65515625 -18.42578125 11.3828125 C-18 8 -18 8 -16.2578125 5.73046875 C-14.07701959 4.05903059 -11.94591023 2.5547596 -9.5625 1.1875 C-8.82128906 0.74792969 -8.08007812 0.30835937 -7.31640625 -0.14453125 C-4.36834549 -1.23327544 -2.9756946 -0.95990148 0 0 Z M-4 2 C-5.65 3.32 -7.3 4.64 -9 6 C-6.525 6.495 -6.525 6.495 -4 7 C-4 8.98 -4 10.96 -4 13 C-3.67 13 -3.34 13 -3 13 C-2.5978125 11.576875 -2.5978125 11.576875 -2.1875 10.125 C-1 7 -1 7 2 5 C0.02 4.01 -1.96 3.02 -4 2 Z M-15 9 C-15.25030977 11.58380177 -15.25030977 11.58380177 -15 14 C-13.68 13.67 -12.36 13.34 -11 13 C-11 11.02 -11 9.04 -11 7 C-12.46225016 6.90754997 -12.46225016 6.90754997 -15 9 Z M5 8 C5 9.65 5 11.3 5 13 C5.66 13 6.32 13 7 13 C7.33 11.68 7.66 10.36 8 9 C7.01 8.67 6.02 8.34 5 8 Z M-8 10 C-7 13 -7 13 -7 13 Z M1 10 C2 13 2 13 2 13 Z M6 16 C4.70366379 17.06645115 4.70366379 17.06645115 4.9375 19.5625 C4.958125 20.366875 4.97875 21.17125 5 22 C5.99 21.67 6.98 21.34 8 21 C8 19.35 8 17.7 8 16 C7.34 16 6.68 16 6 16 Z M-14 17 C-14.33 17.99 -14.66 18.98 -15 20 C-14.02149805 21.02104551 -13.02019573 22.0206121 -12 23 C-11.67 23 -11.34 23 -11 23 C-11 21.02 -11 19.04 -11 17 C-11.99 17 -12.98 17 -14 17 Z M-8 17 C-7 20 -7 20 -7 20 Z M-4 17 C-4 18.98 -4 20.96 -4 23 C-5.65 23.33 -7.3 23.66 -9 24 C-7.30504044 25.66846734 -7.30504044 25.66846734 -5 27 C-1.62963689 26.75925978 -0.41201979 26.41201979 2 24 C1.360625 23.773125 0.72125 23.54625 0.0625 23.3125 C-2 22 -2 22 -2.75 19.375 C-2.8325 18.59125 -2.915 17.8075 -3 17 C-3.33 17 -3.66 17 -4 17 Z M1 17 C2 20 2 20 2 20 Z ",
@@ -344,7 +389,7 @@ var PolygonzkEVM = ({ width = 29, height = 32, ...rest }) => {
         transform: "translate(18,1)"
       }
     ),
-    /* @__PURE__ */ React12.createElement(
+    /* @__PURE__ */ import_react12.default.createElement(
       "path",
       {
         d: "M0 0 C2.475 0.495 2.475 0.495 5 1 C5 1.99 5 2.98 5 4 C4.01 4.495 4.01 4.495 3 5 C2.34 4.67 1.68 4.34 1 4 C1 5.98 1 7.96 1 10 C-4.94 10 -10.88 10 -17 10 C-16.34 9.67 -15.68 9.34 -15 9 C-15 7.02 -15 5.04 -15 3 C-12.6875 2.375 -12.6875 2.375 -10 2 C-9.01 2.66 -8.02 3.32 -7 4 C-6.67 3.67 -6.34 3.34 -6 3 C-4.00041636 2.95919217 -1.99954746 2.95745644 0 3 C0 2.01 0 1.02 0 0 Z M-12 6 C-11 9 -11 9 -11 9 Z M-3 6 C-2 9 -2 9 -2 9 Z ",
@@ -352,7 +397,7 @@ var PolygonzkEVM = ({ width = 29, height = 32, ...rest }) => {
         transform: "translate(22,5)"
       }
     ),
-    /* @__PURE__ */ React12.createElement(
+    /* @__PURE__ */ import_react12.default.createElement(
       "path",
       {
         d: "M0 0 C0.66 0.33 1.32 0.66 2 1 C2 4.96 2 8.92 2 13 C1.01 13.495 1.01 13.495 0 14 C0 12.35 0 10.7 0 9 C-10.89 9.495 -10.89 9.495 -22 10 C-22.33 11.32 -22.66 12.64 -23 14 C-23.66 14 -24.32 14 -25 14 C-25 10.04 -25 6.08 -25 2 C-24.01 2.495 -24.01 2.495 -23 3 C-23 4.32 -23 5.64 -23 7 C-15.74 6.67 -8.48 6.34 -1 6 C-0.67 4.02 -0.34 2.04 0 0 Z ",
@@ -360,7 +405,7 @@ var PolygonzkEVM = ({ width = 29, height = 32, ...rest }) => {
         transform: "translate(26,8)"
       }
     ),
-    /* @__PURE__ */ React12.createElement(
+    /* @__PURE__ */ import_react12.default.createElement(
       "path",
       {
         d: "M0 0 C5.94 0 11.88 0 18 0 C18 0.33 18 0.66 18 1 C13.545 1.495 13.545 1.495 9 2 C8.67 3.65 8.34 5.3 8 7 C3.25 8.125 3.25 8.125 1 7 C0.67 4.69 0.34 2.38 0 0 Z M4 1 C5 4 5 4 5 4 Z ",
@@ -368,7 +413,7 @@ var PolygonzkEVM = ({ width = 29, height = 32, ...rest }) => {
         transform: "translate(6,17)"
       }
     ),
-    /* @__PURE__ */ React12.createElement(
+    /* @__PURE__ */ import_react12.default.createElement(
       "path",
       {
         d: "M0 0 C1.134375 0.020625 2.26875 0.04125 3.4375 0.0625 C3.480221 1.72861905 3.47813832 3.39632885 3.4375 5.0625 C2.4375 6.0625 2.4375 6.0625 -0.625 6.125 C-1.594375 6.104375 -2.56375 6.08375 -3.5625 6.0625 C-3.94468767 4.40635343 -4.27645102 2.73792976 -4.5625 1.0625 C-3.5625 0.0625 -3.5625 0.0625 0 0 Z ",
@@ -376,7 +421,7 @@ var PolygonzkEVM = ({ width = 29, height = 32, ...rest }) => {
         transform: "translate(19.5625,17.9375)"
       }
     ),
-    /* @__PURE__ */ React12.createElement(
+    /* @__PURE__ */ import_react12.default.createElement(
       "path",
       {
         d: "M0 0 C0 1.65 0 3.3 0 5 C-2.49064888 5.68707555 -4.37886292 6 -7 6 C-7 4.02 -7 2.04 -7 0 C-4.3333581 -1.33332095 -2.83319697 -0.67102033 0 0 Z ",
@@ -384,7 +429,7 @@ var PolygonzkEVM = ({ width = 29, height = 32, ...rest }) => {
         transform: "translate(14,8)"
       }
     ),
-    /* @__PURE__ */ React12.createElement(
+    /* @__PURE__ */ import_react12.default.createElement(
       "path",
       {
         d: "M0 0 C0.33 0 0.66 0 1 0 C1 4.29 1 8.58 1 13 C1.99 12.67 2.98 12.34 4 12 C4 12.66 4 13.32 4 14 C4.66 14.33 5.32 14.66 6 15 C4.02 15.99 4.02 15.99 2 17 C-0.49118953 13.2632157 -0.2065226 11.25548181 -0.125 6.8125 C-0.10695312 5.54019531 -0.08890625 4.26789062 -0.0703125 2.95703125 C-0.04710937 1.98121094 -0.02390625 1.00539063 0 0 Z ",
@@ -392,7 +437,7 @@ var PolygonzkEVM = ({ width = 29, height = 32, ...rest }) => {
         transform: "translate(0,9)"
       }
     ),
-    /* @__PURE__ */ React12.createElement(
+    /* @__PURE__ */ import_react12.default.createElement(
       "path",
       {
         d: "M0 0 C1.65 0.33 3.3 0.66 5 1 C4.25 3.4375 4.25 3.4375 3 6 C0.875 6.8125 0.875 6.8125 -1 7 C-1 6.34 -1 5.68 -1 5 C-1.66 4.67 -2.32 4.34 -3 4 C-1.68 3.34 -0.36 2.68 1 2 C0.67 1.34 0.34 0.68 0 0 Z ",
@@ -400,7 +445,7 @@ var PolygonzkEVM = ({ width = 29, height = 32, ...rest }) => {
         transform: "translate(17,24)"
       }
     ),
-    /* @__PURE__ */ React12.createElement(
+    /* @__PURE__ */ import_react12.default.createElement(
       "path",
       {
         d: "M0 0 C0.99 0 1.98 0 3 0 C2.67 1.32 2.34 2.64 2 4 C0.68 4.33 -0.64 4.66 -2 5 C-1.34 3.35 -0.68 1.7 0 0 Z ",
@@ -413,9 +458,9 @@ var PolygonzkEVM = ({ width = 29, height = 32, ...rest }) => {
 var Polygon_zkEVM_default = PolygonzkEVM;
 
 // src/assets/icons/Loader.tsx
-import React13 from "react";
+var import_react13 = __toESM(require("react"), 1);
 var Loader = ({ width = 50, height = 49, ...rest }) => {
-  return /* @__PURE__ */ React13.createElement(
+  return /* @__PURE__ */ import_react13.default.createElement(
     "svg",
     {
       xmlns: "http://www.w3.org/2000/svg",
@@ -426,7 +471,7 @@ var Loader = ({ width = 50, height = 49, ...rest }) => {
       className: "loader",
       ...rest
     },
-    /* @__PURE__ */ React13.createElement(
+    /* @__PURE__ */ import_react13.default.createElement(
       "path",
       {
         d: "M25 17.0731V13.4146M30.3125 19.2072L33 16.5853M32.5 24.3902H36.25M30.3125 29.5731L33 32.195M25 31.7072V35.3658M19.6875 29.5731L17 32.195M17.5 24.3902H13.75M19.6875 19.2072L17 16.5853",
@@ -441,9 +486,9 @@ var Loader = ({ width = 50, height = 49, ...rest }) => {
 var Loader_default = Loader;
 
 // src/assets/icons/Error.tsx
-import React14 from "react";
+var import_react14 = __toESM(require("react"), 1);
 var Error2 = ({ width = 21, height = 20, ...rest }) => {
-  return /* @__PURE__ */ React14.createElement(
+  return /* @__PURE__ */ import_react14.default.createElement(
     "svg",
     {
       xmlns: "http://www.w3.org/2000/svg",
@@ -453,17 +498,17 @@ var Error2 = ({ width = 21, height = 20, ...rest }) => {
       fill: "none",
       ...rest
     },
-    /* @__PURE__ */ React14.createElement("circle", { cx: "10.9331", cy: "10", r: "10", fill: "#B90000" }),
-    /* @__PURE__ */ React14.createElement("rect", { x: "8.93311", y: "3", width: "4", height: "9", rx: "2", fill: "white" }),
-    /* @__PURE__ */ React14.createElement("rect", { x: "8.93311", y: "13", width: "4", height: "4", rx: "2", fill: "white" })
+    /* @__PURE__ */ import_react14.default.createElement("circle", { cx: "10.9331", cy: "10", r: "10", fill: "#B90000" }),
+    /* @__PURE__ */ import_react14.default.createElement("rect", { x: "8.93311", y: "3", width: "4", height: "9", rx: "2", fill: "white" }),
+    /* @__PURE__ */ import_react14.default.createElement("rect", { x: "8.93311", y: "13", width: "4", height: "4", rx: "2", fill: "white" })
   );
 };
 var Error_default = Error2;
 
 // src/assets/icons/Avalanche.tsx
-import React15 from "react";
+var import_react15 = __toESM(require("react"), 1);
 var Avalanche = ({ width = 29, height = 29, ...rest }) => {
-  return /* @__PURE__ */ React15.createElement(
+  return /* @__PURE__ */ import_react15.default.createElement(
     "svg",
     {
       xmlns: "http://www.w3.org/2000/svg",
@@ -473,7 +518,7 @@ var Avalanche = ({ width = 29, height = 29, ...rest }) => {
       fill: "none",
       ...rest
     },
-    /* @__PURE__ */ React15.createElement(
+    /* @__PURE__ */ import_react15.default.createElement(
       "path",
       {
         "fill-rule": "evenodd",
@@ -487,9 +532,9 @@ var Avalanche = ({ width = 29, height = 29, ...rest }) => {
 var Avalanche_default = Avalanche;
 
 // src/assets/icons/Arbitrum.tsx
-import React16 from "react";
+var import_react16 = __toESM(require("react"), 1);
 var Arbitrum = ({ width = 30, height = 30, ...rest }) => {
-  return /* @__PURE__ */ React16.createElement(
+  return /* @__PURE__ */ import_react16.default.createElement(
     "svg",
     {
       xmlns: "http://www.w3.org/2000/svg",
@@ -499,49 +544,49 @@ var Arbitrum = ({ width = 30, height = 30, ...rest }) => {
       fill: "none",
       ...rest
     },
-    /* @__PURE__ */ React16.createElement(
+    /* @__PURE__ */ import_react16.default.createElement(
       "path",
       {
         d: "M2.84064 10.032V22.968C2.84064 23.7996 3.27629 24.552 4.00237 24.9744L15.2105 31.4424C15.9234 31.8516 16.8079 31.8516 17.5208 31.4424L28.7289 24.9744C29.4418 24.5652 29.8906 23.7996 29.8906 22.968V10.032C29.8906 9.2004 29.455 8.448 28.7289 8.0256L17.5208 1.5576C16.8079 1.1484 15.9234 1.1484 15.2105 1.5576L4.00237 8.0256C3.28949 8.4348 2.85384 9.2004 2.85384 10.032H2.84064Z",
         fill: "#213147"
       }
     ),
-    /* @__PURE__ */ React16.createElement(
+    /* @__PURE__ */ import_react16.default.createElement(
       "path",
       {
         d: "M18.8013 19.008L17.204 23.3904C17.1644 23.5092 17.1644 23.6412 17.204 23.7732L19.9499 31.3104L23.1315 29.4756L19.3162 19.008C19.2238 18.7704 18.8938 18.7704 18.8013 19.008Z",
         fill: "#12AAFF"
       }
     ),
-    /* @__PURE__ */ React16.createElement(
+    /* @__PURE__ */ import_react16.default.createElement(
       "path",
       {
         d: "M22.0094 11.6424C21.917 11.4048 21.5869 11.4048 21.4945 11.6424L19.8971 16.0248C19.8575 16.1436 19.8575 16.2756 19.8971 16.4076L24.3989 28.7496L27.5804 26.9148L22.0094 11.6556V11.6424Z",
         fill: "#12AAFF"
       }
     ),
-    /* @__PURE__ */ React16.createElement(
+    /* @__PURE__ */ import_react16.default.createElement(
       "path",
       {
         d: "M16.3592 2.046C16.4384 2.046 16.5176 2.0724 16.5836 2.112L28.7026 9.108C28.8479 9.1872 28.9271 9.3456 28.9271 9.504V23.496C28.9271 23.6544 28.8347 23.8128 28.7026 23.892L16.5836 30.888C16.5176 30.9276 16.4384 30.954 16.3592 30.954C16.28 30.954 16.2008 30.9276 16.1348 30.888L4.01574 23.892C3.87052 23.8128 3.79131 23.6544 3.79131 23.496V9.4908C3.79131 9.3324 3.88373 9.174 4.01574 9.0948L16.1348 2.0988C16.2008 2.0592 16.28 2.0328 16.3592 2.0328V2.046ZM16.3592 0C15.9235 0 15.5011 0.1056 15.105 0.33L2.98602 7.326C2.20713 7.7748 1.73187 8.5932 1.73187 9.4908V23.4828C1.73187 24.3804 2.20713 25.1988 2.98602 25.6476L15.105 32.6436C15.4879 32.868 15.9235 32.9736 16.3592 32.9736C16.7948 32.9736 17.2173 32.868 17.6133 32.6436L29.7324 25.6476C30.5113 25.1988 30.9865 24.3804 30.9865 23.4828V9.4908C30.9865 8.5932 30.5113 7.7748 29.7324 7.326L17.6001 0.33C17.2173 0.1056 16.7816 0 16.346 0H16.3592Z",
         fill: "#9DCCED"
       }
     ),
-    /* @__PURE__ */ React16.createElement(
+    /* @__PURE__ */ import_react16.default.createElement(
       "path",
       {
         d: "M8.3327 28.7628L9.45483 25.7004L11.6991 27.5616L9.60005 29.4888L8.3327 28.7628Z",
         fill: "#213147"
       }
     ),
-    /* @__PURE__ */ React16.createElement(
+    /* @__PURE__ */ import_react16.default.createElement(
       "path",
       {
         d: "M15.3295 8.5008H12.2535C12.0291 8.5008 11.8178 8.646 11.7386 8.8572L5.15106 26.9148L8.33264 28.7496L15.5935 8.8572C15.6595 8.6724 15.5275 8.4876 15.3427 8.4876L15.3295 8.5008Z",
         fill: "white"
       }
     ),
-    /* @__PURE__ */ React16.createElement(
+    /* @__PURE__ */ import_react16.default.createElement(
       "path",
       {
         d: "M20.7157 8.5008H17.6397C17.4153 8.5008 17.2041 8.646 17.1249 8.8572L9.59998 29.4756L12.7815 31.3104L20.9665 8.8572C21.0325 8.6724 20.9005 8.4876 20.7157 8.4876V8.5008Z",
@@ -553,9 +598,9 @@ var Arbitrum = ({ width = 30, height = 30, ...rest }) => {
 var Arbitrum_default = Arbitrum;
 
 // src/assets/icons/Optimism.tsx
-import React17 from "react";
+var import_react17 = __toESM(require("react"), 1);
 var Optimism = ({ width = 31, height = 30, ...rest }) => {
-  return /* @__PURE__ */ React17.createElement(
+  return /* @__PURE__ */ import_react17.default.createElement(
     "svg",
     {
       xmlns: "http://www.w3.org/2000/svg",
@@ -565,21 +610,21 @@ var Optimism = ({ width = 31, height = 30, ...rest }) => {
       fill: "none",
       ...rest
     },
-    /* @__PURE__ */ React17.createElement(
+    /* @__PURE__ */ import_react17.default.createElement(
       "path",
       {
         d: "M15.8719 30C24.1572 30 30.8737 23.2843 30.8737 15C30.8737 6.71573 24.1572 0 15.8719 0C7.5867 0 0.870178 6.71573 0.870178 15C0.870178 23.2843 7.5867 30 15.8719 30Z",
         fill: "#FF0420"
       }
     ),
-    /* @__PURE__ */ React17.createElement(
+    /* @__PURE__ */ import_react17.default.createElement(
       "path",
       {
         d: "M11.4976 18.984C10.6035 18.984 9.87137 18.774 9.3013 18.354C8.73723 17.928 8.4552 17.316 8.4552 16.53C8.4552 16.362 8.4732 16.164 8.50921 15.924C8.60522 15.384 8.74323 14.736 8.92325 13.974C9.43331 11.91 10.7535 10.878 12.8777 10.878C13.4538 10.878 13.9758 10.974 14.4319 11.172C14.888 11.358 15.248 11.646 15.512 12.03C15.7761 12.408 15.9081 12.858 15.9081 13.38C15.9081 13.536 15.8901 13.734 15.8541 13.974C15.7401 14.64 15.608 15.294 15.446 15.924C15.182 16.95 14.7319 17.724 14.0839 18.234C13.4418 18.738 12.5777 18.984 11.4976 18.984ZM11.6596 17.364C12.0796 17.364 12.4337 17.238 12.7277 16.992C13.0277 16.746 13.2438 16.368 13.3698 15.852C13.5438 15.144 13.6758 14.532 13.7658 14.004C13.7958 13.848 13.8138 13.686 13.8138 13.518C13.8138 12.834 13.4598 12.492 12.7457 12.492C12.3257 12.492 11.9656 12.618 11.6656 12.864C11.3715 13.11 11.1615 13.488 11.0355 14.004C10.8975 14.508 10.7655 15.12 10.6275 15.852C10.5975 16.002 10.5795 16.158 10.5795 16.326C10.5734 17.022 10.9395 17.364 11.6596 17.364Z",
         fill: "white"
       }
     ),
-    /* @__PURE__ */ React17.createElement(
+    /* @__PURE__ */ import_react17.default.createElement(
       "path",
       {
         d: "M16.43 18.876C16.346 18.876 16.286 18.852 16.238 18.798C16.202 18.738 16.19 18.672 16.202 18.594L17.7562 11.274C17.7682 11.19 17.8102 11.124 17.8822 11.07C17.9482 11.016 18.0202 10.992 18.0982 10.992H21.0926C21.9267 10.992 22.5928 11.166 23.0968 11.508C23.6069 11.856 23.8649 12.354 23.8649 13.008C23.8649 13.194 23.8409 13.392 23.7989 13.596C23.6129 14.46 23.2348 15.096 22.6588 15.51C22.0947 15.924 21.3206 16.128 20.3365 16.128H18.8183L18.3023 18.594C18.2843 18.678 18.2483 18.744 18.1762 18.798C18.1102 18.852 18.0382 18.876 17.9602 18.876H16.43ZM20.4145 14.574C20.7325 14.574 21.0026 14.49 21.2366 14.316C21.4766 14.142 21.6326 13.896 21.7107 13.572C21.7347 13.446 21.7467 13.332 21.7467 13.236C21.7467 13.02 21.6807 12.852 21.5546 12.738C21.4286 12.618 21.2066 12.558 20.9006 12.558H19.5504L19.1244 14.574H20.4145Z",
@@ -591,15 +636,15 @@ var Optimism = ({ width = 31, height = 30, ...rest }) => {
 var Optimism_default = Optimism;
 
 // src/assets/icons/USDC.tsx
-import React18 from "react";
+var import_react18 = __toESM(require("react"), 1);
 
 // src/assets/icons/USDT.tsx
-import React19 from "react";
+var import_react19 = __toESM(require("react"), 1);
 
 // src/assets/icons/USDK.tsx
-import React20 from "react";
+var import_react20 = __toESM(require("react"), 1);
 var USDT = ({ width = 23, height = 23, ...rest }) => {
-  return /* @__PURE__ */ React20.createElement(
+  return /* @__PURE__ */ import_react20.default.createElement(
     "svg",
     {
       xmlns: "http://www.w3.org/2000/svg",
@@ -609,7 +654,7 @@ var USDT = ({ width = 23, height = 23, ...rest }) => {
       fill: "none",
       ...rest
     },
-    /* @__PURE__ */ React20.createElement(
+    /* @__PURE__ */ import_react20.default.createElement(
       "path",
       {
         d: "M21.7206 25.7417C20.9608 25.001 19.9922 24.6072 19.0104 24.5498H19.0131C15.2454 24.4272 14.705 21.3028 14.705 20.5151C14.705 19.6545 15.3029 16.6395 19.0052 16.5222C19.9869 16.4674 20.9556 16.071 21.7154 15.3303C23.389 13.7002 23.4256 11.0243 21.7937 9.35256C20.9687 8.50494 19.8721 8.07982 18.7755 8.07461H18.7467C17.6867 8.07722 16.6266 8.47625 15.8068 9.27432C14.9086 10.148 14.5326 11.3217 14.5326 12.4823C14.5326 13.4994 13.859 16.2874 10.7285 16.2874C9.55091 16.2874 8.31332 16.6317 7.41253 17.555C7.37337 17.5941 7.34204 17.641 7.30548 17.6828V17.6671C7.09138 17.8914 7.04961 17.7141 7.05222 17.5915V0.578993C7.05222 0.2582 6.79373 0 6.47259 0H0.579635C0.258486 0 0 0.2582 0 0.578993V31.7872C0 32.108 0.258486 32.3662 0.579635 32.3662H6.47781C6.79896 32.3662 7.05744 32.108 7.05744 31.7872V23.4883C7.05744 23.3658 7.09922 23.1884 7.31593 23.4127V23.3997C7.34987 23.4388 7.37859 23.4831 7.41514 23.5222C8.31854 24.4481 9.53525 24.7898 10.7363 24.7898C13.8695 24.7898 14.5405 27.9403 14.5405 28.595C14.5405 29.4947 14.9191 30.9292 15.8146 31.8003C16.6371 32.601 17.7024 33 18.765 33H18.7676C19.8695 33 20.9687 32.5723 21.799 31.722C22.5979 30.9031 22.9974 29.8442 23 28.7853V28.7593C22.9974 27.6639 22.5692 26.5685 21.7206 25.7443",
@@ -621,18 +666,18 @@ var USDT = ({ width = 23, height = 23, ...rest }) => {
 var USDK_default = USDT;
 
 // src/assets/icons/Fuse.tsx
-import React21 from "react";
+var import_react21 = __toESM(require("react"), 1);
 
 // src/assets/icons/Celo.tsx
-import React22 from "react";
+var import_react22 = __toESM(require("react"), 1);
 
 // src/assets/icons/GoodDollar.tsx
-import React23 from "react";
+var import_react23 = __toESM(require("react"), 1);
 
 // src/assets/icons/Copy.tsx
-import React24 from "react";
+var import_react24 = __toESM(require("react"), 1);
 var Copy = ({ width = 20, height = 20, fill = "#86B8CE", ...rest }) => {
-  return /* @__PURE__ */ React24.createElement(
+  return /* @__PURE__ */ import_react24.default.createElement(
     "svg",
     {
       xmlns: "http://www.w3.org/2000/svg",
@@ -642,7 +687,7 @@ var Copy = ({ width = 20, height = 20, fill = "#86B8CE", ...rest }) => {
       fill,
       ...rest
     },
-    /* @__PURE__ */ React24.createElement(
+    /* @__PURE__ */ import_react24.default.createElement(
       "path",
       {
         "fill-rule": "evenodd",
@@ -651,7 +696,7 @@ var Copy = ({ width = 20, height = 20, fill = "#86B8CE", ...rest }) => {
         fill
       }
     ),
-    /* @__PURE__ */ React24.createElement(
+    /* @__PURE__ */ import_react24.default.createElement(
       "path",
       {
         "fill-rule": "evenodd",
@@ -665,9 +710,9 @@ var Copy = ({ width = 20, height = 20, fill = "#86B8CE", ...rest }) => {
 var Copy_default = Copy;
 
 // src/assets/icons/Bank.tsx
-import React25 from "react";
+var import_react25 = __toESM(require("react"), 1);
 var Bank = ({ width = 32, height = 32, ...rest }) => {
-  return /* @__PURE__ */ React25.createElement(
+  return /* @__PURE__ */ import_react25.default.createElement(
     "svg",
     {
       width,
@@ -676,8 +721,8 @@ var Bank = ({ width = 32, height = 32, ...rest }) => {
       xmlns: "http://www.w3.org/2000/svg",
       ...rest
     },
-    /* @__PURE__ */ React25.createElement("defs", null),
-    /* @__PURE__ */ React25.createElement(
+    /* @__PURE__ */ import_react25.default.createElement("defs", null),
+    /* @__PURE__ */ import_react25.default.createElement(
       "g",
       {
         style: {
@@ -693,7 +738,7 @@ var Bank = ({ width = 32, height = 32, ...rest }) => {
         },
         transform: "translate(1.4065934065934016 1.4065934065934016) scale(2.81 2.81)"
       },
-      /* @__PURE__ */ React25.createElement(
+      /* @__PURE__ */ import_react25.default.createElement(
         "path",
         {
           d: "M 84.668 38.004 v -6.27 H 90 V 20 L 45 3.034 L 0 20 v 11.734 h 5.332 v 6.27 h 4.818 v 30.892 H 5.332 v 6.271 H 0 v 11.8 h 90 v -11.8 h -5.332 v -6.271 H 79.85 V 38.004 H 84.668 z M 81.668 35.004 H 66.332 v -3.27 h 15.336 V 35.004 z M 63.332 68.896 v 6.271 h -7.664 v -6.271 H 50.85 V 38.004 h 4.818 v -6.27 h 7.664 v 6.27 h 4.818 v 30.892 H 63.332 z M 26.668 38.004 v -6.27 h 7.664 v 6.27 h 4.818 v 30.892 h -4.818 v 6.271 h -7.664 v -6.271 H 21.85 V 38.004 H 26.668 z M 42.15 68.896 V 38.004 h 5.7 v 30.892 H 42.15 z M 37.332 35.004 v -3.27 h 15.336 v 3.27 H 37.332 z M 37.332 71.896 h 15.336 v 3.271 H 37.332 V 71.896 z M 3 22.075 L 45 6.24 l 42 15.835 v 6.659 H 3 V 22.075 z M 8.332 31.734 h 15.336 v 3.27 H 8.332 V 31.734 z M 13.15 38.004 h 5.7 v 30.892 h -5.7 V 38.004 z M 8.332 71.896 h 15.336 v 3.271 H 8.332 V 71.896 z M 87 83.966 H 3 v -5.8 h 84 V 83.966 z M 81.668 75.166 H 66.332 v -3.271 h 15.336 V 75.166 z M 76.85 68.896 H 71.15 V 38.004 h 5.699 V 68.896 z",
@@ -708,9 +753,9 @@ var Bank = ({ width = 32, height = 32, ...rest }) => {
 var Bank_default = Bank;
 
 // src/assets/icons/BSC.tsx
-import React26 from "react";
+var import_react26 = __toESM(require("react"), 1);
 var BNB = ({ width = 30, height = 30, ...rest }) => {
-  return /* @__PURE__ */ React26.createElement(
+  return /* @__PURE__ */ import_react26.default.createElement(
     "svg",
     {
       xmlns: "http://www.w3.org/2000/svg",
@@ -720,14 +765,14 @@ var BNB = ({ width = 30, height = 30, ...rest }) => {
       fill: "none",
       ...rest
     },
-    /* @__PURE__ */ React26.createElement(
+    /* @__PURE__ */ import_react26.default.createElement(
       "path",
       {
         d: "M9.17376 12.6062L15 6.78L20.829 12.6088L24.219 9.21876L15 0L5.784 9.216L9.17388 12.606M0 15L3.39012 11.6094L6.78 14.9993L3.38988 18.3894L0 15ZM9.17376 17.3941L15 23.22L20.8289 17.3914L24.2207 20.7796L24.219 20.7814L15 30L5.784 20.784L5.7792 20.7792L9.17412 17.3938M23.22 15.0014L26.6101 11.6113L30 15.0012L26.61 18.3913L23.22 15.0014Z",
         fill: "#F3BA2F"
       }
     ),
-    /* @__PURE__ */ React26.createElement(
+    /* @__PURE__ */ import_react26.default.createElement(
       "path",
       {
         d: "M18.4383 14.9981H18.4397L15.0001 11.5582L12.4576 14.0999L12.1655 14.3921L11.5631 14.9947L11.5583 14.9993L11.5631 15.0043L15.0001 18.4417L18.44 15.0017L18.4417 14.9998L18.4385 14.9981",
@@ -739,12 +784,12 @@ var BNB = ({ width = 30, height = 30, ...rest }) => {
 var BSC_default = BNB;
 
 // src/assets/icons/KEUR.tsx
-import React27 from "react";
+var import_react27 = __toESM(require("react"), 1);
 
 // src/assets/icons/Tron.tsx
-import React28 from "react";
+var import_react28 = __toESM(require("react"), 1);
 var Celo = ({ width = 30, height = 28, ...rest }) => {
-  return /* @__PURE__ */ React28.createElement(
+  return /* @__PURE__ */ import_react28.default.createElement(
     "svg",
     {
       xmlns: "http://www.w3.org/2000/svg",
@@ -754,7 +799,7 @@ var Celo = ({ width = 30, height = 28, ...rest }) => {
       fill: "none",
       ...rest
     },
-    /* @__PURE__ */ React28.createElement(
+    /* @__PURE__ */ import_react28.default.createElement(
       "path",
       {
         d: "M28.6056 9.03778C27.1753 7.73936 25.1967 5.75657 23.5853 4.35034L23.4899 4.28472C23.3313 4.15946 23.1524 4.06122 22.9607 3.9941C19.0751 3.28161 0.99166 -0.0417889 0.638858 0.000398088C0.540001 0.0140104 0.445508 0.0492499 0.362337 0.103522L0.271753 0.173833C0.160212 0.285207 0.0754953 0.419757 0.023838 0.567578L0 0.628515V0.961323V1.01288C2.03576 6.58625 10.0739 24.8438 11.6568 29.1281C11.7521 29.4188 11.9333 29.9719 12.2718 30H12.3481C12.5292 30 13.3016 28.9969 13.3016 28.9969C13.3016 28.9969 27.1085 12.5346 28.5054 10.7815C28.6863 10.5656 28.8459 10.3333 28.9822 10.0878C29.017 9.89567 29.0006 9.69799 28.9346 9.51398C28.8686 9.32998 28.7552 9.16591 28.6056 9.03778ZM16.8439 10.9549L22.7367 6.15032L26.1932 9.28152L16.8439 10.9549ZM14.5555 10.6409L4.41002 2.46599L20.8249 5.44251L14.5555 10.6409ZM15.4708 12.783L25.8547 11.1378L13.9834 25.2001L15.4708 12.783ZM3.03219 3.2816L13.7068 12.1877L12.1621 25.2094L3.03219 3.2816Z",
@@ -766,9 +811,9 @@ var Celo = ({ width = 30, height = 28, ...rest }) => {
 var Tron_default = Celo;
 
 // src/assets/icons/BTC.tsx
-import React29 from "react";
+var import_react29 = __toESM(require("react"), 1);
 var BTC = ({ width = 28, height = 28, ...rest }) => {
-  return /* @__PURE__ */ React29.createElement(
+  return /* @__PURE__ */ import_react29.default.createElement(
     "svg",
     {
       xmlns: "http://www.w3.org/2000/svg",
@@ -778,7 +823,7 @@ var BTC = ({ width = 28, height = 28, ...rest }) => {
       fill: "none",
       ...rest
     },
-    /* @__PURE__ */ React29.createElement(
+    /* @__PURE__ */ import_react29.default.createElement(
       "path",
       {
         d: "M19.4041 8.61541C19.6137 10.6571 18.8511 12.1042 17.1161 12.9568C18.4783 13.2709 19.4972 13.8486 20.1725 14.69C20.8477 15.5313 21.1099 16.7318 20.9584 18.291C20.8769 19.0875 20.6877 19.7886 20.3908 20.3944C20.0939 21.0002 19.7184 21.4994 19.2642 21.892C18.8101 22.2846 18.2455 22.6128 17.5701 22.8764C16.8948 23.1401 16.1873 23.3335 15.448 23.4568C14.7086 23.5801 13.8615 23.6643 12.9068 23.7092V27.9999H10.2171V23.7765C9.28563 23.7765 8.57533 23.7709 8.08629 23.7596V28H5.39686V23.7091C5.1873 23.7091 4.87292 23.7063 4.4537 23.7007C4.03446 23.6951 3.71429 23.6922 3.49317 23.6922H0L0.541458 20.6129H2.48022C3.06236 20.6129 3.40008 20.3269 3.49317 19.7547V8.14428C3.34184 7.38139 2.82372 7.00008 1.93876 7.00008H0V4.2404L3.70272 4.25727C4.44792 4.25727 5.01271 4.2517 5.39689 4.2404V0H8.08663V4.15628C9.04139 4.13379 9.75169 4.12265 10.2174 4.12265V0H12.9071V4.2404C13.827 4.31895 14.642 4.44514 15.3523 4.61899C16.0626 4.79283 16.7205 5.04522 17.3259 5.37613C17.9314 5.70705 18.4117 6.14459 18.7669 6.68857C19.1218 7.23272 19.3343 7.87501 19.4041 8.61541ZM15.649 17.786C15.649 17.3821 15.5617 17.0231 15.387 16.709C15.2124 16.395 14.9969 16.1369 14.7409 15.935C14.4847 15.7331 14.15 15.5619 13.7367 15.4218C13.3234 15.2815 12.942 15.1778 12.5927 15.1104C12.2434 15.0432 11.8126 14.9927 11.3003 14.959C10.7879 14.9254 10.3862 14.9085 10.0952 14.9085C9.80407 14.9085 9.42849 14.9141 8.9686 14.9254C8.50867 14.9366 8.23214 14.9423 8.13905 14.9423V20.6298C8.23218 20.6298 8.44765 20.6326 8.7852 20.6382C9.12292 20.6438 9.40223 20.6467 9.62353 20.6467C9.84482 20.6467 10.1532 20.6382 10.5492 20.6215C10.9451 20.6048 11.2856 20.5823 11.5709 20.5543C11.8562 20.5262 12.1879 20.4786 12.5665 20.4112C12.9449 20.344 13.2681 20.2654 13.5358 20.1756C13.8036 20.0858 14.0801 19.9681 14.3654 19.8222C14.6506 19.6764 14.8805 19.5081 15.0552 19.3174C15.2298 19.1267 15.3725 18.9023 15.483 18.6444C15.5934 18.3863 15.649 18.1002 15.649 17.786ZM14.409 9.77635C14.409 9.40621 14.3362 9.07799 14.1907 8.79197C14.0451 8.50596 13.8675 8.27031 13.658 8.08516C13.4484 7.90001 13.1689 7.74307 12.8197 7.61399C12.4704 7.48494 12.1502 7.3925 11.8591 7.33627C11.568 7.2802 11.21 7.23524 10.785 7.20161C10.3599 7.16799 10.0222 7.15397 9.77203 7.15954C9.52166 7.16511 9.20727 7.17068 8.82887 7.17641C8.45047 7.18198 8.22044 7.18487 8.13905 7.18487V12.3507C8.19728 12.3507 8.3982 12.3535 8.74153 12.3591C9.08503 12.3647 9.35574 12.3647 9.5537 12.3591C9.75165 12.3536 10.0427 12.3423 10.4269 12.3255C10.8111 12.3086 11.1313 12.2779 11.3875 12.2329C11.6436 12.188 11.9435 12.1263 12.287 12.0478C12.6305 11.9692 12.9128 11.8655 13.134 11.7364C13.3553 11.6074 13.5706 11.456 13.7802 11.2822C13.9897 11.1083 14.147 10.8923 14.2517 10.6343C14.3564 10.3764 14.409 10.0905 14.409 9.77635Z",
@@ -790,31 +835,16 @@ var BTC = ({ width = 28, height = 28, ...rest }) => {
 var BTC_default = BTC;
 
 // src/assets/icons/Wallet.tsx
-import React30 from "react";
+var import_react30 = __toESM(require("react"), 1);
 
 // src/assets/icons/Explorer.tsx
-import React31 from "react";
+var import_react31 = __toESM(require("react"), 1);
 
 // src/assets/icons/ExternalUrl.tsx
-import React32 from "react";
+var import_react32 = __toESM(require("react"), 1);
 
 // src/utils/constants.tsx
-import {
-  arbitrum,
-  arbitrumSepolia,
-  avalanche,
-  avalancheFuji,
-  bsc,
-  bscTestnet,
-  mainnet,
-  optimism,
-  optimismSepolia,
-  polygon,
-  polygonAmoy,
-  polygonZkEvm,
-  polygonZkEvmCardona,
-  sepolia
-} from "@reown/appkit/networks";
+var import_networks = require("@reown/appkit/networks");
 var ChainName = /* @__PURE__ */ ((ChainName2) => {
   ChainName2["ETHEREUM"] = "ETH";
   ChainName2["POLYGON"] = "POL";
@@ -942,7 +972,7 @@ var getNetworkOption = (id) => {
   return networkOptions[index];
 };
 var CLUSTER = "devnet";
-var SOLANA_HOST = clusterApiUrl(CLUSTER);
+var SOLANA_HOST = (0, import_web3.clusterApiUrl)(CLUSTER);
 var TRON_USDK_OWNER_ADDRESS = "TBVn4bsBN4DhtZ7D3vEVpAyqkvdFn7zmpU";
 
 // src/interface.tsx
@@ -1279,11 +1309,11 @@ var store = configureStore({
 });
 
 // src/store/pluginSlice.tsx
-import { createSlice as createSlice2 } from "@reduxjs/toolkit";
+var import_toolkit = require("@reduxjs/toolkit");
 var initialState2 = {
   plugins: {}
 };
-var pluginSlice = createSlice2({
+var pluginSlice = (0, import_toolkit.createSlice)({
   name: "plugins",
   initialState: initialState2,
   reducers: {
@@ -1302,47 +1332,47 @@ var InternalKimaProvider = ({
   walletConnectProjectId,
   children
 }) => {
-  const plugins = useSelector(selectAllPlugins);
-  const WrappedProviders = useMemo(() => {
+  const plugins = (0, import_react_redux.useSelector)(selectAllPlugins);
+  const WrappedProviders = (0, import_react33.useMemo)(() => {
     return plugins.reduce(
       (Wrapped, plugin) => {
         const PluginProvider = plugin.provider;
         if (PluginProvider) {
-          return ({ children: children2 }) => /* @__PURE__ */ React33.createElement(
+          return ({ children: children2 }) => /* @__PURE__ */ import_react33.default.createElement(
             PluginProvider,
             {
               networkOption: "testnet",
               walletConnectProjectId
             },
-            /* @__PURE__ */ React33.createElement(Wrapped, null, children2)
+            /* @__PURE__ */ import_react33.default.createElement(Wrapped, null, children2)
           );
         }
         return Wrapped;
       },
-      ({ children: children2 }) => /* @__PURE__ */ React33.createElement(React33.Fragment, null, children2)
+      ({ children: children2 }) => /* @__PURE__ */ import_react33.default.createElement(import_react33.default.Fragment, null, children2)
       // Default wrapper if no plugins
     );
   }, [plugins, walletConnectProjectId]);
-  return /* @__PURE__ */ React33.createElement(WrappedProviders, null, children);
+  return /* @__PURE__ */ import_react33.default.createElement(WrappedProviders, null, children);
 };
 var KimaProvider = ({
   walletConnectProjectId,
   children
 }) => {
-  return /* @__PURE__ */ React33.createElement(Provider, { store }, /* @__PURE__ */ React33.createElement(InternalKimaProvider, { walletConnectProjectId }, children));
+  return /* @__PURE__ */ import_react33.default.createElement(import_react_redux.Provider, { store }, /* @__PURE__ */ import_react33.default.createElement(InternalKimaProvider, { walletConnectProjectId }, children));
 };
 var KimaProvider_default = KimaProvider;
 
 // src/components/KimaTransactionWidget.tsx
-import React56, { useEffect as useEffect15 } from "react";
-import { useDispatch as useDispatch15 } from "react-redux";
+var import_react65 = __toESM(require("react"), 1);
+var import_react_redux32 = require("react-redux");
 
 // src/components/TransactionWidget.tsx
-import React55, { useEffect as useEffect14, useState as useState9 } from "react";
+var import_react64 = __toESM(require("react"), 1);
 
 // src/components/reusable/Progressbar.tsx
-import React34 from "react";
-import { useSelector as useSelector2 } from "react-redux";
+var import_react34 = __toESM(require("react"), 1);
+var import_react_redux2 = require("react-redux");
 
 // src/store/selectors.tsx
 var selectNetworkOption = (state) => state.option.networkOption;
@@ -1379,13 +1409,13 @@ var stepInfo = [
   }
 ];
 var Progressbar = ({ step, errorStep, setFocus, loadingStep }) => {
-  const theme = useSelector2(selectTheme);
-  return /* @__PURE__ */ React34.createElement("div", { className: "kima-progressbar" }, /* @__PURE__ */ React34.createElement(
+  const theme = (0, import_react_redux2.useSelector)(selectTheme);
+  return /* @__PURE__ */ import_react34.default.createElement("div", { className: "kima-progressbar" }, /* @__PURE__ */ import_react34.default.createElement(
     "div",
     {
       className: `value step-${step * 100 / 4}`
     }
-  ), /* @__PURE__ */ React34.createElement("div", { className: "step-indicators" }, stepInfo.map((item, index) => /* @__PURE__ */ React34.createElement(
+  ), /* @__PURE__ */ import_react34.default.createElement("div", { className: "step-indicators" }, stepInfo.map((item, index) => /* @__PURE__ */ import_react34.default.createElement(
     "div",
     {
       key: item.title,
@@ -1396,14 +1426,14 @@ var Progressbar = ({ step, errorStep, setFocus, loadingStep }) => {
         if (index < 4) setFocus(index);
       }
     },
-    /* @__PURE__ */ React34.createElement("div", { className: "step-info" }, step < index && /* @__PURE__ */ React34.createElement(Lock_default, null), step >= index ? index === loadingStep ? /* @__PURE__ */ React34.createElement(Loader_default, { className: "loader" }) : index === errorStep ? /* @__PURE__ */ React34.createElement(Warning_default, null) : /* @__PURE__ */ React34.createElement(Check_default, null) : null, /* @__PURE__ */ React34.createElement("span", null, item.title))
+    /* @__PURE__ */ import_react34.default.createElement("div", { className: "step-info" }, step < index && /* @__PURE__ */ import_react34.default.createElement(Lock_default, null), step >= index ? index === loadingStep ? /* @__PURE__ */ import_react34.default.createElement(Loader_default, { className: "loader" }) : index === errorStep ? /* @__PURE__ */ import_react34.default.createElement(Warning_default, null) : /* @__PURE__ */ import_react34.default.createElement(Check_default, null) : null, /* @__PURE__ */ import_react34.default.createElement("span", null, item.title))
   ))));
 };
 var Progressbar_default = Progressbar;
 
 // src/components/reusable/ExternalLink.tsx
-import React35 from "react";
-var ExternalLink = ({ to, children, className, rest }) => /* @__PURE__ */ React35.createElement(
+var import_react35 = __toESM(require("react"), 1);
+var ExternalLink = ({ to, children, className, rest }) => /* @__PURE__ */ import_react35.default.createElement(
   "a",
   {
     className,
@@ -1417,35 +1447,35 @@ var ExternalLink = ({ to, children, className, rest }) => /* @__PURE__ */ React3
 var ExternalLink_default = ExternalLink;
 
 // src/components/reusable/NetworkLabel.tsx
-import React36 from "react";
-import { useSelector as useSelector3 } from "react-redux";
+var import_react36 = __toESM(require("react"), 1);
+var import_react_redux3 = require("react-redux");
 var NetworkLabel = ({ sourceChain, targetChain }) => {
-  const theme = useSelector3(selectTheme);
+  const theme = (0, import_react_redux3.useSelector)(selectTheme);
   const SourceInfo = getNetworkOption(sourceChain);
   const TargetInfo = getNetworkOption(targetChain);
-  return /* @__PURE__ */ React36.createElement("div", { className: "header-network-labels" }, SourceInfo?.label && /* @__PURE__ */ React36.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ React36.createElement("div", { className: "icon" }, /* @__PURE__ */ React36.createElement(SourceInfo.icon, null)), /* @__PURE__ */ React36.createElement("p", null, SourceInfo.label)), SourceInfo?.label && TargetInfo?.label && /* @__PURE__ */ React36.createElement("div", { className: "arrow" }, /* @__PURE__ */ React36.createElement(Arrow_default, null)), TargetInfo?.label && /* @__PURE__ */ React36.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ React36.createElement("div", { className: "icon" }, /* @__PURE__ */ React36.createElement(TargetInfo.icon, null)), /* @__PURE__ */ React36.createElement("p", null, TargetInfo.label)));
+  return /* @__PURE__ */ import_react36.default.createElement("div", { className: "header-network-labels" }, SourceInfo?.label && /* @__PURE__ */ import_react36.default.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ import_react36.default.createElement("div", { className: "icon" }, /* @__PURE__ */ import_react36.default.createElement(SourceInfo.icon, null)), /* @__PURE__ */ import_react36.default.createElement("p", null, SourceInfo.label)), SourceInfo?.label && TargetInfo?.label && /* @__PURE__ */ import_react36.default.createElement("div", { className: "arrow" }, /* @__PURE__ */ import_react36.default.createElement(Arrow_default, null)), TargetInfo?.label && /* @__PURE__ */ import_react36.default.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ import_react36.default.createElement("div", { className: "icon" }, /* @__PURE__ */ import_react36.default.createElement(TargetInfo.icon, null)), /* @__PURE__ */ import_react36.default.createElement("p", null, TargetInfo.label)));
 };
 var NetworkLabel_default = NetworkLabel;
 
 // src/components/reusable/PrimaryButton.tsx
-import React39 from "react";
+var import_react39 = __toESM(require("react"), 1);
 
 // src/assets/loading/180-ring.tsx
-import React37 from "react";
+var import_react37 = __toESM(require("react"), 1);
 
 // src/assets/loading/6-dots-scale.tsx
-import React38 from "react";
+var import_react38 = __toESM(require("react"), 1);
 
 // src/components/reusable/SecondaryButton.tsx
-import React40 from "react";
+var import_react40 = __toESM(require("react"), 1);
 
 // src/components/reusable/NetworkSelect.tsx
-import React41, { useEffect as useEffect2, useMemo as useMemo3, useRef, useState as useState2 } from "react";
-import { useSelector as useSelector5, useDispatch as useDispatch2 } from "react-redux";
+var import_react42 = __toESM(require("react"), 1);
+var import_react_redux6 = require("react-redux");
 
 // src/hooks/useNetworkOptions.tsx
-import { useEffect, useMemo as useMemo2, useState } from "react";
-import { useSelector as useSelector4 } from "react-redux";
+var import_react41 = require("react");
+var import_react_redux4 = require("react-redux");
 
 // src/helpers/fetch-wrapper.tsx
 var fetchWrapper = {
@@ -1492,14 +1522,14 @@ function handleResponse(response) {
 }
 
 // src/hooks/useNetworkOptions.tsx
-import { useDispatch } from "react-redux";
-import toast from "react-hot-toast";
+var import_react_redux5 = require("react-redux");
+var import_react_hot_toast = __toESM(require("react-hot-toast"), 1);
 function useNetworkOptions() {
-  const dispatch = useDispatch();
-  const useFIAT = useSelector4(selectUseFIAT);
-  const nodeProviderQuery = useSelector4(selectNodeProviderQuery);
-  const [options, setOptions] = useState(networkOptions);
-  useEffect(() => {
+  const dispatch = (0, import_react_redux5.useDispatch)();
+  const useFIAT = (0, import_react_redux4.useSelector)(selectUseFIAT);
+  const nodeProviderQuery = (0, import_react_redux4.useSelector)(selectNodeProviderQuery);
+  const [options, setOptions] = (0, import_react41.useState)(networkOptions);
+  (0, import_react41.useEffect)(() => {
     if (!nodeProviderQuery) return;
     (async function() {
       try {
@@ -1525,11 +1555,11 @@ function useNetworkOptions() {
         dispatch(setTokenOptions(tokenOptions));
       } catch (e) {
         console.log("rpc disconnected", e);
-        toast.error("rpc disconnected");
+        import_react_hot_toast.default.error("rpc disconnected");
       }
     })();
   }, [nodeProviderQuery]);
-  return useMemo2(
+  return (0, import_react41.useMemo)(
     () => ({
       options
     }),
@@ -1538,101 +1568,86 @@ function useNetworkOptions() {
 }
 
 // src/components/reusable/NetworkSelect.tsx
-import toast2 from "react-hot-toast";
+var import_react_hot_toast2 = __toESM(require("react-hot-toast"), 1);
 
 // src/components/reusable/SolanaWalletSelect.tsx
-import React42, { useEffect as useEffect3, useMemo as useMemo4, useRef as useRef2 } from "react";
-import { useDispatch as useDispatch3, useSelector as useSelector6 } from "react-redux";
-import { useWallet } from "@solana/wallet-adapter-react";
-import { WalletReadyState } from "@solana/wallet-adapter-base";
+var import_react43 = __toESM(require("react"), 1);
+var import_react_redux7 = require("react-redux");
+var import_wallet_adapter_react = require("@solana/wallet-adapter-react");
+var import_wallet_adapter_base = require("@solana/wallet-adapter-base");
 
 // src/components/reusable/TronWalletSelect.tsx
-import React43, { useEffect as useEffect4, useMemo as useMemo5, useRef as useRef3 } from "react";
-import { useDispatch as useDispatch4, useSelector as useSelector7 } from "react-redux";
-import { useWallet as useWallet2 } from "@tronweb3/tronwallet-adapter-react-hooks";
-import { AdapterState } from "@tronweb3/tronwallet-abstract-adapter";
+var import_react44 = __toESM(require("react"), 1);
+var import_react_redux8 = require("react-redux");
+var import_tronwallet_adapter_react_hooks = require("@tronweb3/tronwallet-adapter-react-hooks");
+var import_tronwallet_abstract_adapter = require("@tronweb3/tronwallet-abstract-adapter");
 
 // src/components/reusable/Dropdown.tsx
-import React44 from "react";
-import { useDispatch as useDispatch5 } from "react-redux";
-import { useSelector as useSelector8 } from "react-redux";
+var import_react45 = __toESM(require("react"), 1);
+var import_react_redux9 = require("react-redux");
+var import_react_redux10 = require("react-redux");
 
 // src/components/reusable/WalletButton.tsx
-import React45, { useEffect as useEffect8, useMemo as useMemo8 } from "react";
-import { toast as toast4 } from "react-hot-toast";
-import { useDispatch as useDispatch7, useSelector as useSelector11 } from "react-redux";
+var import_react52 = __toESM(require("react"), 1);
+var import_react_hot_toast4 = require("react-hot-toast");
+var import_react_redux14 = require("react-redux");
 
 // src/hooks/useIsWalletReady.tsx
-import {
-  AddressPurpose,
-  BitcoinNetworkType,
-  getAddress
-} from "sats-connect";
-import { useCallback, useEffect as useEffect5, useMemo as useMemo6 } from "react";
-import { useWallet as useSolanaWallet } from "@solana/wallet-adapter-react";
-import { useWallet as useTronWallet } from "@tronweb3/tronwallet-adapter-react-hooks";
-import { useSelector as useSelector9 } from "react-redux";
-import { useDispatch as useDispatch6 } from "react-redux";
-import toast3 from "react-hot-toast";
-import {
-  useAppKitAccount,
-  useAppKitEvents,
-  useAppKitNetwork,
-  useAppKitProvider
-} from "@reown/appkit/react";
+var import_sats_connect = require("sats-connect");
+var import_react47 = require("react");
+var import_wallet_adapter_react2 = require("@solana/wallet-adapter-react");
+var import_tronwallet_adapter_react_hooks2 = require("@tronweb3/tronwallet-adapter-react-hooks");
+var import_react_redux11 = require("react-redux");
+var import_react_redux12 = require("react-redux");
+var import_react_hot_toast3 = __toESM(require("react-hot-toast"), 1);
+var import_react48 = require("@reown/appkit/react");
 
 // src/contexts/useModal.tsx
-import { createContext, useContext } from "react";
-var ModalContext = createContext(null);
+var import_react46 = require("react");
+var ModalContext = (0, import_react46.createContext)(null);
 
 // src/hooks/useIsWalletReady.tsx
-import { mainnet as mainnet2, sepolia as sepolia2 } from "@reown/appkit/networks";
+var import_networks2 = require("@reown/appkit/networks");
 
 // src/hooks/useBalance.tsx
-import { useEffect as useEffect6, useMemo as useMemo7, useState as useState3 } from "react";
-import { useSelector as useSelector10 } from "react-redux";
-import { Contract } from "@ethersproject/contracts";
-import { formatUnits } from "@ethersproject/units";
-import {
-  useConnection,
-  useWallet as useSolanaWallet2
-} from "@solana/wallet-adapter-react";
+var import_react49 = require("react");
+var import_react_redux13 = require("react-redux");
+var import_contracts = require("@ethersproject/contracts");
+var import_units = require("@ethersproject/units");
+var import_wallet_adapter_react3 = require("@solana/wallet-adapter-react");
 
 // src/utils/solana/getOrCreateAssociatedTokenAccount.ts
-import {
-  TOKEN_PROGRAM_ID as TOKEN_PROGRAM_ID4,
-  ASSOCIATED_TOKEN_PROGRAM_ID as ASSOCIATED_TOKEN_PROGRAM_ID3
-} from "@solana/spl-token";
-import { Transaction } from "@solana/web3.js";
+var import_spl_token4 = require("@solana/spl-token");
+var import_web34 = require("@solana/web3.js");
 
 // src/utils/solana/createAssociatedTokenAccountInstruction.ts
-import { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { TransactionInstruction, SystemProgram, SYSVAR_RENT_PUBKEY } from "@solana/web3.js";
+var import_spl_token = require("@solana/spl-token");
+var import_web32 = require("@solana/web3.js");
 
 // src/utils/solana/getAccountInfo.ts
-import { TOKEN_PROGRAM_ID as TOKEN_PROGRAM_ID2, AccountLayout } from "@solana/spl-token";
+var import_spl_token2 = require("@solana/spl-token");
 
 // src/utils/solana/getAssociatedTokenAddress.ts
-import { TOKEN_PROGRAM_ID as TOKEN_PROGRAM_ID3, ASSOCIATED_TOKEN_PROGRAM_ID as ASSOCIATED_TOKEN_PROGRAM_ID2 } from "@solana/spl-token";
-import { PublicKey as PublicKey2 } from "@solana/web3.js";
+var import_spl_token3 = require("@solana/spl-token");
+var import_web33 = require("@solana/web3.js");
 
 // src/hooks/useBalance.tsx
-import { PublicKey as PublicKey4 } from "@solana/web3.js";
-import { useWallet as useTronWallet2 } from "@tronweb3/tronwallet-adapter-react-hooks";
+var import_web35 = require("@solana/web3.js");
+var import_tronwallet_adapter_react_hooks3 = require("@tronweb3/tronwallet-adapter-react-hooks");
 
 // src/tronweb.tsx
-import { TronWeb } from "tronweb";
-var tronWebTestnet = new TronWeb({
+var import_tronweb = require("tronweb");
+var tronWebTestnet = new import_tronweb.TronWeb({
   fullHost: "https://api.nileex.io"
 });
-var tronWebMainnet = new TronWeb({
+var tronWebMainnet = new import_tronweb.TronWeb({
   fullHost: "https://api.trongrid.io"
 });
 tronWebTestnet.setAddress(TRON_USDK_OWNER_ADDRESS);
 tronWebMainnet.setAddress(TRON_USDK_OWNER_ADDRESS);
 
 // src/hooks/useBalance.tsx
-import { ethers } from "ethers";
+var import_ethers = require("ethers");
 
 // src/helpers/functions.tsx
 var formatterInt = new Intl.NumberFormat("en-US", {
@@ -1643,10 +1658,10 @@ var formatterFloat = new Intl.NumberFormat("en-US", {
 });
 
 // src/hooks/useBalance.tsx
-import { useAppKitAccount as useAppKitAccount2, useAppKitNetwork as useAppKitNetwork2, useAppKitProvider as useAppKitProvider2 } from "@reown/appkit/react";
+var import_react50 = require("@reown/appkit/react");
 
 // src/hooks/useWidth.tsx
-import { useEffect as useEffect7, useState as useState4 } from "react";
+var import_react51 = require("react");
 
 // src/utils/functions.tsx
 var getShortenedAddress = (address) => {
@@ -1657,47 +1672,47 @@ var getShortenedAddress = (address) => {
 };
 
 // src/components/reusable/WalletButton.tsx
-import { useWallet as useSolanaWallet3 } from "@solana/wallet-adapter-react";
-import { useWallet as useTronWallet3 } from "@tronweb3/tronwallet-adapter-react-hooks";
-import { useAppKit } from "@reown/appkit/react";
+var import_wallet_adapter_react4 = require("@solana/wallet-adapter-react");
+var import_tronwallet_adapter_react_hooks4 = require("@tronweb3/tronwallet-adapter-react-hooks");
+var import_react53 = require("@reown/appkit/react");
 
 // src/components/reusable/CoinDropdown.tsx
-import React46, { useEffect as useEffect10, useMemo as useMemo10, useRef as useRef4, useState as useState6 } from "react";
-import { useSelector as useSelector13 } from "react-redux";
-import { useDispatch as useDispatch9 } from "react-redux";
+var import_react55 = __toESM(require("react"), 1);
+var import_react_redux17 = require("react-redux");
+var import_react_redux18 = require("react-redux");
 
 // src/hooks/useCurrencyOptions.tsx
-import { useEffect as useEffect9, useMemo as useMemo9, useState as useState5 } from "react";
-import { useSelector as useSelector12 } from "react-redux";
-import { useDispatch as useDispatch8 } from "react-redux";
-import toast5 from "react-hot-toast";
+var import_react54 = require("react");
+var import_react_redux15 = require("react-redux");
+var import_react_redux16 = require("react-redux");
+var import_react_hot_toast5 = __toESM(require("react-hot-toast"), 1);
 
 // src/components/reusable/NetworkDropdown.tsx
-import React47, { useEffect as useEffect11, useMemo as useMemo11, useRef as useRef5, useState as useState7 } from "react";
-import { useSelector as useSelector14, useDispatch as useDispatch10 } from "react-redux";
-import toast6 from "react-hot-toast";
-var NetworkDropdown = React47.memo(
+var import_react56 = __toESM(require("react"), 1);
+var import_react_redux19 = require("react-redux");
+var import_react_hot_toast6 = __toESM(require("react-hot-toast"), 1);
+var NetworkDropdown = import_react56.default.memo(
   ({ isSourceChain = true }) => {
-    const [collapsed, setCollapsed] = useState7(true);
-    const [availableNetworks, setAvailableNetworks] = useState7([]);
-    const ref = useRef5();
-    const sourceChangeRef = useRef5(false);
-    const mode = useSelector14(selectMode);
-    const autoSwitchChain = useSelector14(selectWalletAutoConnect);
-    const useFIAT = useSelector14(selectUseFIAT);
-    const dAppOption = useSelector14(selectDappOption);
-    const originNetwork = useSelector14(selectSourceChain);
-    const targetNetwork = useSelector14(selectTargetChain);
-    const nodeProviderQuery = useSelector14(selectNodeProviderQuery);
+    const [collapsed, setCollapsed] = (0, import_react56.useState)(true);
+    const [availableNetworks, setAvailableNetworks] = (0, import_react56.useState)([]);
+    const ref = (0, import_react56.useRef)();
+    const sourceChangeRef = (0, import_react56.useRef)(false);
+    const mode = (0, import_react_redux19.useSelector)(selectMode);
+    const autoSwitchChain = (0, import_react_redux19.useSelector)(selectWalletAutoConnect);
+    const useFIAT = (0, import_react_redux19.useSelector)(selectUseFIAT);
+    const dAppOption = (0, import_react_redux19.useSelector)(selectDappOption);
+    const originNetwork = (0, import_react_redux19.useSelector)(selectSourceChain);
+    const targetNetwork = (0, import_react_redux19.useSelector)(selectTargetChain);
+    const nodeProviderQuery = (0, import_react_redux19.useSelector)(selectNodeProviderQuery);
     const { options: networkOptions2 } = useNetworkOptions();
-    const selectedNetwork = useMemo11(() => {
+    const selectedNetwork = (0, import_react56.useMemo)(() => {
       const index = networkOptions2.findIndex(
         (option) => option.id === (isSourceChain ? originNetwork : targetNetwork)
       );
       if (index >= 0) return networkOptions2[index];
       return networkOptions2[3];
     }, [originNetwork, targetNetwork, networkOptions2]);
-    const networks = useMemo11(() => {
+    const networks = (0, import_react56.useMemo)(() => {
       if (isSourceChain && mode === "bridge" /* bridge */) {
         return networkOptions2;
       }
@@ -1711,9 +1726,9 @@ var NetworkDropdown = React47.memo(
       dAppOption,
       originNetwork
     ]);
-    const theme = useSelector14(selectTheme);
-    const dispatch = useDispatch10();
-    useEffect11(() => {
+    const theme = (0, import_react_redux19.useSelector)(selectTheme);
+    const dispatch = (0, import_react_redux19.useDispatch)();
+    (0, import_react56.useEffect)(() => {
       if (!nodeProviderQuery || mode !== "bridge" /* bridge */) return;
       (async function() {
         try {
@@ -1742,7 +1757,7 @@ var NetworkDropdown = React47.memo(
           }
         } catch (e) {
           console.log("rpc disconnected", e);
-          toast6.error("rpc disconnected");
+          import_react_hot_toast6.default.error("rpc disconnected");
         }
       })();
     }, [
@@ -1753,7 +1768,7 @@ var NetworkDropdown = React47.memo(
       isSourceChain,
       useFIAT
     ]);
-    useEffect11(() => {
+    (0, import_react56.useEffect)(() => {
       if (!nodeProviderQuery || mode !== "payment" /* payment */) return;
       (async function() {
         try {
@@ -1771,11 +1786,11 @@ var NetworkDropdown = React47.memo(
           }
         } catch (e) {
           console.log("rpc disconnected", e);
-          toast6.error("rpc disconnected");
+          import_react_hot_toast6.default.error("rpc disconnected");
         }
       })();
     }, [nodeProviderQuery, mode, targetNetwork, dAppOption]);
-    useEffect11(() => {
+    (0, import_react56.useEffect)(() => {
       const bodyMouseDowntHandler = (e) => {
         if (ref?.current && !ref.current.contains(e.target)) {
           setCollapsed(true);
@@ -1786,7 +1801,7 @@ var NetworkDropdown = React47.memo(
         document.removeEventListener("mousedown", bodyMouseDowntHandler);
       };
     }, [setCollapsed]);
-    return /* @__PURE__ */ React47.createElement(
+    return /* @__PURE__ */ import_react56.default.createElement(
       "div",
       {
         className: `network-dropdown ${theme.colorMode} ${collapsed ? "collapsed" : "toggled"}`,
@@ -1796,13 +1811,13 @@ var NetworkDropdown = React47.memo(
         },
         ref
       },
-      /* @__PURE__ */ React47.createElement("div", { className: "network-wrapper" }, /* @__PURE__ */ React47.createElement("div", { className: "icon" }, /* @__PURE__ */ React47.createElement(selectedNetwork.icon, null)), /* @__PURE__ */ React47.createElement("span", null, selectedNetwork.label)),
-      /* @__PURE__ */ React47.createElement(
+      /* @__PURE__ */ import_react56.default.createElement("div", { className: "network-wrapper" }, /* @__PURE__ */ import_react56.default.createElement("div", { className: "icon" }, /* @__PURE__ */ import_react56.default.createElement(selectedNetwork.icon, null)), /* @__PURE__ */ import_react56.default.createElement("span", null, selectedNetwork.label)),
+      /* @__PURE__ */ import_react56.default.createElement(
         "div",
         {
           className: `network-menu ${networks.length > 1 && "custom-scrollbar"} ${theme.colorMode} ${collapsed ? "collapsed" : "toggled"}`
         },
-        networks.map((network) => /* @__PURE__ */ React47.createElement(
+        networks.map((network) => /* @__PURE__ */ import_react56.default.createElement(
           "div",
           {
             className: `network-menu-item ${theme.colorMode}`,
@@ -1818,43 +1833,43 @@ var NetworkDropdown = React47.memo(
               }
             }
           },
-          /* @__PURE__ */ React47.createElement("div", { className: "icon" }, /* @__PURE__ */ React47.createElement(network.icon, null)),
-          /* @__PURE__ */ React47.createElement("p", null, network.label)
+          /* @__PURE__ */ import_react56.default.createElement("div", { className: "icon" }, /* @__PURE__ */ import_react56.default.createElement(network.icon, null)),
+          /* @__PURE__ */ import_react56.default.createElement("p", null, network.label)
         ))
       ),
-      /* @__PURE__ */ React47.createElement("div", { className: `dropdown-icon ${collapsed ? "toggled" : "collapsed"}` }, /* @__PURE__ */ React47.createElement(Arrow_default, { fill: "none" }))
+      /* @__PURE__ */ import_react56.default.createElement("div", { className: `dropdown-icon ${collapsed ? "toggled" : "collapsed"}` }, /* @__PURE__ */ import_react56.default.createElement(Arrow_default, { fill: "none" }))
     );
   }
 );
 
 // src/components/reusable/ConfirmDetails.tsx
-import React48, { useEffect as useEffect12, useMemo as useMemo12 } from "react";
-import { useSelector as useSelector15 } from "react-redux";
+var import_react57 = __toESM(require("react"), 1);
+var import_react_redux20 = require("react-redux");
 
 // src/components/reusable/AddressInput.tsx
-import React49 from "react";
-import { useDispatch as useDispatch11 } from "react-redux";
-import { useSelector as useSelector16 } from "react-redux";
+var import_react58 = __toESM(require("react"), 1);
+var import_react_redux21 = require("react-redux");
+var import_react_redux22 = require("react-redux");
 
 // src/components/reusable/CustomCheckbox.tsx
-import React50 from "react";
-import { useSelector as useSelector17 } from "react-redux";
+var import_react59 = __toESM(require("react"), 1);
+var import_react_redux23 = require("react-redux");
 
 // src/components/reusable/StepBox.tsx
-import React52 from "react";
-import { useSelector as useSelector18 } from "react-redux";
+var import_react61 = __toESM(require("react"), 1);
+var import_react_redux24 = require("react-redux");
 
 // src/components/reusable/CopyButton.tsx
-import React51, { useEffect as useEffect13, useState as useState8 } from "react";
+var import_react60 = __toESM(require("react"), 1);
 var CopyButton = ({ text }) => {
-  const [copyClicked, setCopyClicked] = useState8(false);
-  useEffect13(() => {
+  const [copyClicked, setCopyClicked] = (0, import_react60.useState)(false);
+  (0, import_react60.useEffect)(() => {
     if (!copyClicked) return;
     setTimeout(() => {
       setCopyClicked(false);
     }, 2e3);
   }, [copyClicked]);
-  return /* @__PURE__ */ React51.createElement(
+  return /* @__PURE__ */ import_react60.default.createElement(
     "span",
     {
       className: "copy-btn",
@@ -1863,7 +1878,7 @@ var CopyButton = ({ text }) => {
         navigator.clipboard.writeText(text);
       }
     },
-    copyClicked ? /* @__PURE__ */ React51.createElement(Check_default, null) : /* @__PURE__ */ React51.createElement(Copy_default, null)
+    copyClicked ? /* @__PURE__ */ import_react60.default.createElement(Check_default, null) : /* @__PURE__ */ import_react60.default.createElement(Copy_default, null)
   );
 };
 var CopyButton_default = CopyButton;
@@ -1887,75 +1902,75 @@ var stepInfo2 = [
   }
 ];
 var StepBox = ({ step, errorStep, loadingStep, data }) => {
-  const theme = useSelector18(selectTheme);
-  const explorerUrl = useSelector18(selectKimaExplorer);
-  const networkOption = useSelector18(selectNetworkOption);
+  const theme = (0, import_react_redux24.useSelector)(selectTheme);
+  const explorerUrl = (0, import_react_redux24.useSelector)(selectKimaExplorer);
+  const networkOption = (0, import_react_redux24.useSelector)(selectNetworkOption);
   const SourceInfo = getNetworkOption(data?.sourceChain);
   const TargetInfo = getNetworkOption(data?.targetChain);
   const CHAIN_NAMES_TO_EXPLORER = networkOption === "mainnet" /* mainnet */ ? CHAIN_NAMES_TO_EXPLORER_MAINNET : CHAIN_NAMES_TO_EXPLORER_TESTNET;
-  return /* @__PURE__ */ React52.createElement("div", { className: "kima-stepbox" }, /* @__PURE__ */ React52.createElement("div", { className: `content-wrapper ${theme.colorMode}` }, stepInfo2.map((item, index) => /* @__PURE__ */ React52.createElement("div", { key: item.title, className: "step-item" }, /* @__PURE__ */ React52.createElement(
+  return /* @__PURE__ */ import_react61.default.createElement("div", { className: "kima-stepbox" }, /* @__PURE__ */ import_react61.default.createElement("div", { className: `content-wrapper ${theme.colorMode}` }, stepInfo2.map((item, index) => /* @__PURE__ */ import_react61.default.createElement("div", { key: item.title, className: "step-item" }, /* @__PURE__ */ import_react61.default.createElement(
     "div",
     {
       className: `info-item
                   ${step >= index ? index === loadingStep ? "active" : index === errorStep ? "error" : "completed" : ""} 
                   ${step < index && "locked"} ${theme.colorMode}`
     },
-    step < index && /* @__PURE__ */ React52.createElement(Lock_default, null),
-    step >= index ? index === loadingStep ? /* @__PURE__ */ React52.createElement(Loader_default, { className: "loader" }) : index === errorStep ? /* @__PURE__ */ React52.createElement(Warning_default, null) : /* @__PURE__ */ React52.createElement(Check_default, null) : null,
-    /* @__PURE__ */ React52.createElement("p", null, item.title)
-  ), index === 0 && data?.kimaTxHash ? /* @__PURE__ */ React52.createElement("div", { className: `info-item ${theme.colorMode}` }, /* @__PURE__ */ React52.createElement("div", { className: "icon" }, /* @__PURE__ */ React52.createElement(USDK_default, null)), /* @__PURE__ */ React52.createElement("p", { className: "chain-name" }, "Kima TX ID:"), /* @__PURE__ */ React52.createElement("p", null, /* @__PURE__ */ React52.createElement(
+    step < index && /* @__PURE__ */ import_react61.default.createElement(Lock_default, null),
+    step >= index ? index === loadingStep ? /* @__PURE__ */ import_react61.default.createElement(Loader_default, { className: "loader" }) : index === errorStep ? /* @__PURE__ */ import_react61.default.createElement(Warning_default, null) : /* @__PURE__ */ import_react61.default.createElement(Check_default, null) : null,
+    /* @__PURE__ */ import_react61.default.createElement("p", null, item.title)
+  ), index === 0 && data?.kimaTxHash ? /* @__PURE__ */ import_react61.default.createElement("div", { className: `info-item ${theme.colorMode}` }, /* @__PURE__ */ import_react61.default.createElement("div", { className: "icon" }, /* @__PURE__ */ import_react61.default.createElement(USDK_default, null)), /* @__PURE__ */ import_react61.default.createElement("p", { className: "chain-name" }, "Kima TX ID:"), /* @__PURE__ */ import_react61.default.createElement("p", null, /* @__PURE__ */ import_react61.default.createElement(
     ExternalLink_default,
     {
       to: `${explorerUrl}/transactions/${data?.kimaTxHash}`
     },
     getShortenedAddress(data?.kimaTxHash || "")
-  ), /* @__PURE__ */ React52.createElement(CopyButton_default, { text: data?.kimaTxHash }))) : null, index === 1 && data?.tssPullHash ? /* @__PURE__ */ React52.createElement("div", { className: `info-item ${theme.colorMode} source-chain` }, /* @__PURE__ */ React52.createElement("div", { className: "icon" }, SourceInfo ? /* @__PURE__ */ React52.createElement(SourceInfo.icon, null) : /* @__PURE__ */ React52.createElement(Ethereum_default, null)), /* @__PURE__ */ React52.createElement("p", { className: "chain-name" }, CHAIN_NAMES_TO_STRING[data?.sourceChain || "ETH" /* ETHEREUM */], " ", "TX ID:"), /* @__PURE__ */ React52.createElement("p", null, /* @__PURE__ */ React52.createElement(
+  ), /* @__PURE__ */ import_react61.default.createElement(CopyButton_default, { text: data?.kimaTxHash }))) : null, index === 1 && data?.tssPullHash ? /* @__PURE__ */ import_react61.default.createElement("div", { className: `info-item ${theme.colorMode} source-chain` }, /* @__PURE__ */ import_react61.default.createElement("div", { className: "icon" }, SourceInfo ? /* @__PURE__ */ import_react61.default.createElement(SourceInfo.icon, null) : /* @__PURE__ */ import_react61.default.createElement(Ethereum_default, null)), /* @__PURE__ */ import_react61.default.createElement("p", { className: "chain-name" }, CHAIN_NAMES_TO_STRING[data?.sourceChain || "ETH" /* ETHEREUM */], " ", "TX ID:"), /* @__PURE__ */ import_react61.default.createElement("p", null, /* @__PURE__ */ import_react61.default.createElement(
     ExternalLink_default,
     {
       to: `https://${CHAIN_NAMES_TO_EXPLORER[data?.sourceChain || "ETH" /* ETHEREUM */]}/${data?.sourceChain === "TRX" /* TRON */ ? "transaction" : "tx"}/${data?.tssPullHash}${data?.sourceChain === "SOL" /* SOLANA */ && networkOption === "testnet" /* testnet */ ? "?cluster=devnet" : ""}`
     },
     getShortenedAddress(data?.tssPullHash || "")
-  ), /* @__PURE__ */ React52.createElement(CopyButton_default, { text: data?.tssPullHash || "" }))) : null, index === 3 && data?.tssReleaseHash ? /* @__PURE__ */ React52.createElement("div", { className: `info-item ${theme.colorMode} target-chain` }, /* @__PURE__ */ React52.createElement("div", { className: "icon" }, TargetInfo ? /* @__PURE__ */ React52.createElement(TargetInfo.icon, null) : /* @__PURE__ */ React52.createElement(Ethereum_default, null)), /* @__PURE__ */ React52.createElement("p", { className: "chain-name" }, CHAIN_NAMES_TO_STRING[data?.targetChain || "ETH" /* ETHEREUM */], " ", "TX ID:"), /* @__PURE__ */ React52.createElement("p", null, /* @__PURE__ */ React52.createElement(
+  ), /* @__PURE__ */ import_react61.default.createElement(CopyButton_default, { text: data?.tssPullHash || "" }))) : null, index === 3 && data?.tssReleaseHash ? /* @__PURE__ */ import_react61.default.createElement("div", { className: `info-item ${theme.colorMode} target-chain` }, /* @__PURE__ */ import_react61.default.createElement("div", { className: "icon" }, TargetInfo ? /* @__PURE__ */ import_react61.default.createElement(TargetInfo.icon, null) : /* @__PURE__ */ import_react61.default.createElement(Ethereum_default, null)), /* @__PURE__ */ import_react61.default.createElement("p", { className: "chain-name" }, CHAIN_NAMES_TO_STRING[data?.targetChain || "ETH" /* ETHEREUM */], " ", "TX ID:"), /* @__PURE__ */ import_react61.default.createElement("p", null, /* @__PURE__ */ import_react61.default.createElement(
     ExternalLink_default,
     {
       to: `https://${CHAIN_NAMES_TO_EXPLORER[data?.targetChain || "ETH" /* ETHEREUM */]}/${data?.targetChain === "TRX" /* TRON */ ? "transaction" : "tx"}/${data?.tssReleaseHash}${data?.targetChain === "SOL" /* SOLANA */ && networkOption === "testnet" /* testnet */ ? "?cluster=devnet" : ""}`
     },
     getShortenedAddress(data?.tssReleaseHash || "")
-  ), /* @__PURE__ */ React52.createElement(CopyButton_default, { text: data?.tssReleaseHash || "" }))) : null))));
+  ), /* @__PURE__ */ import_react61.default.createElement(CopyButton_default, { text: data?.tssReleaseHash || "" }))) : null))));
 };
 var StepBox_default = StepBox;
 
 // src/components/reusable/BankInput.tsx
-import React53 from "react";
-import { useDispatch as useDispatch12 } from "react-redux";
-import { useSelector as useSelector19 } from "react-redux";
+var import_react62 = __toESM(require("react"), 1);
+var import_react_redux25 = require("react-redux");
+var import_react_redux26 = require("react-redux");
 
 // src/components/reusable/TxButton.tsx
-import React54 from "react";
-import { useDispatch as useDispatch13 } from "react-redux";
-import { useSelector as useSelector20 } from "react-redux";
+var import_react63 = __toESM(require("react"), 1);
+var import_react_redux27 = require("react-redux");
+var import_react_redux28 = require("react-redux");
 
 // src/components/TransactionWidget.tsx
-import { Provider as Provider2 } from "react-redux";
-import { useSelector as useSelector21 } from "react-redux";
-import { useDispatch as useDispatch14 } from "react-redux";
-import { toast as toast7, Toaster } from "react-hot-toast";
+var import_react_redux29 = require("react-redux");
+var import_react_redux30 = require("react-redux");
+var import_react_redux31 = require("react-redux");
+var import_react_hot_toast7 = require("react-hot-toast");
 var TransactionWidget = ({ theme }) => {
-  const [step, setStep] = useState9(0);
-  const [focus, setFocus] = useState9(-1);
-  const [errorStep, setErrorStep] = useState9(-1);
-  const [errorMessage, setErrorMessage] = useState9("");
-  const [loadingStep, setLoadingStep] = useState9(-1);
-  const [minimized, setMinimized] = useState9(false);
-  const [percent, setPercent] = useState9(0);
-  const [data, setData] = useState9();
-  const dispatch = useDispatch14();
-  const txId = useSelector21(selectTxId);
-  const dAppOption = useSelector21(selectDappOption);
-  const closeHandler = useSelector21(selectCloseHandler);
-  const successHandler = useSelector21(selectSuccessHandler);
-  const graphqlProviderQuery = useSelector21(selectGraphqlProviderQuery);
-  useEffect14(() => {
+  const [step, setStep] = (0, import_react64.useState)(0);
+  const [focus, setFocus] = (0, import_react64.useState)(-1);
+  const [errorStep, setErrorStep] = (0, import_react64.useState)(-1);
+  const [errorMessage, setErrorMessage] = (0, import_react64.useState)("");
+  const [loadingStep, setLoadingStep] = (0, import_react64.useState)(-1);
+  const [minimized, setMinimized] = (0, import_react64.useState)(false);
+  const [percent, setPercent] = (0, import_react64.useState)(0);
+  const [data, setData] = (0, import_react64.useState)();
+  const dispatch = (0, import_react_redux31.useDispatch)();
+  const txId = (0, import_react_redux30.useSelector)(selectTxId);
+  const dAppOption = (0, import_react_redux30.useSelector)(selectDappOption);
+  const closeHandler = (0, import_react_redux30.useSelector)(selectCloseHandler);
+  const successHandler = (0, import_react_redux30.useSelector)(selectSuccessHandler);
+  const graphqlProviderQuery = (0, import_react_redux30.useSelector)(selectGraphqlProviderQuery);
+  (0, import_react64.useEffect)(() => {
     if (!graphqlProviderQuery || txId < 0) return;
     const updateTxData = async () => {
       try {
@@ -2048,7 +2063,7 @@ var TransactionWidget = ({ theme }) => {
           }, 3e3);
         }
       } catch (e) {
-        toast7.error("rpc disconnected", { icon: /* @__PURE__ */ React55.createElement(Error_default, null) });
+        import_react_hot_toast7.toast.error("rpc disconnected", { icon: /* @__PURE__ */ import_react64.default.createElement(Error_default, null) });
         console.log("rpc disconnected", e);
       }
     };
@@ -2060,7 +2075,7 @@ var TransactionWidget = ({ theme }) => {
       clearInterval(timerId);
     };
   }, [graphqlProviderQuery, txId, dAppOption]);
-  useEffect14(() => {
+  (0, import_react64.useEffect)(() => {
     if (!data) {
       setStep(0);
       setLoadingStep(0);
@@ -2083,7 +2098,7 @@ var TransactionWidget = ({ theme }) => {
       setErrorStep(1);
       setLoadingStep(-1);
       console.log(data.failReason);
-      toast7.error("Unavailable", { icon: /* @__PURE__ */ React55.createElement(Error_default, null) });
+      import_react_hot_toast7.toast.error("Unavailable", { icon: /* @__PURE__ */ import_react64.default.createElement(Error_default, null) });
       setErrorMessage("Unavailable");
     } else if (status === "KeySigned" /* KEYSIGNED */) {
       setStep(3);
@@ -2099,8 +2114,8 @@ var TransactionWidget = ({ theme }) => {
       setErrorStep(3);
       setLoadingStep(-1);
       console.log(data.failReason);
-      toast7.error("Failed to release tokens to target!", {
-        icon: /* @__PURE__ */ React55.createElement(Error_default, null)
+      import_react_hot_toast7.toast.error("Failed to release tokens to target!", {
+        icon: /* @__PURE__ */ import_react64.default.createElement(Error_default, null)
       });
       setErrorMessage("Failed to release tokens to target!");
     } else if (status === "FailedToPull" /* FAILEDTOPULL */) {
@@ -2109,7 +2124,7 @@ var TransactionWidget = ({ theme }) => {
       setErrorStep(1);
       setLoadingStep(-1);
       console.log(data.failReason);
-      toast7.error("Failed to pull tokens from source!", { icon: /* @__PURE__ */ React55.createElement(Error_default, null) });
+      import_react_hot_toast7.toast.error("Failed to pull tokens from source!", { icon: /* @__PURE__ */ import_react64.default.createElement(Error_default, null) });
       setErrorMessage("Failed to pull tokens from source!");
     } else if (status === "Completed" /* COMPLETED */) {
       setStep(4);
@@ -2117,7 +2132,7 @@ var TransactionWidget = ({ theme }) => {
       setLoadingStep(-1);
     }
   }, [data?.status]);
-  return /* @__PURE__ */ React55.createElement(Provider2, { store }, /* @__PURE__ */ React55.createElement(
+  return /* @__PURE__ */ import_react64.default.createElement(import_react_redux29.Provider, { store }, /* @__PURE__ */ import_react64.default.createElement(
     "div",
     {
       className: `kima-card transaction-card ${theme.colorMode} ${minimized ? "minimized" : ""}`,
@@ -2125,7 +2140,7 @@ var TransactionWidget = ({ theme }) => {
         background: theme.colorMode === "light" /* light */ ? theme.backgroundColorLight : theme.backgroundColorDark
       }
     },
-    /* @__PURE__ */ React55.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React55.createElement("div", { className: "topbar" }, /* @__PURE__ */ React55.createElement("div", { className: "title" }, /* @__PURE__ */ React55.createElement("h3", null, "Transferring ", formatterFloat.format(data?.amount || 0), " ", `${data?.sourceSymbol || "USDK"} \u2192 ${data?.targetSymbol || "USDK"}`, "\xA0\xA0", `(${percent}%)`)), !minimized ? /* @__PURE__ */ React55.createElement("div", { className: "control-buttons" }, /* @__PURE__ */ React55.createElement(
+    /* @__PURE__ */ import_react64.default.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ import_react64.default.createElement("div", { className: "topbar" }, /* @__PURE__ */ import_react64.default.createElement("div", { className: "title" }, /* @__PURE__ */ import_react64.default.createElement("h3", null, "Transferring ", formatterFloat.format(data?.amount || 0), " ", `${data?.sourceSymbol || "USDK"} \u2192 ${data?.targetSymbol || "USDK"}`, "\xA0\xA0", `(${percent}%)`)), !minimized ? /* @__PURE__ */ import_react64.default.createElement("div", { className: "control-buttons" }, /* @__PURE__ */ import_react64.default.createElement(
       "button",
       {
         className: "icon-button minimize",
@@ -2133,8 +2148,8 @@ var TransactionWidget = ({ theme }) => {
           setMinimized(true);
         }
       },
-      /* @__PURE__ */ React55.createElement(Minimize_default, null)
-    ), loadingStep < 0 ? /* @__PURE__ */ React55.createElement(
+      /* @__PURE__ */ import_react64.default.createElement(Minimize_default, null)
+    ), loadingStep < 0 ? /* @__PURE__ */ import_react64.default.createElement(
       "button",
       {
         className: "cross-icon-button",
@@ -2143,20 +2158,20 @@ var TransactionWidget = ({ theme }) => {
           closeHandler();
         }
       },
-      /* @__PURE__ */ React55.createElement(
+      /* @__PURE__ */ import_react64.default.createElement(
         Cross_default,
         {
           fill: theme.colorMode === "light" ? "black" : "white"
         }
       )
-    ) : null) : /* @__PURE__ */ React55.createElement("div", { className: "control-buttons" }, /* @__PURE__ */ React55.createElement("div", { className: "maximize", onClick: () => setMinimized(false) }, "View"))), !minimized && data?.sourceChain && data?.targetChain && /* @__PURE__ */ React55.createElement(
+    ) : null) : /* @__PURE__ */ import_react64.default.createElement("div", { className: "control-buttons" }, /* @__PURE__ */ import_react64.default.createElement("div", { className: "maximize", onClick: () => setMinimized(false) }, "View"))), !minimized && data?.sourceChain && data?.targetChain && /* @__PURE__ */ import_react64.default.createElement(
       NetworkLabel_default,
       {
         sourceChain: data?.sourceChain,
         targetChain: data?.targetChain
       }
     )),
-    /* @__PURE__ */ React55.createElement("div", { className: "kima-card-content" }, /* @__PURE__ */ React55.createElement(
+    /* @__PURE__ */ import_react64.default.createElement("div", { className: "kima-card-content" }, /* @__PURE__ */ import_react64.default.createElement(
       Progressbar_default,
       {
         step,
@@ -2165,7 +2180,7 @@ var TransactionWidget = ({ theme }) => {
         setFocus,
         loadingStep
       }
-    ), /* @__PURE__ */ React55.createElement(
+    ), /* @__PURE__ */ import_react64.default.createElement(
       StepBox_default,
       {
         step,
@@ -2174,8 +2189,8 @@ var TransactionWidget = ({ theme }) => {
         data
       }
     )),
-    /* @__PURE__ */ React55.createElement(
-      Toaster,
+    /* @__PURE__ */ import_react64.default.createElement(
+      import_react_hot_toast7.Toaster,
       {
         position: "top-right",
         reverseOrder: false,
@@ -2199,12 +2214,12 @@ var TransactionWidget = ({ theme }) => {
         }
       }
     ),
-    /* @__PURE__ */ React55.createElement("div", { className: "floating-footer" }, /* @__PURE__ */ React55.createElement("div", { className: `items ${theme.colorMode}` }, /* @__PURE__ */ React55.createElement("span", null, "Powered by"), /* @__PURE__ */ React55.createElement(FooterLogo_default, { fill: "black" }), /* @__PURE__ */ React55.createElement("strong", null, "Network")))
+    /* @__PURE__ */ import_react64.default.createElement("div", { className: "floating-footer" }, /* @__PURE__ */ import_react64.default.createElement("div", { className: `items ${theme.colorMode}` }, /* @__PURE__ */ import_react64.default.createElement("span", null, "Powered by"), /* @__PURE__ */ import_react64.default.createElement(FooterLogo_default, { fill: "black" }), /* @__PURE__ */ import_react64.default.createElement("strong", null, "Network")))
   ));
 };
 
 // src/components/KimaTransactionWidget.tsx
-import { useAppKitTheme } from "@reown/appkit/react";
+var import_react66 = require("@reown/appkit/react");
 var KimaTransactionWidget = ({
   mode,
   txId,
@@ -2230,9 +2245,9 @@ var KimaTransactionWidget = ({
   switchChainHandler = () => void 0,
   keplrHandler = () => void 0
 }) => {
-  const dispatch = useDispatch15();
-  const { setThemeMode, setThemeVariables } = useAppKitTheme();
-  useEffect15(() => {
+  const dispatch = (0, import_react_redux32.useDispatch)();
+  const { setThemeMode, setThemeVariables } = (0, import_react66.useAppKitTheme)();
+  (0, import_react65.useEffect)(() => {
     dispatch(setTheme(theme));
     setThemeMode(theme.colorMode === "light" /* light */ ? "light" : "dark");
     setThemeVariables({
@@ -2263,7 +2278,7 @@ var KimaTransactionWidget = ({
     mode,
     networkOption
   ]);
-  useEffect15(() => {
+  (0, import_react65.useEffect)(() => {
     if (dAppOption === "none" /* None */ && mode === "bridge" /* bridge */) {
       dispatch(setTargetChain(""));
       dispatch(setSourceChain("ETH"));
@@ -2272,19 +2287,20 @@ var KimaTransactionWidget = ({
       dispatch(setSubmitted(true));
     }
   }, [dAppOption, mode]);
-  return /* @__PURE__ */ React56.createElement(TransactionWidget, { theme });
+  return /* @__PURE__ */ import_react65.default.createElement(TransactionWidget, { theme });
 };
 var KimaTransactionWidget_default = KimaTransactionWidget;
-export {
+// Annotate the CommonJS export names for ESM import in node:
+0 && (module.exports = {
   CHAIN_NAMES_TO_STRING,
   CHAIN_STRING_TO_NAME,
   ColorModeOptions,
   CurrencyOptions,
   DAppOptions,
-  KimaProvider_default as KimaProvider,
-  KimaTransactionWidget_default as KimaTransactionWidget,
+  KimaProvider,
+  KimaTransactionWidget,
   ModeOptions,
   NetworkOptions,
-  ChainName as SupportNetworks
-};
-//# sourceMappingURL=index.js.map
+  SupportNetworks
+});
+//# sourceMappingURL=index.cjs.map

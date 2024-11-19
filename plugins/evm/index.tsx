@@ -6,11 +6,12 @@ import WalletProvider from './features/walletConnect/WalletProvider'
 const EVMPlugin = {
   id: 'evm',
   provider: ({ children, walletConnectProjectId, networkOption }) => (
-   <WalletProvider {...{walletConnectProjectId,networkOption}}>
-    {children}
-   </WalletProvider>
+    <WalletProvider {...{ walletConnectProjectId, networkOption }}>
+      {children}
+    </WalletProvider>
+  )
 }
 
-store.dispatch(registerPlugin(EVMPlugin))
+//store.dispatch(registerPlugin(EVMPlugin))
 
 export default EVMPlugin

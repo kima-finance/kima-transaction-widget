@@ -11,6 +11,6 @@ const TronPlugin = {
 }
 
 // Register the Tron plugin in the store
-store.dispatch(registerPlugin(TronPlugin))
+//store.dispatch(registerPlugin(TronPlugin))
 
 export default TronPlugin

@@ -11,6 +11,6 @@ const SolanaPlugin = {
 }
 
 // Register Solana plugin in the store
-store.dispatch(registerPlugin(SolanaPlugin))
+//store.dispatch(registerPlugin(SolanaPlugin))
 
 export default SolanaPlugin
