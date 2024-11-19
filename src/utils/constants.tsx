@@ -48,25 +48,6 @@ export enum ChainName {
   BTC = 'BTC'
 }
 
-export const mainnetChains: any = [
-  mainnet,
-  bsc,
-  arbitrum,
-  optimism,
-  avalanche,
-  polygonZkEvm
-]
-
-export const testnetChains: any = [
-  sepolia,
-  bscTestnet,
-  polygonAmoy,
-  arbitrumSepolia,
-  optimismSepolia,
-  avalancheFuji,
-  polygonZkEvmCardona
-]
-
 export enum SupportedChainIdTestnet {
   ETHEREUM = 11155111,
   POLYGON = 80002,
