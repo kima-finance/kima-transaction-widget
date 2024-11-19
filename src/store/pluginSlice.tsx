@@ -1,10 +1,16 @@
-// store/pluginSlice.ts
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction, Reducer } from '@reduxjs/toolkit'
+
+// Define the PluginProviderProps interface
+interface PluginProviderProps {
+  networkOption: string
+  walletConnectProjectId: string
+  children: React.ReactNode
+}
 
 // Define the Plugin interface with optional provider and initialize
 interface Plugin {
-  provider?: Function // Optional provider function
-  initialize?: (args?: any) => void // Optional initialize function
+  provider?: React.FC<PluginProviderProps> // Plugin provider function with proper props
+  initialize?: (walletConnectProjectId: string, networkOption: string) => void // Initialization function
 }
 
 // Define the shape of the slice state
@@ -27,8 +33,11 @@ const pluginSlice = createSlice({
       state,
       action: PayloadAction<{
         id: string
-        provider?: Function
-        initialize?: (args?: any) => void
+        provider?: React.FC<PluginProviderProps>
+        initialize?: (
+          walletConnectProjectId: string,
+          networkOption: string
+        ) => void
       }>
     ) => {
       const { id, provider, initialize } = action.payload
@@ -41,9 +50,15 @@ const pluginSlice = createSlice({
 export const { registerPlugin } = pluginSlice.actions
 
 // Selectors
-export const selectPlugin = (state: { plugins: PluginState }, id: string) =>
-  state.plugins.plugins[id]
-export const selectAllPlugins = (state: { plugins: PluginState }) =>
+export const selectPlugin = (
+  state: { plugins: PluginState },
+  id: string
+): Plugin | undefined => state.plugins.plugins[id]
+
+export const selectAllPlugins = (state: { plugins: PluginState }): Plugin[] =>
   Object.values(state.plugins.plugins)
 
-export default pluginSlice.reducer
+// Explicitly type the reducer
+const pluginReducer: Reducer<PluginState> = pluginSlice.reducer
+
+export default pluginReducer

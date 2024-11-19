@@ -341,7 +341,7 @@ Used to specify url of kima block explorer.
 
 - Required: `false`
 - Type: `string`
-- Default: `explorer.kima.finance`
+- Default: `explorer.kima.network`
 
 ### Event handlers
 
