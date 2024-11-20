@@ -3,7 +3,7 @@ import React, { ReactNode } from 'react'
 import { ModalContext } from '../../../../src/contexts/useModal'
 import { setupAppKit } from '../../config/modalConfig'
 
-interface WalletProviderProps {
+export interface WalletProviderProps {
   children: ReactNode
   walletConnectProjectId: string
   networkOption: 'mainnet' | 'testnet'
