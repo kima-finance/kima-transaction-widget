@@ -2,9 +2,9 @@ import React, { ReactNode, useMemo } from 'react'
 import { Provider, useSelector } from 'react-redux'
 import { store } from '@store/index'
 import { selectAllPlugins } from '@store/pluginSlice'
-import { getPluginProvider } from '@pluginRegistry' // Import the plugin registry
+import { getPluginProvider } from '@pluginRegistry'
 
-import '@plugins/solana' // Ensure all plugins are imported
+import '@plugins/solana'
 import '@plugins/evm'
 import '@plugins/tron'
 
@@ -13,37 +13,34 @@ interface KimaProviderProps {
   children: ReactNode
 }
 
-const InternalKimaProvider: React.FC<KimaProviderProps> = ({
-  walletConnectProjectId,
-  children
-}) => {
-  // Get all registered plugins
-  const plugins = useSelector(selectAllPlugins)
-  console.info('Registered Plugins:', plugins)
+const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
+  ({ walletConnectProjectId, children }) => {
+    // Use a stable selector to avoid unnecessary re-renders
+    const plugins = useSelector(selectAllPlugins, (prev, next) => prev === next)
+    console.info('Registered Plugins:', plugins)
 
-  // Dynamically wrap children with plugin providers
-  const WrappedProviders = useMemo(() => {
-    return plugins.reduce<React.FC<{ children: ReactNode }>>(
-      (Wrapped, plugin) => {
-        const PluginProvider = getPluginProvider(plugin.id) // Retrieve provider from the registry
+    // Create providers dynamically but flatten their structure
+    const WrappedProviders = useMemo(() => {
+      return plugins.reduce<ReactNode>((acc, plugin) => {
+        const PluginProvider = getPluginProvider(plugin.id)
         if (PluginProvider) {
-          return ({ children }) => (
+          return (
             <PluginProvider
-              networkOption='testnet' // Replace with dynamic value if needed
+              key={plugin.id}
+              networkOption='testnet'
               walletConnectProjectId={walletConnectProjectId}
             >
-              <Wrapped>{children}</Wrapped>
+              {acc}
             </PluginProvider>
           )
         }
-        return Wrapped // No wrapping if no provider
-      },
-      ({ children }) => <>{children}</> // Default wrapper if no plugins
-    )
-  }, [plugins, walletConnectProjectId])
+        return acc
+      }, children)
+    }, [plugins, walletConnectProjectId])
 
-  return <WrappedProviders>{children}</WrappedProviders>
-}
+    return <>{WrappedProviders}</>
+  }
+)
 
 const KimaProvider: React.FC<KimaProviderProps> = ({
   walletConnectProjectId,
