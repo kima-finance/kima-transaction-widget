@@ -1,12 +1,10 @@
 // plugins/tron/features/walletConnect/WalletProvider.tsx
 import React, { ReactNode, useMemo } from 'react'
-import {
-  WalletProvider as TronWalletProviderBase,
-  TronLinkAdapter,
-  LedgerAdapter,
-  OkxWalletAdapter,
-  TokenPocketAdapter
-} from '@tronweb3/tronwallet-adapter-react-hooks'
+import { WalletProvider as TronWalletProviderBase } from '@tronweb3/tronwallet-adapter-react-hooks'
+import { LedgerAdapter } from '@tronweb3/tronwallet-adapter-ledger'
+import { TronLinkAdapter } from '@tronweb3/tronwallet-adapter-tronlink'
+import { OkxWalletAdapter } from '@tronweb3/tronwallet-adapter-okxwallet'
+import { TokenPocketAdapter } from '@tronweb3/tronwallet-adapter-tokenpocket'
 import {
   WalletDisconnectedError,
   WalletError,
@@ -14,9 +12,10 @@ import {
 } from '@tronweb3/tronwallet-abstract-adapter'
 import { toast } from 'react-hot-toast'
 
-interface WalletProviderProps {
-  children: ReactNode
-  networkOption: string
+interface PluginProviderProps {
+  children: React.ReactNode
+  walletConnectProjectId: string
+  networkOption: 'testnet' | 'mainnet'
 }
 
 const WalletProvider = ({ children, networkOption }: WalletProviderProps) => {
