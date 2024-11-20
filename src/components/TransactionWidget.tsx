@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { CrossIcon, ErrorIcon, FooterLogo, MinimizeIcon } from '../assets/icons'
+import { CrossIcon, ErrorIcon, FooterLogo, MinimizeIcon } from '@assets/icons'
 import Progressbar from './reusable/Progressbar'
 import { NetworkLabel, StepBox } from './reusable'
 import '../index.css'
@@ -8,9 +8,9 @@ import {
   DAppOptions,
   ThemeOptions,
   TransactionData
-} from '../interface'
+} from '@interface'
 import { Provider } from 'react-redux'
-import { store } from '../store'
+import { store } from '@store/index'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 import { TransactionStatus } from '../utils/constants'
 import { formatterFloat } from '../helpers/functions'
@@ -21,10 +21,10 @@ import {
   selectGraphqlProviderQuery,
   selectSuccessHandler,
   selectTxId
-} from '../store/selectors'
+} from '@store/selectors'
 import { useDispatch } from 'react-redux'
 import { toast, Toaster } from 'react-hot-toast'
-import { initialize } from '../store/optionSlice'
+import { initialize } from '@store/optionSlice'
 
 export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [step, setStep] = useState(0)
@@ -35,8 +35,11 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [minimized, setMinimized] = useState(false)
   const [percent, setPercent] = useState(0)
   const [data, setData] = useState<TransactionData>()
+  console.info('Store:', store.getState()?.option?.txId)
+  console.info('selectTxId', selectTxId)
   const dispatch = useDispatch()
   const txId = useSelector(selectTxId)
+  console.info('TxId:', txId)
   const dAppOption = useSelector(selectDappOption)
   const closeHandler = useSelector(selectCloseHandler)
   const successHandler = useSelector(selectSuccessHandler)
