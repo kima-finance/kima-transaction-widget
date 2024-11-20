@@ -7480,8 +7480,17 @@ function useAllowance(_ref) {
                     if (tronAddress && tokenAddress) {
                       return Promise.resolve(tronWeb.contract(ERC20ABI.abi, tokenAddress)).then(function (trc20Contract) {
                         return Promise.resolve(trc20Contract.decimals().call()).then(function (decimals) {
+                          var parsedDecimals;
+                          if (typeof decimals === 'bigint') {
+                            parsedDecimals = Number(decimals);
+                          } else if (typeof decimals === 'string') {
+                            parsedDecimals = parseFloat(decimals);
+                          } else {
+                            parsedDecimals = decimals;
+                          }
                           return Promise.resolve(trc20Contract.allowance(tronAddress, targetAddress).call()).then(function (userAllowance) {
-                            setDecimals(+decimals);
+                            console.log(parsedDecimals, typeof parsedDecimals);
+                            setDecimals(parsedDecimals);
                             setAllowance(+units.formatUnits(userAllowance, decimals));
                           });
                         });
@@ -7955,7 +7964,7 @@ function output(out, instance) {
 exports.output = output;
 const assert = { number, bool, bytes, hash, exists, output };
 exports.default = assert;
-
+//# sourceMappingURL=_assert.js.map
 });
 
 unwrapExports(_assert);
@@ -7964,7 +7973,7 @@ var crypto = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.crypto = void 0;
 exports.crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
-
+//# sourceMappingURL=crypto.js.map
 });
 
 unwrapExports(crypto);
@@ -8166,7 +8175,7 @@ function randomBytes(bytesLength = 32) {
     throw new Error('crypto.getRandomValues must be defined');
 }
 exports.randomBytes = randomBytes;
-
+//# sourceMappingURL=utils.js.map
 });
 
 unwrapExports(utils);
@@ -8288,7 +8297,7 @@ class SHA2 extends utils.Hash {
     }
 }
 exports.SHA2 = SHA2;
-
+//# sourceMappingURL=_sha2.js.map
 });
 
 unwrapExports(_sha2);
@@ -8421,7 +8430,7 @@ class SHA224 extends SHA256 {
  */
 exports.sha256 = (0, utils.wrapConstructor)(() => new SHA256());
 exports.sha224 = (0, utils.wrapConstructor)(() => new SHA224());
-
+//# sourceMappingURL=sha256.js.map
 });
 
 unwrapExports(sha256);

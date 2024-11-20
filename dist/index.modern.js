@@ -6906,8 +6906,17 @@ function useAllowance({
           } else if (tronAddress && tokenAddress) {
             let trc20Contract = await tronWeb.contract(ERC20ABI.abi, tokenAddress);
             const _decimals = await trc20Contract.decimals().call();
+            let parsedDecimals;
+            if (typeof _decimals === 'bigint') {
+              parsedDecimals = Number(_decimals);
+            } else if (typeof _decimals === 'string') {
+              parsedDecimals = parseFloat(_decimals);
+            } else {
+              parsedDecimals = _decimals;
+            }
             const _userAllowance = await trc20Contract.allowance(tronAddress, targetAddress).call();
-            setDecimals(+_decimals);
+            console.log(parsedDecimals, typeof parsedDecimals);
+            setDecimals(parsedDecimals);
             setAllowance(+formatUnits(_userAllowance, _decimals));
           } else {
             setAllowance(0);
@@ -7288,7 +7297,7 @@ function output(out, instance) {
 exports.output = output;
 const assert = { number, bool, bytes, hash, exists, output };
 exports.default = assert;
-
+//# sourceMappingURL=_assert.js.map
 });
 
 unwrapExports(_assert);
@@ -7297,7 +7306,7 @@ var crypto = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.crypto = void 0;
 exports.crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
-
+//# sourceMappingURL=crypto.js.map
 });
 
 unwrapExports(crypto);
@@ -7499,7 +7508,7 @@ function randomBytes(bytesLength = 32) {
     throw new Error('crypto.getRandomValues must be defined');
 }
 exports.randomBytes = randomBytes;
-
+//# sourceMappingURL=utils.js.map
 });
 
 unwrapExports(utils);
@@ -7621,7 +7630,7 @@ class SHA2 extends utils.Hash {
     }
 }
 exports.SHA2 = SHA2;
-
+//# sourceMappingURL=_sha2.js.map
 });
 
 unwrapExports(_sha2);
@@ -7754,7 +7763,7 @@ class SHA224 extends SHA256 {
  */
 exports.sha256 = (0, utils.wrapConstructor)(() => new SHA256());
 exports.sha224 = (0, utils.wrapConstructor)(() => new SHA224());
-
+//# sourceMappingURL=sha256.js.map
 });
 
 unwrapExports(sha256);
