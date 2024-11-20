@@ -1,5 +1,5 @@
 // src/KimaProvider.tsx
-import React33, { useMemo } from "react";
+import React35, { useMemo } from "react";
 import { Provider, useSelector } from "react-redux";
 
 // src/store/index.tsx
@@ -1296,6 +1296,71 @@ var pluginSlice = createSlice2({
 var { registerPlugin } = pluginSlice.actions;
 var selectAllPlugins = (state) => state.plugins?.plugins ? Object.values(state.plugins.plugins) : [];
 var pluginReducer = pluginSlice.reducer;
+var pluginSlice_default = pluginReducer;
+
+// plugins/solana/index.tsx
+import React34 from "react";
+
+// src/store/store.tsx
+import { configureStore as configureStore2 } from "@reduxjs/toolkit";
+var store2 = configureStore2({
+  reducer: {
+    plugins: pluginSlice_default
+  }
+});
+var store_default = store2;
+
+// plugins/solana/features/walletConnect/WalletProvider.tsx
+import React33 from "react";
+import {
+  ConnectionProvider,
+  WalletProvider as SolanaWalletProvider
+} from "@solana/wallet-adapter-react";
+import {
+  PhantomWalletAdapter,
+  SolflareWalletAdapter,
+  CloverWalletAdapter,
+  Coin98WalletAdapter,
+  SolongWalletAdapter,
+  TorusWalletAdapter
+} from "@solana/wallet-adapter-wallets";
+
+// plugins/solana/utils/constants.tsx
+import { clusterApiUrl as clusterApiUrl2 } from "@solana/web3.js";
+function getHostEndpoint(networkOption) {
+  const cluster = networkOption == "mainnet" ? "mainnet" : "devnet";
+  const SOLANA_HOST2 = clusterApiUrl2(cluster);
+  return SOLANA_HOST2;
+}
+
+// plugins/solana/features/walletConnect/WalletProvider.tsx
+var WalletProvider = ({ children, networkOption }) => {
+  const endpoint = getHostEndpoint(networkOption);
+  return /* @__PURE__ */ React33.createElement(ConnectionProvider, { endpoint }, /* @__PURE__ */ React33.createElement(
+    SolanaWalletProvider,
+    {
+      wallets: [
+        new PhantomWalletAdapter(),
+        new SolflareWalletAdapter(),
+        new CloverWalletAdapter(),
+        new Coin98WalletAdapter(),
+        new SolongWalletAdapter(),
+        new TorusWalletAdapter()
+      ],
+      autoConnect: true
+    },
+    children
+  ));
+};
+var WalletProvider_default = WalletProvider;
+
+// plugins/solana/index.tsx
+var SolanaPlugin = {
+  id: "solana",
+  provider: ({ children, networkOption }) => /* @__PURE__ */ React34.createElement(WalletProvider_default, { networkOption }, children)
+};
+store_default.dispatch(registerPlugin(SolanaPlugin));
+console.info("Solana registerPlugin activating.");
 
 // src/KimaProvider.tsx
 var InternalKimaProvider = ({
@@ -1303,45 +1368,46 @@ var InternalKimaProvider = ({
   children
 }) => {
   const plugins = useSelector(selectAllPlugins);
+  console.info("Plugins: ", plugins);
   const WrappedProviders = useMemo(() => {
     return plugins.reduce(
       (Wrapped, plugin) => {
         const PluginProvider = plugin.provider;
         if (PluginProvider) {
-          return ({ children: children2 }) => /* @__PURE__ */ React33.createElement(
+          return ({ children: children2 }) => /* @__PURE__ */ React35.createElement(
             PluginProvider,
             {
               networkOption: "testnet",
               walletConnectProjectId
             },
-            /* @__PURE__ */ React33.createElement(Wrapped, null, children2)
+            /* @__PURE__ */ React35.createElement(Wrapped, null, children2)
           );
         }
         return Wrapped;
       },
-      ({ children: children2 }) => /* @__PURE__ */ React33.createElement(React33.Fragment, null, children2)
+      ({ children: children2 }) => /* @__PURE__ */ React35.createElement(React35.Fragment, null, children2)
       // Default wrapper if no plugins
     );
   }, [plugins, walletConnectProjectId]);
-  return /* @__PURE__ */ React33.createElement(WrappedProviders, null, children);
+  return /* @__PURE__ */ React35.createElement(WrappedProviders, null, children);
 };
 var KimaProvider = ({
   walletConnectProjectId,
   children
 }) => {
-  return /* @__PURE__ */ React33.createElement(Provider, { store }, /* @__PURE__ */ React33.createElement(InternalKimaProvider, { walletConnectProjectId }, children));
+  return /* @__PURE__ */ React35.createElement(Provider, { store }, /* @__PURE__ */ React35.createElement(InternalKimaProvider, { walletConnectProjectId }, children));
 };
 var KimaProvider_default = KimaProvider;
 
 // src/components/KimaTransactionWidget.tsx
-import React56, { useEffect as useEffect15 } from "react";
+import React58, { useEffect as useEffect15 } from "react";
 import { useDispatch as useDispatch15 } from "react-redux";
 
 // src/components/TransactionWidget.tsx
-import React55, { useEffect as useEffect14, useState as useState9 } from "react";
+import React57, { useEffect as useEffect14, useState as useState9 } from "react";
 
 // src/components/reusable/Progressbar.tsx
-import React34 from "react";
+import React36 from "react";
 import { useSelector as useSelector2 } from "react-redux";
 
 // src/store/selectors.tsx
@@ -1380,12 +1446,12 @@ var stepInfo = [
 ];
 var Progressbar = ({ step, errorStep, setFocus, loadingStep }) => {
   const theme = useSelector2(selectTheme);
-  return /* @__PURE__ */ React34.createElement("div", { className: "kima-progressbar" }, /* @__PURE__ */ React34.createElement(
+  return /* @__PURE__ */ React36.createElement("div", { className: "kima-progressbar" }, /* @__PURE__ */ React36.createElement(
     "div",
     {
       className: `value step-${step * 100 / 4}`
     }
-  ), /* @__PURE__ */ React34.createElement("div", { className: "step-indicators" }, stepInfo.map((item, index) => /* @__PURE__ */ React34.createElement(
+  ), /* @__PURE__ */ React36.createElement("div", { className: "step-indicators" }, stepInfo.map((item, index) => /* @__PURE__ */ React36.createElement(
     "div",
     {
       key: item.title,
@@ -1396,14 +1462,14 @@ var Progressbar = ({ step, errorStep, setFocus, loadingStep }) => {
         if (index < 4) setFocus(index);
       }
     },
-    /* @__PURE__ */ React34.createElement("div", { className: "step-info" }, step < index && /* @__PURE__ */ React34.createElement(Lock_default, null), step >= index ? index === loadingStep ? /* @__PURE__ */ React34.createElement(Loader_default, { className: "loader" }) : index === errorStep ? /* @__PURE__ */ React34.createElement(Warning_default, null) : /* @__PURE__ */ React34.createElement(Check_default, null) : null, /* @__PURE__ */ React34.createElement("span", null, item.title))
+    /* @__PURE__ */ React36.createElement("div", { className: "step-info" }, step < index && /* @__PURE__ */ React36.createElement(Lock_default, null), step >= index ? index === loadingStep ? /* @__PURE__ */ React36.createElement(Loader_default, { className: "loader" }) : index === errorStep ? /* @__PURE__ */ React36.createElement(Warning_default, null) : /* @__PURE__ */ React36.createElement(Check_default, null) : null, /* @__PURE__ */ React36.createElement("span", null, item.title))
   ))));
 };
 var Progressbar_default = Progressbar;
 
 // src/components/reusable/ExternalLink.tsx
-import React35 from "react";
-var ExternalLink = ({ to, children, className, rest }) => /* @__PURE__ */ React35.createElement(
+import React37 from "react";
+var ExternalLink = ({ to, children, className, rest }) => /* @__PURE__ */ React37.createElement(
   "a",
   {
     className,
@@ -1417,30 +1483,30 @@ var ExternalLink = ({ to, children, className, rest }) => /* @__PURE__ */ React3
 var ExternalLink_default = ExternalLink;
 
 // src/components/reusable/NetworkLabel.tsx
-import React36 from "react";
+import React38 from "react";
 import { useSelector as useSelector3 } from "react-redux";
 var NetworkLabel = ({ sourceChain, targetChain }) => {
   const theme = useSelector3(selectTheme);
   const SourceInfo = getNetworkOption(sourceChain);
   const TargetInfo = getNetworkOption(targetChain);
-  return /* @__PURE__ */ React36.createElement("div", { className: "header-network-labels" }, SourceInfo?.label && /* @__PURE__ */ React36.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ React36.createElement("div", { className: "icon" }, /* @__PURE__ */ React36.createElement(SourceInfo.icon, null)), /* @__PURE__ */ React36.createElement("p", null, SourceInfo.label)), SourceInfo?.label && TargetInfo?.label && /* @__PURE__ */ React36.createElement("div", { className: "arrow" }, /* @__PURE__ */ React36.createElement(Arrow_default, null)), TargetInfo?.label && /* @__PURE__ */ React36.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ React36.createElement("div", { className: "icon" }, /* @__PURE__ */ React36.createElement(TargetInfo.icon, null)), /* @__PURE__ */ React36.createElement("p", null, TargetInfo.label)));
+  return /* @__PURE__ */ React38.createElement("div", { className: "header-network-labels" }, SourceInfo?.label && /* @__PURE__ */ React38.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ React38.createElement("div", { className: "icon" }, /* @__PURE__ */ React38.createElement(SourceInfo.icon, null)), /* @__PURE__ */ React38.createElement("p", null, SourceInfo.label)), SourceInfo?.label && TargetInfo?.label && /* @__PURE__ */ React38.createElement("div", { className: "arrow" }, /* @__PURE__ */ React38.createElement(Arrow_default, null)), TargetInfo?.label && /* @__PURE__ */ React38.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ React38.createElement("div", { className: "icon" }, /* @__PURE__ */ React38.createElement(TargetInfo.icon, null)), /* @__PURE__ */ React38.createElement("p", null, TargetInfo.label)));
 };
 var NetworkLabel_default = NetworkLabel;
 
 // src/components/reusable/PrimaryButton.tsx
-import React39 from "react";
+import React41 from "react";
 
 // src/assets/loading/180-ring.tsx
-import React37 from "react";
+import React39 from "react";
 
 // src/assets/loading/6-dots-scale.tsx
-import React38 from "react";
-
-// src/components/reusable/SecondaryButton.tsx
 import React40 from "react";
 
+// src/components/reusable/SecondaryButton.tsx
+import React42 from "react";
+
 // src/components/reusable/NetworkSelect.tsx
-import React41, { useEffect as useEffect2, useMemo as useMemo3, useRef, useState as useState2 } from "react";
+import React43, { useEffect as useEffect2, useMemo as useMemo3, useRef, useState as useState2 } from "react";
 import { useSelector as useSelector5, useDispatch as useDispatch2 } from "react-redux";
 
 // src/hooks/useNetworkOptions.tsx
@@ -1541,24 +1607,24 @@ function useNetworkOptions() {
 import toast2 from "react-hot-toast";
 
 // src/components/reusable/SolanaWalletSelect.tsx
-import React42, { useEffect as useEffect3, useMemo as useMemo4, useRef as useRef2 } from "react";
+import React44, { useEffect as useEffect3, useMemo as useMemo4, useRef as useRef2 } from "react";
 import { useDispatch as useDispatch3, useSelector as useSelector6 } from "react-redux";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletReadyState } from "@solana/wallet-adapter-base";
 
 // src/components/reusable/TronWalletSelect.tsx
-import React43, { useEffect as useEffect4, useMemo as useMemo5, useRef as useRef3 } from "react";
+import React45, { useEffect as useEffect4, useMemo as useMemo5, useRef as useRef3 } from "react";
 import { useDispatch as useDispatch4, useSelector as useSelector7 } from "react-redux";
 import { useWallet as useWallet2 } from "@tronweb3/tronwallet-adapter-react-hooks";
 import { AdapterState } from "@tronweb3/tronwallet-abstract-adapter";
 
 // src/components/reusable/Dropdown.tsx
-import React44 from "react";
+import React46 from "react";
 import { useDispatch as useDispatch5 } from "react-redux";
 import { useSelector as useSelector8 } from "react-redux";
 
 // src/components/reusable/WalletButton.tsx
-import React45, { useEffect as useEffect8, useMemo as useMemo8 } from "react";
+import React47, { useEffect as useEffect8, useMemo as useMemo8 } from "react";
 import { toast as toast4 } from "react-hot-toast";
 import { useDispatch as useDispatch7, useSelector as useSelector11 } from "react-redux";
 
@@ -1662,7 +1728,7 @@ import { useWallet as useTronWallet3 } from "@tronweb3/tronwallet-adapter-react-
 import { useAppKit } from "@reown/appkit/react";
 
 // src/components/reusable/CoinDropdown.tsx
-import React46, { useEffect as useEffect10, useMemo as useMemo10, useRef as useRef4, useState as useState6 } from "react";
+import React48, { useEffect as useEffect10, useMemo as useMemo10, useRef as useRef4, useState as useState6 } from "react";
 import { useSelector as useSelector13 } from "react-redux";
 import { useDispatch as useDispatch9 } from "react-redux";
 
@@ -1673,10 +1739,10 @@ import { useDispatch as useDispatch8 } from "react-redux";
 import toast5 from "react-hot-toast";
 
 // src/components/reusable/NetworkDropdown.tsx
-import React47, { useEffect as useEffect11, useMemo as useMemo11, useRef as useRef5, useState as useState7 } from "react";
+import React49, { useEffect as useEffect11, useMemo as useMemo11, useRef as useRef5, useState as useState7 } from "react";
 import { useSelector as useSelector14, useDispatch as useDispatch10 } from "react-redux";
 import toast6 from "react-hot-toast";
-var NetworkDropdown = React47.memo(
+var NetworkDropdown = React49.memo(
   ({ isSourceChain = true }) => {
     const [collapsed, setCollapsed] = useState7(true);
     const [availableNetworks, setAvailableNetworks] = useState7([]);
@@ -1786,7 +1852,7 @@ var NetworkDropdown = React47.memo(
         document.removeEventListener("mousedown", bodyMouseDowntHandler);
       };
     }, [setCollapsed]);
-    return /* @__PURE__ */ React47.createElement(
+    return /* @__PURE__ */ React49.createElement(
       "div",
       {
         className: `network-dropdown ${theme.colorMode} ${collapsed ? "collapsed" : "toggled"}`,
@@ -1796,13 +1862,13 @@ var NetworkDropdown = React47.memo(
         },
         ref
       },
-      /* @__PURE__ */ React47.createElement("div", { className: "network-wrapper" }, /* @__PURE__ */ React47.createElement("div", { className: "icon" }, /* @__PURE__ */ React47.createElement(selectedNetwork.icon, null)), /* @__PURE__ */ React47.createElement("span", null, selectedNetwork.label)),
-      /* @__PURE__ */ React47.createElement(
+      /* @__PURE__ */ React49.createElement("div", { className: "network-wrapper" }, /* @__PURE__ */ React49.createElement("div", { className: "icon" }, /* @__PURE__ */ React49.createElement(selectedNetwork.icon, null)), /* @__PURE__ */ React49.createElement("span", null, selectedNetwork.label)),
+      /* @__PURE__ */ React49.createElement(
         "div",
         {
           className: `network-menu ${networks.length > 1 && "custom-scrollbar"} ${theme.colorMode} ${collapsed ? "collapsed" : "toggled"}`
         },
-        networks.map((network) => /* @__PURE__ */ React47.createElement(
+        networks.map((network) => /* @__PURE__ */ React49.createElement(
           "div",
           {
             className: `network-menu-item ${theme.colorMode}`,
@@ -1818,34 +1884,34 @@ var NetworkDropdown = React47.memo(
               }
             }
           },
-          /* @__PURE__ */ React47.createElement("div", { className: "icon" }, /* @__PURE__ */ React47.createElement(network.icon, null)),
-          /* @__PURE__ */ React47.createElement("p", null, network.label)
+          /* @__PURE__ */ React49.createElement("div", { className: "icon" }, /* @__PURE__ */ React49.createElement(network.icon, null)),
+          /* @__PURE__ */ React49.createElement("p", null, network.label)
         ))
       ),
-      /* @__PURE__ */ React47.createElement("div", { className: `dropdown-icon ${collapsed ? "toggled" : "collapsed"}` }, /* @__PURE__ */ React47.createElement(Arrow_default, { fill: "none" }))
+      /* @__PURE__ */ React49.createElement("div", { className: `dropdown-icon ${collapsed ? "toggled" : "collapsed"}` }, /* @__PURE__ */ React49.createElement(Arrow_default, { fill: "none" }))
     );
   }
 );
 
 // src/components/reusable/ConfirmDetails.tsx
-import React48, { useEffect as useEffect12, useMemo as useMemo12 } from "react";
+import React50, { useEffect as useEffect12, useMemo as useMemo12 } from "react";
 import { useSelector as useSelector15 } from "react-redux";
 
 // src/components/reusable/AddressInput.tsx
-import React49 from "react";
+import React51 from "react";
 import { useDispatch as useDispatch11 } from "react-redux";
 import { useSelector as useSelector16 } from "react-redux";
 
 // src/components/reusable/CustomCheckbox.tsx
-import React50 from "react";
+import React52 from "react";
 import { useSelector as useSelector17 } from "react-redux";
 
 // src/components/reusable/StepBox.tsx
-import React52 from "react";
+import React54 from "react";
 import { useSelector as useSelector18 } from "react-redux";
 
 // src/components/reusable/CopyButton.tsx
-import React51, { useEffect as useEffect13, useState as useState8 } from "react";
+import React53, { useEffect as useEffect13, useState as useState8 } from "react";
 var CopyButton = ({ text }) => {
   const [copyClicked, setCopyClicked] = useState8(false);
   useEffect13(() => {
@@ -1854,7 +1920,7 @@ var CopyButton = ({ text }) => {
       setCopyClicked(false);
     }, 2e3);
   }, [copyClicked]);
-  return /* @__PURE__ */ React51.createElement(
+  return /* @__PURE__ */ React53.createElement(
     "span",
     {
       className: "copy-btn",
@@ -1863,7 +1929,7 @@ var CopyButton = ({ text }) => {
         navigator.clipboard.writeText(text);
       }
     },
-    copyClicked ? /* @__PURE__ */ React51.createElement(Check_default, null) : /* @__PURE__ */ React51.createElement(Copy_default, null)
+    copyClicked ? /* @__PURE__ */ React53.createElement(Check_default, null) : /* @__PURE__ */ React53.createElement(Copy_default, null)
   );
 };
 var CopyButton_default = CopyButton;
@@ -1893,45 +1959,45 @@ var StepBox = ({ step, errorStep, loadingStep, data }) => {
   const SourceInfo = getNetworkOption(data?.sourceChain);
   const TargetInfo = getNetworkOption(data?.targetChain);
   const CHAIN_NAMES_TO_EXPLORER = networkOption === "mainnet" /* mainnet */ ? CHAIN_NAMES_TO_EXPLORER_MAINNET : CHAIN_NAMES_TO_EXPLORER_TESTNET;
-  return /* @__PURE__ */ React52.createElement("div", { className: "kima-stepbox" }, /* @__PURE__ */ React52.createElement("div", { className: `content-wrapper ${theme.colorMode}` }, stepInfo2.map((item, index) => /* @__PURE__ */ React52.createElement("div", { key: item.title, className: "step-item" }, /* @__PURE__ */ React52.createElement(
+  return /* @__PURE__ */ React54.createElement("div", { className: "kima-stepbox" }, /* @__PURE__ */ React54.createElement("div", { className: `content-wrapper ${theme.colorMode}` }, stepInfo2.map((item, index) => /* @__PURE__ */ React54.createElement("div", { key: item.title, className: "step-item" }, /* @__PURE__ */ React54.createElement(
     "div",
     {
       className: `info-item
                   ${step >= index ? index === loadingStep ? "active" : index === errorStep ? "error" : "completed" : ""} 
                   ${step < index && "locked"} ${theme.colorMode}`
     },
-    step < index && /* @__PURE__ */ React52.createElement(Lock_default, null),
-    step >= index ? index === loadingStep ? /* @__PURE__ */ React52.createElement(Loader_default, { className: "loader" }) : index === errorStep ? /* @__PURE__ */ React52.createElement(Warning_default, null) : /* @__PURE__ */ React52.createElement(Check_default, null) : null,
-    /* @__PURE__ */ React52.createElement("p", null, item.title)
-  ), index === 0 && data?.kimaTxHash ? /* @__PURE__ */ React52.createElement("div", { className: `info-item ${theme.colorMode}` }, /* @__PURE__ */ React52.createElement("div", { className: "icon" }, /* @__PURE__ */ React52.createElement(USDK_default, null)), /* @__PURE__ */ React52.createElement("p", { className: "chain-name" }, "Kima TX ID:"), /* @__PURE__ */ React52.createElement("p", null, /* @__PURE__ */ React52.createElement(
+    step < index && /* @__PURE__ */ React54.createElement(Lock_default, null),
+    step >= index ? index === loadingStep ? /* @__PURE__ */ React54.createElement(Loader_default, { className: "loader" }) : index === errorStep ? /* @__PURE__ */ React54.createElement(Warning_default, null) : /* @__PURE__ */ React54.createElement(Check_default, null) : null,
+    /* @__PURE__ */ React54.createElement("p", null, item.title)
+  ), index === 0 && data?.kimaTxHash ? /* @__PURE__ */ React54.createElement("div", { className: `info-item ${theme.colorMode}` }, /* @__PURE__ */ React54.createElement("div", { className: "icon" }, /* @__PURE__ */ React54.createElement(USDK_default, null)), /* @__PURE__ */ React54.createElement("p", { className: "chain-name" }, "Kima TX ID:"), /* @__PURE__ */ React54.createElement("p", null, /* @__PURE__ */ React54.createElement(
     ExternalLink_default,
     {
       to: `${explorerUrl}/transactions/${data?.kimaTxHash}`
     },
     getShortenedAddress(data?.kimaTxHash || "")
-  ), /* @__PURE__ */ React52.createElement(CopyButton_default, { text: data?.kimaTxHash }))) : null, index === 1 && data?.tssPullHash ? /* @__PURE__ */ React52.createElement("div", { className: `info-item ${theme.colorMode} source-chain` }, /* @__PURE__ */ React52.createElement("div", { className: "icon" }, SourceInfo ? /* @__PURE__ */ React52.createElement(SourceInfo.icon, null) : /* @__PURE__ */ React52.createElement(Ethereum_default, null)), /* @__PURE__ */ React52.createElement("p", { className: "chain-name" }, CHAIN_NAMES_TO_STRING[data?.sourceChain || "ETH" /* ETHEREUM */], " ", "TX ID:"), /* @__PURE__ */ React52.createElement("p", null, /* @__PURE__ */ React52.createElement(
+  ), /* @__PURE__ */ React54.createElement(CopyButton_default, { text: data?.kimaTxHash }))) : null, index === 1 && data?.tssPullHash ? /* @__PURE__ */ React54.createElement("div", { className: `info-item ${theme.colorMode} source-chain` }, /* @__PURE__ */ React54.createElement("div", { className: "icon" }, SourceInfo ? /* @__PURE__ */ React54.createElement(SourceInfo.icon, null) : /* @__PURE__ */ React54.createElement(Ethereum_default, null)), /* @__PURE__ */ React54.createElement("p", { className: "chain-name" }, CHAIN_NAMES_TO_STRING[data?.sourceChain || "ETH" /* ETHEREUM */], " ", "TX ID:"), /* @__PURE__ */ React54.createElement("p", null, /* @__PURE__ */ React54.createElement(
     ExternalLink_default,
     {
       to: `https://${CHAIN_NAMES_TO_EXPLORER[data?.sourceChain || "ETH" /* ETHEREUM */]}/${data?.sourceChain === "TRX" /* TRON */ ? "transaction" : "tx"}/${data?.tssPullHash}${data?.sourceChain === "SOL" /* SOLANA */ && networkOption === "testnet" /* testnet */ ? "?cluster=devnet" : ""}`
     },
     getShortenedAddress(data?.tssPullHash || "")
-  ), /* @__PURE__ */ React52.createElement(CopyButton_default, { text: data?.tssPullHash || "" }))) : null, index === 3 && data?.tssReleaseHash ? /* @__PURE__ */ React52.createElement("div", { className: `info-item ${theme.colorMode} target-chain` }, /* @__PURE__ */ React52.createElement("div", { className: "icon" }, TargetInfo ? /* @__PURE__ */ React52.createElement(TargetInfo.icon, null) : /* @__PURE__ */ React52.createElement(Ethereum_default, null)), /* @__PURE__ */ React52.createElement("p", { className: "chain-name" }, CHAIN_NAMES_TO_STRING[data?.targetChain || "ETH" /* ETHEREUM */], " ", "TX ID:"), /* @__PURE__ */ React52.createElement("p", null, /* @__PURE__ */ React52.createElement(
+  ), /* @__PURE__ */ React54.createElement(CopyButton_default, { text: data?.tssPullHash || "" }))) : null, index === 3 && data?.tssReleaseHash ? /* @__PURE__ */ React54.createElement("div", { className: `info-item ${theme.colorMode} target-chain` }, /* @__PURE__ */ React54.createElement("div", { className: "icon" }, TargetInfo ? /* @__PURE__ */ React54.createElement(TargetInfo.icon, null) : /* @__PURE__ */ React54.createElement(Ethereum_default, null)), /* @__PURE__ */ React54.createElement("p", { className: "chain-name" }, CHAIN_NAMES_TO_STRING[data?.targetChain || "ETH" /* ETHEREUM */], " ", "TX ID:"), /* @__PURE__ */ React54.createElement("p", null, /* @__PURE__ */ React54.createElement(
     ExternalLink_default,
     {
       to: `https://${CHAIN_NAMES_TO_EXPLORER[data?.targetChain || "ETH" /* ETHEREUM */]}/${data?.targetChain === "TRX" /* TRON */ ? "transaction" : "tx"}/${data?.tssReleaseHash}${data?.targetChain === "SOL" /* SOLANA */ && networkOption === "testnet" /* testnet */ ? "?cluster=devnet" : ""}`
     },
     getShortenedAddress(data?.tssReleaseHash || "")
-  ), /* @__PURE__ */ React52.createElement(CopyButton_default, { text: data?.tssReleaseHash || "" }))) : null))));
+  ), /* @__PURE__ */ React54.createElement(CopyButton_default, { text: data?.tssReleaseHash || "" }))) : null))));
 };
 var StepBox_default = StepBox;
 
 // src/components/reusable/BankInput.tsx
-import React53 from "react";
+import React55 from "react";
 import { useDispatch as useDispatch12 } from "react-redux";
 import { useSelector as useSelector19 } from "react-redux";
 
 // src/components/reusable/TxButton.tsx
-import React54 from "react";
+import React56 from "react";
 import { useDispatch as useDispatch13 } from "react-redux";
 import { useSelector as useSelector20 } from "react-redux";
 
@@ -2048,7 +2114,7 @@ var TransactionWidget = ({ theme }) => {
           }, 3e3);
         }
       } catch (e) {
-        toast7.error("rpc disconnected", { icon: /* @__PURE__ */ React55.createElement(Error_default, null) });
+        toast7.error("rpc disconnected", { icon: /* @__PURE__ */ React57.createElement(Error_default, null) });
         console.log("rpc disconnected", e);
       }
     };
@@ -2083,7 +2149,7 @@ var TransactionWidget = ({ theme }) => {
       setErrorStep(1);
       setLoadingStep(-1);
       console.log(data.failReason);
-      toast7.error("Unavailable", { icon: /* @__PURE__ */ React55.createElement(Error_default, null) });
+      toast7.error("Unavailable", { icon: /* @__PURE__ */ React57.createElement(Error_default, null) });
       setErrorMessage("Unavailable");
     } else if (status === "KeySigned" /* KEYSIGNED */) {
       setStep(3);
@@ -2100,7 +2166,7 @@ var TransactionWidget = ({ theme }) => {
       setLoadingStep(-1);
       console.log(data.failReason);
       toast7.error("Failed to release tokens to target!", {
-        icon: /* @__PURE__ */ React55.createElement(Error_default, null)
+        icon: /* @__PURE__ */ React57.createElement(Error_default, null)
       });
       setErrorMessage("Failed to release tokens to target!");
     } else if (status === "FailedToPull" /* FAILEDTOPULL */) {
@@ -2109,7 +2175,7 @@ var TransactionWidget = ({ theme }) => {
       setErrorStep(1);
       setLoadingStep(-1);
       console.log(data.failReason);
-      toast7.error("Failed to pull tokens from source!", { icon: /* @__PURE__ */ React55.createElement(Error_default, null) });
+      toast7.error("Failed to pull tokens from source!", { icon: /* @__PURE__ */ React57.createElement(Error_default, null) });
       setErrorMessage("Failed to pull tokens from source!");
     } else if (status === "Completed" /* COMPLETED */) {
       setStep(4);
@@ -2117,7 +2183,7 @@ var TransactionWidget = ({ theme }) => {
       setLoadingStep(-1);
     }
   }, [data?.status]);
-  return /* @__PURE__ */ React55.createElement(Provider2, { store }, /* @__PURE__ */ React55.createElement(
+  return /* @__PURE__ */ React57.createElement(Provider2, { store }, /* @__PURE__ */ React57.createElement(
     "div",
     {
       className: `kima-card transaction-card ${theme.colorMode} ${minimized ? "minimized" : ""}`,
@@ -2125,7 +2191,7 @@ var TransactionWidget = ({ theme }) => {
         background: theme.colorMode === "light" /* light */ ? theme.backgroundColorLight : theme.backgroundColorDark
       }
     },
-    /* @__PURE__ */ React55.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React55.createElement("div", { className: "topbar" }, /* @__PURE__ */ React55.createElement("div", { className: "title" }, /* @__PURE__ */ React55.createElement("h3", null, "Transferring ", formatterFloat.format(data?.amount || 0), " ", `${data?.sourceSymbol || "USDK"} \u2192 ${data?.targetSymbol || "USDK"}`, "\xA0\xA0", `(${percent}%)`)), !minimized ? /* @__PURE__ */ React55.createElement("div", { className: "control-buttons" }, /* @__PURE__ */ React55.createElement(
+    /* @__PURE__ */ React57.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React57.createElement("div", { className: "topbar" }, /* @__PURE__ */ React57.createElement("div", { className: "title" }, /* @__PURE__ */ React57.createElement("h3", null, "Transferring ", formatterFloat.format(data?.amount || 0), " ", `${data?.sourceSymbol || "USDK"} \u2192 ${data?.targetSymbol || "USDK"}`, "\xA0\xA0", `(${percent}%)`)), !minimized ? /* @__PURE__ */ React57.createElement("div", { className: "control-buttons" }, /* @__PURE__ */ React57.createElement(
       "button",
       {
         className: "icon-button minimize",
@@ -2133,8 +2199,8 @@ var TransactionWidget = ({ theme }) => {
           setMinimized(true);
         }
       },
-      /* @__PURE__ */ React55.createElement(Minimize_default, null)
-    ), loadingStep < 0 ? /* @__PURE__ */ React55.createElement(
+      /* @__PURE__ */ React57.createElement(Minimize_default, null)
+    ), loadingStep < 0 ? /* @__PURE__ */ React57.createElement(
       "button",
       {
         className: "cross-icon-button",
@@ -2143,20 +2209,20 @@ var TransactionWidget = ({ theme }) => {
           closeHandler();
         }
       },
-      /* @__PURE__ */ React55.createElement(
+      /* @__PURE__ */ React57.createElement(
         Cross_default,
         {
           fill: theme.colorMode === "light" ? "black" : "white"
         }
       )
-    ) : null) : /* @__PURE__ */ React55.createElement("div", { className: "control-buttons" }, /* @__PURE__ */ React55.createElement("div", { className: "maximize", onClick: () => setMinimized(false) }, "View"))), !minimized && data?.sourceChain && data?.targetChain && /* @__PURE__ */ React55.createElement(
+    ) : null) : /* @__PURE__ */ React57.createElement("div", { className: "control-buttons" }, /* @__PURE__ */ React57.createElement("div", { className: "maximize", onClick: () => setMinimized(false) }, "View"))), !minimized && data?.sourceChain && data?.targetChain && /* @__PURE__ */ React57.createElement(
       NetworkLabel_default,
       {
         sourceChain: data?.sourceChain,
         targetChain: data?.targetChain
       }
     )),
-    /* @__PURE__ */ React55.createElement("div", { className: "kima-card-content" }, /* @__PURE__ */ React55.createElement(
+    /* @__PURE__ */ React57.createElement("div", { className: "kima-card-content" }, /* @__PURE__ */ React57.createElement(
       Progressbar_default,
       {
         step,
@@ -2165,7 +2231,7 @@ var TransactionWidget = ({ theme }) => {
         setFocus,
         loadingStep
       }
-    ), /* @__PURE__ */ React55.createElement(
+    ), /* @__PURE__ */ React57.createElement(
       StepBox_default,
       {
         step,
@@ -2174,7 +2240,7 @@ var TransactionWidget = ({ theme }) => {
         data
       }
     )),
-    /* @__PURE__ */ React55.createElement(
+    /* @__PURE__ */ React57.createElement(
       Toaster,
       {
         position: "top-right",
@@ -2199,7 +2265,7 @@ var TransactionWidget = ({ theme }) => {
         }
       }
     ),
-    /* @__PURE__ */ React55.createElement("div", { className: "floating-footer" }, /* @__PURE__ */ React55.createElement("div", { className: `items ${theme.colorMode}` }, /* @__PURE__ */ React55.createElement("span", null, "Powered by"), /* @__PURE__ */ React55.createElement(FooterLogo_default, { fill: "black" }), /* @__PURE__ */ React55.createElement("strong", null, "Network")))
+    /* @__PURE__ */ React57.createElement("div", { className: "floating-footer" }, /* @__PURE__ */ React57.createElement("div", { className: `items ${theme.colorMode}` }, /* @__PURE__ */ React57.createElement("span", null, "Powered by"), /* @__PURE__ */ React57.createElement(FooterLogo_default, { fill: "black" }), /* @__PURE__ */ React57.createElement("strong", null, "Network")))
   ));
 };
 
@@ -2272,7 +2338,7 @@ var KimaTransactionWidget = ({
       dispatch(setSubmitted(true));
     }
   }, [dAppOption, mode]);
-  return /* @__PURE__ */ React56.createElement(TransactionWidget, { theme });
+  return /* @__PURE__ */ React58.createElement(TransactionWidget, { theme });
 };
 var KimaTransactionWidget_default = KimaTransactionWidget;
 export {

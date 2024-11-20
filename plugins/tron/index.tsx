@@ -1,7 +1,7 @@
 // plugins/tron/index.tsx
-import { store } from '../../store'
-import { registerPlugin } from '../../store/pluginSlice'
-import WalletProvider from './features/walletConnect/WalletProvider'
+import store from '@store/store'
+import { registerPlugin } from '@store/pluginSlice'
+import WalletProvider from '@plugins/tron/features/walletConnect/WalletProvider'
 
 const TronPlugin = {
   id: 'tron',
@@ -11,6 +11,7 @@ const TronPlugin = {
 }
 
 // Register the Tron plugin in the store
-//store.dispatch(registerPlugin(TronPlugin))
+store.dispatch(registerPlugin(TronPlugin))
+console.info('Tron registerPlugin activating.')
 
 export default TronPlugin

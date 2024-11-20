@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src",                          // Ensure correct source-to-dist mapping
+    "rootDir": ".",                          // Ensure correct source-to-dist mapping
     "module": "esnext",
     "lib": ["dom", "esnext"],
     "moduleResolution": "node",
@@ -19,7 +19,10 @@
     "paths": {
       "@interface": ["./src/interface.tsx"],   // Path alias for interfaces
       "@utils/*": ["./src/utils/*"],
-      "@components/*": ["./src/components/*"]
+      "@components/*": ["./src/components/*"],
+      "@plugins/*": ["./plugins/*"],
+      "@store/*": ["./src/store/*"],
+      "@assets/*": ["./src/assets/*"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],  // Include all TypeScript files

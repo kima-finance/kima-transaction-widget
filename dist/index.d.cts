@@ -1,11 +1,11 @@
-import react, { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import { Web3Provider } from '@ethersproject/providers';
 
 interface KimaProviderProps {
     walletConnectProjectId: string;
     children: ReactNode;
 }
-declare const KimaProvider: react.FC<KimaProviderProps>;
+declare const KimaProvider: React.FC<KimaProviderProps>;
 
 declare enum ChainName {
     ETHEREUM = "ETH",
@@ -128,6 +128,6 @@ interface Props {
     switchChainHandler?: (chainId: number) => void;
     keplrHandler?: (e: any) => void;
 }
-declare const KimaTransactionWidget: ({ mode, txId, autoSwitchChain, networkOption, provider, dAppOption, theme, transactionOption, kimaBackendUrl, kimaNodeProviderQuery, kimaExplorer, kimaGraphqlProviderQuery, errorHandler, closeHandler, successHandler, switchChainHandler, keplrHandler }: Props) => react.JSX.Element;
+declare const KimaTransactionWidget: ({ mode, txId, autoSwitchChain, networkOption, provider, dAppOption, theme, transactionOption, kimaBackendUrl, kimaNodeProviderQuery, kimaExplorer, kimaGraphqlProviderQuery, errorHandler, closeHandler, successHandler, switchChainHandler, keplrHandler }: Props) => React.JSX.Element;
 
 export { CHAIN_NAMES_TO_STRING, CHAIN_STRING_TO_NAME, ColorModeOptions, type CompliantOption, CurrencyOptions, DAppOptions, KimaProvider, KimaTransactionWidget, ModeOptions, NetworkOptions, type PaymentTitleOption, ChainName as SupportNetworks, type ThemeOptions, type TitleOption, type TransactionData, type TransactionOption, type Web3ModalAccountInfo };

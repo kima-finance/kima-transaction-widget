@@ -3,6 +3,8 @@ import { Provider, useSelector } from 'react-redux'
 import { store } from './store'
 import { selectAllPlugins } from './store/pluginSlice'
 
+import '@plugins/solana' // Ensure all plugins are imported
+
 interface KimaProviderProps {
   walletConnectProjectId: string
   children: ReactNode
@@ -24,6 +26,7 @@ const InternalKimaProvider: React.FC<KimaProviderProps> = ({
   children
 }) => {
   const plugins = useSelector(selectAllPlugins) as Plugin[]
+  console.info('Plugins: ', plugins)
 
   const WrappedProviders = useMemo(() => {
     // Reduce plugins to dynamically wrap children

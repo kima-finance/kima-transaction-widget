@@ -1,11 +1,22 @@
-// store.js
-import { configureStore } from '@reduxjs/toolkit'
-import pluginReducer from './pluginSlice'
+import { configureStore, EnhancedStore } from '@reduxjs/toolkit'
+import pluginReducer, { PluginState } from './pluginSlice'
 
-const store = configureStore({
+// Explicitly define the RootState type
+export interface RootState {
+  plugins: PluginState
+}
+
+// Explicitly define the AppDispatch type
+export type AppDispatch = EnhancedStore<RootState>['dispatch']
+
+// Explicitly define the store type
+export const store: EnhancedStore<RootState> = configureStore({
   reducer: {
-    plugins: pluginReducer // Generic plugin reducer
+    plugins: pluginReducer
   }
 })
+
+// Export PluginState if needed
+export type { PluginState }
 
 export default store

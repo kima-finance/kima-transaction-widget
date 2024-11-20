@@ -1,7 +1,7 @@
 // solana/constants.tsx
 
 import { clusterApiUrl } from '@solana/web3.js'
-import { SolanaIcon } from '../assets/icons'
+import { SolanaIcon } from '@assets/icons'
 
 // Define the type for Cluster
 export type Cluster = 'devnet' | 'testnet' | 'mainnet'
