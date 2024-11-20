@@ -1,39 +1,31 @@
 import React, { ReactNode, useMemo } from 'react'
 import { Provider, useSelector } from 'react-redux'
-import { store } from './store'
-import { selectAllPlugins } from './store/pluginSlice'
+import store from '@store/store'
+import { selectAllPlugins } from '@store/pluginSlice'
+import { getPluginProvider } from '@pluginRegistry' // Import the plugin registry
 
 import '@plugins/solana' // Ensure all plugins are imported
 import '@plugins/evm'
+import '@plugins/tron'
 
 interface KimaProviderProps {
   walletConnectProjectId: string
   children: ReactNode
 }
 
-type PluginProviderProps = {
-  networkOption: string
-  walletConnectProjectId: string
-  children: ReactNode
-}
-
-type Plugin = {
-  provider?: React.FC<PluginProviderProps>
-  initialize?: (walletConnectProjectId: string, networkOption: string) => void
-}
-
 const InternalKimaProvider: React.FC<KimaProviderProps> = ({
   walletConnectProjectId,
   children
 }) => {
-  const plugins = useSelector(selectAllPlugins) as Plugin[]
-  console.info('Plugins: ', plugins)
+  // Get all registered plugins
+  const plugins = useSelector(selectAllPlugins)
+  console.info('Registered Plugins:', plugins)
 
+  // Dynamically wrap children with plugin providers
   const WrappedProviders = useMemo(() => {
-    // Reduce plugins to dynamically wrap children
     return plugins.reduce<React.FC<{ children: ReactNode }>>(
       (Wrapped, plugin) => {
-        const PluginProvider = plugin.provider
+        const PluginProvider = getPluginProvider(plugin.id) // Retrieve provider from the registry
         if (PluginProvider) {
           return ({ children }) => (
             <PluginProvider
