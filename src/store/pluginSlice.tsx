@@ -1,13 +1,14 @@
 import { createSlice, PayloadAction, Reducer } from '@reduxjs/toolkit'
+import { RootState } from './index' // Import RootState from the store
 
 // Define the Plugin metadata interface
-interface Plugin {
+export interface Plugin {
   id: string // Plugin identifier
   initialize?: (walletConnectProjectId: string, networkOption: string) => void // Initialization function
 }
 
 // Define the shape of the slice state
-interface PluginState {
+export interface PluginState {
   plugins: Record<string, Plugin> // Stores plugin metadata
 }
 
@@ -43,12 +44,12 @@ export const { registerPlugin } = pluginSlice.actions
 
 // Selectors
 export const selectPlugin = (
-  state: { plugins: PluginState },
+  state: RootState,
   id: string
-): Plugin | undefined => state.plugins?.plugins?.[id]
+): Plugin | undefined => state.plugins.plugins[id]
 
-export const selectAllPlugins = (state: { plugins: PluginState }): Plugin[] =>
-  state.plugins?.plugins ? Object.values(state.plugins.plugins) : []
+export const selectAllPlugins = (state: RootState): Plugin[] =>
+  Object.values(state.plugins.plugins)
 
 // Explicitly type the reducer
 const pluginReducer: Reducer<PluginState> = pluginSlice.reducer
