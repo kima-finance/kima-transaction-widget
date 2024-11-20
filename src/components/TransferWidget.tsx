@@ -167,7 +167,7 @@ export const TransferWidget = ({
   const { isSigned, sign } = useSign({ setSigning })
   const { serviceFee: fee } = useServiceFee(isConfirming, feeURL)
   const { balance } = useBalance()
-  const {width: windowWidth} = useWidth()
+  const { width: windowWidth } = useWidth()
   const isApproved = useMemo(() => {
     if (sourceChain === ChainName.BTC) return isBTCSigned
     return approved
@@ -876,23 +876,31 @@ export const TransferWidget = ({
           <div className='control-buttons'>
             {pendingTxs > 0 ? <TxButton theme={theme} /> : null}
             <ExternalLink
-              to={helpURL ? helpURL : 'https://docs.kima.network/kima-network/try-kima-with-the-demo-app'}
+              to={
+                helpURL
+                  ? helpURL
+                  : 'https://docs.kima.network/kima-network/try-kima-with-the-demo-app'
+              }
             >
               <div className='menu-button'>I need help</div>
             </ExternalLink>
-            <button
-              className='cross-icon-button'
-              onClick={() => {
-                if (isApproving || isSubmitting || isSigning) return
-                dispatch(initialize())
-                closeHandler()
-              }}
-              disabled={isApproving || isSubmitting || isSigning}
-            >
-              <CrossIcon
-                fill={theme.colorMode === 'light' ? 'black' : 'white'}
-              />
-            </button>
+
+            {formStep !== 1 && (
+              <button
+                className='cross-icon-button'
+                onClick={() => {
+                  if (isApproving || isSubmitting || isSigning )
+                    return
+                  dispatch(initialize())
+                  closeHandler()
+                }}
+                disabled={isApproving || isSubmitting || isSigning}
+              >
+                <CrossIcon
+                  fill={theme.colorMode === 'light' ? 'black' : 'white'}
+                />
+              </button>
+            )}
           </div>
         </div>
         <h4 className='subtitle'>
