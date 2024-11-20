@@ -1,26 +1,19 @@
 import { createSlice, PayloadAction, Reducer } from '@reduxjs/toolkit'
 
-// Define the PluginProviderProps interface
-interface PluginProviderProps {
-  networkOption: 'testnet' | 'mainnet'
-  walletConnectProjectId: string
-  children: React.ReactNode
-}
-
-// Define the Plugin interface
+// Define the Plugin metadata interface
 interface Plugin {
-  provider?: React.FC<PluginProviderProps>
-  initialize?: (walletConnectProjectId: string, networkOption: string) => void
+  id: string // Plugin identifier
+  initialize?: (walletConnectProjectId: string, networkOption: string) => void // Initialization function
 }
 
 // Define the shape of the slice state
 interface PluginState {
-  plugins: Record<string, Plugin>
+  plugins: Record<string, Plugin> // Stores plugin metadata
 }
 
 // Initial state
 const initialState: PluginState = {
-  plugins: {}
+  plugins: {} // Empty record of plugins
 }
 
 // Create the slice
@@ -28,19 +21,19 @@ const pluginSlice = createSlice({
   name: 'plugins',
   initialState,
   reducers: {
+    // Action to register a plugin with its metadata
     registerPlugin: (
       state,
       action: PayloadAction<{
         id: string
-        provider?: React.FC<PluginProviderProps>
         initialize?: (
           walletConnectProjectId: string,
           networkOption: string
         ) => void
       }>
     ) => {
-      const { id, provider, initialize } = action.payload
-      state.plugins[id] = { provider, initialize }
+      const { id, initialize } = action.payload
+      state.plugins[id] = { id, initialize }
     }
   }
 })
