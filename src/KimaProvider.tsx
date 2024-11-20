@@ -4,6 +4,7 @@ import { store } from './store'
 import { selectAllPlugins } from './store/pluginSlice'
 
 import '@plugins/solana' // Ensure all plugins are imported
+import '@plugins/evm'
 
 interface KimaProviderProps {
   walletConnectProjectId: string
