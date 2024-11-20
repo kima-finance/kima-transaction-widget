@@ -48,6 +48,10 @@ export const selectTronConnectModal = (state: RootState) =>
   state.option.tronConnectModal
 
 // Core
+export const selectPendingTxs = (state: RootState) => state.option.pendingTxs
+export const selectPendingTxData = (state: RootState) => state.option.pendingTxData
+
+// Core
 export const selectHelpPopup = (state: RootState) => state.option.helpPopup
 
 // Core

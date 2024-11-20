@@ -211,6 +211,7 @@ export const TransferWidget = ({
       }
     })()
   }, [targetAddress, compliantOption])
+  // get rid of the +
 
   useEffect(() => {
     if (!nodeProviderQuery) return

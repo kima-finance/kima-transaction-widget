@@ -36,15 +36,13 @@ import { fetchWrapper } from '../helpers/fetch-wrapper'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import { tronWebMainnet, tronWebTestnet } from '../tronweb'
 import { fromHex } from '../utils/func'
-import { NetworkOptions, Web3ModalAccountInfo } from '../interface'
-import {
-  useWeb3ModalAccount,
-  useWeb3ModalProvider
-} from '@web3modal/ethers5/react'
+import { NetworkOptions, } from '../interface'
+
 import { ethers } from 'ethers'
 import { ExternalProvider, JsonRpcFetchFunc } from '@ethersproject/providers'
 import { isEmptyObject, sleep } from '../helpers/functions'
 import toast from 'react-hot-toast'
+import { useAppKitAccount, useAppKitNetwork, useAppKitProvider } from '@reown/appkit/react'
 
 type ParsedAccountData = {
   /** Name of the program that owns this account */
@@ -64,16 +62,16 @@ export default function useAllowance({
 }) {
   const [allowance, setAllowance] = useState<number>(0)
   const [decimals, setDecimals] = useState<number | null>(null)
-  const web3ModalAccountInfo: Web3ModalAccountInfo = useWeb3ModalAccount()
+  const appkitAccountInfo = useAppKitAccount()
 
-  const { address: signerAddress, chainId: evmChainId } =
-    web3ModalAccountInfo || {
-      address: null,
-      chainId: null,
-      isConnected: null
-    }
+  const { chainId: evmChainId } = useAppKitNetwork()
+  const { address: signerAddress } = appkitAccountInfo || {
+    address: null,
+    chainId: null,
+    isConnected: null
+  }
 
-  const { walletProvider } = useWeb3ModalProvider()
+  const { walletProvider } = useAppKitProvider('eip155')
   const selectedNetwork = useSelector(selectSourceChain)
   const errorHandler = useSelector(selectErrorHandler)
   const dAppOption = useSelector(selectDappOption)

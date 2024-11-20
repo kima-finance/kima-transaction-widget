@@ -84,7 +84,7 @@ const initialState: OptionState = {
   tokenOptions: {},
   pendingTxs: 0,
   pendingTxData: [],
-  kimaExplorerUrl: 'https://explorer.kima.finance',
+  kimaExplorerUrl: 'https://explorer.kima.network',
   graphqlProviderQuery: 'https://graphql.kima.finance',
   mode: ModeOptions.bridge,
   sourceChain: '',
