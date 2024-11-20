@@ -22,7 +22,7 @@ import {
   WalletNotFoundError
 } from '@tronweb3/tronwallet-abstract-adapter'
 import { toast } from 'react-hot-toast'
-import { SOLANA_HOST } from './utils/constants'
+import { SOLANA_HOST_DEVNET, SOLANA_HOST_MAINNET } from './utils/constants'
 import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react'
 import { NetworkOptions } from './interface'
 
@@ -234,7 +234,13 @@ export const KimaProvider = ({
 
   return (
     <Provider store={store}>
-      <ConnectionProvider endpoint={SOLANA_HOST}>
+      <ConnectionProvider
+        endpoint={
+          networkOption === NetworkOptions.mainnet
+            ? SOLANA_HOST_MAINNET
+            : SOLANA_HOST_DEVNET
+        }
+      >
         <SolanaWalletProvider wallets={wallets}>
           <TronWalletProvider
             onError={onError}

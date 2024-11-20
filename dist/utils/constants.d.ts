@@ -72,9 +72,8 @@ export declare const getNetworkOption: (id: string) => {
         height?: number | undefined;
     }) => import("react").JSX.Element;
 } | undefined;
-export declare type Cluster = 'devnet' | 'testnet' | 'mainnet';
-export declare const CLUSTER: Cluster;
-export declare const SOLANA_HOST: string;
+export declare const SOLANA_HOST_DEVNET: string;
+export declare const SOLANA_HOST_MAINNET: string;
 export declare const isEVMChain: (chainId: string) => boolean;
 declare type CoinOptions = {
     [key: string]: any;

@@ -920,8 +920,8 @@ var getNetworkOption = function getNetworkOption(id) {
   if (index < 0) return;
   return networkOptions[index];
 };
-var CLUSTER = 'devnet';
-var SOLANA_HOST = web3_js.clusterApiUrl(CLUSTER);
+var SOLANA_HOST_DEVNET = web3_js.clusterApiUrl('devnet');
+var SOLANA_HOST_MAINNET = web3_js.clusterApiUrl('mainnet-beta');
 var isEVMChain = function isEVMChain(chainId) {
   return chainId === exports.SupportNetworks.ETHEREUM || chainId === exports.SupportNetworks.POLYGON || chainId === exports.SupportNetworks.AVALANCHE || chainId === exports.SupportNetworks.BSC || chainId === exports.SupportNetworks.OPTIMISM || chainId === exports.SupportNetworks.ARBITRUM || chainId === exports.SupportNetworks.POLYGON_ZKEVM;
 };
@@ -7480,8 +7480,17 @@ function useAllowance(_ref) {
                     if (tronAddress && tokenAddress) {
                       return Promise.resolve(tronWeb.contract(ERC20ABI.abi, tokenAddress)).then(function (trc20Contract) {
                         return Promise.resolve(trc20Contract.decimals().call()).then(function (decimals) {
+                          var parsedDecimals;
+                          if (typeof decimals === 'bigint') {
+                            parsedDecimals = Number(decimals);
+                          } else if (typeof decimals === 'string') {
+                            parsedDecimals = parseFloat(decimals);
+                          } else {
+                            parsedDecimals = decimals;
+                          }
                           return Promise.resolve(trc20Contract.allowance(tronAddress, targetAddress).call()).then(function (userAllowance) {
-                            setDecimals(+decimals);
+                            console.log(parsedDecimals, typeof parsedDecimals);
+                            setDecimals(parsedDecimals);
                             setAllowance(+units.formatUnits(userAllowance, decimals));
                           });
                         });
@@ -12875,7 +12884,7 @@ var KimaProvider = function KimaProvider(_ref) {
   return React__default.createElement(reactRedux.Provider, {
     store: store
   }, React__default.createElement(ConnectionProvider, {
-    endpoint: SOLANA_HOST
+    endpoint: networkOption === exports.NetworkOptions.mainnet ? SOLANA_HOST_MAINNET : SOLANA_HOST_DEVNET
   }, React__default.createElement(SolanaWalletProvider, {
     wallets: wallets
   }, React__default.createElement(tronwalletAdapterReactHooks.WalletProvider, {

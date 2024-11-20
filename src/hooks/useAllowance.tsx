@@ -210,11 +210,22 @@ export default function useAllowance({
             )
 
             const decimals = await trc20Contract.decimals().call()
+            let parsedDecimals
+            if (typeof decimals === 'bigint') {
+              // If it's a bigint, convert it to a number (be mindful of potential precision loss)
+              parsedDecimals = Number(decimals)
+            } else if (typeof decimals === 'string') {
+              // If it's a string, parse it as a number
+              parsedDecimals = parseFloat(decimals)
+            } else {
+              parsedDecimals = decimals
+            }
             const userAllowance = await trc20Contract
               .allowance(tronAddress, targetAddress)
               .call()
 
-            setDecimals(+decimals)
+            console.log(parsedDecimals, typeof parsedDecimals)
+            setDecimals(parsedDecimals)
             setAllowance(+formatUnits(userAllowance, decimals))
           } else {
             setAllowance(0)

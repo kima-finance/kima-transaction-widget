@@ -883,8 +883,8 @@ const getNetworkOption = id => {
   if (index < 0) return;
   return networkOptions[index];
 };
-const CLUSTER = 'devnet';
-const SOLANA_HOST = clusterApiUrl(CLUSTER);
+const SOLANA_HOST_DEVNET = clusterApiUrl('devnet');
+const SOLANA_HOST_MAINNET = clusterApiUrl('mainnet-beta');
 const isEVMChain = chainId => chainId === ChainName.ETHEREUM || chainId === ChainName.POLYGON || chainId === ChainName.AVALANCHE || chainId === ChainName.BSC || chainId === ChainName.OPTIMISM || chainId === ChainName.ARBITRUM || chainId === ChainName.POLYGON_ZKEVM;
 const COIN_LIST = {
   USDK: {
@@ -6906,8 +6906,17 @@ function useAllowance({
           } else if (tronAddress && tokenAddress) {
             let trc20Contract = await tronWeb.contract(ERC20ABI.abi, tokenAddress);
             const _decimals = await trc20Contract.decimals().call();
+            let parsedDecimals;
+            if (typeof _decimals === 'bigint') {
+              parsedDecimals = Number(_decimals);
+            } else if (typeof _decimals === 'string') {
+              parsedDecimals = parseFloat(_decimals);
+            } else {
+              parsedDecimals = _decimals;
+            }
             const _userAllowance = await trc20Contract.allowance(tronAddress, targetAddress).call();
-            setDecimals(+_decimals);
+            console.log(parsedDecimals, typeof parsedDecimals);
+            setDecimals(parsedDecimals);
             setAllowance(+formatUnits(_userAllowance, _decimals));
           } else {
             setAllowance(0);
@@ -12053,7 +12062,7 @@ const KimaProvider = ({
   return React.createElement(Provider, {
     store: store
   }, React.createElement(ConnectionProvider, {
-    endpoint: SOLANA_HOST
+    endpoint: _networkOption === NetworkOptions.mainnet ? SOLANA_HOST_MAINNET : SOLANA_HOST_DEVNET
   }, React.createElement(SolanaWalletProvider, {
     wallets: wallets
   }, React.createElement(WalletProvider, {
