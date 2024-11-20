@@ -17,19 +17,19 @@ const Lock = ({ width = 24, height = 27, fill = 'none', ...rest }) => {
         height='15.9829'
         rx='4.9697'
         stroke='#86B8CE'
-        stroke-width='1.86364'
+        strokeWidth='1.86364'
       />
       <path
         d='M11.9004 18.7014L11.9004 16.0376'
         stroke='#86B8CE'
-        stroke-width='1.86364'
+        strokeWidth='1.86364'
         stroke-linecap='round'
         stroke-linejoin='round'
       />
       <path
         d='M17.2341 9.37815V6.35642C17.2341 3.61173 15.0091 1.38672 12.2644 1.38672H11.5486C8.80387 1.38672 6.57886 3.61173 6.57886 6.35642L6.57886 9.37815'
         stroke='#86B8CE'
-        stroke-width='1.86364'
+        strokeWidth='1.86364'
       />
     </svg>
   )

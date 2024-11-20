@@ -13,12 +13,12 @@ const Cross = ({ width = 60, height = 60, fill = 'white', ...rest }) => {
       <path
         d='M0.832764 1.33276L24.1673 24.6673'
         stroke='#778DA3'
-        stroke-width='2'
+        strokeWidth='2'
       />
       <path
         d='M0.832764 24.6673L24.1673 1.3328'
         stroke='#778DA3'
-        stroke-width='2'
+        strokeWidth='2'
       />
     </svg>
   )

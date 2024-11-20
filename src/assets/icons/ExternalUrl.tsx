@@ -13,7 +13,7 @@ const ExternalUrl = ({ width = 40, height = 40, fill = 'black', ...rest }) => {
       <path
         d='M19.1699 11.6226H15.4812C12.7198 11.6226 10.4812 13.8611 10.4812 16.6226V24C10.4812 26.7614 12.7198 29 15.4812 29H22.8586C25.6201 29 27.8586 26.7614 27.8586 24V20.3113'
         stroke={fill}
-        stroke-width='2'
+        strokeWidth='2'
       />
       <mask id='path-2-inside-1_883_418' fill='white'>
         <path
