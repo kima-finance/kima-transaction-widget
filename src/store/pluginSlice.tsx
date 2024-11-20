@@ -2,7 +2,7 @@ import { createSlice, PayloadAction, Reducer } from '@reduxjs/toolkit'
 
 // Define the PluginProviderProps interface
 interface PluginProviderProps {
-  networkOption: string
+  networkOption: 'testnet' | 'mainnet'
   walletConnectProjectId: string
   children: React.ReactNode
 }
