@@ -1,6 +1,6 @@
 // plugins/solana/index.tsx
 import React from 'react' // Import React explicitly
-import store from '@store/store'
+import { store } from '@store/index'
 import { registerPlugin } from '@store/pluginSlice'
 import { registerPluginProvider } from '@pluginRegistry' // Import the pluginRegistry functions
 import WalletProvider from '@plugins/solana/features/walletConnect/WalletProvider'
