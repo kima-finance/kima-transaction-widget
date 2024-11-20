@@ -1,6 +1,6 @@
 import React, { ReactNode, useMemo } from 'react'
 import { Provider, useSelector } from 'react-redux'
-import store from '@store/store'
+import { store } from '@store/index'
 import { selectAllPlugins } from '@store/pluginSlice'
 import { getPluginProvider } from '@pluginRegistry' // Import the plugin registry
 
