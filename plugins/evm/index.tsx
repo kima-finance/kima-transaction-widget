@@ -1,6 +1,6 @@
 // plugins/evm/index.tsx
 import React from 'react' // Explicitly import React
-import store from '@store/store'
+import { store } from '@store/index'
 import { registerPlugin } from '@store/pluginSlice'
 import { registerPluginProvider } from '@pluginRegistry' // Import the pluginRegistry functions
 import WalletProvider from '@plugins/evm/features/walletConnect/WalletProvider'
