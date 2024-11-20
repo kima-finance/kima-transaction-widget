@@ -7,7 +7,6 @@ import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { PhantomWalletAdapter, SolflareWalletAdapter, CloverWalletAdapter, Coin98WalletAdapter, SolongWalletAdapter, TorusWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { LedgerAdapter } from '@tronweb3/tronwallet-adapter-ledger';
 import { TronLinkAdapter } from '@tronweb3/tronwallet-adapter-tronlink';
-import { OkxWalletAdapter } from '@tronweb3/tronwallet-adapter-okxwallet';
 import { TokenPocketAdapter } from '@tronweb3/tronwallet-adapter-tokenpocket';
 import { useWallet as useWallet$1, WalletProvider } from '@tronweb3/tronwallet-adapter-react-hooks';
 import { AdapterState, WalletNotFoundError, WalletDisconnectedError } from '@tronweb3/tronwallet-abstract-adapter';
@@ -7297,7 +7296,7 @@ function output(out, instance) {
 exports.output = output;
 const assert = { number, bool, bytes, hash, exists, output };
 exports.default = assert;
-
+//# sourceMappingURL=_assert.js.map
 });
 
 unwrapExports(_assert);
@@ -7306,7 +7305,7 @@ var crypto = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.crypto = void 0;
 exports.crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
-
+//# sourceMappingURL=crypto.js.map
 });
 
 unwrapExports(crypto);
@@ -7508,7 +7507,7 @@ function randomBytes(bytesLength = 32) {
     throw new Error('crypto.getRandomValues must be defined');
 }
 exports.randomBytes = randomBytes;
-
+//# sourceMappingURL=utils.js.map
 });
 
 unwrapExports(utils);
@@ -7630,7 +7629,7 @@ class SHA2 extends utils.Hash {
     }
 }
 exports.SHA2 = SHA2;
-
+//# sourceMappingURL=_sha2.js.map
 });
 
 unwrapExports(_sha2);
@@ -7763,7 +7762,7 @@ class SHA224 extends SHA256 {
  */
 exports.sha256 = (0, utils.wrapConstructor)(() => new SHA256());
 exports.sha224 = (0, utils.wrapConstructor)(() => new SHA224());
-
+//# sourceMappingURL=sha256.js.map
 });
 
 unwrapExports(sha256);
@@ -12527,8 +12526,7 @@ const KimaProvider = ({
       accountNumber: 2
     });
     const tokenPocketAdapter = new TokenPocketAdapter();
-    const okxwalletAdapter = new OkxWalletAdapter();
-    return [tronLinkAdapter, tokenPocketAdapter, okxwalletAdapter, ledger];
+    return [tronLinkAdapter, tokenPocketAdapter, ledger];
   }, []);
   function onError(e) {
     if (e instanceof WalletNotFoundError) {

@@ -9,7 +9,6 @@ var SolanaAdapter = require('@solana/wallet-adapter-react');
 var walletAdapterWallets = require('@solana/wallet-adapter-wallets');
 var tronwalletAdapterLedger = require('@tronweb3/tronwallet-adapter-ledger');
 var tronwalletAdapterTronlink = require('@tronweb3/tronwallet-adapter-tronlink');
-var tronwalletAdapterOkxwallet = require('@tronweb3/tronwallet-adapter-okxwallet');
 var tronwalletAdapterTokenpocket = require('@tronweb3/tronwallet-adapter-tokenpocket');
 var tronwalletAdapterReactHooks = require('@tronweb3/tronwallet-adapter-react-hooks');
 var tronwalletAbstractAdapter = require('@tronweb3/tronwallet-abstract-adapter');
@@ -7964,7 +7963,7 @@ function output(out, instance) {
 exports.output = output;
 const assert = { number, bool, bytes, hash, exists, output };
 exports.default = assert;
-
+//# sourceMappingURL=_assert.js.map
 });
 
 unwrapExports(_assert);
@@ -7973,7 +7972,7 @@ var crypto = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.crypto = void 0;
 exports.crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
-
+//# sourceMappingURL=crypto.js.map
 });
 
 unwrapExports(crypto);
@@ -8175,7 +8174,7 @@ function randomBytes(bytesLength = 32) {
     throw new Error('crypto.getRandomValues must be defined');
 }
 exports.randomBytes = randomBytes;
-
+//# sourceMappingURL=utils.js.map
 });
 
 unwrapExports(utils);
@@ -8297,7 +8296,7 @@ class SHA2 extends utils.Hash {
     }
 }
 exports.SHA2 = SHA2;
-
+//# sourceMappingURL=_sha2.js.map
 });
 
 unwrapExports(_sha2);
@@ -8430,7 +8429,7 @@ class SHA224 extends SHA256 {
  */
 exports.sha256 = (0, utils.wrapConstructor)(() => new SHA256());
 exports.sha224 = (0, utils.wrapConstructor)(() => new SHA224());
-
+//# sourceMappingURL=sha256.js.map
 });
 
 unwrapExports(sha256);
@@ -13349,8 +13348,7 @@ var KimaProvider = function KimaProvider(_ref) {
       accountNumber: 2
     });
     var tokenPocketAdapter = new tronwalletAdapterTokenpocket.TokenPocketAdapter();
-    var okxwalletAdapter = new tronwalletAdapterOkxwallet.OkxWalletAdapter();
-    return [tronLinkAdapter, tokenPocketAdapter, okxwalletAdapter, ledger];
+    return [tronLinkAdapter, tokenPocketAdapter, ledger];
   }, []);
   function onError(e) {
     if (e instanceof tronwalletAbstractAdapter.WalletNotFoundError) {
