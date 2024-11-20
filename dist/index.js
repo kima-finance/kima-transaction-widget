@@ -9,7 +9,6 @@ var SolanaAdapter = require('@solana/wallet-adapter-react');
 var walletAdapterWallets = require('@solana/wallet-adapter-wallets');
 var tronwalletAdapterLedger = require('@tronweb3/tronwallet-adapter-ledger');
 var tronwalletAdapterTronlink = require('@tronweb3/tronwallet-adapter-tronlink');
-var tronwalletAdapterTokenpocket = require('@tronweb3/tronwallet-adapter-tokenpocket');
 var tronwalletAdapterReactHooks = require('@tronweb3/tronwallet-adapter-react-hooks');
 var tronwalletAbstractAdapter = require('@tronweb3/tronwallet-abstract-adapter');
 var toast = require('react-hot-toast');
@@ -13347,8 +13346,7 @@ var KimaProvider = function KimaProvider(_ref) {
     var ledger = new tronwalletAdapterLedger.LedgerAdapter({
       accountNumber: 2
     });
-    var tokenPocketAdapter = new tronwalletAdapterTokenpocket.TokenPocketAdapter();
-    return [tronLinkAdapter, tokenPocketAdapter, ledger];
+    return [tronLinkAdapter, ledger];
   }, []);
   function onError(e) {
     if (e instanceof tronwalletAbstractAdapter.WalletNotFoundError) {
