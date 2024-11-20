@@ -7,7 +7,6 @@ import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { PhantomWalletAdapter, SolflareWalletAdapter, CloverWalletAdapter, Coin98WalletAdapter, SolongWalletAdapter, TorusWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { LedgerAdapter } from '@tronweb3/tronwallet-adapter-ledger';
 import { TronLinkAdapter } from '@tronweb3/tronwallet-adapter-tronlink';
-import { TokenPocketAdapter } from '@tronweb3/tronwallet-adapter-tokenpocket';
 import { useWallet as useWallet$1, WalletProvider } from '@tronweb3/tronwallet-adapter-react-hooks';
 import { AdapterState, WalletNotFoundError, WalletDisconnectedError } from '@tronweb3/tronwallet-abstract-adapter';
 import toast, { toast as toast$1, Toaster } from 'react-hot-toast';
@@ -12525,8 +12524,7 @@ const KimaProvider = ({
     const ledger = new LedgerAdapter({
       accountNumber: 2
     });
-    const tokenPocketAdapter = new TokenPocketAdapter();
-    return [tronLinkAdapter, tokenPocketAdapter, ledger];
+    return [tronLinkAdapter, ledger];
   }, []);
   function onError(e) {
     if (e instanceof WalletNotFoundError) {

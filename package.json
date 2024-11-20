@@ -1,6 +1,6 @@
 {
   "name": "@kimafinance/kima-transaction-widget",
-  "version": "1.2.74-beta.1",
+  "version": "1.2.75-beta.1",
   "description": "Kima Transaction Widget",
   "author": "",
   "license": "MIT",
@@ -96,7 +96,6 @@
     "@tronweb3/tronwallet-abstract-adapter": "^1.1.8",
     "@tronweb3/tronwallet-adapter-ledger": "^1.1.10",
     "@tronweb3/tronwallet-adapter-react-hooks": "^1.1.9",
-    "@tronweb3/tronwallet-adapter-tokenpocket": "^1.0.5",
     "@tronweb3/tronwallet-adapter-tronlink": "^1.1.11",
     "@tronweb3/tronwallet-adapter-walletconnect": "^2.0.2",
     "@types/bn.js": "^5.1.1",
