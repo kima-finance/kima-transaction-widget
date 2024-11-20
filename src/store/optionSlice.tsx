@@ -1,7 +1,6 @@
 import * as toolkitRaw from '@reduxjs/toolkit'
 import { PayloadAction } from '@reduxjs/toolkit'
 const { createSlice } = toolkitRaw
-// import { WalletName } from '@solana/wallet-adapter-base'
 import {
   DAppOptions,
   ModeOptions,
@@ -139,23 +138,7 @@ export const optionSlice = createSlice({
   initialState,
   reducers: {
     initialize: (state) => {
-      state.submitted = false
-      state.txId = -1
-      state.serviceFee = -1
-      state.amount = ''
-      state.targetAddress = ''
-      state.compliantOption = true
-      state.sourceCompliant = 'low'
-      state.targetCompliant = 'low'
-      ;(state.bitcoinAddress = ''), (state.useFIAT = false)
-      ;(state.tokenOptions = {}),
-        (state.bankDetails = {
-          iban: '',
-          recipient: ''
-        })
-      state.initChainFromProvider = false
-      state.targetNetworkFetching = false
-      state.signature = ''
+      Object.assign(state, initialState) // Reset the state to initial
     },
     setNetworkOption: (state, action: PayloadAction<NetworkOptions>) => {
       state.networkOption = action.payload
