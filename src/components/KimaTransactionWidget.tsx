@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { useDispatch /*, useSelector*/ } from 'react-redux'
+import { useDispatch /*useSelector*/ } from 'react-redux'
 import {
   TransactionOption,
   ThemeOptions,
@@ -93,7 +93,7 @@ const KimaTransactionWidget = ({
   transactionOption,
   kimaBackendUrl,
   kimaNodeProviderQuery,
-  kimaExplorer = 'https://explorer.kima.network',
+  kimaExplorer = 'https://explorer.kima.finance',
   //feeURL = 'https://fee.kima.finance',
   kimaGraphqlProviderQuery = 'https://graphql.kima.finance/v1/graphql',
   errorHandler = () => void 0,
