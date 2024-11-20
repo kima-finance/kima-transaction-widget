@@ -993,7 +993,7 @@
   align-items: flex-start;
 }
 .kima-card .kima-card-content .single-form .form-item.wallet-button-item.connected button {
-  padding: 0 16px;
+  padding: 0 9px;
 }
 @media (min-width: 585xp) {
   .kima-card .kima-card-content .single-form .form-item.wallet-button-item.connected button {

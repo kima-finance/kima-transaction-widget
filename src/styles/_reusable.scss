@@ -741,7 +741,7 @@
             align-items: flex-start;
 
             button {
-              padding: 0 16px;
+              padding: 0 9px;
 
               @include breakpoint('min-width: 585xp') {
                 width: 220px;
