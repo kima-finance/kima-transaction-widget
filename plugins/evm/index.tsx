@@ -1,26 +1,42 @@
 // plugins/evm/index.tsx
-import React, { ReactNode } from 'react'
+import React from 'react' // Explicitly import React
 import store from '@store/store'
 import { registerPlugin } from '@store/pluginSlice'
+import { registerPluginProvider } from '@pluginRegistry' // Import the pluginRegistry functions
 import WalletProvider from '@plugins/evm/features/walletConnect/WalletProvider'
 
-// Reuse WalletProviderProps for consistency
-import type { WalletProviderProps } from '@plugins/evm/features/walletConnect/WalletProvider'
+// Define the type for the provider props
+interface PluginProviderProps {
+  children: React.ReactNode
+  walletConnectProjectId: string
+  networkOption: 'testnet' | 'mainnet'
+}
 
-const EVMPlugin = {
-  id: 'evm',
-  provider: ({
+// Register the provider function in the pluginRegistry
+registerPluginProvider(
+  'evm',
+  ({
     children,
     walletConnectProjectId,
     networkOption
-  }: WalletProviderProps) => (
-    <WalletProvider {...{ walletConnectProjectId, networkOption }}>
+  }: PluginProviderProps) => (
+    <WalletProvider
+      networkOption={networkOption}
+      walletConnectProjectId={walletConnectProjectId}
+    >
       {children}
     </WalletProvider>
   )
+)
+
+// Define the EVM plugin metadata (serializable)
+const EVMPlugin = {
+  id: 'evm'
 }
 
+// Register EVM plugin in the Redux store with serializable data
 store.dispatch(registerPlugin(EVMPlugin))
-console.info('Evm registerPlugin activating.')
+
+console.info('EVM plugin registered.')
 
 export default EVMPlugin
