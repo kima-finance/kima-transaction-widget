@@ -13,7 +13,6 @@ import {
 } from '@solana/wallet-adapter-wallets'
 import { LedgerAdapter } from '@tronweb3/tronwallet-adapter-ledger'
 import { TronLinkAdapter } from '@tronweb3/tronwallet-adapter-tronlink'
-import { OkxWalletAdapter } from '@tronweb3/tronwallet-adapter-okxwallet'
 import { TokenPocketAdapter } from '@tronweb3/tronwallet-adapter-tokenpocket'
 import { WalletProvider as TronWalletProvider } from '@tronweb3/tronwallet-adapter-react-hooks'
 import {
@@ -189,9 +188,8 @@ export const KimaProvider = ({
       accountNumber: 2
     })
     const tokenPocketAdapter = new TokenPocketAdapter()
-    const okxwalletAdapter = new OkxWalletAdapter()
 
-    return [tronLinkAdapter, tokenPocketAdapter, okxwalletAdapter, ledger]
+    return [tronLinkAdapter, tokenPocketAdapter, ledger]
   }, [])
 
   function onError(e: WalletError) {
