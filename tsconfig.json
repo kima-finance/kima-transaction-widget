@@ -23,7 +23,8 @@
       "@plugins/*": ["./plugins/*"],
       "@store/*": ["./src/store/*"],
       "@assets/*": ["./src/assets/*"],
-      "@pluginRegistry": ["./src/pluginRegistry.ts"]
+      "@pluginRegistry": ["./src/pluginRegistry.ts"],
+      "@css": ["./src/index.css"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],  // Include all TypeScript files
