@@ -1377,6 +1377,12 @@
   overflow: hidden;
   box-sizing: content-box;
 }
+.kima-card .kima-modal .modal-content-container.account-details {
+  width: 20em;
+  height: -moz-fit-content;
+  height: fit-content;
+  padding: 2em;
+}
 .kima-card .kima-modal .modal-content-container .kima-card-footer {
   flex-direction: row;
 }
@@ -1410,6 +1416,47 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.kima-card .kima-modal .modal-content.account {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2em;
+  padding: 2em 0;
+}
+.kima-card .kima-modal .modal-content.account h2 {
+  font-size: 1.5em;
+  margin: 0;
+}
+.kima-card .kima-modal .modal-content.account h3 {
+  font-size: 1em;
+  margin: 0;
+}
+.kima-card .kima-modal .modal-content.account .summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.kima-card .kima-modal .modal-content.account .summary .address {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+}
+.kima-card .kima-modal .modal-content.account .block-explorer.secondary-button {
+  width: -moz-fit-content;
+  width: fit-content;
+  padding: 0 1em;
+}
+.kima-card .kima-modal .modal-content.account .block-explorer.secondary-button a {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5em;
+  align-items: center;
+  text-decoration: none;
+}
+.kima-card .kima-modal .modal-content.account .block-explorer.secondary-button a p {
+  margin: 0;
 }
 .kima-card .kima-modal .modal-content .wallet-select {
   width: 100%;

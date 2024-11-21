@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import * as toolkitRaw from '@reduxjs/toolkit';
-import { clusterApiUrl, TransactionInstruction, SystemProgram, SYSVAR_RENT_PUBKEY, PublicKey, Transaction } from '@solana/web3.js';
+import { clusterApiUrl, TransactionInstruction, SystemProgram, SYSVAR_RENT_PUBKEY, PublicKey, Transaction, Connection, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { useSelector, useDispatch, Provider } from 'react-redux';
 import * as SolanaAdapter from '@solana/wallet-adapter-react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
@@ -711,6 +711,59 @@ const BTC = ({
   }));
 };
 
+const Explorer = ({
+  width: _width = 40,
+  height: _height = 40,
+  fill: _fill = 'black',
+  ...rest
+}) => {
+  return React.createElement("svg", Object.assign({
+    width: '21',
+    height: '24',
+    viewBox: '0 0 21 24',
+    fill: 'none',
+    xmlns: 'http://www.w3.org/2000/svg'
+  }, rest), React.createElement("path", {
+    d: 'M9.6 0.239388C10.1 -0.0606123 10.6 -0.0606123 11.1 0.139388L11.2 0.239388L20 5.23939C20.5 5.53939 20.8 6.03939 20.8 6.53939V16.6394C20.8 17.1394 20.5 17.7394 20.1 18.0394L20 18.1394L11.2 23.1394C10.7 23.4394 10.2 23.4394 9.7 23.2394L9.6 23.1394L0.8 18.1394C0.3 17.8394 0 17.3394 0 16.8394V6.73939C0 6.23939 0.3 5.63939 0.7 5.33939L0.8 5.23939L9.6 0.239388ZM19 7.83939L11.3 12.9394V20.9394L19 16.5394V7.83939ZM1.8 7.83939V16.6394L9.5 21.0394V13.0394L1.8 7.83939ZM10.4 1.93939L2.8 6.23939L10.4 11.3394L18 6.23939L10.4 1.93939Z',
+    fill: _fill
+  }));
+};
+
+const ExternalUrl = ({
+  width: _width = 40,
+  height: _height = 40,
+  fill: _fill = 'black',
+  ...rest
+}) => {
+  return React.createElement("svg", Object.assign({
+    width: '40',
+    height: '40',
+    viewBox: '0 0 40 40',
+    fill: 'none',
+    xmlns: 'http://www.w3.org/2000/svg'
+  }, rest), React.createElement("path", {
+    d: 'M19.1699 11.6226H15.4812C12.7198 11.6226 10.4812 13.8611 10.4812 16.6226V24C10.4812 26.7614 12.7198 29 15.4812 29H22.8586C25.6201 29 27.8586 26.7614 27.8586 24V20.3113',
+    stroke: _fill,
+    "stroke-width": '2'
+  }), React.createElement("mask", {
+    id: 'path-2-inside-1_883_418',
+    fill: 'white'
+  }, React.createElement("path", {
+    "fill-rule": 'evenodd',
+    "clip-rule": 'evenodd',
+    d: 'M30.4872 9.53075C30.5107 9.22503 30.2561 8.97036 29.9503 8.99388L22.9271 9.53412C22.5012 9.56689 22.3099 10.0841 22.6119 10.3862L24.616 12.3902C24.8112 12.5855 24.8112 12.9021 24.616 13.0973L18.9543 18.7591C18.4661 19.2472 18.4661 20.0387 18.9543 20.5268C19.4424 21.015 20.2339 21.015 20.722 20.5268L26.3837 14.8651C26.579 14.6698 26.8956 14.6698 27.0908 14.8651L29.0949 16.8692C29.3969 17.1712 29.9142 16.9799 29.947 16.5539L30.4872 9.53075Z'
+  })), React.createElement("path", {
+    "fill-rule": 'evenodd',
+    "clip-rule": 'evenodd',
+    d: 'M30.4872 9.53075C30.5107 9.22503 30.2561 8.97036 29.9503 8.99388L22.9271 9.53412C22.5012 9.56689 22.3099 10.0841 22.6119 10.3862L24.616 12.3902C24.8112 12.5855 24.8112 12.9021 24.616 13.0973L18.9543 18.7591C18.4661 19.2472 18.4661 20.0387 18.9543 20.5268C19.4424 21.015 20.2339 21.015 20.722 20.5268L26.3837 14.8651C26.579 14.6698 26.8956 14.6698 27.0908 14.8651L29.0949 16.8692C29.3969 17.1712 29.9142 16.9799 29.947 16.5539L30.4872 9.53075Z',
+    fill: _fill
+  }), React.createElement("path", {
+    d: 'M18.9543 18.7591L18.2471 18.0519L18.9543 18.7591ZM18.9543 20.5268L18.2471 21.2339L18.9543 20.5268ZM20.722 20.5268L20.0149 19.8197L20.722 20.5268ZM29.0949 16.8692L29.802 16.162L29.0949 16.8692ZM24.616 12.3902L23.9089 13.0973L24.616 12.3902ZM26.3837 14.8651L25.6766 14.158L26.3837 14.8651ZM27.0908 14.8651L27.7979 14.158L27.0908 14.8651ZM30.4872 9.53075L29.4902 9.45406L30.4872 9.53075ZM22.6119 10.3862L21.9048 11.0933L22.6119 10.3862ZM23.0038 10.5312L30.027 9.99093L29.8736 7.99682L22.8505 8.53707L23.0038 10.5312ZM25.3231 11.6831L23.319 9.6791L21.9048 11.0933L23.9089 13.0973L25.3231 11.6831ZM19.6614 19.4662L25.3231 13.8044L23.9089 12.3902L18.2471 18.0519L19.6614 19.4662ZM19.6614 19.8197C19.5637 19.7221 19.5637 19.5638 19.6614 19.4662L18.2471 18.0519C17.3685 18.9306 17.3685 20.3552 18.2471 21.2339L19.6614 19.8197ZM20.0149 19.8197C19.9173 19.9173 19.759 19.9173 19.6614 19.8197L18.2471 21.2339C19.1258 22.1126 20.5504 22.1126 21.4291 21.2339L20.0149 19.8197ZM25.6766 14.158L20.0149 19.8197L21.4291 21.2339L27.0908 15.5722L25.6766 14.158ZM29.802 16.162L27.7979 14.158L26.3837 15.5722L28.3878 17.5763L29.802 16.162ZM29.4902 9.45406L28.9499 16.4772L30.944 16.6306L31.4843 9.60745L29.4902 9.45406ZM28.3878 17.5763C29.294 18.4824 30.8457 17.9084 30.944 16.6306L28.9499 16.4772C28.9827 16.0513 29.4999 15.86 29.802 16.162L28.3878 17.5763ZM23.9089 13.0973C23.7136 12.9021 23.7136 12.5855 23.9089 12.3902L25.3231 13.8044C25.9089 13.2187 25.9089 12.2689 25.3231 11.6831L23.9089 13.0973ZM27.0908 15.5722C26.8956 15.7675 26.579 15.7675 26.3837 15.5722L27.7979 14.158C27.2122 13.5722 26.2624 13.5722 25.6766 14.158L27.0908 15.5722ZM30.027 9.99093C29.7213 10.0145 29.4666 9.75978 29.4902 9.45406L31.4843 9.60745C31.5548 8.69029 30.7908 7.92627 29.8736 7.99682L30.027 9.99093ZM22.8505 8.53707C21.5727 8.63536 20.9987 10.1871 21.9048 11.0933L23.319 9.6791C23.6211 9.98116 23.4298 10.4984 23.0038 10.5312L22.8505 8.53707Z',
+    fill: _fill,
+    mask: 'url(#path-2-inside-1_883_418)'
+  }));
+};
+
 var ChainName;
 (function (ChainName) {
   ChainName["ETHEREUM"] = "ETH";
@@ -977,6 +1030,7 @@ const initialState = {
   bitcoinPubkey: '',
   solanaConnectModal: false,
   tronConnectModal: false,
+  accountDetailsModal: false,
   helpPopup: false,
   hashPopup: false,
   pendingTxPopup: false,
@@ -1075,6 +1129,9 @@ const optionSlice = createSlice({
     },
     setTronConnectModal: (state, action) => {
       state.tronConnectModal = action.payload;
+    },
+    setAccountDetailsModal: (state, action) => {
+      state.accountDetailsModal = action.payload;
     },
     setHelpPopup: (state, action) => {
       state.helpPopup = action.payload;
@@ -1202,6 +1259,7 @@ const {
   setBitcoinPubkey,
   setSolanaConnectModal,
   setTronConnectModal,
+  setAccountDetailsModal,
   setHelpPopup,
   setHashPopup,
   setPendingTxPopup,
@@ -1267,9 +1325,9 @@ const selectBitcoinAddress = state => state.option.bitcoinAddress;
 const selectBitcoinPubkey = state => state.option.bitcoinPubkey;
 const selectSolanaConnectModal = state => state.option.solanaConnectModal;
 const selectTronConnectModal = state => state.option.tronConnectModal;
+const selectAccountDetailsModal = state => state.option.accountDetailsModal;
 const selectPendingTxPopup = state => state.option.pendingTxPopup;
 const selectBankPopup = state => state.option.bankPopup;
-const selectSolanaProvider = state => state.option.solanaProvider;
 const selectTronProvider = state => state.option.tronProvider;
 const selectDappOption = state => state.option.dAppOption;
 const selectWalletAutoConnect = state => state.option.walletAutoConnect;
@@ -1514,9 +1572,12 @@ function useNetworkOptions() {
 
 const SolanaWalletSelect = () => {
   const theme = useSelector(selectTheme);
-  const selectedProvider = useSelector(selectSolanaProvider);
   const sliderRef = useRef();
-  const dispatch = useDispatch();
+  const {
+    wallet: selectedWallet,
+    select
+  } = useWallet();
+  console.log('selectedWallet: ', selectedWallet);
   const {
     wallets
   } = useWallet();
@@ -1532,6 +1593,10 @@ const SolanaWalletSelect = () => {
     }
     return [detected, undetected];
   }, [wallets]);
+  const handleWalletClick = useCallback((event, walletName) => {
+    select(walletName);
+    console.log(event);
+  }, [select]);
   useEffect(() => {
     var _sliderRef$current, _sliderRef$current5, _sliderRef$current6, _sliderRef$current7;
     let isDown = false;
@@ -1590,8 +1655,8 @@ const SolanaWalletSelect = () => {
   }, React.createElement("div", {
     className: 'wallet-container'
   }, detected.map((wallet, index) => React.createElement("div", {
-    className: `card-item ${theme.colorMode} ${wallet.adapter.name === selectedProvider ? 'active' : ''}`,
-    onClick: () => dispatch(setSolanaProvider(wallet.adapter.name)),
+    className: `card-item ${theme.colorMode} ${selectedWallet && wallet.adapter.name === selectedWallet.adapter.name ? 'active' : ''}`,
+    onClick: event => handleWalletClick(event, wallet.adapter.name),
     key: `${wallet.adapter.name}-${index}`
   }, React.createElement("img", {
     src: wallet.adapter.icon,
@@ -2297,9 +2362,12 @@ const WalletButton = ({
   const {
     open
   } = useWeb3Modal();
+  const {
+    connected: isSolanaConnected
+  } = useWallet();
   const handleClick = () => {
     if (selectedNetwork === ChainName.SOLANA) {
-      dispatch(setSolanaConnectModal(true));
+      isSolanaConnected ? dispatch(setAccountDetailsModal(true)) : dispatch(setSolanaConnectModal(true));
       return;
     }
     if (selectedNetwork === ChainName.TRON) {
@@ -7019,21 +7087,119 @@ function useAllowance({
   }), [isApproved, poolAddress, approve, allowance]);
 }
 
+function useGetSolBalance() {
+  const networkOption = useSelector(selectNetworkOption);
+  const [solBalance, setSolBalance] = useState(0);
+  const {
+    publicKey
+  } = useWallet();
+  const cluster = useMemo(() => networkOption === 'testnet' ? 'devnet' : 'mainnet-beta', [networkOption]);
+  const connection = useMemo(() => new Connection(clusterApiUrl(cluster), 'confirmed'), [cluster]);
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (publicKey) {
+        try {
+          const balance = (await connection.getBalance(publicKey)) / LAMPORTS_PER_SOL;
+          console.log('SOL balance:', balance);
+          setSolBalance(balance);
+        } catch (error) {
+          console.error('Error fetching SOL balance:', error);
+        }
+      }
+    };
+    fetchBalance();
+    const intervalId = setInterval(fetchBalance, 10000);
+    return () => clearInterval(intervalId);
+  }, [publicKey, connection]);
+  return solBalance;
+}
+
+const AccountDetailsModal = ({
+  chain
+}) => {
+  const dispatch = useDispatch();
+  const theme = useSelector(selectTheme);
+  const networkOption = useSelector(selectNetworkOption);
+  const accountDetailsModal = useSelector(selectAccountDetailsModal);
+  const {
+    walletAddress
+  } = useIsWalletReady();
+  const {
+    disconnect: solanaWalletDisconnect
+  } = useWallet();
+  const solBalance = useGetSolBalance();
+  const networkDetails = useMemo(() => networkOptions.find(({
+    id
+  }) => id === chain), [chain]);
+  const explorerUrl = useMemo(() => {
+    const baseUrl = networkOption === 'testnet' ? CHAIN_NAMES_TO_EXPLORER_TESTNET[chain] : CHAIN_NAMES_TO_EXPLORER_MAINNET[chain];
+    const mainUrlParams = `${chain === 'SOL' ? 'account' : '#/address'}/${walletAddress}`;
+    const urlSufix = `${chain === 'SOL' ? `?cluster=${networkOption === 'testnet' ? 'devnet' : 'mainnet'}` : ''}`;
+    return `https://${baseUrl}/${mainUrlParams}${urlSufix}`;
+  }, [walletAddress, networkOption, chain]);
+  const handleDisconnect = () => {
+    chain === 'SOL' ? solanaWalletDisconnect() : console.log('tron disconnect...');
+    dispatch(setAccountDetailsModal(false));
+  };
+  return React.createElement("div", {
+    className: `kima-modal ${theme.colorMode} ${accountDetailsModal && 'open'}`
+  }, React.createElement("div", {
+    className: 'modal-overlay'
+  }), React.createElement("div", {
+    className: 'modal-content-container account-details'
+  }, React.createElement("div", {
+    className: 'kima-card-header'
+  }, React.createElement("div", {
+    className: 'topbar'
+  }, React.createElement("div", {
+    className: 'title'
+  }, React.createElement("h3", null, "Account Details")), React.createElement("div", {
+    className: 'control-buttons'
+  }, React.createElement("button", {
+    className: 'icon-button',
+    onClick: () => dispatch(setAccountDetailsModal(false))
+  }, React.createElement(Cross, {
+    fill: theme.colorMode === 'light' ? 'black' : 'white'
+  }))))), React.createElement("div", {
+    className: 'modal-content account'
+  }, React.createElement("div", {
+    className: 'summary'
+  }, networkDetails && React.createElement(networkDetails.icon, {
+    width: 60,
+    height: 60
+  }), React.createElement("div", {
+    className: 'address'
+  }, React.createElement("h2", null, getShortenedAddress(walletAddress || '')), React.createElement(CopyButton, {
+    text: walletAddress
+  })), React.createElement("h3", null, chain === 'SOL' ? solBalance : 0, " ", chain)), React.createElement(SecondaryButton, {
+    className: 'block-explorer'
+  }, React.createElement(ExternalLink, {
+    className: 'link',
+    to: explorerUrl
+  }, React.createElement(Explorer, null), React.createElement("p", null, "Block explorer"), React.createElement(ExternalUrl, null))), React.createElement(PrimaryButton, {
+    clickHandler: handleDisconnect
+  }, "Discconect"))));
+};
+
 const SolanaWalletConnectModal = () => {
   const dispatch = useDispatch();
   const theme = useSelector(selectTheme);
   const connectModal = useSelector(selectSolanaConnectModal);
-  const selectedProvider = useSelector(selectSolanaProvider);
   const {
-    select,
-    connect
+    connect,
+    connected
   } = useWallet();
-  const handleConnect = () => {
-    select(selectedProvider);
-    connect();
+  const handleConnectButtonClick = useCallback(() => {
+    if (connected) return;
+    connect().catch(e => {
+      console.error('error on connecting: ', e);
+      dispatch(setSolanaConnectModal(false));
+    });
     dispatch(setSolanaConnectModal(false));
-  };
-  return React.createElement("div", {
+  }, [connect]);
+  return React.createElement("div", null, React.createElement(AccountDetailsModal, {
+    chain: 'SOL'
+  }), React.createElement("div", {
     className: `kima-modal wallet-connect ${theme.colorMode} ${connectModal ? 'open' : ''}`
   }, React.createElement("div", {
     className: 'modal-overlay'
@@ -7064,8 +7230,8 @@ const SolanaWalletConnectModal = () => {
     clickHandler: () => dispatch(setSolanaConnectModal(false)),
     theme: theme.colorMode
   }, "Cancel"), React.createElement(PrimaryButton, {
-    clickHandler: handleConnect
-  }, "Connect"))));
+    clickHandler: handleConnectButtonClick
+  }, "Connect")))));
 };
 
 const TronWalletConnectModal = () => {
@@ -7295,7 +7461,7 @@ function output(out, instance) {
 exports.output = output;
 const assert = { number, bool, bytes, hash, exists, output };
 exports.default = assert;
-//# sourceMappingURL=_assert.js.map
+
 });
 
 unwrapExports(_assert);
@@ -7304,7 +7470,7 @@ var crypto = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.crypto = void 0;
 exports.crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
-//# sourceMappingURL=crypto.js.map
+
 });
 
 unwrapExports(crypto);
@@ -7506,7 +7672,7 @@ function randomBytes(bytesLength = 32) {
     throw new Error('crypto.getRandomValues must be defined');
 }
 exports.randomBytes = randomBytes;
-//# sourceMappingURL=utils.js.map
+
 });
 
 unwrapExports(utils);
@@ -7628,7 +7794,7 @@ class SHA2 extends utils.Hash {
     }
 }
 exports.SHA2 = SHA2;
-//# sourceMappingURL=_sha2.js.map
+
 });
 
 unwrapExports(_sha2);
@@ -7761,7 +7927,7 @@ class SHA224 extends SHA256 {
  */
 exports.sha256 = (0, utils.wrapConstructor)(() => new SHA256());
 exports.sha224 = (0, utils.wrapConstructor)(() => new SHA224());
-//# sourceMappingURL=sha256.js.map
+
 });
 
 unwrapExports(sha256);
