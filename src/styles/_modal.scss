@@ -29,6 +29,12 @@
       overflow: hidden;
       box-sizing: content-box;
 
+      &.account-details {
+        width: 20em;
+        height: fit-content;
+        padding: 2em;
+      }
+
       .kima-card-footer {
         flex-direction: row;
       }
@@ -73,6 +79,56 @@
       display: flex;
       align-items: center;
       justify-content: center;
+
+      &.account {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 2em;
+        padding: 2em 0;
+
+        h2 {
+          font-size: 1.5em;
+          margin: 0;
+        }
+
+        h3 {
+          font-size: 1em;
+          margin: 0;
+        }
+
+        .summary {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+
+          .address {
+            display: flex;
+            align-items: center;
+            gap: 1em;
+          }
+        }
+
+        .block-explorer {
+          &.secondary-button {
+            width: fit-content;
+            padding: 0 1em;
+
+            a {
+              display: flex;
+              flex-direction: row;
+              gap: 0.5em;
+              align-items: center;
+              text-decoration: none;
+
+              p {
+                margin: 0;
+              }
+            }
+          }
+        }
+      }
 
       .wallet-select {
         width: 100%;
