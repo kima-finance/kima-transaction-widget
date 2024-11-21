@@ -26,7 +26,6 @@ import {
   SupportNetworks,
   ColorModeOptions
 } from 'kima-transaction-widget'
-import 'kima-transaction-widget/dist/index.css'
 
 const App = () => {
   return (
@@ -86,7 +85,6 @@ import {
   ModeOptions,
   ColorModeOptions
 } from 'kima-transaction-widget'
-import 'kima-transaction-widget/dist/index.css'
 
 const App = () => {
   return (
@@ -129,7 +127,6 @@ import {
   ModeOptions,
   ColorModeOptions
 } from 'kima-transaction-widget'
-import 'kima-transaction-widget/dist/index.css'
 
 const App = () => {
   return (
