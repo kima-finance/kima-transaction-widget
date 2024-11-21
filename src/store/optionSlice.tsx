@@ -35,6 +35,7 @@ export interface OptionState {
   tokenOptions: TokenOptions // token options from blockchain endpoint
   solanaConnectModal: boolean // solana wallet connection modal state - open or closed
   tronConnectModal: boolean // tron wallet connection modal state - open or closed
+  accountDetailsModal: boolean // account details with information from solana and tron wallets
   helpPopup: boolean // shows popup to show help instructions
   hashPopup: boolean // shows popup to show hashes of transactions (kima tx, pull & release hashes)
   bankPopup: boolean // shows popup to simulate bank transfer
@@ -93,6 +94,7 @@ const initialState: OptionState = {
   bitcoinPubkey: '',
   solanaConnectModal: false,
   tronConnectModal: false,
+  accountDetailsModal: false,
   helpPopup: false,
   hashPopup: false,
   pendingTxPopup: false,
@@ -193,6 +195,9 @@ export const optionSlice = createSlice({
     },
     setTronConnectModal: (state, action: PayloadAction<boolean>) => {
       state.tronConnectModal = action.payload
+    },
+    setAccountDetailsModal: (state, action: PayloadAction<boolean>) => {
+      state.accountDetailsModal = action.payload
     },
     setHelpPopup: (state, action: PayloadAction<boolean>) => {
       state.helpPopup = action.payload
@@ -321,6 +326,7 @@ export const {
   setBitcoinPubkey,
   setSolanaConnectModal,
   setTronConnectModal,
+  setAccountDetailsModal,
   setHelpPopup,
   setHashPopup,
   setPendingTxPopup,

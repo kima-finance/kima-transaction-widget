@@ -1,18 +1,18 @@
-import React, { useEffect, useMemo, useRef } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useSelector } from 'react-redux'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { WalletReadyState } from '@solana/wallet-adapter-base'
 import { ArrowIcon } from '../../assets/icons'
-import { selectSolanaProvider, selectTheme } from '../../store/selectors'
+import { selectTheme } from '../../store/selectors'
 import ExternalLink from './ExternalLink'
-import { setSolanaProvider } from '../../store/optionSlice'
 
 const SolanaWalletSelect = () => {
   const theme = useSelector(selectTheme)
-  const selectedProvider = useSelector(selectSolanaProvider)
   const sliderRef = useRef<any>()
+  const { wallet: selectedWallet, select } = useWallet()
 
-  const dispatch = useDispatch()
+  console.log('selectedWallet: ', selectedWallet)
+
   const { wallets } = useWallet()
   const [detected, undetected] = useMemo(() => {
     const detected: any[] = []
@@ -30,6 +30,13 @@ const SolanaWalletSelect = () => {
     return [detected, undetected]
   }, [wallets])
 
+  const handleWalletClick = useCallback(
+    (event: any, walletName: any) => {
+      select(walletName)
+      console.log(event)
+    },
+    [select]
+  )
   useEffect(() => {
     let isDown = false
     let startX: number
@@ -92,9 +99,12 @@ const SolanaWalletSelect = () => {
           {detected.map((wallet, index) => (
             <div
               className={`card-item ${theme.colorMode} ${
-                wallet.adapter.name === selectedProvider ? 'active' : ''
+                selectedWallet &&
+                wallet.adapter.name === selectedWallet.adapter.name
+                  ? 'active'
+                  : ''
               }`}
-              onClick={() => dispatch(setSolanaProvider(wallet.adapter.name))}
+              onClick={(event) => handleWalletClick(event, wallet.adapter.name)}
               key={`${wallet.adapter.name}-${index}`}
             >
               <img src={wallet.adapter.icon} alt={wallet.adapter.name} />

@@ -10,6 +10,7 @@ export declare const selectBitcoinAddress: (state: RootState) => any;
 export declare const selectBitcoinPubkey: (state: RootState) => any;
 export declare const selectSolanaConnectModal: (state: RootState) => any;
 export declare const selectTronConnectModal: (state: RootState) => any;
+export declare const selectAccountDetailsModal: (state: RootState) => any;
 export declare const selectHelpPopup: (state: RootState) => any;
 export declare const selectHashPopup: (state: RootState) => any;
 export declare const selectPendingTxPopup: (state: RootState) => any;
