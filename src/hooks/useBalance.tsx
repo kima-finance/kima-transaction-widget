@@ -117,29 +117,45 @@ export default function useBalance() {
       try {
         if (!isEVMChain(sourceChain)) {
           if (sourceChain === ChainName.SOLANA && solanaAddress && connection) {
-            const mint = new PublicKey(tokenAddress)
-            const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
-              connection,
-              solanaAddress as PublicKey,
-              mint,
-              solanaAddress as PublicKey,
-              signTransaction /* as SignerWalletAdapterProps['signTransaction']*/
-            )
+            const { rpcEndpoint } = connection
 
-            const accountInfo = await connection.getParsedAccountInfo(
-              fromTokenAccount.address
-            )
-
-            const parsedAccountInfo = accountInfo?.value
-              ?.data as ParsedAccountData
-
-            setBalance(
-              +formatUnits(
-                parsedAccountInfo.parsed?.info?.tokenAmount?.amount,
-                parsedAccountInfo.parsed?.info?.tokenAmount?.decimals
+            if (
+              networkOption === NetworkOptions.testnet &&
+              rpcEndpoint !== 'https://api.mainnet-beta.solana.com/'
+            ) {
+              const mint = new PublicKey(tokenAddress)
+              const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
+                connection,
+                solanaAddress as PublicKey,
+                mint,
+                solanaAddress as PublicKey,
+                signTransaction /* as SignerWalletAdapterProps['signTransaction']*/
               )
+
+              const accountInfo = await connection.getParsedAccountInfo(
+                fromTokenAccount.address
+              )
+
+              const parsedAccountInfo = accountInfo?.value
+                ?.data as ParsedAccountData
+
+              setBalance(
+                +formatUnits(
+                  parsedAccountInfo.parsed?.info?.tokenAmount?.amount,
+                  parsedAccountInfo.parsed?.info?.tokenAmount?.decimals
+                )
+              )
+              return
+            }
+
+            // mainnet case, fetch from backend to avoid rpc blockage
+            const balanceInfo: any = await fetchWrapper.get(
+              `${kimaBackendUrl}/sol/balances/${tokenAddress}/${solanaAddress.toBase58()}`
             )
-            return
+
+            const { amount, decimals } = balanceInfo
+
+            setBalance(+formatUnits(amount, decimals))
           }
 
           if (sourceChain === ChainName.TRON && tronAddress) {

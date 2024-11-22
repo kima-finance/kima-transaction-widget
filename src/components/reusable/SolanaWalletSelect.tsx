@@ -11,8 +11,6 @@ const SolanaWalletSelect = () => {
   const sliderRef = useRef<any>()
   const { wallet: selectedWallet, select } = useWallet()
 
-  console.log('selectedWallet: ', selectedWallet)
-
   const { wallets } = useWallet()
   const [detected, undetected] = useMemo(() => {
     const detected: any[] = []

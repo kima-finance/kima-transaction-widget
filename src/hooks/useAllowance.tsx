@@ -26,7 +26,8 @@ import {
   selectTokenOptions,
   selectTargetChain,
   selectFeeDeduct,
-  selectNetworkOption
+  selectNetworkOption,
+  selectBackendUrl
 } from '../store/selectors'
 import { getOrCreateAssociatedTokenAccount } from '../utils/solana/getOrCreateAssociatedTokenAccount'
 import { PublicKey, Transaction } from '@solana/web3.js'
@@ -76,6 +77,7 @@ export default function useAllowance({
   const { walletProvider } = useWeb3ModalProvider()
   const selectedNetwork = useSelector(selectSourceChain)
   const errorHandler = useSelector(selectErrorHandler)
+  const kimaBackendUrl = useSelector(selectBackendUrl)
   const dAppOption = useSelector(selectDappOption)
   const targetChain = useSelector(selectTargetChain)
   const feeDeduct = useSelector(selectFeeDeduct)
@@ -180,29 +182,48 @@ export default function useAllowance({
             : tronWebTestnet
         if (!isEVMChain(sourceChain)) {
           if (solanaAddress && tokenAddress && connection) {
-            const mint = new PublicKey(tokenAddress)
-            const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
-              connection,
-              solanaAddress as PublicKey,
-              mint,
-              solanaAddress as PublicKey,
-              signSolanaTransaction /* as SignerWalletAdapterProps['signTransaction']*/
-            )
+            const { rpcEndpoint } = connection
+            if (
+              networkOption === NetworkOptions.testnet &&
+              rpcEndpoint != 'https://api.mainnet-beta.solana.com/'
+            ) {
+              const mint = new PublicKey(tokenAddress)
+              const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
+                connection,
+                solanaAddress as PublicKey,
+                mint,
+                solanaAddress as PublicKey,
+                signSolanaTransaction /* as SignerWalletAdapterProps['signTransaction']*/
+              )
 
-            const accountInfo = await connection.getParsedAccountInfo(
-              fromTokenAccount.address
-            )
-            console.log('solana token account: ', accountInfo)
+              const accountInfo = await connection.getParsedAccountInfo(
+                fromTokenAccount.address
+              )
 
-            const parsedAccountInfo = accountInfo?.value
-              ?.data as ParsedAccountData
+              const parsedAccountInfo = accountInfo?.value
+                ?.data as ParsedAccountData
 
-            setDecimals(parsedAccountInfo.parsed?.info?.tokenAmount?.decimals)
-            setAllowance(
-              parsedAccountInfo.parsed?.info?.delegate === targetAddress
-                ? parsedAccountInfo.parsed?.info?.delegatedAmount?.uiAmount
-                : 0
-            )
+              setDecimals(parsedAccountInfo.parsed?.info?.tokenAmount?.decimals)
+              setAllowance(
+                parsedAccountInfo.parsed?.info?.delegate === targetAddress
+                  ? parsedAccountInfo.parsed?.info?.delegatedAmount?.uiAmount
+                  : 0
+              )
+            } else {
+              // mainnet case, request from backend to avoid rpc limits
+              const allowanceInfo: any = await fetchWrapper.get(
+                `${kimaBackendUrl}/sol/allowance/${tokenAddress}/${solanaAddress.toBase58()}`
+              )
+              const { allowance: tokenAllowance } = allowanceInfo
+
+              const balanceInfo: any = await fetchWrapper.get(
+                `${kimaBackendUrl}/sol/balances/${tokenAddress}/${solanaAddress.toBase58()}`
+              )
+              const { decimals } = balanceInfo
+              setDecimals(decimals || 0)
+
+              setAllowance(+formatUnits(tokenAllowance, decimals))
+            }
           } else if (tronAddress && tokenAddress) {
             let trc20Contract = await tronWeb.contract(
               ERC20ABI.abi,
