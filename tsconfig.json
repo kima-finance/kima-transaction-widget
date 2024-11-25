@@ -24,7 +24,8 @@
       "@store/*": ["./src/store/*"],
       "@assets/*": ["./src/assets/*"],
       "@pluginRegistry": ["./src/pluginRegistry.ts"],
-      "@css": ["./src/index.css"]
+      "@css": ["./src/index.css"],
+      "@primary": ["./src/components/primary/*"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],  // Include all TypeScript files
