@@ -277,7 +277,7 @@ export default function useAllowance({
 
           await approve.wait()
           isCancel ? setCancellingApprove(false) : setApproving(false)
-          setAllowance(+amountToShow)
+          setAllowance(isCancel ? 0 : +amountToShow)
         } catch (error) {
           errorHandler(error)
           isCancel ? setCancellingApprove(false) : setApproving(false)
@@ -324,7 +324,7 @@ export default function useAllowance({
           await tronWeb.trx.sendRawTransaction(signedTx)
 
           isCancel ? setCancellingApprove(false) : setApproving(false)
-          setAllowance(+amountToShow)
+          setAllowance(isCancel ? 0 : +amountToShow)
         } catch (error) {
           errorHandler(error)
           isCancel ? setCancellingApprove(false) : setApproving(false)
