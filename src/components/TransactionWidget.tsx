@@ -46,6 +46,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
     if (!graphqlProviderQuery || txId < 0) return
 
     const updateTxData = async () => {
+      if (data?.status === TransactionStatus.COMPLETED) return
       try {
         let data
         // let result: any

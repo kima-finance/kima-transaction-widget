@@ -31,7 +31,6 @@ import {
   setPendingTxs,
   setSourceCompliant,
   setSubmitted,
-  setTargetAddress,
   setTargetCompliant,
   setTheme,
   setTxId
@@ -175,7 +174,6 @@ export const TransferWidget = ({
 
   useEffect(() => {
     if (!walletAddress) return
-    dispatch(setTargetAddress(walletAddress))
 
     if (!compliantOption) return
     ;(async function () {

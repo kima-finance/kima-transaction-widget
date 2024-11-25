@@ -1760,6 +1760,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 20px;
+  height: 20px;
 }
 .kima-card .kima-card-content .kima-custom-checkbox .custom-checkbox-content .custom-checkbox-icon-wrapper.light {
   border-color: #4f5156;

@@ -101,7 +101,7 @@ const SingleForm = ({}) => {
             <span className='label'>Target Address:</span>
             <AddressInput
               theme={theme.colorMode as string}
-              placeholder='Input target address'
+              placeholder='Target address'
             />
           </div>
         )
