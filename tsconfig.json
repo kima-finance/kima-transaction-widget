@@ -26,7 +26,7 @@
       "@pluginRegistry": ["./src/pluginRegistry.ts"],
       "@css": ["./src/index.css"],
       "@primary": ["./src/components/primary/*"],
-      "@hooks": ["./src/hooks"]
+      "@hooks": ["./src/hooks/*"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],  // Include all TypeScript files
