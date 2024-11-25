@@ -4125,26 +4125,10 @@
     eventemitter3 "^4.0.0"
     preact "^10.11.3"
 
-"@tronweb3/tronwallet-adapter-okxwallet@^1.0.5":
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/@tronweb3/tronwallet-adapter-okxwallet/-/tronwallet-adapter-okxwallet-1.0.5.tgz#4a92fd9be8dcd1a45520d3b19cdf72661f8a242a"
-  integrity sha512-SW+Y801ntTtmyOxcuoMgEO8Ob9T5AEvrmXZX6z3ma6+LScNXQxLiDcbg6A/0OslrPKlO7fWyJI3nkasR3+KO3Q==
-  dependencies:
-    "@tronweb3/tronwallet-abstract-adapter" "^1.1.8"
-    "@tronweb3/tronwallet-adapter-tronlink" "^1.1.11"
-
 "@tronweb3/tronwallet-adapter-react-hooks@^1.1.9":
   version "1.1.9"
   resolved "https://registry.yarnpkg.com/@tronweb3/tronwallet-adapter-react-hooks/-/tronwallet-adapter-react-hooks-1.1.9.tgz#a8b9a517456a05971d28c813eb92de636f1cd38f"
   integrity sha512-IUus7pqj+Wswz2RFZ27NBAk9YzVfPU8xkpCv03XMsKQLNvhrambGQWo2Ldq9p+H4KkC0l5x7MD6uEYuux5AVLg==
-  dependencies:
-    "@tronweb3/tronwallet-abstract-adapter" "^1.1.8"
-    "@tronweb3/tronwallet-adapter-tronlink" "^1.1.11"
-
-"@tronweb3/tronwallet-adapter-tokenpocket@^1.0.5":
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/@tronweb3/tronwallet-adapter-tokenpocket/-/tronwallet-adapter-tokenpocket-1.0.5.tgz#82fa1bcf1b8a564081658d814363c3a9bb6c3f20"
-  integrity sha512-6Rrb8p+Cy4E57mbd25QjGPbLfnGilsBCcJdWx2+0eZzKsYZGcTwRBybepDbIcZHETe8ijqL+A6KPl1QWaTQ1og==
   dependencies:
     "@tronweb3/tronwallet-abstract-adapter" "^1.1.8"
     "@tronweb3/tronwallet-adapter-tronlink" "^1.1.11"
@@ -7235,6 +7219,13 @@ create-hmac@^1.1.0, create-hmac@^1.1.4, create-hmac@^1.1.7:
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
 
+cross-env@^7.0.3:
+  version "7.0.3"
+  resolved "https://registry.yarnpkg.com/cross-env/-/cross-env-7.0.3.tgz#865264b29677dc015ba8418918965dd232fc54cf"
+  integrity sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==
+  dependencies:
+    cross-spawn "^7.0.1"
+
 cross-fetch@^3.1.4:
   version "3.1.8"
   resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-3.1.8.tgz#0327eba65fd68a7d119f8fb2bf9334a1a7956f82"
@@ -7253,6 +7244,15 @@ cross-spawn@^7.0.0, cross-spawn@^7.0.2, cross-spawn@^7.0.3:
   version "7.0.3"
   resolved "https://registry.yarnpkg.com/cross-spawn/-/cross-spawn-7.0.3.tgz#f73a85b9d5d41d045551c177e2882d4ac85728a6"
   integrity sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==
+  dependencies:
+    path-key "^3.1.0"
+    shebang-command "^2.0.0"
+    which "^2.0.1"
+
+cross-spawn@^7.0.1:
+  version "7.0.6"
+  resolved "https://registry.yarnpkg.com/cross-spawn/-/cross-spawn-7.0.6.tgz#8a58fe78f00dcd70c370451759dfbfaf03e8ee9f"
+  integrity sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==
   dependencies:
     path-key "^3.1.0"
     shebang-command "^2.0.0"

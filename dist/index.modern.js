@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import * as toolkitRaw from '@reduxjs/toolkit';
-import { clusterApiUrl, TransactionInstruction, SystemProgram, SYSVAR_RENT_PUBKEY, PublicKey, Transaction, Connection, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { clusterApiUrl, TransactionInstruction, PublicKey, Transaction } from '@solana/web3.js';
 import { useSelector, useDispatch, Provider } from 'react-redux';
 import * as SolanaAdapter from '@solana/wallet-adapter-react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
@@ -15,9 +15,9 @@ import { WalletReadyState } from '@solana/wallet-adapter-base';
 import { getAddress, AddressPurpose, BitcoinNetworkType, signTransaction, sendBtcTransaction } from 'sats-connect';
 import { Contract } from '@ethersproject/contracts';
 import { formatUnits, parseUnits } from '@ethersproject/units';
-import { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, AccountLayout } from '@solana/spl-token';
 import { TronWeb } from 'tronweb';
 import { ethers, utils as utils$3 } from 'ethers';
+import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import BufferLayout from 'buffer-layout';
 import sha256$1 from 'crypto-js/sha256.js';
 import Base64 from 'crypto-js/enc-base64.js';
@@ -1577,7 +1577,6 @@ const SolanaWalletSelect = () => {
     wallet: selectedWallet,
     select
   } = useWallet();
-  console.log('selectedWallet: ', selectedWallet);
   const {
     wallets
   } = useWallet();
@@ -2126,103 +2125,6 @@ var ERC20ABI = {
 	abi: abi
 };
 
-function createAssociatedTokenAccountInstruction(payer, associatedToken, owner, mint, programId = TOKEN_PROGRAM_ID, associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID) {
-  const keys = [{
-    pubkey: payer,
-    isSigner: true,
-    isWritable: true
-  }, {
-    pubkey: associatedToken,
-    isSigner: false,
-    isWritable: true
-  }, {
-    pubkey: owner,
-    isSigner: false,
-    isWritable: false
-  }, {
-    pubkey: mint,
-    isSigner: false,
-    isWritable: false
-  }, {
-    pubkey: SystemProgram.programId,
-    isSigner: false,
-    isWritable: false
-  }, {
-    pubkey: programId,
-    isSigner: false,
-    isWritable: false
-  }, {
-    pubkey: SYSVAR_RENT_PUBKEY,
-    isSigner: false,
-    isWritable: false
-  }];
-  return new TransactionInstruction({
-    keys,
-    programId: associatedTokenProgramId,
-    data: Buffer.alloc(0)
-  });
-}
-
-var AccountState;
-(function (AccountState) {
-  AccountState[AccountState["Uninitialized"] = 0] = "Uninitialized";
-  AccountState[AccountState["Initialized"] = 1] = "Initialized";
-  AccountState[AccountState["Frozen"] = 2] = "Frozen";
-})(AccountState || (AccountState = {}));
-async function getAccountInfo(connection, address, commitment, programId = TOKEN_PROGRAM_ID) {
-  const info = await connection.getAccountInfo(address, commitment);
-  if (!info) throw new Error('TokenAccountNotFoundError');
-  if (!info.owner.equals(programId)) throw new Error('TokenInvalidAccountOwnerError');
-  if (info.data.length != AccountLayout.span) throw new Error('TokenInvalidAccountSizeError');
-  const rawAccount = AccountLayout.decode(Buffer.from(info.data));
-  return {
-    address,
-    mint: rawAccount.mint,
-    owner: rawAccount.owner,
-    amount: rawAccount.amount,
-    delegate: rawAccount.delegateOption ? rawAccount.delegate : null,
-    delegatedAmount: rawAccount.delegatedAmount,
-    isInitialized: rawAccount.state !== AccountState.Uninitialized,
-    isFrozen: rawAccount.state === AccountState.Frozen,
-    isNative: !!rawAccount.isNativeOption,
-    rentExemptReserve: rawAccount.isNativeOption ? rawAccount.isNative : null,
-    closeAuthority: rawAccount.closeAuthorityOption ? rawAccount.closeAuthority : null
-  };
-}
-
-async function getAssociatedTokenAddress(mint, owner, allowOwnerOffCurve = false, programId = TOKEN_PROGRAM_ID, associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID) {
-  if (!allowOwnerOffCurve && !PublicKey.isOnCurve(owner.toBuffer())) throw new Error('TokenOwnerOffCurveError');
-  const [address] = await PublicKey.findProgramAddress([owner.toBuffer(), programId.toBuffer(), mint.toBuffer()], associatedTokenProgramId);
-  return address;
-}
-
-async function getOrCreateAssociatedTokenAccount(connection, payer, mint, owner, signTransaction, allowOwnerOffCurve = false, commitment, programId = TOKEN_PROGRAM_ID, associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID) {
-  const associatedToken = await getAssociatedTokenAddress(mint, owner, allowOwnerOffCurve, programId, associatedTokenProgramId);
-  let account;
-  try {
-    account = await getAccountInfo(connection, associatedToken, commitment, programId);
-  } catch (error) {
-    const err = error;
-    if (err.message === 'TokenAccountNotFoundError' || err.message === 'TokenInvalidAccountOwnerError') {
-      try {
-        const transaction = new Transaction().add(createAssociatedTokenAccountInstruction(payer, associatedToken, owner, mint, programId, associatedTokenProgramId));
-        const blockHash = await connection.getRecentBlockhash();
-        transaction.feePayer = await payer;
-        transaction.recentBlockhash = await blockHash.blockhash;
-        const signed = await signTransaction(transaction);
-        const signature = await connection.sendRawTransaction(signed.serialize());
-        await connection.confirmTransaction(signature);
-      } catch (error) {}
-      account = await getAccountInfo(connection, associatedToken, commitment, programId);
-    } else {
-      throw error;
-    }
-  }
-  if (!account.mint.equals(mint)) throw Error('TokenInvalidMintError');
-  if (!account.owner.equals(owner)) throw new Error('TokenInvalidOwnerError');
-  return account;
-}
-
 const tronWebTestnet = new TronWeb({
   fullHost: 'https://api.nileex.io'
 });
@@ -2267,8 +2169,7 @@ function useBalance() {
     return selectedNetwork;
   }, [selectedNetwork, evmChainId, networkOption]);
   const {
-    publicKey: solanaAddress,
-    signTransaction
+    publicKey: solanaAddress
   } = useWallet();
   const {
     address: tronAddress
@@ -2300,13 +2201,12 @@ function useBalance() {
       try {
         if (!isEVMChain(sourceChain)) {
           if (sourceChain === ChainName.SOLANA && solanaAddress && connection) {
-            var _accountInfo$value, _parsedAccountInfo$pa, _parsedAccountInfo$pa2, _parsedAccountInfo$pa3, _parsedAccountInfo$pa4, _parsedAccountInfo$pa5, _parsedAccountInfo$pa6;
-            const mint = new PublicKey(tokenAddress);
-            const fromTokenAccount = await getOrCreateAssociatedTokenAccount(connection, solanaAddress, mint, solanaAddress, signTransaction);
-            const accountInfo = await connection.getParsedAccountInfo(fromTokenAccount.address);
-            const parsedAccountInfo = accountInfo === null || accountInfo === void 0 ? void 0 : (_accountInfo$value = accountInfo.value) === null || _accountInfo$value === void 0 ? void 0 : _accountInfo$value.data;
-            setBalance(+formatUnits((_parsedAccountInfo$pa = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa === void 0 ? void 0 : (_parsedAccountInfo$pa2 = _parsedAccountInfo$pa.info) === null || _parsedAccountInfo$pa2 === void 0 ? void 0 : (_parsedAccountInfo$pa3 = _parsedAccountInfo$pa2.tokenAmount) === null || _parsedAccountInfo$pa3 === void 0 ? void 0 : _parsedAccountInfo$pa3.amount, (_parsedAccountInfo$pa4 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa4 === void 0 ? void 0 : (_parsedAccountInfo$pa5 = _parsedAccountInfo$pa4.info) === null || _parsedAccountInfo$pa5 === void 0 ? void 0 : (_parsedAccountInfo$pa6 = _parsedAccountInfo$pa5.tokenAmount) === null || _parsedAccountInfo$pa6 === void 0 ? void 0 : _parsedAccountInfo$pa6.decimals));
-            return;
+            const balanceInfo = await fetchWrapper.get(`${kimaBackendUrl}/sol/balances/${tokenAddress}/${solanaAddress.toBase58()}`);
+            const {
+              amount,
+              decimals
+            } = balanceInfo;
+            setBalance(+formatUnits(amount, decimals));
           }
           if (sourceChain === ChainName.TRON && tronAddress) {
             let trc20Contract = await tronWeb.contract(ERC20ABI.abi, tokenAddress);
@@ -6883,6 +6783,7 @@ function useAllowance({
   } = useWeb3ModalProvider();
   const selectedNetwork = useSelector(selectSourceChain);
   const errorHandler = useSelector(selectErrorHandler);
+  const kimaBackendUrl = useSelector(selectBackendUrl);
   const dAppOption = useSelector(selectDappOption);
   const targetChain = useSelector(selectTargetChain);
   const feeDeduct = useSelector(selectFeeDeduct);
@@ -6961,29 +6862,31 @@ function useAllowance({
         const tronWeb = networkOption === NetworkOptions.mainnet ? tronWebMainnet : tronWebTestnet;
         if (!isEVMChain(sourceChain)) {
           if (solanaAddress && tokenAddress && connection) {
-            var _accountInfo$value, _parsedAccountInfo$pa, _parsedAccountInfo$pa2, _parsedAccountInfo$pa3, _parsedAccountInfo$pa4, _parsedAccountInfo$pa5, _parsedAccountInfo$pa6, _parsedAccountInfo$pa7, _parsedAccountInfo$pa8;
-            const mint = new PublicKey(tokenAddress);
-            const fromTokenAccount = await getOrCreateAssociatedTokenAccount(connection, solanaAddress, mint, solanaAddress, signSolanaTransaction);
-            const accountInfo = await connection.getParsedAccountInfo(fromTokenAccount.address);
-            console.log('solana token account: ', accountInfo);
-            const parsedAccountInfo = accountInfo === null || accountInfo === void 0 ? void 0 : (_accountInfo$value = accountInfo.value) === null || _accountInfo$value === void 0 ? void 0 : _accountInfo$value.data;
-            setDecimals((_parsedAccountInfo$pa = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa === void 0 ? void 0 : (_parsedAccountInfo$pa2 = _parsedAccountInfo$pa.info) === null || _parsedAccountInfo$pa2 === void 0 ? void 0 : (_parsedAccountInfo$pa3 = _parsedAccountInfo$pa2.tokenAmount) === null || _parsedAccountInfo$pa3 === void 0 ? void 0 : _parsedAccountInfo$pa3.decimals);
-            setAllowance(((_parsedAccountInfo$pa4 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa4 === void 0 ? void 0 : (_parsedAccountInfo$pa5 = _parsedAccountInfo$pa4.info) === null || _parsedAccountInfo$pa5 === void 0 ? void 0 : _parsedAccountInfo$pa5.delegate) === targetAddress ? (_parsedAccountInfo$pa6 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa6 === void 0 ? void 0 : (_parsedAccountInfo$pa7 = _parsedAccountInfo$pa6.info) === null || _parsedAccountInfo$pa7 === void 0 ? void 0 : (_parsedAccountInfo$pa8 = _parsedAccountInfo$pa7.delegatedAmount) === null || _parsedAccountInfo$pa8 === void 0 ? void 0 : _parsedAccountInfo$pa8.uiAmount : 0);
+            const allowanceInfo = await fetchWrapper.get(`${kimaBackendUrl}/sol/allowance/${tokenAddress}/${solanaAddress.toBase58()}`);
+            const {
+              allowance: tokenAllowance
+            } = allowanceInfo;
+            const balanceInfo = await fetchWrapper.get(`${kimaBackendUrl}/sol/balances/${tokenAddress}/${solanaAddress.toBase58()}`);
+            const {
+              decimals: _decimals
+            } = balanceInfo;
+            setDecimals(_decimals || 0);
+            setAllowance(+formatUnits(tokenAllowance, _decimals));
           } else if (tronAddress && tokenAddress) {
             let trc20Contract = await tronWeb.contract(ERC20ABI.abi, tokenAddress);
-            const _decimals = await trc20Contract.decimals().call();
+            const _decimals2 = await trc20Contract.decimals().call();
             let parsedDecimals;
-            if (typeof _decimals === 'bigint') {
-              parsedDecimals = Number(_decimals);
-            } else if (typeof _decimals === 'string') {
-              parsedDecimals = parseFloat(_decimals);
+            if (typeof _decimals2 === 'bigint') {
+              parsedDecimals = Number(_decimals2);
+            } else if (typeof _decimals2 === 'string') {
+              parsedDecimals = parseFloat(_decimals2);
             } else {
-              parsedDecimals = _decimals;
+              parsedDecimals = _decimals2;
             }
             const _userAllowance = await trc20Contract.allowance(tronAddress, targetAddress).call();
             console.log(parsedDecimals, typeof parsedDecimals);
             setDecimals(parsedDecimals);
-            setAllowance(+formatUnits(_userAllowance, _decimals));
+            setAllowance(+formatUnits(_userAllowance, _decimals2));
           } else {
             setAllowance(0);
           }
@@ -7046,29 +6949,32 @@ function useAllowance({
       }
       return;
     }
-    if (!signSolanaTransaction) return;
+    if (!signSolanaTransaction || !solanaAddress) return;
     try {
       isCancel ? setCancellingApprove(true) : setApproving(true);
-      const mint = new PublicKey(tokenAddress);
+      const tokenInfo = await fetchWrapper.get(`${kimaBackendUrl}/sol/info/${tokenAddress}/${solanaAddress.toBase58()}`);
+      const {
+        tokenAccount,
+        blockHash
+      } = tokenInfo;
       const toPublicKey = new PublicKey(targetAddress);
-      const fromTokenAccount = await getOrCreateAssociatedTokenAccount(connection, solanaAddress, mint, solanaAddress, signSolanaTransaction);
-      const transaction = new Transaction().add(createApproveTransferInstruction(fromTokenAccount.address, toPublicKey, solanaAddress, isCancel ? 0 : +amountToShow * Math.pow(10, decimals ?? 6), [], TOKEN_PROGRAM_ID));
-      const blockHash = await connection.getLatestBlockhash();
+      const tokenAccountPublicKey = new PublicKey(tokenAccount);
+      const transaction = new Transaction().add(createApproveTransferInstruction(tokenAccountPublicKey, toPublicKey, solanaAddress, isCancel ? 0 : +amountToShow * Math.pow(10, decimals ?? 6), [], TOKEN_PROGRAM_ID));
       transaction.feePayer = solanaAddress;
-      transaction.recentBlockhash = await blockHash.blockhash;
+      transaction.recentBlockhash = blockHash;
       const signed = await signSolanaTransaction(transaction);
-      await connection.sendRawTransaction(signed.serialize());
-      let accountInfo;
+      console.log(signed.serialize());
+      await fetchWrapper.post(`${kimaBackendUrl}/sol/send`, JSON.stringify({
+        transaction: signed.serialize()
+      }));
       let allowAmount = 0;
       let retryCount = 0;
-      if (isCancel) {
+      if (!isCancel) {
         do {
-          var _accountInfo, _accountInfo$value2, _parsedAccountInfo$pa9, _parsedAccountInfo$pa10, _parsedAccountInfo$pa11, _parsedAccountInfo$pa12, _parsedAccountInfo$pa13;
-          accountInfo = await connection.getParsedAccountInfo(fromTokenAccount.address);
-          const parsedAccountInfo = (_accountInfo = accountInfo) === null || _accountInfo === void 0 ? void 0 : (_accountInfo$value2 = _accountInfo.value) === null || _accountInfo$value2 === void 0 ? void 0 : _accountInfo$value2.data;
-          allowAmount = ((_parsedAccountInfo$pa9 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa9 === void 0 ? void 0 : (_parsedAccountInfo$pa10 = _parsedAccountInfo$pa9.info) === null || _parsedAccountInfo$pa10 === void 0 ? void 0 : _parsedAccountInfo$pa10.delegate) === targetAddress ? (_parsedAccountInfo$pa11 = parsedAccountInfo.parsed) === null || _parsedAccountInfo$pa11 === void 0 ? void 0 : (_parsedAccountInfo$pa12 = _parsedAccountInfo$pa11.info) === null || _parsedAccountInfo$pa12 === void 0 ? void 0 : (_parsedAccountInfo$pa13 = _parsedAccountInfo$pa12.delegatedAmount) === null || _parsedAccountInfo$pa13 === void 0 ? void 0 : _parsedAccountInfo$pa13.uiAmount : 0;
-          await sleep(1000);
-        } while (allowAmount < +amountToShow || retryCount++ < 5);
+          const allowanceInfo = await fetchWrapper.get(`${kimaBackendUrl}/sol/allowance/${tokenAddress}/${solanaAddress.toBase58()}`);
+          allowAmount = allowanceInfo.allowance;
+          await sleep(2000);
+        } while (allowAmount < +amountToShow || retryCount++ < 10);
         setAllowance(+amountToShow);
       } else {
         setAllowance(0);
@@ -7088,22 +6994,25 @@ function useAllowance({
 }
 
 function useGetSolBalance() {
-  const networkOption = useSelector(selectNetworkOption);
   const [solBalance, setSolBalance] = useState(0);
   const {
     publicKey
   } = useWallet();
-  const cluster = useMemo(() => networkOption === 'testnet' ? 'devnet' : 'mainnet-beta', [networkOption]);
-  const connection = useMemo(() => new Connection(clusterApiUrl(cluster), 'confirmed'), [cluster]);
+  const {
+    connection
+  } = useConnection();
+  const kimaBackendUrl = useSelector(selectBackendUrl);
   useEffect(() => {
     const fetchBalance = async () => {
       if (publicKey) {
         try {
-          const balance = (await connection.getBalance(publicKey)) / LAMPORTS_PER_SOL;
-          console.log('SOL balance:', balance);
-          setSolBalance(balance);
+          const solBalanceInfo = await fetchWrapper.get(`${kimaBackendUrl}/sol/${publicKey === null || publicKey === void 0 ? void 0 : publicKey.toBase58()}`);
+          const {
+            solBalance
+          } = solBalanceInfo;
+          setSolBalance(solBalance);
         } catch (error) {
-          console.error('Error fetching SOL balance:', error);
+          console.error('Error fetching SOL balance from backend: ', error);
         }
       }
     };
@@ -7461,7 +7370,7 @@ function output(out, instance) {
 exports.output = output;
 const assert = { number, bool, bytes, hash, exists, output };
 exports.default = assert;
-
+//# sourceMappingURL=_assert.js.map
 });
 
 unwrapExports(_assert);
@@ -7470,7 +7379,7 @@ var crypto = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.crypto = void 0;
 exports.crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
-
+//# sourceMappingURL=crypto.js.map
 });
 
 unwrapExports(crypto);
@@ -7672,7 +7581,7 @@ function randomBytes(bytesLength = 32) {
     throw new Error('crypto.getRandomValues must be defined');
 }
 exports.randomBytes = randomBytes;
-
+//# sourceMappingURL=utils.js.map
 });
 
 unwrapExports(utils);
@@ -7794,7 +7703,7 @@ class SHA2 extends utils.Hash {
     }
 }
 exports.SHA2 = SHA2;
-
+//# sourceMappingURL=_sha2.js.map
 });
 
 unwrapExports(_sha2);
@@ -7927,7 +7836,7 @@ class SHA224 extends SHA256 {
  */
 exports.sha256 = (0, utils.wrapConstructor)(() => new SHA256());
 exports.sha224 = (0, utils.wrapConstructor)(() => new SHA224());
-
+//# sourceMappingURL=sha256.js.map
 });
 
 unwrapExports(sha256);
@@ -8308,8 +8217,6 @@ const isFormData = (thing) => {
  * @returns {boolean} True if value is a URLSearchParams object, otherwise false
  */
 const isURLSearchParams = kindOfTest('URLSearchParams');
-
-const [isReadableStream, isRequest, isResponse, isHeaders] = ['ReadableStream', 'Request', 'Response', 'Headers'].map(kindOfTest);
 
 /**
  * Trim excess whitespace off the beginning and end of a string
@@ -8699,7 +8606,8 @@ const toObjectSet = (arrayOrString, delimiter) => {
 const noop = () => {};
 
 const toFiniteNumber = (value, defaultValue) => {
-  return value != null && Number.isFinite(value = +value) ? value : defaultValue;
+  value = +value;
+  return Number.isFinite(value) ? value : defaultValue;
 };
 
 const ALPHA = 'abcdefghijklmnopqrstuvwxyz';
@@ -8769,36 +8677,6 @@ const isAsyncFn = kindOfTest('AsyncFunction');
 const isThenable = (thing) =>
   thing && (isObject(thing) || isFunction(thing)) && isFunction(thing.then) && isFunction(thing.catch);
 
-// original code
-// https://github.com/DigitalBrainJS/AxiosPromise/blob/16deab13710ec09779922131f3fa5954320f83ab/lib/utils.js#L11-L34
-
-const _setImmediate = ((setImmediateSupported, postMessageSupported) => {
-  if (setImmediateSupported) {
-    return setImmediate;
-  }
-
-  return postMessageSupported ? ((token, callbacks) => {
-    _global.addEventListener("message", ({source, data}) => {
-      if (source === _global && data === token) {
-        callbacks.length && callbacks.shift()();
-      }
-    }, false);
-
-    return (cb) => {
-      callbacks.push(cb);
-      _global.postMessage(token, "*");
-    }
-  })(`axios@${Math.random()}`, []) : (cb) => setTimeout(cb);
-})(
-  typeof setImmediate === 'function',
-  isFunction(_global.postMessage)
-);
-
-const asap = typeof queueMicrotask !== 'undefined' ?
-  queueMicrotask.bind(_global) : ( typeof process !== 'undefined' && process.nextTick || _setImmediate);
-
-// *********************
-
 var utils$1 = {
   isArray,
   isArrayBuffer,
@@ -8810,10 +8688,6 @@ var utils$1 = {
   isBoolean,
   isObject,
   isPlainObject,
-  isReadableStream,
-  isRequest,
-  isResponse,
-  isHeaders,
   isUndefined,
   isDate,
   isFile,
@@ -8854,9 +8728,7 @@ var utils$1 = {
   isSpecCompliantForm,
   toJSONObject,
   isAsyncFn,
-  isThenable,
-  setImmediate: _setImmediate,
-  asap
+  isThenable
 };
 
 /**
@@ -8884,10 +8756,7 @@ function AxiosError(message, code, config, request, response) {
   code && (this.code = code);
   config && (this.config = config);
   request && (this.request = request);
-  if (response) {
-    this.response = response;
-    this.status = response.status ? response.status : null;
-  }
+  response && (this.response = response);
 }
 
 utils$1.inherits(AxiosError, Error, {
@@ -8907,7 +8776,7 @@ utils$1.inherits(AxiosError, Error, {
       // Axios
       config: utils$1.toJSONObject(this.config),
       code: this.code,
-      status: this.status
+      status: this.response && this.response.status ? this.response.status : null
     };
   }
 });
@@ -9373,8 +9242,6 @@ var platform = {
 
 const hasBrowserEnv = typeof window !== 'undefined' && typeof document !== 'undefined';
 
-const _navigator = typeof navigator === 'object' && navigator || undefined;
-
 /**
  * Determine if we're running in a standard browser environment
  *
@@ -9392,8 +9259,10 @@ const _navigator = typeof navigator === 'object' && navigator || undefined;
  *
  * @returns {boolean}
  */
-const hasStandardBrowserEnv = hasBrowserEnv &&
-  (!_navigator || ['ReactNative', 'NativeScript', 'NS'].indexOf(_navigator.product) < 0);
+const hasStandardBrowserEnv = (
+  (product) => {
+    return hasBrowserEnv && ['ReactNative', 'NativeScript', 'NS'].indexOf(product) < 0
+  })(typeof navigator !== 'undefined' && navigator.product);
 
 /**
  * Determine if we're running in a standard browser webWorker environment
@@ -9413,15 +9282,11 @@ const hasStandardBrowserWebWorkerEnv = (() => {
   );
 })();
 
-const origin = hasBrowserEnv && window.location.href || 'http://localhost';
-
 var utils$2 = {
   __proto__: null,
   hasBrowserEnv: hasBrowserEnv,
   hasStandardBrowserWebWorkerEnv: hasStandardBrowserWebWorkerEnv,
-  hasStandardBrowserEnv: hasStandardBrowserEnv,
-  navigator: _navigator,
-  origin: origin
+  hasStandardBrowserEnv: hasStandardBrowserEnv
 };
 
 var platform$1 = {
@@ -9561,7 +9426,7 @@ const defaults = {
 
   transitional: transitionalDefaults,
 
-  adapter: ['xhr', 'http', 'fetch'],
+  adapter: ['xhr', 'http'],
 
   transformRequest: [function transformRequest(data, headers) {
     const contentType = headers.getContentType() || '';
@@ -9582,8 +9447,7 @@ const defaults = {
       utils$1.isBuffer(data) ||
       utils$1.isStream(data) ||
       utils$1.isFile(data) ||
-      utils$1.isBlob(data) ||
-      utils$1.isReadableStream(data)
+      utils$1.isBlob(data)
     ) {
       return data;
     }
@@ -9625,10 +9489,6 @@ const defaults = {
     const transitional = this.transitional || defaults.transitional;
     const forcedJSONParsing = transitional && transitional.forcedJSONParsing;
     const JSONRequested = this.responseType === 'json';
-
-    if (utils$1.isResponse(data) || utils$1.isReadableStream(data)) {
-      return data;
-    }
 
     if (data && utils$1.isString(data) && ((forcedJSONParsing && !this.responseType) || JSONRequested)) {
       const silentJSONParsing = transitional && transitional.silentJSONParsing;
@@ -9831,10 +9691,6 @@ class AxiosHeaders {
       setHeaders(header, valueOrRewrite);
     } else if(utils$1.isString(header) && (header = header.trim()) && !isValidHeaderName(header)) {
       setHeaders(parseHeaders(header), valueOrRewrite);
-    } else if (utils$1.isHeaders(header)) {
-      for (const [key, value] of header.entries()) {
-        setHeader(value, key, rewrite);
-      }
     } else {
       header != null && setHeader(valueOrRewrite, header, rewrite);
     }
@@ -10100,210 +9956,6 @@ function settle(resolve, reject, response) {
   }
 }
 
-function parseProtocol(url) {
-  const match = /^([-+\w]{1,25})(:?\/\/|:)/.exec(url);
-  return match && match[1] || '';
-}
-
-/**
- * Calculate data maxRate
- * @param {Number} [samplesCount= 10]
- * @param {Number} [min= 1000]
- * @returns {Function}
- */
-function speedometer(samplesCount, min) {
-  samplesCount = samplesCount || 10;
-  const bytes = new Array(samplesCount);
-  const timestamps = new Array(samplesCount);
-  let head = 0;
-  let tail = 0;
-  let firstSampleTS;
-
-  min = min !== undefined ? min : 1000;
-
-  return function push(chunkLength) {
-    const now = Date.now();
-
-    const startedAt = timestamps[tail];
-
-    if (!firstSampleTS) {
-      firstSampleTS = now;
-    }
-
-    bytes[head] = chunkLength;
-    timestamps[head] = now;
-
-    let i = tail;
-    let bytesCount = 0;
-
-    while (i !== head) {
-      bytesCount += bytes[i++];
-      i = i % samplesCount;
-    }
-
-    head = (head + 1) % samplesCount;
-
-    if (head === tail) {
-      tail = (tail + 1) % samplesCount;
-    }
-
-    if (now - firstSampleTS < min) {
-      return;
-    }
-
-    const passed = startedAt && now - startedAt;
-
-    return passed ? Math.round(bytesCount * 1000 / passed) : undefined;
-  };
-}
-
-/**
- * Throttle decorator
- * @param {Function} fn
- * @param {Number} freq
- * @return {Function}
- */
-function throttle(fn, freq) {
-  let timestamp = 0;
-  let threshold = 1000 / freq;
-  let lastArgs;
-  let timer;
-
-  const invoke = (args, now = Date.now()) => {
-    timestamp = now;
-    lastArgs = null;
-    if (timer) {
-      clearTimeout(timer);
-      timer = null;
-    }
-    fn.apply(null, args);
-  };
-
-  const throttled = (...args) => {
-    const now = Date.now();
-    const passed = now - timestamp;
-    if ( passed >= threshold) {
-      invoke(args, now);
-    } else {
-      lastArgs = args;
-      if (!timer) {
-        timer = setTimeout(() => {
-          timer = null;
-          invoke(lastArgs);
-        }, threshold - passed);
-      }
-    }
-  };
-
-  const flush = () => lastArgs && invoke(lastArgs);
-
-  return [throttled, flush];
-}
-
-const progressEventReducer = (listener, isDownloadStream, freq = 3) => {
-  let bytesNotified = 0;
-  const _speedometer = speedometer(50, 250);
-
-  return throttle(e => {
-    const loaded = e.loaded;
-    const total = e.lengthComputable ? e.total : undefined;
-    const progressBytes = loaded - bytesNotified;
-    const rate = _speedometer(progressBytes);
-    const inRange = loaded <= total;
-
-    bytesNotified = loaded;
-
-    const data = {
-      loaded,
-      total,
-      progress: total ? (loaded / total) : undefined,
-      bytes: progressBytes,
-      rate: rate ? rate : undefined,
-      estimated: rate && total && inRange ? (total - loaded) / rate : undefined,
-      event: e,
-      lengthComputable: total != null,
-      [isDownloadStream ? 'download' : 'upload']: true
-    };
-
-    listener(data);
-  }, freq);
-};
-
-const progressEventDecorator = (total, throttled) => {
-  const lengthComputable = total != null;
-
-  return [(loaded) => throttled[0]({
-    lengthComputable,
-    total,
-    loaded
-  }), throttled[1]];
-};
-
-const asyncDecorator = (fn) => (...args) => utils$1.asap(() => fn(...args));
-
-var isURLSameOrigin = platform$1.hasStandardBrowserEnv ?
-
-// Standard browser envs have full support of the APIs needed to test
-// whether the request URL is of the same origin as current location.
-  (function standardBrowserEnv() {
-    const msie = platform$1.navigator && /(msie|trident)/i.test(platform$1.navigator.userAgent);
-    const urlParsingNode = document.createElement('a');
-    let originURL;
-
-    /**
-    * Parse a URL to discover its components
-    *
-    * @param {String} url The URL to be parsed
-    * @returns {Object}
-    */
-    function resolveURL(url) {
-      let href = url;
-
-      if (msie) {
-        // IE needs attribute set twice to normalize properties
-        urlParsingNode.setAttribute('href', href);
-        href = urlParsingNode.href;
-      }
-
-      urlParsingNode.setAttribute('href', href);
-
-      // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
-      return {
-        href: urlParsingNode.href,
-        protocol: urlParsingNode.protocol ? urlParsingNode.protocol.replace(/:$/, '') : '',
-        host: urlParsingNode.host,
-        search: urlParsingNode.search ? urlParsingNode.search.replace(/^\?/, '') : '',
-        hash: urlParsingNode.hash ? urlParsingNode.hash.replace(/^#/, '') : '',
-        hostname: urlParsingNode.hostname,
-        port: urlParsingNode.port,
-        pathname: (urlParsingNode.pathname.charAt(0) === '/') ?
-          urlParsingNode.pathname :
-          '/' + urlParsingNode.pathname
-      };
-    }
-
-    originURL = resolveURL(window.location.href);
-
-    /**
-    * Determine if a URL shares the same origin as the current location
-    *
-    * @param {String} requestURL The URL to test
-    * @returns {boolean} True if URL shares the same origin, otherwise false
-    */
-    return function isURLSameOrigin(requestURL) {
-      const parsed = (utils$1.isString(requestURL)) ? resolveURL(requestURL) : requestURL;
-      return (parsed.protocol === originURL.protocol &&
-          parsed.host === originURL.host);
-    };
-  })() :
-
-  // Non standard browser envs (web workers, react-native) lack needed support.
-  (function nonStandardBrowserEnv() {
-    return function isURLSameOrigin() {
-      return true;
-    };
-  })();
-
 var cookies = platform$1.hasStandardBrowserEnv ?
 
   // Standard browser envs support document.cookie
@@ -10388,183 +10040,200 @@ function buildFullPath(baseURL, requestedURL) {
   return requestedURL;
 }
 
-const headersToObject = (thing) => thing instanceof AxiosHeaders ? { ...thing } : thing;
+var isURLSameOrigin = platform$1.hasStandardBrowserEnv ?
 
-/**
- * Config-specific merge-function which creates a new config-object
- * by merging two configuration objects together.
- *
- * @param {Object} config1
- * @param {Object} config2
- *
- * @returns {Object} New object resulting from merging config2 to config1
- */
-function mergeConfig(config1, config2) {
-  // eslint-disable-next-line no-param-reassign
-  config2 = config2 || {};
-  const config = {};
+// Standard browser envs have full support of the APIs needed to test
+// whether the request URL is of the same origin as current location.
+  (function standardBrowserEnv() {
+    const msie = /(msie|trident)/i.test(navigator.userAgent);
+    const urlParsingNode = document.createElement('a');
+    let originURL;
 
-  function getMergedValue(target, source, caseless) {
-    if (utils$1.isPlainObject(target) && utils$1.isPlainObject(source)) {
-      return utils$1.merge.call({caseless}, target, source);
-    } else if (utils$1.isPlainObject(source)) {
-      return utils$1.merge({}, source);
-    } else if (utils$1.isArray(source)) {
-      return source.slice();
+    /**
+    * Parse a URL to discover its components
+    *
+    * @param {String} url The URL to be parsed
+    * @returns {Object}
+    */
+    function resolveURL(url) {
+      let href = url;
+
+      if (msie) {
+        // IE needs attribute set twice to normalize properties
+        urlParsingNode.setAttribute('href', href);
+        href = urlParsingNode.href;
+      }
+
+      urlParsingNode.setAttribute('href', href);
+
+      // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
+      return {
+        href: urlParsingNode.href,
+        protocol: urlParsingNode.protocol ? urlParsingNode.protocol.replace(/:$/, '') : '',
+        host: urlParsingNode.host,
+        search: urlParsingNode.search ? urlParsingNode.search.replace(/^\?/, '') : '',
+        hash: urlParsingNode.hash ? urlParsingNode.hash.replace(/^#/, '') : '',
+        hostname: urlParsingNode.hostname,
+        port: urlParsingNode.port,
+        pathname: (urlParsingNode.pathname.charAt(0) === '/') ?
+          urlParsingNode.pathname :
+          '/' + urlParsingNode.pathname
+      };
     }
-    return source;
-  }
 
-  // eslint-disable-next-line consistent-return
-  function mergeDeepProperties(a, b, caseless) {
-    if (!utils$1.isUndefined(b)) {
-      return getMergedValue(a, b, caseless);
-    } else if (!utils$1.isUndefined(a)) {
-      return getMergedValue(undefined, a, caseless);
-    }
-  }
+    originURL = resolveURL(window.location.href);
 
-  // eslint-disable-next-line consistent-return
-  function valueFromConfig2(a, b) {
-    if (!utils$1.isUndefined(b)) {
-      return getMergedValue(undefined, b);
-    }
-  }
+    /**
+    * Determine if a URL shares the same origin as the current location
+    *
+    * @param {String} requestURL The URL to test
+    * @returns {boolean} True if URL shares the same origin, otherwise false
+    */
+    return function isURLSameOrigin(requestURL) {
+      const parsed = (utils$1.isString(requestURL)) ? resolveURL(requestURL) : requestURL;
+      return (parsed.protocol === originURL.protocol &&
+          parsed.host === originURL.host);
+    };
+  })() :
 
-  // eslint-disable-next-line consistent-return
-  function defaultToConfig2(a, b) {
-    if (!utils$1.isUndefined(b)) {
-      return getMergedValue(undefined, b);
-    } else if (!utils$1.isUndefined(a)) {
-      return getMergedValue(undefined, a);
-    }
-  }
+  // Non standard browser envs (web workers, react-native) lack needed support.
+  (function nonStandardBrowserEnv() {
+    return function isURLSameOrigin() {
+      return true;
+    };
+  })();
 
-  // eslint-disable-next-line consistent-return
-  function mergeDirectKeys(a, b, prop) {
-    if (prop in config2) {
-      return getMergedValue(a, b);
-    } else if (prop in config1) {
-      return getMergedValue(undefined, a);
-    }
-  }
-
-  const mergeMap = {
-    url: valueFromConfig2,
-    method: valueFromConfig2,
-    data: valueFromConfig2,
-    baseURL: defaultToConfig2,
-    transformRequest: defaultToConfig2,
-    transformResponse: defaultToConfig2,
-    paramsSerializer: defaultToConfig2,
-    timeout: defaultToConfig2,
-    timeoutMessage: defaultToConfig2,
-    withCredentials: defaultToConfig2,
-    withXSRFToken: defaultToConfig2,
-    adapter: defaultToConfig2,
-    responseType: defaultToConfig2,
-    xsrfCookieName: defaultToConfig2,
-    xsrfHeaderName: defaultToConfig2,
-    onUploadProgress: defaultToConfig2,
-    onDownloadProgress: defaultToConfig2,
-    decompress: defaultToConfig2,
-    maxContentLength: defaultToConfig2,
-    maxBodyLength: defaultToConfig2,
-    beforeRedirect: defaultToConfig2,
-    transport: defaultToConfig2,
-    httpAgent: defaultToConfig2,
-    httpsAgent: defaultToConfig2,
-    cancelToken: defaultToConfig2,
-    socketPath: defaultToConfig2,
-    responseEncoding: defaultToConfig2,
-    validateStatus: mergeDirectKeys,
-    headers: (a, b) => mergeDeepProperties(headersToObject(a), headersToObject(b), true)
-  };
-
-  utils$1.forEach(Object.keys(Object.assign({}, config1, config2)), function computeConfigValue(prop) {
-    const merge = mergeMap[prop] || mergeDeepProperties;
-    const configValue = merge(config1[prop], config2[prop], prop);
-    (utils$1.isUndefined(configValue) && merge !== mergeDirectKeys) || (config[prop] = configValue);
-  });
-
-  return config;
+function parseProtocol(url) {
+  const match = /^([-+\w]{1,25})(:?\/\/|:)/.exec(url);
+  return match && match[1] || '';
 }
 
-var resolveConfig = (config) => {
-  const newConfig = mergeConfig({}, config);
+/**
+ * Calculate data maxRate
+ * @param {Number} [samplesCount= 10]
+ * @param {Number} [min= 1000]
+ * @returns {Function}
+ */
+function speedometer(samplesCount, min) {
+  samplesCount = samplesCount || 10;
+  const bytes = new Array(samplesCount);
+  const timestamps = new Array(samplesCount);
+  let head = 0;
+  let tail = 0;
+  let firstSampleTS;
 
-  let {data, withXSRFToken, xsrfHeaderName, xsrfCookieName, headers, auth} = newConfig;
+  min = min !== undefined ? min : 1000;
 
-  newConfig.headers = headers = AxiosHeaders.from(headers);
+  return function push(chunkLength) {
+    const now = Date.now();
 
-  newConfig.url = buildURL(buildFullPath(newConfig.baseURL, newConfig.url), config.params, config.paramsSerializer);
+    const startedAt = timestamps[tail];
 
-  // HTTP basic authentication
-  if (auth) {
-    headers.set('Authorization', 'Basic ' +
-      btoa((auth.username || '') + ':' + (auth.password ? unescape(encodeURIComponent(auth.password)) : ''))
-    );
-  }
-
-  let contentType;
-
-  if (utils$1.isFormData(data)) {
-    if (platform$1.hasStandardBrowserEnv || platform$1.hasStandardBrowserWebWorkerEnv) {
-      headers.setContentType(undefined); // Let the browser set it
-    } else if ((contentType = headers.getContentType()) !== false) {
-      // fix semicolon duplication issue for ReactNative FormData implementation
-      const [type, ...tokens] = contentType ? contentType.split(';').map(token => token.trim()).filter(Boolean) : [];
-      headers.setContentType([type || 'multipart/form-data', ...tokens].join('; '));
+    if (!firstSampleTS) {
+      firstSampleTS = now;
     }
-  }
 
-  // Add xsrf header
-  // This is only done if running in a standard browser environment.
-  // Specifically not if we're in a web worker, or react-native.
+    bytes[head] = chunkLength;
+    timestamps[head] = now;
 
-  if (platform$1.hasStandardBrowserEnv) {
-    withXSRFToken && utils$1.isFunction(withXSRFToken) && (withXSRFToken = withXSRFToken(newConfig));
+    let i = tail;
+    let bytesCount = 0;
 
-    if (withXSRFToken || (withXSRFToken !== false && isURLSameOrigin(newConfig.url))) {
-      // Add xsrf header
-      const xsrfValue = xsrfHeaderName && xsrfCookieName && cookies.read(xsrfCookieName);
-
-      if (xsrfValue) {
-        headers.set(xsrfHeaderName, xsrfValue);
-      }
+    while (i !== head) {
+      bytesCount += bytes[i++];
+      i = i % samplesCount;
     }
-  }
 
-  return newConfig;
-};
+    head = (head + 1) % samplesCount;
+
+    if (head === tail) {
+      tail = (tail + 1) % samplesCount;
+    }
+
+    if (now - firstSampleTS < min) {
+      return;
+    }
+
+    const passed = startedAt && now - startedAt;
+
+    return passed ? Math.round(bytesCount * 1000 / passed) : undefined;
+  };
+}
+
+function progressEventReducer(listener, isDownloadStream) {
+  let bytesNotified = 0;
+  const _speedometer = speedometer(50, 250);
+
+  return e => {
+    const loaded = e.loaded;
+    const total = e.lengthComputable ? e.total : undefined;
+    const progressBytes = loaded - bytesNotified;
+    const rate = _speedometer(progressBytes);
+    const inRange = loaded <= total;
+
+    bytesNotified = loaded;
+
+    const data = {
+      loaded,
+      total,
+      progress: total ? (loaded / total) : undefined,
+      bytes: progressBytes,
+      rate: rate ? rate : undefined,
+      estimated: rate && total && inRange ? (total - loaded) / rate : undefined,
+      event: e
+    };
+
+    data[isDownloadStream ? 'download' : 'upload'] = true;
+
+    listener(data);
+  };
+}
 
 const isXHRAdapterSupported = typeof XMLHttpRequest !== 'undefined';
 
 var xhrAdapter = isXHRAdapterSupported && function (config) {
   return new Promise(function dispatchXhrRequest(resolve, reject) {
-    const _config = resolveConfig(config);
-    let requestData = _config.data;
-    const requestHeaders = AxiosHeaders.from(_config.headers).normalize();
-    let {responseType, onUploadProgress, onDownloadProgress} = _config;
+    let requestData = config.data;
+    const requestHeaders = AxiosHeaders.from(config.headers).normalize();
+    let {responseType, withXSRFToken} = config;
     let onCanceled;
-    let uploadThrottled, downloadThrottled;
-    let flushUpload, flushDownload;
-
     function done() {
-      flushUpload && flushUpload(); // flush events
-      flushDownload && flushDownload(); // flush events
+      if (config.cancelToken) {
+        config.cancelToken.unsubscribe(onCanceled);
+      }
 
-      _config.cancelToken && _config.cancelToken.unsubscribe(onCanceled);
+      if (config.signal) {
+        config.signal.removeEventListener('abort', onCanceled);
+      }
+    }
 
-      _config.signal && _config.signal.removeEventListener('abort', onCanceled);
+    let contentType;
+
+    if (utils$1.isFormData(requestData)) {
+      if (platform$1.hasStandardBrowserEnv || platform$1.hasStandardBrowserWebWorkerEnv) {
+        requestHeaders.setContentType(false); // Let the browser set it
+      } else if ((contentType = requestHeaders.getContentType()) !== false) {
+        // fix semicolon duplication issue for ReactNative FormData implementation
+        const [type, ...tokens] = contentType ? contentType.split(';').map(token => token.trim()).filter(Boolean) : [];
+        requestHeaders.setContentType([type || 'multipart/form-data', ...tokens].join('; '));
+      }
     }
 
     let request = new XMLHttpRequest();
 
-    request.open(_config.method.toUpperCase(), _config.url, true);
+    // HTTP basic authentication
+    if (config.auth) {
+      const username = config.auth.username || '';
+      const password = config.auth.password ? unescape(encodeURIComponent(config.auth.password)) : '';
+      requestHeaders.set('Authorization', 'Basic ' + btoa(username + ':' + password));
+    }
+
+    const fullPath = buildFullPath(config.baseURL, config.url);
+
+    request.open(config.method.toUpperCase(), buildURL(fullPath, config.params, config.paramsSerializer), true);
 
     // Set the request timeout in MS
-    request.timeout = _config.timeout;
+    request.timeout = config.timeout;
 
     function onloadend() {
       if (!request) {
@@ -10644,10 +10313,10 @@ var xhrAdapter = isXHRAdapterSupported && function (config) {
 
     // Handle timeout
     request.ontimeout = function handleTimeout() {
-      let timeoutErrorMessage = _config.timeout ? 'timeout of ' + _config.timeout + 'ms exceeded' : 'timeout exceeded';
-      const transitional = _config.transitional || transitionalDefaults;
-      if (_config.timeoutErrorMessage) {
-        timeoutErrorMessage = _config.timeoutErrorMessage;
+      let timeoutErrorMessage = config.timeout ? 'timeout of ' + config.timeout + 'ms exceeded' : 'timeout exceeded';
+      const transitional = config.transitional || transitionalDefaults;
+      if (config.timeoutErrorMessage) {
+        timeoutErrorMessage = config.timeoutErrorMessage;
       }
       reject(new AxiosError(
         timeoutErrorMessage,
@@ -10658,6 +10327,22 @@ var xhrAdapter = isXHRAdapterSupported && function (config) {
       // Clean up request
       request = null;
     };
+
+    // Add xsrf header
+    // This is only done if running in a standard browser environment.
+    // Specifically not if we're in a web worker, or react-native.
+    if(platform$1.hasStandardBrowserEnv) {
+      withXSRFToken && utils$1.isFunction(withXSRFToken) && (withXSRFToken = withXSRFToken(config));
+
+      if (withXSRFToken || (withXSRFToken !== false && isURLSameOrigin(fullPath))) {
+        // Add xsrf header
+        const xsrfValue = config.xsrfHeaderName && config.xsrfCookieName && cookies.read(config.xsrfCookieName);
+
+        if (xsrfValue) {
+          requestHeaders.set(config.xsrfHeaderName, xsrfValue);
+        }
+      }
+    }
 
     // Remove Content-Type if data is undefined
     requestData === undefined && requestHeaders.setContentType(null);
@@ -10670,31 +10355,26 @@ var xhrAdapter = isXHRAdapterSupported && function (config) {
     }
 
     // Add withCredentials to request if needed
-    if (!utils$1.isUndefined(_config.withCredentials)) {
-      request.withCredentials = !!_config.withCredentials;
+    if (!utils$1.isUndefined(config.withCredentials)) {
+      request.withCredentials = !!config.withCredentials;
     }
 
     // Add responseType to request if needed
     if (responseType && responseType !== 'json') {
-      request.responseType = _config.responseType;
+      request.responseType = config.responseType;
     }
 
     // Handle progress if needed
-    if (onDownloadProgress) {
-      ([downloadThrottled, flushDownload] = progressEventReducer(onDownloadProgress, true));
-      request.addEventListener('progress', downloadThrottled);
+    if (typeof config.onDownloadProgress === 'function') {
+      request.addEventListener('progress', progressEventReducer(config.onDownloadProgress, true));
     }
 
     // Not all browsers support upload events
-    if (onUploadProgress && request.upload) {
-      ([uploadThrottled, flushUpload] = progressEventReducer(onUploadProgress));
-
-      request.upload.addEventListener('progress', uploadThrottled);
-
-      request.upload.addEventListener('loadend', flushUpload);
+    if (typeof config.onUploadProgress === 'function' && request.upload) {
+      request.upload.addEventListener('progress', progressEventReducer(config.onUploadProgress));
     }
 
-    if (_config.cancelToken || _config.signal) {
+    if (config.cancelToken || config.signal) {
       // Handle cancellation
       // eslint-disable-next-line func-names
       onCanceled = cancel => {
@@ -10706,13 +10386,13 @@ var xhrAdapter = isXHRAdapterSupported && function (config) {
         request = null;
       };
 
-      _config.cancelToken && _config.cancelToken.subscribe(onCanceled);
-      if (_config.signal) {
-        _config.signal.aborted ? onCanceled() : _config.signal.addEventListener('abort', onCanceled);
+      config.cancelToken && config.cancelToken.subscribe(onCanceled);
+      if (config.signal) {
+        config.signal.aborted ? onCanceled() : config.signal.addEventListener('abort', onCanceled);
       }
     }
 
-    const protocol = parseProtocol(_config.url);
+    const protocol = parseProtocol(fullPath);
 
     if (protocol && platform$1.protocols.indexOf(protocol) === -1) {
       reject(new AxiosError('Unsupported protocol ' + protocol + ':', AxiosError.ERR_BAD_REQUEST, config));
@@ -10725,358 +10405,9 @@ var xhrAdapter = isXHRAdapterSupported && function (config) {
   });
 };
 
-const composeSignals = (signals, timeout) => {
-  const {length} = (signals = signals ? signals.filter(Boolean) : []);
-
-  if (timeout || length) {
-    let controller = new AbortController();
-
-    let aborted;
-
-    const onabort = function (reason) {
-      if (!aborted) {
-        aborted = true;
-        unsubscribe();
-        const err = reason instanceof Error ? reason : this.reason;
-        controller.abort(err instanceof AxiosError ? err : new CanceledError(err instanceof Error ? err.message : err));
-      }
-    };
-
-    let timer = timeout && setTimeout(() => {
-      timer = null;
-      onabort(new AxiosError(`timeout ${timeout} of ms exceeded`, AxiosError.ETIMEDOUT));
-    }, timeout);
-
-    const unsubscribe = () => {
-      if (signals) {
-        timer && clearTimeout(timer);
-        timer = null;
-        signals.forEach(signal => {
-          signal.unsubscribe ? signal.unsubscribe(onabort) : signal.removeEventListener('abort', onabort);
-        });
-        signals = null;
-      }
-    };
-
-    signals.forEach((signal) => signal.addEventListener('abort', onabort));
-
-    const {signal} = controller;
-
-    signal.unsubscribe = () => utils$1.asap(unsubscribe);
-
-    return signal;
-  }
-};
-
-const streamChunk = function* (chunk, chunkSize) {
-  let len = chunk.byteLength;
-
-  if (!chunkSize || len < chunkSize) {
-    yield chunk;
-    return;
-  }
-
-  let pos = 0;
-  let end;
-
-  while (pos < len) {
-    end = pos + chunkSize;
-    yield chunk.slice(pos, end);
-    pos = end;
-  }
-};
-
-const readBytes = async function* (iterable, chunkSize) {
-  for await (const chunk of readStream(iterable)) {
-    yield* streamChunk(chunk, chunkSize);
-  }
-};
-
-const readStream = async function* (stream) {
-  if (stream[Symbol.asyncIterator]) {
-    yield* stream;
-    return;
-  }
-
-  const reader = stream.getReader();
-  try {
-    for (;;) {
-      const {done, value} = await reader.read();
-      if (done) {
-        break;
-      }
-      yield value;
-    }
-  } finally {
-    await reader.cancel();
-  }
-};
-
-const trackStream = (stream, chunkSize, onProgress, onFinish) => {
-  const iterator = readBytes(stream, chunkSize);
-
-  let bytes = 0;
-  let done;
-  let _onFinish = (e) => {
-    if (!done) {
-      done = true;
-      onFinish && onFinish(e);
-    }
-  };
-
-  return new ReadableStream({
-    async pull(controller) {
-      try {
-        const {done, value} = await iterator.next();
-
-        if (done) {
-         _onFinish();
-          controller.close();
-          return;
-        }
-
-        let len = value.byteLength;
-        if (onProgress) {
-          let loadedBytes = bytes += len;
-          onProgress(loadedBytes);
-        }
-        controller.enqueue(new Uint8Array(value));
-      } catch (err) {
-        _onFinish(err);
-        throw err;
-      }
-    },
-    cancel(reason) {
-      _onFinish(reason);
-      return iterator.return();
-    }
-  }, {
-    highWaterMark: 2
-  })
-};
-
-const isFetchSupported = typeof fetch === 'function' && typeof Request === 'function' && typeof Response === 'function';
-const isReadableStreamSupported = isFetchSupported && typeof ReadableStream === 'function';
-
-// used only inside the fetch adapter
-const encodeText = isFetchSupported && (typeof TextEncoder === 'function' ?
-    ((encoder) => (str) => encoder.encode(str))(new TextEncoder()) :
-    async (str) => new Uint8Array(await new Response(str).arrayBuffer())
-);
-
-const test = (fn, ...args) => {
-  try {
-    return !!fn(...args);
-  } catch (e) {
-    return false
-  }
-};
-
-const supportsRequestStream = isReadableStreamSupported && test(() => {
-  let duplexAccessed = false;
-
-  const hasContentType = new Request(platform$1.origin, {
-    body: new ReadableStream(),
-    method: 'POST',
-    get duplex() {
-      duplexAccessed = true;
-      return 'half';
-    },
-  }).headers.has('Content-Type');
-
-  return duplexAccessed && !hasContentType;
-});
-
-const DEFAULT_CHUNK_SIZE = 64 * 1024;
-
-const supportsResponseStream = isReadableStreamSupported &&
-  test(() => utils$1.isReadableStream(new Response('').body));
-
-
-const resolvers = {
-  stream: supportsResponseStream && ((res) => res.body)
-};
-
-isFetchSupported && (((res) => {
-  ['text', 'arrayBuffer', 'blob', 'formData', 'stream'].forEach(type => {
-    !resolvers[type] && (resolvers[type] = utils$1.isFunction(res[type]) ? (res) => res[type]() :
-      (_, config) => {
-        throw new AxiosError(`Response type '${type}' is not supported`, AxiosError.ERR_NOT_SUPPORT, config);
-      });
-  });
-})(new Response));
-
-const getBodyLength = async (body) => {
-  if (body == null) {
-    return 0;
-  }
-
-  if(utils$1.isBlob(body)) {
-    return body.size;
-  }
-
-  if(utils$1.isSpecCompliantForm(body)) {
-    const _request = new Request(platform$1.origin, {
-      method: 'POST',
-      body,
-    });
-    return (await _request.arrayBuffer()).byteLength;
-  }
-
-  if(utils$1.isArrayBufferView(body) || utils$1.isArrayBuffer(body)) {
-    return body.byteLength;
-  }
-
-  if(utils$1.isURLSearchParams(body)) {
-    body = body + '';
-  }
-
-  if(utils$1.isString(body)) {
-    return (await encodeText(body)).byteLength;
-  }
-};
-
-const resolveBodyLength = async (headers, body) => {
-  const length = utils$1.toFiniteNumber(headers.getContentLength());
-
-  return length == null ? getBodyLength(body) : length;
-};
-
-var fetchAdapter = isFetchSupported && (async (config) => {
-  let {
-    url,
-    method,
-    data,
-    signal,
-    cancelToken,
-    timeout,
-    onDownloadProgress,
-    onUploadProgress,
-    responseType,
-    headers,
-    withCredentials = 'same-origin',
-    fetchOptions
-  } = resolveConfig(config);
-
-  responseType = responseType ? (responseType + '').toLowerCase() : 'text';
-
-  let composedSignal = composeSignals([signal, cancelToken && cancelToken.toAbortSignal()], timeout);
-
-  let request;
-
-  const unsubscribe = composedSignal && composedSignal.unsubscribe && (() => {
-      composedSignal.unsubscribe();
-  });
-
-  let requestContentLength;
-
-  try {
-    if (
-      onUploadProgress && supportsRequestStream && method !== 'get' && method !== 'head' &&
-      (requestContentLength = await resolveBodyLength(headers, data)) !== 0
-    ) {
-      let _request = new Request(url, {
-        method: 'POST',
-        body: data,
-        duplex: "half"
-      });
-
-      let contentTypeHeader;
-
-      if (utils$1.isFormData(data) && (contentTypeHeader = _request.headers.get('content-type'))) {
-        headers.setContentType(contentTypeHeader);
-      }
-
-      if (_request.body) {
-        const [onProgress, flush] = progressEventDecorator(
-          requestContentLength,
-          progressEventReducer(asyncDecorator(onUploadProgress))
-        );
-
-        data = trackStream(_request.body, DEFAULT_CHUNK_SIZE, onProgress, flush);
-      }
-    }
-
-    if (!utils$1.isString(withCredentials)) {
-      withCredentials = withCredentials ? 'include' : 'omit';
-    }
-
-    // Cloudflare Workers throws when credentials are defined
-    // see https://github.com/cloudflare/workerd/issues/902
-    const isCredentialsSupported = "credentials" in Request.prototype;
-    request = new Request(url, {
-      ...fetchOptions,
-      signal: composedSignal,
-      method: method.toUpperCase(),
-      headers: headers.normalize().toJSON(),
-      body: data,
-      duplex: "half",
-      credentials: isCredentialsSupported ? withCredentials : undefined
-    });
-
-    let response = await fetch(request);
-
-    const isStreamResponse = supportsResponseStream && (responseType === 'stream' || responseType === 'response');
-
-    if (supportsResponseStream && (onDownloadProgress || (isStreamResponse && unsubscribe))) {
-      const options = {};
-
-      ['status', 'statusText', 'headers'].forEach(prop => {
-        options[prop] = response[prop];
-      });
-
-      const responseContentLength = utils$1.toFiniteNumber(response.headers.get('content-length'));
-
-      const [onProgress, flush] = onDownloadProgress && progressEventDecorator(
-        responseContentLength,
-        progressEventReducer(asyncDecorator(onDownloadProgress), true)
-      ) || [];
-
-      response = new Response(
-        trackStream(response.body, DEFAULT_CHUNK_SIZE, onProgress, () => {
-          flush && flush();
-          unsubscribe && unsubscribe();
-        }),
-        options
-      );
-    }
-
-    responseType = responseType || 'text';
-
-    let responseData = await resolvers[utils$1.findKey(resolvers, responseType) || 'text'](response, config);
-
-    !isStreamResponse && unsubscribe && unsubscribe();
-
-    return await new Promise((resolve, reject) => {
-      settle(resolve, reject, {
-        data: responseData,
-        headers: AxiosHeaders.from(response.headers),
-        status: response.status,
-        statusText: response.statusText,
-        config,
-        request
-      });
-    })
-  } catch (err) {
-    unsubscribe && unsubscribe();
-
-    if (err && err.name === 'TypeError' && /fetch/i.test(err.message)) {
-      throw Object.assign(
-        new AxiosError('Network Error', AxiosError.ERR_NETWORK, config, request),
-        {
-          cause: err.cause || err
-        }
-      )
-    }
-
-    throw AxiosError.from(err, err && err.code, config, request);
-  }
-});
-
 const knownAdapters = {
   http: httpAdapter,
-  xhr: xhrAdapter,
-  fetch: fetchAdapter
+  xhr: xhrAdapter
 };
 
 utils$1.forEach(knownAdapters, (fn, value) => {
@@ -11220,7 +10551,109 @@ function dispatchRequest(config) {
   });
 }
 
-const VERSION = "1.7.7";
+const headersToObject = (thing) => thing instanceof AxiosHeaders ? thing.toJSON() : thing;
+
+/**
+ * Config-specific merge-function which creates a new config-object
+ * by merging two configuration objects together.
+ *
+ * @param {Object} config1
+ * @param {Object} config2
+ *
+ * @returns {Object} New object resulting from merging config2 to config1
+ */
+function mergeConfig(config1, config2) {
+  // eslint-disable-next-line no-param-reassign
+  config2 = config2 || {};
+  const config = {};
+
+  function getMergedValue(target, source, caseless) {
+    if (utils$1.isPlainObject(target) && utils$1.isPlainObject(source)) {
+      return utils$1.merge.call({caseless}, target, source);
+    } else if (utils$1.isPlainObject(source)) {
+      return utils$1.merge({}, source);
+    } else if (utils$1.isArray(source)) {
+      return source.slice();
+    }
+    return source;
+  }
+
+  // eslint-disable-next-line consistent-return
+  function mergeDeepProperties(a, b, caseless) {
+    if (!utils$1.isUndefined(b)) {
+      return getMergedValue(a, b, caseless);
+    } else if (!utils$1.isUndefined(a)) {
+      return getMergedValue(undefined, a, caseless);
+    }
+  }
+
+  // eslint-disable-next-line consistent-return
+  function valueFromConfig2(a, b) {
+    if (!utils$1.isUndefined(b)) {
+      return getMergedValue(undefined, b);
+    }
+  }
+
+  // eslint-disable-next-line consistent-return
+  function defaultToConfig2(a, b) {
+    if (!utils$1.isUndefined(b)) {
+      return getMergedValue(undefined, b);
+    } else if (!utils$1.isUndefined(a)) {
+      return getMergedValue(undefined, a);
+    }
+  }
+
+  // eslint-disable-next-line consistent-return
+  function mergeDirectKeys(a, b, prop) {
+    if (prop in config2) {
+      return getMergedValue(a, b);
+    } else if (prop in config1) {
+      return getMergedValue(undefined, a);
+    }
+  }
+
+  const mergeMap = {
+    url: valueFromConfig2,
+    method: valueFromConfig2,
+    data: valueFromConfig2,
+    baseURL: defaultToConfig2,
+    transformRequest: defaultToConfig2,
+    transformResponse: defaultToConfig2,
+    paramsSerializer: defaultToConfig2,
+    timeout: defaultToConfig2,
+    timeoutMessage: defaultToConfig2,
+    withCredentials: defaultToConfig2,
+    withXSRFToken: defaultToConfig2,
+    adapter: defaultToConfig2,
+    responseType: defaultToConfig2,
+    xsrfCookieName: defaultToConfig2,
+    xsrfHeaderName: defaultToConfig2,
+    onUploadProgress: defaultToConfig2,
+    onDownloadProgress: defaultToConfig2,
+    decompress: defaultToConfig2,
+    maxContentLength: defaultToConfig2,
+    maxBodyLength: defaultToConfig2,
+    beforeRedirect: defaultToConfig2,
+    transport: defaultToConfig2,
+    httpAgent: defaultToConfig2,
+    httpsAgent: defaultToConfig2,
+    cancelToken: defaultToConfig2,
+    socketPath: defaultToConfig2,
+    responseEncoding: defaultToConfig2,
+    validateStatus: mergeDirectKeys,
+    headers: (a, b) => mergeDeepProperties(headersToObject(a), headersToObject(b), true)
+  };
+
+  utils$1.forEach(Object.keys(Object.assign({}, config1, config2)), function computeConfigValue(prop) {
+    const merge = mergeMap[prop] || mergeDeepProperties;
+    const configValue = merge(config1[prop], config2[prop], prop);
+    (utils$1.isUndefined(configValue) && merge !== mergeDirectKeys) || (config[prop] = configValue);
+  });
+
+  return config;
+}
+
+const VERSION = "1.6.7";
 
 const validators = {};
 
@@ -11346,15 +10779,12 @@ class Axios {
 
         // slice off the Error: ... line
         const stack = dummy.stack ? dummy.stack.replace(/^.+\n/, '') : '';
-        try {
-          if (!err.stack) {
-            err.stack = stack;
-            // match without the 2 top stack lines
-          } else if (stack && !String(err.stack).endsWith(stack.replace(/^.+\n.+\n/, ''))) {
-            err.stack += '\n' + stack;
-          }
-        } catch (e) {
-          // ignore the case where "stack" is an un-writable property
+
+        if (!err.stack) {
+          err.stack = stack;
+          // match without the 2 top stack lines
+        } else if (stack && !String(err.stack).endsWith(stack.replace(/^.+\n.+\n/, ''))) {
+          err.stack += '\n' + stack;
         }
       }
 
@@ -11623,20 +11053,6 @@ class CancelToken {
     if (index !== -1) {
       this._listeners.splice(index, 1);
     }
-  }
-
-  toAbortSignal() {
-    const controller = new AbortController();
-
-    const abort = (err) => {
-      controller.abort(err);
-    };
-
-    this.subscribe(abort);
-
-    controller.signal.unsubscribe = () => this.unsubscribe(abort);
-
-    return controller.signal;
   }
 
   /**
