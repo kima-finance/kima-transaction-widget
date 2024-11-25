@@ -4,12 +4,12 @@ import { RootState } from './index' // Import RootState from the store
 // Define the Plugin metadata interface
 export interface Plugin {
   id: string // Plugin identifier
-  initialize?: (walletConnectProjectId: string, networkOption: string) => void // Initialization function
+  pluginData?: { [key: string]: any } // Serializable plugin data such as networks
 }
 
 // Define the shape of the slice state
 export interface PluginState {
-  plugins: Record<string, Plugin> // Stores plugin metadata
+  plugins: Record<string, Plugin> // Stores plugin metadata and data
 }
 
 // Initial state
@@ -27,20 +27,34 @@ const pluginSlice = createSlice({
       state,
       action: PayloadAction<{
         id: string
-        initialize?: (
-          walletConnectProjectId: string,
-          networkOption: string
-        ) => void
+        pluginData?: { [key: string]: any }
       }>
     ) => {
-      const { id, initialize } = action.payload
-      state.plugins[id] = { id, initialize }
+      const { id, pluginData } = action.payload
+      state.plugins[id] = { id, pluginData }
+    },
+
+    // Action to update plugin data (e.g., networks or other dynamic values)
+    updatePluginData: (
+      state,
+      action: PayloadAction<{
+        id: string
+        pluginData: { [key: string]: any }
+      }>
+    ) => {
+      const { id, pluginData } = action.payload
+      if (state.plugins[id]) {
+        state.plugins[id].pluginData = {
+          ...state.plugins[id].pluginData, // Merge with existing plugin data
+          ...pluginData
+        }
+      }
     }
   }
 })
 
 // Actions
-export const { registerPlugin } = pluginSlice.actions
+export const { registerPlugin, updatePluginData } = pluginSlice.actions
 
 // Selectors
 export const selectPlugin = (
