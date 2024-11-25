@@ -405,7 +405,7 @@ export default function useAllowance({
             allowAmount = allowanceInfo.allowance
 
             await sleep(2000)
-          } while (allowAmount < +amountToShow || retryCount++ < 10)
+          } while (allowAmount < +amountToShow || retryCount++ < 20)
 
           setAllowance(+amountToShow)
         } else {
