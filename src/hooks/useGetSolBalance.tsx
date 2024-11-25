@@ -1,40 +1,39 @@
-import { useWallet } from '@solana/wallet-adapter-react'
-import {
-  clusterApiUrl,
-  Connection,
-  LAMPORTS_PER_SOL,
-  Cluster
-} from '@solana/web3.js'
+import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { useSelector } from 'react-redux'
-import { selectNetworkOption } from '../store/selectors'
-import { useEffect, useMemo, useState } from 'react'
+import { selectBackendUrl } from '../store/selectors'
+import { useEffect, useState } from 'react'
+import { fetchWrapper } from '../helpers/fetch-wrapper'
 
 function useGetSolBalance() {
-  const networkOption = useSelector(selectNetworkOption)
   const [solBalance, setSolBalance] = useState(0)
   const { publicKey } = useWallet()
-
-  const cluster: Cluster = useMemo(
-    () => (networkOption === 'testnet' ? 'devnet' : 'mainnet-beta'),
-    [networkOption]
-  )
-
-  const connection = useMemo(
-    () => new Connection(clusterApiUrl(cluster), 'confirmed'),
-    [cluster]
-  )
+  const { connection } = useConnection()
+  const kimaBackendUrl = useSelector(selectBackendUrl)
 
   useEffect(() => {
     const fetchBalance = async () => {
       if (publicKey) {
+        // if (networkOption === NetworkOptions.testnet) {
+        //   try {
+        //     const solBalance =
+        //       (await connection.getBalance(publicKey)) / LAMPORTS_PER_SOL
+        //     console.log('SOL balance:', solBalance)
+        //     setSolBalance(solBalance)
+        //   } catch (error) {
+        //     console.error('Error fetching SOL balance:', error)
+        //   }
+        // } else {
         try {
-          const balance =
-            (await connection.getBalance(publicKey)) / LAMPORTS_PER_SOL
-          console.log('SOL balance:', balance)
-          setSolBalance(balance)
+          const solBalanceInfo: any = await fetchWrapper.get(
+            `${kimaBackendUrl}/sol/${publicKey?.toBase58()}`
+          )
+
+          const { solBalance } = solBalanceInfo
+          setSolBalance(solBalance)
         } catch (error) {
-          console.error('Error fetching SOL balance:', error)
+          console.error('Error fetching SOL balance from backend: ', error)
         }
+        // }
       }
     }
 

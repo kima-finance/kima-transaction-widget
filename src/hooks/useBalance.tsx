@@ -24,8 +24,6 @@ import {
   selectNetworkOption,
   selectSourceCurrency
 } from '../store/selectors'
-import { getOrCreateAssociatedTokenAccount } from '../utils/solana/getOrCreateAssociatedTokenAccount'
-import { PublicKey } from '@solana/web3.js'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import { tronWebTestnet, tronWebMainnet } from '../tronweb'
 import {
@@ -37,15 +35,6 @@ import { ExternalProvider, JsonRpcFetchFunc } from '@ethersproject/providers'
 import { NetworkOptions, Web3ModalAccountInfo } from '../interface'
 import { isEmptyObject } from '../helpers/functions'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
-
-type ParsedAccountData = {
-  /** Name of the program that owns this account */
-  program: string
-  /** Parsed account data */
-  parsed: any
-  /** Space used by account data */
-  space: number
-}
 
 export default function useBalance() {
   const [balance, setBalance] = useState<number>(0)
@@ -83,7 +72,7 @@ export default function useBalance() {
 
     return selectedNetwork
   }, [selectedNetwork, evmChainId, networkOption])
-  const { publicKey: solanaAddress, signTransaction } = useSolanaWallet()
+  const { publicKey: solanaAddress } = useSolanaWallet()
   const { address: tronAddress } = useTronWallet()
   const btcAddress = useSelector(selectBitcoinAddress)
   const { connection } = useConnection()
@@ -117,29 +106,43 @@ export default function useBalance() {
       try {
         if (!isEVMChain(sourceChain)) {
           if (sourceChain === ChainName.SOLANA && solanaAddress && connection) {
-            const mint = new PublicKey(tokenAddress)
-            const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
-              connection,
-              solanaAddress as PublicKey,
-              mint,
-              solanaAddress as PublicKey,
-              signTransaction /* as SignerWalletAdapterProps['signTransaction']*/
+            // if (
+            //   networkOption === NetworkOptions.testnet &&
+            //   rpcEndpoint !== 'https://api.mainnet-beta.solana.com/'
+            // ) {
+            //   const mint = new PublicKey(tokenAddress)
+            //   const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
+            //     connection,
+            //     solanaAddress as PublicKey,
+            //     mint,
+            //     solanaAddress as PublicKey,
+            //     signTransaction /* as SignerWalletAdapterProps['signTransaction']*/
+            //   )
+
+            //   const accountInfo = await connection.getParsedAccountInfo(
+            //     fromTokenAccount.address
+            //   )
+
+            //   const parsedAccountInfo = accountInfo?.value
+            //     ?.data as ParsedAccountData
+
+            //   setBalance(
+            //     +formatUnits(
+            //       parsedAccountInfo.parsed?.info?.tokenAmount?.amount,
+            //       parsedAccountInfo.parsed?.info?.tokenAmount?.decimals
+            //     )
+            //   )
+            //   return
+            // }
+
+            // mainnet case, fetch from backend to avoid rpc blockage
+            const balanceInfo: any = await fetchWrapper.get(
+              `${kimaBackendUrl}/sol/balances/${tokenAddress}/${solanaAddress.toBase58()}`
             )
 
-            const accountInfo = await connection.getParsedAccountInfo(
-              fromTokenAccount.address
-            )
+            const { amount, decimals } = balanceInfo
 
-            const parsedAccountInfo = accountInfo?.value
-              ?.data as ParsedAccountData
-
-            setBalance(
-              +formatUnits(
-                parsedAccountInfo.parsed?.info?.tokenAmount?.amount,
-                parsedAccountInfo.parsed?.info?.tokenAmount?.decimals
-              )
-            )
-            return
+            setBalance(+formatUnits(amount, decimals))
           }
 
           if (sourceChain === ChainName.TRON && tronAddress) {

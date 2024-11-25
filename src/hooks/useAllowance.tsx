@@ -26,9 +26,9 @@ import {
   selectTokenOptions,
   selectTargetChain,
   selectFeeDeduct,
-  selectNetworkOption
+  selectNetworkOption,
+  selectBackendUrl
 } from '../store/selectors'
-import { getOrCreateAssociatedTokenAccount } from '../utils/solana/getOrCreateAssociatedTokenAccount'
 import { PublicKey, Transaction } from '@solana/web3.js'
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import { createApproveTransferInstruction } from '../utils/solana/createTransferInstruction'
@@ -45,15 +45,6 @@ import { ethers } from 'ethers'
 import { ExternalProvider, JsonRpcFetchFunc } from '@ethersproject/providers'
 import { isEmptyObject, sleep } from '../helpers/functions'
 import toast from 'react-hot-toast'
-
-type ParsedAccountData = {
-  /** Name of the program that owns this account */
-  program: string
-  /** Parsed account data */
-  parsed: any
-  /** Space used by account data */
-  space: number
-}
 
 export default function useAllowance({
   setApproving,
@@ -76,6 +67,7 @@ export default function useAllowance({
   const { walletProvider } = useWeb3ModalProvider()
   const selectedNetwork = useSelector(selectSourceChain)
   const errorHandler = useSelector(selectErrorHandler)
+  const kimaBackendUrl = useSelector(selectBackendUrl)
   const dAppOption = useSelector(selectDappOption)
   const targetChain = useSelector(selectTargetChain)
   const feeDeduct = useSelector(selectFeeDeduct)
@@ -180,29 +172,47 @@ export default function useAllowance({
             : tronWebTestnet
         if (!isEVMChain(sourceChain)) {
           if (solanaAddress && tokenAddress && connection) {
-            const mint = new PublicKey(tokenAddress)
-            const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
-              connection,
-              solanaAddress as PublicKey,
-              mint,
-              solanaAddress as PublicKey,
-              signSolanaTransaction /* as SignerWalletAdapterProps['signTransaction']*/
-            )
+            // if (
+            //   networkOption === NetworkOptions.testnet &&
+            //   rpcEndpoint != 'https://api.mainnet-beta.solana.com/'
+            // ) {
+            //   const mint = new PublicKey(tokenAddress)
+            //   const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
+            //     connection,
+            //     solanaAddress as PublicKey,
+            //     mint,
+            //     solanaAddress as PublicKey,
+            //     signSolanaTransaction /* as SignerWalletAdapterProps['signTransaction']*/
+            //   )
 
-            const accountInfo = await connection.getParsedAccountInfo(
-              fromTokenAccount.address
-            )
-            console.log('solana token account: ', accountInfo)
+            //   const accountInfo = await connection.getParsedAccountInfo(
+            //     fromTokenAccount.address
+            //   )
 
-            const parsedAccountInfo = accountInfo?.value
-              ?.data as ParsedAccountData
+            //   const parsedAccountInfo = accountInfo?.value
+            //     ?.data as ParsedAccountData
 
-            setDecimals(parsedAccountInfo.parsed?.info?.tokenAmount?.decimals)
-            setAllowance(
-              parsedAccountInfo.parsed?.info?.delegate === targetAddress
-                ? parsedAccountInfo.parsed?.info?.delegatedAmount?.uiAmount
-                : 0
+            //   setDecimals(parsedAccountInfo.parsed?.info?.tokenAmount?.decimals)
+            //   setAllowance(
+            //     parsedAccountInfo.parsed?.info?.delegate === targetAddress
+            //       ? parsedAccountInfo.parsed?.info?.delegatedAmount?.uiAmount
+            //       : 0
+            //   )
+            // } else {
+            // mainnet case, request from backend to avoid rpc limits
+            const allowanceInfo: any = await fetchWrapper.get(
+              `${kimaBackendUrl}/sol/allowance/${tokenAddress}/${solanaAddress.toBase58()}`
             )
+            const { allowance: tokenAllowance } = allowanceInfo
+
+            const balanceInfo: any = await fetchWrapper.get(
+              `${kimaBackendUrl}/sol/balances/${tokenAddress}/${solanaAddress.toBase58()}`
+            )
+            const { decimals } = balanceInfo
+            setDecimals(decimals || 0)
+
+            setAllowance(+formatUnits(tokenAllowance, decimals))
+            // }
           } else if (tronAddress && tokenAddress) {
             let trc20Contract = await tronWeb.contract(
               ERC20ABI.abi,
@@ -344,23 +354,27 @@ export default function useAllowance({
       }
 
       // Solana
-      if (!signSolanaTransaction) return
+      if (!signSolanaTransaction || !solanaAddress) return
 
       try {
         isCancel ? setCancellingApprove(true) : setApproving(true)
-        const mint = new PublicKey(tokenAddress)
-        const toPublicKey = new PublicKey(targetAddress as string)
-        const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
-          connection,
-          solanaAddress as PublicKey,
-          mint,
-          solanaAddress as PublicKey,
-          signSolanaTransaction /* as SignerWalletAdapterProps['signTransaction']*/
+        const tokenInfo: any = await fetchWrapper.get(
+          `${kimaBackendUrl}/sol/info/${tokenAddress}/${solanaAddress.toBase58()}`
         )
+        const { tokenAccount, blockHash } = tokenInfo
+        // const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
+        //   connection,
+        //   solanaAddress as PublicKey,
+        //   mint,
+        //   solanaAddress as PublicKey,
+        //   signSolanaTransaction /* as SignerWalletAdapterProps['signTransaction']*/
+        // )
 
+        const toPublicKey = new PublicKey(targetAddress as string)
+        const tokenAccountPublicKey = new PublicKey(tokenAccount as string)
         const transaction = new Transaction().add(
           createApproveTransferInstruction(
-            fromTokenAccount.address, // source
+            tokenAccountPublicKey, // source
             toPublicKey, // dest
             solanaAddress as PublicKey,
             isCancel ? 0 : +amountToShow * Math.pow(10, decimals ?? 6), // amount * LAMPORTS_PER_SOL,
@@ -369,32 +383,29 @@ export default function useAllowance({
           )
         )
 
-        const blockHash = await connection.getLatestBlockhash()
         transaction.feePayer = solanaAddress as PublicKey
-        transaction.recentBlockhash = await blockHash.blockhash
+        transaction.recentBlockhash = blockHash
         const signed = await signSolanaTransaction(transaction)
+        console.log(signed.serialize())
 
-        await connection.sendRawTransaction(signed.serialize())
+        await fetchWrapper.post(
+          `${kimaBackendUrl}/sol/send`,
+          JSON.stringify({ transaction: signed.serialize() })
+        )
+        // await connection.sendRawTransaction(signed.serialize())
 
-        let accountInfo
         let allowAmount = 0
         let retryCount = 0
 
-        if (isCancel) {
+        if (!isCancel) {
           do {
-            accountInfo = await connection.getParsedAccountInfo(
-              fromTokenAccount.address
+            const allowanceInfo: any = await fetchWrapper.get(
+              `${kimaBackendUrl}/sol/allowance/${tokenAddress}/${solanaAddress.toBase58()}`
             )
+            allowAmount = allowanceInfo.allowance
 
-            const parsedAccountInfo = accountInfo?.value
-              ?.data as ParsedAccountData
-            allowAmount =
-              parsedAccountInfo.parsed?.info?.delegate === targetAddress
-                ? parsedAccountInfo.parsed?.info?.delegatedAmount?.uiAmount
-                : 0
-
-            await sleep(1000)
-          } while (allowAmount < +amountToShow || retryCount++ < 5)
+            await sleep(2000)
+          } while (allowAmount < +amountToShow || retryCount++ < 10)
 
           setAllowance(+amountToShow)
         } else {
