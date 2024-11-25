@@ -2,17 +2,16 @@ import React, { useEffect, useMemo, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { WalletReadyState } from '@solana/wallet-adapter-base'
-import { selectSolanaProvider, selectTheme } from '../../store/selectors'
+import { selectTheme } from '../../store/selectors'
 import ExternalLink from './ExternalLink'
-import { setSolanaProvider } from '../../store/optionSlice'
+import { setSolanaConnectModal } from '../../store/optionSlice'
 
 const SolanaWalletSelect = () => {
   const theme = useSelector(selectTheme)
-  const selectedProvider = useSelector(selectSolanaProvider)
+  const dispatch = useDispatch()
   const sliderRef = useRef<any>()
 
-  const dispatch = useDispatch()
-  const { wallets } = useWallet()
+  const { wallets, select } = useWallet()
   const [detected, undetected] = useMemo(() => {
     const detected: any[] = []
     const undetected: any[] = []
@@ -57,22 +56,25 @@ const SolanaWalletSelect = () => {
     })
   })
 
+  const connectWallet = (walletName) => {
+    select(walletName)
+    dispatch(setSolanaConnectModal(false))
+  }
 
   return (
     <div className={`wallet-select`}>
-
       <div className='slide-area hide-scrollbar' ref={sliderRef}>
         <div className='wallet-container'>
           {detected.map((wallet, index) => (
             <div
-              className={`card-item ${theme.colorMode} ${
-                wallet.adapter.name === selectedProvider ? 'active' : ''
-              }`}
-              onClick={() => dispatch(setSolanaProvider(wallet.adapter.name))}
+              className={`card-item ${theme.colorMode}`}
+              onClick={() => connectWallet(wallet.adapter.name)}
               key={`${wallet.adapter.name}-${index}`}
             >
-              <img src={wallet.adapter.icon} alt={wallet.adapter.name} />
-              <span>{wallet.adapter.name}</span>
+              <div className='wallet-item'>
+                <img src={wallet.adapter.icon} alt={wallet.adapter.name} />
+                <span>{wallet.adapter.name}</span>
+              </div>
             </div>
           ))}
           {undetected.map((wallet, index) => (
@@ -81,10 +83,10 @@ const SolanaWalletSelect = () => {
               className={`card-item ${theme.colorMode}`}
               key={`${wallet.adapter.name}-${index}`}
             >
-              <img src={wallet.adapter.icon} alt={wallet.adapter.name} />
-              <span>
-                Install {wallet.adapter.name}
-              </span>
+              <div className='wallet-item'>
+                <img src={wallet.adapter.icon} alt={wallet.adapter.name} />
+                <span>Install {wallet.adapter.name}</span>
+              </div>
             </ExternalLink>
           ))}
         </div>
