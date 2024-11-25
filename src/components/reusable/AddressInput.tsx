@@ -26,7 +26,7 @@ const AddressInput = ({
   const dispatch = useDispatch()
   const sourceChain = useSelector(selectSourceChain)
   const targetChain = useSelector(selectTargetChain)
-  const { walletAddress: sourceAddress } = useIsWalletReady()
+  const { walletAddress: sourceAddress, isReady } = useIsWalletReady()
   const targetAddress = useSelector(selectTargetAddress)
 
   const isEvm = (chain: string): boolean => {
@@ -49,8 +49,8 @@ const AddressInput = ({
       return
     }
 
-    dispatch(setTargetAddress(sourceAddress || ''))
-  }, [sourceChain, targetChain, sourceAddress, dispatch])
+    isReady && dispatch(setTargetAddress(sourceAddress || ''))
+  }, [sourceChain, targetChain, sourceAddress, isReady, dispatch])
 
   return (
     <input
