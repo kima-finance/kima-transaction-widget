@@ -102,7 +102,7 @@
           }
         }
 
-        .cross-icon-button{
+        .cross-icon-button {
           display: flex;
           justify-content: center;
           align-items: center;
@@ -114,7 +114,7 @@
           cursor: pointer;
           border: 1px solid $financeGrey;
 
-          @include breakpoint(phablet){
+          @include breakpoint(phablet) {
             width: 50px;
             height: 50px;
           }
@@ -123,7 +123,7 @@
             width: 24px;
             height: 24px;
 
-            @include breakpoint(phablet){
+            @include breakpoint(phablet) {
               width: 20px;
               height: 20px;
             }
@@ -164,6 +164,26 @@
           }
         }
 
+        .reset-button {
+          font-family: 'Manrope';
+          font-size: 14px;
+          font-weight: 500;
+          padding: 4px 16px;
+          border: 1px solid $financeGrey;
+          border-radius: 50px;
+          background-color: $hover;
+          color: $finance;
+          cursor: pointer;
+          
+          &:hover{
+            opacity: 75%;
+          }
+
+          @include breakpoint(mobile) {
+            font-size: $fontSmall;
+          }
+        }
+
         .maximize {
           color: $financeIcon;
           cursor: pointer;
@@ -182,7 +202,7 @@
         padding: 0;
       }
 
-      @include breakpoint('max-width: 390px'){
+      @include breakpoint('max-width: 390px') {
         p {
           display: none;
         }
@@ -271,18 +291,16 @@
       margin-left: auto;
       flex-direction: row;
       gap: 20px;
-    
 
       &.confirm {
         margin-top: 20px;
 
-        @include breakpoint(mobile){
+        @include breakpoint(mobile) {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
 
           .primary-button-wrapper {
-
-            &:last-of-type{
+            &:last-of-type {
               grid-column: span 2 / span 2;
             }
           }

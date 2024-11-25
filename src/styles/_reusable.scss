@@ -704,7 +704,7 @@
 
             @include breakpoint('min-width: 640px') {
               padding: 15px;
-              width: 365px;
+              width: 390px;
             }
 
             @include breakpoint('max-width: 585px') {
@@ -741,14 +741,13 @@
             align-items: flex-start;
 
             button {
-              padding: 0 9px;
 
               @include breakpoint('min-width: 585xp') {
                 width: 220px;
               }
 
               @include breakpoint('min-width: 640px') {
-                width: 400px;
+                width: 425px;
               }
 
               @include breakpoint('max-width: 585px') {

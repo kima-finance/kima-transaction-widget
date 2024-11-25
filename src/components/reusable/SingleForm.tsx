@@ -56,7 +56,7 @@ const SingleForm = ({}) => {
   }, [errorMessage])
 
   useEffect(() => {
-    if (amountValue) return
+    if (amountValue && amount != '') return
     setAmountValue(amount)
   }, [amount])
 

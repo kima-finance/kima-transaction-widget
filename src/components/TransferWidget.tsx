@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { CrossIcon, ErrorIcon, FooterLogo } from '../assets/icons'
+import { ErrorIcon, FooterLogo } from '../assets/icons'
 import {
   ConfirmDetails,
   ExternalLink,
@@ -785,6 +785,13 @@ export const TransferWidget = ({
     approve(true)
   }
 
+  const resetForm = () => {
+    if (isApproving || isSubmitting || isSigning) return
+
+    dispatch(initialize())
+    closeHandler()
+  }
+
   useEffect(() => {
     dispatch(setTheme(theme))
   }, [theme])
@@ -886,20 +893,24 @@ export const TransferWidget = ({
             </ExternalLink>
 
             {formStep !== 1 && (
-              <button
-                className='cross-icon-button'
-                onClick={() => {
-                  if (isApproving || isSubmitting || isSigning )
-                    return
-                  dispatch(initialize())
-                  closeHandler()
-                }}
-                disabled={isApproving || isSubmitting || isSigning}
-              >
-                <CrossIcon
-                  fill={theme.colorMode === 'light' ? 'black' : 'white'}
-                />
-              </button>
+              <div className='reset-button' onClick={resetForm}>
+                Reset
+              </div>
+
+              // <button
+              //   className='cross-icon-button'
+              //   onClick={() => {
+              //     if (isApproving || isSubmitting || isSigning )
+              //       return
+              //     dispatch(initialize())
+              //     closeHandler()
+              //   }}
+              //   disabled={isApproving || isSubmitting || isSigning}
+              // >
+              //   <CrossIcon
+              //     fill={theme.colorMode === 'light' ? 'black' : 'white'}
+              //   />
+              // </button>
             )}
           </div>
         </div>
@@ -959,15 +970,19 @@ export const TransferWidget = ({
           >
             Switch to {isWizard ? 'Form' : 'Wizard'}
           </SecondaryButton> */}
-          <SecondaryButton
-            clickHandler={onBack}
-            theme={theme.colorMode}
-            disabled={isApproving || isSubmitting || isSigning || isBTCSigning}
-          >
-            {(isWizard && wizardStep > 0) || (!isWizard && formStep > 0)
-              ? 'Back'
-              : 'Cancel'}
-          </SecondaryButton>
+          {formStep !== 0 && (
+            <SecondaryButton
+              clickHandler={onBack}
+              theme={theme.colorMode}
+              disabled={
+                isApproving || isSubmitting || isSigning || isBTCSigning
+              }
+            >
+              {(isWizard && wizardStep > 0) || (!isWizard && formStep > 0)
+                ? 'Back'
+                : 'Cancel'}
+            </SecondaryButton>
+          )}
           {allowance > 0 &&
           ((isWizard && wizardStep === 5) || (!isWizard && formStep === 1)) ? (
             <PrimaryButton

@@ -156,6 +156,7 @@ export const optionSlice = createSlice({
       state.initChainFromProvider = false
       state.targetNetworkFetching = false
       state.signature = ''
+      state.amount = ''
     },
     setNetworkOption: (state, action: PayloadAction<NetworkOptions>) => {
       state.networkOption = action.payload

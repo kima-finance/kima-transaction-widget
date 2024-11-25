@@ -159,6 +159,25 @@
     font-size: 12px;
   }
 }
+.kima-card .kima-card-header .topbar .control-buttons .reset-button {
+  font-family: "Manrope";
+  font-size: 14px;
+  font-weight: 500;
+  padding: 4px 16px;
+  border: 1px solid rgba(119, 141, 163, 0.3019607843);
+  border-radius: 50px;
+  background-color: #d6e4ea;
+  color: #778da3;
+  cursor: pointer;
+}
+.kima-card .kima-card-header .topbar .control-buttons .reset-button:hover {
+  opacity: 75%;
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-header .topbar .control-buttons .reset-button {
+    font-size: 12px;
+  }
+}
 .kima-card .kima-card-header .topbar .control-buttons .maximize {
   color: #86b8ce;
   cursor: pointer;
@@ -960,7 +979,7 @@
 @media (min-width: 640px) {
   .kima-card .kima-card-content .single-form .form-item input.kima-address-input {
     padding: 15px;
-    width: 365px;
+    width: 390px;
   }
 }
 @media (max-width: 585px) {
@@ -992,9 +1011,6 @@
 .kima-card .kima-card-content .single-form .form-item.wallet-button-item.connected {
   align-items: flex-start;
 }
-.kima-card .kima-card-content .single-form .form-item.wallet-button-item.connected button {
-  padding: 0 9px;
-}
 @media (min-width: 585xp) {
   .kima-card .kima-card-content .single-form .form-item.wallet-button-item.connected button {
     width: 220px;
@@ -1002,7 +1018,7 @@
 }
 @media (min-width: 640px) {
   .kima-card .kima-card-content .single-form .form-item.wallet-button-item.connected button {
-    width: 400px;
+    width: 425px;
   }
 }
 @media (max-width: 585px) {
@@ -2145,7 +2161,6 @@
   border-radius: 42px;
   border: 1px solid rgba(119, 141, 163, 0.3019607843);
   box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
   overflow: hidden;
   box-sizing: content-box;
   display: flex;
