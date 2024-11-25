@@ -741,7 +741,6 @@
             align-items: flex-start;
 
             button {
-
               @include breakpoint('min-width: 585xp') {
                 width: 220px;
               }
@@ -774,7 +773,7 @@
 
       .coin-dropdown {
         position: relative;
-        width: 90px;
+        width: 115px;
         border-radius: 50px;
         border: 0.5px solid $financeIcon;
         padding-left: 12px;
@@ -785,6 +784,10 @@
         cursor: pointer;
         box-sizing: content-box;
         @include transition();
+
+        @include breakpoint('max-width: 639px') {
+          width: 90px;
+        }
 
         .coin-wrapper {
           display: flex;
@@ -1203,6 +1206,27 @@
         }
       }
 
+      .info-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        @include breakpoint('max-width: 639px') {
+          flex-direction: row-reverse;
+          gap: 3px;
+        }
+
+        svg {
+          width: 20px;
+          height: 20px;
+        }
+
+        .check-icon {
+          width: 30px;
+          height: 30px;
+        }
+      }
+
       button {
         cursor: pointer;
         display: flex;
@@ -1562,8 +1586,6 @@
 
         .custom-checkbox-icon-wrapper {
           border: 1px solid #ffffff;
-          height: 1em;
-          width: 1em;
           border-radius: 0.2em;
           display: flex;
           justify-content: center;
@@ -1573,9 +1595,9 @@
             border-color: $progressbarDark;
           }
 
-          svg {
-            margin-top: 0.2em;
-            margin-left: 1px;
+          .check-icon {
+            width: 20px;
+            height: 20px;
           }
         }
       }

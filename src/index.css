@@ -1043,7 +1043,7 @@
 }
 .kima-card .kima-card-content .single-form .coin-dropdown {
   position: relative;
-  width: 90px;
+  width: 115px;
   border-radius: 50px;
   border: 0.5px solid #86b8ce;
   padding-left: 12px;
@@ -1054,6 +1054,11 @@
   cursor: pointer;
   box-sizing: content-box;
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+@media (max-width: 639px) {
+  .kima-card .kima-card-content .single-form .coin-dropdown {
+    width: 90px;
+  }
 }
 .kima-card .kima-card-content .single-form .coin-dropdown .coin-wrapper {
   display: flex;
@@ -1403,6 +1408,25 @@
     margin-left: auto;
   }
 }
+.kima-card .kima-card-content .wallet-button .info-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+@media (max-width: 639px) {
+  .kima-card .kima-card-content .wallet-button .info-wrapper {
+    flex-direction: row-reverse;
+    gap: 3px;
+  }
+}
+.kima-card .kima-card-content .wallet-button .info-wrapper svg {
+  width: 20px;
+  height: 20px;
+}
+.kima-card .kima-card-content .wallet-button .info-wrapper .check-icon {
+  width: 30px;
+  height: 30px;
+}
 .kima-card .kima-card-content .wallet-button button {
   cursor: pointer;
   display: flex;
@@ -1732,8 +1756,6 @@
 }
 .kima-card .kima-card-content .kima-custom-checkbox .custom-checkbox-content .custom-checkbox-icon-wrapper {
   border: 1px solid #ffffff;
-  height: 1em;
-  width: 1em;
   border-radius: 0.2em;
   display: flex;
   justify-content: center;
@@ -1742,9 +1764,9 @@
 .kima-card .kima-card-content .kima-custom-checkbox .custom-checkbox-content .custom-checkbox-icon-wrapper.light {
   border-color: #4f5156;
 }
-.kima-card .kima-card-content .kima-custom-checkbox .custom-checkbox-content .custom-checkbox-icon-wrapper svg {
-  margin-top: 0.2em;
-  margin-left: 1px;
+.kima-card .kima-card-content .kima-custom-checkbox .custom-checkbox-content .custom-checkbox-icon-wrapper .check-icon {
+  width: 20px;
+  height: 20px;
 }
 .kima-card .kima-card-content .kima-custom-checkbox > span {
   margin-left: 0.5em;

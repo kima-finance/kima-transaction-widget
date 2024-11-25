@@ -24,6 +24,7 @@ import useWidth from '../../hooks/useWidth'
 import { getShortenedAddress } from '../../utils/functions'
 import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
+import CopyButton from './CopyButton'
 
 const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const dispatch = useDispatch()
@@ -88,18 +89,22 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
       }`}
       data-testid={connectWalletBtn}
     >
-      <button
-        className={`${isReady ? 'connected' : 'disconnected'} ${width < 640 && 'shortened'} ${theme.colorMode}`}
-        onClick={handleClick}
-      >
-        {isReady
-          ? width >= 640
-            ? `${walletAddress || ''}`
-            : getShortenedAddress(walletAddress || '')
-          : ''}
-        {!isReady && <WalletIcon />}
-        {!isReady && 'Connect Wallet'}
-      </button>
+      <div className='info-wrapper'>
+        <button
+          className={`${isReady ? 'connected' : 'disconnected'} ${width < 640 && 'shortened'} ${theme.colorMode}`}
+          onClick={handleClick}
+        >
+          {isReady
+            ? width >= 640
+              ? `${walletAddress || ''}`
+              : getShortenedAddress(walletAddress || '')
+            : ''}
+          {!isReady && <WalletIcon />}
+          {!isReady && 'Connect Wallet'}
+        </button>
+
+        {isReady && <CopyButton text={walletAddress as string} />}
+      </div>
 
       {isReady ? (
         <p className='balance-info'>
