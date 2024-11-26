@@ -1,12 +1,98 @@
-import React from "react";
-const PizzaDropdown = () => {
-  const pizzas = ["Margherita", "Pepperoni", "Hawaiian", "BBQ Chicken"];
+import React, { useState, useMemo, useRef, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { setTargetChain } from '@store/optionSlice'
+import { selectTheme } from '@store/selectors'
+import Arrow from '@assets/icons/Arrow'
+import useGetChainData from '../../hooks/useGetChainData'
+
+const TargetNetworkSelectorComponent = () => {
+  const [collapsed, setCollapsed] = useState(true)
+  const ref = useRef<any>()
+
+  const dispatch = useDispatch()
+  const theme = useSelector(selectTheme)
+
+  // Get the selected target network from Redux
+  const targetNetwork = useSelector((state) => state.option.targetChain)
+
+  // Fetch dynamic chain data
+  const { chainData } = useGetChainData()
+
+  // Map chain data to the format needed by the dropdown
+  const networks = useMemo(() => {
+    const data =
+      chainData.map((network) => ({
+        id: network.symbol,
+        label: network.name,
+        icon: network.icon ? <network.icon /> : <div /> // Render the icon as JSX
+      })) || [] // Default to an empty array if chainData is undefined
+    console.info('Final data (target): ', data)
+    return data
+  }, [chainData])
+
+  // Ensure there's always a fallback selected network
+  const selectedNetwork = useMemo(() => {
+    return (
+      networks.find((option) => option.id === targetNetwork) ||
+      networks[0] || { label: 'Select Network', icon: null } // Provide safe fallback
+    )
+  }, [targetNetwork, networks])
+
+  const handleNetworkChange = (networkId: string) => {
+    if (networkId === targetNetwork) return
+    dispatch(setTargetChain(networkId))
+    setCollapsed(false)
+  }
+
+  useEffect(() => {
+    const bodyMouseDownHandler = (e: any) => {
+      if (ref?.current && !ref.current.contains(e.target)) {
+        setCollapsed(true)
+      }
+    }
+
+    document.addEventListener('mousedown', bodyMouseDownHandler)
+    return () => {
+      document.removeEventListener('mousedown', bodyMouseDownHandler)
+    }
+  }, [])
+
   return (
-    <select>
-      {pizzas.map((pizza) => (
-        <option key={pizza}>{pizza}</option>
-      ))}
-    </select>
-  );
-};
-export default PizzaDropdown;
+    <div
+      className={`network-dropdown ${theme?.colorMode ?? ''} ${
+        collapsed ? 'collapsed' : 'toggled'
+      }`}
+      onClick={() => setCollapsed((prev) => !prev)}
+      ref={ref}
+    >
+      <div className='network-wrapper'>
+        <div className='icon'>{selectedNetwork.icon}</div>
+        <span>{selectedNetwork.label}</span>
+      </div>
+      <div
+        className={`network-menu custom-scrollbar ${theme?.colorMode ?? ''} ${
+          collapsed ? 'collapsed' : 'toggled'
+        }`}
+      >
+        {networks.map((network) => (
+          <div
+            key={network.id}
+            className={`network-menu-item ${theme?.colorMode ?? ''}`}
+            onClick={() => handleNetworkChange(network.id)}
+          >
+            <div className='icon'>{network.icon}</div>
+            <p>{network.label}</p>
+          </div>
+        ))}
+      </div>
+      <div className={`dropdown-icon ${collapsed ? 'toggled' : 'collapsed'}`}>
+        <Arrow fill='none' />
+      </div>
+    </div>
+  )
+}
+
+// Wrap the named component in React.memo for optimization
+const TargetNetworkSelector = React.memo(TargetNetworkSelectorComponent)
+
+export default TargetNetworkSelector

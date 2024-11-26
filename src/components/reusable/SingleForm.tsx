@@ -18,11 +18,14 @@ import { BankInput, CoinDropdown, CustomCheckbox, WalletButton } from './'
 import { setAmount, setFeeDeduct } from '../../store/optionSlice'
 import { ModeOptions } from '../../interface'
 import AddressInput from './AddressInput'
-import NetworkDropdown from './NetworkDropdown'
 import { COIN_LIST, ChainName } from '../../utils/constants'
 import { formatterFloat } from '../../helpers/functions'
 import ExpireTimeDropdown from './ExpireTimeDropdown'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
+import SourceNetworkSelector from '@components/primary/SourceNetworkSelector'
+import SourceTokenSelector from '@components/primary/SourceTokenSelector'
+import TargetNetworkSelector from '@components/primary/TargetNetworkSelector'
+import TargetTokenSelector from '@components/primary/TargetTokenSelector'
 
 const SingleForm = ({}) => {
   const dispatch = useDispatch()
@@ -65,8 +68,8 @@ const SingleForm = ({}) => {
       <div className='form-item'>
         <span className='label'>Source Network:</span>
         <div className='items'>
-          <NetworkDropdown />
-          <CoinDropdown />
+          <SourceNetworkSelector />
+          <SourceTokenSelector />
         </div>
       </div>
 
@@ -79,86 +82,53 @@ const SingleForm = ({}) => {
           className={`form-item wallet-button-item ${isReady && 'connected'}`}
         >
           <span className='label'>Connect wallet:</span>
-          <WalletButton />
+          {/*<WalletButton />*/}
         </div>
 
-        {mode === ModeOptions.bridge && (
-          <div className='form-item'>
-            <span className='label'>Target Network:</span>
-            <div className='items'>
-              <NetworkDropdown isSourceChain={false} />
-              <CoinDropdown isSourceChain={false} />
-            </div>
+        <div className='form-item'>
+          <span className='label'>Target Network:</span>
+          <div className='items'>
+            <TargetNetworkSelector />
+            <TargetTokenSelector />
           </div>
-        )}
+        </div>
       </div>
 
-      {mode === ModeOptions.bridge && sourceNetwork !== ChainName.FIAT ? (
-        targetNetwork === ChainName.FIAT ? (
-          <BankInput />
-        ) : (
-          <div className={`form-item ${theme.colorMode}`}>
-            <span className='label'>Target Address:</span>
-            <AddressInput
-              theme={theme.colorMode as string}
-              placeholder='Input target address'
-            />
-          </div>
-        )
-      ) : null}
-
-      {mode === ModeOptions.bridge ? (
-        <div className={`form-item ${theme.colorMode}`}>
-          <span className='label'>Amount:</span>
-          <div className={`amount-label-container items ${theme.colorMode}`}>
-            <input
-              className={`${theme.colorMode}`}
-              type='number'
-              placeholder='Amount'
-              value={amountValue || ''}
-              onChange={(e) => {
-                let _amount = +e.target.value
-                const decimal =
-                  sourceNetwork === ChainName.BTC ||
-                  targetNetwork === ChainName.BTC
-                    ? 8
-                    : 2
-                setAmountValue(e.target.value)
-                dispatch(setAmount(_amount.toFixed(decimal)))
-              }}
-            />
+      <div className={`form-item ${theme.colorMode}`}>
+        <span className='label'>Target Address:</span>
+        <AddressInput
+          theme={theme.colorMode as string}
+          placeholder='Input target address'
+        />
+      </div>
+      <div className={`form-item ${theme.colorMode}`}>
+        <span className='label'>Amount:</span>
+        <div className={`amount-label-container items ${theme.colorMode}`}>
+          <input
+            className={`${theme.colorMode}`}
+            type='number'
+            placeholder='Amount'
+            value={transactionOption?.amount || amountValue || ''}
+            onChange={(e) => {
+              let _amount = +e.target.value
+              const decimal =
+                sourceNetwork === ChainName.BTC ||
+                targetNetwork === ChainName.BTC
+                  ? 8
+                  : 2
+              setAmountValue(e.target.value)
+              dispatch(setAmount(_amount.toFixed(decimal)))
+            }}
+            disabled={transactionOption?.amount !== undefined}
+          />
+          <div className={`coin-wrapper ${theme.colorMode}`}>
+            {<TargetIcon />}
+            {targetCurrency}
           </div>
         </div>
-      ) : (
-        <div className={`form-item ${theme.colorMode}`}>
-          <span className='label'>Amount:</span>
-          <div className={`amount-label-container items ${theme.colorMode}`}>
-            <input
-              className={`${theme.colorMode}`}
-              type='number'
-              placeholder='Amount'
-              value={transactionOption?.amount || amountValue || ''}
-              onChange={(e) => {
-                let _amount = +e.target.value
-                const decimal =
-                  sourceNetwork === ChainName.BTC ||
-                  targetNetwork === ChainName.BTC
-                    ? 8
-                    : 2
-                setAmountValue(e.target.value)
-                dispatch(setAmount(_amount.toFixed(decimal)))
-              }}
-              disabled={transactionOption?.amount !== undefined}
-            />
-            <div className={`coin-wrapper ${theme.colorMode}`}>
-              {<TargetIcon />}
-              {targetCurrency}
-            </div>
-          </div>
-        </div>
-      )}
+      </div>
 
-      {mode === ModeOptions.bridge && serviceFee > 0 ? (
+      {serviceFee > 0 ? (
         <CustomCheckbox
           text={
             sourceNetwork === ChainName.BTC
@@ -168,13 +138,6 @@ const SingleForm = ({}) => {
           checked={feeDeduct}
           setCheck={(value: boolean) => dispatch(setFeeDeduct(value))}
         />
-      ) : null}
-
-      {sourceNetwork === ChainName.BTC || targetNetwork === ChainName.BTC ? (
-        <div className={`form-item ${theme.colorMode}`}>
-          <span className='label'>Expire Time:</span>
-          <ExpireTimeDropdown />
-        </div>
       ) : null}
     </div>
   )
