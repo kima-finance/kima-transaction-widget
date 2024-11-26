@@ -1,4 +1,5 @@
 import getChainIcon from './getChainIcon'
+import getTokenIcon from './getTokenIcon'
 
 async function getChainData() {
   const response = await fetch('http://localhost:3001/chains/chain', {
@@ -27,11 +28,18 @@ async function getChainData() {
     .map((chain) => {
       const { name, symbol, tokens } = chain
       const icon = getChainIcon(symbol) // Fetch icon dynamically
-      return { name, symbol, tokens, icon }
+
+      // Add icons to each token in the chain
+      const tokensWithIcons = tokens.map((token) => ({
+        ...token,
+        icon: getTokenIcon(token.symbol) // Add token icon
+      }))
+
+      return { name, symbol, tokens: tokensWithIcons, icon }
     })
 
   console.info('EVM chain data: ', chainData)
-  console.info('EVM chains: ', chains)
+  console.info('EVM chains with token icons: ', chains)
   return chains
 }
 
