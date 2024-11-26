@@ -916,9 +916,20 @@
   border-radius: 50px;
   height: 50px;
   padding: 0 14px;
+  width: 155px;
 }
-.kima-card .kima-card-content .single-form .form-item .amount-label-container .coin-wrapper svg {
-  margin-right: 14px;
+@media (max-width: 639px) {
+  .kima-card .kima-card-content .single-form .form-item .amount-label-container .coin-wrapper {
+    width: fit-content;
+  }
+}
+.kima-card .kima-card-content .single-form .form-item .amount-label-container .coin-wrapper .icon-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 8px;
+  background-color: white;
+  margin-right: 6px;
+  border-radius: 9999px;
 }
 .kima-card .kima-card-content .single-form .form-item .amount-label-container .coin-wrapper.light {
   background-color: #edf2f5;
@@ -954,11 +965,6 @@
   background: white;
   color: black;
   margin-left: 1em;
-}
-.kima-card .kima-card-content .single-form .form-item .amount-label .coin-wrapper svg {
-  width: 1.5em;
-  height: 1.5em;
-  margin-right: 0.5em;
 }
 .kima-card .kima-card-content .single-form .form-item input {
   border-radius: 50px;
@@ -1067,8 +1073,13 @@
   padding: 2.5px;
   padding-right: 6px;
 }
-.kima-card .kima-card-content .single-form .coin-dropdown .coin-wrapper svg {
+.kima-card .kima-card-content .single-form .coin-dropdown .coin-wrapper .icon-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 8px;
+  background-color: white;
   margin-right: 6px;
+  border-radius: 9999px;
 }
 .kima-card .kima-card-content .single-form .coin-dropdown.light {
   color: black;
@@ -2622,6 +2633,14 @@
   to {
     transform: rotate(360deg);
   }
+}
+.kima-card .icon-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 8px;
+  background-color: white;
+  margin-right: 6px;
+  border-radius: 9999px;
 }
 .kima-card input::-webkit-outer-spin-button,
 .kima-card input::-webkit-inner-spin-button {

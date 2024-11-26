@@ -50,8 +50,10 @@ const CoinDropdown = ({
       ref={ref}
     >
       <div className='coin-wrapper'>
-        {<Icon />}
-        {isSourceChain ? sourceCurrency : targetCurrency}
+        <div className='icon-wrapper'>{<Icon />}</div>
+        <span className='coin'>
+          {isSourceChain ? sourceCurrency : targetCurrency}
+        </span>
       </div>
       <div
         className={`coin-menu ${theme.colorMode} ${collapsed ? 'collapsed' : 'toggled'}`}
@@ -70,7 +72,7 @@ const CoinDropdown = ({
                 }
               }}
             >
-              {<CoinIcon />}
+              <div className='icon-wrapper'>{<CoinIcon />}</div>
               <p>{COIN_LIST[token]?.symbol}</p>
             </div>
           )

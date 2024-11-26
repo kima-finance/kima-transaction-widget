@@ -630,9 +630,19 @@
             border-radius: 50px;
             height: 50px;
             padding: 0 14px;
+            width: 155px;
 
-            svg {
-              margin-right: 14px;
+            @include breakpoint('max-width: 639px') {
+              width: fit-content;
+            }
+
+            .icon-wrapper {
+              display: flex;
+              justify-content: center;
+              padding: 8px;
+              background-color: white;
+              margin-right: 6px;
+              border-radius: 9999px;
             }
 
             &.light {
@@ -675,12 +685,6 @@
             background: white;
             color: black;
             margin-left: 1em;
-
-            svg {
-              width: 1.5em;
-              height: 1.5em;
-              margin-right: 0.5em;
-            }
           }
         }
 
@@ -796,8 +800,13 @@
           padding: 2.5px;
           padding-right: 6px;
 
-          svg {
+          .icon-wrapper {
+            display: flex;
+            justify-content: center;
+            padding: 8px;
+            background-color: white;
             margin-right: 6px;
+            border-radius: 9999px;
           }
         }
 
