@@ -2689,7 +2689,7 @@ const StepBox = ({
   }) : step >= index ? index === errorStep ? React.createElement(Warning, null) : React.createElement(Check, null) : null, React.createElement("p", null, item.title)), index === 0 && data !== null && data !== void 0 && data.kimaTxHash ? React.createElement("div", {
     className: 'info-item'
   }, React.createElement("p", null, "Kima TX ID:", ' ', React.createElement(ExternalLink, {
-    to: `${explorerUrl}/transactions/${data === null || data === void 0 ? void 0 : data.kimaTxHash}`
+    to: `${explorerUrl}/transactions/?tx=${data === null || data === void 0 ? void 0 : data.kimaTxHash}`
   }, getShortenedAddress((data === null || data === void 0 ? void 0 : data.kimaTxHash) || '')), React.createElement(CopyButton, {
     text: data === null || data === void 0 ? void 0 : data.kimaTxHash
   }))) : null, index === 1 && data !== null && data !== void 0 && data.tssPullHash ? React.createElement("div", {
@@ -7366,7 +7366,7 @@ function output(out, instance) {
 exports.output = output;
 const assert = { number, bool, bytes, hash, exists, output };
 exports.default = assert;
-//# sourceMappingURL=_assert.js.map
+
 });
 
 unwrapExports(_assert);
@@ -7375,7 +7375,7 @@ var crypto = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.crypto = void 0;
 exports.crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
-//# sourceMappingURL=crypto.js.map
+
 });
 
 unwrapExports(crypto);
@@ -7577,7 +7577,7 @@ function randomBytes(bytesLength = 32) {
     throw new Error('crypto.getRandomValues must be defined');
 }
 exports.randomBytes = randomBytes;
-//# sourceMappingURL=utils.js.map
+
 });
 
 unwrapExports(utils);
@@ -7699,7 +7699,7 @@ class SHA2 extends utils.Hash {
     }
 }
 exports.SHA2 = SHA2;
-//# sourceMappingURL=_sha2.js.map
+
 });
 
 unwrapExports(_sha2);
@@ -7832,7 +7832,7 @@ class SHA224 extends SHA256 {
  */
 exports.sha256 = (0, utils.wrapConstructor)(() => new SHA256());
 exports.sha224 = (0, utils.wrapConstructor)(() => new SHA224());
-//# sourceMappingURL=sha256.js.map
+
 });
 
 unwrapExports(sha256);
