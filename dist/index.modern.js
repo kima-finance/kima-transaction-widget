@@ -6864,14 +6864,12 @@ function useAllowance({
           if (solanaAddress && tokenAddress && connection) {
             const allowanceInfo = await fetchWrapper.get(`${kimaBackendUrl}/sol/allowance/${tokenAddress}/${solanaAddress.toBase58()}`);
             const {
-              allowance: tokenAllowance
+              allowance: tokenAllowance,
+              decimals: _decimals,
+              spender
             } = allowanceInfo;
-            const balanceInfo = await fetchWrapper.get(`${kimaBackendUrl}/sol/balances/${tokenAddress}/${solanaAddress.toBase58()}`);
-            const {
-              decimals: _decimals
-            } = balanceInfo;
             setDecimals(_decimals || 0);
-            setAllowance(+formatUnits(tokenAllowance, _decimals));
+            setAllowance(spender === targetAddress ? tokenAllowance : 0);
           } else if (tronAddress && tokenAddress) {
             let trc20Contract = await tronWeb.contract(ERC20ABI.abi, tokenAddress);
             const _decimals2 = await trc20Contract.decimals().call();
@@ -6884,7 +6882,6 @@ function useAllowance({
               parsedDecimals = _decimals2;
             }
             const _userAllowance = await trc20Contract.allowance(tronAddress, targetAddress).call();
-            console.log(parsedDecimals, typeof parsedDecimals);
             setDecimals(parsedDecimals);
             setAllowance(+formatUnits(_userAllowance, _decimals2));
           } else {
@@ -6963,7 +6960,6 @@ function useAllowance({
       transaction.feePayer = solanaAddress;
       transaction.recentBlockhash = blockHash;
       const signed = await signSolanaTransaction(transaction);
-      console.log(signed.serialize());
       await fetchWrapper.post(`${kimaBackendUrl}/sol/send`, JSON.stringify({
         transaction: signed.serialize()
       }));
@@ -6974,8 +6970,8 @@ function useAllowance({
           const allowanceInfo = await fetchWrapper.get(`${kimaBackendUrl}/sol/allowance/${tokenAddress}/${solanaAddress.toBase58()}`);
           allowAmount = allowanceInfo.allowance;
           await sleep(2000);
-        } while (allowAmount < +amountToShow || retryCount++ < 10);
-        setAllowance(+amountToShow);
+        } while (allowAmount < +amountToShow && retryCount++ < 20);
+        setAllowance(allowAmount);
       } else {
         setAllowance(0);
       }
