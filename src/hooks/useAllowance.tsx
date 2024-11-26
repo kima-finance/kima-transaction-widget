@@ -203,15 +203,14 @@ export default function useAllowance({
             const allowanceInfo: any = await fetchWrapper.get(
               `${kimaBackendUrl}/sol/allowance/${tokenAddress}/${solanaAddress.toBase58()}`
             )
-            const { allowance: tokenAllowance } = allowanceInfo
-
-            const balanceInfo: any = await fetchWrapper.get(
-              `${kimaBackendUrl}/sol/balances/${tokenAddress}/${solanaAddress.toBase58()}`
-            )
-            const { decimals } = balanceInfo
+            const {
+              allowance: tokenAllowance,
+              decimals,
+              spender
+            } = allowanceInfo
             setDecimals(decimals || 0)
 
-            setAllowance(+formatUnits(tokenAllowance, decimals))
+            setAllowance(spender === targetAddress ? tokenAllowance : 0)
             // }
           } else if (tronAddress && tokenAddress) {
             let trc20Contract = await tronWeb.contract(
@@ -234,7 +233,6 @@ export default function useAllowance({
               .allowance(tronAddress, targetAddress)
               .call()
 
-            console.log(parsedDecimals, typeof parsedDecimals)
             setDecimals(parsedDecimals)
             setAllowance(+formatUnits(userAllowance, decimals))
           } else {
@@ -386,7 +384,6 @@ export default function useAllowance({
         transaction.feePayer = solanaAddress as PublicKey
         transaction.recentBlockhash = blockHash
         const signed = await signSolanaTransaction(transaction)
-        console.log(signed.serialize())
 
         await fetchWrapper.post(
           `${kimaBackendUrl}/sol/send`,
@@ -405,9 +402,9 @@ export default function useAllowance({
             allowAmount = allowanceInfo.allowance
 
             await sleep(2000)
-          } while (allowAmount < +amountToShow || retryCount++ < 20)
+          } while (allowAmount < +amountToShow && retryCount++ < 20)
 
-          setAllowance(+amountToShow)
+          setAllowance(allowAmount)
         } else {
           setAllowance(0)
         }

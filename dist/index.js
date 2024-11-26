@@ -7360,12 +7360,11 @@ function useAllowance(_ref) {
               var _temp2 = function () {
                 if (solanaAddress && tokenAddress && connection) {
                   return Promise.resolve(fetchWrapper.get(kimaBackendUrl + "/sol/allowance/" + tokenAddress + "/" + solanaAddress.toBase58())).then(function (allowanceInfo) {
-                    var tokenAllowance = allowanceInfo.allowance;
-                    return Promise.resolve(fetchWrapper.get(kimaBackendUrl + "/sol/balances/" + tokenAddress + "/" + solanaAddress.toBase58())).then(function (balanceInfo) {
-                      var decimals = balanceInfo.decimals;
-                      setDecimals(decimals || 0);
-                      setAllowance(+units.formatUnits(tokenAllowance, decimals));
-                    });
+                    var tokenAllowance = allowanceInfo.allowance,
+                      decimals = allowanceInfo.decimals,
+                      spender = allowanceInfo.spender;
+                    setDecimals(decimals || 0);
+                    setAllowance(spender === targetAddress ? tokenAllowance : 0);
                   });
                 } else {
                   var _temp6 = function () {
@@ -7381,7 +7380,6 @@ function useAllowance(_ref) {
                             parsedDecimals = decimals;
                           }
                           return Promise.resolve(trc20Contract.allowance(tronAddress, targetAddress).call()).then(function (userAllowance) {
-                            console.log(parsedDecimals, typeof parsedDecimals);
                             setDecimals(parsedDecimals);
                             setAllowance(+units.formatUnits(userAllowance, decimals));
                           });
@@ -7428,7 +7426,6 @@ function useAllowance(_ref) {
               transaction.feePayer = solanaAddress;
               transaction.recentBlockhash = blockHash;
               return Promise.resolve(signSolanaTransaction(transaction)).then(function (signed) {
-                console.log(signed.serialize());
                 return Promise.resolve(fetchWrapper.post(kimaBackendUrl + "/sol/send", JSON.stringify({
                   transaction: signed.serialize()
                 }))).then(function () {
@@ -7440,7 +7437,7 @@ function useAllowance(_ref) {
                   var _temp13 = function () {
                     if (!isCancel) {
                       var _temp12 = function _temp12() {
-                        setAllowance(+amountToShow);
+                        setAllowance(allowAmount);
                       };
                       var _temp11 = _do(function () {
                         return Promise.resolve(fetchWrapper.get(kimaBackendUrl + "/sol/allowance/" + tokenAddress + "/" + solanaAddress.toBase58())).then(function (allowanceInfo) {
@@ -7448,7 +7445,7 @@ function useAllowance(_ref) {
                           return Promise.resolve(sleep(2000)).then(function () {});
                         });
                       }, function () {
-                        return allowAmount < +amountToShow || retryCount++ < 10;
+                        return allowAmount < +amountToShow && retryCount++ < 20;
                       });
                       return _temp11 && _temp11.then ? _temp11.then(_temp12) : _temp12(_temp11);
                     } else {
