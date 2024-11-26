@@ -3122,7 +3122,7 @@ var StepBox = function StepBox(_ref) {
     }) : step >= index ? index === errorStep ? React__default.createElement(Warning, null) : React__default.createElement(Check, null) : null, React__default.createElement("p", null, item.title)), index === 0 && data !== null && data !== void 0 && data.kimaTxHash ? React__default.createElement("div", {
       className: 'info-item'
     }, React__default.createElement("p", null, "Kima TX ID:", ' ', React__default.createElement(ExternalLink, {
-      to: explorerUrl + "/transactions/" + (data === null || data === void 0 ? void 0 : data.kimaTxHash)
+      to: explorerUrl + "/transactions/?tx=" + (data === null || data === void 0 ? void 0 : data.kimaTxHash)
     }, getShortenedAddress((data === null || data === void 0 ? void 0 : data.kimaTxHash) || '')), React__default.createElement(CopyButton, {
       text: data === null || data === void 0 ? void 0 : data.kimaTxHash
     }))) : null, index === 1 && data !== null && data !== void 0 && data.tssPullHash ? React__default.createElement("div", {
@@ -7962,7 +7962,7 @@ function output(out, instance) {
 exports.output = output;
 const assert = { number, bool, bytes, hash, exists, output };
 exports.default = assert;
-//# sourceMappingURL=_assert.js.map
+
 });
 
 unwrapExports(_assert);
@@ -7971,7 +7971,7 @@ var crypto = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.crypto = void 0;
 exports.crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
-//# sourceMappingURL=crypto.js.map
+
 });
 
 unwrapExports(crypto);
@@ -8173,7 +8173,7 @@ function randomBytes(bytesLength = 32) {
     throw new Error('crypto.getRandomValues must be defined');
 }
 exports.randomBytes = randomBytes;
-//# sourceMappingURL=utils.js.map
+
 });
 
 unwrapExports(utils);
@@ -8295,7 +8295,7 @@ class SHA2 extends utils.Hash {
     }
 }
 exports.SHA2 = SHA2;
-//# sourceMappingURL=_sha2.js.map
+
 });
 
 unwrapExports(_sha2);
@@ -8428,7 +8428,7 @@ class SHA224 extends SHA256 {
  */
 exports.sha256 = (0, utils.wrapConstructor)(() => new SHA256());
 exports.sha224 = (0, utils.wrapConstructor)(() => new SHA224());
-//# sourceMappingURL=sha256.js.map
+
 });
 
 unwrapExports(sha256);
