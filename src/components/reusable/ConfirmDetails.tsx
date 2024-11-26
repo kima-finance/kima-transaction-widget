@@ -135,7 +135,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
               </span>
             </div>
             <p className={theme.colorMode}>
-            {width >= 916
+              {width >= 916
                 ? dAppOption === DAppOptions.LPDrain
                   ? targetAddress
                   : walletAddress
@@ -146,12 +146,32 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
           </div>
         </div>
       )}
-      <div className='detail-item'>
+      <div className='detail-item amount'>
         <span className='label'>Amount:</span>
         <span className='amount-container'>
-          <SourceCoinIcon /> {'   '}
-          {amountToShow} {sourceCurrency} → <TargetCoinIcon />
-          {targetCurrency}
+          <div className='coin-details'>
+            <SourceCoinIcon />
+            <p>
+              {amountToShow} {sourceCurrency}
+            </p>
+          </div>
+          {sourceCurrency !== targetCurrency && (
+            <div className='coin-details'>
+              → <TargetCoinIcon /> {targetCurrency}
+            </div>
+          )}
+          <div className='amount-details fee'>
+            <span>{feeDeduct ? 'Fee deduction' : 'Total fees'}</span>
+            <span className='service-fee'>
+              {serviceFee} {sourceCurrency}
+            </span>
+          </div>
+          <div className='amount-details'>
+            <span>Net Amount</span>
+            <span className='service-fee'>
+              {parseFloat(amountToShow) - serviceFee} {targetCurrency}
+            </span>
+          </div>
         </span>
       </div>
       {targetNetwork === ChainName.FIAT ? (
