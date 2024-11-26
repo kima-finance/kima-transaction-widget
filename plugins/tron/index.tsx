@@ -1,54 +1,44 @@
 // plugins/tron/index.tsx
-import React from 'react'
+import React from 'react' // Explicitly import React
 import { store } from '@store/index'
 import { registerPlugin } from '@store/pluginSlice'
-import { registerPluginProvider } from '@pluginRegistry'
-import WalletProvider from './features/walletConnect/WalletProvider'
-import { initialize } from './initialize' // Import the generic initialization function
+import { registerPluginProvider } from '@pluginRegistry' // Import the pluginRegistry functions
+import WalletProvider from '@plugins/tron/features/walletConnect/WalletProvider'
+import { initialize } from './initialize'
 
+// Define the type for the provider props
 interface PluginProviderProps {
   children: React.ReactNode
-  walletConnectProjectId: string
   networkOption: 'testnet' | 'mainnet'
+  walletConnectProjectId: string
 }
 
-function registerProvider() {
-  registerPluginProvider(
-    'tron',
-    ({
-      children,
-      networkOption,
-      walletConnectProjectId
-    }: PluginProviderProps) => {
-      const pluginData = store.getState().plugins.plugins['tron']?.pluginData
-
-      return (
-        <WalletProvider
-          networkOption={networkOption}
-          walletConnectProjectId={walletConnectProjectId}
-        >
-          {children}
-        </WalletProvider>
-      )
-    }
+// Register the provider function in the pluginRegistry
+registerPluginProvider(
+  'tron',
+  ({
+    children,
+    networkOption,
+    walletConnectProjectId
+  }: PluginProviderProps) => (
+    <WalletProvider
+      networkOption={networkOption}
+      walletConnectProjectId={walletConnectProjectId}
+    >
+      {children}
+    </WalletProvider>
   )
+)
+
+// Define the Tron plugin metadata (serializable)
+const TronPlugin = {
+  id: 'tron',
+  pluginData: await initialize()
 }
 
-async function _registerPlugin() {
-  const pluginData = await initialize() // Fetch plugin data
-  const TronPlugin = {
-    id: 'tron',
-    pluginData
-  }
+// Register Tron plugin in the Redux store with serializable data
+store.dispatch(registerPlugin(TronPlugin))
 
-  store.dispatch(registerPlugin(TronPlugin)) // Register plugin in Redux
-  registerProvider() // Register provider logic
+console.info('Tron plugin registered.')
 
-  console.info('Tron plugin registered with networks:', pluginData.networks)
-}
-
-_registerPlugin()
-
-export default {
-  id: 'tron'
-}
+export default TronPlugin
