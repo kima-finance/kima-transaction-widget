@@ -47,7 +47,6 @@ import {
   selectTargetCompliant,
   selectTargetChain,
   selectKeplrHandler,
-  selectTransactionOption,
   selectFeeDeduct,
   selectPendingTxs,
   selectSourceCurrency,
@@ -78,15 +77,13 @@ export const TransferWidget = ({
   theme,
   feeURL,
   helpURL,
-  titleOption,
-  paymentTitleOption
+  titleOption
 }: Props) => {
   const dispatch = useDispatch()
   const mainRef = useRef<HTMLDivElement>(null)
 
   // State variables for UI
-  // const [isWizard, setWizard] = useState(false)
-  const isWizard = false
+  const [isWizard, setWizard] = useState(false)
   const [formStep, setFormStep] = useState(0)
   const [wizardStep, setWizardStep] = useState(0)
 
@@ -108,7 +105,6 @@ export const TransferWidget = ({
   const targetCurrency = useSelector(selectTargetCurrency)
   const backendUrl = useSelector(selectBackendUrl)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
-  const transactionOption = useSelector(selectTransactionOption)
 
   // Hooks for wallet connection, allowance
   const [isCancellingApprove, setCancellingApprove] = useState(false)
@@ -144,8 +140,8 @@ export const TransferWidget = ({
         )
         dispatch(setSourceCompliant(res))
       } catch (e) {
-        toast.error('xplorisk check failed', { icon: <ErrorIcon /> })
-        console.log('xplorisk check failed', e)
+        toast.error('compliance check failed', { icon: <ErrorIcon /> })
+        console.log('compliance check failed', e)
       }
     })()
   }, [walletAddress, compliantOption])
@@ -162,8 +158,8 @@ export const TransferWidget = ({
         )
         dispatch(setTargetCompliant(res))
       } catch (e) {
-        toast.error('xplorisk check failed', { icon: <ErrorIcon /> })
-        console.log('xplorisk check failed', e)
+        toast.error('compliance check failed', { icon: <ErrorIcon /> })
+        console.log('compliance check failed', e)
       }
     })()
   }, [targetAddress, compliantOption])
@@ -272,10 +268,7 @@ export const TransferWidget = ({
       params = JSON.stringify({
         originAddress: walletAddress,
         originChain: sourceChain,
-        targetAddress:
-          mode === ModeOptions.payment
-            ? transactionOption?.targetAddress
-            : targetAddress,
+        targetAddress,
         targetChain: targetChain,
         originSymbol: sourceCurrency,
         targetSymbol: targetCurrency,
@@ -357,16 +350,7 @@ export const TransferWidget = ({
         return
       }
 
-      if (
-        mode === ModeOptions.payment &&
-        wizardStep === 1 &&
-        fee >= 0 &&
-        (!compliantOption ||
-          (sourceCompliant === 'low' && targetCompliant === 'low'))
-      ) {
-        setConfirming(true)
-        setWizardStep(5)
-      } else setWizardStep((step) => step + 1)
+      setWizardStep((step) => step + 1)
     }
 
     if (!isWizard && !formStep) {
@@ -472,14 +456,10 @@ export const TransferWidget = ({
               {formStep === 0
                 ? titleOption?.initialTitle
                   ? titleOption.initialTitle
-                  : mode === ModeOptions.payment
-                    ? 'New Purchase'
-                    : 'New Transfer'
+                  : 'New Transfer'
                 : titleOption?.confirmTitle
                   ? titleOption.confirmTitle
-                  : mode === ModeOptions.payment
-                    ? 'Confirm Purchase'
-                    : 'Transfer Details'}
+                  : 'Transfer Details'}
             </h3>
           </div>
           <div className='control-buttons'>
@@ -508,11 +488,6 @@ export const TransferWidget = ({
             </button>
           </div>
         </div>
-        <h4 className='subtitle'>
-          {mode === ModeOptions.payment &&
-            formStep === 0 &&
-            paymentTitleOption?.title}
-        </h4>
       </div>
 
       <div className='kima-card-content' ref={mainRef}>
@@ -531,18 +506,12 @@ export const TransferWidget = ({
           ) : wizardStep === 4 ? (
             <CoinSelect />
           ) : (
-            <ConfirmDetails
-              isApproved={
-                sourceChain === ChainName.FIAT ? isSigned : isApproved
-              }
-            />
+            <ConfirmDetails isApproved={approved} />
           )
         ) : formStep === 0 ? (
           <SingleForm />
         ) : (
-          <ConfirmDetails
-            isApproved={sourceChain === ChainName.FIAT ? isSigned : isApproved}
-          />
+          <ConfirmDetails isApproved={approved} />
         )}
       </div>
 
