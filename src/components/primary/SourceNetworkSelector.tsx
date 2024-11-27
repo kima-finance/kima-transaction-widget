@@ -4,14 +4,16 @@ import { setSourceChain } from '@store/optionSlice'
 import { selectTheme } from '@store/selectors'
 import Arrow from '@assets/icons/Arrow'
 import useGetChainData from '../../hooks/useGetChainData'
+import useNetworkOptions from '../../hooks/useNetworkOptions'
 
 const SourceNetworkSelectorComponent = () => {
   const [collapsed, setCollapsed] = useState(true)
   const ref = useRef<any>()
 
-  const originNetwork = useSelector((state) => state.option.sourceChain)
+  const originNetwork = useSelector(setSourceChain)
   const dispatch = useDispatch()
   const theme = useSelector(selectTheme)
+  const { options: networkOptions } = useNetworkOptions()
 
   const { chainData } = useGetChainData() // Fetch dynamic chain data
 
