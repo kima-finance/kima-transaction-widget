@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { CrossIcon, ErrorIcon, FooterLogo } from '../assets/icons'
+import { ErrorIcon, FooterLogo } from '../assets/icons'
 import {
   ConfirmDetails,
   ExternalLink,
@@ -26,7 +26,6 @@ import {
   initialize,
   setSourceCompliant,
   setSubmitted,
-  setTargetAddress,
   setTargetCompliant,
   setTheme,
   setTxId
@@ -121,7 +120,6 @@ export const TransferWidget = ({
 
   useEffect(() => {
     if (!walletAddress) return
-    dispatch(setTargetAddress(walletAddress))
 
     if (!compliantOption) return
     ;(async function () {
@@ -397,6 +395,13 @@ export const TransferWidget = ({
     approve(true)
   }
 
+  const resetForm = () => {
+    if (isApproving || isSubmitting || isSigning) return
+
+    dispatch(initialize())
+    closeHandler()
+  }
+
   useEffect(() => {
     dispatch(setTheme(theme))
   }, [theme])
@@ -435,19 +440,27 @@ export const TransferWidget = ({
             >
               <div className='menu-button'>I need help</div>
             </ExternalLink>
-            <button
-              className='cross-icon-button'
-              onClick={() => {
-                if (isApproving || isSubmitting || isSigning) return
-                dispatch(initialize())
-                closeHandler()
-              }}
-              disabled={isApproving || isSubmitting || isSigning}
-            >
-              <CrossIcon
-                fill={theme.colorMode === 'light' ? 'black' : 'white'}
-              />
-            </button>
+
+            {formStep !== 1 && (
+              <div className='reset-button' onClick={resetForm}>
+                Reset
+              </div>
+
+              // <button
+              //   className='cross-icon-button'
+              //   onClick={() => {
+              //     if (isApproving || isSubmitting || isSigning )
+              //       return
+              //     dispatch(initialize())
+              //     closeHandler()
+              //   }}
+              //   disabled={isApproving || isSubmitting || isSigning}
+              // >
+              //   <CrossIcon
+              //     fill={theme.colorMode === 'light' ? 'black' : 'white'}
+              //   />
+              // </button>
+            )}
           </div>
         </div>
       </div>
@@ -483,15 +496,19 @@ export const TransferWidget = ({
         <div
           className={`button-group ${formStep !== 0 && allowance > 0 && 'confirm'}`}
         >
-          <SecondaryButton
-            clickHandler={onBack}
-            theme={theme.colorMode}
-            disabled={isApproving || isSubmitting || isSigning}
-          >
-            {(isWizard && wizardStep > 0) || (!isWizard && formStep > 0)
-              ? 'Back'
-              : 'Cancel'}
-          </SecondaryButton>
+          {formStep !== 0 && (
+            <SecondaryButton
+              clickHandler={onBack}
+              theme={theme.colorMode}
+              disabled={
+                isApproving || isSubmitting || isSigning
+              }
+            >
+              {(isWizard && wizardStep > 0) || (!isWizard && formStep > 0)
+                ? 'Back'
+                : 'Cancel'}
+            </SecondaryButton>
+          )}
           {allowance > 0 &&
           ((isWizard && wizardStep === 5) || (!isWizard && formStep === 1)) ? (
             <PrimaryButton

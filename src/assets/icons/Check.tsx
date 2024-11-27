@@ -3,6 +3,7 @@ import React from 'react'
 const Check = ({ width = 60, height = 60, fill = '#86B8CE', ...rest }) => {
   return (
     <svg
+      className='check-icon'
       xmlns='http://www.w3.org/2000/svg'
       width={width}
       height={width}

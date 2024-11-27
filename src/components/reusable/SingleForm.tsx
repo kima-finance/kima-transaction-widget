@@ -12,11 +12,12 @@ import {
   selectServiceFee,
   selectFeeDeduct,
   selectAmount,
-  selectTargetCurrency
+  selectTargetCurrency,
+  selectNetworkOption
 } from '../../store/selectors'
 import { BankInput, CoinDropdown, CustomCheckbox, WalletButton } from './'
 import { setAmount, setFeeDeduct } from '../../store/optionSlice'
-import { ModeOptions } from '../../interface'
+import { ModeOptions, NetworkOptions } from '../../interface'
 import AddressInput from './AddressInput'
 import { COIN_LIST, ChainName } from '../../utils/constants'
 import { formatterFloat } from '../../helpers/functions'
@@ -31,6 +32,7 @@ const SingleForm = ({}) => {
   const dispatch = useDispatch()
   const mode = useSelector(selectMode)
   const theme = useSelector(selectTheme)
+  const networkOpion = useSelector(selectNetworkOption)
   const feeDeduct = useSelector(selectFeeDeduct)
   const serviceFee = useSelector(selectServiceFee)
   const compliantOption = useSelector(selectCompliantOption)
@@ -61,7 +63,7 @@ const SingleForm = ({}) => {
   }, [errorMessage])
 
   useEffect(() => {
-    if (amountValue) return
+    if (amountValue && amount != '') return
     setAmountValue(amount)
   }, [amount])
 
@@ -71,7 +73,16 @@ const SingleForm = ({}) => {
         <span className='label'>Source Network:</span>
         <div className='items'>
           <SourceNetworkSelector />
-          <SourceTokenSelector />
+          {networkOpion === NetworkOptions.mainnet ? (
+            <SourceTokenSelector />
+          ) : (
+            <div className={`amount-label-container items ${theme.colorMode}`}>
+              <div className={`coin-wrapper ${theme.colorMode}`}>
+                <div className='icon-wrapper'>{<TargetIcon />}</div>
+                {targetCurrency}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -91,44 +102,86 @@ const SingleForm = ({}) => {
           <span className='label'>Target Network:</span>
           <div className='items'>
             <TargetNetworkSelector />
-            <TargetTokenSelector />
+            {networkOpion === NetworkOptions.mainnet ? (
+              <TargetTokenSelector />
+            ) : (
+              <div
+                className={`amount-label-container items ${theme.colorMode}`}
+              >
+                <div className={`coin-wrapper ${theme.colorMode}`}>
+                  <div className='icon-wrapper'>{<TargetIcon />}</div>
+                  {targetCurrency}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      <div className={`form-item ${theme.colorMode}`}>
-        <span className='label'>Target Address:</span>
-        <AddressInput
-          theme={theme.colorMode as string}
-          placeholder='Input target address'
-        />
-      </div>
-      <div className={`form-item ${theme.colorMode}`}>
-        <span className='label'>Amount:</span>
-        <div className={`amount-label-container items ${theme.colorMode}`}>
-          <input
-            className={`${theme.colorMode}`}
-            type='number'
-            placeholder='Amount'
-            value={transactionOption?.amount || amountValue || ''}
-            onChange={(e) => {
-              let _amount = +e.target.value
-              const decimal =
-                sourceNetwork === ChainName.BTC ||
-                targetNetwork === ChainName.BTC
-                  ? 8
-                  : 2
-              setAmountValue(e.target.value)
-              dispatch(setAmount(_amount.toFixed(decimal)))
-            }}
-            disabled={transactionOption?.amount !== undefined}
-          />
-          <div className={`coin-wrapper ${theme.colorMode}`}>
-            {<TargetIcon />}
-            {targetCurrency}
+      {mode === ModeOptions.bridge && sourceNetwork !== ChainName.FIAT ? (
+        targetNetwork === ChainName.FIAT ? (
+          <BankInput />
+        ) : (
+          <div className={`form-item ${theme.colorMode}`}>
+            <span className='label'>Target Address:</span>
+            <AddressInput
+              theme={theme.colorMode as string}
+              placeholder='Target address'
+            />
+          </div>
+        )
+      ) : null}
+
+      {mode === ModeOptions.bridge ? (
+        <div className={`form-item ${theme.colorMode}`}>
+          <span className='label'>Amount:</span>
+          <div className={`amount-label-container items ${theme.colorMode}`}>
+            <input
+              className={`${theme.colorMode}`}
+              type='number'
+              placeholder='Amount'
+              value={amountValue || ''}
+              onChange={(e) => {
+                let _amount = +e.target.value
+                const decimal =
+                  sourceNetwork === ChainName.BTC ||
+                  targetNetwork === ChainName.BTC
+                    ? 8
+                    : 2
+                setAmountValue(e.target.value)
+                dispatch(setAmount(_amount.toFixed(decimal)))
+              }}
+            />
           </div>
         </div>
-      </div>
+      ) : (
+        <div className={`form-item ${theme.colorMode}`}>
+          <span className='label'>Amount:</span>
+          <div className={`amount-label-container items ${theme.colorMode}`}>
+            <input
+              className={`${theme.colorMode}`}
+              type='number'
+              placeholder='Amount'
+              value={transactionOption?.amount || amountValue || ''}
+              onChange={(e) => {
+                let _amount = +e.target.value
+                const decimal =
+                  sourceNetwork === ChainName.BTC ||
+                  targetNetwork === ChainName.BTC
+                    ? 8
+                    : 2
+                setAmountValue(e.target.value)
+                dispatch(setAmount(_amount.toFixed(decimal)))
+              }}
+              disabled={transactionOption?.amount !== undefined}
+            />
+            <div className={`coin-wrapper ${theme.colorMode}`}>
+              <div className='icon-wrapper'>{<TargetIcon />}</div>
+              {targetCurrency}
+            </div>
+          </div>
+        </div>
+      )}
 
       {serviceFee > 0 ? (
         <CustomCheckbox

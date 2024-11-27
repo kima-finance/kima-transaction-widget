@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Celo = ({ width = 30, height = 28, ...rest }) => {
+const Tron = ({ width = 30, height = 28, ...rest }) => {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
@@ -18,4 +18,4 @@ const Celo = ({ width = 30, height = 28, ...rest }) => {
   )
 }
 
-export default Celo
+export default Tron

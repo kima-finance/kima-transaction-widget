@@ -93,7 +93,7 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                 <p className='chain-name'>Kima TX ID:</p>
                 <p>
                   <ExternalLink
-                    to={`${explorerUrl}/transactions/${data?.kimaTxHash}`}
+                    to={`${explorerUrl}/transactions/?tx=${data?.kimaTxHash}`}
                   >
                     {getShortenedAddress(data?.kimaTxHash || '')}
                   </ExternalLink>

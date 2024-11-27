@@ -630,9 +630,19 @@
             border-radius: 50px;
             height: 50px;
             padding: 0 14px;
+            width: 155px;
 
-            svg {
-              margin-right: 14px;
+            @include breakpoint('max-width: 639px') {
+              width: fit-content;
+            }
+
+            .icon-wrapper {
+              display: flex;
+              justify-content: center;
+              padding: 8px;
+              background-color: white;
+              margin-right: 6px;
+              border-radius: 9999px;
             }
 
             &.light {
@@ -675,12 +685,6 @@
             background: white;
             color: black;
             margin-left: 1em;
-
-            svg {
-              width: 1.5em;
-              height: 1.5em;
-              margin-right: 0.5em;
-            }
           }
         }
 
@@ -704,7 +708,7 @@
 
             @include breakpoint('min-width: 640px') {
               padding: 15px;
-              width: 365px;
+              width: 390px;
             }
 
             @include breakpoint('max-width: 585px') {
@@ -741,14 +745,12 @@
             align-items: flex-start;
 
             button {
-              padding: 0 16px;
-
               @include breakpoint('min-width: 585xp') {
                 width: 220px;
               }
 
               @include breakpoint('min-width: 640px') {
-                width: 400px;
+                width: 425px;
               }
 
               @include breakpoint('max-width: 585px') {
@@ -775,7 +777,7 @@
 
       .coin-dropdown {
         position: relative;
-        width: 90px;
+        width: 115px;
         border-radius: 50px;
         border: 0.5px solid $financeIcon;
         padding-left: 12px;
@@ -787,6 +789,10 @@
         box-sizing: content-box;
         @include transition();
 
+        @include breakpoint('max-width: 639px') {
+          width: 90px;
+        }
+
         .coin-wrapper {
           display: flex;
           align-items: center;
@@ -794,8 +800,13 @@
           padding: 2.5px;
           padding-right: 6px;
 
-          svg {
+          .icon-wrapper {
+            display: flex;
+            justify-content: center;
+            padding: 8px;
+            background-color: white;
             margin-right: 6px;
+            border-radius: 9999px;
           }
         }
 
@@ -1204,6 +1215,27 @@
         }
       }
 
+      .info-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        @include breakpoint('max-width: 639px') {
+          flex-direction: row-reverse;
+          gap: 3px;
+        }
+
+        svg {
+          width: 20px;
+          height: 20px;
+        }
+
+        .check-icon {
+          width: 30px;
+          height: 30px;
+        }
+      }
+
       button {
         cursor: pointer;
         display: flex;
@@ -1434,6 +1466,10 @@
           border-top: none;
         }
 
+        &.amount {
+          align-items: start;
+        }
+
         p {
           margin: 0;
           border-radius: 50px;
@@ -1508,9 +1544,9 @@
 
         .amount-container {
           display: flex;
-          flex-direction: row;
-          align-items: center;
+          flex-direction: column;
           margin-left: 10px;
+          justify-content: start;
 
           @include breakpoint(mobile) {
             width: 100%;
@@ -1519,6 +1555,51 @@
 
           svg {
             margin-right: 6px;
+          }
+
+          .coin-details {
+            display: flex;
+            flex-direction: row;
+            margin-bottom: 10px;
+
+            @include breakpoint(mobile) {
+              width: 100%;
+              justify-content: end;
+              padding-right: 6px;
+              font-size: 12px;
+            }
+
+            p {
+              padding: 0;
+              margin: 0;
+              margin-top: 6px;
+              flex-grow: 0;
+              width: fit-content;
+            }
+          }
+
+          .amount-details {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            width: 250px;
+            padding: 8px 6px;
+            font-size: 14px;
+            border-top: 1px solid $financeIcon;
+
+            @include breakpoint(mobile) {
+              margin-left: auto;
+              width: 200px;
+              font-size: 12px;
+            }
+
+            &.fee {
+              color: red;
+            }
+
+            &:last-of-type {
+              padding-top: 15px;
+            }
           }
         }
 
@@ -1563,20 +1644,20 @@
 
         .custom-checkbox-icon-wrapper {
           border: 1px solid #ffffff;
-          height: 1em;
-          width: 1em;
           border-radius: 0.2em;
           display: flex;
           justify-content: center;
           align-items: center;
+          width: 20px;
+          height: 20px;
 
           &.light {
             border-color: $progressbarDark;
           }
 
-          svg {
-            margin-top: 0.2em;
-            margin-left: 1px;
+          .check-icon {
+            width: 20px;
+            height: 20px;
           }
         }
       }

@@ -135,6 +135,15 @@
     }
   }
 
+  .icon-wrapper {
+    display: flex;
+    justify-content: center;
+    padding: 8px;
+    background-color: white;
+    margin-right: 6px;
+    border-radius: 9999px;
+  }
+
   input::-webkit-outer-spin-button,
   input::-webkit-inner-spin-button {
     -webkit-appearance: none;
