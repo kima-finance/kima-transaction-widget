@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
-import { selectNodeProviderQuery, selectUseFIAT } from '../store/selectors'
+import { selectBackendUrl, selectUseFIAT } from '../store/selectors'
 import { ChainName, networkOptions } from '../utils/constants'
 import { useDispatch } from 'react-redux'
 import { TokenOptions, setTokenOptions } from '../store/optionSlice'
@@ -10,15 +10,15 @@ import toast from 'react-hot-toast'
 export default function useNetworkOptions() {
   const dispatch = useDispatch()
   const useFIAT = useSelector(selectUseFIAT)
-  const nodeProviderQuery = useSelector(selectNodeProviderQuery)
+  const backendUrl = useSelector(selectBackendUrl)
   const [options, setOptions] = useState<Array<any>>(networkOptions)
 
   useEffect(() => {
-    if (!nodeProviderQuery) return
+    if (!backendUrl) return
     ;(async function () {
       try {
         const networks: any = await fetchWrapper.get(
-          `${nodeProviderQuery}/kima-finance/kima-blockchain/chains/chain`
+          `${backendUrl}/chains/chain`
         )
 
         setOptions(
@@ -48,7 +48,7 @@ export default function useNetworkOptions() {
         toast.error('rpc disconnected')
       }
     })()
-  }, [nodeProviderQuery])
+  }, [backendUrl])
 
   return useMemo(
     () => ({
