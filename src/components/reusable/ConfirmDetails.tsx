@@ -160,16 +160,17 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
               → <TargetCoinIcon /> {targetCurrency}
             </div>
           )}
-          <div className='amount-details fee'>
-            <span>{feeDeduct ? 'Fee deduction' : 'Total fees'}</span>
+          <div className='amount-details'>
+            <span>{feeDeduct ? 'Gas fee deduction' : 'Gas fees (Source + Dest)'}</span>
             <span className='service-fee'>
               {serviceFee} {sourceCurrency}
             </span>
           </div>
           <div className='amount-details'>
-            <span>Net Amount</span>
+            <span>Total</span>
             <span className='service-fee'>
-              {parseFloat(amountToShow) - serviceFee} {targetCurrency}
+              {formatterFloat.format(parseFloat(amountToShow) - serviceFee)}{' '}
+              {targetCurrency}
             </span>
           </div>
         </span>

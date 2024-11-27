@@ -270,7 +270,7 @@
   gap: 20px;
 }
 .kima-card .kima-card-footer .button-group.confirm {
-  margin-top: 20px;
+  margin-top: 40px;
 }
 @media (max-width: 500px) {
   .kima-card .kima-card-footer .button-group.confirm {
