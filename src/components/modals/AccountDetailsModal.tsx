@@ -98,7 +98,8 @@ const AccountDetailsModal = () => {
               <CopyButton text={walletAddress as string} />
             </div>
             <h3>
-              {selectedNetwork === 'SOL' ? solBalance : tronBalance} {selectedNetwork}
+              {selectedNetwork === 'SOL' ? solBalance : tronBalance}{' '}
+              {selectedNetwork}
             </h3>
           </div>
           <SecondaryButton className='block-explorer'>
@@ -109,7 +110,7 @@ const AccountDetailsModal = () => {
             </ExternalLink>
           </SecondaryButton>
           <PrimaryButton clickHandler={handleDisconnect}>
-            Discconect
+            Disconnect
           </PrimaryButton>
         </div>
       </div>

@@ -52,7 +52,7 @@ const SingleForm = ({}) => {
       compliantOption &&
       targetCompliant !== null &&
       !targetCompliant?.isCompliant
-        ? `Target address has ${targetCompliant.results[0].result.risk_score} risk`
+        ? `Target address has ${targetCompliant.results?.[0].result.risk_score} risk`
         : '',
     [compliantOption, targetCompliant]
   )

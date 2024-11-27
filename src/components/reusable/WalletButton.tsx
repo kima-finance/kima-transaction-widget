@@ -88,7 +88,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
       sourceCompliant !== null &&
       !sourceCompliant?.isCompliant
     )
-      return `Source address has ${sourceCompliant?.results[0].result?.risk_score} risk`
+      return `Source address has ${sourceCompliant?.results?.[0].result?.risk_score} risk`
     return ''
   }, [isReady, statusMessage, sourceCompliant, compliantOption])
 
@@ -123,8 +123,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
 
       {isReady ? (
         <p className='balance-info'>
-          {balance.toFixed(selectedCoin === 'WBTC' ? 8 : 2)}{' '}
-          {selectedNetwork === ChainName.BTC ? 'BTC' : selectedCoin} available
+          {balance.toFixed(2)} {selectedCoin} available
         </p>
       ) : null}
     </div>
