@@ -82,8 +82,12 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
 
   const errorMessage = useMemo(() => {
     if (!isReady) return statusMessage
-    if (sourceCompliant !== 'low' && compliantOption)
-      return `Source address has ${sourceCompliant} risk`
+    if (
+      compliantOption &&
+      sourceCompliant !== null &&
+      !sourceCompliant?.isCompliant
+    )
+      return `Source address has ${sourceCompliant?.results[0].result?.risk_score} risk`
     return ''
   }, [isReady, statusMessage, sourceCompliant, compliantOption])
 

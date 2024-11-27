@@ -23,6 +23,22 @@ export type TokenOptions = {
   [key: string]: AddressOption
 }
 
+export interface ComplianceResult {
+  isCompliant: boolean
+  isError: boolean
+  results: {
+    isCompliant: boolean
+    result: {
+      address: string
+      name: string
+      classification: string[]
+      contract: string
+      risk_factors: string[]
+      risk_score: string
+    }
+  }[]
+}
+
 export interface OptionState {
   theme: ThemeOptions // light or dark
   mode: ModeOptions // payment or bridge
@@ -64,8 +80,8 @@ export interface OptionState {
   targetCurrency: string // Currently selected token for target chain
   expireTime: string // Bitcoi HTLC expiration time
   compliantOption: boolean // option to check compliant addresses
-  sourceCompliant: string // source address is compliant or not
-  targetCompliant: string // target address is compliant or not
+  sourceCompliant: ComplianceResult | null
+  targetCompliant: ComplianceResult | null
   useFIAT: boolean // use FIAT Payment mockup or not?
   bankDetails: BankDetails
   targetNetworkFetching: boolean // is fetching available chains according to current source network or not
@@ -119,8 +135,8 @@ const initialState: OptionState = {
   sourceCurrency: 'USDK',
   targetCurrency: 'USDK',
   compliantOption: true,
-  sourceCompliant: 'low',
-  targetCompliant: 'low',
+  sourceCompliant: null,
+  targetCompliant: null,
   useFIAT: false,
   bankDetails: {
     iban: '',

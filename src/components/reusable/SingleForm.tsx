@@ -47,8 +47,10 @@ const SingleForm = ({}) => {
 
   const errorMessage = useMemo(
     () =>
-      compliantOption && targetCompliant !== 'low'
-        ? `Target address has ${targetCompliant} risk`
+      compliantOption &&
+      targetCompliant !== null &&
+      !targetCompliant?.isCompliant
+        ? `Target address has ${targetCompliant.results[0].result.risk_score} risk`
         : '',
     [compliantOption, targetCompliant]
   )
@@ -82,7 +84,7 @@ const SingleForm = ({}) => {
           className={`form-item wallet-button-item ${isReady && 'connected'}`}
         >
           <span className='label'>Connect wallet:</span>
-          {/*<WalletButton />*/}
+          {<WalletButton />}
         </div>
 
         <div className='form-item'>

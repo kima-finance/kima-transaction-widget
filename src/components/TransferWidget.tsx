@@ -31,7 +31,6 @@ import {
   setTheme,
   setTxId
 } from '../store/optionSlice'
-import '../index.css'
 import {
   selectAmount,
   selectBackendUrl,
@@ -63,6 +62,7 @@ import { toast, Toaster } from 'react-hot-toast'
 import useBalance from '../hooks/useBalance'
 import useWidth from '../hooks/useWidth'
 import useSign from '../hooks/useSign'
+import useGetCompliance from '../hooks/useComplianceCheck'
 import TronWalletConnectModal from './modals/TronWalletConnectModal'
 
 interface Props {
@@ -132,13 +132,11 @@ export const TransferWidget = ({
     if (!compliantOption) return
     ;(async function () {
       try {
-        const res = await fetchWrapper.post(
-          `${backendUrl}/compliant`,
-          JSON.stringify({
-            address: walletAddress
-          })
+        const res = await fetchWrapper.get(
+          `${backendUrl}/compliant?address=${walletAddress}`
         )
         dispatch(setSourceCompliant(res))
+        console.info('Source Compliance:', res)
       } catch (e) {
         toast.error('compliance check failed', { icon: <ErrorIcon /> })
         console.log('compliance check failed', e)
@@ -150,13 +148,11 @@ export const TransferWidget = ({
     if (!targetAddress || !compliantOption) return
     ;(async function () {
       try {
-        const res = await fetchWrapper.post(
-          `${backendUrl}/compliant`,
-          JSON.stringify({
-            address: targetAddress
-          })
+        const res = await fetchWrapper.get(
+          `${backendUrl}/compliant?address=${targetAddress}`
         )
         dispatch(setTargetCompliant(res))
+        console.info('Target Compliance:', res)
       } catch (e) {
         toast.error('compliance check failed', { icon: <ErrorIcon /> })
         console.log('compliance check failed', e)
@@ -368,7 +364,7 @@ export const TransferWidget = ({
         }
         if (
           compliantOption &&
-          (sourceCompliant !== 'low' || targetCompliant !== 'low')
+          (sourceCompliant?.isCompliant || targetCompliant?.isCompliant)
         )
           return
 
