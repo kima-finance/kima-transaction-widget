@@ -39,7 +39,6 @@ import {
   selectDappOption,
   selectErrorHandler,
   selectMode,
-  selectNodeProviderQuery,
   selectSourceChain,
   selectSourceCompliant,
   selectTargetAddress,
@@ -61,8 +60,6 @@ import { ChainName, CHAIN_NAMES_TO_STRING } from '../utils/constants'
 import { toast, Toaster } from 'react-hot-toast'
 import useBalance from '../hooks/useBalance'
 import useWidth from '../hooks/useWidth'
-import useSign from '../hooks/useSign'
-import useGetCompliance from '../hooks/useComplianceCheck'
 import TronWalletConnectModal from './modals/TronWalletConnectModal'
 
 interface Props {
@@ -104,7 +101,6 @@ export const TransferWidget = ({
   const sourceCurrency = useSelector(selectSourceCurrency)
   const targetCurrency = useSelector(selectTargetCurrency)
   const backendUrl = useSelector(selectBackendUrl)
-  const nodeProviderQuery = useSelector(selectNodeProviderQuery)
 
   // Hooks for wallet connection, allowance
   const [isCancellingApprove, setCancellingApprove] = useState(false)
@@ -117,11 +113,9 @@ export const TransferWidget = ({
   const {
     allowance,
     isApproved: approved,
-    approve,
-    poolAddress
+    approve
   } = useAllowance({ setApproving, setCancellingApprove })
-  const { isSigned, sign } = useSign({ setSigning })
-  const { serviceFee: fee } = useServiceFee(isConfirming, feeURL)
+  const { serviceFee: fee } = useServiceFee(isConfirming, feeURL) //replace this with hook to /submit/fees
   const { balance } = useBalance()
   const { width: windowWidth } = useWidth()
 
@@ -162,28 +156,6 @@ export const TransferWidget = ({
   // get rid of the +
 
   useEffect(() => {
-    if (!nodeProviderQuery) return
-    ;(async function () {
-      const res: any = await fetchWrapper.get(
-        `${nodeProviderQuery}/kima-finance/kima-blockchain/chains/pool_balance`
-      )
-
-      let poolsTable: any = []
-
-      for (const pool of res.poolBalance) {
-        for (const token of pool.balance) {
-          poolsTable.push({
-            chain: CHAIN_NAMES_TO_STRING[pool.chainName],
-            symbol: token.tokenSymbol,
-            balance: +token.amount
-          })
-        }
-      }
-      console.table(poolsTable)
-    })()
-  }, [nodeProviderQuery])
-
-  useEffect(() => {
     if (!isReady) {
       if (formStep > 0) setFormStep(0)
       if (wizardStep > 0) setWizardStep(1)
@@ -191,9 +163,7 @@ export const TransferWidget = ({
   }, [isReady, wizardStep, formStep, dAppOption])
 
   const checkPoolBalance = async () => {
-    const res: any = await fetchWrapper.get(
-      `${nodeProviderQuery}/kima-finance/kima-blockchain/chains/pool_balance`
-    )
+    const res: any = await fetchWrapper.get(`${backendUrl}/chains/pool_balance`)
 
     const poolBalance = res.poolBalance
     for (let i = 0; i < poolBalance.length; i++) {
@@ -258,10 +228,8 @@ export const TransferWidget = ({
         return
       }
 
-      let params
-      let feeParam
-      feeParam = fee.toFixed(2)
-      params = JSON.stringify({
+      const feeParam = fee.toFixed(2)
+      const params = JSON.stringify({
         originAddress: walletAddress,
         originChain: sourceChain,
         targetAddress,
@@ -416,8 +384,6 @@ export const TransferWidget = ({
     if ((isWizard && wizardStep === 5) || (!isWizard && formStep === 1)) {
       if (dAppOption === DAppOptions.LPDrain) {
         return isSubmitting ? 'Submitting...' : 'Submit'
-      } else if (sourceChain === ChainName.FIAT) {
-        return isSigning ? 'Signing...' : 'Sign'
       } else {
         return isApproving ? 'Approving...' : 'Approve'
       }
