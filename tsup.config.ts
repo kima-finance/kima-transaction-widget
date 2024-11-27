@@ -2,7 +2,7 @@ import { defineConfig } from 'tsup'
 
 export default defineConfig({
   entry: ['src/index.tsx'], // Entry point for the module
-  format: ['cjs', 'esm'], // Output both CommonJS and ESM
+  format: ['esm'], // Output both CommonJS and ESM
   dts: {
     resolve: true // Resolve external types
   },
