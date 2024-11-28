@@ -4,9 +4,10 @@ import { store } from '@store/index'
 import { selectAllPlugins } from '@store/pluginSlice'
 import { getPluginProvider } from '@pluginRegistry'
 
-import '@plugins/evm'
-import '@plugins/tron'
-import '@plugins/solana'
+import '@plugins/index'
+// import '@plugins/evm'
+// import '@plugins/tron'
+// import '@plugins/solana'
 
 interface KimaProviderProps {
   walletConnectProjectId: string

@@ -1,44 +1,74 @@
 // plugins/solana/index.tsx
 import React from 'react' // Import React explicitly
 import { store } from '@store/index'
-import { registerPlugin } from '@store/pluginSlice'
-import { registerPluginProvider } from '@pluginRegistry' // Import the pluginRegistry functions
+// import { registerPlugin } from '@store/pluginSlice'
+// import { registerPluginProvider } from '@pluginRegistry' // Import the pluginRegistry functions
 import WalletProvider from '@plugins/solana/features/walletConnect/WalletProvider'
-import { initialize } from './initialize'
+// import { initialize } from './initialize'
+import { PluginBase } from '../PluginBase'
+import { PluginChain, PluginProviderProps } from '../pluginTypes'
+import getChainData from './utils/getChainData'
 
-// Define the type for the provider props
-interface PluginProviderProps {
-  children: React.ReactNode
-  walletConnectProjectId: string
-  networkOption: 'testnet' | 'mainnet'
-}
+export class SolanaPlugin extends PluginBase {
+  constructor(store: any) {
+    super(store, 'solana')
+  }
 
-// Register the provider function in the pluginRegistry
-registerPluginProvider(
-  'solana',
-  ({
+  protected fetchChains = async (): Promise<PluginChain[]> => {
+    return getChainData()
+  }
+
+  Provider = ({
     children,
     networkOption,
     walletConnectProjectId
-  }: PluginProviderProps) => (
-    <WalletProvider
-      networkOption={networkOption}
-      walletConnectProjectId={walletConnectProjectId}
-    >
-      {children}
-    </WalletProvider>
-  )
-)
-
-// Define the Solana plugin metadata (serializable)
-const SolanaPlugin = {
-  id: 'solana',
-  pluginData: await initialize()
+  }: PluginProviderProps) => {
+    return (
+      <WalletProvider
+        networkOption={networkOption}
+        walletConnectProjectId={walletConnectProjectId}
+      >
+        {children}
+      </WalletProvider>
+    )
+  }
 }
+const solanaPlugin = new SolanaPlugin(store)
+export default solanaPlugin
 
-// Register Solana plugin in the Redux store with serializable data
-store.dispatch(registerPlugin(SolanaPlugin))
+// // Define the type for the provider props
+// interface PluginProviderProps {
+//   children: React.ReactNode
+//   walletConnectProjectId: string
+//   networkOption: 'testnet' | 'mainnet'
+// }
 
-console.info('Solana plugin registered.')
+// // Register the provider function in the pluginRegistry
+// registerPluginProvider(
+//   'solana',
+//   ({
+//     children,
+//     networkOption,
+//     walletConnectProjectId
+//   }: PluginProviderProps) => (
+//     <WalletProvider
+//       networkOption={networkOption}
+//       walletConnectProjectId={walletConnectProjectId}
+//     >
+//       {children}
+//     </WalletProvider>
+//   )
+// )
 
-export default SolanaPlugin
+// // Define the Solana plugin metadata (serializable)
+// const SolanaPlugin = {
+//   id: 'solana',
+//   pluginData: await initialize()
+// }
+
+// // Register Solana plugin in the Redux store with serializable data
+// store.dispatch(registerPlugin(SolanaPlugin))
+
+// console.info('Solana plugin registered.')
+
+// export default SolanaPlugin

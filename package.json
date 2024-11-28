@@ -12,14 +12,14 @@
   "source": "src/index.tsx",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
       "require": "./dist/index.cjs",
-      "types": "./dist/types/index.d.ts"
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/index.js"
     },
     "./*": {
-      "import": "./dist/*.js",
       "require": "./dist/*.cjs",
-      "types": "./dist/types/*.d.ts"
+      "types": "./dist/types/*.d.ts",
+      "import": "./dist/*.js"
     },
     "./index.css": {
       "default": "./dist/index.css"

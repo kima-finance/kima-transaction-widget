@@ -247,6 +247,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
         <div className='kima-card-header'>
           <div className='topbar'>
             <div className='title'>
+              <h3>Running Locally</h3>
               <h3>
                 Transferring {formatterFloat.format(data?.amount || 0)}{' '}
                 {`${data?.sourceSymbol || 'USDK'} → ${data?.targetSymbol || 'USDK'}`}

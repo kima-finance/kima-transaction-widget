@@ -500,9 +500,7 @@ export const TransferWidget = ({
             <SecondaryButton
               clickHandler={onBack}
               theme={theme.colorMode}
-              disabled={
-                isApproving || isSubmitting || isSigning
-              }
+              disabled={isApproving || isSubmitting || isSigning}
             >
               {(isWizard && wizardStep > 0) || (!isWizard && formStep > 0)
                 ? 'Back'
@@ -530,8 +528,8 @@ export const TransferWidget = ({
           </PrimaryButton>
         </div>
       </div>
-      <SolanaWalletConnectModal />
-      <TronWalletConnectModal />
+      {/* <SolanaWalletConnectModal /> */}
+      {/* <TronWalletConnectModal /> */}
       <Toaster
         position='top-right'
         reverseOrder={false}

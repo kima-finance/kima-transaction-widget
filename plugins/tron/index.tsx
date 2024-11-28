@@ -1,44 +1,75 @@
 // plugins/tron/index.tsx
 import React from 'react' // Explicitly import React
 import { store } from '@store/index'
-import { registerPlugin } from '@store/pluginSlice'
-import { registerPluginProvider } from '@pluginRegistry' // Import the pluginRegistry functions
+// import { registerPlugin } from '@store/pluginSlice'
+// import { registerPluginProvider } from '@pluginRegistry' // Import the pluginRegistry functions
 import WalletProvider from '@plugins/tron/features/walletConnect/WalletProvider'
-import { initialize } from './initialize'
+// import { initialize } from './initialize'
+import { PluginBase } from '../PluginBase'
+import { PluginChain, PluginProviderProps } from '../pluginTypes'
+import getChainData from './utils/getChainData'
 
-// Define the type for the provider props
-interface PluginProviderProps {
-  children: React.ReactNode
-  networkOption: 'testnet' | 'mainnet'
-  walletConnectProjectId: string
-}
+export class TronPlugin extends PluginBase {
+  constructor(store: any) {
+    super(store, 'tron')
+  }
 
-// Register the provider function in the pluginRegistry
-registerPluginProvider(
-  'tron',
-  ({
+  protected fetchChains = async (): Promise<PluginChain[]> => {
+    return getChainData()
+  }
+
+  Provider = ({
     children,
     networkOption,
     walletConnectProjectId
-  }: PluginProviderProps) => (
-    <WalletProvider
-      networkOption={networkOption}
-      walletConnectProjectId={walletConnectProjectId}
-    >
-      {children}
-    </WalletProvider>
-  )
-)
-
-// Define the Tron plugin metadata (serializable)
-const TronPlugin = {
-  id: 'tron',
-  pluginData: await initialize()
+  }: PluginProviderProps) => {
+    return (
+      <WalletProvider
+        networkOption={networkOption}
+        walletConnectProjectId={walletConnectProjectId}
+      >
+        {children}
+      </WalletProvider>
+    )
+  }
 }
 
-// Register Tron plugin in the Redux store with serializable data
-store.dispatch(registerPlugin(TronPlugin))
+const tronPlugin = new TronPlugin(store)
+export default tronPlugin
 
-console.info('Tron plugin registered.')
+// // Define the type for the provider props
+// interface PluginProviderProps {
+//   children: React.ReactNode
+//   networkOption: 'testnet' | 'mainnet'
+//   walletConnectProjectId: string
+// }
 
-export default TronPlugin
+// // Register the provider function in the pluginRegistry
+// registerPluginProvider(
+//   'tron',
+//   ({
+//     children,
+//     networkOption,
+//     walletConnectProjectId
+//   }: PluginProviderProps) => (
+//     <WalletProvider
+//       networkOption={networkOption}
+//       walletConnectProjectId={walletConnectProjectId}
+//     >
+//       {children}
+//     </WalletProvider>
+//   )
+// )
+
+// // Define the Tron plugin metadata (serializable)
+// const TronPlugin = {
+//   id: 'tron',
+//   pluginData: await initialize()
+// }
+
+// // Register Tron plugin in the Redux store with serializable data
+// store.dispatch(registerPlugin(TronPlugin))
+
+// console.info('Tron plugin registered.')
+
+// export default TronPlugin

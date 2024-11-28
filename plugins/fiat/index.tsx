@@ -1,6 +1,6 @@
 // plugins/fiat/index.tsx
-import { store } from '../../store'
-import { registerPlugin } from '../../store/pluginSlice'
+import { store } from '@store/index'
+import { registerPlugin } from '@store/pluginSlice'
 
 const FiatPlugin = {
   id: 'fiat'
