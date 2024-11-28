@@ -1,41 +1,66 @@
 import getChainIcon from './getChainIcon'
 import getTokenIcon from './getTokenIcon'
 
-async function getChainData() {
-  const response = await fetch('http://localhost:3001/chains/chain', {
-    method: 'GET',
-    headers: {
-      Accept: 'application/json'
-    }
-  })
-
-  if (!response.ok) {
-    console.error('Failed to fetch chain data:', response.statusText)
-    return []
+export default async function getChainData(backendURL = 'http://localhost:3001') {
+  const _fetch = async (
+    URL: string,
+    method = 'GET',
+    JSON = true
+  ) => {
+    const response = await fetch(URL, {
+      method,
+      headers: {
+        Accept: 'application/json'
+      }
+    })
+    return JSON ? await response.json() : response
   }
 
-  const data = await response.json()
-  const chainData = data.Chain ?? []
+  const envURL = `${backendURL}/chains/env`
+  const { env } = await _fetch(envURL)
 
-  const chains = chainData
+  const chainsURL = `${backendURL}/chains?env=${env}`
+  const chains = await _fetch(chainsURL)
+
+  const formattedChains = [...chains]
     .filter(
-      (chain) => !chain.disabled && !chain.isEvm && chain?.name === 'Solana'
-    ) // Filter only Solana chains
-    .map((chain) => {
-      const { name, symbol, tokens } = chain
-      const icon = getChainIcon(symbol) // Fetch chain icon dynamically
+      (chain) => chain.shortName === 'SOL'
+    )
+    .map(async (chain) => {
+      const { name, shortName: symbol, supportedTokens } = chain
 
-      // Add icons to each token in the Solana chain
+      const icon = getChainIcon(symbol) // Fetch icon dynamically
+
+      const tokens = [...supportedTokens]
+        .filter((token) => token.symbol === 'USDK')
+        .map((token) => {
+          const { symbol, address } = token
+          return { symbol, address }
+        })
+
       const tokensWithIcons = tokens.map((token) => ({
         ...token,
-        icon: getTokenIcon(token.symbol) // Add token icon dynamically
+        icon: getTokenIcon(token.symbol) // Add token icon
       }))
 
-      return { name, symbol, tokens: tokensWithIcons, icon }
+      const pluginID = 'SOL'
+
+      const availableChainsURL = `${backendURL}/chains/get_available_chains/${symbol}`
+      const { Chains: chains } = await _fetch(availableChainsURL)
+
+      const filteredChains = [...chains].filter((chain) => chain !== 'BTC').sort()
+
+      return {
+        pluginID,
+        name,
+        symbol,
+        tokens: tokensWithIcons,
+        icon,
+        chains: filteredChains
+      }
     })
 
-  console.info('Solana chains with token icons: ', chains)
-  return chains
-}
+  const resolvedChains = await Promise.all(formattedChains)
 
-export default getChainData
+  return resolvedChains
+}
