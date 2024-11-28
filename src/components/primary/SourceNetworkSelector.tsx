@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { setSourceChain } from '@store/optionSlice'
-import { selectTheme } from '@store/selectors'
+import { selectTheme, selectSourceChain } from '@store/selectors'
 import Arrow from '@assets/icons/Arrow'
 import useGetChainData from '../../hooks/useGetChainData'
 import useNetworkOptions from '../../hooks/useNetworkOptions'
@@ -10,7 +10,7 @@ const SourceNetworkSelectorComponent = () => {
   const [collapsed, setCollapsed] = useState(true)
   const ref = useRef<any>()
 
-  const originNetwork = useSelector(setSourceChain)
+  const originNetwork = useSelector(selectSourceChain)
   const dispatch = useDispatch()
   const theme = useSelector(selectTheme)
   const { options: networkOptions } = useNetworkOptions()
@@ -42,6 +42,7 @@ const SourceNetworkSelectorComponent = () => {
   }, [chainData])
 
   const handleNetworkChange = (networkId: string) => {
+    console.info(`networkId: ${networkId} | originNetwork:`, originNetwork)
     if (networkId === originNetwork) return
     dispatch(setSourceChain(networkId))
     setCollapsed(false)
