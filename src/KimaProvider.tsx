@@ -8,6 +8,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import '@plugins/evm'
 import '@plugins/tron'
 import '@plugins/solana'
+import { getNetworkOption } from './services/envsApi'
+import { useQuery } from '@tanstack/react-query'
+import { selectBackendUrl } from '@store/selectors'
 
 interface KimaProviderProps {
   walletConnectProjectId: string
@@ -16,9 +19,23 @@ interface KimaProviderProps {
 
 const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
   ({ walletConnectProjectId, children }) => {
+    const backendUrl = useSelector(selectBackendUrl)
+
     // Use a stable selector to avoid unnecessary re-renders
     const plugins = useSelector(selectAllPlugins, (prev, next) => prev === next)
     // console.info('Registered Plugins:', plugins)
+
+    // Fetch networkOption using React Query
+    const {
+      data: networkOption,
+      isLoading,
+      error
+    } = useQuery({
+      queryKey: ['networkOption'],
+      queryFn: async () => getNetworkOption(backendUrl)
+    })
+
+    console.log('network option: ', networkOption)
 
     // Create providers dynamically but flatten their structure
     const WrappedProviders = useMemo(() => {
@@ -28,7 +45,7 @@ const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
           return (
             <PluginProvider
               key={plugin.id}
-              networkOption='mainnet'
+              networkOption={networkOption || 'testnet'}
               walletConnectProjectId={walletConnectProjectId}
             >
               {acc}
