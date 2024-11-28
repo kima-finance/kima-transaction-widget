@@ -4,16 +4,22 @@ import { getFees } from 'src/services/feesApi'
 
 const useGetFees = (
   amount: number | null,
-  originChain: string | null,
-  targetChain: string | null,
+  sourceNetwork: string | null,
+  targetNetwork: string | null,
   backendUrl: string
 ) => {
+
+  console.log("amount: ", amount);
+  console.log("sourceNetwork: ", sourceNetwork);
+  console.log("targetNetwork: ", targetNetwork);  
+
   return useQuery<ServiceFee, Error>({
-    queryKey: ['fees', amount, originChain, targetChain],
+    queryKey: ['fees', amount, sourceNetwork, targetNetwork],
     queryFn: async () => {
-      return await getFees(amount!, originChain!, targetChain!, backendUrl)
+      console.log("new call: ", amount, sourceNetwork, targetNetwork)
+      return await getFees(amount!, sourceNetwork!, targetNetwork!, backendUrl)
     },
-    enabled: !!amount && !!originChain && !!targetChain, // Only run when all params are valid
+    enabled: !!amount && !!sourceNetwork && !!targetNetwork, // Only run when all params are valid
     staleTime: 60000, // Cache for 60 seconds
     retry: 1
   })
