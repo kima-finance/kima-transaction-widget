@@ -15,8 +15,6 @@ import {
 } from '../../store/selectors'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
 import { ChainName } from '../../utils/constants'
-// import { getShortenedAddress } from '../../utils/functions'
-import { connectWalletBtn } from '../../utils/testId'
 import useBalance from '../../hooks/useBalance'
 import { WalletIcon } from '../../assets/icons'
 import useWidth from '../../hooks/useWidth'
@@ -102,7 +100,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
       className={`wallet-button ${isReady ? 'connected' : 'disconnected'} ${theme.colorMode} ${
         errorBelow ? 'error-below' : ''
       }`}
-      data-testid={connectWalletBtn}
+      data-testid='connect-wallet-btn'
     >
       <div className='info-wrapper'>
         <button
