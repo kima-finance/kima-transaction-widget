@@ -5,6 +5,7 @@ import {
   DAppOptions,
   ModeOptions,
   NetworkOptions,
+  ServiceFee,
   ThemeOptions,
   TransactionOption
 } from '@interface'
@@ -47,7 +48,7 @@ interface CoreState {
   successHandler: Function // callback function for success event
   switchChainHandler: Function // callback function to switch chain request
   initChainFromProvider: boolean // chainId is initialized from provider or not
-  serviceFee: number // service fee from Kima node
+  serviceFee: ServiceFee // service fee from Kima node
   backendUrl: string // URL for Kima-transaction-backend component
   nodeProviderQuery: string // REST API endpoint to query Kima node
   graphqlProviderQuery: string // GraphQL endpoint to query Kima transaction data
@@ -83,10 +84,9 @@ const initialState: CoreState = {
   successHandler: () => void 0,
   switchChainHandler: () => void 0,
   initChainFromProvider: false,
-  serviceFee: DEFAULT_SERVICE_FEE,
+  serviceFee: { totalFeeUsd: -1 },
   backendUrl: '',
   nodeProviderQuery: '',
-  graphqlProviderQuery: '',
   txId: -1,
   sourceCurrency: DEFAULT_SOURCE_CURRENCY,
   targetCurrency: DEFAULT_TARGET_CURRENCY,
@@ -103,7 +103,7 @@ export const coreSlice = createSlice({
     initialize: (state) => {
       state.submitted = false
       state.txId = -1
-      state.serviceFee = -1
+      state.serviceFee = { totalFeeUsd: -1 }
       state.amount = ''
       state.targetAddress = ''
       state.compliantOption = true
@@ -180,7 +180,7 @@ export const coreSlice = createSlice({
     setInitChainFromProvider: (state, action: PayloadAction<boolean>) => {
       state.initChainFromProvider = action.payload
     },
-    setServiceFee: (state, action: PayloadAction<number>) => {
+    setServiceFee: (state, action: PayloadAction<ServiceFee>) => {
       state.serviceFee = action.payload
     },
     setMode: (state, action: PayloadAction<ModeOptions>) => {

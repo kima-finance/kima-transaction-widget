@@ -36,13 +36,17 @@ import { fetchWrapper } from '../helpers/fetch-wrapper'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import { tronWebMainnet, tronWebTestnet } from '../tronweb'
 import { fromHex } from '../utils/func'
-import { NetworkOptions, } from '../interface'
+import { NetworkOptions } from '../interface'
 
 import { ethers } from 'ethers'
 import { ExternalProvider, JsonRpcFetchFunc } from '@ethersproject/providers'
 import { isEmptyObject, sleep } from '../helpers/functions'
 import toast from 'react-hot-toast'
-import { useAppKitAccount, useAppKitNetwork, useAppKitProvider } from '@reown/appkit/react'
+import {
+  useAppKitAccount,
+  useAppKitNetwork,
+  useAppKitProvider
+} from '@reown/appkit/react'
 
 type ParsedAccountData = {
   /** Name of the program that owns this account */
@@ -100,7 +104,7 @@ export default function useAllowance({
     return selectedNetwork
   }, [selectedNetwork, evmChainId, networkOption])
   const amount = useSelector(selectAmount)
-  const serviceFee = useSelector(selectServiceFee)
+  const { totalFeeUsd } = useSelector(selectServiceFee)
   const nodeProviderQuery = useSelector(selectNodeProviderQuery)
   const { connection } = useConnection()
   const { publicKey: solanaAddress, signTransaction: signSolanaTransaction } =
@@ -126,11 +130,11 @@ export default function useAllowance({
 
   const amountToShow = useMemo(() => {
     if (sourceChain === ChainName.BTC || targetChain === ChainName.BTC) {
-      return (feeDeduct ? +amount : +amount + serviceFee).toFixed(8)
+      return (feeDeduct ? +amount : +amount + totalFeeUsd).toFixed(8)
     }
 
-    return (feeDeduct ? +amount : +amount + serviceFee).toFixed(2)
-  }, [amount, serviceFee, sourceChain, targetChain, feeDeduct])
+    return (feeDeduct ? +amount : +amount + totalFeeUsd).toFixed(2)
+  }, [amount, totalFeeUsd, sourceChain, targetChain, feeDeduct])
 
   const isApproved = useMemo(() => {
     return allowance >= +amountToShow

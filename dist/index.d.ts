@@ -1,11 +1,11 @@
-import React, { ReactNode } from 'react';
+import react, { ReactNode } from 'react';
 import { Web3Provider } from '@ethersproject/providers';
 
 interface KimaProviderProps {
     walletConnectProjectId: string;
     children: ReactNode;
 }
-declare const KimaProvider: React.FC<KimaProviderProps>;
+declare const KimaProvider: react.FC<KimaProviderProps>;
 
 declare enum ChainName {
     ETHEREUM = "ETH",
@@ -104,6 +104,16 @@ interface Web3ModalAccountInfo {
     isConnected?: boolean | undefined;
     chainId?: number | undefined;
 }
+interface NetworkFee {
+    chain: string;
+    feeType: string;
+    amount: number;
+}
+interface ServiceFee {
+    totalFeeUsd: number;
+    sourceNetworkFee?: NetworkFee;
+    targetNetworkFee?: NetworkFee;
+}
 
 interface Props {
     theme: ThemeOptions;
@@ -113,6 +123,7 @@ interface Props {
     dAppOption?: DAppOptions;
     provider?: Web3Provider;
     titleOption?: TitleOption;
+    compliantOption?: boolean;
     helpURL?: string;
     feeURL?: string;
     transactionOption?: TransactionOption;
@@ -128,6 +139,6 @@ interface Props {
     switchChainHandler?: (chainId: number) => void;
     keplrHandler?: (e: any) => void;
 }
-declare const KimaTransactionWidget: ({ mode, txId, autoSwitchChain, networkOption, provider, dAppOption, theme, transactionOption, kimaBackendUrl, kimaNodeProviderQuery, kimaExplorer, kimaGraphqlProviderQuery, errorHandler, closeHandler, successHandler, switchChainHandler, keplrHandler }: Props) => React.JSX.Element;
+declare const KimaTransactionWidget: ({ mode, txId, autoSwitchChain, networkOption, provider, dAppOption, theme, titleOption, paymentTitleOption, helpURL, compliantOption, transactionOption, kimaBackendUrl, kimaNodeProviderQuery, kimaExplorer, feeURL, kimaGraphqlProviderQuery, errorHandler, closeHandler, successHandler, switchChainHandler, keplrHandler }: Props) => react.JSX.Element;
 
-export { CHAIN_NAMES_TO_STRING, CHAIN_STRING_TO_NAME, ColorModeOptions, type CompliantOption, CurrencyOptions, DAppOptions, KimaProvider, KimaTransactionWidget, ModeOptions, NetworkOptions, type PaymentTitleOption, ChainName as SupportNetworks, type ThemeOptions, type TitleOption, type TransactionData, type TransactionOption, type Web3ModalAccountInfo };
+export { CHAIN_NAMES_TO_STRING, CHAIN_STRING_TO_NAME, ColorModeOptions, type CompliantOption, CurrencyOptions, DAppOptions, KimaProvider, KimaTransactionWidget, ModeOptions, type NetworkFee, NetworkOptions, type PaymentTitleOption, type ServiceFee, ChainName as SupportNetworks, type ThemeOptions, type TitleOption, type TransactionData, type TransactionOption, type Web3ModalAccountInfo };
