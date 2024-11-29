@@ -1,11 +1,11 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
 import { useSelector } from 'react-redux'
 import {
   selectSourceChain,
-  selectTargetChain,
-  selectTargetChainFetching
 } from '@store/selectors'
+import { useDispatch } from 'react-redux'
+import { setSourceAddress } from '@store/optionSlice'
 
 const createWalletStatus = (
   isReady: boolean,
@@ -22,25 +22,24 @@ function useIsWalletReady(): {
   statusMessage: string
   walletAddress?: string
 } {
+  const dispatch = useDispatch()
   const { publicKey: solanaAddress } = useSolanaWallet()
 
   const sourceChain = useSelector(selectSourceChain)
-  const targetChain = useSelector(selectTargetChain)
-  const targetNetworkFetching = useSelector(selectTargetChainFetching)
-  const correctChain = useMemo(() => {
-    return sourceChain
-  }, [sourceChain, targetChain, targetNetworkFetching])
+
+  // set source address upon connection & valid network selected
+  useEffect(() => {
+    solanaAddress &&
+      sourceChain === 'SOL' &&
+      dispatch(setSourceAddress(solanaAddress.toBase58()))
+  }, [solanaAddress, sourceChain])
 
   return useMemo(() => {
-    if (correctChain === 'SOL') {
-      if (solanaAddress) {
-        return createWalletStatus(true, undefined, solanaAddress.toBase58())
-      }
-      return createWalletStatus(false, 'Wallet not connected', '')
-    }
+    if (solanaAddress)
+      return createWalletStatus(true, undefined, solanaAddress.toBase58())
 
-    return createWalletStatus(false, '', undefined)
-  }, [correctChain, solanaAddress])
+    return createWalletStatus(false, 'Wallet not connected', '')
+  }, [sourceChain, solanaAddress])
 }
 
 export default useIsWalletReady
