@@ -45,6 +45,7 @@ export interface OptionState {
   mode: ModeOptions // payment or bridge
   sourceChain: string // origin network on UI
   targetChain: string // target network on UI
+  sourceAddress: string // source address on UI
   targetAddress: string // target address on UI
   bitcoinAddress: string // bitcoin address from xverse wallet
   bitcoinPubkey: string // bitcoin pubkey from xverse wallet
@@ -105,6 +106,7 @@ const initialState: OptionState = {
   mode: ModeOptions.bridge,
   sourceChain: '',
   targetChain: '',
+  sourceAddress: '',
   targetAddress: '',
   bitcoinAddress: '',
   bitcoinPubkey: '',
@@ -129,7 +131,7 @@ const initialState: OptionState = {
   switchChainHandler: () => void 0,
   keplrHandler: () => void 0,
   initChainFromProvider: false,
-  serviceFee: {totalFeeUsd: -1},
+  serviceFee: { totalFeeUsd: -1 },
   backendUrl: '',
   nodeProviderQuery: '',
   txId: -1,
@@ -180,6 +182,9 @@ export const optionSlice = createSlice({
     },
     setTargetChain: (state, action: PayloadAction<string>) => {
       state.targetChain = action.payload
+    },
+    setSourceAddress: (state, action: PayloadAction<string>) => {
+      state.sourceAddress = action.payload
     },
     setTargetAddress: (state, action: PayloadAction<string>) => {
       state.targetAddress = action.payload
@@ -321,6 +326,7 @@ export const {
   setTheme,
   setSourceChain,
   setTargetChain,
+  setSourceAddress,
   setTargetAddress,
   setBitcoinAddress,
   setBitcoinPubkey,
