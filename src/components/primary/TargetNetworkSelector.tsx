@@ -1,7 +1,11 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { setTargetChain } from '@store/optionSlice'
-import { selectTheme } from '@store/selectors'
+import {
+  selectSourceChain,
+  selectTargetChain,
+  selectTheme
+} from '@store/selectors'
 import Arrow from '@assets/icons/Arrow'
 import useGetChainData from '../../hooks/useGetChainData'
 
@@ -12,8 +16,11 @@ const TargetNetworkSelectorComponent = () => {
   const dispatch = useDispatch()
   const theme = useSelector(selectTheme)
 
+  // get the source network to avoid rendering as a target network option
+  const sourceNetwork = useSelector(selectSourceChain)
+
   // Get the selected target network from Redux
-  const targetNetwork = useSelector((state) => state.option.targetChain)
+  const targetNetwork = useSelector(selectTargetChain)
 
   // Fetch dynamic chain data
   const { chainData } = useGetChainData()
@@ -29,14 +36,47 @@ const TargetNetworkSelectorComponent = () => {
     console.info('Final data (target): ', data)
     return data
   }, [chainData])
+  
+  useEffect(() => {
+    if (sourceNetwork === targetNetwork) {
+      // Find the first available network that is not the source network
+      const newTargetNetwork =
+        networks.find((network) => network.id !== sourceNetwork) || null
+  
+      // Dispatch the new target network
+      if (newTargetNetwork) {
+        dispatch(setTargetChain(newTargetNetwork.id))
+      } else {
+        console.warn('No valid target networks available')
+      }
+    }
+  }, [sourceNetwork, targetNetwork, networks, dispatch])
+
 
   // Ensure there's always a fallback selected network
   const selectedNetwork = useMemo(() => {
+    if (targetNetwork === sourceNetwork) {
+      // Find a fallback if the source and target networks conflict
+      return (
+        networks.find((network) => network.id !== sourceNetwork) ||
+        { label: 'Select Network', icon: null }
+      )
+    }
+  
+    // Return the selected target network or a fallback
     return (
-      networks.find((option) => option.id === targetNetwork) ||
-      networks[0] || { label: 'Select Network', icon: null } // Provide safe fallback
+      networks.find((network) => network.id === targetNetwork) ||
+      networks[0] || { label: 'Select Network', icon: null }
     )
-  }, [targetNetwork, networks])
+  }, [sourceNetwork, targetNetwork, networks])
+
+  const availableTargetNetworks = useMemo(() => {
+    return networks.filter(
+      (network) =>
+        network.id !== sourceNetwork &&
+        network.id !== targetNetwork
+    )
+  }, [networks, sourceNetwork, targetNetwork])
 
   const handleNetworkChange = (networkId: string) => {
     if (networkId === targetNetwork) return
@@ -74,7 +114,7 @@ const TargetNetworkSelectorComponent = () => {
           collapsed ? 'collapsed' : 'toggled'
         }`}
       >
-        {networks.map((network) => (
+        {availableTargetNetworks.map((network) => (
           <div
             key={network.id}
             className={`network-menu-item ${theme?.colorMode ?? ''}`}

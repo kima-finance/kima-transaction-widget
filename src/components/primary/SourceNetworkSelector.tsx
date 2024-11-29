@@ -78,16 +78,18 @@ const SourceNetworkSelectorComponent = () => {
           collapsed ? 'collapsed' : 'toggled'
         }`}
       >
-        {networks.map((network) => (
-          <div
-            key={network.id}
-            className={`network-menu-item ${theme?.colorMode ?? ''}`}
-            onClick={() => handleNetworkChange(network.id)}
-          >
-            <div className='icon'>{network.icon}</div>
-            <p>{network.label}</p>
-          </div>
-        ))}
+        {networks
+          .filter((network) => network.id !== selectedNetwork.id)
+          .map((filteredNetwork) => (
+            <div
+              key={filteredNetwork.id}
+              className={`network-menu-item ${theme?.colorMode ?? ''}`}
+              onClick={() => handleNetworkChange(filteredNetwork.id)}
+            >
+              <div className='icon'>{filteredNetwork.icon}</div>
+              <p>{filteredNetwork.label}</p>
+            </div>
+          ))}
       </div>
       <div className={`dropdown-icon ${collapsed ? 'toggled' : 'collapsed'}`}>
         <Arrow fill='none' />
