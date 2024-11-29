@@ -13,6 +13,7 @@ export const getCompliance = async (
     )
 
     console.log('compliance: ', response)
+    return response
   } catch (error) {
     console.error('compliance error: ', error)
     throw new Error('Cant get compliance')

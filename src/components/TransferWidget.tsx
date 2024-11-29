@@ -11,6 +11,7 @@ import {
   WalletButton
 } from './reusable'
 import {
+  CHAIN_NAMES_TO_STRING,
   ColorModeOptions,
   DAppOptions,
   ModeOptions,
@@ -55,6 +56,8 @@ import useBalance from '../hooks/useBalance'
 import useWidth from '../hooks/useWidth'
 import SolanaWalletConnectModal from '@plugins/solana/components/SolanaWalletConnectModal'
 import TronWalletConnectModal from '@plugins/tron/components/TronWalletConnectModal'
+import { fetchWrapper } from 'src/helpers/fetch-wrapper'
+import useComplianceCheck from '../hooks/useComplianceCheck'
 
 interface Props {
   theme: ThemeOptions
@@ -111,39 +114,52 @@ export const TransferWidget = ({
   const { balance } = useBalance()
   const { width: windowWidth } = useWidth()
 
+  const { complianceData: sourceCompliant, error: sourceComplianceError } =
+    useComplianceCheck(sourceAddress, compliantOption, backendUrl)
+  const { complianceData: targetCompliant, error: targetComplianceError } =
+    useComplianceCheck(targetAddress, compliantOption, backendUrl)
+
+  /* error handling for compliance errors */
+  useEffect(() => {
+    if (sourceComplianceError || targetComplianceError)
+      toast.error('Compliance check failed', {
+        icon: <ErrorIcon />
+      })
+  }, [sourceComplianceError, targetComplianceError])
+
   // TODO: move to corresponding hook
-  // const checkPoolBalance = async () => {
-  //   const res: any = await fetchWrapper.get(`${backendUrl}/chains/pool_balance`)
+  const checkPoolBalance = async () => {
+    const res: any = await fetchWrapper.get(`${backendUrl}/chains/pool_balance`)
 
-  //   const poolBalance = res.poolBalance
-  //   for (let i = 0; i < poolBalance.length; i++) {
-  //     if (poolBalance[i].chainName === targetChain) {
-  //       for (let j = 0; j < poolBalance[i].balance.length; j++) {
-  //         if (poolBalance[i].balance[j].tokenSymbol !== targetCurrency) continue
-  //         if (+poolBalance[i].balance[j].amount >= +amount + fee) {
-  //           return true
-  //         }
+    const poolBalance = res.poolBalance
+    for (let i = 0; i < poolBalance.length; i++) {
+      if (poolBalance[i].chainName === targetChain) {
+        for (let j = 0; j < poolBalance[i].balance.length; j++) {
+          if (poolBalance[i].balance[j].tokenSymbol !== targetCurrency) continue
+          if (+poolBalance[i].balance[j].amount >= +amount + totalFeeUsd) {
+            return true
+          }
 
-  //         const symbol = targetCurrency
-  //         const errorString = `Tried to transfer ${amount} ${symbol}, but ${
-  //           CHAIN_NAMES_TO_STRING[targetChain]
-  //         } pool has only ${+poolBalance[i].balance[j].amount} ${symbol}`
-  //         console.log(errorString)
-  //         toast.error(errorString, { icon: <ErrorIcon /> })
+          const symbol = targetCurrency
+          const errorString = `Tried to transfer ${amount} ${symbol}, but ${
+            CHAIN_NAMES_TO_STRING[targetChain]
+          } pool has only ${+poolBalance[i].balance[j].amount} ${symbol}`
+          console.log(errorString)
+          toast.error(errorString, { icon: <ErrorIcon /> })
 
-  //         toast.error(
-  //           `${CHAIN_NAMES_TO_STRING[targetChain]} pool has insufficient balance!`,
-  //           { icon: <ErrorIcon /> }
-  //         )
-  //         errorHandler(errorString)
-  //         return false
-  //       }
-  //       return false
-  //     }
-  //   }
-  //   console.log(`${CHAIN_NAMES_TO_STRING[targetChain]} pool error`)
-  //   return false
-  // }
+          toast.error(
+            `${CHAIN_NAMES_TO_STRING[targetChain]} pool has insufficient balance!`,
+            { icon: <ErrorIcon /> }
+          )
+          errorHandler(errorString)
+          return false
+        }
+        return false
+      }
+    }
+    console.log(`${CHAIN_NAMES_TO_STRING[targetChain]} pool error`)
+    return false
+  }
 
   const handleSubmit = async () => {
     if (totalFeeUsd < 0) {
@@ -162,70 +178,67 @@ export const TransferWidget = ({
       return
     }
 
-    // TODO: Source and target addresses should be in store
-    // that way we dont rely on the isWalletReady hook
     try {
       setSubmitting(true)
 
-      // if (
-      //   dAppOption === DAppOptions.LPDrain ||
-      //   dAppOption === DAppOptions.LPAdd
-      // ) {
-      //   keplrHandler(walletAddress)
-      //   return
-      // }
+      if (
+        dAppOption === DAppOptions.LPDrain ||
+        dAppOption === DAppOptions.LPAdd
+      ) {
+        keplrHandler(sourceAddress)
+        return
+      }
 
-      // if (!(await checkPoolBalance())) {
-      //   setSubmitting(false)
-      //   return
-      // }
+      if (!(await checkPoolBalance())) {
+        setSubmitting(false)
+        return
+      }
 
-      // const feeParam = fee.toFixed(2)
-      // const params = JSON.stringify({
-      //   originAddress: walletAddress,
-      //   originChain: sourceChain,
-      //   targetAddress,
-      //   targetChain: targetChain,
-      //   originSymbol: sourceCurrency,
-      //   targetSymbol: targetCurrency,
-      //   amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
-      //   fee: feeParam,
-      //   htlcCreationHash: '',
-      //   htlcCreationVout: 0,
-      //   htlcExpirationTimestamp: '0',
-      //   htlcVersion: '',
-      //   senderPubKey: ''
-      // })
+      const feeParam = totalFeeUsd.toFixed(2)
+      const params = JSON.stringify({
+        originAddress: sourceAddress,
+        originChain: sourceChain,
+        targetAddress,
+        targetChain: targetChain,
+        originSymbol: sourceCurrency,
+        targetSymbol: targetCurrency,
+        amount: feeDeduct ? (+amount - totalFeeUsd).toFixed(8) : amount,
+        fee: feeParam,
+        htlcCreationHash: '',
+        htlcCreationVout: 0,
+        htlcExpirationTimestamp: '0',
+        htlcVersion: '',
+        senderPubKey: ''
+      })
 
-      // console.log(params)
-      // await fetchWrapper.post(`${backendUrl}/auth`, params)
-      // const result: any = await fetchWrapper.post(
-      //   `${backendUrl}/submit`,
-      //   params
-      // )
+      console.log(params)
+      const result: any = await fetchWrapper.post(
+        `${backendUrl}/submit`,
+        params
+      )
 
-      // console.log(result)
+      console.log(result)
 
-      // if (result?.code !== 0) {
-      //   errorHandler(result)
-      //   toast.error('Failed to submit transaction!', { icon: <ErrorIcon /> })
-      //   setSubmitting(false)
-      //   return
-      // }
+      if (result?.code !== 0) {
+        errorHandler(result)
+        toast.error('Failed to submit transaction!', { icon: <ErrorIcon /> })
+        setSubmitting(false)
+        return
+      }
 
       let txId = -1
 
-      // for (const event of result.events) {
-      //   if (event.type === 'transaction_requested') {
-      //     for (const attr of event.attributes) {
-      //       if (attr.key === 'txId') {
-      //         txId = attr.value
-      //       }
-      //     }
-      //   }
-      // }
+      for (const event of result.events) {
+        if (event.type === 'transaction_requested') {
+          for (const attr of event.attributes) {
+            if (attr.key === 'txId') {
+              txId = attr.value
+            }
+          }
+        }
+      }
 
-      // console.log(txId)
+      console.log(txId)
       setSubmitting(false)
       dispatch(setTxId(txId))
       dispatch(setSubmitted(true))
@@ -240,7 +253,7 @@ export const TransferWidget = ({
 
   const onNext = () => {
     if (isWizard && wizardStep < 5) {
-      if (wizardStep === 1 /*&& !isReady*/) {
+      if (wizardStep === 1 && !sourceAddress) {
         toast.error('Wallet is not connected!', { icon: <ErrorIcon /> })
         errorHandler('Wallet is not connected!')
         return
@@ -270,7 +283,7 @@ export const TransferWidget = ({
     }
 
     if (!isWizard && !formStep) {
-      if (true /*isReady*/) {
+      if (!sourceAddress) {
         if (+amount <= 0) {
           toast.error('Invalid amount!', { icon: <ErrorIcon /> })
           errorHandler('Invalid amount!')
