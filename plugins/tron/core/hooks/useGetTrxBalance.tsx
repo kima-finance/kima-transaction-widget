@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useQuery } from '@tanstack/react-query'
-import { selectNetworkOption } from '@store/selectors'
+import { selectNetworkOption, selectSourceChain } from '@store/selectors'
 import { NetworkOptions } from '@interface'
 import { tronWebMainnet, tronWebTestnet } from '../../tronweb'
 import { useWallet, Wallet } from '@tronweb3/tronwallet-adapter-react-hooks'
@@ -10,6 +10,7 @@ import { getTrxBalance } from '../../utils/getTrxBalance'
 function useGetTronBalance() {
   const networkOption = useSelector(selectNetworkOption)
   const { wallet } = useWallet()
+  const sourceNetwork = useSelector(selectSourceChain)
 
   // Memoize the TronWeb instance
   const tronWeb = useMemo(
@@ -28,7 +29,7 @@ function useGetTronBalance() {
   } = useQuery({
     queryKey: ['tronBalance', wallet?.adapter?.address, networkOption], // Query key
     queryFn: async () => getTrxBalance(wallet as Wallet, tronWeb),
-    enabled: !!wallet?.adapter?.address, // Fetch only if wallet address is available
+    enabled: !!wallet?.adapter?.address && sourceNetwork === 'TRX', // Fetch only if wallet address is available
     refetchInterval: 60000, // Refetch every 10 seconds
     staleTime: 10000, // Mark data as stale after 10 seconds
     gcTime: 60000
