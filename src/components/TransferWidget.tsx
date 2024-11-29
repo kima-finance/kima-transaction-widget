@@ -23,12 +23,9 @@ import CoinSelect from './reusable/CoinSelect' //yes
 
 // store
 import {
-  initialize,
   setAmount,
-  setSourceCompliant,
   setSubmitted,
   setTargetAddress,
-  setTargetCompliant,
   setTheme,
   setTxId
 } from '@store/optionSlice'
@@ -41,23 +38,21 @@ import {
   selectErrorHandler,
   selectMode,
   selectSourceChain,
-  selectSourceCompliant,
   selectTargetAddress,
-  selectTargetCompliant,
   selectTargetChain,
   selectKeplrHandler,
   selectFeeDeduct,
   selectPendingTxs,
   selectSourceCurrency,
-  selectTargetCurrency
-} from '../store/selectors'
+  selectTargetCurrency,
+  selectSourceAddress,
+  selectServiceFee
+} from '@store/selectors'
 import useAllowance from '../hooks/useAllowance'
-import { fetchWrapper } from '../helpers/fetch-wrapper'
 import AddressInputWizard from './reusable/AddressInputWizard'
 import { toast, Toaster } from 'react-hot-toast'
 import useBalance from '../hooks/useBalance'
 import useWidth from '../hooks/useWidth'
-import { selectServiceFee } from '@store/selectors'
 import SolanaWalletConnectModal from '@plugins/solana/components/SolanaWalletConnectModal'
 import TronWalletConnectModal from '@plugins/tron/components/TronWalletConnectModal'
 
@@ -89,11 +84,10 @@ export const TransferWidget = ({
   const amount = useSelector(selectAmount)
   const feeDeduct = useSelector(selectFeeDeduct)
   const sourceChain = useSelector(selectSourceChain)
+  const sourceAddress = useSelector(selectSourceAddress)
   const targetAddress = useSelector(selectTargetAddress)
   const targetChain = useSelector(selectTargetChain)
   const compliantOption = useSelector(selectCompliantOption)
-  const sourceCompliant = useSelector(selectSourceCompliant)
-  const targetCompliant = useSelector(selectTargetCompliant)
   const errorHandler = useSelector(selectErrorHandler)
   const keplrHandler = useSelector(selectKeplrHandler)
   const closeHandler = useSelector(selectCloseHandler)
@@ -116,43 +110,6 @@ export const TransferWidget = ({
   } = useAllowance({ setApproving, setCancellingApprove })
   const { balance } = useBalance()
   const { width: windowWidth } = useWidth()
-
-  // TODO: Move to corresponding hook
-  // useEffect(() => {
-  //   if (!walletAddress) return
-
-  //   if (!compliantOption) return
-  //   ;(async function () {
-  //     try {
-  //       const res = await fetchWrapper.get(
-  //         `${backendUrl}/compliant?address=${walletAddress}`
-  //       )
-  //       dispatch(setSourceCompliant(res))
-  //       console.info('Source Compliance:', res)
-  //     } catch (e) {
-  //       toast.error('compliance check failed', { icon: <ErrorIcon /> })
-  //       console.log('compliance check failed', e)
-  //     }
-  //   })()
-  // }, [walletAddress, compliantOption])
-
-  // TODO: Move to corresponding hook
-  useEffect(() => {
-    if (!targetAddress || !compliantOption) return
-    ;(async function () {
-      try {
-        const res = await fetchWrapper.get(
-          `${backendUrl}/compliant?address=${targetAddress}`
-        )
-        dispatch(setTargetCompliant(res))
-        console.info('Target Compliance:', res)
-      } catch (e) {
-        toast.error('compliance check failed', { icon: <ErrorIcon /> })
-        console.log('compliance check failed', e)
-      }
-    })()
-  }, [targetAddress, compliantOption])
-  // get rid of the +
 
   // TODO: move to corresponding hook
   // const checkPoolBalance = async () => {
