@@ -57,6 +57,7 @@ import useBalance from '../hooks/useBalance'
 import useWidth from '../hooks/useWidth'
 import { selectServiceFee } from '@store/selectors'
 import SolanaWalletConnectModal from '@plugins/solana/components/SolanaWalletConnectModal'
+import TronWalletConnectModal from '@plugins/tron/components/TronWalletConnectModal'
 
 interface Props {
   theme: ThemeOptions
@@ -508,7 +509,7 @@ export const TransferWidget = ({
         </div>
       </div>
       <SolanaWalletConnectModal />
-      {/* <TronWalletConnectModal /> */}
+      <TronWalletConnectModal />
       <Toaster
         position='top-right'
         reverseOrder={false}

@@ -1,11 +1,5 @@
-import { useMemo } from 'react';
-import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks';
-import { useSelector } from 'react-redux';
-import {
-  selectSourceChain,
-  selectTargetChain,
-  selectTargetChainFetching,
-} from '@store/selectors';
+import { useMemo } from 'react'
+import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 
 const createWalletStatus = (
   isReady: boolean,
@@ -14,35 +8,22 @@ const createWalletStatus = (
 ) => ({
   isReady,
   statusMessage,
-  walletAddress,
-});
+  walletAddress
+})
 
 function useIsWalletReady(): {
-  isReady: boolean;
-  statusMessage: string;
-  walletAddress?: string;
+  isReady: boolean
+  statusMessage: string
+  walletAddress?: string
 } {
-  const { address: tronAddress } = useTronWallet();
-
-  const sourceChain = useSelector(selectSourceChain);
-  const targetChain = useSelector(selectTargetChain);
-  const targetNetworkFetching = useSelector(selectTargetChainFetching);
-  const correctChain = useMemo(() => {
-    if (sourceChain === ChainName.FIAT && !targetNetworkFetching)
-      return targetChain;
-    return sourceChain;
-  }, [sourceChain, targetChain, targetNetworkFetching]);
+  const { address: tronAddress } = useTronWallet()
 
   return useMemo(() => {
-    if (correctChain === 'TRX') {
-      if (tronAddress) {
-        return createWalletStatus(true, undefined, tronAddress);
-      }
-      return createWalletStatus(false, 'Wallet not connected', '');
+    if (tronAddress) {
+      return createWalletStatus(true, undefined, tronAddress)
     }
-
-    return createWalletStatus(false, '', undefined);
-  }, [correctChain, tronAddress]);
+    return createWalletStatus(false, 'Wallet not connected', '')
+  }, [tronAddress])
 }
 
-export default useIsWalletReady;
+export default useIsWalletReady
