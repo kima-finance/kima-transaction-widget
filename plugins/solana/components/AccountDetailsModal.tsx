@@ -15,9 +15,9 @@ import {
 } from '@components/reusable'
 import useIsWalletReady from '../core/hooks/useIsWalletReady'
 import { getShortenedAddress } from '@utils/functions'
-import { networkOptions } from '@utils/constants'
 import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
 import useGetSolBalance from '../core/hooks/useGetSolBalance'
+import { networkOptions } from '../utils/constants'
 
 const AccountDetailsModal = () => {
   const dispatch = useDispatch()
