@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import {
   selectAccountDetailsModal,
   selectNetworkOption,
+  selectSourceChain,
   selectTheme
 } from '@store/selectors'
 import { setAccountDetailsModal } from '@store/optionSlice'
@@ -23,6 +24,7 @@ const AccountDetailsModal = () => {
   const dispatch = useDispatch()
   const theme = useSelector(selectTheme)
   const networkOption = useSelector(selectNetworkOption)
+  const sourceChain = useSelector(selectSourceChain)
   const accountDetailsModal = useSelector(selectAccountDetailsModal)
   const { walletAddress } = useIsWalletReady()
   const { disconnect: solanaWalletDisconnect } = useSolanaWallet()
@@ -42,6 +44,8 @@ const AccountDetailsModal = () => {
     solanaWalletDisconnect()
     dispatch(setAccountDetailsModal(false))
   }
+
+  if (sourceChain !== 'SOL') return
 
   return (
     <div

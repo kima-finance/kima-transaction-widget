@@ -19,12 +19,14 @@ import { getShortenedAddress } from '@utils/functions'
 import { networkOptions } from '@utils/constants'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import useGetTronBalance from '../core/hooks/useGetTrxBalance'
+import { sourceMapsEnabled } from 'process'
 
 const AccountDetailsModal = () => {
   const dispatch = useDispatch()
   const theme = useSelector(selectTheme)
   const networkOption = useSelector(selectNetworkOption)
   const accountDetailsModal = useSelector(selectAccountDetailsModal)
+  const sourcheChain = useSelector(selectSourceChain)
   const { walletAddress } = useIsWalletReady()
   const { disconnect: tronWalletDisconnect } = useTronWallet()
   const tronBalance = useGetTronBalance()
@@ -45,9 +47,10 @@ const AccountDetailsModal = () => {
   // handle disconnection scenario
   const handleDisconnect = () => {
     tronWalletDisconnect()
-
     dispatch(setAccountDetailsModal(false))
   }
+
+  if (sourcheChain !== 'TRX') return;
 
   return (
     <div
