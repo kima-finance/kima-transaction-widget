@@ -1,7 +1,7 @@
 // plugins/tron/index.tsx
 import React from 'react' // Explicitly import React
 import { store } from '@store/index'
-import { registerPlugin } from '@store/pluginSlice'
+import { registerPlugin, updatePluginData } from '@store/pluginSlice'
 import { registerPluginProvider } from '@pluginRegistry' // Import the pluginRegistry functions
 import WalletProvider from '@plugins/tron/features/walletConnect/WalletProvider'
 import { initialize } from './initialize'
@@ -33,11 +33,23 @@ registerPluginProvider(
 // Define the Tron plugin metadata (serializable)
 const TronPlugin = {
   id: 'tron',
-  pluginData: await initialize()
+  pluginData: {
+    networks: []
+  }
 }
 
 // Register Tron plugin in the Redux store with serializable data
 store.dispatch(registerPlugin(TronPlugin))
+
+initialize().then((data) => {
+  console.log('initialized plugin Tron')
+  store.dispatch(
+    updatePluginData({
+      ...TronPlugin,
+      pluginData: data
+    })
+  )
+})
 
 console.info('Tron plugin registered.')
 
