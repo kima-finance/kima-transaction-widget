@@ -24,12 +24,14 @@ import CoinSelect from './reusable/CoinSelect' //yes
 // store
 import {
   initialize,
+  setAmount,
   setSourceCompliant,
   setSubmitted,
+  setTargetAddress,
   setTargetCompliant,
   setTheme,
   setTxId
-} from '../store/optionSlice'
+} from '@store/optionSlice'
 import {
   selectAmount,
   selectBackendUrl,
@@ -393,7 +395,9 @@ export const TransferWidget = ({
   const resetForm = () => {
     if (isApproving || isSubmitting || isSigning) return
 
-    dispatch(initialize())
+    dispatch(setTargetAddress('')) // reset target address
+    dispatch(setAmount('')) // reset amount
+    // disconnect wallet?
     closeHandler()
   }
 
