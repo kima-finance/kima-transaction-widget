@@ -7,6 +7,7 @@ import { getPluginProvider } from '@pluginRegistry'
 import '@plugins/evm'
 import '@plugins/tron'
 import '@plugins/solana'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 interface KimaProviderProps {
   walletConnectProjectId: string
@@ -46,12 +47,16 @@ const KimaProvider: React.FC<KimaProviderProps> = ({
   walletConnectProjectId,
   children
 }) => {
+  const queryClient = new QueryClient()
+
   return (
-    <Provider store={store}>
-      <InternalKimaProvider walletConnectProjectId={walletConnectProjectId}>
-        {children}
-      </InternalKimaProvider>
-    </Provider>
+    <QueryClientProvider client={queryClient}>
+      <Provider store={store}>
+        <InternalKimaProvider walletConnectProjectId={walletConnectProjectId}>
+          {children}
+        </InternalKimaProvider>
+      </Provider>
+    </QueryClientProvider>
   )
 }
 

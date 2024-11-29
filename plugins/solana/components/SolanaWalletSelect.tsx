@@ -2,9 +2,9 @@ import React, { useEffect, useMemo, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { WalletReadyState } from '@solana/wallet-adapter-base'
-import { selectTheme } from '../../store/selectors'
-import ExternalLink from './ExternalLink'
-import { setSolanaConnectModal } from '../../store/optionSlice'
+import { selectTheme } from '@store/selectors'
+import ExternalLink from '@components/reusable/ExternalLink'
+import { setSolanaConnectModal } from '@store/optionSlice'
 
 const SolanaWalletSelect = () => {
   const theme = useSelector(selectTheme)
@@ -56,7 +56,7 @@ const SolanaWalletSelect = () => {
     })
   })
 
-  const connectWallet = (walletName) => {
+  const connectWallet = (walletName: any) => {
     select(walletName)
     dispatch(setSolanaConnectModal(false))
   }

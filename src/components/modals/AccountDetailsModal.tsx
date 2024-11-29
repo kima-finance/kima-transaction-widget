@@ -21,9 +21,7 @@ import {
   CHAIN_NAMES_TO_EXPLORER_TESTNET,
   networkOptions
 } from '../../utils/constants'
-import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
-import useGetSolBalance from '../../hooks/useGetSolBalance'
 import useGetTronBalance from '../../hooks/useGetTrxBalance'
 
 const AccountDetailsModal = () => {
@@ -32,9 +30,7 @@ const AccountDetailsModal = () => {
   const networkOption = useSelector(selectNetworkOption)
   const accountDetailsModal = useSelector(selectAccountDetailsModal)
   const { walletAddress } = useIsWalletReady()
-  const { disconnect: solanaWalletDisconnect } = useSolanaWallet()
   const { disconnect: tronWalletDisconnect } = useTronWallet()
-  const solBalance = useGetSolBalance()
   const tronBalance = useGetTronBalance()
   const selectedNetwork = useSelector(selectSourceChain)
 
@@ -60,9 +56,7 @@ const AccountDetailsModal = () => {
 
   // handle disconnection scenario
   const handleDisconnect = () => {
-    selectedNetwork === 'SOL'
-      ? solanaWalletDisconnect()
-      : tronWalletDisconnect()
+    tronWalletDisconnect()
 
     dispatch(setAccountDetailsModal(false))
   }
@@ -98,7 +92,7 @@ const AccountDetailsModal = () => {
               <CopyButton text={walletAddress as string} />
             </div>
             <h3>
-              {selectedNetwork === 'SOL' ? solBalance : tronBalance}{' '}
+              {tronBalance}
               {selectedNetwork}
             </h3>
           </div>

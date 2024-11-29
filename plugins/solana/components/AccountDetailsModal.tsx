@@ -1,30 +1,23 @@
 import React, { useMemo } from 'react'
-import { CrossIcon, ExplorerIcon, ExternalUrlIcon } from '../../assets/icons'
+import { CrossIcon, ExplorerIcon, ExternalUrlIcon } from '@assets/icons'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   selectAccountDetailsModal,
   selectNetworkOption,
-  selectSourceChain,
   selectTheme
-} from '../../store/selectors'
-import { setAccountDetailsModal } from '../../store/optionSlice'
+} from '@store/selectors'
+import { setAccountDetailsModal } from '@store/optionSlice'
 import {
   CopyButton,
   ExternalLink,
   PrimaryButton,
   SecondaryButton
-} from '../reusable'
-import useIsWalletReady from '../../hooks/useIsWalletReady'
-import { getShortenedAddress } from '../../utils/functions'
-import {
-  CHAIN_NAMES_TO_EXPLORER_MAINNET,
-  CHAIN_NAMES_TO_EXPLORER_TESTNET,
-  networkOptions
-} from '../../utils/constants'
+} from '@components/reusable'
+import useIsWalletReady from '../core/hooks/useIsWalletReady'
+import { getShortenedAddress } from '@utils/functions'
+import { networkOptions } from '@utils/constants'
 import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
-import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
-import useGetSolBalance from '../../hooks/useGetSolBalance'
-import useGetTronBalance from '../../hooks/useGetTrxBalance'
+import useGetSolBalance from '../core/hooks/useGetSolBalance'
 
 const AccountDetailsModal = () => {
   const dispatch = useDispatch()
@@ -33,37 +26,20 @@ const AccountDetailsModal = () => {
   const accountDetailsModal = useSelector(selectAccountDetailsModal)
   const { walletAddress } = useIsWalletReady()
   const { disconnect: solanaWalletDisconnect } = useSolanaWallet()
-  const { disconnect: tronWalletDisconnect } = useTronWallet()
   const solBalance = useGetSolBalance()
-  const tronBalance = useGetTronBalance()
-  const selectedNetwork = useSelector(selectSourceChain)
 
   // get the network details
-  const networkDetails = useMemo(
-    () => networkOptions.find(({ id }) => id === selectedNetwork),
-    [selectedNetwork]
-  )
+  const networkDetails = networkOptions[0]
 
   // construct the explorer url based on network option
   // and the chain selected (sol or trx)
   const explorerUrl = useMemo(() => {
-    const baseUrl =
-      networkOption === 'testnet'
-        ? CHAIN_NAMES_TO_EXPLORER_TESTNET[selectedNetwork]
-        : CHAIN_NAMES_TO_EXPLORER_MAINNET[selectedNetwork]
-
-    const mainUrlParams = `${selectedNetwork === 'SOL' ? 'account' : 'address'}/${walletAddress}`
-    const urlSufix = `${selectedNetwork === 'SOL' ? `?cluster=${networkOption === 'testnet' ? 'devnet' : 'mainnet'}` : ''}`
-
-    return `https://${baseUrl}/${mainUrlParams}${urlSufix}`
-  }, [walletAddress, networkOption, selectedNetwork])
+    return `https://solscan.io/account/address/${walletAddress}?cluster=${networkOption === 'mainnet' ? 'mainnet' : 'devnet'}`
+  }, [walletAddress, networkOption])
 
   // handle disconnection scenario
   const handleDisconnect = () => {
-    selectedNetwork === 'SOL'
-      ? solanaWalletDisconnect()
-      : tronWalletDisconnect()
-
+    solanaWalletDisconnect()
     dispatch(setAccountDetailsModal(false))
   }
 
@@ -97,9 +73,7 @@ const AccountDetailsModal = () => {
               <h2>{getShortenedAddress(walletAddress || '')}</h2>
               <CopyButton text={walletAddress as string} />
             </div>
-            <h3>
-              {selectedNetwork === 'SOL' ? solBalance : tronBalance} {selectedNetwork}
-            </h3>
+            <h3>{solBalance} $SOL</h3>
           </div>
           <SecondaryButton className='block-explorer'>
             <ExternalLink className='link' to={explorerUrl}>

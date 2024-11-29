@@ -54,12 +54,12 @@ import useServiceFee from '../hooks/useServiceFee'
 import useAllowance from '../hooks/useAllowance'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 import AddressInputWizard from './reusable/AddressInputWizard'
-import { SolanaWalletConnectModal } from './modals'
 import { ChainName, CHAIN_NAMES_TO_STRING } from '../utils/constants'
 import { toast, Toaster } from 'react-hot-toast'
 import useBalance from '../hooks/useBalance'
 import useWidth from '../hooks/useWidth'
 import TronWalletConnectModal from './modals/TronWalletConnectModal'
+import SolanaWalletConnectModal from '@plugins/solana/components/SolanaWalletConnectModal'
 
 interface Props {
   theme: ThemeOptions
@@ -500,9 +500,7 @@ export const TransferWidget = ({
             <SecondaryButton
               clickHandler={onBack}
               theme={theme.colorMode}
-              disabled={
-                isApproving || isSubmitting || isSigning
-              }
+              disabled={isApproving || isSubmitting || isSigning}
             >
               {(isWizard && wizardStep > 0) || (!isWizard && formStep > 0)
                 ? 'Back'

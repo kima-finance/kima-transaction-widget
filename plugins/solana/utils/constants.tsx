@@ -3,14 +3,14 @@
 import { clusterApiUrl } from '@solana/web3.js'
 import { SolanaIcon } from '@assets/icons'
 
-// Define the type for Cluster
-export type Cluster = 'devnet' | 'testnet' | 'mainnet'
-
 // Choose endpoint based on network option
 export function getHostEndpoint(networkOption: string): String {
-  const cluster: Cluster = networkOption == 'mainnet' ? 'mainnet' : 'devnet'
-  const SOLANA_HOST = clusterApiUrl(cluster)
-  return SOLANA_HOST
+  
+  console.log("network option: ", networkOption)
+
+  return networkOption === 'mainnet'
+    ? 'https://solana-rpc.publicnode.com'
+    : clusterApiUrl('devnet')
 }
 
 // Enumeration for Chain Names
