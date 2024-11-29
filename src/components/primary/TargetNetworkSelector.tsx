@@ -16,16 +16,11 @@ const TargetNetworkSelectorComponent = () => {
   const dispatch = useDispatch()
   const theme = useSelector(selectTheme)
 
-  // get the source network to avoid rendering as a target network option
   const sourceNetwork = useSelector(selectSourceChain)
-
-  // Get the selected target network from Redux
   const targetNetwork = useSelector(selectTargetChain)
 
-  // Fetch dynamic chain data
   const { chainData } = useGetChainData()
 
-  // Map chain data to the format needed by the dropdown
   const networks = useMemo(() => {
     const data =
       chainData.map((network) => ({
@@ -36,47 +31,35 @@ const TargetNetworkSelectorComponent = () => {
     console.info('Final data (target): ', data)
     return data
   }, [chainData])
-  
+
+  // Ensure target network updates dynamically on source network changes or first render
   useEffect(() => {
-    if (sourceNetwork === targetNetwork) {
-      // Find the first available network that is not the source network
-      const newTargetNetwork =
+    if (sourceNetwork === targetNetwork || !targetNetwork) {
+      const validTarget =
         networks.find((network) => network.id !== sourceNetwork) || null
-  
-      // Dispatch the new target network
-      if (newTargetNetwork) {
-        dispatch(setTargetChain(newTargetNetwork.id))
+
+      if (validTarget) {
+        dispatch(setTargetChain(validTarget.id))
       } else {
         console.warn('No valid target networks available')
       }
     }
   }, [sourceNetwork, targetNetwork, networks, dispatch])
 
-
   // Ensure there's always a fallback selected network
   const selectedNetwork = useMemo(() => {
-    if (targetNetwork === sourceNetwork) {
-      // Find a fallback if the source and target networks conflict
-      return (
-        networks.find((network) => network.id !== sourceNetwork) ||
-        { label: 'Select Network', icon: null }
-      )
-    }
-  
-    // Return the selected target network or a fallback
     return (
       networks.find((network) => network.id === targetNetwork) ||
-      networks[0] || { label: 'Select Network', icon: null }
+      networks.find((network) => network.id !== sourceNetwork) ||
+      { label: 'Select Network', icon: null }
     )
   }, [sourceNetwork, targetNetwork, networks])
 
   const availableTargetNetworks = useMemo(() => {
     return networks.filter(
-      (network) =>
-        network.id !== sourceNetwork &&
-        network.id !== targetNetwork
+      (network) => network.id !== sourceNetwork
     )
-  }, [networks, sourceNetwork, targetNetwork])
+  }, [networks, sourceNetwork])
 
   const handleNetworkChange = (networkId: string) => {
     if (networkId === targetNetwork) return
