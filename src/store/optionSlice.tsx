@@ -5,6 +5,7 @@ import {
   DAppOptions,
   ModeOptions,
   NetworkOptions,
+  ServiceFee,
   ThemeOptions,
   TransactionOption
 } from '../interface'
@@ -70,7 +71,7 @@ export interface OptionState {
   successHandler: Function // callback function for success event
   switchChainHandler: Function // callback function to switch chain request
   initChainFromProvider: boolean // chainId is initialized from provider or not
-  serviceFee: number // service fee from kima node
+  serviceFee: ServiceFee // service fee from kima node
   backendUrl: string // URL for kima-transaction-backend component
   nodeProviderQuery: string // REST API endpoint to query kima node
   graphqlProviderQuery: string // Graphql endpoint to query kima transaction data
@@ -128,7 +129,7 @@ const initialState: OptionState = {
   switchChainHandler: () => void 0,
   keplrHandler: () => void 0,
   initChainFromProvider: false,
-  serviceFee: -1,
+  serviceFee: {totalfeeUsd: -1},
   backendUrl: '',
   nodeProviderQuery: '',
   txId: -1,
@@ -252,7 +253,7 @@ export const optionSlice = createSlice({
     setSuccessHandler: (state, action: PayloadAction<Function>) => {
       state.successHandler = action.payload
     },
-    setServiceFee: (state, action: PayloadAction<number>) => {
+    setServiceFee: (state, action: PayloadAction<ServiceFee>) => {
       state.serviceFee = action.payload
     },
     setMode: (state, action: PayloadAction<ModeOptions>) => {

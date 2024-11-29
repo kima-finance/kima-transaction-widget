@@ -82,3 +82,15 @@ export interface Web3ModalAccountInfo {
   isConnected?: boolean | undefined
   chainId?: number | undefined
 }
+
+export interface NetworkFee {
+  chain: string
+  feeType: string
+  amount: number
+}
+
+export interface ServiceFee {
+  totalFeeUsd: number
+  sourceNetworkFee?: NetworkFee
+  targetNetworkFee?: NetworkFee
+}

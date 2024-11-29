@@ -19,7 +19,7 @@ import {
   TitleOption
 } from '../interface'
 import SingleForm from './reusable/SingleForm'
-import CoinSelect from './reusable/CoinSelect'
+import CoinSelect from './reusable/CoinSelect' //yes
 
 // store
 import {
@@ -49,16 +49,13 @@ import {
   selectSourceCurrency,
   selectTargetCurrency
 } from '../store/selectors'
-import useIsWalletReady from '../hooks/useIsWalletReady'
-import useServiceFee from '../hooks/useServiceFee'
 import useAllowance from '../hooks/useAllowance'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 import AddressInputWizard from './reusable/AddressInputWizard'
-import { ChainName, CHAIN_NAMES_TO_STRING } from '../utils/constants'
 import { toast, Toaster } from 'react-hot-toast'
 import useBalance from '../hooks/useBalance'
 import useWidth from '../hooks/useWidth'
-import TronWalletConnectModal from './modals/TronWalletConnectModal'
+import { selectServiceFee } from '@store/selectors'
 import SolanaWalletConnectModal from '@plugins/solana/components/SolanaWalletConnectModal'
 
 interface Props {
@@ -100,6 +97,7 @@ export const TransferWidget = ({
   const sourceCurrency = useSelector(selectSourceCurrency)
   const targetCurrency = useSelector(selectTargetCurrency)
   const backendUrl = useSelector(selectBackendUrl)
+  const { totalFeeUsd } = useSelector(selectServiceFee)
 
   // Hooks for wallet connection, allowance
   const [isCancellingApprove, setCancellingApprove] = useState(false)
@@ -107,35 +105,35 @@ export const TransferWidget = ({
   const [isSubmitting, setSubmitting] = useState(false)
   const [isSigning, setSigning] = useState(false)
   const [isConfirming, setConfirming] = useState(false)
-  const { isReady, walletAddress } = useIsWalletReady()
   const pendingTxs = useSelector(selectPendingTxs)
   const {
     allowance,
     isApproved: approved,
     approve
   } = useAllowance({ setApproving, setCancellingApprove })
-  const { serviceFee: fee } = useServiceFee(isConfirming, feeURL) //replace this with hook to /submit/fees
   const { balance } = useBalance()
   const { width: windowWidth } = useWidth()
 
-  useEffect(() => {
-    if (!walletAddress) return
+  // TODO: Move to corresponding hook
+  // useEffect(() => {
+  //   if (!walletAddress) return
 
-    if (!compliantOption) return
-    ;(async function () {
-      try {
-        const res = await fetchWrapper.get(
-          `${backendUrl}/compliant?address=${walletAddress}`
-        )
-        dispatch(setSourceCompliant(res))
-        console.info('Source Compliance:', res)
-      } catch (e) {
-        toast.error('compliance check failed', { icon: <ErrorIcon /> })
-        console.log('compliance check failed', e)
-      }
-    })()
-  }, [walletAddress, compliantOption])
+  //   if (!compliantOption) return
+  //   ;(async function () {
+  //     try {
+  //       const res = await fetchWrapper.get(
+  //         `${backendUrl}/compliant?address=${walletAddress}`
+  //       )
+  //       dispatch(setSourceCompliant(res))
+  //       console.info('Source Compliance:', res)
+  //     } catch (e) {
+  //       toast.error('compliance check failed', { icon: <ErrorIcon /> })
+  //       console.log('compliance check failed', e)
+  //     }
+  //   })()
+  // }, [walletAddress, compliantOption])
 
+  // TODO: Move to corresponding hook
   useEffect(() => {
     if (!targetAddress || !compliantOption) return
     ;(async function () {
@@ -153,48 +151,42 @@ export const TransferWidget = ({
   }, [targetAddress, compliantOption])
   // get rid of the +
 
-  useEffect(() => {
-    if (!isReady) {
-      if (formStep > 0) setFormStep(0)
-      if (wizardStep > 0) setWizardStep(1)
-    }
-  }, [isReady, wizardStep, formStep, dAppOption])
+  // TODO: move to corresponding hook
+  // const checkPoolBalance = async () => {
+  //   const res: any = await fetchWrapper.get(`${backendUrl}/chains/pool_balance`)
 
-  const checkPoolBalance = async () => {
-    const res: any = await fetchWrapper.get(`${backendUrl}/chains/pool_balance`)
+  //   const poolBalance = res.poolBalance
+  //   for (let i = 0; i < poolBalance.length; i++) {
+  //     if (poolBalance[i].chainName === targetChain) {
+  //       for (let j = 0; j < poolBalance[i].balance.length; j++) {
+  //         if (poolBalance[i].balance[j].tokenSymbol !== targetCurrency) continue
+  //         if (+poolBalance[i].balance[j].amount >= +amount + fee) {
+  //           return true
+  //         }
 
-    const poolBalance = res.poolBalance
-    for (let i = 0; i < poolBalance.length; i++) {
-      if (poolBalance[i].chainName === targetChain) {
-        for (let j = 0; j < poolBalance[i].balance.length; j++) {
-          if (poolBalance[i].balance[j].tokenSymbol !== targetCurrency) continue
-          if (+poolBalance[i].balance[j].amount >= +amount + fee) {
-            return true
-          }
+  //         const symbol = targetCurrency
+  //         const errorString = `Tried to transfer ${amount} ${symbol}, but ${
+  //           CHAIN_NAMES_TO_STRING[targetChain]
+  //         } pool has only ${+poolBalance[i].balance[j].amount} ${symbol}`
+  //         console.log(errorString)
+  //         toast.error(errorString, { icon: <ErrorIcon /> })
 
-          const symbol = targetCurrency
-          const errorString = `Tried to transfer ${amount} ${symbol}, but ${
-            CHAIN_NAMES_TO_STRING[targetChain]
-          } pool has only ${+poolBalance[i].balance[j].amount} ${symbol}`
-          console.log(errorString)
-          toast.error(errorString, { icon: <ErrorIcon /> })
-
-          toast.error(
-            `${CHAIN_NAMES_TO_STRING[targetChain]} pool has insufficient balance!`,
-            { icon: <ErrorIcon /> }
-          )
-          errorHandler(errorString)
-          return false
-        }
-        return false
-      }
-    }
-    console.log(`${CHAIN_NAMES_TO_STRING[targetChain]} pool error`)
-    return false
-  }
+  //         toast.error(
+  //           `${CHAIN_NAMES_TO_STRING[targetChain]} pool has insufficient balance!`,
+  //           { icon: <ErrorIcon /> }
+  //         )
+  //         errorHandler(errorString)
+  //         return false
+  //       }
+  //       return false
+  //     }
+  //   }
+  //   console.log(`${CHAIN_NAMES_TO_STRING[targetChain]} pool error`)
+  //   return false
+  // }
 
   const handleSubmit = async () => {
-    if (fee < 0) {
+    if (totalFeeUsd < 0) {
       toast.error('Fee is not calculated!', { icon: <ErrorIcon /> })
       errorHandler('Fee is not calculated!')
       return
@@ -202,7 +194,7 @@ export const TransferWidget = ({
 
     if (
       dAppOption !== DAppOptions.LPDrain &&
-      balance < (feeDeduct ? +amount : +amount + fee)
+      balance < (feeDeduct ? +amount : +amount + totalFeeUsd)
     ) {
       toast.error('Insufficient balance!', { icon: <ErrorIcon /> })
       errorHandler('Insufficient balance!')
@@ -210,68 +202,70 @@ export const TransferWidget = ({
       return
     }
 
+    // TODO: Source and target addresses should be in store
+    // that way we dont rely on the isWalletReady hook
     try {
       setSubmitting(true)
 
-      if (
-        dAppOption === DAppOptions.LPDrain ||
-        dAppOption === DAppOptions.LPAdd
-      ) {
-        keplrHandler(walletAddress)
-        return
-      }
+      // if (
+      //   dAppOption === DAppOptions.LPDrain ||
+      //   dAppOption === DAppOptions.LPAdd
+      // ) {
+      //   keplrHandler(walletAddress)
+      //   return
+      // }
 
-      if (!(await checkPoolBalance())) {
-        setSubmitting(false)
-        return
-      }
+      // if (!(await checkPoolBalance())) {
+      //   setSubmitting(false)
+      //   return
+      // }
 
-      const feeParam = fee.toFixed(2)
-      const params = JSON.stringify({
-        originAddress: walletAddress,
-        originChain: sourceChain,
-        targetAddress,
-        targetChain: targetChain,
-        originSymbol: sourceCurrency,
-        targetSymbol: targetCurrency,
-        amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
-        fee: feeParam,
-        htlcCreationHash: '',
-        htlcCreationVout: 0,
-        htlcExpirationTimestamp: '0',
-        htlcVersion: '',
-        senderPubKey: ''
-      })
+      // const feeParam = fee.toFixed(2)
+      // const params = JSON.stringify({
+      //   originAddress: walletAddress,
+      //   originChain: sourceChain,
+      //   targetAddress,
+      //   targetChain: targetChain,
+      //   originSymbol: sourceCurrency,
+      //   targetSymbol: targetCurrency,
+      //   amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
+      //   fee: feeParam,
+      //   htlcCreationHash: '',
+      //   htlcCreationVout: 0,
+      //   htlcExpirationTimestamp: '0',
+      //   htlcVersion: '',
+      //   senderPubKey: ''
+      // })
 
-      console.log(params)
-      await fetchWrapper.post(`${backendUrl}/auth`, params)
-      const result: any = await fetchWrapper.post(
-        `${backendUrl}/submit`,
-        params
-      )
+      // console.log(params)
+      // await fetchWrapper.post(`${backendUrl}/auth`, params)
+      // const result: any = await fetchWrapper.post(
+      //   `${backendUrl}/submit`,
+      //   params
+      // )
 
-      console.log(result)
+      // console.log(result)
 
-      if (result?.code !== 0) {
-        errorHandler(result)
-        toast.error('Failed to submit transaction!', { icon: <ErrorIcon /> })
-        setSubmitting(false)
-        return
-      }
+      // if (result?.code !== 0) {
+      //   errorHandler(result)
+      //   toast.error('Failed to submit transaction!', { icon: <ErrorIcon /> })
+      //   setSubmitting(false)
+      //   return
+      // }
 
       let txId = -1
 
-      for (const event of result.events) {
-        if (event.type === 'transaction_requested') {
-          for (const attr of event.attributes) {
-            if (attr.key === 'txId') {
-              txId = attr.value
-            }
-          }
-        }
-      }
+      // for (const event of result.events) {
+      //   if (event.type === 'transaction_requested') {
+      //     for (const attr of event.attributes) {
+      //       if (attr.key === 'txId') {
+      //         txId = attr.value
+      //       }
+      //     }
+      //   }
+      // }
 
-      console.log(txId)
+      // console.log(txId)
       setSubmitting(false)
       dispatch(setTxId(txId))
       dispatch(setSubmitted(true))
@@ -286,7 +280,7 @@ export const TransferWidget = ({
 
   const onNext = () => {
     if (isWizard && wizardStep < 5) {
-      if (wizardStep === 1 && !isReady) {
+      if (wizardStep === 1 /*&& !isReady*/) {
         toast.error('Wallet is not connected!', { icon: <ErrorIcon /> })
         errorHandler('Wallet is not connected!')
         return
@@ -298,13 +292,13 @@ export const TransferWidget = ({
         return
       }
       if (wizardStep === 4) {
-        if (fee >= 0 && +amount > 0) {
+        if (totalFeeUsd >= 0 && +amount > 0) {
           setWizardStep(5)
         }
         return
       }
 
-      if (fee > 0 && fee > +amount && feeDeduct) {
+      if (totalFeeUsd > 0 && totalFeeUsd > +amount && feeDeduct) {
         toast.error('Fee is greater than amount to transfer!', {
           icon: <ErrorIcon />
         })
@@ -316,14 +310,14 @@ export const TransferWidget = ({
     }
 
     if (!isWizard && !formStep) {
-      if (isReady) {
+      if (true /*isReady*/) {
         if (+amount <= 0) {
           toast.error('Invalid amount!', { icon: <ErrorIcon /> })
           errorHandler('Invalid amount!')
           return
         }
 
-        if (fee < 0) {
+        if (totalFeeUsd < 0) {
           toast.error('Fee is not calculated!', { icon: <ErrorIcon /> })
           errorHandler('Fee is not calculated!')
           return
@@ -334,7 +328,7 @@ export const TransferWidget = ({
         )
           return
 
-        if (fee > 0 && fee > +amount && feeDeduct) {
+        if (totalFeeUsd > 0 && totalFeeUsd > +amount && feeDeduct) {
           toast.error('Fee is greater than amount to transfer!', {
             icon: <ErrorIcon />
           })
@@ -445,21 +439,6 @@ export const TransferWidget = ({
               <div className='reset-button' onClick={resetForm}>
                 Reset
               </div>
-
-              // <button
-              //   className='cross-icon-button'
-              //   onClick={() => {
-              //     if (isApproving || isSubmitting || isSigning )
-              //       return
-              //     dispatch(initialize())
-              //     closeHandler()
-              //   }}
-              //   disabled={isApproving || isSubmitting || isSigning}
-              // >
-              //   <CrossIcon
-              //     fill={theme.colorMode === 'light' ? 'black' : 'white'}
-              //   />
-              // </button>
             )}
           </div>
         </div>
@@ -529,7 +508,7 @@ export const TransferWidget = ({
         </div>
       </div>
       <SolanaWalletConnectModal />
-      <TronWalletConnectModal />
+      {/* <TronWalletConnectModal /> */}
       <Toaster
         position='top-right'
         reverseOrder={false}

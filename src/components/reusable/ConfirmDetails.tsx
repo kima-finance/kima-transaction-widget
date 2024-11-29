@@ -18,7 +18,7 @@ import {
   selectDappOption,
   selectSourceCurrency,
   selectTargetCurrency
-} from '../../store/selectors'
+} from '@store/selectors'
 import { ChainName, COIN_LIST, networkOptions } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 import useWidth from '../../hooks/useWidth'
@@ -29,7 +29,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
   const dAppOption = useSelector(selectDappOption)
   const theme = useSelector(selectTheme)
   const amount = useSelector(selectAmount)
-  const serviceFee = useSelector(selectServiceFee)
+  const { totalFeeUsd } = useSelector(selectServiceFee)
   const originNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
   const targetAddress = useSelector(selectTargetAddress)
@@ -81,11 +81,11 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
 
   const amountToShow = useMemo(() => {
     if (originNetwork === ChainName.BTC || targetNetwork === ChainName.BTC) {
-      return (feeDeduct ? +amount : +amount + serviceFee).toFixed(8)
+      return (feeDeduct ? +amount : +amount + totalFeeUsd).toFixed(8)
     }
 
-    return formatterFloat.format(feeDeduct ? +amount : +amount + serviceFee)
-  }, [amount, serviceFee, originNetwork, targetNetwork, feeDeduct])
+    return formatterFloat.format(feeDeduct ? +amount : +amount + totalFeeUsd)
+  }, [amount, totalFeeUsd, originNetwork, targetNetwork, feeDeduct])
 
   return (
     <div className={`confirm-details ${theme.colorMode}`}>
@@ -161,15 +161,17 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
             </div>
           )}
           <div className='amount-details'>
-            <span>{feeDeduct ? 'Gas fee deduction' : 'Gas fees (Source + Dest)'}</span>
+            <span>
+              {feeDeduct ? 'Gas fee deduction' : 'Gas fees (Source + Dest)'}
+            </span>
             <span className='service-fee'>
-              {serviceFee} {sourceCurrency}
+              {totalFeeUsd} {sourceCurrency}
             </span>
           </div>
           <div className='amount-details'>
             <span>Total</span>
             <span className='service-fee'>
-              {formatterFloat.format(parseFloat(amountToShow) - serviceFee)}{' '}
+              {formatterFloat.format(parseFloat(amountToShow) - totalFeeUsd)}{' '}
               {targetCurrency}
             </span>
           </div>
