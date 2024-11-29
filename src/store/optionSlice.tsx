@@ -129,7 +129,7 @@ const initialState: OptionState = {
   switchChainHandler: () => void 0,
   keplrHandler: () => void 0,
   initChainFromProvider: false,
-  serviceFee: {totalfeeUsd: -1},
+  serviceFee: {totalFeeUsd: -1},
   backendUrl: '',
   nodeProviderQuery: '',
   txId: -1,
