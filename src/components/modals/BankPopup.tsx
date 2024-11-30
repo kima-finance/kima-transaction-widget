@@ -8,18 +8,8 @@ import {
   selectUuid
 } from '../../store/selectors'
 import { CrossIcon } from '../../assets/icons'
-import { fetchWrapper } from '../../helpers/fetch-wrapper'
 import { toast } from 'react-hot-toast'
-
-type KYCResult = {
-  id: string
-  status: string
-  name: string
-  surname: string
-  external_uuid: string
-  account_id: string
-  created_at: number
-}
+import { useKycStatus } from '../../hooks/useKycStatus'
 
 const BankPopup = ({
   setVerifying,
@@ -34,37 +24,56 @@ const BankPopup = ({
   const bankPopup = useSelector(selectBankPopup)
   const kimaBackendUrl = useSelector(selectBackendUrl)
 
+  const { data: kycStatus, error } = useKycStatus({
+    uuid,
+    isVerifying: !!isVerifying,
+    kimaBackendUrl
+  })
+
   useEffect(() => {
-    if (!kimaBackendUrl || !uuid || !isVerifying) return
-    const timerId = setInterval(async () => {
-      try {
-        const res: any = await fetchWrapper.post(
-          `${kimaBackendUrl}/kyc`,
-          JSON.stringify({
-            uuid
-          })
-        )
-        const kycResult: Array<KYCResult> = res.data
-        console.log(kycResult)
-
-        if (!kycResult.length) {
-          console.log('failed to check kyc status')
-          toast.error('failed to check kyc status')
-        } else if (kycResult[0].status === 'approved') {
-          setVerifying(false)
-          dispatch(setKYCStatus('approved'))
-          toast.success('KYC is verified')
-        }
-      } catch (e) {
-        console.log('failed to check kyc status')
-        toast.error('failed to check kyc status')
-      }
-    }, 3000)
-
-    return () => {
-      clearInterval(timerId)
+    if (error) {
+      toast.error(error.message)
+      return
     }
-  }, [kimaBackendUrl, uuid, isVerifying])
+    if (kycStatus?.status === 'approved') {
+      setVerifying(false)
+      dispatch(setKYCStatus('approved'))
+      toast.success('KYC is verified')
+    }
+  }, [kycStatus, error])
+
+  // TODO: remove after testing
+  // useEffect(() => {
+  //   if (!kimaBackendUrl || !uuid || !isVerifying) return
+  //   const timerId = setInterval(async () => {
+  //     try {
+  //       const res: any = await fetchWrapper.post(
+  //         `${kimaBackendUrl}/kyc`,
+  //         JSON.stringify({
+  //           uuid
+  //         })
+  //       )
+  //       const kycResult: Array<KYCResult> = res.data
+  //       console.log(kycResult)
+
+  //       if (!kycResult.length) {
+  //         console.log('failed to check kyc status')
+  //         toast.error('failed to check kyc status')
+  //       } else if (kycResult[0].status === 'approved') {
+  //         setVerifying(false)
+  //         dispatch(setKYCStatus('approved'))
+  //         toast.success('KYC is verified')
+  //       }
+  //     } catch (e) {
+  //       console.log('failed to check kyc status')
+  //       toast.error('failed to check kyc status')
+  //     }
+  //   }, 3000)
+
+  //   return () => {
+  //     clearInterval(timerId)
+  //   }
+  // }, [kimaBackendUrl, uuid, isVerifying])
 
   return (
     <div

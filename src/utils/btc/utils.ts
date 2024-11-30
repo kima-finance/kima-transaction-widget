@@ -1,9 +1,8 @@
 // import { base64, hex } from '@scure/base'
 import * as hex64 from 'hex64'
 import * as btc from '@kimafinance/btc-signer'
-import axios from 'axios'
-
 import { BitcoinNetworkType } from 'sats-connect'
+import { fetchWrapper } from '../../helpers/fetch-wrapper'
 
 export type UTXO = {
   txid: string
@@ -17,6 +16,7 @@ export type UTXO = {
   value: number
 }
 
+// TODO: move to hook using backend GET /btc/utxos/{address}
 export const getUTXOs = async (
   network: BitcoinNetworkType,
   address: string
@@ -30,6 +30,7 @@ export const getUTXOs = async (
   return response.json()
 }
 
+// TODO: move to hook
 export async function broadcastTransaction(
   rawHex: string,
   networkSubpath = ''
@@ -39,8 +40,8 @@ export async function broadcastTransaction(
 
   // Send the transaction to the mempool.space API
   try {
-    const response = await axios.post(url, rawHex)
-    return response.data // or handle the response as needed
+    const response = await fetchWrapper.post(url, rawHex)
+    return response
   } catch (error) {
     throw error
   }
