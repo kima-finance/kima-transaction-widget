@@ -58,6 +58,8 @@ import SolanaWalletConnectModal from '@plugins/solana/components/SolanaWalletCon
 import TronWalletConnectModal from '@plugins/tron/components/TronWalletConnectModal'
 import { fetchWrapper } from 'src/helpers/fetch-wrapper'
 import useComplianceCheck from '../hooks/useComplianceCheck'
+import useGetPoolBalance from '../hooks/useGetPoolBalance'
+import { checkPoolBalance } from '@utils/functions'
 
 interface Props {
   theme: ThemeOptions
@@ -97,7 +99,7 @@ export const TransferWidget = ({
   const sourceCurrency = useSelector(selectSourceCurrency)
   const targetCurrency = useSelector(selectTargetCurrency)
   const backendUrl = useSelector(selectBackendUrl)
-  const { totalFeeUsd } = useSelector(selectServiceFee)
+  const { totalFeeUsd, targetNetworkFee } = useSelector(selectServiceFee)
 
   // Hooks for wallet connection, allowance
   const [isCancellingApprove, setCancellingApprove] = useState(false)
@@ -114,10 +116,18 @@ export const TransferWidget = ({
   const { balance } = useBalance()
   const { width: windowWidth } = useWidth()
 
+  /* Compliance check */
   const { complianceData: sourceCompliant, error: sourceComplianceError } =
     useComplianceCheck(sourceAddress, compliantOption, backendUrl)
   const { complianceData: targetCompliant, error: targetComplianceError } =
     useComplianceCheck(targetAddress, compliantOption, backendUrl)
+
+  /* Pool balance fetch */
+  const {
+    poolsBalances,
+    error: poolsBalanceError,
+    isLoading
+  } = useGetPoolBalance(backendUrl)
 
   /* error handling for compliance errors */
   useEffect(() => {
@@ -126,40 +136,6 @@ export const TransferWidget = ({
         icon: <ErrorIcon />
       })
   }, [sourceComplianceError, targetComplianceError])
-
-  // TODO: move to corresponding hook
-  const checkPoolBalance = async () => {
-    const res: any = await fetchWrapper.get(`${backendUrl}/chains/pool_balance`)
-
-    const poolBalance = res.poolBalance
-    for (let i = 0; i < poolBalance.length; i++) {
-      if (poolBalance[i].chainName === targetChain) {
-        for (let j = 0; j < poolBalance[i].balance.length; j++) {
-          if (poolBalance[i].balance[j].tokenSymbol !== targetCurrency) continue
-          if (+poolBalance[i].balance[j].amount >= +amount + totalFeeUsd) {
-            return true
-          }
-
-          const symbol = targetCurrency
-          const errorString = `Tried to transfer ${amount} ${symbol}, but ${
-            CHAIN_NAMES_TO_STRING[targetChain]
-          } pool has only ${+poolBalance[i].balance[j].amount} ${symbol}`
-          console.log(errorString)
-          toast.error(errorString, { icon: <ErrorIcon /> })
-
-          toast.error(
-            `${CHAIN_NAMES_TO_STRING[targetChain]} pool has insufficient balance!`,
-            { icon: <ErrorIcon /> }
-          )
-          errorHandler(errorString)
-          return false
-        }
-        return false
-      }
-    }
-    console.log(`${CHAIN_NAMES_TO_STRING[targetChain]} pool error`)
-    return false
-  }
 
   const handleSubmit = async () => {
     if (totalFeeUsd < 0) {
@@ -186,11 +162,6 @@ export const TransferWidget = ({
         dAppOption === DAppOptions.LPAdd
       ) {
         keplrHandler(sourceAddress)
-        return
-      }
-
-      if (!(await checkPoolBalance())) {
-        setSubmitting(false)
         return
       }
 
@@ -283,7 +254,7 @@ export const TransferWidget = ({
     }
 
     if (!isWizard && !formStep) {
-      if (!sourceAddress) {
+      if (sourceAddress) {
         if (+amount <= 0) {
           toast.error('Invalid amount!', { icon: <ErrorIcon /> })
           errorHandler('Invalid amount!')
@@ -295,11 +266,42 @@ export const TransferWidget = ({
           errorHandler('Fee is not calculated!')
           return
         }
-        if (
-          compliantOption &&
-          (sourceCompliant?.isCompliant || targetCompliant?.isCompliant)
-        )
+
+        if (!targetAddress) {
+          toast.error('Invalid target address!', { icon: <ErrorIcon /> })
+          errorHandler('Invalid target address!')
           return
+        }
+
+        if (compliantOption) {
+          if (!sourceCompliant?.isCompliant) {
+            toast.error(
+              'The source address provided does not meet our compliance standards.',
+              {
+                icon: <ErrorIcon />
+              }
+            )
+            errorHandler(
+              'The source address provided does not meet our compliance standards.'
+            )
+
+            return
+          }
+
+          if (!targetCompliant?.isCompliant) {
+            toast.error(
+              'The target address provided does not meet our compliance standards.',
+              {
+                icon: <ErrorIcon />
+              }
+            )
+            errorHandler(
+              'The target address provided does not meet our compliance standards.'
+            )
+
+            return
+          }
+        }
 
         if (totalFeeUsd > 0 && totalFeeUsd > +amount && feeDeduct) {
           toast.error('Fee is greater than amount to transfer!', {
@@ -309,7 +311,26 @@ export const TransferWidget = ({
           return
         }
 
+        const { isPoolAvailable, error } = checkPoolBalance({
+          poolsBalances,
+          targetChain,
+          targetCurrency,
+          amount,
+          targetNetworkFee
+        })
+        if (!isPoolAvailable || error != '') {
+          toast.error(error, {
+            icon: <ErrorIcon />
+          })
+          errorHandler(error)
+          return
+        }
+
+        console.log('mode: ', mode)
+        console.log('targetAddres: ', targetAddress)
+        console.log('amount: ', amount)
         if (mode === ModeOptions.payment || (targetAddress && +amount > 0)) {
+          console.log('ready!')
           setConfirming(true)
           setFormStep(1)
         }
