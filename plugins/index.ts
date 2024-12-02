@@ -1,12 +1,8 @@
 import { initializePlugins } from '../src/pluginRegistry'
-import evmPlugin from './evm'
-// import solanaPlugin from './solana'
-// import tronPlugin from './tron'
+import evmPlugin from '@plugins/evm'
+import solanaPlugin from '@plugins/solana'
+import tronPlugin from '@plugins/tron'
 
 export * from './pluginTypes'
 
-initializePlugins([
-  evmPlugin
-  // solanaPlugin
-  // tronPlugin
-])
+initializePlugins([evmPlugin, solanaPlugin, tronPlugin])
