@@ -10,11 +10,8 @@ function useGetSolBalance() {
   const { connection } = useConnection()
   const sourceNetwork = useSelector(selectSourceChain)
 
-  const {
-    data: solBalance,
-    isLoading,
-    error
-  } = useQuery<number>({
+  // TODO: refactor usages so can return UseQueryResult
+  const result = useQuery<number>({
     queryKey: ['getSolBalance', publicKey?.toBase58()],
     queryFn: async () => getSolBalance(connection, publicKey as PublicKey),
     enabled: !!publicKey && !!connection && sourceNetwork === 'SOL',
@@ -22,8 +19,9 @@ function useGetSolBalance() {
     staleTime: 10000,
     gcTime: 60000
   })
+  const { data: balance } = result
 
-  return solBalance
+  return { balance }
 }
 
 export default useGetSolBalance

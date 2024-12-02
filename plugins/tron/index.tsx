@@ -5,35 +5,46 @@ import WalletProvider from '@plugins/tron/features/walletConnect/WalletProvider'
 import { PluginBase } from '../PluginBase'
 import { PluginChain, PluginProviderProps } from '../pluginTypes'
 import getChainData from './utils/getChainData'
-import useBalance from '@plugins/tron/core/hooks/useBalance'
+import useBalanceTron from '@plugins/tron/core/hooks/useGetTrxBalance'
+import useIsWalletReadyTron from '@plugins/tron/core/hooks/useIsWalletReady'
+
+function Provider({
+  children,
+  networkOption,
+  walletConnectProjectId
+}: PluginProviderProps) {
+  return (
+    <WalletProvider
+      networkOption={networkOption}
+      walletConnectProjectId={walletConnectProjectId}
+    >
+      {children}
+    </WalletProvider>
+  )
+}
 
 export class TronPlugin extends PluginBase {
   constructor(store: any) {
-    super(store, 'tron')
+    super({
+      store,
+      id: 'tron',
+      fetchChains: getChainData,
+      provider: Provider,
+      // TODO: implement approve hook
+      useAllowance: () => ({
+        isApproved: false,
+        poolAddress: '',
+        approve: () => Promise.resolve(),
+        allowance: 0
+      }),
+      useBalance: useBalanceTron,
+      useTokenBalance: useBalanceTron,
+      useWalletIsReady: useIsWalletReadyTron
+    })
   }
 
   protected fetchChains = async (): Promise<PluginChain[]> => {
     return getChainData()
-  }
-
-  protected useBalance = (): { balance: number } => {
-    const { balance } = useBalance()
-    return { balance }
-  }
-
-  Provider = ({
-    children,
-    networkOption,
-    walletConnectProjectId
-  }: PluginProviderProps) => {
-    return (
-      <WalletProvider
-        networkOption={networkOption}
-        walletConnectProjectId={walletConnectProjectId}
-      >
-        {children}
-      </WalletProvider>
-    )
   }
 }
 
