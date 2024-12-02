@@ -5,9 +5,7 @@ import { selectAllPlugins } from '@store/pluginSlice'
 import { getPluginProvider } from '@pluginRegistry'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
-import '@plugins/evm'
-import '@plugins/tron'
-import '@plugins/solana'
+import '@plugins/index'
 import { getNetworkOption } from './services/envsApi'
 import { useQuery } from '@tanstack/react-query'
 import { selectBackendUrl } from '@store/selectors'
@@ -23,7 +21,7 @@ const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
 
     // Use a stable selector to avoid unnecessary re-renders
     const plugins = useSelector(selectAllPlugins, (prev, next) => prev === next)
-    // console.info('Registered Plugins:', plugins)
+    console.info('Registered Plugins:', plugins)
 
     // Fetch networkOption using React Query
     const {

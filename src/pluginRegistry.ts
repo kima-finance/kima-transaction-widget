@@ -1,13 +1,19 @@
 import React from 'react'
-
-interface PluginProviderProps {
-  children: React.ReactNode
-  walletConnectProjectId: string
-  networkOption: 'testnet' | 'mainnet'
-}
+import { Plugin, PluginProviderProps } from '../plugins'
+import store from './store'
+import { registerPlugin } from '@store/pluginSlice'
 
 // Registry to hold plugin provider components
 const pluginRegistry: Record<string, React.FC<PluginProviderProps>> = {}
+
+export const initializePlugins = (plugins: Plugin[]): void => {
+  for (const plugin of plugins) {
+    const { data, provider } = plugin.initialize()
+    console.log('initialized plugin::', data.id)
+    registerPluginProvider(data.id, provider)
+    store.dispatch(registerPlugin(data))
+  }
+}
 
 // Function to register a plugin provider
 export const registerPluginProvider = (
