@@ -5,29 +5,46 @@ import WalletProvider from '@plugins/solana/features/walletConnect/WalletProvide
 import { PluginBase } from '../PluginBase'
 import { PluginChain, PluginProviderProps } from '../pluginTypes'
 import getChainData from './utils/getChainData'
+import useGetSolBalance from './core/hooks/useGetSolBalance'
+import useSolIsWalletReady from './core/hooks/useIsWalletReady'
+
+function Provider({
+  children,
+  networkOption,
+  walletConnectProjectId
+}: PluginProviderProps) {
+  return (
+    <WalletProvider
+      networkOption={networkOption}
+      walletConnectProjectId={walletConnectProjectId}
+    >
+      {children}
+    </WalletProvider>
+  )
+}
 
 export class SolanaPlugin extends PluginBase {
   constructor(store: any) {
-    super(store, 'solana')
+    super({
+      store,
+      id: 'solana',
+      fetchChains: getChainData,
+      provider: Provider,
+      // TODO: implement approve hook
+      useAllowance: () => ({
+        isApproved: false,
+        poolAddress: '',
+        approve: () => Promise.resolve(),
+        allowance: 0
+      }),
+      useBalance: useGetSolBalance,
+      useTokenBalance: useGetSolBalance,
+      useWalletIsReady: useSolIsWalletReady
+    })
   }
 
   protected fetchChains = async (): Promise<PluginChain[]> => {
     return getChainData()
-  }
-
-  Provider = ({
-    children,
-    networkOption,
-    walletConnectProjectId
-  }: PluginProviderProps) => {
-    return (
-      <WalletProvider
-        networkOption={networkOption}
-        walletConnectProjectId={walletConnectProjectId}
-      >
-        {children}
-      </WalletProvider>
-    )
   }
 }
 const solanaPlugin = new SolanaPlugin(store)
