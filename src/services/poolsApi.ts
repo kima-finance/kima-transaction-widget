@@ -1,13 +1,19 @@
 import { fetchWrapper } from 'src/helpers/fetch-wrapper'
 
+export const getPools = async (backenUrl: string): Promise<any> => {
+  const poolsData: any = await fetchWrapper.get(`${backenUrl}/chains/pool`)
+
+  return poolsData
+}
+
 export const getPoolsBalances = async (
   backendUrl: string
 ): Promise<Array<any>> => {
-  const poolsData: any = await fetchWrapper.get(
+  const poolsBalancesData: any = await fetchWrapper.get(
     `${backendUrl}/chains/pool_balance`
   )
 
-  console.log('poolsData: ', poolsData)
+  console.log('poolsBalancesData: ', poolsBalancesData)
 
-  return poolsData.poolBalance || []
+  return poolsBalancesData.poolBalance || []
 }
