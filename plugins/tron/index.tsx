@@ -5,6 +5,7 @@ import WalletProvider from '@plugins/tron/features/walletConnect/WalletProvider'
 import { PluginBase } from '../PluginBase'
 import { PluginChain, PluginProviderProps } from '../pluginTypes'
 import getChainData from './utils/getChainData'
+import useBalance from '@plugins/tron/core/hooks/useBalance'
 
 export class TronPlugin extends PluginBase {
   constructor(store: any) {
@@ -13,6 +14,11 @@ export class TronPlugin extends PluginBase {
 
   protected fetchChains = async (): Promise<PluginChain[]> => {
     return getChainData()
+  }
+
+  protected useBalance = (): { balance: number } => {
+    const { balance } = useBalance()
+    return { balance }
   }
 
   Provider = ({

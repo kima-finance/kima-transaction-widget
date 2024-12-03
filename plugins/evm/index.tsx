@@ -11,6 +11,7 @@ import { PluginBase } from '../PluginBase'
 import { store } from '@store/index'
 import WalletProvider from '@plugins/evm/features/walletConnect/WalletProvider'
 import getChainData from './utils/getChainData'
+import useBalance from '@plugins/evm/core/hooks/useBalance'
 
 export class EvmPlugin extends PluginBase {
   constructor(store: any) {
@@ -19,6 +20,11 @@ export class EvmPlugin extends PluginBase {
 
   protected fetchChains = async (): Promise<PluginChain[]> => {
     return getChainData()
+  }
+
+  protected useBalance = (): { balance: number } => {
+    const { balance } = useBalance()
+    return { balance }
   }
 
   Provider = ({

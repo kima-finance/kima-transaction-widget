@@ -5,6 +5,7 @@ import WalletProvider from '@plugins/solana/features/walletConnect/WalletProvide
 import { PluginBase } from '../PluginBase'
 import { PluginChain, PluginProviderProps } from '../pluginTypes'
 import getChainData from './utils/getChainData'
+import useBalance from '@plugins/solana/core/hooks/useBalance'
 
 export class SolanaPlugin extends PluginBase {
   constructor(store: any) {
@@ -13,6 +14,11 @@ export class SolanaPlugin extends PluginBase {
 
   protected fetchChains = async (): Promise<PluginChain[]> => {
     return getChainData()
+  }
+
+  protected useBalance = (): { balance: number } => {
+    const { balance } = useBalance()
+    return { balance }
   }
 
   Provider = ({
