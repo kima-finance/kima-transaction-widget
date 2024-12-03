@@ -4538,7 +4538,6 @@ var import_react73 = __toESM(require("react"), 1);
 var PluginBase = class {
   _store;
   data;
-  Provider;
   fetchChains;
   // hooks
   useAllowance;
@@ -4554,7 +4553,6 @@ var PluginBase = class {
       }
     };
     this.fetchChains = args.fetchChains;
-    this.Provider = args.provider;
     this.useAllowance = args.useAllowance;
     this.useBalance = args.useBalance;
     this.useTokenBalance = args.useTokenBalance;
@@ -5688,27 +5686,13 @@ function useIsWalletReady() {
 var useIsWalletReady_default = useIsWalletReady;
 
 // plugins/evm/index.tsx
-function Provider({
-  children,
-  networkOption,
-  walletConnectProjectId
-}) {
-  return /* @__PURE__ */ import_react73.default.createElement(
-    WalletProvider_default,
-    {
-      networkOption,
-      walletConnectProjectId
-    },
-    children
-  );
-}
 var EvmPlugin = class extends PluginBase {
   constructor(store2) {
     super({
       store: store2,
       id: "evm",
       fetchChains: getChainData,
-      provider: Provider,
+      // provider: Provider,
       // TODO: implement approve hook
       useAllowance: () => ({
         isApproved: false,
@@ -5721,6 +5705,20 @@ var EvmPlugin = class extends PluginBase {
       useWalletIsReady: useIsWalletReady_default
     });
   }
+  Provider = ({
+    children,
+    networkOption,
+    walletConnectProjectId
+  }) => {
+    return /* @__PURE__ */ import_react73.default.createElement(
+      WalletProvider_default,
+      {
+        networkOption,
+        walletConnectProjectId
+      },
+      children
+    );
+  };
 };
 var evmPlugin = new EvmPlugin(store);
 var evm_default = evmPlugin;
@@ -6403,7 +6401,7 @@ var getSolBalance = async (connection, publicKey) => {
   try {
     const balance = await connection.getBalance(publicKey) / import_web34.LAMPORTS_PER_SOL;
     console.log("(NEW) SOL balance:", balance);
-    return balance;
+    return balance ?? 0;
   } catch (error) {
     console.error("Error fetching SOL balance:", error);
     throw new Error("Cant fetch sol balance");
@@ -6456,27 +6454,13 @@ function useIsWalletReady2() {
 var useIsWalletReady_default2 = useIsWalletReady2;
 
 // plugins/solana/index.tsx
-function Provider2({
-  children,
-  networkOption,
-  walletConnectProjectId
-}) {
-  return /* @__PURE__ */ import_react108.default.createElement(
-    WalletProvider_default2,
-    {
-      networkOption,
-      walletConnectProjectId
-    },
-    children
-  );
-}
 var SolanaPlugin = class extends PluginBase {
   constructor(store2) {
     super({
       store: store2,
       id: "solana",
       fetchChains: getChainData2,
-      provider: Provider2,
+      // provider: Provider,
       // TODO: implement approve hook
       useAllowance: () => ({
         isApproved: false,
@@ -6489,8 +6473,19 @@ var SolanaPlugin = class extends PluginBase {
       useWalletIsReady: useIsWalletReady_default2
     });
   }
-  fetchChains = async () => {
-    return getChainData2();
+  Provider = ({
+    children,
+    networkOption,
+    walletConnectProjectId
+  }) => {
+    return /* @__PURE__ */ import_react108.default.createElement(
+      WalletProvider_default2,
+      {
+        networkOption,
+        walletConnectProjectId
+      },
+      children
+    );
   };
 };
 var solanaPlugin = new SolanaPlugin(store);
@@ -7257,27 +7252,13 @@ function useIsWalletReady3() {
 var useIsWalletReady_default3 = useIsWalletReady3;
 
 // plugins/tron/index.tsx
-function Provider3({
-  children,
-  networkOption,
-  walletConnectProjectId
-}) {
-  return /* @__PURE__ */ import_react144.default.createElement(
-    WalletProvider_default3,
-    {
-      networkOption,
-      walletConnectProjectId
-    },
-    children
-  );
-}
 var TronPlugin = class extends PluginBase {
   constructor(store2) {
     super({
       store: store2,
       id: "tron",
       fetchChains: getChainData3,
-      provider: Provider3,
+      // provider: Provider,
       // TODO: implement approve hook
       useAllowance: () => ({
         isApproved: false,
@@ -7290,8 +7271,19 @@ var TronPlugin = class extends PluginBase {
       useWalletIsReady: useIsWalletReady_default3
     });
   }
-  fetchChains = async () => {
-    return getChainData3();
+  Provider = ({
+    children,
+    networkOption,
+    walletConnectProjectId
+  }) => {
+    return /* @__PURE__ */ import_react144.default.createElement(
+      WalletProvider_default3,
+      {
+        networkOption,
+        walletConnectProjectId
+      },
+      children
+    );
   };
 };
 var tronPlugin = new TronPlugin(store);
@@ -8831,6 +8823,7 @@ var AddressInput = ({
   placeholder
 }) => {
   const dispatch = (0, import_react_redux27.useDispatch)();
+  const mode = (0, import_react_redux28.useSelector)(selectMode);
   const sourceChain = (0, import_react_redux28.useSelector)(selectSourceChain);
   const targetChain = (0, import_react_redux28.useSelector)(selectTargetChain);
   const { walletAddress: sourceAddress, isReady } = useIsWalletReady_default4();
@@ -8838,20 +8831,11 @@ var AddressInput = ({
   const isEvm = (chain) => {
     return chain !== "SOL" && chain !== "TRX" && chain !== "BTC";
   };
-  const resetTargetAddress = () => {
-    dispatch(setTargetAddress(""));
-  };
   (0, import_react168.useEffect)(() => {
-    if (isEvm(sourceChain) && !isEvm(targetChain)) {
-      resetTargetAddress();
-      return;
-    }
-    if (!isEvm(sourceChain) && isEvm(targetChain)) {
-      resetTargetAddress();
-      return;
-    }
-    isReady && dispatch(setTargetAddress(sourceAddress || ""));
-  }, [sourceChain, targetChain, sourceAddress, isReady, dispatch]);
+    if (mode === "payment" /* payment */) return;
+    if (isEvm(sourceChain) && isEvm(targetChain)) return;
+    dispatch(setTargetAddress(isReady && sourceAddress ? sourceAddress : ""));
+  }, [sourceChain, targetChain, sourceAddress, isReady, mode, dispatch]);
   return /* @__PURE__ */ import_react168.default.createElement(
     "input",
     {
@@ -9679,6 +9663,7 @@ var SingleForm = ({}) => {
   const amount = (0, import_react_redux43.useSelector)(selectAmount);
   const targetCurrency = (0, import_react_redux43.useSelector)(selectTargetCurrency);
   const backendUrl = (0, import_react_redux43.useSelector)(selectBackendUrl);
+  const targetAddress = (0, import_react_redux43.useSelector)(selectTargetAddress);
   const {
     data: fees,
     isLoading,
@@ -9728,7 +9713,7 @@ var SingleForm = ({}) => {
       theme: theme.colorMode,
       placeholder: "Target address"
     }
-  )) : null, mode === "bridge" /* bridge */ ? /* @__PURE__ */ import_react179.default.createElement("div", { className: `form-item ${theme.colorMode}` }, /* @__PURE__ */ import_react179.default.createElement("span", { className: "label" }, "Amount:"), /* @__PURE__ */ import_react179.default.createElement("div", { className: `amount-label-container items ${theme.colorMode}` }, /* @__PURE__ */ import_react179.default.createElement(
+  )) : /* @__PURE__ */ import_react179.default.createElement("div", { className: `form-item ${theme.colorMode}` }, /* @__PURE__ */ import_react179.default.createElement("span", { className: "label" }, "Target Address:"), /* @__PURE__ */ import_react179.default.createElement("span", null, targetAddress)), mode === "bridge" /* bridge */ ? /* @__PURE__ */ import_react179.default.createElement("div", { className: `form-item ${theme.colorMode}` }, /* @__PURE__ */ import_react179.default.createElement("span", { className: "label" }, "Amount:"), /* @__PURE__ */ import_react179.default.createElement("div", { className: `amount-label-container items ${theme.colorMode}` }, /* @__PURE__ */ import_react179.default.createElement(
     "input",
     {
       className: `${theme.colorMode}`,
@@ -10387,7 +10372,7 @@ var AccountDetailsModal = () => {
   const accountDetailsModal = (0, import_react_redux49.useSelector)(selectAccountDetailsModal);
   const { walletAddress } = useIsWalletReady_default2();
   const { disconnect: solanaWalletDisconnect } = (0, import_wallet_adapter_react9.useWallet)();
-  const solBalance = useGetSolBalance_default();
+  const { balance: solBalance } = useGetSolBalance_default();
   const networkDetails = networkOptions2[0];
   const explorerUrl = (0, import_react185.useMemo)(() => {
     return `https://solscan.io/account/address/${walletAddress}?cluster=${networkOption === "mainnet" ? "mainnet" : "devnet"}`;
@@ -10465,7 +10450,7 @@ var AccountDetailsModal2 = () => {
   const sourcheChain = (0, import_react_redux51.useSelector)(selectSourceChain);
   const { walletAddress } = useIsWalletReady_default3();
   const { disconnect: tronWalletDisconnect } = (0, import_tronwallet_adapter_react_hooks8.useWallet)();
-  const tronBalance = useGetTrxBalance_default();
+  const { balance: tronBalance } = useGetTrxBalance_default();
   const selectedNetwork = (0, import_react_redux51.useSelector)(selectSourceChain);
   const networkDetails = (0, import_react187.useMemo)(
     () => networkOptions.find(({ id }) => id === selectedNetwork),

@@ -28,7 +28,7 @@ const AccountDetailsModal = () => {
   const accountDetailsModal = useSelector(selectAccountDetailsModal)
   const { walletAddress } = useIsWalletReady()
   const { disconnect: solanaWalletDisconnect } = useSolanaWallet()
-  const solBalance = useGetSolBalance()
+  const { balance: solBalance } = useGetSolBalance()
 
   // get the network details
   const networkDetails = networkOptions[0]
