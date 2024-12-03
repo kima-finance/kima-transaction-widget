@@ -18,8 +18,9 @@ const useComplianceCheck = (
 
     enabled:
       !!walletAddress &&
-      walletAddress.length > 34 && // debounce for a minimum of characters (tron length)
+      walletAddress.length >= 34 && // debounce for a minimum of characters (tron length)
       !!compliantOption &&
+      compliantOption &&
       !!backendUrl, // Only fetch when valid inputs exist
     retry: 1 // Retry once on failure
   })
