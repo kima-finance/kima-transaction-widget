@@ -47,7 +47,8 @@ import {
   selectSourceCurrency,
   selectTargetCurrency,
   selectSourceAddress,
-  selectServiceFee
+  selectServiceFee,
+  selectNetworkOption
 } from '@store/selectors'
 import useAllowance from '../hooks/useAllowance'
 import AddressInputWizard from './reusable/AddressInputWizard'
@@ -58,8 +59,8 @@ import SolanaWalletConnectModal from '@plugins/solana/components/SolanaWalletCon
 import TronWalletConnectModal from '@plugins/tron/components/TronWalletConnectModal'
 import { fetchWrapper } from 'src/helpers/fetch-wrapper'
 import useComplianceCheck from '../hooks/useComplianceCheck'
-import useGetPoolBalance from '../hooks/useGetPoolBalance'
 import { checkPoolBalance } from '@utils/functions'
+import useGetPools from '../hooks/useGetPools'
 
 interface Props {
   theme: ThemeOptions
@@ -99,6 +100,7 @@ export const TransferWidget = ({
   const sourceCurrency = useSelector(selectSourceCurrency)
   const targetCurrency = useSelector(selectTargetCurrency)
   const backendUrl = useSelector(selectBackendUrl)
+  const networkOption = useSelector(selectNetworkOption)
   const { totalFeeUsd, targetNetworkFee } = useSelector(selectServiceFee)
 
   // Hooks for wallet connection, allowance
@@ -108,11 +110,10 @@ export const TransferWidget = ({
   const [isSigning, setSigning] = useState(false)
   const [isConfirming, setConfirming] = useState(false)
   const pendingTxs = useSelector(selectPendingTxs)
-  const {
-    allowance,
-    isApproved: approved,
-    approve
-  } = useAllowance({ setApproving, setCancellingApprove })
+  const { allowance, isApproved, approve } = useAllowance({
+    setApproving,
+    setCancellingApprove
+  })
   const { balance } = useBalance()
   const { width: windowWidth } = useWidth()
 
@@ -124,10 +125,10 @@ export const TransferWidget = ({
 
   /* Pool balance fetch */
   const {
-    poolsBalances,
+    pools,
     error: poolsBalanceError,
     isLoading
-  } = useGetPoolBalance(backendUrl)
+  } = useGetPools(backendUrl, networkOption)
 
   /* error handling for compliance errors */
   useEffect(() => {
@@ -154,6 +155,12 @@ export const TransferWidget = ({
       return
     }
 
+    // check for approval before submiting
+    const amountToShow = feeDeduct ? +amount : +amount + totalFeeUsd
+    if (allowance < amountToShow) {
+      return approve(false)
+    }
+
     try {
       setSubmitting(true)
 
@@ -164,6 +171,8 @@ export const TransferWidget = ({
         keplrHandler(sourceAddress)
         return
       }
+
+      console.log('continues...')
 
       const feeParam = totalFeeUsd.toFixed(2)
       const params = JSON.stringify({
@@ -312,7 +321,7 @@ export const TransferWidget = ({
         }
 
         const { isPoolAvailable, error } = checkPoolBalance({
-          poolsBalances,
+          pools,
           targetChain,
           targetCurrency,
           amount,
@@ -326,11 +335,7 @@ export const TransferWidget = ({
           return
         }
 
-        console.log('mode: ', mode)
-        console.log('targetAddres: ', targetAddress)
-        console.log('amount: ', amount)
         if (mode === ModeOptions.payment || (targetAddress && +amount > 0)) {
-          console.log('ready!')
           setConfirming(true)
           setFormStep(1)
         }
@@ -368,7 +373,7 @@ export const TransferWidget = ({
 
   const getButtonLabel = () => {
     if ((isWizard && wizardStep === 5) || (!isWizard && formStep === 1)) {
-      if (dAppOption === DAppOptions.LPDrain) {
+      if (isApproved) {
         return isSubmitting ? 'Submitting...' : 'Submit'
       } else {
         return isApproving ? 'Approving...' : 'Approve'
@@ -456,12 +461,12 @@ export const TransferWidget = ({
           ) : wizardStep === 4 ? (
             <CoinSelect />
           ) : (
-            <ConfirmDetails isApproved={approved} />
+            <ConfirmDetails isApproved={isApproved} />
           )
         ) : formStep === 0 ? (
           <SingleForm />
         ) : (
-          <ConfirmDetails isApproved={approved} />
+          <ConfirmDetails isApproved={isApproved} />
         )}
       </div>
 
