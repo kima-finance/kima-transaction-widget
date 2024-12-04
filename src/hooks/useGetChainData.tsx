@@ -2,16 +2,17 @@ import { useEffect, useState, useCallback } from 'react'
 import { getAllPluginProviders } from '@pluginRegistry'
 import { useSelector } from 'react-redux'
 import { selectAllPlugins } from '@store/pluginSlice'
+import { PluginChain } from '../../plugins'
 
 const useGetChainData = () => {
-  const [chainData, setChainData] = useState<any[]>([]) // Collated array of networks
+  const [chainData, setChainData] = useState<PluginChain[]>([]) // Collated array of networks
   const plugins = useSelector(selectAllPlugins) // Fetch all plugins from Redux
 
   // Fetch and collate chain data
   const fetchChainData = useCallback(async () => {
     try {
       const allProviders = getAllPluginProviders()
-      const collatedData: any[] = []
+      const collatedData: PluginChain[] = []
 
       for (const pluginId of Object.keys(allProviders)) {
         const plugin = plugins.find((p) => p.id === pluginId)
