@@ -29,6 +29,7 @@ import TargetTokenSelector from '@components/primary/TargetTokenSelector'
 import { selectBackendUrl } from '@store/selectors'
 import useGetFees from '../../hooks/useGetFees'
 import { setServiceFee } from '@store/optionSlice'
+import useGetCurrentPlugin from '../../hooks/useGetCurrentPlugin'
 
 const SingleForm = ({}) => {
   const dispatch = useDispatch()
@@ -53,6 +54,12 @@ const SingleForm = ({}) => {
     isLoading,
     error
   } = useGetFees(parseFloat(amount), sourceNetwork, targetNetwork, backendUrl)
+
+  const plugin = useGetCurrentPlugin()
+
+  useEffect(() => {
+    console.info('plugin:', plugin)
+  }, [sourceNetwork, plugin])
 
   useEffect(() => {
     if (fees) {
