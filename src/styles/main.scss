@@ -10,10 +10,14 @@
   border: 2px solid $financeGrey;
   border-radius: 42px;
   width: 100%;
-  padding: 30px 40px;
   @include transition;
   transition-delay: 0.2s;
   max-width: 900px;
+
+  .transfer-card{
+    padding: 30px 40px;
+
+  }
 
   &.light {
     background: $financeLight;
@@ -69,6 +73,9 @@
   }
 
   &.transaction-card {
+    padding: 30px 40px;
+
+
     .kima-card-content {
       display: flex;
       flex-direction: column;
