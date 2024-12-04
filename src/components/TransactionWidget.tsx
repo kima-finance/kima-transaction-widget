@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { CrossIcon, ErrorIcon, FooterLogo, MinimizeIcon } from '@assets/icons'
+import { ErrorIcon, FooterLogo, MinimizeIcon } from '@assets/icons'
 import Progressbar from './reusable/Progressbar'
 import { NetworkLabel, StepBox } from './reusable'
 import '../index.css'
@@ -24,7 +24,7 @@ import {
 } from '@store/selectors'
 import { useDispatch } from 'react-redux'
 import { toast, Toaster } from 'react-hot-toast'
-import { initialize } from '@store/optionSlice'
+import { setAmount, setTargetAddress } from '@store/optionSlice'
 
 export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [step, setStep] = useState(0)
@@ -233,6 +233,13 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
     }
   }, [data?.status])
 
+  const resetForm = () => {
+    dispatch(setTargetAddress('')) // reset target address
+    dispatch(setAmount('')) // reset amount
+    // disconnect wallet?
+    closeHandler()
+  }
+
   return (
     <Provider store={store}>
       <div
@@ -266,16 +273,8 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                   <MinimizeIcon />
                 </button>
                 {loadingStep < 0 ? (
-                  <button
-                    className='cross-icon-button'
-                    onClick={() => {
-                      dispatch(initialize())
-                      closeHandler()
-                    }}
-                  >
-                    <CrossIcon
-                      fill={theme.colorMode === 'light' ? 'black' : 'white'}
-                    />
+                  <button className='reset-button' onClick={resetForm}>
+                    Reset
                   </button>
                 ) : null}
               </div>

@@ -11,7 +11,6 @@ import {
   WalletButton
 } from './reusable'
 import {
-  CHAIN_NAMES_TO_STRING,
   ColorModeOptions,
   DAppOptions,
   ModeOptions,
@@ -48,7 +47,8 @@ import {
   selectTargetCurrency,
   selectSourceAddress,
   selectServiceFee,
-  selectNetworkOption
+  selectNetworkOption,
+  selectTransactionOption
 } from '@store/selectors'
 import useAllowance from '../hooks/useAllowance'
 import AddressInputWizard from './reusable/AddressInputWizard'
@@ -74,7 +74,8 @@ export const TransferWidget = ({
   theme,
   feeURL,
   helpURL,
-  titleOption
+  titleOption,
+  paymentTitleOption
 }: Props) => {
   const dispatch = useDispatch()
   const mainRef = useRef<HTMLDivElement>(null)
@@ -93,6 +94,7 @@ export const TransferWidget = ({
   const sourceAddress = useSelector(selectSourceAddress)
   const targetAddress = useSelector(selectTargetAddress)
   const targetChain = useSelector(selectTargetChain)
+  const transactionOption = useSelector(selectTransactionOption)
   const compliantOption = useSelector(selectCompliantOption)
   const errorHandler = useSelector(selectErrorHandler)
   const keplrHandler = useSelector(selectKeplrHandler)
@@ -156,7 +158,12 @@ export const TransferWidget = ({
     }
 
     // check for approval before submiting
-    const amountToShow = feeDeduct ? +amount : +amount + totalFeeUsd
+    const amountToShow =
+      mode === ModeOptions.payment
+        ? +amount
+        : feeDeduct
+          ? +amount
+          : +amount + totalFeeUsd
     if (allowance < amountToShow) {
       return approve(false)
     }
@@ -182,7 +189,7 @@ export const TransferWidget = ({
         targetChain: targetChain,
         originSymbol: sourceCurrency,
         targetSymbol: targetCurrency,
-        amount: feeDeduct ? (+amount - totalFeeUsd).toFixed(8) : amount,
+        amount: amountToShow.toString(),
         fee: feeParam,
         htlcCreationHash: '',
         htlcCreationVout: 0,
@@ -264,7 +271,13 @@ export const TransferWidget = ({
 
     if (!isWizard && !formStep) {
       if (sourceAddress) {
-        if (+amount <= 0) {
+        if (mode === ModeOptions.payment && !transactionOption) {
+          toast.error('Invalid payment details!', { icon: <ErrorIcon /> })
+          errorHandler('Invalid payment details!')
+          return
+        }
+
+        if (mode === ModeOptions.bridge && +amount <= 0) {
           toast.error('Invalid amount!', { icon: <ErrorIcon /> })
           errorHandler('Invalid amount!')
           return
@@ -391,6 +404,7 @@ export const TransferWidget = ({
   const resetForm = () => {
     if (isApproving || isSubmitting || isSigning) return
 
+    setFormStep(0)
     dispatch(setTargetAddress('')) // reset target address
     dispatch(setAmount('')) // reset amount
     // disconnect wallet?
@@ -411,134 +425,165 @@ export const TransferWidget = ({
             : theme.backgroundColorDark
       }}
     >
-      <div className='kima-card-header'>
-        <div className='topbar'>
-          <div className='title'>
-            <h3>
-              {formStep === 0
-                ? titleOption?.initialTitle
-                  ? titleOption.initialTitle
-                  : 'New Transfer'
-                : titleOption?.confirmTitle
-                  ? titleOption.confirmTitle
-                  : 'Transfer Details'}
-            </h3>
-          </div>
-          <div className='control-buttons'>
-            {pendingTxs > 0 ? <TxButton theme={theme} /> : null}
-            <ExternalLink
-              to={
-                helpURL
-                  ? helpURL
-                  : 'https://docs.kima.network/kima-network/try-kima-with-the-demo-app'
-              }
-            >
-              <div className='menu-button'>I need help</div>
-            </ExternalLink>
-
-            {formStep !== 1 && (
-              <div className='reset-button' onClick={resetForm}>
-                Reset
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className='kima-card-content' ref={mainRef}>
-        {isWizard ? (
-          wizardStep === 0 ? (
-            <NetworkSelect />
-          ) : wizardStep === 1 ? (
-            <div className='connect-wallet-step'>
-              <p>Connect your wallet</p>
-              <WalletButton errorBelow={true} />
+      {mode === ModeOptions.payment && !transactionOption && (
+        <h2 className='invalid-option-banner'>
+          We're unable to process your payment. Please ensure the necessary
+          transaction details are provided. Contact support if the issue
+          persists.
+        </h2>
+      )}
+      <div className='transfer-card'>
+        <div className='kima-card-header'>
+          <div className='topbar'>
+            <div className='title'>
+              <h3>
+                {formStep === 0
+                  ? titleOption?.initialTitle
+                    ? titleOption.initialTitle
+                    : mode === ModeOptions.payment
+                      ? 'New Purchase'
+                      : 'New Transfer'
+                  : titleOption?.confirmTitle
+                    ? titleOption.confirmTitle
+                    : mode === ModeOptions.payment
+                      ? 'Confirm Purchase'
+                      : 'Transfer Details'}
+              </h3>
             </div>
-          ) : wizardStep === 2 ? (
-            <NetworkSelect isOriginChain={false} />
-          ) : wizardStep === 3 ? (
-            <AddressInputWizard />
-          ) : wizardStep === 4 ? (
-            <CoinSelect />
+            <div className='control-buttons'>
+              {pendingTxs > 0 ? <TxButton theme={theme} /> : null}
+              <ExternalLink
+                to={
+                  helpURL
+                    ? helpURL
+                    : 'https://docs.kima.network/kima-network/try-kima-with-the-demo-app'
+                }
+              >
+                <div className='menu-button'>I need help</div>
+              </ExternalLink>
+
+              {formStep === 1 && (
+                <button
+                  className='reset-button'
+                  onClick={resetForm}
+                  disabled={mode === ModeOptions.payment}
+                >
+                  Reset
+                </button>
+              )}
+            </div>
+          </div>
+          <h4 className='subtitle'>
+            {mode === ModeOptions.payment && paymentTitleOption?.title}
+          </h4>
+        </div>
+
+        <div className='kima-card-content' ref={mainRef}>
+          {isWizard ? (
+            wizardStep === 0 ? (
+              <NetworkSelect />
+            ) : wizardStep === 1 ? (
+              <div className='connect-wallet-step'>
+                <p>Connect your wallet</p>
+                <WalletButton errorBelow={true} />
+              </div>
+            ) : wizardStep === 2 ? (
+              <NetworkSelect isOriginChain={false} />
+            ) : wizardStep === 3 ? (
+              <AddressInputWizard />
+            ) : wizardStep === 4 ? (
+              <CoinSelect />
+            ) : (
+              <ConfirmDetails isApproved={isApproved} />
+            )
+          ) : formStep === 0 ? (
+            <SingleForm />
           ) : (
             <ConfirmDetails isApproved={isApproved} />
-          )
-        ) : formStep === 0 ? (
-          <SingleForm />
-        ) : (
-          <ConfirmDetails isApproved={isApproved} />
-        )}
-      </div>
-
-      <div
-        className={`kima-card-footer ${mode === ModeOptions.bridge && formStep === 0 && 'bridge'}`}
-      >
-        <div
-          className={`button-group ${formStep !== 0 && allowance > 0 && 'confirm'}`}
-        >
-          {formStep !== 0 && (
-            <SecondaryButton
-              clickHandler={onBack}
-              theme={theme.colorMode}
-              disabled={isApproving || isSubmitting || isSigning}
-            >
-              {(isWizard && wizardStep > 0) || (!isWizard && formStep > 0)
-                ? 'Back'
-                : 'Cancel'}
-            </SecondaryButton>
           )}
-          {allowance > 0 &&
-          ((isWizard && wizardStep === 5) || (!isWizard && formStep === 1)) ? (
+        </div>
+
+        <div
+          className={`kima-card-footer ${mode === ModeOptions.bridge && formStep === 0 && 'bridge'}`}
+        >
+          <div
+            className={`button-group ${formStep !== 0 && allowance > 0 && 'confirm'}`}
+          >
+            {formStep !== 0 && (
+              <SecondaryButton
+                clickHandler={onBack}
+                theme={theme.colorMode}
+                disabled={isApproving || isSubmitting || isSigning}
+              >
+                {(isWizard && wizardStep > 0) || (!isWizard && formStep > 0)
+                  ? 'Back'
+                  : 'Cancel'}
+              </SecondaryButton>
+            )}
+            {allowance > 0 &&
+            ((isWizard && wizardStep === 5) ||
+              (!isWizard && formStep === 1)) ? (
+              <PrimaryButton
+                clickHandler={onCancelApprove}
+                isLoading={isCancellingApprove}
+                disabled={
+                  isCancellingApprove ||
+                  isApproving ||
+                  isSubmitting ||
+                  isSigning
+                }
+              >
+                {isCancellingApprove ? 'Cancelling Approval' : 'Cancel Approve'}
+              </PrimaryButton>
+            ) : null}
             <PrimaryButton
-              clickHandler={onCancelApprove}
-              isLoading={isCancellingApprove}
+              clickHandler={onNext}
+              isLoading={isApproving || isSubmitting || isSigning}
               disabled={
-                isCancellingApprove || isApproving || isSubmitting || isSigning
+                isApproving ||
+                isSubmitting ||
+                isSigning ||
+                (mode === ModeOptions.payment && !transactionOption)
               }
             >
-              {isCancellingApprove ? 'Cancelling Approval' : 'Cancel Approve'}
+              {getButtonLabel()}
             </PrimaryButton>
-          ) : null}
-          <PrimaryButton
-            clickHandler={onNext}
-            isLoading={isApproving || isSubmitting || isSigning}
-            disabled={isApproving || isSubmitting || isSigning}
-          >
-            {getButtonLabel()}
-          </PrimaryButton>
+          </div>
         </div>
-      </div>
-      <SolanaWalletConnectModal />
-      <TronWalletConnectModal />
-      <Toaster
-        position='top-right'
-        reverseOrder={false}
-        containerStyle={{
-          position: 'absolute'
-        }}
-        toastOptions={{
-          duration: 3 * 1000,
-          style: {
-            position: 'relative',
-            top: windowWidth > 768 ? '3rem' : '1.5rem',
-            right: windowWidth > 768 ? '1.5rem' : '0rem',
-            margin: '5px 0',
-            padding: '.7rem 1.5rem',
-            color:
-              theme.colorMode === ColorModeOptions.light ? 'black' : 'white',
-            fontSize: '1em',
-            borderRadius: '50px',
-            border: '1px solid #B900004D',
-            background:
-              theme.colorMode === ColorModeOptions.light ? '#F7F8F9' : '#242732'
-          }
-        }}
-      />
-      <div className='floating-footer'>
-        <div className={`items ${theme.colorMode}`}>
-          <span>Powered by</span>
-          <FooterLogo width={50} fill='black' />
-          <strong>Network</strong>
+        <SolanaWalletConnectModal />
+        <TronWalletConnectModal />
+        <Toaster
+          position='top-right'
+          reverseOrder={false}
+          containerStyle={{
+            position: 'absolute'
+          }}
+          toastOptions={{
+            duration: 3 * 1000,
+            style: {
+              position: 'relative',
+              top: windowWidth > 768 ? '3rem' : '1.5rem',
+              right: windowWidth > 768 ? '1.5rem' : '0rem',
+              margin: '5px 0',
+              padding: '.7rem 1.5rem',
+              color:
+                theme.colorMode === ColorModeOptions.light ? 'black' : 'white',
+              fontSize: '1em',
+              borderRadius: '50px',
+              border: '1px solid #B900004D',
+              background:
+                theme.colorMode === ColorModeOptions.light
+                  ? '#F7F8F9'
+                  : '#242732'
+            }
+          }}
+        />
+        <div className='floating-footer'>
+          <div className={`items ${theme.colorMode}`}>
+            <span>Powered by</span>
+            <FooterLogo width={50} fill='black' />
+            <strong>Network</strong>
+          </div>
         </div>
       </div>
     </div>

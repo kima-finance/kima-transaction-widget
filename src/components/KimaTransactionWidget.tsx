@@ -148,6 +148,7 @@ const KimaTransactionWidget = ({
       feeURL={feeURL}
       helpURL={helpURL}
       titleOption={titleOption}
+      paymentTitleOption={paymentTitleOption}
     />
   )
 }
