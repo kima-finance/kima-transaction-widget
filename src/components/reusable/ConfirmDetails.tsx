@@ -165,7 +165,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
               {feeDeduct ? 'Gas fee deduction' : 'Gas fees (Source + Dest)'}
             </span>
             <span className='service-fee'>
-              {totalFeeUsd} {sourceCurrency}
+              {formatterFloat.format(totalFeeUsd)} {sourceCurrency}
             </span>
           </div>
           <div className='amount-details'>
