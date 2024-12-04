@@ -1,14 +1,11 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useSelector } from 'react-redux'
-import { selectAllPlugins } from '@store/pluginSlice'
+import { getPlugin } from '@pluginRegistry'
 import { selectSourceChain } from '@store/selectors'
 import useGetChainData from './useGetChainData'
 
 const useGetCurrentPlugin = () => {
   const [currentPlugin, setCurrentPlugin] = useState<any | null>(null)
-
-  const plugins = useSelector(selectAllPlugins)
-  console.log('All plugins:', plugins)
 
   const chainData = useGetChainData()?.chainData
   console.log('Chain data:', chainData)
@@ -37,7 +34,7 @@ const useGetCurrentPlugin = () => {
 
     console.info('currentChain: ', currentChain)
 
-    const pluginID = currentChain.pluginID
+    const pluginID = currentChain.pluginID?.toLowerCase()
     if (!pluginID) {
       console.log('No plugin ID found for current chain:', currentChain)
       return null
@@ -45,11 +42,7 @@ const useGetCurrentPlugin = () => {
 
     console.info('current pluginID: ', pluginID)
 
-    const matchedPlugin =
-      plugins.find((p) => {
-        console.info(`p.id[${p.id}] === pluginID[${pluginID}]`)
-        return p.id.toLowerCase() === pluginID.toLowerCase()
-      }) || null
+    const matchedPlugin = getPlugin(pluginID)
     if (!matchedPlugin) {
       console.log('No plugin found for plugin ID:', pluginID)
     } else {
@@ -57,7 +50,7 @@ const useGetCurrentPlugin = () => {
     }
 
     return matchedPlugin
-  }, [chainData, sourceChainID, plugins])
+  }, [chainData, sourceChainID])
 
   useEffect(() => {
     console.log('Plugin updated:', plugin)
