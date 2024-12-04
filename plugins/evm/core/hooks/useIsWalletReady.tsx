@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import {
   useAppKitAccount,
   useAppKitNetwork,
@@ -14,12 +14,14 @@ import {
 } from '../../utils/constants'
 import { selectNetworkOption, selectSourceChain } from '@store/selectors'
 import { NetworkOptions } from '@interface'
+import { setSourceAddress } from '@store/optionSlice'
 
 function useIsWalletReady(): {
   isReady: boolean
   statusMessage: string
   walletAddress?: string
 } {
+  const dispatch = useDispatch()
   const { walletProvider: evmProvider } = useAppKitProvider('eip155')
   const appkitAccountInfo = useAppKitAccount()
   const { chainId: walletChainId } = useAppKitNetwork()
@@ -54,6 +56,11 @@ function useIsWalletReady(): {
       switchNetwork()
     }
   }, [isConnected, walletChainId, correctEvmNetwork, switchNetwork])
+
+  // dispatch target address upon connection
+  useEffect(() => {
+    isConnected && dispatch(setSourceAddress(walletAddress))
+  }, [walletAddress, isConnected])
 
   return useMemo(
     () => ({

@@ -36,6 +36,7 @@ import { useDispatch } from 'react-redux'
 import {
   setBitcoinAddress,
   setBitcoinPubkey,
+  setSourceAddress,
   setSourceChain
 } from '../store/optionSlice'
 import toast from 'react-hot-toast'
@@ -205,6 +206,7 @@ function useIsWalletReady(): {
       )
     } else if (isEVMChain(correctChain) && hasEthInfo && evmAddress) {
       if (hasCorrectEvmNetwork) {
+        dispatch(setSourceAddress(evmAddress))
         return createWalletStatus(
           true,
           undefined,
@@ -215,6 +217,7 @@ function useIsWalletReady(): {
         if (evmProvider && correctEvmNetwork) {
           if (autoSwitch) {
             forceNetworkSwitch()
+            dispatch(setSourceAddress(evmAddress))
           } else {
             dispatch(
               setSourceChain(
