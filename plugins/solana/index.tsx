@@ -2,23 +2,29 @@
 import React from 'react' // Import React explicitly
 import { store } from '@store/index'
 import WalletProvider from '@plugins/solana/features/walletConnect/WalletProvider'
-import { PluginBase } from '../PluginBase'
-import { PluginChain, PluginProviderProps } from '../pluginTypes'
-import getChainData from './utils/getChainData'
-import useBalance from '@plugins/solana/core/hooks/useBalance'
+import { PluginBase } from '@plugins/PluginBase'
+import { PluginProviderProps } from '@plugins/pluginTypes'
+import getChainData from '@plugins/solana/utils/getChainData'
+import useGetSolBalance from '@plugins/solana/core/hooks/useGetSolBalance'
+import useSolIsWalletReady from '@plugins/solana/core/hooks/useIsWalletReady'
 
 export class SolanaPlugin extends PluginBase {
   constructor(store: any) {
-    super(store, 'solana')
-  }
-
-  protected fetchChains = async (): Promise<PluginChain[]> => {
-    return getChainData()
-  }
-
-  protected useBalance = (): { balance: number } => {
-    const { balance } = useBalance()
-    return { balance }
+    super({
+      store,
+      id: 'solana',
+      fetchChains: getChainData,
+      // TODO: implement approve hook
+      useAllowance: () => ({
+        isApproved: false,
+        poolAddress: '',
+        approve: () => Promise.resolve(),
+        allowance: 0
+      }),
+      useBalance: useGetSolBalance,
+      useTokenBalance: useGetSolBalance,
+      useWalletIsReady: useSolIsWalletReady
+    })
   }
 
   Provider = ({

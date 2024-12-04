@@ -1,5 +1,29 @@
 export interface Plugin {
   initialize: () => PluginInit
+
+  // hooks
+  // TODO: refactor to return a UseQueryResult
+  useAllowance: () => PluginUseAllowanceResult
+  useBalance: () => PluginUseBalanceResult
+  useTokenBalance(): PluginUseBalanceResult
+  useWalletIsReady: () => PluginUseWalletIsReadyResult
+}
+
+export interface PluginUseAllowanceResult {
+  isApproved: boolean
+  poolAddress: string
+  approve: (isCancel?: boolean) => Promise<void>
+  allowance: number
+}
+
+export interface PluginUseBalanceResult {
+  balance: number | undefined
+}
+
+export interface PluginUseWalletIsReadyResult {
+  isReady: boolean
+  statusMessage: string
+  walletAddress?: string
 }
 
 export interface PluginInit {
@@ -23,16 +47,14 @@ export interface PluginStoreData {
 }
 
 export interface PluginChain {
-  id: string
+  pluginID: string
+  icon: React.FC | null
   name: string
   symbol: string
   tokens: PluginToken[]
-  disabled: boolean
-  isEvm: boolean
 }
 
 export interface PluginToken {
-  id: string
   symbol: string
   address: string
   icon: React.FC | null

@@ -3,11 +3,13 @@ import { useDispatch } from 'react-redux'
 import { useSelector } from 'react-redux'
 import { setTargetAddress } from '../../store/optionSlice'
 import {
+  selectMode,
   selectSourceChain,
   selectTargetAddress,
   selectTargetChain
 } from '../../store/selectors'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
+import { ModeOptions } from '../../interface'
 
 /**
  * Component for target address input
@@ -24,33 +26,36 @@ const AddressInput = ({
   placeholder: string
 }) => {
   const dispatch = useDispatch()
+  const mode = useSelector(selectMode)
   const sourceChain = useSelector(selectSourceChain)
   const targetChain = useSelector(selectTargetChain)
   const { walletAddress: sourceAddress, isReady } = useIsWalletReady()
   const targetAddress = useSelector(selectTargetAddress)
 
+  // TODO: fix. This will break if another non-EVM chain is added
   const isEvm = (chain: string): boolean => {
     return chain !== 'SOL' && chain !== 'TRX' && chain !== 'BTC'
   }
 
-  const resetTargetAddress = () => {
-    dispatch(setTargetAddress(''))
-  }
-
   useEffect(() => {
-    // case evm source && !evm target
-    if (isEvm(sourceChain) && !isEvm(targetChain)) {
-      resetTargetAddress()
+    // in a payment scenario, the target address should be provided
+    // by the dApp and never changed
+    if (mode === ModeOptions.payment) return
+
+    // when both source and target addresses are EVM addresses are compatible
+    if (isEvm(sourceChain) && isEvm(targetChain)) {
+      dispatch(setTargetAddress(isReady && sourceAddress ? sourceAddress : ''))
       return
     }
 
-    if (!isEvm(sourceChain) && isEvm(targetChain)) {
-      resetTargetAddress()
-      return
-    }
+    console.log(
+      'AddressInput:: source or target chain non EVM. resetting target address'
+    )
 
-    isReady && dispatch(setTargetAddress(sourceAddress || ''))
-  }, [sourceChain, targetChain, sourceAddress, isReady, dispatch])
+    // when the source or target chain is not EVM, the address
+    // formats may not be compatible, so reset the target address
+    dispatch(setTargetAddress(''))
+  }, [sourceChain, targetChain, sourceAddress, isReady, mode, dispatch])
 
   return (
     <input

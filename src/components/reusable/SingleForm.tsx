@@ -13,7 +13,8 @@ import {
   selectFeeDeduct,
   selectAmount,
   selectTargetCurrency,
-  selectNetworkOption
+  selectNetworkOption,
+  selectTargetAddress
 } from '../../store/selectors'
 import { BankInput, CustomCheckbox, WalletButton } from './'
 import { setAmount, setFeeDeduct } from '../../store/optionSlice'
@@ -47,6 +48,9 @@ const SingleForm = ({}) => {
   const amount = useSelector(selectAmount)
   const targetCurrency = useSelector(selectTargetCurrency)
   const backendUrl = useSelector(selectBackendUrl)
+
+  // test
+  const targetAddress = useSelector(selectTargetAddress)
 
   const {
     data: fees,
@@ -134,19 +138,28 @@ const SingleForm = ({}) => {
         </div>
       </div>
 
-      {mode === ModeOptions.bridge && sourceNetwork !== ChainName.FIAT ? (
-        targetNetwork === ChainName.FIAT ? (
-          <BankInput />
+      {/* TODO: fix. When the source and target chain have different address formats the form will be invalid 
+          as the source address must be converted to the target address format or allow inputting the target address manullay */}
+      {
+        mode === ModeOptions.bridge && sourceNetwork !== ChainName.FIAT ? (
+          targetNetwork === ChainName.FIAT ? (
+            <BankInput />
+          ) : (
+            <div className={`form-item ${theme.colorMode}`}>
+              <span className='label'>Target Address:</span>
+              <AddressInput
+                theme={theme.colorMode as string}
+                placeholder='Target address'
+              />
+            </div>
+          )
         ) : (
           <div className={`form-item ${theme.colorMode}`}>
             <span className='label'>Target Address:</span>
-            <AddressInput
-              theme={theme.colorMode as string}
-              placeholder='Target address'
-            />
+            <span>{targetAddress}</span>
           </div>
-        )
-      ) : null}
+        ) /*null*/
+      }
 
       {mode === ModeOptions.bridge ? (
         <div className={`form-item ${theme.colorMode}`}>

@@ -29,7 +29,7 @@ const AccountDetailsModal = () => {
   const sourcheChain = useSelector(selectSourceChain)
   const { walletAddress } = useIsWalletReady()
   const { disconnect: tronWalletDisconnect } = useTronWallet()
-  const tronBalance = useGetTronBalance()
+  const { balance: tronBalance } = useGetTronBalance()
   const selectedNetwork = useSelector(selectSourceChain)
 
   // get the network details
@@ -50,7 +50,7 @@ const AccountDetailsModal = () => {
     dispatch(setAccountDetailsModal(false))
   }
 
-  if (sourcheChain !== 'TRX') return;
+  if (sourcheChain !== 'TRX') return
 
   return (
     <div

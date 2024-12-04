@@ -1,10 +1,14 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { setSourceChain } from '@store/optionSlice'
-import { selectTheme, selectSourceChain } from '@store/selectors'
+import {
+  selectTheme,
+  selectSourceChain,
+  selectTargetChain
+} from '@store/selectors'
 import Arrow from '@assets/icons/Arrow'
 import useGetChainData from '../../hooks/useGetChainData'
-import useNetworkOptions from '../../hooks/useNetworkOptions'
+// import useNetworkOptions from '../../hooks/useNetworkOptions'
 
 const SourceNetworkSelectorComponent = () => {
   const [collapsed, setCollapsed] = useState(true)
@@ -13,18 +17,22 @@ const SourceNetworkSelectorComponent = () => {
   const originNetwork = useSelector(selectSourceChain)
   const dispatch = useDispatch()
   const theme = useSelector(selectTheme)
-  const { options: networkOptions } = useNetworkOptions()
+  // const { options: networkOptions } = useNetworkOptions()
 
   const { chainData } = useGetChainData() // Fetch dynamic chain data
+  const targetChain = useSelector(selectTargetChain)
 
   // Map chain data to the format needed by the dropdown
+  // should not be able to select the same network as the target
   const networks = useMemo(() => {
     const data =
-      chainData.map((network) => ({
-        id: network.symbol,
-        label: network.name,
-        icon: network.icon ? <network.icon /> : <div /> // Render the icon as JSX
-      })) || [] // Default to an empty array if chainData is undefined
+      chainData
+        .filter((network) => network.symbol !== targetChain)
+        .map((network) => ({
+          id: network.symbol,
+          label: network.name,
+          icon: network.icon ? <network.icon /> : <div /> // Render the icon as JSX
+        })) || [] // Default to an empty array if chainData is undefined
     console.info('Final data: ', data)
     return data
   }, [chainData])

@@ -2,23 +2,29 @@
 import React from 'react' // Explicitly import React
 import { store } from '@store/index'
 import WalletProvider from '@plugins/tron/features/walletConnect/WalletProvider'
-import { PluginBase } from '../PluginBase'
-import { PluginChain, PluginProviderProps } from '../pluginTypes'
-import getChainData from './utils/getChainData'
-import useBalance from '@plugins/tron/core/hooks/useBalance'
+import { PluginBase } from '@plugins/PluginBase'
+import { PluginProviderProps } from '@plugins/pluginTypes'
+import getChainData from '@plugins/tron/utils/getChainData'
+import useBalanceTron from '@plugins/tron/core/hooks/useGetTrxBalance'
+import useIsWalletReadyTron from '@plugins/tron/core/hooks/useIsWalletReady'
 
 export class TronPlugin extends PluginBase {
   constructor(store: any) {
-    super(store, 'tron')
-  }
-
-  protected fetchChains = async (): Promise<PluginChain[]> => {
-    return getChainData()
-  }
-
-  protected useBalance = (): { balance: number } => {
-    const { balance } = useBalance()
-    return { balance }
+    super({
+      store,
+      id: 'tron',
+      fetchChains: getChainData,
+      // provider: Provider,
+      useAllowance: () => ({
+        isApproved: false,
+        poolAddress: '',
+        approve: () => Promise.resolve(),
+        allowance: 0
+      }),
+      useBalance: useBalanceTron,
+      useTokenBalance: useBalanceTron,
+      useWalletIsReady: useIsWalletReadyTron
+    })
   }
 
   Provider = ({

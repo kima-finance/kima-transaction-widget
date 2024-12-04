@@ -1,30 +1,30 @@
 // plugins/evm/index.tsx
 import React from 'react' // Explicitly import React
-import {
-  Plugin,
-  PluginChain,
-  PluginData,
-  PluginInit,
-  PluginProviderProps
-} from '../pluginTypes'
-import { PluginBase } from '../PluginBase'
+import { PluginProviderProps } from '@plugins/pluginTypes'
+import { PluginBase } from '@plugins/PluginBase'
 import { store } from '@store/index'
 import WalletProvider from '@plugins/evm/features/walletConnect/WalletProvider'
-import getChainData from './utils/getChainData'
-import useBalance from '@plugins/evm/core/hooks/useBalance'
+import getChainData from '@plugins/evm/utils/getChainData'
+import useBalanceEvm from '@plugins/evm/core/hooks/useBalance'
+import useIsWalletReadyEvm from '@plugins/evm/core/hooks/useIsWalletReady'
 
 export class EvmPlugin extends PluginBase {
   constructor(store: any) {
-    super(store, 'evm')
-  }
-
-  protected fetchChains = async (): Promise<PluginChain[]> => {
-    return getChainData()
-  }
-
-  protected useBalance = (): { balance: number } => {
-    const { balance } = useBalance()
-    return { balance }
+    super({
+      store,
+      id: 'evm',
+      fetchChains: getChainData,
+      // TODO: implement approve hook
+      useAllowance: () => ({
+        isApproved: false,
+        poolAddress: '',
+        approve: () => Promise.resolve(),
+        allowance: 0
+      }),
+      useBalance: useBalanceEvm,
+      useTokenBalance: useBalanceEvm,
+      useWalletIsReady: useIsWalletReadyEvm
+    })
   }
 
   Provider = ({

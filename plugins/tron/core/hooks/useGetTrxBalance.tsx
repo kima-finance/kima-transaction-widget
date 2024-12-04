@@ -21,12 +21,8 @@ function useGetTronBalance() {
     [networkOption]
   )
 
-  const {
-    data: tronBalance = 0, // Default balance to 0 if undefined
-    isLoading,
-    isError,
-    error
-  } = useQuery({
+  // TODO refactor usages so can return UseQueryResult
+  const result = useQuery({
     queryKey: ['tronBalance', wallet?.adapter?.address, networkOption], // Query key
     queryFn: async () => getTrxBalance(wallet as Wallet, tronWeb),
     enabled: !!wallet?.adapter?.address && sourceNetwork === 'TRX', // Fetch only if wallet address is available
@@ -34,8 +30,9 @@ function useGetTronBalance() {
     staleTime: 10000, // Mark data as stale after 10 seconds
     gcTime: 60000
   })
+  const { data: balance } = result
 
-  return tronBalance
+  return { balance }
 }
 
 export default useGetTronBalance

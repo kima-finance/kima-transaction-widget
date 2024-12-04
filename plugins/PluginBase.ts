@@ -4,21 +4,46 @@ import {
   PluginChain,
   PluginData,
   PluginInit,
-  PluginProviderProps
+  PluginProviderProps,
+  PluginUseAllowanceResult,
+  PluginUseBalanceResult,
+  PluginUseWalletIsReadyResult
 } from './pluginTypes'
 
 export abstract class PluginBase implements Plugin {
   protected _store: any
   data: PluginData
+  protected fetchChains: () => Promise<PluginChain[]>
 
-  constructor(store: any, id: string) {
-    this._store = store
+  abstract Provider: React.FC<PluginProviderProps>
+
+  // hooks
+  useAllowance: () => PluginUseAllowanceResult
+  useBalance: () => PluginUseBalanceResult
+  useTokenBalance: () => PluginUseBalanceResult
+  useWalletIsReady: () => PluginUseWalletIsReadyResult
+
+  constructor(args: {
+    store: any
+    id: string
+    fetchChains: () => Promise<PluginChain[]>
+    useAllowance: () => PluginUseAllowanceResult
+    useBalance: () => PluginUseBalanceResult
+    useTokenBalance(): PluginUseBalanceResult
+    useWalletIsReady: () => PluginUseWalletIsReadyResult
+  }) {
+    this._store = args.store
     this.data = {
-      id,
+      id: args.id,
       pluginData: {
         networks: []
       }
     }
+    this.fetchChains = args.fetchChains
+    this.useAllowance = args.useAllowance
+    this.useBalance = args.useBalance
+    this.useTokenBalance = args.useTokenBalance
+    this.useWalletIsReady = args.useWalletIsReady
   }
 
   initialize = (): PluginInit => {
@@ -49,7 +74,4 @@ export abstract class PluginBase implements Plugin {
       console.error(`Failed to fetch ${this.data.id} networks:`, error)
     }
   }
-
-  protected abstract fetchChains(): Promise<PluginChain[]>
-  protected abstract Provider(props: PluginProviderProps): JSX.Element
 }

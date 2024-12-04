@@ -1,7 +1,11 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { setTargetCurrency } from '@store/optionSlice'
-import { selectTheme } from '@store/selectors'
+import {
+  selectTargetChain,
+  selectTargetCurrency,
+  selectTheme
+} from '@store/selectors'
 import Arrow from '@assets/icons/Arrow'
 import useGetChainData from '../../hooks/useGetChainData'
 
@@ -13,8 +17,8 @@ const TargetTokenSelectorComponent = () => {
   const theme = useSelector(selectTheme)
 
   // Get the selected network and token from Redux
-  const targetNetwork = useSelector((state) => state.option.targetChain)
-  const targetCurrency = useSelector((state) => state.option.targetCurrency)
+  const targetNetwork = useSelector(selectTargetChain)
+  const targetCurrency = useSelector(selectTargetCurrency)
 
   // Fetch dynamic chain data
   const { chainData } = useGetChainData()
