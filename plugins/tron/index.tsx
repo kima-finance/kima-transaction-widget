@@ -15,7 +15,6 @@ export class TronPlugin extends PluginBase {
       id: 'tron',
       fetchChains: getChainData,
       // provider: Provider,
-      // TODO: implement approve hook
       useAllowance: () => ({
         isApproved: false,
         poolAddress: '',

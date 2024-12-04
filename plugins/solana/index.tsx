@@ -14,7 +14,6 @@ export class SolanaPlugin extends PluginBase {
       store,
       id: 'solana',
       fetchChains: getChainData,
-      // provider: Provider,
       // TODO: implement approve hook
       useAllowance: () => ({
         isApproved: false,

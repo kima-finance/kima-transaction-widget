@@ -27,7 +27,6 @@ export abstract class PluginBase implements Plugin {
     store: any
     id: string
     fetchChains: () => Promise<PluginChain[]>
-    // provider: React.FC<PluginProviderProps>
     useAllowance: () => PluginUseAllowanceResult
     useBalance: () => PluginUseBalanceResult
     useTokenBalance(): PluginUseBalanceResult
@@ -41,7 +40,6 @@ export abstract class PluginBase implements Plugin {
       }
     }
     this.fetchChains = args.fetchChains
-    // this.Provider = args.provider
     this.useAllowance = args.useAllowance
     this.useBalance = args.useBalance
     this.useTokenBalance = args.useTokenBalance

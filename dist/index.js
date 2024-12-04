@@ -5729,7 +5729,6 @@ var EvmPlugin = class extends PluginBase {
       store: store2,
       id: "evm",
       fetchChains: getChainData,
-      // provider: Provider,
       // TODO: implement approve hook
       useAllowance: () => ({
         isApproved: false,
@@ -6507,7 +6506,6 @@ var SolanaPlugin = class extends PluginBase {
       store: store2,
       id: "solana",
       fetchChains: getChainData2,
-      // provider: Provider,
       // TODO: implement approve hook
       useAllowance: () => ({
         isApproved: false,
@@ -7309,7 +7307,6 @@ var TronPlugin = class extends PluginBase {
       id: "tron",
       fetchChains: getChainData3,
       // provider: Provider,
-      // TODO: implement approve hook
       useAllowance: () => ({
         isApproved: false,
         poolAddress: "",

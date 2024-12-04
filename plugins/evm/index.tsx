@@ -14,7 +14,6 @@ export class EvmPlugin extends PluginBase {
       store,
       id: 'evm',
       fetchChains: getChainData,
-      // provider: Provider,
       // TODO: implement approve hook
       useAllowance: () => ({
         isApproved: false,
