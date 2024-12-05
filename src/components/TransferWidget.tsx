@@ -160,7 +160,7 @@ export const TransferWidget = ({
     // check for approval before submiting
     const amountToShow =
       mode === ModeOptions.payment
-        ? +amount
+        ? +amount + totalFeeUsd
         : feeDeduct
           ? +amount
           : +amount + totalFeeUsd
