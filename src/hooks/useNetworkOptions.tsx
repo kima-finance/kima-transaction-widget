@@ -44,8 +44,8 @@ export default function useNetworkOptions() {
 
         dispatch(setTokenOptions(tokenOptions))
       } catch (e) {
-        console.log('rpc disconnected', e)
-        toast.error('rpc disconnected')
+        console.log('Cannot get current chain info. Please try again later, or contact support for assistance.', e)
+        toast.error('Cannot get current chain info. Please try again later, or contact support for assistance.')
       }
     })()
   }, [nodeProviderQuery])

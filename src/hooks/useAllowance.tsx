@@ -161,8 +161,8 @@ export default function useAllowance({
             : result.tssPubkey[0].ecdsa
       )
     } catch (e) {
-      console.log('rpc disconnected', e)
-      toast.error('rpc disconnected')
+      console.log('Cannot get pool address. Please try again later, or contact support for assistance.', e)
+      toast.error('Cannot get pool address. Please try again later, or contact support for assistance.')
     }
   }
 

@@ -102,8 +102,8 @@ const NetworkDropdown = React.memo(
             dispatch(setTargetChainFetching(false))
           }
         } catch (e) {
-          console.log('rpc disconnected', e)
-          toast.error('rpc disconnected')
+          console.log('Cannot get available chains. Please try again later.', e)
+          toast.error('Cannot get available chains. Please try again later, or contact support for assistance.')
         }
       })()
     }, [
@@ -137,8 +137,8 @@ const NetworkDropdown = React.memo(
             setAvailableNetworks(networks.Chains)
           }
         } catch (e) {
-          console.log('rpc disconnected', e)
-          toast.error('rpc disconnected')
+          console.log('Cannot get available chains. Please try again later.', e)
+          toast.error('Cannot get available chains. Please try again later, or contact support for assistance.')
         }
       })()
     }, [nodeProviderQuery, mode, targetNetwork, dAppOption])

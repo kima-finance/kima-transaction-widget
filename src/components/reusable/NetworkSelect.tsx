@@ -73,8 +73,8 @@ const Network = ({ isOriginChain = true }: Props) => {
           dispatch(setTargetChain(networks.Chains[0]))
         }
       } catch (e) {
-        console.log('rpc disconnected', e)
-        toast.error('rpc disconnected')
+        console.log('Cannot get available chains. Please try again later.', e)
+        toast.error('Cannot get available chains. Please try again later, or contact support for assistance.')
       }
     })()
   }, [nodeProviderQuery, originNetwork, targetNetwork, mode, isOriginChain])

@@ -105,7 +105,6 @@ interface Props {
 
 export const TransferWidget = ({
   theme,
-  feeURL,
   helpURL,
   titleOption,
   paymentTitleOption
@@ -164,7 +163,7 @@ export const TransferWidget = ({
     poolAddress
   } = useAllowance({ setApproving, setCancellingApprove })
   const { isSigned, sign } = useSign({ setSigning })
-  const { serviceFee: fee } = useServiceFee(isConfirming, feeURL)
+  const { serviceFee: fee } = useServiceFee(isConfirming)
   const { balance } = useBalance()
   const { width: windowWidth } = useWidth()
   const isApproved = useMemo(() => {
@@ -629,8 +628,7 @@ export const TransferWidget = ({
     } catch (e) {
       errorHandler(e)
       setSubmitting(false)
-      console.log(e?.status !== 500 ? 'rpc disconnected' : '', e)
-      toast.error('rpc disconnected', { icon: <ErrorIcon /> })
+      console.log(e?.status !== 500 ? 'Network error' : '', e)
       toast.error('Failed to submit transaction', { icon: <ErrorIcon /> })
     }
   }

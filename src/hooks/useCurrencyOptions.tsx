@@ -76,8 +76,8 @@ export default function useCurrencyOptions() {
           setTokenList(_tokenList)
         }
       } catch (e) {
-        console.log('rpc disconnected', e)
-        toast.error('rpc disconnected')
+        console.log('Cannot get currencies. Please try again later, or contact support for assistance.', e)
+        toast.error('Cannot get currencies. Please try again later, or contact support for assistance.')
       }
     })()
   }, [

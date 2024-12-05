@@ -110,8 +110,8 @@ export const KimaTransactionWidget = ({
     dispatch(setTheme(theme))
     setThemeMode(theme.colorMode === ColorModeOptions.light ? 'light' : 'dark')
     setThemeVariables({
-      "--w3m-font-family": "Manrope, sans-serif",
-      "--w3m-border-radius-master": "42px",
+      '--w3m-font-family': 'Manrope, sans-serif',
+      '--w3m-border-radius-master': '42px'
     })
 
     if (transactionOption) dispatch(setTransactionOption(transactionOption))
@@ -168,8 +168,11 @@ export const KimaTransactionWidget = ({
             )
             dispatch(setSourceChain(networks.Chains[0]))
           } catch (e) {
-            toast.error('rpc disconnected!')
-            console.log('rpc disconnected', e)
+            toast.error('Cannot get available chains. Please tray again later.')
+            console.log(
+              'Cannot get available chains. Please tray again later.',
+              e
+            )
           }
 
           try {
