@@ -8,7 +8,7 @@ import {
 } from '@store/selectors'
 import Arrow from '@assets/icons/Arrow'
 import useGetChainData from '../../hooks/useGetChainData'
-// import useNetworkOptions from '../../hooks/useNetworkOptions'
+import useNetworkOptions from '../../hooks/useNetworkOptions'
 
 const SourceNetworkSelectorComponent = () => {
   const [collapsed, setCollapsed] = useState(true)
@@ -17,7 +17,7 @@ const SourceNetworkSelectorComponent = () => {
   const originNetwork = useSelector(selectSourceChain)
   const dispatch = useDispatch()
   const theme = useSelector(selectTheme)
-  // const { options: networkOptions } = useNetworkOptions()
+  const { options: networkOptions } = useNetworkOptions()
 
   const { chainData } = useGetChainData() // Fetch dynamic chain data
   const targetChain = useSelector(selectTargetChain)
@@ -33,7 +33,7 @@ const SourceNetworkSelectorComponent = () => {
           label: network.name,
           icon: network.icon ? <network.icon /> : <div /> // Render the icon as JSX
         })) || [] // Default to an empty array if chainData is undefined
-    console.info('Final data: ', data)
+    // console.info('Final data: ', data)
     return data
   }, [chainData])
 
@@ -46,7 +46,7 @@ const SourceNetworkSelectorComponent = () => {
   }, [originNetwork, networks])
 
   useEffect(() => {
-    console.info('Final networks:', networks)
+    // console.info('Final networks:', networks)
   }, [chainData])
 
   const handleNetworkChange = (networkId: string) => {
