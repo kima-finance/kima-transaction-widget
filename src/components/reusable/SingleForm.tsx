@@ -118,48 +118,43 @@ const SingleForm = ({}) => {
           <WalletButton />
         </div>
 
-        <div className='form-item'>
-          <span className='label'>Target Network:</span>
-          <div className='items'>
-            <TargetNetworkSelector />
-            {networkOpion === NetworkOptions.mainnet ? (
-              <TargetTokenSelector />
-            ) : (
-              <div
-                className={`amount-label-container items ${theme.colorMode}`}
-              >
-                <div className={`coin-wrapper ${theme.colorMode}`}>
-                  <div className='icon-wrapper'>{<TargetIcon />}</div>
-                  {targetCurrency}
+        {mode === ModeOptions.bridge && (
+          <div className='form-item'>
+            <span className='label'>Target Network:</span>
+            <div className='items'>
+              <TargetNetworkSelector />
+              {networkOpion === NetworkOptions.mainnet ? (
+                <TargetTokenSelector />
+              ) : (
+                <div
+                  className={`amount-label-container items ${theme.colorMode}`}
+                >
+                  <div className={`coin-wrapper ${theme.colorMode}`}>
+                    <div className='icon-wrapper'>{<TargetIcon />}</div>
+                    {targetCurrency}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* TODO: fix. When the source and target chain have different address formats the form will be invalid 
           as the source address must be converted to the target address format or allow inputting the target address manullay */}
-      {
-        mode === ModeOptions.bridge && sourceNetwork !== ChainName.FIAT ? (
-          targetNetwork === ChainName.FIAT ? (
-            <BankInput />
-          ) : (
-            <div className={`form-item ${theme.colorMode}`}>
-              <span className='label'>Target Address:</span>
-              <AddressInput
-                theme={theme.colorMode as string}
-                placeholder='Target address'
-              />
-            </div>
-          )
+      {mode === ModeOptions.bridge && sourceNetwork !== ChainName.FIAT ? (
+        targetNetwork === ChainName.FIAT ? (
+          <BankInput />
         ) : (
           <div className={`form-item ${theme.colorMode}`}>
             <span className='label'>Target Address:</span>
-            <span>{targetAddress}</span>
+            <AddressInput
+              theme={theme.colorMode as string}
+              placeholder='Target address'
+            />
           </div>
-        ) /*null*/
-      }
+        )
+      ) : null}
 
       {mode === ModeOptions.bridge ? (
         <div className={`form-item ${theme.colorMode}`}>
@@ -212,7 +207,8 @@ const SingleForm = ({}) => {
         </div>
       )}
 
-      {totalFeeUsd > 0 ? (
+      {/* checkbox shall only be displayed in transfer scenario */}
+      {mode === ModeOptions.bridge && totalFeeUsd > 0 ? (
         <CustomCheckbox
           text={
             sourceNetwork === ChainName.BTC

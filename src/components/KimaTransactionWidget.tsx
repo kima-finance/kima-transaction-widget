@@ -33,7 +33,10 @@ import {
   setKeplrHandler,
   setKimaExplorer,
   setNetworkOption,
-  setGraphqlProviderQuery
+  setGraphqlProviderQuery,
+  setTargetCurrency,
+  setTargetAddress,
+  setAmount
 } from '../store/optionSlice'
 import '../index.css'
 import { selectSubmitted } from '../store/selectors'
@@ -41,6 +44,7 @@ import { TransactionWidget } from './TransactionWidget'
 import { TransferWidget } from './TransferWidget'
 import { Web3Provider } from '@ethersproject/providers'
 import { useAppKitTheme } from '@reown/appkit/react'
+import { ChainName } from '@utils/constants'
 
 interface Props {
   theme: ThemeOptions
@@ -120,6 +124,18 @@ const KimaTransactionWidget = ({
     dispatch(setDappOption(dAppOption))
     dispatch(setWalletAutoConnect(autoSwitchChain))
     dispatch(setNetworkOption(networkOption))
+
+    if (mode === ModeOptions.payment) {
+      dispatch(
+        setTargetChain(transactionOption?.targetChain || ChainName.ETHEREUM)
+      )
+
+      dispatch(setTargetAddress(transactionOption?.targetAddress || ''))
+      dispatch(setAmount(transactionOption?.amount.toString() || ''))
+    } else if (mode === ModeOptions.status) {
+      dispatch(setTxId(txId || 1))
+      dispatch(setSubmitted(true))
+    }
   }, [
     provider,
     theme,
