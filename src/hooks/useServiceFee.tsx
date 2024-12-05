@@ -11,16 +11,14 @@ import {
   selectServiceFee,
   selectTargetAddress,
   selectTargetChain,
-  selectTransactionOption
+  selectTransactionOption,
+  selectBackendUrl
 } from '../store/selectors'
 import { ChainName } from '../utils/constants'
 import useIsWalletReady from './useIsWalletReady'
 import toast from 'react-hot-toast'
 
-export default function useServiceFee(
-  isConfirming: boolean = false,
-  feeURL: string
-) {
+export default function useServiceFee(isConfirming: boolean = false) {
   const { walletAddress, isReady } = useIsWalletReady()
   const dispatch = useDispatch()
   const serviceFee = useSelector(selectServiceFee)
@@ -30,6 +28,7 @@ export default function useServiceFee(
   const targetNetwork = useSelector(selectTargetChain)
   const targetAddress_ = useSelector(selectTargetAddress)
   const transactionOption = useSelector(selectTransactionOption)
+  const backendUrl = useSelector(selectBackendUrl)
   const targetChain = useMemo(
     () =>
       mode === ModeOptions.payment
@@ -76,25 +75,15 @@ export default function useServiceFee(
         return
       }
 
-      let sourceFee = 0
-      let targetFee = 0
-      const sourceChainResult: any = await fetchWrapper.get(
-        `${feeURL}/fee/${sourceChain}`
+      const feeResult: any = await fetchWrapper.get(
+        `${backendUrl}/fees/${sourceChain}/${targetChain}`
       )
 
-      sourceFee = sourceChainResult?.fee?.split('-')[0]
-
-      const targetChainResult: any = await fetchWrapper.get(
-        `${feeURL}/fee/${targetChain}`
-      )
-      targetFee = targetChainResult?.fee?.split('-')[0]
-
-      let fee = +sourceFee + +targetFee
-      dispatch(setServiceFee(fee))
+      dispatch(setServiceFee(feeResult.totalFee))
     } catch (e) {
       dispatch(setServiceFee(0))
-      console.log('rpc disconnected', e)
-      toast.error('rpc disconnected')
+      console.log('Error fetching fee service', e)
+      toast.error('Error fetching fee service')
     }
   }
 
