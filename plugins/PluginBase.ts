@@ -1,5 +1,7 @@
-import { updatePluginData } from '@store/pluginSlice'
+// import { updatePluginData } from '@store/pluginSlice'
 import {
+  ChainCompatibility,
+  ChainData,
   Plugin,
   PluginChain,
   PluginData,
@@ -12,9 +14,11 @@ import {
 
 export abstract class PluginBase implements Plugin {
   protected _store: any
+  compatibility: ChainCompatibility
   data: PluginData
-  protected fetchChains: () => Promise<PluginChain[]>
+  // protected fetchChains: () => Promise<PluginChain[]>
 
+  abstract isCompatible: (chain: ChainData | PluginChain) => boolean
   abstract Provider: React.FC<PluginProviderProps>
 
   // hooks
@@ -26,7 +30,8 @@ export abstract class PluginBase implements Plugin {
   constructor(args: {
     store: any
     id: string
-    fetchChains: () => Promise<PluginChain[]>
+    compatibility: ChainCompatibility
+    // fetchChains: () => Promise<PluginChain[]>
     useAllowance: () => PluginUseAllowanceResult
     useBalance: () => PluginUseBalanceResult
     useTokenBalance(): PluginUseBalanceResult
@@ -39,7 +44,8 @@ export abstract class PluginBase implements Plugin {
         networks: []
       }
     }
-    this.fetchChains = args.fetchChains
+    this.compatibility = args.compatibility
+    // this.fetchChains = args.fetchChains
     this.useAllowance = args.useAllowance
     this.useBalance = args.useBalance
     this.useTokenBalance = args.useTokenBalance
@@ -48,7 +54,7 @@ export abstract class PluginBase implements Plugin {
 
   initialize = (): PluginInit => {
     // prefetch chain data but don't wait for it
-    this.getData()
+    // this.getData()
 
     return {
       data: this.data,
@@ -56,22 +62,22 @@ export abstract class PluginBase implements Plugin {
     }
   }
 
-  protected getData = async (): Promise<void> => {
-    try {
-      const networks: PluginChain[] = await this.fetchChains()
-      console.info(`${this.data.id} networks fetched:`, networks)
+  // protected getData = async (): Promise<void> => {
+  //   try {
+  //     const networks: PluginChain[] = await this.fetchChains()
+  //     console.info(`${this.data.id} networks fetched:`, networks)
 
-      // update store
-      this.data = {
-        ...this.data,
-        pluginData: {
-          ...this.data.pluginData,
-          networks
-        }
-      }
-      this._store.dispatch(updatePluginData(this.data))
-    } catch (error) {
-      console.error(`Failed to fetch ${this.data.id} networks:`, error)
-    }
-  }
+  //     // update store
+  //     this.data = {
+  //       ...this.data,
+  //       pluginData: {
+  //         ...this.data.pluginData,
+  //         networks
+  //       }
+  //     }
+  //     this._store.dispatch(updatePluginData(this.data))
+  //   } catch (error) {
+  //     console.error(`Failed to fetch ${this.data.id} networks:`, error)
+  //   }
+  // }
 }

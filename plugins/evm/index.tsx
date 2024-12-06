@@ -1,6 +1,10 @@
 // plugins/evm/index.tsx
 import React from 'react' // Explicitly import React
-import { PluginProviderProps } from '@plugins/pluginTypes'
+import {
+  ChainCompatibility,
+  PluginChain,
+  PluginProviderProps
+} from '@plugins/pluginTypes'
 import { PluginBase } from '@plugins/PluginBase'
 import { store } from '@store/index'
 import WalletProvider from '@plugins/evm/features/walletConnect/WalletProvider'
@@ -13,7 +17,8 @@ export class EvmPlugin extends PluginBase {
     super({
       store,
       id: 'evm',
-      fetchChains: getChainData,
+      compatibility: ChainCompatibility.EVM,
+      // fetchChains: getChainData,
       // TODO: implement approve hook
       useAllowance: () => ({
         isApproved: false,
@@ -25,6 +30,10 @@ export class EvmPlugin extends PluginBase {
       useTokenBalance: useBalanceEvm,
       useWalletIsReady: useIsWalletReadyEvm
     })
+  }
+
+  isCompatible = (chain: PluginChain): boolean => {
+    return chain.compatibility === 'EVM'
   }
 
   Provider = ({

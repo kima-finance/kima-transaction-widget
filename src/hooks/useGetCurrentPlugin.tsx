@@ -1,61 +1,70 @@
-import { useEffect, useState, useMemo } from 'react'
+// import { useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { getPlugin } from '@pluginRegistry'
 import { selectSourceChain } from '@store/selectors'
-import useGetChainData from './useGetChainData'
+// import useGetChainData from './useGetChainData'
+// import { Plugin } from '../../plugins'
+// import { useChainData } from './useChainData'
 
 const useGetCurrentPlugin = () => {
-  const [currentPlugin, setCurrentPlugin] = useState<any | null>(null)
+  // const backendUrl = useSelector(selectBackendUrl)
+  // const [currentPlugin, setCurrentPlugin] = useState<Plugin | undefined>(
+  //   undefined
+  // )
 
-  const chainData = useGetChainData()?.chainData
-  console.log('Chain data:', chainData)
+  const sourceChain = useSelector(selectSourceChain)
+  console.log('useGetCurrentPlugin::Source chain:', sourceChain)
 
-  const sourceChainID = useSelector(selectSourceChain)
-  console.log('Source chain ID:', sourceChainID)
+  // const { data: chainData } = useChainData(backendUrl, sourceChain)
+  // const [ chain ] = chainData ?? []
+  // const chainData = useGetChainData()?.chainData
+  // console.log('useGetCurrentPlugin::Chain data:', chainData)
 
-  const plugin = useMemo(() => {
-    console.log('Computing plugin...')
-    if (!chainData) {
-      console.log('No chain data available.')
-      return null
-    }
-    if (!sourceChainID) {
-      console.log('No source chain ID available.')
-      return null
-    }
+  const currentPlugin = getPlugin(sourceChain)
 
-    const currentChain = chainData.find(
-      (chain) => chain.symbol === sourceChainID
-    )
-    if (!currentChain) {
-      console.log('No current chain found for source chain ID:', sourceChainID)
-      return null
-    }
+  // const plugin = useMemo(() => {
+  //   console.log('Computing plugin...')
+  //   if (!chainData) {
+  //     console.log('No chain data available.')
+  //     return null
+  //   }
+  //   if (!sourceChain) {
+  //     console.log('No source chain ID available.')
+  //     return null
+  //   }
 
-    console.info('currentChain: ', currentChain)
+  //   const currentChain = chainData.find(
+  //     (chain) => chain.symbol === sourceChain
+  //   )
+  //   if (!currentChain) {
+  //     console.log('No current chain found for source chain ID:', sourceChain)
+  //     return null
+  //   }
 
-    const pluginID = currentChain.pluginID?.toLowerCase()
-    if (!pluginID) {
-      console.log('No plugin ID found for current chain:', currentChain)
-      return null
-    }
+  //   console.info('currentChain: ', currentChain)
 
-    console.info('current pluginID: ', pluginID)
+  //   const pluginID = currentChain.pluginID?.toLowerCase()
+  //   if (!pluginID) {
+  //     console.log('No plugin ID found for current chain:', currentChain)
+  //     return null
+  //   }
 
-    const matchedPlugin = getPlugin(pluginID)
-    if (!matchedPlugin) {
-      console.log('No plugin found for plugin ID:', pluginID)
-    } else {
-      console.log('Matched plugin:', matchedPlugin)
-    }
+  //   console.info('current pluginID: ', pluginID)
 
-    return matchedPlugin
-  }, [chainData, sourceChainID])
+  //   const matchedPlugin = getPlugin(pluginID)
+  //   if (!matchedPlugin) {
+  //     console.log('No plugin found for plugin ID:', pluginID)
+  //   } else {
+  //     console.log('Matched plugin:', matchedPlugin)
+  //   }
 
-  useEffect(() => {
-    console.log('Plugin updated:', plugin)
-    setCurrentPlugin(plugin)
-  }, [plugin])
+  //   return matchedPlugin
+  // }, [chainData, sourceChain])
+
+  // useEffect(() => {
+  //   console.log('Plugin updated:', plugin)
+  //   setCurrentPlugin(plugin)
+  // }, [plugin])
 
   console.log('Current plugin state:', currentPlugin)
 

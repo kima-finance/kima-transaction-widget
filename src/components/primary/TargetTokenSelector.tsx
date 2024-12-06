@@ -2,12 +2,15 @@ import React, { useState, useMemo, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { setTargetCurrency } from '@store/optionSlice'
 import {
+  selectBackendUrl,
   selectTargetChain,
   selectTargetCurrency,
   selectTheme
 } from '@store/selectors'
 import Arrow from '@assets/icons/Arrow'
-import useGetChainData from '../../hooks/useGetChainData'
+// import useGetChainData from '../../hooks/useGetChainData'
+import TokenIcon from '../reusable/TokenIcon'
+import { useChainData } from '../../hooks/useChainData'
 
 const TargetTokenSelectorComponent = () => {
   const [collapsed, setCollapsed] = useState(true)
@@ -21,18 +24,21 @@ const TargetTokenSelectorComponent = () => {
   const targetCurrency = useSelector(selectTargetCurrency)
 
   // Fetch dynamic chain data
-  const { chainData } = useGetChainData()
+  // const { chainData } = useGetChainData()
+  const backendUrl = useSelector(selectBackendUrl)
+  const { data: chainData } = useChainData(backendUrl)
 
   // Find the tokens for the selected network
   const tokens = useMemo(() => {
+    if (!chainData) return []
     const network = chainData.find(
       (network) => network.symbol === targetNetwork
     )
     if (network && network.tokens) {
       return network.tokens.map((token) => ({
         id: token.symbol,
-        label: token.symbol,
-        icon: token.icon ? <token.icon /> : <div /> // Render the icon as JSX
+        label: token.symbol
+        // icon: token.icon ? <token.icon /> : <div /> // Render the icon as JSX
       }))
     }
     return []
@@ -42,7 +48,7 @@ const TargetTokenSelectorComponent = () => {
   const selectedToken = useMemo(() => {
     return (
       tokens.find((token) => token.id === targetCurrency) ||
-      tokens[0] || { label: 'Select Token', icon: null } // Provide safe fallback
+      tokens[0] || { id: '', label: 'Select Token' /*, icon: null */ } // Provide safe fallback
     )
   }, [tokens, targetCurrency])
 
@@ -74,7 +80,8 @@ const TargetTokenSelectorComponent = () => {
       ref={ref}
     >
       <div className='coin-wrapper'>
-        <div className='icon'>{selectedToken.icon}</div>
+        <TokenIcon symbol={selectedToken.id} />
+        {/* <div className='icon'>{selectedToken.icon}</div> */}
         <span>{selectedToken.label}</span>
       </div>
       <div
@@ -88,7 +95,8 @@ const TargetTokenSelectorComponent = () => {
             className={`coin-item ${theme?.colorMode ?? ''}`}
             onClick={() => handleTokenChange(token.id)}
           >
-            <div className='icon'>{token.icon}</div>
+            <TokenIcon symbol={token.id} />
+            {/* <div className='icon'>{token.icon}</div> */}
             <p>{token.label}</p>
           </div>
         ))}

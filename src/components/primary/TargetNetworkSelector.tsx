@@ -2,12 +2,15 @@ import React, { useState, useMemo, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { setTargetChain } from '@store/optionSlice'
 import {
+  selectBackendUrl,
   selectSourceChain,
   selectTargetChain,
   selectTheme
 } from '@store/selectors'
 import Arrow from '@assets/icons/Arrow'
-import useGetChainData from '../../hooks/useGetChainData'
+// import useGetChainData from '../../hooks/useGetChainData'
+import ChainIcon from '../reusable/ChainIcon'
+import { useChainData } from '../../hooks/useChainData'
 
 const TargetNetworkSelectorComponent = () => {
   const [collapsed, setCollapsed] = useState(true)
@@ -19,14 +22,16 @@ const TargetNetworkSelectorComponent = () => {
   const sourceNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
 
-  const { chainData } = useGetChainData()
+  const backendUrl = useSelector(selectBackendUrl)
+  const { data: chainData } = useChainData(backendUrl)
 
   const networks = useMemo(() => {
+    if (!chainData) return []
     const data =
       chainData.map((network) => ({
         id: network.symbol,
-        label: network.name,
-        icon: network.icon ? <network.icon /> : <div /> // Render the icon as JSX
+        label: network.name
+        // icon: network.icon ? <network.icon /> : <div /> // Render the icon as JSX
       })) || [] // Default to an empty array if chainData is undefined
     console.info('Final data (target): ', data)
     return data
@@ -50,15 +55,16 @@ const TargetNetworkSelectorComponent = () => {
   const selectedNetwork = useMemo(() => {
     return (
       networks.find((network) => network.id === targetNetwork) ||
-      networks.find((network) => network.id !== sourceNetwork) ||
-      { label: 'Select Network', icon: null }
+      networks.find((network) => network.id !== sourceNetwork) || {
+        id: '',
+        label: 'Select Network'
+        // icon: null
+      }
     )
   }, [sourceNetwork, targetNetwork, networks])
 
   const availableTargetNetworks = useMemo(() => {
-    return networks.filter(
-      (network) => network.id !== sourceNetwork
-    )
+    return networks.filter((network) => network.id !== sourceNetwork)
   }, [networks, sourceNetwork])
 
   const handleNetworkChange = (networkId: string) => {
@@ -89,7 +95,8 @@ const TargetNetworkSelectorComponent = () => {
       ref={ref}
     >
       <div className='network-wrapper'>
-        <div className='icon'>{selectedNetwork.icon}</div>
+        <ChainIcon symbol={selectedNetwork.id} />
+        {/* <div className='icon'>{selectedNetwork.icon}</div> */}
         <span>{selectedNetwork.label}</span>
       </div>
       <div
@@ -103,7 +110,8 @@ const TargetNetworkSelectorComponent = () => {
             className={`network-menu-item ${theme?.colorMode ?? ''}`}
             onClick={() => handleNetworkChange(network.id)}
           >
-            <div className='icon'>{network.icon}</div>
+            <ChainIcon symbol={network.id} />
+            {/* <div className='icon'>{network.icon}</div> */}
             <p>{network.label}</p>
           </div>
         ))}

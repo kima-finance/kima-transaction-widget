@@ -3,7 +3,11 @@ import React from 'react' // Import React explicitly
 import { store } from '@store/index'
 import WalletProvider from '@plugins/solana/features/walletConnect/WalletProvider'
 import { PluginBase } from '@plugins/PluginBase'
-import { PluginProviderProps } from '@plugins/pluginTypes'
+import {
+  ChainCompatibility,
+  PluginChain,
+  PluginProviderProps
+} from '@plugins/pluginTypes'
 import getChainData from '@plugins/solana/utils/getChainData'
 import useGetSolBalance from '@plugins/solana/core/hooks/useGetSolBalance'
 import useSolIsWalletReady from '@plugins/solana/core/hooks/useIsWalletReady'
@@ -13,7 +17,8 @@ export class SolanaPlugin extends PluginBase {
     super({
       store,
       id: 'solana',
-      fetchChains: getChainData,
+      compatibility: ChainCompatibility.SELF,
+      // fetchChains: getChainData,
       // TODO: implement approve hook
       useAllowance: () => ({
         isApproved: false,
@@ -25,6 +30,10 @@ export class SolanaPlugin extends PluginBase {
       useTokenBalance: useGetSolBalance,
       useWalletIsReady: useSolIsWalletReady
     })
+  }
+
+  isCompatible = (chain: PluginChain): boolean => {
+    return chain.name === 'SOL'
   }
 
   Provider = ({

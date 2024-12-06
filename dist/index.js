@@ -9237,6 +9237,11 @@ var TransactionWidget = ({ theme }) => {
       setLoadingStep(-1);
     }
   }, [data?.status]);
+  const resetForm = () => {
+    dispatch(setTargetAddress(""));
+    dispatch(setAmount(""));
+    closeHandler();
+  };
   return /* @__PURE__ */ React155.createElement(Provider2, { store }, /* @__PURE__ */ React155.createElement(
     "div",
     {
@@ -9254,22 +9259,7 @@ var TransactionWidget = ({ theme }) => {
         }
       },
       /* @__PURE__ */ React155.createElement(Minimize_default, null)
-    ), loadingStep < 0 ? /* @__PURE__ */ React155.createElement(
-      "button",
-      {
-        className: "cross-icon-button",
-        onClick: () => {
-          dispatch(initialize());
-          closeHandler();
-        }
-      },
-      /* @__PURE__ */ React155.createElement(
-        Cross_default,
-        {
-          fill: theme.colorMode === "light" ? "black" : "white"
-        }
-      )
-    ) : null) : /* @__PURE__ */ React155.createElement("div", { className: "control-buttons" }, /* @__PURE__ */ React155.createElement("div", { className: "maximize", onClick: () => setMinimized(false) }, "View"))), !minimized && data?.sourceChain && data?.targetChain && /* @__PURE__ */ React155.createElement(
+    ), loadingStep < 0 ? /* @__PURE__ */ React155.createElement("button", { className: "reset-button", onClick: resetForm }, "Reset") : null) : /* @__PURE__ */ React155.createElement("div", { className: "control-buttons" }, /* @__PURE__ */ React155.createElement("div", { className: "maximize", onClick: () => setMinimized(false) }, "View"))), !minimized && data?.sourceChain && data?.targetChain && /* @__PURE__ */ React155.createElement(
       NetworkLabel_default,
       {
         sourceChain: data?.sourceChain,
@@ -9372,6 +9362,7 @@ var SourceNetworkSelectorComponent = () => {
   const originNetwork = useSelector27(selectSourceChain);
   const dispatch = useDispatch16();
   const theme = useSelector27(selectTheme);
+  const { options: networkOptions3 } = useNetworkOptions();
   const { chainData } = useGetChainData_default();
   const targetChain = useSelector27(selectTargetChain);
   const networks = useMemo17(() => {
@@ -9381,14 +9372,12 @@ var SourceNetworkSelectorComponent = () => {
       icon: network.icon ? /* @__PURE__ */ React156.createElement(network.icon, null) : /* @__PURE__ */ React156.createElement("div", null)
       // Render the icon as JSX
     })) || [];
-    console.info("Final data: ", data);
     return data;
   }, [chainData]);
   const selectedNetwork = useMemo17(() => {
     return networks.find((option) => option.id === originNetwork) || networks[0] || { label: "Loading...", icon: null };
   }, [originNetwork, networks]);
   useEffect19(() => {
-    console.info("Final networks:", networks);
   }, [chainData]);
   const handleNetworkChange = (networkId) => {
     console.info(`networkId: ${networkId} | originNetwork:`, originNetwork);
@@ -9769,7 +9758,7 @@ var SingleForm = ({}) => {
       /* @__PURE__ */ React160.createElement("span", { className: "label" }, "Connect wallet:"),
       /* @__PURE__ */ React160.createElement(WalletButton_default, null)
     ),
-    /* @__PURE__ */ React160.createElement("div", { className: "form-item" }, /* @__PURE__ */ React160.createElement("span", { className: "label" }, "Target Network:"), /* @__PURE__ */ React160.createElement("div", { className: "items" }, /* @__PURE__ */ React160.createElement(TargetNetworkSelector_default, null), networkOpion === "mainnet" /* mainnet */ ? /* @__PURE__ */ React160.createElement(TargetTokenSelector_default, null) : /* @__PURE__ */ React160.createElement(
+    mode === "bridge" /* bridge */ && /* @__PURE__ */ React160.createElement("div", { className: "form-item" }, /* @__PURE__ */ React160.createElement("span", { className: "label" }, "Target Network:"), /* @__PURE__ */ React160.createElement("div", { className: "items" }, /* @__PURE__ */ React160.createElement(TargetNetworkSelector_default, null), networkOpion === "mainnet" /* mainnet */ ? /* @__PURE__ */ React160.createElement(TargetTokenSelector_default, null) : /* @__PURE__ */ React160.createElement(
       "div",
       {
         className: `amount-label-container items ${theme.colorMode}`
@@ -9782,7 +9771,7 @@ var SingleForm = ({}) => {
       theme: theme.colorMode,
       placeholder: "Target address"
     }
-  )) : /* @__PURE__ */ React160.createElement("div", { className: `form-item ${theme.colorMode}` }, /* @__PURE__ */ React160.createElement("span", { className: "label" }, "Target Address:"), /* @__PURE__ */ React160.createElement("span", null, targetAddress)), mode === "bridge" /* bridge */ ? /* @__PURE__ */ React160.createElement("div", { className: `form-item ${theme.colorMode}` }, /* @__PURE__ */ React160.createElement("span", { className: "label" }, "Amount:"), /* @__PURE__ */ React160.createElement("div", { className: `amount-label-container items ${theme.colorMode}` }, /* @__PURE__ */ React160.createElement(
+  )) : null, mode === "bridge" /* bridge */ ? /* @__PURE__ */ React160.createElement("div", { className: `form-item ${theme.colorMode}` }, /* @__PURE__ */ React160.createElement("span", { className: "label" }, "Amount:"), /* @__PURE__ */ React160.createElement("div", { className: `amount-label-container items ${theme.colorMode}` }, /* @__PURE__ */ React160.createElement(
     "input",
     {
       className: `${theme.colorMode}`,
@@ -9811,7 +9800,7 @@ var SingleForm = ({}) => {
       },
       disabled: transactionOption?.amount !== void 0
     }
-  ), /* @__PURE__ */ React160.createElement("div", { className: `coin-wrapper ${theme.colorMode}` }, /* @__PURE__ */ React160.createElement("div", { className: "icon-wrapper" }, /* @__PURE__ */ React160.createElement(TargetIcon, null)), targetCurrency))), totalFeeUsd > 0 ? /* @__PURE__ */ React160.createElement(
+  ), /* @__PURE__ */ React160.createElement("div", { className: `coin-wrapper ${theme.colorMode}` }, /* @__PURE__ */ React160.createElement("div", { className: "icon-wrapper" }, /* @__PURE__ */ React160.createElement(TargetIcon, null)), targetCurrency))), mode === "bridge" /* bridge */ && totalFeeUsd > 0 ? /* @__PURE__ */ React160.createElement(
     CustomCheckbox_default,
     {
       text: sourceNetwork === "BTC" /* BTC */ ? `Deduct ${formatterFloat2.format(totalFeeUsd)} BTC fee` : `Deduct $${formatterFloat2.format(totalFeeUsd)} fee`,
@@ -10746,7 +10735,8 @@ var TransferWidget = ({
   theme,
   feeURL,
   helpURL,
-  titleOption
+  titleOption,
+  paymentTitleOption
 }) => {
   const dispatch = useDispatch28();
   const mainRef = useRef10(null);
@@ -10761,6 +10751,7 @@ var TransferWidget = ({
   const sourceAddress = useSelector41(selectSourceAddress);
   const targetAddress = useSelector41(selectTargetAddress);
   const targetChain = useSelector41(selectTargetChain);
+  const transactionOption = useSelector41(selectTransactionOption);
   const compliantOption = useSelector41(selectCompliantOption);
   const errorHandler = useSelector41(selectErrorHandler);
   const keplrHandler = useSelector41(selectKeplrHandler);
@@ -10806,7 +10797,7 @@ var TransferWidget = ({
       errorHandler("Insufficient balance!");
       return;
     }
-    const amountToShow = feeDeduct ? +amount : +amount + totalFeeUsd;
+    const amountToShow = mode === "payment" /* payment */ ? +amount + totalFeeUsd : feeDeduct ? +amount : +amount + totalFeeUsd;
     if (allowance < amountToShow) {
       return approve(false);
     }
@@ -10825,7 +10816,7 @@ var TransferWidget = ({
         targetChain,
         originSymbol: sourceCurrency,
         targetSymbol: targetCurrency,
-        amount: feeDeduct ? (+amount - totalFeeUsd).toFixed(8) : amount,
+        amount: amountToShow.toString(),
         fee: feeParam,
         htlcCreationHash: "",
         htlcCreationVout: 0,
@@ -10897,7 +10888,12 @@ var TransferWidget = ({
     }
     if (!isWizard && !formStep) {
       if (sourceAddress) {
-        if (+amount <= 0) {
+        if (mode === "payment" /* payment */ && !transactionOption) {
+          toast12.error("Invalid payment details!", { icon: /* @__PURE__ */ React169.createElement(Error_default, null) });
+          errorHandler("Invalid payment details!");
+          return;
+        }
+        if (mode === "bridge" /* bridge */ && +amount <= 0) {
           toast12.error("Invalid amount!", { icon: /* @__PURE__ */ React169.createElement(Error_default, null) });
           errorHandler("Invalid amount!");
           return;
@@ -11005,6 +11001,7 @@ var TransferWidget = ({
   };
   const resetForm = () => {
     if (isApproving || isSubmitting || isSigning) return;
+    setFormStep(0);
     dispatch(setTargetAddress(""));
     dispatch(setAmount(""));
     closeHandler();
@@ -11020,15 +11017,22 @@ var TransferWidget = ({
         background: theme.colorMode === "light" /* light */ ? theme.backgroundColorLight : theme.backgroundColorDark
       }
     },
-    /* @__PURE__ */ React169.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React169.createElement("div", { className: "topbar" }, /* @__PURE__ */ React169.createElement("div", { className: "title" }, /* @__PURE__ */ React169.createElement("h3", null, formStep === 0 ? titleOption?.initialTitle ? titleOption.initialTitle : "New Transfer" : titleOption?.confirmTitle ? titleOption.confirmTitle : "Transfer Details")), /* @__PURE__ */ React169.createElement("div", { className: "control-buttons" }, pendingTxs > 0 ? /* @__PURE__ */ React169.createElement(TxButton_default, { theme }) : null, /* @__PURE__ */ React169.createElement(
+    mode === "payment" /* payment */ && !transactionOption && /* @__PURE__ */ React169.createElement("h2", { className: "invalid-option-banner" }, "We're unable to process your payment. Please ensure the necessary transaction details are provided. Contact support if the issue persists."),
+    /* @__PURE__ */ React169.createElement("div", { className: "transfer-card" }, /* @__PURE__ */ React169.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React169.createElement("div", { className: "topbar" }, /* @__PURE__ */ React169.createElement("div", { className: "title" }, /* @__PURE__ */ React169.createElement("h3", null, formStep === 0 ? titleOption?.initialTitle ? titleOption.initialTitle : mode === "payment" /* payment */ ? "New Purchase" : "New Transfer" : titleOption?.confirmTitle ? titleOption.confirmTitle : mode === "payment" /* payment */ ? "Confirm Purchase" : "Transfer Details")), /* @__PURE__ */ React169.createElement("div", { className: "control-buttons" }, pendingTxs > 0 ? /* @__PURE__ */ React169.createElement(TxButton_default, { theme }) : null, /* @__PURE__ */ React169.createElement(
       ExternalLink_default,
       {
         to: helpURL ? helpURL : "https://docs.kima.network/kima-network/try-kima-with-the-demo-app"
       },
       /* @__PURE__ */ React169.createElement("div", { className: "menu-button" }, "I need help")
-    ), formStep !== 1 && /* @__PURE__ */ React169.createElement("div", { className: "reset-button", onClick: resetForm }, "Reset")))),
-    /* @__PURE__ */ React169.createElement("div", { className: "kima-card-content", ref: mainRef }, isWizard ? wizardStep === 0 ? /* @__PURE__ */ React169.createElement(NetworkSelect_default, null) : wizardStep === 1 ? /* @__PURE__ */ React169.createElement("div", { className: "connect-wallet-step" }, /* @__PURE__ */ React169.createElement("p", null, "Connect your wallet"), /* @__PURE__ */ React169.createElement(WalletButton_default, { errorBelow: true })) : wizardStep === 2 ? /* @__PURE__ */ React169.createElement(NetworkSelect_default, { isOriginChain: false }) : wizardStep === 3 ? /* @__PURE__ */ React169.createElement(AddressInputWizard_default, null) : wizardStep === 4 ? /* @__PURE__ */ React169.createElement(CoinSelect_default, null) : /* @__PURE__ */ React169.createElement(ConfirmDetails_default, { isApproved }) : formStep === 0 ? /* @__PURE__ */ React169.createElement(SingleForm_default, null) : /* @__PURE__ */ React169.createElement(ConfirmDetails_default, { isApproved })),
-    /* @__PURE__ */ React169.createElement(
+    ), formStep === 1 && /* @__PURE__ */ React169.createElement(
+      "button",
+      {
+        className: "reset-button",
+        onClick: resetForm,
+        disabled: mode === "payment" /* payment */
+      },
+      "Reset"
+    ))), /* @__PURE__ */ React169.createElement("h4", { className: "subtitle" }, mode === "payment" /* payment */ && paymentTitleOption?.title)), /* @__PURE__ */ React169.createElement("div", { className: "kima-card-content", ref: mainRef }, isWizard ? wizardStep === 0 ? /* @__PURE__ */ React169.createElement(NetworkSelect_default, null) : wizardStep === 1 ? /* @__PURE__ */ React169.createElement("div", { className: "connect-wallet-step" }, /* @__PURE__ */ React169.createElement("p", null, "Connect your wallet"), /* @__PURE__ */ React169.createElement(WalletButton_default, { errorBelow: true })) : wizardStep === 2 ? /* @__PURE__ */ React169.createElement(NetworkSelect_default, { isOriginChain: false }) : wizardStep === 3 ? /* @__PURE__ */ React169.createElement(AddressInputWizard_default, null) : wizardStep === 4 ? /* @__PURE__ */ React169.createElement(CoinSelect_default, null) : /* @__PURE__ */ React169.createElement(ConfirmDetails_default, { isApproved }) : formStep === 0 ? /* @__PURE__ */ React169.createElement(SingleForm_default, null) : /* @__PURE__ */ React169.createElement(ConfirmDetails_default, { isApproved })), /* @__PURE__ */ React169.createElement(
       "div",
       {
         className: `kima-card-footer ${mode === "bridge" /* bridge */ && formStep === 0 && "bridge"}`
@@ -11061,15 +11065,12 @@ var TransferWidget = ({
           {
             clickHandler: onNext,
             isLoading: isApproving || isSubmitting || isSigning,
-            disabled: isApproving || isSubmitting || isSigning
+            disabled: isApproving || isSubmitting || isSigning || mode === "payment" /* payment */ && !transactionOption
           },
           getButtonLabel()
         )
       )
-    ),
-    /* @__PURE__ */ React169.createElement(SolanaWalletConnectModal_default, null),
-    /* @__PURE__ */ React169.createElement(TronWalletConnectModal_default, null),
-    /* @__PURE__ */ React169.createElement(
+    ), /* @__PURE__ */ React169.createElement(SolanaWalletConnectModal_default, null), /* @__PURE__ */ React169.createElement(TronWalletConnectModal_default, null), /* @__PURE__ */ React169.createElement(
       Toaster2,
       {
         position: "top-right",
@@ -11093,8 +11094,7 @@ var TransferWidget = ({
           }
         }
       }
-    ),
-    /* @__PURE__ */ React169.createElement("div", { className: "floating-footer" }, /* @__PURE__ */ React169.createElement("div", { className: `items ${theme.colorMode}` }, /* @__PURE__ */ React169.createElement("span", null, "Powered by"), /* @__PURE__ */ React169.createElement(FooterLogo_default, { width: 50, fill: "black" }), /* @__PURE__ */ React169.createElement("strong", null, "Network")))
+    ), /* @__PURE__ */ React169.createElement("div", { className: "floating-footer" }, /* @__PURE__ */ React169.createElement("div", { className: `items ${theme.colorMode}` }, /* @__PURE__ */ React169.createElement("span", null, "Powered by"), /* @__PURE__ */ React169.createElement(FooterLogo_default, { width: 50, fill: "black" }), /* @__PURE__ */ React169.createElement("strong", null, "Network"))))
   );
 };
 
@@ -11150,6 +11150,16 @@ var KimaTransactionWidget = ({
     dispatch(setDappOption(dAppOption));
     dispatch(setWalletAutoConnect(autoSwitchChain));
     dispatch(setNetworkOption(networkOption));
+    if (mode === "payment" /* payment */) {
+      dispatch(
+        setTargetChain(transactionOption?.targetChain || "ETH" /* ETHEREUM */)
+      );
+      dispatch(setTargetAddress(transactionOption?.targetAddress || ""));
+      dispatch(setAmount(transactionOption?.amount.toString() || ""));
+    } else if (mode === "status" /* status */) {
+      dispatch(setTxId(txId || 1));
+      dispatch(setSubmitted(true));
+    }
   }, [
     provider,
     theme,
@@ -11174,7 +11184,8 @@ var KimaTransactionWidget = ({
       theme,
       feeURL,
       helpURL,
-      titleOption
+      titleOption,
+      paymentTitleOption
     }
   );
 };
