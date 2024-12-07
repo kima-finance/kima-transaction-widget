@@ -1,7 +1,8 @@
-import { updatePluginData } from '@store/pluginSlice'
+// import { updatePluginData } from '@store/pluginSlice'
 import {
+  ChainCompatibility,
+  ChainData,
   Plugin,
-  PluginChain,
   PluginData,
   PluginInit,
   PluginProviderProps,
@@ -12,9 +13,11 @@ import {
 
 export abstract class PluginBase implements Plugin {
   protected _store: any
+  compatibility: ChainCompatibility
   data: PluginData
-  protected fetchChains: () => Promise<PluginChain[]>
+  id: string
 
+  abstract isCompatible: (chain: ChainData) => boolean
   abstract Provider: React.FC<PluginProviderProps>
 
   // hooks
@@ -26,7 +29,7 @@ export abstract class PluginBase implements Plugin {
   constructor(args: {
     store: any
     id: string
-    fetchChains: () => Promise<PluginChain[]>
+    compatibility: ChainCompatibility
     useAllowance: () => PluginUseAllowanceResult
     useBalance: () => PluginUseBalanceResult
     useTokenBalance(): PluginUseBalanceResult
@@ -35,11 +38,10 @@ export abstract class PluginBase implements Plugin {
     this._store = args.store
     this.data = {
       id: args.id,
-      pluginData: {
-        networks: []
-      }
+      pluginData: {}
     }
-    this.fetchChains = args.fetchChains
+    this.id = args.id
+    this.compatibility = args.compatibility
     this.useAllowance = args.useAllowance
     this.useBalance = args.useBalance
     this.useTokenBalance = args.useTokenBalance
@@ -47,31 +49,9 @@ export abstract class PluginBase implements Plugin {
   }
 
   initialize = (): PluginInit => {
-    // prefetch chain data but don't wait for it
-    this.getData()
-
     return {
       data: this.data,
       provider: this.Provider
-    }
-  }
-
-  protected getData = async (): Promise<void> => {
-    try {
-      const networks: PluginChain[] = await this.fetchChains()
-      console.info(`${this.data.id} networks fetched:`, networks)
-
-      // update store
-      this.data = {
-        ...this.data,
-        pluginData: {
-          ...this.data.pluginData,
-          networks
-        }
-      }
-      this._store.dispatch(updatePluginData(this.data))
-    } catch (error) {
-      console.error(`Failed to fetch ${this.data.id} networks:`, error)
     }
   }
 }

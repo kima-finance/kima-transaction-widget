@@ -45,6 +45,8 @@ import { TransferWidget } from './TransferWidget'
 import { Web3Provider } from '@ethersproject/providers'
 import { useAppKitTheme } from '@reown/appkit/react'
 import { ChainName } from '@utils/constants'
+import { useChainData } from '../hooks/useChainData'
+import { indexPluginsByChain } from '../pluginRegistry'
 
 interface Props {
   theme: ThemeOptions
@@ -98,6 +100,7 @@ const KimaTransactionWidget = ({
   const submitted = useSelector(selectSubmitted)
   const dispatch = useDispatch()
   const { setThemeMode, setThemeVariables } = useAppKitTheme()
+  const { data: chainData } = useChainData(kimaBackendUrl)
 
   useEffect(() => {
     dispatch(setTheme(theme))
@@ -155,6 +158,12 @@ const KimaTransactionWidget = ({
       dispatch(setSubmitted(true))
     }
   }, [dAppOption, mode])
+
+  useEffect(() => {
+    if (!chainData?.length) return
+    // once the supported chains are fetched map chains to plugins so they can be found
+    indexPluginsByChain(chainData)
+  }, [chainData])
 
   return submitted ? (
     <TransactionWidget theme={theme} />
