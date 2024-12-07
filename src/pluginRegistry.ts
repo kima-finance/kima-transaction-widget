@@ -31,12 +31,13 @@ export const indexPluginsByChain = (chains: ChainData[]): void => {
     const plugin = plugins.find((p) => p.isCompatible(chain))
     if (!plugin) {
       console.warn(
-        `indexPluginsByChain: No plugin found for chain ${chain.symbol}`
+        `indexPluginsByChain: No plugin found for chain ${chain.shortName}`
       )
       continue
     }
-    pluginsByChain[chain.symbol] = plugin
+    pluginsByChain[chain.shortName] = plugin
   }
+  console.log('pluginsByChain::', pluginsByChain)
 }
 
 export const getPlugin = (chain: string): Plugin | undefined => {

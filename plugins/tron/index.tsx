@@ -5,10 +5,9 @@ import WalletProvider from '@plugins/tron/features/walletConnect/WalletProvider'
 import { PluginBase } from '@plugins/PluginBase'
 import {
   ChainCompatibility,
-  PluginChain,
+  ChainData,
   PluginProviderProps
 } from '@plugins/pluginTypes'
-import getChainData from '@plugins/tron/utils/getChainData'
 import useBalanceTron from '@plugins/tron/core/hooks/useGetTrxBalance'
 import useIsWalletReadyTron from '@plugins/tron/core/hooks/useIsWalletReady'
 
@@ -18,8 +17,6 @@ export class TronPlugin extends PluginBase {
       store,
       id: 'tron',
       compatibility: ChainCompatibility.SELF,
-      // fetchChains: getChainData,
-      // provider: Provider,
       useAllowance: () => ({
         isApproved: false,
         poolAddress: '',
@@ -32,7 +29,7 @@ export class TronPlugin extends PluginBase {
     })
   }
 
-  isCompatible = (chain: PluginChain): boolean => {
+  isCompatible = (chain: ChainData): boolean => {
     return chain.name === 'TRX'
   }
 

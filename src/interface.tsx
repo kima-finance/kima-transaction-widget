@@ -35,6 +35,11 @@ export enum DAppOptions {
   LPDrain = 'LPDrain'
 }
 
+export interface Option {
+  id: string
+  label: string
+}
+
 export interface TransactionOption {
   targetChain: SupportNetworks
   targetAddress: string

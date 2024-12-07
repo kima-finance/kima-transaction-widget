@@ -2,13 +2,12 @@
 import React from 'react' // Explicitly import React
 import {
   ChainCompatibility,
-  PluginChain,
+  ChainData,
   PluginProviderProps
 } from '@plugins/pluginTypes'
 import { PluginBase } from '@plugins/PluginBase'
 import { store } from '@store/index'
 import WalletProvider from '@plugins/evm/features/walletConnect/WalletProvider'
-import getChainData from '@plugins/evm/utils/getChainData'
 import useBalanceEvm from '@plugins/evm/core/hooks/useBalance'
 import useIsWalletReadyEvm from '@plugins/evm/core/hooks/useIsWalletReady'
 
@@ -18,7 +17,6 @@ export class EvmPlugin extends PluginBase {
       store,
       id: 'evm',
       compatibility: ChainCompatibility.EVM,
-      // fetchChains: getChainData,
       // TODO: implement approve hook
       useAllowance: () => ({
         isApproved: false,
@@ -32,7 +30,7 @@ export class EvmPlugin extends PluginBase {
     })
   }
 
-  isCompatible = (chain: PluginChain): boolean => {
+  isCompatible = (chain: ChainData): boolean => {
     return chain.compatibility === 'EVM'
   }
 

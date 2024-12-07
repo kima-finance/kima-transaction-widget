@@ -297,7 +297,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .kima-card .kima-card-footer .button-group.confirm .primary-button-wrapper:last-of-type {
-    grid-column: span 2/span 2;
+    grid-column: span 2 / span 2;
   }
   .kima-card .kima-card-footer .button-group.confirm * {
     margin-left: auto;
@@ -1097,6 +1097,9 @@
   cursor: pointer;
   box-sizing: content-box;
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.kima-card .kima-card-content .single-form .coin-dropdown.single-coin {
+  cursor: default;
 }
 @media (max-width: 639px) {
   .kima-card .kima-card-content .single-form .coin-dropdown {

@@ -2,10 +2,10 @@
 import { useSelector } from 'react-redux'
 import { getPlugin } from '@pluginRegistry'
 import { selectSourceChain } from '@store/selectors'
-// import useGetChainData from './useGetChainData'
 // import { Plugin } from '../../plugins'
 // import { useChainData } from './useChainData'
 
+// TODO: fix as neither of these approaches work
 const useGetCurrentPlugin = () => {
   // const backendUrl = useSelector(selectBackendUrl)
   // const [currentPlugin, setCurrentPlugin] = useState<Plugin | undefined>(
@@ -13,11 +13,10 @@ const useGetCurrentPlugin = () => {
   // )
 
   const sourceChain = useSelector(selectSourceChain)
-  console.log('useGetCurrentPlugin::Source chain:', sourceChain)
+  // console.log('useGetCurrentPlugin::Source chain:', sourceChain)
 
   // const { data: chainData } = useChainData(backendUrl, sourceChain)
   // const [ chain ] = chainData ?? []
-  // const chainData = useGetChainData()?.chainData
   // console.log('useGetCurrentPlugin::Chain data:', chainData)
 
   const currentPlugin = getPlugin(sourceChain)

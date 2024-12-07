@@ -2,16 +2,19 @@ import React, { useState, useMemo, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { setTargetChain } from '@store/optionSlice'
 import {
-  selectBackendUrl,
+  selectNetworks,
   selectSourceChain,
   selectTargetChain,
   selectTheme
 } from '@store/selectors'
 import Arrow from '@assets/icons/Arrow'
-// import useGetChainData from '../../hooks/useGetChainData'
 import ChainIcon from '../reusable/ChainIcon'
-import { useChainData } from '../../hooks/useChainData'
 
+// TODO: refactor SourceNetworkSelector and TargetNetworkSelector into
+// a single component with a prop for a blacklist of networks.
+//
+// the blacklist will filter out the the source or target networks so
+// it's not possible to select the same network as the target
 const TargetNetworkSelectorComponent = () => {
   const [collapsed, setCollapsed] = useState(true)
   const ref = useRef<any>()
@@ -21,35 +24,14 @@ const TargetNetworkSelectorComponent = () => {
 
   const sourceNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
-
-  const backendUrl = useSelector(selectBackendUrl)
-  const { data: chainData } = useChainData(backendUrl)
+  const networkOptions = useSelector(selectNetworks)
 
   const networks = useMemo(() => {
-    if (!chainData) return []
-    const data =
-      chainData.map((network) => ({
-        id: network.symbol,
-        label: network.name
-        // icon: network.icon ? <network.icon /> : <div /> // Render the icon as JSX
-      })) || [] // Default to an empty array if chainData is undefined
-    console.info('Final data (target): ', data)
+    const data = networkOptions.filter(
+      (network) => network.id !== sourceNetwork
+    )
     return data
-  }, [chainData])
-
-  // Ensure target network updates dynamically on source network changes or first render
-  useEffect(() => {
-    if (sourceNetwork === targetNetwork || !targetNetwork) {
-      const validTarget =
-        networks.find((network) => network.id !== sourceNetwork) || null
-
-      if (validTarget) {
-        dispatch(setTargetChain(validTarget.id))
-      } else {
-        console.warn('No valid target networks available')
-      }
-    }
-  }, [sourceNetwork, targetNetwork, networks, dispatch])
+  }, [networkOptions])
 
   // Ensure there's always a fallback selected network
   const selectedNetwork = useMemo(() => {
@@ -58,7 +40,6 @@ const TargetNetworkSelectorComponent = () => {
       networks.find((network) => network.id !== sourceNetwork) || {
         id: '',
         label: 'Select Network'
-        // icon: null
       }
     )
   }, [sourceNetwork, targetNetwork, networks])
@@ -96,7 +77,6 @@ const TargetNetworkSelectorComponent = () => {
     >
       <div className='network-wrapper'>
         <ChainIcon symbol={selectedNetwork.id} />
-        {/* <div className='icon'>{selectedNetwork.icon}</div> */}
         <span>{selectedNetwork.label}</span>
       </div>
       <div
@@ -111,7 +91,6 @@ const TargetNetworkSelectorComponent = () => {
             onClick={() => handleNetworkChange(network.id)}
           >
             <ChainIcon symbol={network.id} />
-            {/* <div className='icon'>{network.icon}</div> */}
             <p>{network.label}</p>
           </div>
         ))}

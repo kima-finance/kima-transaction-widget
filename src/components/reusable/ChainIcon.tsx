@@ -36,6 +36,8 @@ export default function ChainIcon({
   width = 30,
   height = 30
 }: ChainIconProps) {
+  if (!symbol) return null
+
   const Icon = chainIcons[symbol]
   if (!Icon) {
     console.warn(`Chain icon not found for symbol: ${symbol}`)

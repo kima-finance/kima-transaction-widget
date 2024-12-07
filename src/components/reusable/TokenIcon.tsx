@@ -25,6 +25,8 @@ export default function TokenIcon({
   width = 30,
   height = 30
 }: TokenIconProps) {
+  if (!symbol) return null
+
   const Icon = COIN_LIST[symbol]
   if (!Icon) {
     console.warn(`Token icon not found for symbol: ${symbol}`)

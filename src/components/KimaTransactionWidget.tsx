@@ -160,7 +160,7 @@ const KimaTransactionWidget = ({
   }, [dAppOption, mode])
 
   useEffect(() => {
-    if (!chainData) return
+    if (!chainData?.length) return
     // once the supported chains are fetched map chains to plugins so they can be found
     indexPluginsByChain(chainData)
   }, [chainData])
