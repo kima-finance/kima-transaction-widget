@@ -35,7 +35,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const { connected: isTronConnected } = useTronWallet()
   const { isReady, statusMessage, walletAddress, connectBitcoinWallet } =
     useIsWalletReady()
-  const balance = useBalance()?.balance || 0
+  const balance = useBalance()
   const cBalance = useBalance();
   const { open } = useAppKit()
   const { width, updateWidth } = useWidth()
