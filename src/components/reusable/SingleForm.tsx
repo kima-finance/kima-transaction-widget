@@ -18,7 +18,7 @@ import {
 } from '../../store/selectors'
 import { BankInput, CustomCheckbox, WalletButton } from './'
 import { setAmount, setFeeDeduct } from '../../store/optionSlice'
-import { ModeOptions, NetworkOptions } from '../../interface'
+import { ModeOptions } from '../../interface'
 import AddressInput from './AddressInput'
 import { COIN_LIST, ChainName } from '../../utils/constants'
 import { formatterFloat } from '../../helpers/functions'
@@ -26,7 +26,7 @@ import useIsWalletReady from '../../hooks/useIsWalletReady'
 import SourceNetworkSelector from '@components/primary/SourceNetworkSelector'
 import SourceTokenSelector from '@components/primary/SourceTokenSelector'
 import TargetNetworkSelector from '@components/primary/TargetNetworkSelector'
-import TargetTokenSelector from '@components/primary/TargetTokenSelector'
+import TokenBadge from '@components/primary/TokenBadge'
 import { selectBackendUrl } from '@store/selectors'
 import useGetFees from '../../hooks/useGetFees'
 import { setServiceFee } from '@store/optionSlice'
@@ -48,9 +48,6 @@ const SingleForm = ({}) => {
   const amount = useSelector(selectAmount)
   const targetCurrency = useSelector(selectTargetCurrency)
   const backendUrl = useSelector(selectBackendUrl)
-
-  // test
-  const targetAddress = useSelector(selectTargetAddress)
 
   const {
     data: fees,
@@ -93,16 +90,7 @@ const SingleForm = ({}) => {
         <span className='label'>Source Network:</span>
         <div className='items'>
           <SourceNetworkSelector />
-          {networkOpion === NetworkOptions.mainnet ? (
-            <SourceTokenSelector />
-          ) : (
-            <div className={`amount-label-container items ${theme.colorMode}`}>
-              <div className={`coin-wrapper ${theme.colorMode}`}>
-                <div className='icon-wrapper'>{<TargetIcon />}</div>
-                {targetCurrency}
-              </div>
-            </div>
-          )}
+          <SourceTokenSelector />
         </div>
       </div>
 
@@ -123,25 +111,12 @@ const SingleForm = ({}) => {
             <span className='label'>Target Network:</span>
             <div className='items'>
               <TargetNetworkSelector />
-              {networkOpion === NetworkOptions.mainnet ? (
-                <TargetTokenSelector />
-              ) : (
-                <div
-                  className={`amount-label-container items ${theme.colorMode}`}
-                >
-                  <div className={`coin-wrapper ${theme.colorMode}`}>
-                    <div className='icon-wrapper'>{<TargetIcon />}</div>
-                    {targetCurrency}
-                  </div>
-                </div>
-              )}
+              <TokenBadge symbol={targetCurrency} />
             </div>
           </div>
         )}
       </div>
 
-      {/* TODO: fix. When the source and target chain have different address formats the form will be invalid 
-          as the source address must be converted to the target address format or allow inputting the target address manullay */}
       {mode === ModeOptions.bridge && sourceNetwork !== ChainName.FIAT ? (
         targetNetwork === ChainName.FIAT ? (
           <BankInput />

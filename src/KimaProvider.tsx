@@ -30,24 +30,28 @@ const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
       error
     } = useQuery({
       queryKey: ['networkOption'],
-      queryFn: async () => getNetworkOption(backendUrl)
+      queryFn: async () => getNetworkOption(backendUrl),
+      staleTime: 1000 * 60 * 60 * 24, // Cache for 24 hours
+      gcTime: 1000 * 60 * 60 * 24 * 7, // Cache for 7 days
+      enabled: !!backendUrl
     })
 
     console.log('network option: ', networkOption)
 
     // Create providers dynamically but flatten their structure
     const WrappedProviders = useMemo(() => {
-      return plugins.reduce<ReactNode>((acc, plugin) => {
-        const PluginProvider = getPluginProvider(plugin.id)
-        if (PluginProvider) {
+      return plugins.reduce<ReactNode>((acc, pluginData) => {
+        const plugin = getPluginProvider(pluginData.id)
+        if (plugin) {
+          const { Provider } = plugin
           return (
-            <PluginProvider
-              key={plugin.id}
+            <Provider
+              key={plugin.data.id}
               networkOption={networkOption || 'testnet'}
               walletConnectProjectId={walletConnectProjectId}
             >
               {acc}
-            </PluginProvider>
+            </Provider>
           )
         }
         return acc

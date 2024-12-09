@@ -4,6 +4,7 @@ import { ChainName } from '../../utils/constants'
 import {
   selectDappOption,
   selectMode,
+  selectNetworks,
   selectNodeProviderQuery,
   selectSourceChain,
   selectTargetChain,
@@ -17,11 +18,11 @@ import {
   setTargetChain,
   setTargetChainFetching
 } from '../../store/optionSlice'
-import useNetworkOptions from '../../hooks/useNetworkOptions'
 import { DAppOptions, ModeOptions } from '../../interface'
 import { fetchWrapper } from '../../helpers/fetch-wrapper'
 import toast from 'react-hot-toast'
 import Arrow from '../../assets/icons/Arrow'
+import ChainIcon from './ChainIcon'
 
 const NetworkDropdown = React.memo(
   ({ isSourceChain = true }: { isSourceChain?: boolean }) => {
@@ -38,7 +39,7 @@ const NetworkDropdown = React.memo(
     const originNetwork = useSelector(selectSourceChain)
     const targetNetwork = useSelector(selectTargetChain)
     const nodeProviderQuery = useSelector(selectNodeProviderQuery)
-    const { options: networkOptions } = useNetworkOptions()
+    const networkOptions = useSelector(selectNetworks)
     const selectedNetwork = useMemo(() => {
       const index = networkOptions.findIndex(
         (option) =>
@@ -168,7 +169,7 @@ const NetworkDropdown = React.memo(
         ref={ref}
       >
         <div className='network-wrapper'>
-          <div className='icon'>{<selectedNetwork.icon />}</div>
+          <ChainIcon symbol={selectedNetwork.id} />
           <span>{selectedNetwork.label}</span>
         </div>
         <div
@@ -187,11 +188,11 @@ const NetworkDropdown = React.memo(
                   sourceChangeRef.current = true
                 } else {
                   dispatch(setTargetChain(network.id))
-                  dispatch(setServiceFee(-1))
+                  dispatch(setServiceFee({ totalFeeUsd: -1 }))
                 }
               }}
             >
-              <div className='icon'>{<network.icon />}</div>
+              <ChainIcon symbol={network.id} />
               <p>{network.label}</p>
             </div>
           ))}
@@ -208,7 +209,7 @@ const NetworkDropdown = React.memo(
           ) : null} */}
         </div>
         <div className={`dropdown-icon ${collapsed ? 'toggled' : 'collapsed'}`}>
-          <Arrow fill='none'/>
+          <Arrow fill='none' />
         </div>
       </div>
     )

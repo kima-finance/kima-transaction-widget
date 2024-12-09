@@ -1,5 +1,10 @@
 export interface Plugin {
+  compatibility: ChainCompatibility
+  data: PluginData
+  id: string
   initialize: () => PluginInit
+  isCompatible: (chain: ChainData) => boolean
+  Provider: React.FC<PluginProviderProps>
 
   // hooks
   // TODO: refactor to return a UseQueryResult
@@ -39,23 +44,26 @@ export interface PluginProviderProps {
 
 export interface PluginData {
   id: string
-  pluginData: PluginStoreData
+  pluginData: { [key: string]: any } // currently empty
 }
 
-export interface PluginStoreData {
-  networks: PluginChain[]
-}
-
-export interface PluginChain {
-  pluginID: string
-  icon: React.FC | null
+export interface ChainData {
+  compatibility: ChainCompatibility
   name: string
-  symbol: string
-  tokens: PluginToken[]
+  shortName: string
+  supportedTokens: ChainToken[]
 }
 
-export interface PluginToken {
-  symbol: string
+export interface ChainToken {
   address: string
-  icon: React.FC | null
+  decimals: number
+  symbol: string
+}
+
+export enum ChainCompatibility {
+  BTC = 'BTC',
+  EVM = 'EVM',
+  FIAT = 'FIAT',
+  COSMOS = 'COSMOS',
+  SELF = 'SELF'
 }

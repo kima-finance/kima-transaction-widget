@@ -1,16 +1,30 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { setSourceCurrency } from '@store/optionSlice'
+import { setSourceCurrency, setTargetCurrency } from '@store/optionSlice'
 import {
   selectSourceChain,
   selectSourceCurrency,
   selectTheme
 } from '@store/selectors'
 import Arrow from '@assets/icons/Arrow'
-import useGetChainData from '../../hooks/useGetChainData'
+import TokenBadge from './TokenBadge'
+import TokenIcon from '../reusable/TokenIcon'
+import { useSingleChainData } from '../../hooks/useSingleChainData'
+import { Option } from '../../interface'
+import toast from 'react-hot-toast'
 
+/**
+ * Dropdown for selecting the Token
+ * Both the source and target currency should be the same
+ * Will not show the dropdown if there's only one token
+ *
+ * Refactor note: if the source and target tokens can be
+ * different, then make a resuable component with the state in
+ * the props instead of two separate components
+ */
 const SourceTokenSelectorComponent = () => {
   const [collapsed, setCollapsed] = useState(true)
+  const [tokens, setTokens] = useState<Option[]>([])
   const ref = useRef<any>()
 
   const dispatch = useDispatch()
@@ -20,40 +34,55 @@ const SourceTokenSelectorComponent = () => {
   const originNetwork = useSelector(selectSourceChain)
   const sourceCurrency = useSelector(selectSourceCurrency)
 
-  // Fetch dynamic chain data
-  const { chainData } = useGetChainData()
+  const chain = useSingleChainData(originNetwork)
 
-  // Find the tokens for the selected network
-  const tokens = useMemo(() => {
-    const network = chainData.find(
-      (network) => network.symbol === originNetwork
+  useEffect(() => {
+    if (!chain) return
+
+    const tokenOptions = chain.supportedTokens.map((token) => ({
+      id: token.symbol,
+      label: token.symbol
+    }))
+    setTokens(tokenOptions)
+
+    // check if the currently selected token is available
+    // and if not, set it to the first available token
+    const currentToken = tokenOptions.find(
+      (token) => token.id === sourceCurrency
     )
-    if (network && network.tokens) {
-      return network.tokens.map((token) => ({
-        id: token.symbol,
-        label: token.symbol,
-        icon: token.icon ? <token.icon /> : <div /> // Render the icon as JSX
-      }))
+    if (!currentToken) {
+      const firstToken = tokenOptions[0]
+      dispatch(setSourceCurrency(firstToken.id))
+      dispatch(setTargetCurrency(firstToken.id))
+
+      toast(`Token "${firstToken.label}" is not available on ${chain.name}`, {
+        icon: '💸'
+      })
     }
-    return []
-  }, [chainData, originNetwork])
+  }, [chain])
+
+  const multipleTokens = tokens.length > 1
 
   // Ensure there's always a fallback selected token
   const selectedToken = useMemo(() => {
     return (
       tokens.find((token) => token.id === sourceCurrency) ||
-      tokens[0] || { label: 'Select Token', icon: null } // Provide safe fallback
+      tokens[0] || { id: '', label: 'Select Token' } // Provide safe fallback
     )
   }, [tokens, sourceCurrency])
 
   const handleTokenChange = (tokenId: string) => {
     if (tokenId === sourceCurrency) return
+    // the source and target currency should be the same
     dispatch(setSourceCurrency(tokenId))
+    dispatch(setTargetCurrency(tokenId))
     setCollapsed(false)
   }
 
   useEffect(() => {
     const bodyMouseDownHandler = (e: any) => {
+      // no need to toggle the dropdown if there's only one token
+      if (!multipleTokens) return
       if (ref?.current && !ref.current.contains(e.target)) {
         setCollapsed(true)
       }
@@ -65,33 +94,41 @@ const SourceTokenSelectorComponent = () => {
     }
   }, [])
 
+  if (tokens.length <= 1) {
+    // don't show the dropdown if there's only one token
+    return <TokenBadge symbol={sourceCurrency} />
+  }
+
   return (
     <div
       className={`coin-dropdown ${theme?.colorMode ?? ''} ${
         collapsed ? 'collapsed' : 'toggled'
       }`}
-      onClick={() => setCollapsed((prev) => !prev)}
+      onClick={() => multipleTokens && setCollapsed((prev) => !prev)}
       ref={ref}
     >
       <div className='coin-wrapper'>
-        <div className='icon'>{selectedToken.icon}</div>
+        <TokenIcon symbol={selectedToken.id} />
         <span>{selectedToken.label}</span>
       </div>
+
       <div
         className={`coin-menu custom-scrollbar ${theme?.colorMode ?? ''} ${
           collapsed ? 'collapsed' : 'toggled'
         }`}
       >
-        {tokens.map((token) => (
-          <div
-            key={token.id}
-            className={`coin-item ${theme?.colorMode ?? ''}`}
-            onClick={() => handleTokenChange(token.id)}
-          >
-            <div className='icon'>{token.icon}</div>
-            <p>{token.label}</p>
-          </div>
-        ))}
+        {tokens
+          .filter((token) => !sourceCurrency || token.id !== sourceCurrency)
+          .map((token) => (
+            <div
+              key={token.id}
+              className={`coin-item ${theme?.colorMode ?? ''}`}
+              onClick={() => handleTokenChange(token.id)}
+            >
+              <TokenIcon symbol={token.id} />
+              <p>{token.label}</p>
+            </div>
+          ))}
       </div>
       <div className={`dropdown-icon ${collapsed ? 'toggled' : 'collapsed'}`}>
         <Arrow fill='none' />
