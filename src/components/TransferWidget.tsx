@@ -116,7 +116,7 @@ export const TransferWidget = ({
     setApproving,
     setCancellingApprove
   })
-  const { balance } = useBalance()
+  const balance = useBalance()?.balance ?? 0
   const { width: windowWidth } = useWidth()
 
   /* Compliance check */

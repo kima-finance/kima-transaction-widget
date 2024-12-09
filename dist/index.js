@@ -4506,25 +4506,39 @@ var store_default = store;
 
 // src/pluginRegistry.ts
 var pluginRegistry = {};
+var pluginProviderRegistry = {};
 var initializePlugins = (plugins) => {
   for (const plugin of plugins) {
     const { data, provider } = plugin.initialize();
-    console.log("initialized plugin::", data.id);
+    registerPlugin2(data.id, plugin);
     registerPluginProvider(data.id, provider);
     store_default.dispatch(registerPlugin(data));
+    console.log("initialized plugin::", data.id);
   }
+};
+var registerPlugin2 = (id, plugin) => {
+  if (pluginRegistry[id]) {
+    console.warn(`Plugin with id "${id}" is already registered.`);
+  }
+  pluginRegistry[id] = plugin;
 };
 var registerPluginProvider = (id, provider) => {
-  if (pluginRegistry[id]) {
+  if (pluginProviderRegistry[id]) {
     console.warn(`Plugin provider with id "${id}" is already registered.`);
   }
-  pluginRegistry[id] = provider;
+  pluginProviderRegistry[id] = provider;
 };
-var getPluginProvider = (id) => {
+var getPlugin = (id) => {
   return pluginRegistry[id];
 };
-var getAllPluginProviders = () => {
+var getPluginProvider = (id) => {
+  return pluginProviderRegistry[id];
+};
+var getAllPlugins = () => {
   return pluginRegistry;
+};
+var getAllPluginProviders = () => {
+  return pluginProviderRegistry;
 };
 
 // src/KimaProvider.tsx
@@ -5727,7 +5741,7 @@ var EvmPlugin = class extends PluginBase {
   constructor(store2) {
     super({
       store: store2,
-      id: "evm",
+      id: "EVM",
       fetchChains: getChainData,
       // TODO: implement approve hook
       useAllowance: () => ({
@@ -6504,7 +6518,7 @@ var SolanaPlugin = class extends PluginBase {
   constructor(store2) {
     super({
       store: store2,
-      id: "solana",
+      id: "SOL",
       fetchChains: getChainData2,
       // TODO: implement approve hook
       useAllowance: () => ({
@@ -7195,7 +7209,7 @@ async function getChainData3(backendURL = "http://localhost:3001") {
       icon: getTokenIcon3(token.symbol)
       // Add token icon
     }));
-    const pluginID = "EVM";
+    const pluginID = "TRX";
     const availableChainsURL = `${backendURL}/chains/get_available_chains/${symbol}`;
     const { Chains: chains2 } = await _fetch(availableChainsURL);
     const filteredChains = [...chains2].filter((chain2) => chain2 !== "BTC").sort();
@@ -7304,7 +7318,7 @@ var TronPlugin = class extends PluginBase {
   constructor(store2) {
     super({
       store: store2,
-      id: "tron",
+      id: "TRX",
       fetchChains: getChainData3,
       // provider: Provider,
       useAllowance: () => ({
@@ -7444,7 +7458,7 @@ import React170, { useEffect as useEffect28 } from "react";
 import { useDispatch as useDispatch29, useSelector as useSelector42 } from "react-redux";
 
 // src/components/TransactionWidget.tsx
-import React155, { useEffect as useEffect17, useState as useState10 } from "react";
+import React155, { useEffect as useEffect18, useState as useState11 } from "react";
 
 // src/components/reusable/Progressbar.tsx
 import React136 from "react";
@@ -7778,9 +7792,9 @@ import { useDispatch as useDispatch6 } from "react-redux";
 import { useSelector as useSelector12 } from "react-redux";
 
 // src/components/reusable/WalletButton.tsx
-import React146, { useEffect as useEffect11, useMemo as useMemo12 } from "react";
+import React146, { useEffect as useEffect12, useMemo as useMemo12 } from "react";
 import { toast as toast6 } from "react-hot-toast";
-import { useDispatch as useDispatch8, useSelector as useSelector15 } from "react-redux";
+import { useDispatch as useDispatch8, useSelector as useSelector16 } from "react-redux";
 
 // src/hooks/useIsWalletReady.tsx
 import {
@@ -7981,524 +7995,119 @@ function useIsWalletReady4() {
 }
 var useIsWalletReady_default4 = useIsWalletReady4;
 
-// src/hooks/useBalance.tsx
-import { useEffect as useEffect8, useMemo as useMemo11, useState as useState4 } from "react";
+// src/hooks/useGetCurrentPlugin.tsx
+import { useEffect as useEffect9, useState as useState5, useMemo as useMemo11 } from "react";
+import { useSelector as useSelector15 } from "react-redux";
+
+// src/hooks/useGetChainData.tsx
+import { useEffect as useEffect8, useState as useState4, useCallback as useCallback3 } from "react";
 import { useSelector as useSelector14 } from "react-redux";
-import { Contract as Contract2 } from "@ethersproject/contracts";
-import { formatUnits as formatUnits2 } from "@ethersproject/units";
-import {
-  useConnection as useConnection2,
-  useWallet as useSolanaWallet3
-} from "@solana/wallet-adapter-react";
-
-// src/utils/ethereum/erc20ABI.json
-var erc20ABI_default2 = {
-  abi: [
-    {
-      constant: true,
-      inputs: [],
-      name: "name",
-      outputs: [
-        {
-          name: "",
-          type: "string"
+var useGetChainData = () => {
+  const [chainData, setChainData] = useState4([]);
+  const plugins = useSelector14(selectAllPlugins);
+  const fetchChainData = useCallback3(async () => {
+    try {
+      const allProviders = getAllPluginProviders();
+      const collatedData = [];
+      for (const pluginId of Object.keys(allProviders)) {
+        const plugin = plugins.find((p) => p.id === pluginId);
+        if (plugin?.pluginData?.networks) {
+          collatedData.push(...plugin.pluginData.networks);
         }
-      ],
-      payable: false,
-      stateMutability: "view",
-      type: "function"
-    },
-    {
-      constant: false,
-      inputs: [
-        {
-          name: "_spender",
-          type: "address"
-        },
-        {
-          name: "_value",
-          type: "uint256"
-        }
-      ],
-      name: "approve",
-      outputs: [
-        {
-          name: "",
-          type: "bool"
-        }
-      ],
-      payable: false,
-      stateMutability: "nonpayable",
-      type: "function"
-    },
-    {
-      constant: true,
-      inputs: [],
-      name: "totalSupply",
-      outputs: [
-        {
-          name: "",
-          type: "uint256"
-        }
-      ],
-      payable: false,
-      stateMutability: "view",
-      type: "function"
-    },
-    {
-      constant: false,
-      inputs: [
-        {
-          name: "_from",
-          type: "address"
-        },
-        {
-          name: "_to",
-          type: "address"
-        },
-        {
-          name: "_value",
-          type: "uint256"
-        }
-      ],
-      name: "transferFrom",
-      outputs: [
-        {
-          name: "",
-          type: "bool"
-        }
-      ],
-      payable: false,
-      stateMutability: "nonpayable",
-      type: "function"
-    },
-    {
-      constant: true,
-      inputs: [],
-      name: "decimals",
-      outputs: [
-        {
-          name: "",
-          type: "uint8"
-        }
-      ],
-      payable: false,
-      stateMutability: "view",
-      type: "function"
-    },
-    {
-      constant: true,
-      inputs: [
-        {
-          name: "_owner",
-          type: "address"
-        }
-      ],
-      name: "balanceOf",
-      outputs: [
-        {
-          name: "balance",
-          type: "uint256"
-        }
-      ],
-      payable: false,
-      stateMutability: "view",
-      type: "function"
-    },
-    {
-      constant: true,
-      inputs: [],
-      name: "symbol",
-      outputs: [
-        {
-          name: "",
-          type: "string"
-        }
-      ],
-      payable: false,
-      stateMutability: "view",
-      type: "function"
-    },
-    {
-      constant: false,
-      inputs: [
-        {
-          name: "_to",
-          type: "address"
-        },
-        {
-          name: "_value",
-          type: "uint256"
-        }
-      ],
-      name: "transfer",
-      outputs: [
-        {
-          name: "",
-          type: "bool"
-        }
-      ],
-      payable: false,
-      stateMutability: "nonpayable",
-      type: "function"
-    },
-    {
-      constant: true,
-      inputs: [
-        {
-          name: "_owner",
-          type: "address"
-        },
-        {
-          name: "_spender",
-          type: "address"
-        }
-      ],
-      name: "allowance",
-      outputs: [
-        {
-          name: "",
-          type: "uint256"
-        }
-      ],
-      payable: false,
-      stateMutability: "view",
-      type: "function"
-    },
-    {
-      payable: true,
-      stateMutability: "payable",
-      type: "fallback"
-    },
-    {
-      anonymous: false,
-      inputs: [
-        {
-          indexed: true,
-          name: "owner",
-          type: "address"
-        },
-        {
-          indexed: true,
-          name: "spender",
-          type: "address"
-        },
-        {
-          indexed: false,
-          name: "value",
-          type: "uint256"
-        }
-      ],
-      name: "Approval",
-      type: "event"
-    },
-    {
-      anonymous: false,
-      inputs: [
-        {
-          indexed: true,
-          name: "from",
-          type: "address"
-        },
-        {
-          indexed: true,
-          name: "to",
-          type: "address"
-        },
-        {
-          indexed: false,
-          name: "value",
-          type: "uint256"
-        }
-      ],
-      name: "Transfer",
-      type: "event"
+      }
+      setChainData(collatedData);
+      console.info("Collated chain data:", collatedData);
+    } catch (error) {
+      console.error("Error fetching chain data:", error);
     }
-  ]
+  }, [plugins]);
+  useEffect8(() => {
+    fetchChainData();
+  }, [fetchChainData]);
+  return { chainData };
 };
+var useGetChainData_default = useGetChainData;
 
-// src/utils/solana/getOrCreateAssociatedTokenAccount.ts
-import {
-  TOKEN_PROGRAM_ID as TOKEN_PROGRAM_ID4,
-  ASSOCIATED_TOKEN_PROGRAM_ID as ASSOCIATED_TOKEN_PROGRAM_ID3
-} from "@solana/spl-token";
-import { Transaction } from "@solana/web3.js";
-
-// src/utils/solana/createAssociatedTokenAccountInstruction.ts
-import { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { TransactionInstruction, SystemProgram, SYSVAR_RENT_PUBKEY } from "@solana/web3.js";
-function createAssociatedTokenAccountInstruction(payer, associatedToken, owner, mint, programId = TOKEN_PROGRAM_ID, associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID) {
-  const keys = [
-    { pubkey: payer, isSigner: true, isWritable: true },
-    { pubkey: associatedToken, isSigner: false, isWritable: true },
-    { pubkey: owner, isSigner: false, isWritable: false },
-    { pubkey: mint, isSigner: false, isWritable: false },
-    { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
-    { pubkey: programId, isSigner: false, isWritable: false },
-    { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false }
-  ];
-  return new TransactionInstruction({
-    keys,
-    programId: associatedTokenProgramId,
-    data: Buffer.alloc(0)
-  });
-}
-
-// src/utils/solana/getAccountInfo.ts
-import { TOKEN_PROGRAM_ID as TOKEN_PROGRAM_ID2, AccountLayout } from "@solana/spl-token";
-async function getAccountInfo(connection, address, commitment, programId = TOKEN_PROGRAM_ID2) {
-  const info = await connection.getAccountInfo(address, commitment);
-  if (!info) throw new Error("TokenAccountNotFoundError");
-  if (!info.owner.equals(programId)) throw new Error("TokenInvalidAccountOwnerError");
-  if (info.data.length != AccountLayout.span) throw new Error("TokenInvalidAccountSizeError");
-  const rawAccount = AccountLayout.decode(Buffer.from(info.data));
-  return {
-    address,
-    mint: rawAccount.mint,
-    owner: rawAccount.owner,
-    amount: rawAccount.amount,
-    delegate: rawAccount.delegateOption ? rawAccount.delegate : null,
-    delegatedAmount: rawAccount.delegatedAmount,
-    isInitialized: rawAccount.state !== 0 /* Uninitialized */,
-    isFrozen: rawAccount.state === 2 /* Frozen */,
-    isNative: !!rawAccount.isNativeOption,
-    rentExemptReserve: rawAccount.isNativeOption ? rawAccount.isNative : null,
-    closeAuthority: rawAccount.closeAuthorityOption ? rawAccount.closeAuthority : null
-  };
-}
-
-// src/utils/solana/getAssociatedTokenAddress.ts
-import { TOKEN_PROGRAM_ID as TOKEN_PROGRAM_ID3, ASSOCIATED_TOKEN_PROGRAM_ID as ASSOCIATED_TOKEN_PROGRAM_ID2 } from "@solana/spl-token";
-import { PublicKey as PublicKey3 } from "@solana/web3.js";
-async function getAssociatedTokenAddress(mint, owner, allowOwnerOffCurve = false, programId = TOKEN_PROGRAM_ID3, associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID2) {
-  if (!allowOwnerOffCurve && !PublicKey3.isOnCurve(owner.toBuffer())) throw new Error("TokenOwnerOffCurveError");
-  const [address] = await PublicKey3.findProgramAddress(
-    [owner.toBuffer(), programId.toBuffer(), mint.toBuffer()],
-    associatedTokenProgramId
-  );
-  return address;
-}
-
-// src/utils/solana/getOrCreateAssociatedTokenAccount.ts
-async function getOrCreateAssociatedTokenAccount(connection, payer, mint, owner, signTransaction, allowOwnerOffCurve = false, commitment, programId = TOKEN_PROGRAM_ID4, associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID3) {
-  const associatedToken = await getAssociatedTokenAddress(
-    mint,
-    owner,
-    allowOwnerOffCurve,
-    programId,
-    associatedTokenProgramId
-  );
-  let account;
-  try {
-    account = await getAccountInfo(
-      connection,
-      associatedToken,
-      commitment,
-      programId
+// src/hooks/useGetCurrentPlugin.tsx
+var useGetCurrentPlugin = () => {
+  const [currentPlugin, setCurrentPlugin] = useState5(evm_default);
+  const chainData = useGetChainData_default()?.chainData;
+  console.log("Chain data:", chainData);
+  const sourceChainID = useSelector15(selectSourceChain);
+  console.log("Source chain ID:", sourceChainID);
+  const plugin = useMemo11(() => {
+    console.log("Computing plugin...");
+    if (!chainData) {
+      console.log("No chain data available.");
+      return evm_default;
+    }
+    if (!sourceChainID) {
+      console.log("No source chain ID available.");
+      return evm_default;
+    }
+    const currentChain = chainData.find(
+      (chain) => chain.symbol === sourceChainID
     );
-  } catch (error) {
-    const err = error;
-    if (err.message === "TokenAccountNotFoundError" || err.message === "TokenInvalidAccountOwnerError") {
-      try {
-        const transaction = new Transaction().add(
-          createAssociatedTokenAccountInstruction(
-            payer,
-            associatedToken,
-            owner,
-            mint,
-            programId,
-            associatedTokenProgramId
-          )
-        );
-        const blockHash = await connection.getRecentBlockhash();
-        transaction.feePayer = await payer;
-        transaction.recentBlockhash = await blockHash.blockhash;
-        const signed = await signTransaction(transaction);
-        const signature = await connection.sendRawTransaction(
-          signed.serialize()
-        );
-        await connection.confirmTransaction(signature);
-      } catch (error2) {
-      }
-      account = await getAccountInfo(
-        connection,
-        associatedToken,
-        commitment,
-        programId
-      );
+    if (!currentChain) {
+      console.log("No current chain found for source chain ID:", sourceChainID);
+      return evm_default;
+    }
+    console.info("currentChain: ", currentChain);
+    const pluginID = currentChain.pluginID;
+    if (!pluginID) {
+      console.log("No plugin ID found for current chain:", currentChain);
+      return evm_default;
+    }
+    console.info("current pluginID: ", pluginID);
+    const matchedPlugin = getPlugin(pluginID);
+    if (!matchedPlugin) {
+      console.log("No plugin found for plugin ID:", pluginID);
+      return evm_default;
     } else {
-      throw error;
+      console.log("Matched plugin:", matchedPlugin);
+      return matchedPlugin;
     }
-  }
-  if (!account.mint.equals(mint)) throw Error("TokenInvalidMintError");
-  if (!account.owner.equals(owner)) throw new Error("TokenInvalidOwnerError");
-  return account;
-}
+  }, [chainData, sourceChainID]);
+  useEffect9(() => {
+    console.log("Plugin updated:", plugin);
+    setCurrentPlugin(plugin || evm_default);
+  }, [plugin]);
+  console.log("Current plugin state:", currentPlugin);
+  return { currentPlugin };
+};
+var useGetCurrentPlugin_default = useGetCurrentPlugin;
 
 // src/hooks/useBalance.tsx
-import { PublicKey as PublicKey5 } from "@solana/web3.js";
-import { useWallet as useTronWallet3 } from "@tronweb3/tronwallet-adapter-react-hooks";
-
-// src/tronweb.tsx
-import { TronWeb as TronWeb2 } from "tronweb";
-var tronWebTestnet2 = new TronWeb2({
-  fullHost: "https://api.nileex.io"
-});
-var tronWebMainnet2 = new TronWeb2({
-  fullHost: "https://api.trongrid.io"
-});
-tronWebTestnet2.setAddress(TRON_USDK_OWNER_ADDRESS);
-tronWebMainnet2.setAddress(TRON_USDK_OWNER_ADDRESS);
-
-// src/hooks/useBalance.tsx
-import { ethers as ethers2 } from "ethers";
-
-// src/helpers/functions.tsx
-var formatterInt2 = new Intl.NumberFormat("en-US", {
-  maximumFractionDigits: 0
-});
-var formatterFloat2 = new Intl.NumberFormat("en-US", {
-  maximumFractionDigits: 9
-});
-function isEmptyObject2(arg) {
-  return typeof arg === "object" && Object.keys(arg).length === 0;
-}
-var sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay));
-
-// src/hooks/useBalance.tsx
-import { useAppKitAccount as useAppKitAccount4, useAppKitNetwork as useAppKitNetwork3, useAppKitProvider as useAppKitProvider4 } from "@reown/appkit/react";
+var allPlugins = getAllPlugins();
 function useBalance2() {
-  const [balance, setBalance] = useState4(0);
-  const appkitAccountInfo = useAppKitAccount4();
-  const { chainId: evmChainId } = useAppKitNetwork3();
-  const { address: signerAddress } = appkitAccountInfo || {
-    address: null,
-    chainId: null,
-    isConnected: null
-  };
-  const { walletProvider } = useAppKitProvider4("eip155");
-  const selectedNetwork = useSelector14(selectSourceChain);
-  const errorHandler = useSelector14(selectErrorHandler);
-  const networkOption = useSelector14(selectNetworkOption);
-  const sourceChain = useMemo11(() => {
-    if (selectedNetwork === "SOL" /* SOLANA */ || selectedNetwork === "TRX" /* TRON */ || selectedNetwork === "BTC" /* BTC */)
-      return selectedNetwork;
-    const CHAIN_NAMES_TO_IDS = networkOption === "mainnet" /* mainnet */ ? CHAIN_NAMES_TO_IDS_MAINNET : CHAIN_NAMES_TO_IDS_TESTNET;
-    const CHAIN_IDS_TO_NAMES = networkOption === "mainnet" /* mainnet */ ? CHAIN_IDS_TO_NAMES_MAINNET : CHAIN_IDS_TO_NAMES_TESTNET;
-    if (CHAIN_NAMES_TO_IDS[selectedNetwork] !== evmChainId) {
-      return CHAIN_IDS_TO_NAMES[evmChainId];
-    }
-    return selectedNetwork;
-  }, [selectedNetwork, evmChainId, networkOption]);
-  const { publicKey: solanaAddress, signTransaction } = useSolanaWallet3();
-  const { address: tronAddress } = useTronWallet3();
-  const btcAddress = useSelector14(selectBitcoinAddress);
-  const { connection } = useConnection2();
-  const kimaBackendUrl = useSelector14(selectBackendUrl);
-  const sourceCurrency = useSelector14(selectSourceCurrency);
-  const tokenOptions = useSelector14(selectTokenOptions);
-  const tokenAddress = useMemo11(() => {
-    if (isEmptyObject2(tokenOptions) || sourceChain === "FIAT" /* FIAT */) return "";
-    if (tokenOptions && typeof tokenOptions === "object") {
-      const coinOptions = tokenOptions[sourceCurrency];
-      if (coinOptions && typeof coinOptions === "object") {
-        return tokenOptions[sourceCurrency][sourceChain];
-      }
-    }
-    return "";
-  }, [sourceCurrency, sourceChain, tokenOptions]);
-  useEffect8(() => {
-    setBalance(0);
-  }, [sourceChain]);
-  useEffect8(() => {
-    ;
-    (async () => {
-      if (!tokenAddress) return;
-      const tronWeb = networkOption === "mainnet" /* mainnet */ ? tronWebMainnet2 : tronWebTestnet2;
-      try {
-        if (!isEVMChain(sourceChain)) {
-          if (sourceChain === "SOL" /* SOLANA */ && solanaAddress && connection) {
-            const mint = new PublicKey5(tokenAddress);
-            const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
-              connection,
-              solanaAddress,
-              mint,
-              solanaAddress,
-              signTransaction
-              /* as SignerWalletAdapterProps['signTransaction']*/
-            );
-            const accountInfo = await connection.getParsedAccountInfo(
-              fromTokenAccount.address
-            );
-            const parsedAccountInfo = accountInfo?.value?.data;
-            setBalance(
-              +formatUnits2(
-                parsedAccountInfo.parsed?.info?.tokenAmount?.amount,
-                parsedAccountInfo.parsed?.info?.tokenAmount?.decimals
-              )
-            );
-            return;
-          }
-          if (sourceChain === "TRX" /* TRON */ && tronAddress) {
-            let trc20Contract = await tronWeb.contract(
-              erc20ABI_default2.abi,
-              tokenAddress
-            );
-            const decimals = await trc20Contract.decimals().call();
-            const userBalance = await trc20Contract.balanceOf(tronAddress).call();
-            setBalance(+formatUnits2(userBalance.balance, decimals));
-            return;
-          }
-          if (sourceChain === "BTC" /* BTC */ && btcAddress) {
-            const btcInfo = await fetchWrapper.get(
-              `${kimaBackendUrl}/btc/balance?address=${btcAddress}`
-            );
-            const balance2 = parseFloat(btcInfo.balance) / Math.pow(10, 8);
-            setBalance(balance2);
-            return;
-          }
-        }
-        if (walletProvider) {
-          const provider = new ethers2.providers.Web3Provider(
-            walletProvider
-          );
-          const signer = provider?.getSigner();
-          if (!tokenAddress || !signer || !signerAddress) return;
-          const erc20Contract = new Contract2(tokenAddress, erc20ABI_default2.abi, signer);
-          const decimals = await erc20Contract.decimals();
-          const userBalance = await erc20Contract.balanceOf(signerAddress);
-          setBalance(+formatUnits2(userBalance, decimals));
-        }
-      } catch (error) {
-        errorHandler(error);
-      }
-    })();
-  }, [
-    signerAddress,
-    tokenAddress,
-    sourceChain,
-    solanaAddress,
-    tronAddress,
-    btcAddress,
-    walletProvider,
-    networkOption
-  ]);
-  return useMemo11(
-    () => ({
-      balance
-    }),
-    [balance]
-  );
+  const { currentPlugin } = useGetCurrentPlugin_default();
+  const currentPluginID = currentPlugin?.data?.id;
+  const pluginEntries = Object.entries(allPlugins);
+  const allBalances = pluginEntries.map(([pluginID, plugin]) => {
+    const balanceData = plugin.useBalance();
+    return { pluginID, ...balanceData };
+  });
+  console.info("cBalances: ", allBalances);
+  console.info("cBalance ID:", currentPluginID);
+  if (currentPluginID) {
+    const mainBalance = allBalances.filter(
+      ({ pluginID }) => pluginID === currentPluginID
+    );
+    const balance = mainBalance[0]?.balance ?? -3;
+    console.info("cBalanceUpdated:", balance);
+    return balance;
+  }
+  return -200;
 }
 
 // src/hooks/useWidth.tsx
-import { useEffect as useEffect9, useState as useState5 } from "react";
+import { useEffect as useEffect10, useState as useState6 } from "react";
 var useWidth = () => {
-  const [width, setWidth] = useState5(0);
+  const [width, setWidth] = useState6(0);
   const updateWidth = (width2) => {
     setWidth(width2);
   };
-  useEffect9(() => {
+  useEffect10(() => {
     const handleResize = () => {
       setWidth(window.innerWidth);
     };
@@ -8554,15 +8163,15 @@ var checkPoolBalance = ({
 };
 
 // src/components/reusable/WalletButton.tsx
-import { useWallet as useSolanaWallet4 } from "@solana/wallet-adapter-react";
-import { useWallet as useTronWallet4 } from "@tronweb3/tronwallet-adapter-react-hooks";
+import { useWallet as useSolanaWallet3 } from "@solana/wallet-adapter-react";
+import { useWallet as useTronWallet3 } from "@tronweb3/tronwallet-adapter-react-hooks";
 import { useAppKit } from "@reown/appkit/react";
 
 // src/components/reusable/CopyButton.tsx
-import React145, { useEffect as useEffect10, useState as useState6 } from "react";
+import React145, { useEffect as useEffect11, useState as useState7 } from "react";
 var CopyButton = ({ text }) => {
-  const [copyClicked, setCopyClicked] = useState6(false);
-  useEffect10(() => {
+  const [copyClicked, setCopyClicked] = useState7(false);
+  useEffect11(() => {
     if (!copyClicked) return;
     setTimeout(() => {
       setCopyClicked(false);
@@ -8585,18 +8194,22 @@ var CopyButton_default = CopyButton;
 // src/components/reusable/WalletButton.tsx
 var WalletButton = ({ errorBelow = false }) => {
   const dispatch = useDispatch8();
-  const theme = useSelector15(selectTheme);
-  const selectedCoin = useSelector15(selectSourceCurrency);
-  const sourceCompliant = useSelector15(selectSourceCompliant);
-  const compliantOption = useSelector15(selectCompliantOption);
-  const selectedNetwork = useSelector15(selectSourceChain);
-  const { connected: isSolanaConnected } = useSolanaWallet4();
-  const { connected: isTronConnected } = useTronWallet4();
+  const theme = useSelector16(selectTheme);
+  const selectedCoin = useSelector16(selectSourceCurrency);
+  const sourceCompliant = useSelector16(selectSourceCompliant);
+  const compliantOption = useSelector16(selectCompliantOption);
+  const selectedNetwork = useSelector16(selectSourceChain);
+  const { connected: isSolanaConnected } = useSolanaWallet3();
+  const { connected: isTronConnected } = useTronWallet3();
   const { isReady, statusMessage, walletAddress, connectBitcoinWallet } = useIsWalletReady_default4();
-  const { balance } = useBalance2();
+  const balance = useBalance2()?.balance || 0;
+  const cBalance = useBalance2();
   const { open } = useAppKit();
   const { width, updateWidth } = useWidth_default();
-  useEffect11(() => {
+  useEffect12(() => {
+    console.info("cBalance:", cBalance, " | walletAddress: ", walletAddress, " | True Balance:", balance);
+  }, [balance, walletAddress]);
+  useEffect12(() => {
     if (width === 0) {
       updateWidth(window.innerWidth);
     }
@@ -8633,7 +8246,7 @@ var WalletButton = ({ errorBelow = false }) => {
       return `Source address has ${sourceCompliant?.results?.[0].result?.risk_score} risk`;
     return "";
   }, [isReady, statusMessage, sourceCompliant, compliantOption]);
-  useEffect11(() => {
+  useEffect12(() => {
     if (!errorMessage) return;
     toast6.error(errorMessage);
   }, [errorMessage]);
@@ -8659,33 +8272,33 @@ var WalletButton = ({ errorBelow = false }) => {
 var WalletButton_default = WalletButton;
 
 // src/components/reusable/CoinDropdown.tsx
-import React147, { useEffect as useEffect13, useMemo as useMemo14, useRef as useRef2, useState as useState8 } from "react";
-import { useSelector as useSelector17 } from "react-redux";
+import React147, { useEffect as useEffect14, useMemo as useMemo14, useRef as useRef2, useState as useState9 } from "react";
+import { useSelector as useSelector18 } from "react-redux";
 import { useDispatch as useDispatch10 } from "react-redux";
 
 // src/hooks/useCurrencyOptions.tsx
-import { useEffect as useEffect12, useMemo as useMemo13, useState as useState7 } from "react";
-import { useSelector as useSelector16 } from "react-redux";
+import { useEffect as useEffect13, useMemo as useMemo13, useState as useState8 } from "react";
+import { useSelector as useSelector17 } from "react-redux";
 import { useDispatch as useDispatch9 } from "react-redux";
 import toast7 from "react-hot-toast";
 
 // src/components/reusable/NetworkDropdown.tsx
-import React148, { useEffect as useEffect14, useMemo as useMemo15, useRef as useRef3, useState as useState9 } from "react";
-import { useSelector as useSelector18, useDispatch as useDispatch11 } from "react-redux";
+import React148, { useEffect as useEffect15, useMemo as useMemo15, useRef as useRef3, useState as useState10 } from "react";
+import { useSelector as useSelector19, useDispatch as useDispatch11 } from "react-redux";
 import toast8 from "react-hot-toast";
 var NetworkDropdown = React148.memo(
   ({ isSourceChain = true }) => {
-    const [collapsed, setCollapsed] = useState9(true);
-    const [availableNetworks, setAvailableNetworks] = useState9([]);
+    const [collapsed, setCollapsed] = useState10(true);
+    const [availableNetworks, setAvailableNetworks] = useState10([]);
     const ref = useRef3();
     const sourceChangeRef = useRef3(false);
-    const mode = useSelector18(selectMode);
-    const autoSwitchChain = useSelector18(selectWalletAutoConnect);
-    const useFIAT = useSelector18(selectUseFIAT);
-    const dAppOption = useSelector18(selectDappOption);
-    const originNetwork = useSelector18(selectSourceChain);
-    const targetNetwork = useSelector18(selectTargetChain);
-    const nodeProviderQuery = useSelector18(selectNodeProviderQuery);
+    const mode = useSelector19(selectMode);
+    const autoSwitchChain = useSelector19(selectWalletAutoConnect);
+    const useFIAT = useSelector19(selectUseFIAT);
+    const dAppOption = useSelector19(selectDappOption);
+    const originNetwork = useSelector19(selectSourceChain);
+    const targetNetwork = useSelector19(selectTargetChain);
+    const nodeProviderQuery = useSelector19(selectNodeProviderQuery);
     const { options: networkOptions3 } = useNetworkOptions();
     const selectedNetwork = useMemo15(() => {
       const index = networkOptions3.findIndex(
@@ -8708,9 +8321,9 @@ var NetworkDropdown = React148.memo(
       dAppOption,
       originNetwork
     ]);
-    const theme = useSelector18(selectTheme);
+    const theme = useSelector19(selectTheme);
     const dispatch = useDispatch11();
-    useEffect14(() => {
+    useEffect15(() => {
       if (!nodeProviderQuery || mode !== "bridge" /* bridge */) return;
       (async function() {
         try {
@@ -8750,7 +8363,7 @@ var NetworkDropdown = React148.memo(
       isSourceChain,
       useFIAT
     ]);
-    useEffect14(() => {
+    useEffect15(() => {
       if (!nodeProviderQuery || mode !== "payment" /* payment */) return;
       (async function() {
         try {
@@ -8772,7 +8385,7 @@ var NetworkDropdown = React148.memo(
         }
       })();
     }, [nodeProviderQuery, mode, targetNetwork, dAppOption]);
-    useEffect14(() => {
+    useEffect15(() => {
       const bodyMouseDowntHandler = (e) => {
         if (ref?.current && !ref.current.contains(e.target)) {
           setCollapsed(true);
@@ -8825,21 +8438,35 @@ var NetworkDropdown = React148.memo(
 );
 
 // src/components/reusable/ConfirmDetails.tsx
-import React149, { useEffect as useEffect15, useMemo as useMemo16 } from "react";
-import { useSelector as useSelector19 } from "react-redux";
+import React149, { useEffect as useEffect16, useMemo as useMemo16 } from "react";
+import { useSelector as useSelector20 } from "react-redux";
+
+// src/helpers/functions.tsx
+var formatterInt2 = new Intl.NumberFormat("en-US", {
+  maximumFractionDigits: 0
+});
+var formatterFloat2 = new Intl.NumberFormat("en-US", {
+  maximumFractionDigits: 9
+});
+function isEmptyObject2(arg) {
+  return typeof arg === "object" && Object.keys(arg).length === 0;
+}
+var sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay));
+
+// src/components/reusable/ConfirmDetails.tsx
 var ConfirmDetails = ({ isApproved }) => {
-  const feeDeduct = useSelector19(selectFeeDeduct);
-  const mode = useSelector19(selectMode);
-  const dAppOption = useSelector19(selectDappOption);
-  const theme = useSelector19(selectTheme);
-  const amount = useSelector19(selectAmount);
-  const { totalFeeUsd } = useSelector19(selectServiceFee);
-  const originNetwork = useSelector19(selectSourceChain);
-  const targetNetwork = useSelector19(selectTargetChain);
-  const targetAddress = useSelector19(selectTargetAddress);
-  const bankDetails = useSelector19(selectBankDetails);
-  const signature = useSelector19(selectSignature);
-  const transactionOption = useSelector19(selectTransactionOption);
+  const feeDeduct = useSelector20(selectFeeDeduct);
+  const mode = useSelector20(selectMode);
+  const dAppOption = useSelector20(selectDappOption);
+  const theme = useSelector20(selectTheme);
+  const amount = useSelector20(selectAmount);
+  const { totalFeeUsd } = useSelector20(selectServiceFee);
+  const originNetwork = useSelector20(selectSourceChain);
+  const targetNetwork = useSelector20(selectTargetChain);
+  const targetAddress = useSelector20(selectTargetAddress);
+  const bankDetails = useSelector20(selectBankDetails);
+  const signature = useSelector20(selectSignature);
+  const transactionOption = useSelector20(selectTransactionOption);
   const { walletAddress } = useIsWalletReady_default4();
   const originNetworkOption = useMemo16(
     () => networkOptions.filter((network) => network.id === originNetwork)[0],
@@ -8851,10 +8478,10 @@ var ConfirmDetails = ({ isApproved }) => {
     )[0],
     [networkOptions, originNetwork]
   );
-  const sourceCurrency = useSelector19(selectSourceCurrency);
-  const targetCurrency = useSelector19(selectTargetCurrency);
+  const sourceCurrency = useSelector20(selectSourceCurrency);
+  const targetCurrency = useSelector20(selectTargetCurrency);
   const { width, updateWidth } = useWidth_default();
-  useEffect15(() => {
+  useEffect16(() => {
     width === 0 && updateWidth(window.innerWidth);
   }, []);
   const SourceCoinIcon = COIN_LIST[sourceCurrency].icon || COIN_LIST["USDK"].icon;
@@ -8878,23 +8505,23 @@ var ConfirmDetails = ({ isApproved }) => {
 var ConfirmDetails_default = ConfirmDetails;
 
 // src/components/reusable/AddressInput.tsx
-import React150, { useEffect as useEffect16 } from "react";
+import React150, { useEffect as useEffect17 } from "react";
 import { useDispatch as useDispatch12 } from "react-redux";
-import { useSelector as useSelector20 } from "react-redux";
+import { useSelector as useSelector21 } from "react-redux";
 var AddressInput = ({
   theme,
   placeholder
 }) => {
   const dispatch = useDispatch12();
-  const mode = useSelector20(selectMode);
-  const sourceChain = useSelector20(selectSourceChain);
-  const targetChain = useSelector20(selectTargetChain);
+  const mode = useSelector21(selectMode);
+  const sourceChain = useSelector21(selectSourceChain);
+  const targetChain = useSelector21(selectTargetChain);
   const { walletAddress: sourceAddress, isReady } = useIsWalletReady_default4();
-  const targetAddress = useSelector20(selectTargetAddress);
+  const targetAddress = useSelector21(selectTargetAddress);
   const isEvm = (chain) => {
     return chain !== "SOL" && chain !== "TRX" && chain !== "BTC";
   };
-  useEffect16(() => {
+  useEffect17(() => {
     if (mode === "payment" /* payment */) return;
     if (isEvm(sourceChain) && isEvm(targetChain)) {
       dispatch(setTargetAddress(isReady && sourceAddress ? sourceAddress : ""));
@@ -8921,9 +8548,9 @@ var AddressInput_default = AddressInput;
 
 // src/components/reusable/CustomCheckbox.tsx
 import React151 from "react";
-import { useSelector as useSelector21 } from "react-redux";
+import { useSelector as useSelector22 } from "react-redux";
 var CustomCheckbox = ({ text, checked, setCheck }) => {
-  const theme = useSelector21(selectTheme);
+  const theme = useSelector22(selectTheme);
   return /* @__PURE__ */ React151.createElement("div", { className: "kima-custom-checkbox" }, /* @__PURE__ */ React151.createElement(
     "div",
     {
@@ -8938,7 +8565,7 @@ var CustomCheckbox_default = CustomCheckbox;
 
 // src/components/reusable/StepBox.tsx
 import React152 from "react";
-import { useSelector as useSelector22 } from "react-redux";
+import { useSelector as useSelector23 } from "react-redux";
 var stepInfo2 = [
   {
     title: "Initialize"
@@ -8957,9 +8584,9 @@ var stepInfo2 = [
   }
 ];
 var StepBox = ({ step, errorStep, loadingStep, data }) => {
-  const theme = useSelector22(selectTheme);
-  const explorerUrl = useSelector22(selectKimaExplorer);
-  const networkOption = useSelector22(selectNetworkOption);
+  const theme = useSelector23(selectTheme);
+  const explorerUrl = useSelector23(selectKimaExplorer);
+  const networkOption = useSelector23(selectNetworkOption);
   const SourceInfo = getNetworkOption(data?.sourceChain);
   const TargetInfo = getNetworkOption(data?.targetChain);
   const CHAIN_NAMES_TO_EXPLORER = networkOption === "mainnet" /* mainnet */ ? CHAIN_NAMES_TO_EXPLORER_MAINNET : CHAIN_NAMES_TO_EXPLORER_TESTNET;
@@ -8998,11 +8625,11 @@ var StepBox_default = StepBox;
 // src/components/reusable/BankInput.tsx
 import React153 from "react";
 import { useDispatch as useDispatch13 } from "react-redux";
-import { useSelector as useSelector23 } from "react-redux";
+import { useSelector as useSelector24 } from "react-redux";
 var BankInput = () => {
   const dispatch = useDispatch13();
-  const theme = useSelector23(selectTheme);
-  const bankDetails = useSelector23(selectBankDetails);
+  const theme = useSelector24(selectTheme);
+  const bankDetails = useSelector24(selectBankDetails);
   return /* @__PURE__ */ React153.createElement("div", { className: "bank-input" }, /* @__PURE__ */ React153.createElement("div", { className: `form-item ${theme.colorMode}` }, /* @__PURE__ */ React153.createElement("span", { className: "label" }, "IBAN:"), /* @__PURE__ */ React153.createElement(
     "input",
     {
@@ -9028,13 +8655,13 @@ var BankInput_default = BankInput;
 // src/components/reusable/TxButton.tsx
 import React154 from "react";
 import { useDispatch as useDispatch14 } from "react-redux";
-import { useSelector as useSelector24 } from "react-redux";
+import { useSelector as useSelector25 } from "react-redux";
 var TxButton = ({ theme }) => {
   const dispatch = useDispatch14();
   const handleClick = () => {
     dispatch(setPendingTxPopup(true));
   };
-  const txCount = useSelector24(selectPendingTxs);
+  const txCount = useSelector25(selectPendingTxs);
   return /* @__PURE__ */ React154.createElement(
     "button",
     {
@@ -9056,25 +8683,25 @@ var TxButton_default = TxButton;
 
 // src/components/TransactionWidget.tsx
 import { Provider as Provider2 } from "react-redux";
-import { useSelector as useSelector25 } from "react-redux";
+import { useSelector as useSelector26 } from "react-redux";
 import { useDispatch as useDispatch15 } from "react-redux";
 import { toast as toast9, Toaster } from "react-hot-toast";
 var TransactionWidget = ({ theme }) => {
-  const [step, setStep] = useState10(0);
-  const [focus, setFocus] = useState10(-1);
-  const [errorStep, setErrorStep] = useState10(-1);
-  const [errorMessage, setErrorMessage] = useState10("");
-  const [loadingStep, setLoadingStep] = useState10(-1);
-  const [minimized, setMinimized] = useState10(false);
-  const [percent, setPercent] = useState10(0);
-  const [data, setData] = useState10();
+  const [step, setStep] = useState11(0);
+  const [focus, setFocus] = useState11(-1);
+  const [errorStep, setErrorStep] = useState11(-1);
+  const [errorMessage, setErrorMessage] = useState11("");
+  const [loadingStep, setLoadingStep] = useState11(-1);
+  const [minimized, setMinimized] = useState11(false);
+  const [percent, setPercent] = useState11(0);
+  const [data, setData] = useState11();
   const dispatch = useDispatch15();
-  const txId = useSelector25(selectTxId);
-  const dAppOption = useSelector25(selectDappOption);
-  const closeHandler = useSelector25(selectCloseHandler);
-  const successHandler = useSelector25(selectSuccessHandler);
-  const graphqlProviderQuery = useSelector25(selectGraphqlProviderQuery);
-  useEffect17(() => {
+  const txId = useSelector26(selectTxId);
+  const dAppOption = useSelector26(selectDappOption);
+  const closeHandler = useSelector26(selectCloseHandler);
+  const successHandler = useSelector26(selectSuccessHandler);
+  const graphqlProviderQuery = useSelector26(selectGraphqlProviderQuery);
+  useEffect18(() => {
     if (!graphqlProviderQuery || txId < 0) return;
     const updateTxData = async () => {
       if (data?.status === "Completed" /* COMPLETED */) return;
@@ -9180,7 +8807,7 @@ var TransactionWidget = ({ theme }) => {
       clearInterval(timerId);
     };
   }, [graphqlProviderQuery, txId, dAppOption]);
-  useEffect17(() => {
+  useEffect18(() => {
     if (!data) {
       setStep(0);
       setLoadingStep(0);
@@ -9237,6 +8864,11 @@ var TransactionWidget = ({ theme }) => {
       setLoadingStep(-1);
     }
   }, [data?.status]);
+  const resetForm = () => {
+    dispatch(setTargetAddress(""));
+    dispatch(setAmount(""));
+    closeHandler();
+  };
   return /* @__PURE__ */ React155.createElement(Provider2, { store }, /* @__PURE__ */ React155.createElement(
     "div",
     {
@@ -9254,22 +8886,7 @@ var TransactionWidget = ({ theme }) => {
         }
       },
       /* @__PURE__ */ React155.createElement(Minimize_default, null)
-    ), loadingStep < 0 ? /* @__PURE__ */ React155.createElement(
-      "button",
-      {
-        className: "cross-icon-button",
-        onClick: () => {
-          dispatch(initialize());
-          closeHandler();
-        }
-      },
-      /* @__PURE__ */ React155.createElement(
-        Cross_default,
-        {
-          fill: theme.colorMode === "light" ? "black" : "white"
-        }
-      )
-    ) : null) : /* @__PURE__ */ React155.createElement("div", { className: "control-buttons" }, /* @__PURE__ */ React155.createElement("div", { className: "maximize", onClick: () => setMinimized(false) }, "View"))), !minimized && data?.sourceChain && data?.targetChain && /* @__PURE__ */ React155.createElement(
+    ), loadingStep < 0 ? /* @__PURE__ */ React155.createElement("button", { className: "reset-button", onClick: resetForm }, "Reset") : null) : /* @__PURE__ */ React155.createElement("div", { className: "control-buttons" }, /* @__PURE__ */ React155.createElement("div", { className: "maximize", onClick: () => setMinimized(false) }, "View"))), !minimized && data?.sourceChain && data?.targetChain && /* @__PURE__ */ React155.createElement(
       NetworkLabel_default,
       {
         sourceChain: data?.sourceChain,
@@ -9335,43 +8952,13 @@ import { useDispatch as useDispatch20, useSelector as useSelector31 } from "reac
 // src/components/primary/SourceNetworkSelector.tsx
 import React156, { useState as useState12, useMemo as useMemo17, useRef as useRef4, useEffect as useEffect19 } from "react";
 import { useSelector as useSelector27, useDispatch as useDispatch16 } from "react-redux";
-
-// src/hooks/useGetChainData.tsx
-import { useEffect as useEffect18, useState as useState11, useCallback as useCallback3 } from "react";
-import { useSelector as useSelector26 } from "react-redux";
-var useGetChainData = () => {
-  const [chainData, setChainData] = useState11([]);
-  const plugins = useSelector26(selectAllPlugins);
-  const fetchChainData = useCallback3(async () => {
-    try {
-      const allProviders = getAllPluginProviders();
-      const collatedData = [];
-      for (const pluginId of Object.keys(allProviders)) {
-        const plugin = plugins.find((p) => p.id === pluginId);
-        if (plugin?.pluginData?.networks) {
-          collatedData.push(...plugin.pluginData.networks);
-        }
-      }
-      setChainData(collatedData);
-      console.info("Collated chain data:", collatedData);
-    } catch (error) {
-      console.error("Error fetching chain data:", error);
-    }
-  }, [plugins]);
-  useEffect18(() => {
-    fetchChainData();
-  }, [fetchChainData]);
-  return { chainData };
-};
-var useGetChainData_default = useGetChainData;
-
-// src/components/primary/SourceNetworkSelector.tsx
 var SourceNetworkSelectorComponent = () => {
   const [collapsed, setCollapsed] = useState12(true);
   const ref = useRef4();
   const originNetwork = useSelector27(selectSourceChain);
   const dispatch = useDispatch16();
   const theme = useSelector27(selectTheme);
+  const { options: networkOptions3 } = useNetworkOptions();
   const { chainData } = useGetChainData_default();
   const targetChain = useSelector27(selectTargetChain);
   const networks = useMemo17(() => {
@@ -9381,14 +8968,12 @@ var SourceNetworkSelectorComponent = () => {
       icon: network.icon ? /* @__PURE__ */ React156.createElement(network.icon, null) : /* @__PURE__ */ React156.createElement("div", null)
       // Render the icon as JSX
     })) || [];
-    console.info("Final data: ", data);
     return data;
   }, [chainData]);
   const selectedNetwork = useMemo17(() => {
     return networks.find((option) => option.id === originNetwork) || networks[0] || { label: "Loading...", icon: null };
   }, [originNetwork, networks]);
   useEffect19(() => {
-    console.info("Final networks:", networks);
   }, [chainData]);
   const handleNetworkChange = (networkId) => {
     console.info(`networkId: ${networkId} | originNetwork:`, originNetwork);
@@ -9769,7 +9354,7 @@ var SingleForm = ({}) => {
       /* @__PURE__ */ React160.createElement("span", { className: "label" }, "Connect wallet:"),
       /* @__PURE__ */ React160.createElement(WalletButton_default, null)
     ),
-    /* @__PURE__ */ React160.createElement("div", { className: "form-item" }, /* @__PURE__ */ React160.createElement("span", { className: "label" }, "Target Network:"), /* @__PURE__ */ React160.createElement("div", { className: "items" }, /* @__PURE__ */ React160.createElement(TargetNetworkSelector_default, null), networkOpion === "mainnet" /* mainnet */ ? /* @__PURE__ */ React160.createElement(TargetTokenSelector_default, null) : /* @__PURE__ */ React160.createElement(
+    mode === "bridge" /* bridge */ && /* @__PURE__ */ React160.createElement("div", { className: "form-item" }, /* @__PURE__ */ React160.createElement("span", { className: "label" }, "Target Network:"), /* @__PURE__ */ React160.createElement("div", { className: "items" }, /* @__PURE__ */ React160.createElement(TargetNetworkSelector_default, null), networkOpion === "mainnet" /* mainnet */ ? /* @__PURE__ */ React160.createElement(TargetTokenSelector_default, null) : /* @__PURE__ */ React160.createElement(
       "div",
       {
         className: `amount-label-container items ${theme.colorMode}`
@@ -9782,7 +9367,7 @@ var SingleForm = ({}) => {
       theme: theme.colorMode,
       placeholder: "Target address"
     }
-  )) : /* @__PURE__ */ React160.createElement("div", { className: `form-item ${theme.colorMode}` }, /* @__PURE__ */ React160.createElement("span", { className: "label" }, "Target Address:"), /* @__PURE__ */ React160.createElement("span", null, targetAddress)), mode === "bridge" /* bridge */ ? /* @__PURE__ */ React160.createElement("div", { className: `form-item ${theme.colorMode}` }, /* @__PURE__ */ React160.createElement("span", { className: "label" }, "Amount:"), /* @__PURE__ */ React160.createElement("div", { className: `amount-label-container items ${theme.colorMode}` }, /* @__PURE__ */ React160.createElement(
+  )) : null, mode === "bridge" /* bridge */ ? /* @__PURE__ */ React160.createElement("div", { className: `form-item ${theme.colorMode}` }, /* @__PURE__ */ React160.createElement("span", { className: "label" }, "Amount:"), /* @__PURE__ */ React160.createElement("div", { className: `amount-label-container items ${theme.colorMode}` }, /* @__PURE__ */ React160.createElement(
     "input",
     {
       className: `${theme.colorMode}`,
@@ -9811,7 +9396,7 @@ var SingleForm = ({}) => {
       },
       disabled: transactionOption?.amount !== void 0
     }
-  ), /* @__PURE__ */ React160.createElement("div", { className: `coin-wrapper ${theme.colorMode}` }, /* @__PURE__ */ React160.createElement("div", { className: "icon-wrapper" }, /* @__PURE__ */ React160.createElement(TargetIcon, null)), targetCurrency))), totalFeeUsd > 0 ? /* @__PURE__ */ React160.createElement(
+  ), /* @__PURE__ */ React160.createElement("div", { className: `coin-wrapper ${theme.colorMode}` }, /* @__PURE__ */ React160.createElement("div", { className: "icon-wrapper" }, /* @__PURE__ */ React160.createElement(TargetIcon, null)), targetCurrency))), mode === "bridge" /* bridge */ && totalFeeUsd > 0 ? /* @__PURE__ */ React160.createElement(
     CustomCheckbox_default,
     {
       text: sourceNetwork === "BTC" /* BTC */ ? `Deduct ${formatterFloat2.format(totalFeeUsd)} BTC fee` : `Deduct $${formatterFloat2.format(totalFeeUsd)} fee`,
@@ -9855,13 +9440,359 @@ var CoinSelect_default = CoinSelect;
 // src/hooks/useAllowance.tsx
 import { useCallback as useCallback4, useEffect as useEffect24, useMemo as useMemo22, useState as useState18 } from "react";
 import { useSelector as useSelector33 } from "react-redux";
-import { Contract as Contract3 } from "@ethersproject/contracts";
-import { formatUnits as formatUnits3, parseUnits } from "@ethersproject/units";
+import { Contract as Contract2 } from "@ethersproject/contracts";
+import { formatUnits as formatUnits2, parseUnits } from "@ethersproject/units";
 import {
-  useConnection as useConnection3,
-  useWallet as useSolanaWallet5
+  useConnection as useConnection2,
+  useWallet as useSolanaWallet4
 } from "@solana/wallet-adapter-react";
-import { PublicKey as PublicKey7, Transaction as Transaction2 } from "@solana/web3.js";
+
+// src/utils/ethereum/erc20ABI.json
+var erc20ABI_default2 = {
+  abi: [
+    {
+      constant: true,
+      inputs: [],
+      name: "name",
+      outputs: [
+        {
+          name: "",
+          type: "string"
+        }
+      ],
+      payable: false,
+      stateMutability: "view",
+      type: "function"
+    },
+    {
+      constant: false,
+      inputs: [
+        {
+          name: "_spender",
+          type: "address"
+        },
+        {
+          name: "_value",
+          type: "uint256"
+        }
+      ],
+      name: "approve",
+      outputs: [
+        {
+          name: "",
+          type: "bool"
+        }
+      ],
+      payable: false,
+      stateMutability: "nonpayable",
+      type: "function"
+    },
+    {
+      constant: true,
+      inputs: [],
+      name: "totalSupply",
+      outputs: [
+        {
+          name: "",
+          type: "uint256"
+        }
+      ],
+      payable: false,
+      stateMutability: "view",
+      type: "function"
+    },
+    {
+      constant: false,
+      inputs: [
+        {
+          name: "_from",
+          type: "address"
+        },
+        {
+          name: "_to",
+          type: "address"
+        },
+        {
+          name: "_value",
+          type: "uint256"
+        }
+      ],
+      name: "transferFrom",
+      outputs: [
+        {
+          name: "",
+          type: "bool"
+        }
+      ],
+      payable: false,
+      stateMutability: "nonpayable",
+      type: "function"
+    },
+    {
+      constant: true,
+      inputs: [],
+      name: "decimals",
+      outputs: [
+        {
+          name: "",
+          type: "uint8"
+        }
+      ],
+      payable: false,
+      stateMutability: "view",
+      type: "function"
+    },
+    {
+      constant: true,
+      inputs: [
+        {
+          name: "_owner",
+          type: "address"
+        }
+      ],
+      name: "balanceOf",
+      outputs: [
+        {
+          name: "balance",
+          type: "uint256"
+        }
+      ],
+      payable: false,
+      stateMutability: "view",
+      type: "function"
+    },
+    {
+      constant: true,
+      inputs: [],
+      name: "symbol",
+      outputs: [
+        {
+          name: "",
+          type: "string"
+        }
+      ],
+      payable: false,
+      stateMutability: "view",
+      type: "function"
+    },
+    {
+      constant: false,
+      inputs: [
+        {
+          name: "_to",
+          type: "address"
+        },
+        {
+          name: "_value",
+          type: "uint256"
+        }
+      ],
+      name: "transfer",
+      outputs: [
+        {
+          name: "",
+          type: "bool"
+        }
+      ],
+      payable: false,
+      stateMutability: "nonpayable",
+      type: "function"
+    },
+    {
+      constant: true,
+      inputs: [
+        {
+          name: "_owner",
+          type: "address"
+        },
+        {
+          name: "_spender",
+          type: "address"
+        }
+      ],
+      name: "allowance",
+      outputs: [
+        {
+          name: "",
+          type: "uint256"
+        }
+      ],
+      payable: false,
+      stateMutability: "view",
+      type: "function"
+    },
+    {
+      payable: true,
+      stateMutability: "payable",
+      type: "fallback"
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          name: "owner",
+          type: "address"
+        },
+        {
+          indexed: true,
+          name: "spender",
+          type: "address"
+        },
+        {
+          indexed: false,
+          name: "value",
+          type: "uint256"
+        }
+      ],
+      name: "Approval",
+      type: "event"
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          name: "from",
+          type: "address"
+        },
+        {
+          indexed: true,
+          name: "to",
+          type: "address"
+        },
+        {
+          indexed: false,
+          name: "value",
+          type: "uint256"
+        }
+      ],
+      name: "Transfer",
+      type: "event"
+    }
+  ]
+};
+
+// src/utils/solana/getOrCreateAssociatedTokenAccount.ts
+import {
+  TOKEN_PROGRAM_ID as TOKEN_PROGRAM_ID4,
+  ASSOCIATED_TOKEN_PROGRAM_ID as ASSOCIATED_TOKEN_PROGRAM_ID3
+} from "@solana/spl-token";
+import { Transaction } from "@solana/web3.js";
+
+// src/utils/solana/createAssociatedTokenAccountInstruction.ts
+import { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { TransactionInstruction, SystemProgram, SYSVAR_RENT_PUBKEY } from "@solana/web3.js";
+function createAssociatedTokenAccountInstruction(payer, associatedToken, owner, mint, programId = TOKEN_PROGRAM_ID, associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID) {
+  const keys = [
+    { pubkey: payer, isSigner: true, isWritable: true },
+    { pubkey: associatedToken, isSigner: false, isWritable: true },
+    { pubkey: owner, isSigner: false, isWritable: false },
+    { pubkey: mint, isSigner: false, isWritable: false },
+    { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+    { pubkey: programId, isSigner: false, isWritable: false },
+    { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false }
+  ];
+  return new TransactionInstruction({
+    keys,
+    programId: associatedTokenProgramId,
+    data: Buffer.alloc(0)
+  });
+}
+
+// src/utils/solana/getAccountInfo.ts
+import { TOKEN_PROGRAM_ID as TOKEN_PROGRAM_ID2, AccountLayout } from "@solana/spl-token";
+async function getAccountInfo(connection, address, commitment, programId = TOKEN_PROGRAM_ID2) {
+  const info = await connection.getAccountInfo(address, commitment);
+  if (!info) throw new Error("TokenAccountNotFoundError");
+  if (!info.owner.equals(programId)) throw new Error("TokenInvalidAccountOwnerError");
+  if (info.data.length != AccountLayout.span) throw new Error("TokenInvalidAccountSizeError");
+  const rawAccount = AccountLayout.decode(Buffer.from(info.data));
+  return {
+    address,
+    mint: rawAccount.mint,
+    owner: rawAccount.owner,
+    amount: rawAccount.amount,
+    delegate: rawAccount.delegateOption ? rawAccount.delegate : null,
+    delegatedAmount: rawAccount.delegatedAmount,
+    isInitialized: rawAccount.state !== 0 /* Uninitialized */,
+    isFrozen: rawAccount.state === 2 /* Frozen */,
+    isNative: !!rawAccount.isNativeOption,
+    rentExemptReserve: rawAccount.isNativeOption ? rawAccount.isNative : null,
+    closeAuthority: rawAccount.closeAuthorityOption ? rawAccount.closeAuthority : null
+  };
+}
+
+// src/utils/solana/getAssociatedTokenAddress.ts
+import { TOKEN_PROGRAM_ID as TOKEN_PROGRAM_ID3, ASSOCIATED_TOKEN_PROGRAM_ID as ASSOCIATED_TOKEN_PROGRAM_ID2 } from "@solana/spl-token";
+import { PublicKey as PublicKey3 } from "@solana/web3.js";
+async function getAssociatedTokenAddress(mint, owner, allowOwnerOffCurve = false, programId = TOKEN_PROGRAM_ID3, associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID2) {
+  if (!allowOwnerOffCurve && !PublicKey3.isOnCurve(owner.toBuffer())) throw new Error("TokenOwnerOffCurveError");
+  const [address] = await PublicKey3.findProgramAddress(
+    [owner.toBuffer(), programId.toBuffer(), mint.toBuffer()],
+    associatedTokenProgramId
+  );
+  return address;
+}
+
+// src/utils/solana/getOrCreateAssociatedTokenAccount.ts
+async function getOrCreateAssociatedTokenAccount(connection, payer, mint, owner, signTransaction, allowOwnerOffCurve = false, commitment, programId = TOKEN_PROGRAM_ID4, associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID3) {
+  const associatedToken = await getAssociatedTokenAddress(
+    mint,
+    owner,
+    allowOwnerOffCurve,
+    programId,
+    associatedTokenProgramId
+  );
+  let account;
+  try {
+    account = await getAccountInfo(
+      connection,
+      associatedToken,
+      commitment,
+      programId
+    );
+  } catch (error) {
+    const err = error;
+    if (err.message === "TokenAccountNotFoundError" || err.message === "TokenInvalidAccountOwnerError") {
+      try {
+        const transaction = new Transaction().add(
+          createAssociatedTokenAccountInstruction(
+            payer,
+            associatedToken,
+            owner,
+            mint,
+            programId,
+            associatedTokenProgramId
+          )
+        );
+        const blockHash = await connection.getRecentBlockhash();
+        transaction.feePayer = await payer;
+        transaction.recentBlockhash = await blockHash.blockhash;
+        const signed = await signTransaction(transaction);
+        const signature = await connection.sendRawTransaction(
+          signed.serialize()
+        );
+        await connection.confirmTransaction(signature);
+      } catch (error2) {
+      }
+      account = await getAccountInfo(
+        connection,
+        associatedToken,
+        commitment,
+        programId
+      );
+    } else {
+      throw error;
+    }
+  }
+  if (!account.mint.equals(mint)) throw Error("TokenInvalidMintError");
+  if (!account.owner.equals(owner)) throw new Error("TokenInvalidOwnerError");
+  return account;
+}
+
+// src/hooks/useAllowance.tsx
+import { PublicKey as PublicKey6, Transaction as Transaction2 } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID as TOKEN_PROGRAM_ID6 } from "@solana/spl-token";
 
 // src/utils/solana/createTransferInstruction.ts
@@ -9940,7 +9871,18 @@ var TokenAmount = class extends import_bn.default {
 };
 
 // src/hooks/useAllowance.tsx
-import { useWallet as useTronWallet5 } from "@tronweb3/tronwallet-adapter-react-hooks";
+import { useWallet as useTronWallet4 } from "@tronweb3/tronwallet-adapter-react-hooks";
+
+// src/tronweb.tsx
+import { TronWeb as TronWeb2 } from "tronweb";
+var tronWebTestnet2 = new TronWeb2({
+  fullHost: "https://api.nileex.io"
+});
+var tronWebMainnet2 = new TronWeb2({
+  fullHost: "https://api.trongrid.io"
+});
+tronWebTestnet2.setAddress(TRON_USDK_OWNER_ADDRESS);
+tronWebMainnet2.setAddress(TRON_USDK_OWNER_ADDRESS);
 
 // src/utils/func/index.js
 import { utils as ethersUtils } from "ethers";
@@ -10058,12 +10000,12 @@ function fromHex(address) {
 }
 
 // src/hooks/useAllowance.tsx
-import { ethers as ethers3 } from "ethers";
+import { ethers as ethers2 } from "ethers";
 import toast11 from "react-hot-toast";
 import {
-  useAppKitAccount as useAppKitAccount5,
-  useAppKitNetwork as useAppKitNetwork4,
-  useAppKitProvider as useAppKitProvider5
+  useAppKitAccount as useAppKitAccount4,
+  useAppKitNetwork as useAppKitNetwork3,
+  useAppKitProvider as useAppKitProvider4
 } from "@reown/appkit/react";
 function useAllowance({
   setApproving,
@@ -10071,14 +10013,14 @@ function useAllowance({
 }) {
   const [allowance, setAllowance] = useState18(0);
   const [decimals, setDecimals] = useState18(null);
-  const appkitAccountInfo = useAppKitAccount5();
-  const { chainId: evmChainId } = useAppKitNetwork4();
+  const appkitAccountInfo = useAppKitAccount4();
+  const { chainId: evmChainId } = useAppKitNetwork3();
   const { address: signerAddress } = appkitAccountInfo || {
     address: null,
     chainId: null,
     isConnected: null
   };
-  const { walletProvider } = useAppKitProvider5("eip155");
+  const { walletProvider } = useAppKitProvider4("eip155");
   const selectedNetwork = useSelector33(selectSourceChain);
   const errorHandler = useSelector33(selectErrorHandler);
   const dAppOption = useSelector33(selectDappOption);
@@ -10098,9 +10040,9 @@ function useAllowance({
   const amount = useSelector33(selectAmount);
   const { totalFeeUsd } = useSelector33(selectServiceFee);
   const nodeProviderQuery = useSelector33(selectNodeProviderQuery);
-  const { connection } = useConnection3();
-  const { publicKey: solanaAddress, signTransaction: signSolanaTransaction } = useSolanaWallet5();
-  const { address: tronAddress, signTransaction: signTronTransaction } = useTronWallet5();
+  const { connection } = useConnection2();
+  const { publicKey: solanaAddress, signTransaction: signSolanaTransaction } = useSolanaWallet4();
+  const { address: tronAddress, signTransaction: signTronTransaction } = useTronWallet4();
   const selectedCoin = useSelector33(selectSourceCurrency);
   const tokenOptions = useSelector33(selectTokenOptions);
   const tokenAddress = useMemo22(() => {
@@ -10156,7 +10098,7 @@ function useAllowance({
         const tronWeb = networkOption === "mainnet" /* mainnet */ ? tronWebMainnet2 : tronWebTestnet2;
         if (!isEVMChain(sourceChain)) {
           if (solanaAddress && tokenAddress && connection) {
-            const mint = new PublicKey7(tokenAddress);
+            const mint = new PublicKey6(tokenAddress);
             const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
               connection,
               solanaAddress,
@@ -10182,25 +10124,25 @@ function useAllowance({
             const decimals3 = await trc20Contract.decimals().call();
             const userAllowance2 = await trc20Contract.allowance(tronAddress, targetAddress).call();
             setDecimals(+decimals3);
-            setAllowance(+formatUnits3(userAllowance2, decimals3));
+            setAllowance(+formatUnits2(userAllowance2, decimals3));
           } else {
             setAllowance(0);
           }
           return;
         }
-        const provider = new ethers3.providers.Web3Provider(
+        const provider = new ethers2.providers.Web3Provider(
           walletProvider
         );
         const signer = provider?.getSigner();
         if (!tokenAddress || !targetAddress || !signer || !signerAddress) return;
-        const erc20Contract = new Contract3(tokenAddress, erc20ABI_default2.abi, signer);
+        const erc20Contract = new Contract2(tokenAddress, erc20ABI_default2.abi, signer);
         const decimals2 = await erc20Contract.decimals();
         const userAllowance = await erc20Contract.allowance(
           signerAddress,
           targetAddress
         );
         setDecimals(+decimals2);
-        setAllowance(+formatUnits3(userAllowance, decimals2));
+        setAllowance(+formatUnits2(userAllowance, decimals2));
       } catch (error) {
         errorHandler(error);
       }
@@ -10218,13 +10160,13 @@ function useAllowance({
   const approve = useCallback4(
     async (isCancel = false) => {
       if (isEVMChain(sourceChain)) {
-        const provider = new ethers3.providers.Web3Provider(
+        const provider = new ethers2.providers.Web3Provider(
           walletProvider
         );
         const signer = provider.getSigner();
         if (!decimals || !tokenAddress || !signer || !targetAddress) return;
         try {
-          const erc20Contract = new Contract3(tokenAddress, erc20ABI_default2.abi, signer);
+          const erc20Contract = new Contract2(tokenAddress, erc20ABI_default2.abi, signer);
           isCancel ? setCancellingApprove(true) : setApproving(true);
           const approve2 = await erc20Contract.approve(
             targetAddress,
@@ -10277,8 +10219,8 @@ function useAllowance({
       if (!signSolanaTransaction) return;
       try {
         isCancel ? setCancellingApprove(true) : setApproving(true);
-        const mint = new PublicKey7(tokenAddress);
-        const toPublicKey = new PublicKey7(targetAddress);
+        const mint = new PublicKey6(tokenAddress);
+        const toPublicKey = new PublicKey6(targetAddress);
         const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
           connection,
           solanaAddress,
@@ -10441,7 +10383,7 @@ var SolanaWalletSelect_default = SolanaWalletSelect;
 // plugins/solana/components/AccountDetailsModal.tsx
 import React164, { useMemo as useMemo24 } from "react";
 import { useDispatch as useDispatch23, useSelector as useSelector36 } from "react-redux";
-import { useWallet as useSolanaWallet6 } from "@solana/wallet-adapter-react";
+import { useWallet as useSolanaWallet5 } from "@solana/wallet-adapter-react";
 var AccountDetailsModal = () => {
   const dispatch = useDispatch23();
   const theme = useSelector36(selectTheme);
@@ -10449,7 +10391,7 @@ var AccountDetailsModal = () => {
   const sourceChain = useSelector36(selectSourceChain);
   const accountDetailsModal = useSelector36(selectAccountDetailsModal);
   const { walletAddress } = useIsWalletReady_default2();
-  const { disconnect: solanaWalletDisconnect } = useSolanaWallet6();
+  const { disconnect: solanaWalletDisconnect } = useSolanaWallet5();
   const { balance: solBalance } = useGetSolBalance_default();
   const networkDetails = networkOptions2[0];
   const explorerUrl = useMemo24(() => {
@@ -10519,7 +10461,7 @@ import { useDispatch as useDispatch27, useSelector as useSelector40 } from "reac
 // plugins/tron/components/AccountDetailsModal.tsx
 import React166, { useMemo as useMemo25 } from "react";
 import { useDispatch as useDispatch25, useSelector as useSelector38 } from "react-redux";
-import { useWallet as useTronWallet6 } from "@tronweb3/tronwallet-adapter-react-hooks";
+import { useWallet as useTronWallet5 } from "@tronweb3/tronwallet-adapter-react-hooks";
 var AccountDetailsModal2 = () => {
   const dispatch = useDispatch25();
   const theme = useSelector38(selectTheme);
@@ -10527,7 +10469,7 @@ var AccountDetailsModal2 = () => {
   const accountDetailsModal = useSelector38(selectAccountDetailsModal);
   const sourcheChain = useSelector38(selectSourceChain);
   const { walletAddress } = useIsWalletReady_default3();
-  const { disconnect: tronWalletDisconnect } = useTronWallet6();
+  const { disconnect: tronWalletDisconnect } = useTronWallet5();
   const { balance: tronBalance } = useGetTrxBalance_default();
   const selectedNetwork = useSelector38(selectSourceChain);
   const networkDetails = useMemo25(
@@ -10746,7 +10688,8 @@ var TransferWidget = ({
   theme,
   feeURL,
   helpURL,
-  titleOption
+  titleOption,
+  paymentTitleOption
 }) => {
   const dispatch = useDispatch28();
   const mainRef = useRef10(null);
@@ -10761,6 +10704,7 @@ var TransferWidget = ({
   const sourceAddress = useSelector41(selectSourceAddress);
   const targetAddress = useSelector41(selectTargetAddress);
   const targetChain = useSelector41(selectTargetChain);
+  const transactionOption = useSelector41(selectTransactionOption);
   const compliantOption = useSelector41(selectCompliantOption);
   const errorHandler = useSelector41(selectErrorHandler);
   const keplrHandler = useSelector41(selectKeplrHandler);
@@ -10780,7 +10724,7 @@ var TransferWidget = ({
     setApproving,
     setCancellingApprove
   });
-  const { balance } = useBalance2();
+  const balance = useBalance2()?.balance ?? 0;
   const { width: windowWidth } = useWidth_default();
   const { complianceData: sourceCompliant, error: sourceComplianceError } = useComplianceCheck_default(sourceAddress, compliantOption, backendUrl);
   const { complianceData: targetCompliant, error: targetComplianceError } = useComplianceCheck_default(targetAddress, compliantOption, backendUrl);
@@ -10806,7 +10750,7 @@ var TransferWidget = ({
       errorHandler("Insufficient balance!");
       return;
     }
-    const amountToShow = feeDeduct ? +amount : +amount + totalFeeUsd;
+    const amountToShow = mode === "payment" /* payment */ ? +amount + totalFeeUsd : feeDeduct ? +amount : +amount + totalFeeUsd;
     if (allowance < amountToShow) {
       return approve(false);
     }
@@ -10825,7 +10769,7 @@ var TransferWidget = ({
         targetChain,
         originSymbol: sourceCurrency,
         targetSymbol: targetCurrency,
-        amount: feeDeduct ? (+amount - totalFeeUsd).toFixed(8) : amount,
+        amount: amountToShow.toString(),
         fee: feeParam,
         htlcCreationHash: "",
         htlcCreationVout: 0,
@@ -10897,7 +10841,12 @@ var TransferWidget = ({
     }
     if (!isWizard && !formStep) {
       if (sourceAddress) {
-        if (+amount <= 0) {
+        if (mode === "payment" /* payment */ && !transactionOption) {
+          toast12.error("Invalid payment details!", { icon: /* @__PURE__ */ React169.createElement(Error_default, null) });
+          errorHandler("Invalid payment details!");
+          return;
+        }
+        if (mode === "bridge" /* bridge */ && +amount <= 0) {
           toast12.error("Invalid amount!", { icon: /* @__PURE__ */ React169.createElement(Error_default, null) });
           errorHandler("Invalid amount!");
           return;
@@ -11005,6 +10954,7 @@ var TransferWidget = ({
   };
   const resetForm = () => {
     if (isApproving || isSubmitting || isSigning) return;
+    setFormStep(0);
     dispatch(setTargetAddress(""));
     dispatch(setAmount(""));
     closeHandler();
@@ -11020,15 +10970,22 @@ var TransferWidget = ({
         background: theme.colorMode === "light" /* light */ ? theme.backgroundColorLight : theme.backgroundColorDark
       }
     },
-    /* @__PURE__ */ React169.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React169.createElement("div", { className: "topbar" }, /* @__PURE__ */ React169.createElement("div", { className: "title" }, /* @__PURE__ */ React169.createElement("h3", null, formStep === 0 ? titleOption?.initialTitle ? titleOption.initialTitle : "New Transfer" : titleOption?.confirmTitle ? titleOption.confirmTitle : "Transfer Details")), /* @__PURE__ */ React169.createElement("div", { className: "control-buttons" }, pendingTxs > 0 ? /* @__PURE__ */ React169.createElement(TxButton_default, { theme }) : null, /* @__PURE__ */ React169.createElement(
+    mode === "payment" /* payment */ && !transactionOption && /* @__PURE__ */ React169.createElement("h2", { className: "invalid-option-banner" }, "We're unable to process your payment. Please ensure the necessary transaction details are provided. Contact support if the issue persists."),
+    /* @__PURE__ */ React169.createElement("div", { className: "transfer-card" }, /* @__PURE__ */ React169.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React169.createElement("div", { className: "topbar" }, /* @__PURE__ */ React169.createElement("div", { className: "title" }, /* @__PURE__ */ React169.createElement("h3", null, formStep === 0 ? titleOption?.initialTitle ? titleOption.initialTitle : mode === "payment" /* payment */ ? "New Purchase" : "New Transfer" : titleOption?.confirmTitle ? titleOption.confirmTitle : mode === "payment" /* payment */ ? "Confirm Purchase" : "Transfer Details")), /* @__PURE__ */ React169.createElement("div", { className: "control-buttons" }, pendingTxs > 0 ? /* @__PURE__ */ React169.createElement(TxButton_default, { theme }) : null, /* @__PURE__ */ React169.createElement(
       ExternalLink_default,
       {
         to: helpURL ? helpURL : "https://docs.kima.network/kima-network/try-kima-with-the-demo-app"
       },
       /* @__PURE__ */ React169.createElement("div", { className: "menu-button" }, "I need help")
-    ), formStep !== 1 && /* @__PURE__ */ React169.createElement("div", { className: "reset-button", onClick: resetForm }, "Reset")))),
-    /* @__PURE__ */ React169.createElement("div", { className: "kima-card-content", ref: mainRef }, isWizard ? wizardStep === 0 ? /* @__PURE__ */ React169.createElement(NetworkSelect_default, null) : wizardStep === 1 ? /* @__PURE__ */ React169.createElement("div", { className: "connect-wallet-step" }, /* @__PURE__ */ React169.createElement("p", null, "Connect your wallet"), /* @__PURE__ */ React169.createElement(WalletButton_default, { errorBelow: true })) : wizardStep === 2 ? /* @__PURE__ */ React169.createElement(NetworkSelect_default, { isOriginChain: false }) : wizardStep === 3 ? /* @__PURE__ */ React169.createElement(AddressInputWizard_default, null) : wizardStep === 4 ? /* @__PURE__ */ React169.createElement(CoinSelect_default, null) : /* @__PURE__ */ React169.createElement(ConfirmDetails_default, { isApproved }) : formStep === 0 ? /* @__PURE__ */ React169.createElement(SingleForm_default, null) : /* @__PURE__ */ React169.createElement(ConfirmDetails_default, { isApproved })),
-    /* @__PURE__ */ React169.createElement(
+    ), formStep === 1 && /* @__PURE__ */ React169.createElement(
+      "button",
+      {
+        className: "reset-button",
+        onClick: resetForm,
+        disabled: mode === "payment" /* payment */
+      },
+      "Reset"
+    ))), /* @__PURE__ */ React169.createElement("h4", { className: "subtitle" }, mode === "payment" /* payment */ && paymentTitleOption?.title)), /* @__PURE__ */ React169.createElement("div", { className: "kima-card-content", ref: mainRef }, isWizard ? wizardStep === 0 ? /* @__PURE__ */ React169.createElement(NetworkSelect_default, null) : wizardStep === 1 ? /* @__PURE__ */ React169.createElement("div", { className: "connect-wallet-step" }, /* @__PURE__ */ React169.createElement("p", null, "Connect your wallet"), /* @__PURE__ */ React169.createElement(WalletButton_default, { errorBelow: true })) : wizardStep === 2 ? /* @__PURE__ */ React169.createElement(NetworkSelect_default, { isOriginChain: false }) : wizardStep === 3 ? /* @__PURE__ */ React169.createElement(AddressInputWizard_default, null) : wizardStep === 4 ? /* @__PURE__ */ React169.createElement(CoinSelect_default, null) : /* @__PURE__ */ React169.createElement(ConfirmDetails_default, { isApproved }) : formStep === 0 ? /* @__PURE__ */ React169.createElement(SingleForm_default, null) : /* @__PURE__ */ React169.createElement(ConfirmDetails_default, { isApproved })), /* @__PURE__ */ React169.createElement(
       "div",
       {
         className: `kima-card-footer ${mode === "bridge" /* bridge */ && formStep === 0 && "bridge"}`
@@ -11061,15 +11018,12 @@ var TransferWidget = ({
           {
             clickHandler: onNext,
             isLoading: isApproving || isSubmitting || isSigning,
-            disabled: isApproving || isSubmitting || isSigning
+            disabled: isApproving || isSubmitting || isSigning || mode === "payment" /* payment */ && !transactionOption
           },
           getButtonLabel()
         )
       )
-    ),
-    /* @__PURE__ */ React169.createElement(SolanaWalletConnectModal_default, null),
-    /* @__PURE__ */ React169.createElement(TronWalletConnectModal_default, null),
-    /* @__PURE__ */ React169.createElement(
+    ), /* @__PURE__ */ React169.createElement(SolanaWalletConnectModal_default, null), /* @__PURE__ */ React169.createElement(TronWalletConnectModal_default, null), /* @__PURE__ */ React169.createElement(
       Toaster2,
       {
         position: "top-right",
@@ -11093,8 +11047,7 @@ var TransferWidget = ({
           }
         }
       }
-    ),
-    /* @__PURE__ */ React169.createElement("div", { className: "floating-footer" }, /* @__PURE__ */ React169.createElement("div", { className: `items ${theme.colorMode}` }, /* @__PURE__ */ React169.createElement("span", null, "Powered by"), /* @__PURE__ */ React169.createElement(FooterLogo_default, { width: 50, fill: "black" }), /* @__PURE__ */ React169.createElement("strong", null, "Network")))
+    ), /* @__PURE__ */ React169.createElement("div", { className: "floating-footer" }, /* @__PURE__ */ React169.createElement("div", { className: `items ${theme.colorMode}` }, /* @__PURE__ */ React169.createElement("span", null, "Powered by"), /* @__PURE__ */ React169.createElement(FooterLogo_default, { width: 50, fill: "black" }), /* @__PURE__ */ React169.createElement("strong", null, "Network"))))
   );
 };
 
@@ -11150,6 +11103,16 @@ var KimaTransactionWidget = ({
     dispatch(setDappOption(dAppOption));
     dispatch(setWalletAutoConnect(autoSwitchChain));
     dispatch(setNetworkOption(networkOption));
+    if (mode === "payment" /* payment */) {
+      dispatch(
+        setTargetChain(transactionOption?.targetChain || "ETH" /* ETHEREUM */)
+      );
+      dispatch(setTargetAddress(transactionOption?.targetAddress || ""));
+      dispatch(setAmount(transactionOption?.amount.toString() || ""));
+    } else if (mode === "status" /* status */) {
+      dispatch(setTxId(txId || 1));
+      dispatch(setSubmitted(true));
+    }
   }, [
     provider,
     theme,
@@ -11174,7 +11137,8 @@ var KimaTransactionWidget = ({
       theme,
       feeURL,
       helpURL,
-      titleOption
+      titleOption,
+      paymentTitleOption
     }
   );
 };
