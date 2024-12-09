@@ -24,10 +24,10 @@ export default function useBalance() {
     const mainBalance = allBalances.filter(
       ({ pluginID }) => pluginID === currentPluginID
     )
-    const balance = mainBalance[0]?.balance ?? -3;
+    const balance = mainBalance[0]?.balance ?? 0;
     console.info('cBalanceUpdated:', balance);
     return balance
   }
 
-  return -200
+  return 0
 }
