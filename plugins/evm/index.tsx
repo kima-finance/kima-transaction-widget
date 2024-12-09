@@ -12,7 +12,7 @@ export class EvmPlugin extends PluginBase {
   constructor(store: any) {
     super({
       store,
-      id: 'evm',
+      id: 'EVM',
       fetchChains: getChainData,
       // TODO: implement approve hook
       useAllowance: () => ({

@@ -12,7 +12,7 @@ export class SolanaPlugin extends PluginBase {
   constructor(store: any) {
     super({
       store,
-      id: 'solana',
+      id: 'SOL',
       fetchChains: getChainData,
       // TODO: implement approve hook
       useAllowance: () => ({

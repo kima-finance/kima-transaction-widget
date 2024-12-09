@@ -12,7 +12,7 @@ export class TronPlugin extends PluginBase {
   constructor(store: any) {
     super({
       store,
-      id: 'tron',
+      id: 'TRX',
       fetchChains: getChainData,
       // provider: Provider,
       useAllowance: () => ({
