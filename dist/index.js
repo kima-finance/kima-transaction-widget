@@ -7661,7 +7661,7 @@ function TokenIcon({
     console.warn(`Token icon not found for symbol: ${symbol}`);
     return null;
   }
-  return /* @__PURE__ */ React94.createElement("div", { className: "icon" }, /* @__PURE__ */ React94.createElement(Icon, { width, height }));
+  return /* @__PURE__ */ React94.createElement("div", { className: "icon-wrapper" }, /* @__PURE__ */ React94.createElement(Icon, { width, height }));
 }
 
 // src/components/primary/TokenBadge.tsx

@@ -963,10 +963,10 @@
 .kima-card .kima-card-content .single-form .form-item .amount-label-container .coin-wrapper .icon-wrapper {
   display: flex;
   justify-content: center;
-  padding: 8px;
+  padding: 4px;
   background-color: white;
   margin-right: 6px;
-  border-radius: 9999px;
+  border-radius: 40px;
 }
 .kima-card .kima-card-content .single-form .form-item .amount-label-container .coin-wrapper.light {
   background-color: #edf2f5;
@@ -1089,7 +1089,7 @@
   width: 115px;
   border-radius: 50px;
   border: 0.5px solid #86b8ce;
-  padding-left: 12px;
+  padding-left: 4px;
   padding-right: 24px;
   height: 50px;
   display: flex;
@@ -1116,10 +1116,10 @@
 .kima-card .kima-card-content .single-form .coin-dropdown .coin-wrapper .icon-wrapper {
   display: flex;
   justify-content: center;
-  padding: 8px;
+  padding: 4px;
   background-color: white;
   margin-right: 6px;
-  border-radius: 9999px;
+  border-radius: 40px;
 }
 .kima-card .kima-card-content .single-form .coin-dropdown.light {
   color: black;
@@ -2692,10 +2692,10 @@
 .kima-card .icon-wrapper {
   display: flex;
   justify-content: center;
-  padding: 8px;
+  padding: 4px;
   background-color: white;
   margin-right: 6px;
-  border-radius: 9999px;
+  border-radius: 40px;
 }
 .kima-card input::-webkit-outer-spin-button,
 .kima-card input::-webkit-inner-spin-button {

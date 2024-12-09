@@ -34,7 +34,7 @@ export default function TokenIcon({
   }
 
   return (
-    <div className='icon'>
+    <div className='icon-wrapper'>
       <Icon width={width} height={height} />
     </div>
   )
