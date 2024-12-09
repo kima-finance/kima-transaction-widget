@@ -43,7 +43,7 @@ export default async function getChainData(backendURL = 'http://localhost:3001')
         icon: getTokenIcon(token.symbol) // Add token icon
       }))
 
-      const pluginID = 'EVM'
+      const pluginID = 'TRX'
 
       const availableChainsURL = `${backendURL}/chains/get_available_chains/${symbol}`
       const { Chains: chains } = await _fetch(availableChainsURL)
