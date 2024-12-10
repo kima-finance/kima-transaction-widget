@@ -6,6 +6,7 @@ import { PluginBase } from '@plugins/PluginBase'
 import { PluginProviderProps } from '@plugins/pluginTypes'
 import getChainData from '@plugins/tron/utils/getChainData'
 import useBalanceTron from '@plugins/tron/core/hooks/useGetTrxBalance'
+import useTronAllowance from '@plugins/tron/core/hooks/useTronAllowance'
 import useIsWalletReadyTron from '@plugins/tron/core/hooks/useIsWalletReady'
 
 export class TronPlugin extends PluginBase {
@@ -15,14 +16,9 @@ export class TronPlugin extends PluginBase {
       id: 'TRX',
       fetchChains: getChainData,
       // provider: Provider,
-      useAllowance: () => ({
-        isApproved: false,
-        poolAddress: '',
-        approve: () => Promise.resolve(),
-        allowance: 0
-      }),
+      useAllowance: useTronAllowance,
       useBalance: useBalanceTron,
-      useTokenBalance: useBalanceTron,
+      useTokenBalance: useTronAllowance,
       useWalletIsReady: useIsWalletReadyTron
     })
   }

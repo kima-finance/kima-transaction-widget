@@ -6,6 +6,7 @@ import { PluginBase } from '@plugins/PluginBase'
 import { PluginProviderProps } from '@plugins/pluginTypes'
 import getChainData from '@plugins/solana/utils/getChainData'
 import useGetSolBalance from '@plugins/solana/core/hooks/useGetSolBalance'
+import useSolanaAllowance from '@plugins/solana/core/hooks/useSolanaAllowance'
 import useSolIsWalletReady from '@plugins/solana/core/hooks/useIsWalletReady'
 
 export class SolanaPlugin extends PluginBase {
@@ -14,15 +15,9 @@ export class SolanaPlugin extends PluginBase {
       store,
       id: 'SOL',
       fetchChains: getChainData,
-      // TODO: implement approve hook
-      useAllowance: () => ({
-        isApproved: false,
-        poolAddress: '',
-        approve: () => Promise.resolve(),
-        allowance: 0
-      }),
+      useAllowance: useSolanaAllowance,
       useBalance: useGetSolBalance,
-      useTokenBalance: useGetSolBalance,
+      useTokenBalance: useSolanaAllowance,
       useWalletIsReady: useSolIsWalletReady
     })
   }

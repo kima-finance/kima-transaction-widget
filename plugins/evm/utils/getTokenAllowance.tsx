@@ -33,12 +33,17 @@ export const getTokenAllowance = async ({
 
     const erc20Contract = new Contract(tokenAddress, abi.abi, signer)
     const allowance = await erc20Contract.allowance(userAddress, poolAddress)
+    const balance = await erc20Contract.balanceOf(userAddress)
     const decimals = await erc20Contract.decimals()
 
     console.log('evm get allowance: ', +formatUnits(allowance, decimals))
     console.log('evm get decimals: ', decimals)
 
-    return { allowance: +formatUnits(allowance, decimals), decimals }
+    return {
+      allowance: Number(formatUnits(allowance, decimals)),
+      balance: Number(formatUnits(balance, decimals)),
+      decimals: Number(decimals)
+    }
   } catch (error) {
     console.error('Error getting evm allowance: ', error)
     throw new Error('Error getting evm allowance')

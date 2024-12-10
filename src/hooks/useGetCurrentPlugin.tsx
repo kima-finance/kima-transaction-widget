@@ -4,10 +4,11 @@ import { getPlugin } from '@pluginRegistry'
 import { selectSourceChain } from '@store/selectors'
 import useGetChainData from './useGetChainData'
 import { default as defaultPlugin } from '@plugins/evm'
+import { Plugin } from '../../plugins'
 
 const useGetCurrentPlugin = () => {
   // Initialize with defaultPlugin instead of null
-  const [currentPlugin, setCurrentPlugin] = useState<any>(defaultPlugin)
+  const [currentPlugin, setCurrentPlugin] = useState<Plugin>(defaultPlugin)
 
   const chainData = useGetChainData()?.chainData
   console.log('Chain data:', chainData)

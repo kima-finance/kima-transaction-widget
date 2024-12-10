@@ -12,10 +12,10 @@ export default function useBalance() {
   // Call useBalance for every plugin in a stable order
   const pluginEntries = Object.entries(allPlugins)
   const allBalances = pluginEntries.map(([pluginID, plugin]) => {
-    const balanceData = plugin.useBalance()
+    const balanceData = plugin.useTokenBalance()
     return { pluginID, ...balanceData }
   })
-  console.info('cBalances: ', allBalances);
+  console.info('cBalances: ', allBalances)
   console.info('cBalance ID:', currentPluginID)
 
   // If we have a current plugin ID, filter down to just that plugin's balance
@@ -24,8 +24,8 @@ export default function useBalance() {
     const mainBalance = allBalances.filter(
       ({ pluginID }) => pluginID === currentPluginID
     )
-    const balance = mainBalance[0]?.balance ?? -3;
-    console.info('cBalanceUpdated:', balance);
+    const balance = mainBalance[0]?.balance ?? -3
+    console.info('cBalanceUpdated:', balance)
     return balance
   }
 

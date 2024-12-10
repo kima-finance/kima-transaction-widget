@@ -29,13 +29,7 @@ import useGetPools from '../../../../src/hooks/useGetPools'
 import { getPoolAddress, getTokenAddress } from '@utils/functions'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 
-export default function useTronAllowance({
-  setApproving,
-  setCancellingApprove
-}: {
-  setApproving: any
-  setCancellingApprove: any
-}) {
+export default function useTronAllowance() {
   const sourceChain = useSelector(selectSourceChain)
   const targetChain = useSelector(selectTargetChain)
   const feeDeduct = useSelector(selectFeeDeduct)
@@ -72,7 +66,7 @@ export default function useTronAllowance({
       await getTokenAllowance({
         tokenOptions,
         selectedCoin,
-        userAddress,
+        userAddress: userAddress!,
         pools,
         tronWeb,
         abi: ERC20ABI
@@ -88,7 +82,12 @@ export default function useTronAllowance({
     gcTime: 60000
   })
 
+  // TODO: refactor to use use Tanstack useMutaion hook
   const approveTrc20TokenTransfer = async (isCancel: boolean = false) => {
+    if (!userAddress || !pools || !tronWeb || !tokenOptions || !selectedCoin) {
+      console.warn('Missing required data for approveTrc20TokenTransfer')
+      return
+    }
     const poolAddress = getPoolAddress(pools, 'TRX')
     const tokenAddress = getTokenAddress(tokenOptions, selectedCoin, 'TRX')
 
@@ -128,9 +127,9 @@ export default function useTronAllowance({
 
   return {
     ...allowanceData,
-    isApproved:
-      allowanceData?.allowance / Math.pow(10, allowanceData?.decimals) >=
-      amountToShow,
-    approveTrc20TokenTransfer
+    isApproved: allowanceData?.allowance
+      ? allowanceData?.allowance >= Number(amountToShow)
+      : false,
+    approve: approveTrc20TokenTransfer
   }
 }

@@ -20,8 +20,8 @@ export const getTokenAllowance = async ({
     // get selected token address
     const tokenAddress = getTokenAddress(tokenOptions, selectedCoin, 'SOL')
 
-		// get chain pool address
-		const poolAddress = getPoolAddress(pools, 'SOL')
+    // get chain pool address
+    const poolAddress = getPoolAddress(pools, 'SOL')
 
     // get mint address of token
     const mintPublicKey = new PublicKey(tokenAddress)
@@ -41,9 +41,11 @@ export const getTokenAllowance = async ({
     return {
       allowance:
         parsedAccountInfo.parsed?.info?.delegate === poolAddress // check if has delegated the tokens to the kima pool
-          ? parsedAccountInfo.parsed?.info?.delegatedAmount?.uiAmount
+          ? (parsedAccountInfo.parsed?.info?.delegatedAmount
+              ?.uiAmount as number)
           : 0,
-      decimals: parsedAccountInfo.parsed?.info?.tokenAmount?.decimals
+      balance: parsedAccountInfo.parsed?.info?.tokenAmount?.uiAmount as number,
+      decimals: parsedAccountInfo.parsed?.info?.tokenAmount?.decimals as number
     }
   } catch (error) {
     console.error('Error fetching token allowance:', error)

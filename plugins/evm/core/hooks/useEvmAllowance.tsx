@@ -29,13 +29,7 @@ import { Contract, ethers } from 'ethers'
 import { ExternalProvider, JsonRpcFetchFunc } from '@ethersproject/providers'
 import { parseUnits } from '@ethersproject/units'
 
-export default function useEvmAllowance({
-  setApproving,
-  setCancellingApprove
-}: {
-  setApproving: any
-  setCancellingApprove: any
-}) {
+export default function useEvmAllowance() {
   const appkitAccountInfo = useAppKitAccount()
 
   const { chainId: evmChainId } = useAppKitNetwork()
@@ -69,8 +63,8 @@ export default function useEvmAllowance({
       getTokenAllowance({
         tokenOptions,
         selectedCoin,
-        walletProvider,
-        userAddress,
+        walletProvider: walletProvider!,
+        userAddress: userAddress!,
         pools,
         abi: ERC20ABI,
         chain: sourceChain
@@ -87,6 +81,7 @@ export default function useEvmAllowance({
       isEVMChain(sourceChain)
   })
 
+  // TODO: refactor to use use Tanstack useMutaion hook
   const approveErc20TokenTransfer = async (isCancel: boolean = false) => {
     // Get token address
     const tokenAddress = getTokenAddress(
@@ -109,7 +104,7 @@ export default function useEvmAllowance({
       const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer)
 
       // Toggle approving state
-      isCancel ? setCancellingApprove(true) : setApproving(true)
+      // isCancel ? setCancellingApprove(true) : setApproving(true)
 
       // Initiate the approve transaction
       const approveTx = await erc20Contract.approve(
@@ -132,10 +127,10 @@ export default function useEvmAllowance({
       }
 
       // Reset approving state
-      isCancel ? setCancellingApprove(false) : setApproving(false)
+      // isCancel ? setCancellingApprove(false) : setApproving(false)
     } catch (error) {
       console.error('Error on EVM approval:', error)
-      isCancel ? setCancellingApprove(false) : setApproving(false)
+      // isCancel ? setCancellingApprove(false) : setApproving(false)
 
       throw new Error('Error on EVM approval')
     }
@@ -143,7 +138,9 @@ export default function useEvmAllowance({
 
   return {
     ...allowanceData,
-    isApproved: allowanceData?.allowance >= amountToShow,
-    approveErc20TokenTransfer
+    isApproved: allowanceData?.allowance
+      ? allowanceData.allowance >= Number(amountToShow)
+      : false,
+    approve: approveErc20TokenTransfer
   }
 }

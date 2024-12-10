@@ -1,5 +1,6 @@
 export interface Plugin {
   initialize: () => PluginInit
+  data: PluginData
 
   // hooks
   // TODO: refactor to return a UseQueryResult
@@ -11,13 +12,14 @@ export interface Plugin {
 
 export interface PluginUseAllowanceResult {
   isApproved: boolean
-  poolAddress: string
   approve: (isCancel?: boolean) => Promise<void>
-  allowance: number
+  allowance?: number | undefined
+  balance?: number | undefined
+  decimals?: number | undefined
 }
 
 export interface PluginUseBalanceResult {
-  balance: number | undefined
+  balance?: number | undefined
 }
 
 export interface PluginUseWalletIsReadyResult {
