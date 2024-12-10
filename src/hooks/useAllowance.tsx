@@ -415,7 +415,8 @@ export default function useAllowance({
       isApproved,
       poolAddress,
       approve,
-      allowance
+      allowance,
+      decimals
     }),
     [isApproved, poolAddress, approve, allowance]
   )
