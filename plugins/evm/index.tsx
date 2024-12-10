@@ -6,6 +6,7 @@ import { store } from '@store/index'
 import WalletProvider from '@plugins/evm/features/walletConnect/WalletProvider'
 import getChainData from '@plugins/evm/utils/getChainData'
 import useBalanceEvm from '@plugins/evm/core/hooks/useBalance'
+import useNativeEvmBalance from '@plugins/evm/core/hooks/useNativeBalance'
 import useIsWalletReadyEvm from '@plugins/evm/core/hooks/useIsWalletReady'
 import useEvmAllowance from '@plugins/evm/core/hooks/useEvmAllowance'
 
@@ -15,9 +16,8 @@ export class EvmPlugin extends PluginBase {
       store,
       id: 'EVM',
       fetchChains: getChainData,
-      // TODO: implement approve hook
       useAllowance: useEvmAllowance,
-      useBalance: useBalanceEvm,
+      useNativeBalance: useNativeEvmBalance,
       useTokenBalance: useBalanceEvm,
       useWalletIsReady: useIsWalletReadyEvm
     })

@@ -4554,7 +4554,7 @@ var PluginBase = class {
   fetchChains;
   // hooks
   useAllowance;
-  useBalance;
+  useNativeBalance;
   useTokenBalance;
   useWalletIsReady;
   constructor(args) {
@@ -4567,7 +4567,7 @@ var PluginBase = class {
     };
     this.fetchChains = args.fetchChains;
     this.useAllowance = args.useAllowance;
-    this.useBalance = args.useBalance;
+    this.useNativeBalance = args.useNativeBalance;
     this.useTokenBalance = args.useTokenBalance;
     this.useWalletIsReady = args.useWalletIsReady;
   }
@@ -5302,11 +5302,8 @@ async function getChainData(backendURL = "http://localhost:3001") {
 }
 
 // plugins/evm/core/hooks/useBalance.tsx
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useSelector } from "react-redux";
-import { Contract } from "@ethersproject/contracts";
-import { formatUnits } from "@ethersproject/units";
-import { ethers } from "ethers";
 import { useAppKitAccount, useAppKitProvider } from "@reown/appkit/react";
 
 // src/store/selectors.tsx
@@ -5389,7 +5386,417 @@ var CLUSTER2 = "devnet";
 var SOLANA_HOST2 = clusterApiUrl2(CLUSTER2);
 var isEVMChain2 = (chainId) => chainId === "ETH" /* ETHEREUM */ || chainId === "POL" /* POLYGON */ || chainId === "AVX" /* AVALANCHE */ || chainId === "BSC" /* BSC */ || chainId === "OPT" /* OPTIMISM */ || chainId === "ARB" /* ARBITRUM */ || chainId === "ZKE" /* POLYGON_ZKEVM */;
 
+// plugins/evm/helpers/functions.tsx
+var formatterInt = new Intl.NumberFormat("en-US", {
+  maximumFractionDigits: 0
+});
+var formatterFloat = new Intl.NumberFormat("en-US", {
+  maximumFractionDigits: 9
+});
+function isEmptyObject(arg) {
+  return typeof arg === "object" && Object.keys(arg).length === 0;
+}
+
+// plugins/evm/utils/getTokenBalance.ts
+import { Contract, ethers } from "ethers";
+
 // plugins/evm/utils/ethereum/erc20ABI.json
+var abi = [
+  {
+    constant: true,
+    inputs: [],
+    name: "name",
+    outputs: [
+      {
+        name: "",
+        type: "string"
+      }
+    ],
+    payable: false,
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    constant: false,
+    inputs: [
+      {
+        name: "_spender",
+        type: "address"
+      },
+      {
+        name: "_value",
+        type: "uint256"
+      }
+    ],
+    name: "approve",
+    outputs: [
+      {
+        name: "",
+        type: "bool"
+      }
+    ],
+    payable: false,
+    stateMutability: "nonpayable",
+    type: "function"
+  },
+  {
+    constant: true,
+    inputs: [],
+    name: "totalSupply",
+    outputs: [
+      {
+        name: "",
+        type: "uint256"
+      }
+    ],
+    payable: false,
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    constant: false,
+    inputs: [
+      {
+        name: "_from",
+        type: "address"
+      },
+      {
+        name: "_to",
+        type: "address"
+      },
+      {
+        name: "_value",
+        type: "uint256"
+      }
+    ],
+    name: "transferFrom",
+    outputs: [
+      {
+        name: "",
+        type: "bool"
+      }
+    ],
+    payable: false,
+    stateMutability: "nonpayable",
+    type: "function"
+  },
+  {
+    constant: true,
+    inputs: [],
+    name: "decimals",
+    outputs: [
+      {
+        name: "",
+        type: "uint8"
+      }
+    ],
+    payable: false,
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    constant: true,
+    inputs: [
+      {
+        name: "_owner",
+        type: "address"
+      }
+    ],
+    name: "balanceOf",
+    outputs: [
+      {
+        name: "balance",
+        type: "uint256"
+      }
+    ],
+    payable: false,
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    constant: true,
+    inputs: [],
+    name: "symbol",
+    outputs: [
+      {
+        name: "",
+        type: "string"
+      }
+    ],
+    payable: false,
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    constant: false,
+    inputs: [
+      {
+        name: "_to",
+        type: "address"
+      },
+      {
+        name: "_value",
+        type: "uint256"
+      }
+    ],
+    name: "transfer",
+    outputs: [
+      {
+        name: "",
+        type: "bool"
+      }
+    ],
+    payable: false,
+    stateMutability: "nonpayable",
+    type: "function"
+  },
+  {
+    constant: true,
+    inputs: [
+      {
+        name: "_owner",
+        type: "address"
+      },
+      {
+        name: "_spender",
+        type: "address"
+      }
+    ],
+    name: "allowance",
+    outputs: [
+      {
+        name: "",
+        type: "uint256"
+      }
+    ],
+    payable: false,
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    payable: true,
+    stateMutability: "payable",
+    type: "fallback"
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        name: "owner",
+        type: "address"
+      },
+      {
+        indexed: true,
+        name: "spender",
+        type: "address"
+      },
+      {
+        indexed: false,
+        name: "value",
+        type: "uint256"
+      }
+    ],
+    name: "Approval",
+    type: "event"
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        name: "from",
+        type: "address"
+      },
+      {
+        indexed: true,
+        name: "to",
+        type: "address"
+      },
+      {
+        indexed: false,
+        name: "value",
+        type: "uint256"
+      }
+    ],
+    name: "Transfer",
+    type: "event"
+  }
+];
+
+// plugins/evm/utils/getTokenBalance.ts
+import { formatUnits } from "@ethersproject/units";
+var getEvmTokenBalance = async (input) => {
+  const { walletProvider, tokenAddress, address } = input;
+  const provider = new ethers.providers.Web3Provider(walletProvider);
+  const erc20Contract = new Contract(tokenAddress, abi, provider);
+  const [decimals, userBalance] = await Promise.all([
+    erc20Contract.decimals(),
+    erc20Contract.balanceOf(address)
+  ]);
+  return {
+    balance: Number(formatUnits(userBalance, decimals)),
+    decimals: Number(decimals)
+  };
+};
+
+// plugins/evm/core/hooks/useBalance.tsx
+import { useQuery } from "@tanstack/react-query";
+var zeroBalance = { balance: 0, decimals: 6 };
+function useBalance() {
+  const appkitAccountInfo = useAppKitAccount();
+  const { address: signerAddress } = appkitAccountInfo || {};
+  const { walletProvider } = useAppKitProvider("eip155");
+  const sourceChain = useSelector(selectSourceChain);
+  const sourceCurrency = useSelector(selectSourceCurrency);
+  const tokenOptions = useSelector(selectTokenOptions);
+  const tokenAddress = useMemo(() => {
+    if (isEmptyObject(tokenOptions) || sourceChain === "FIAT" /* FIAT */) return "";
+    const coinOptions = tokenOptions[sourceCurrency];
+    if (coinOptions && typeof coinOptions === "object") {
+      return coinOptions[sourceChain];
+    }
+    return "";
+  }, [sourceCurrency, sourceChain, tokenOptions]);
+  const result = useQuery({
+    queryKey: ["evmBalance", sourceChain, tokenAddress, signerAddress],
+    queryFn: () => {
+      try {
+        if (!isEVMChain2(sourceChain)) return zeroBalance;
+        return getEvmTokenBalance({
+          address: signerAddress,
+          tokenAddress,
+          walletProvider
+        });
+      } catch (e) {
+        const msg = `Error getting ${sourceChain} ${sourceCurrency} balance for wallet ${signerAddress}`;
+        console.error(msg, e);
+        throw new Error(msg);
+      }
+    },
+    enabled: !!tokenAddress && !!walletProvider && !!signerAddress,
+    staleTime: 1e3 * 60
+    // 1 min
+  });
+  const { data } = result;
+  return data;
+}
+
+// plugins/evm/core/hooks/useNativeBalance.ts
+import { useQuery as useQuery2 } from "@tanstack/react-query";
+import { useAppKitAccount as useAppKitAccount2, useAppKitProvider as useAppKitProvider2 } from "@reown/appkit/react";
+
+// plugins/evm/utils/getBalance.ts
+import { ethers as ethers2 } from "ethers";
+var getEvmBalance = async (input) => {
+  const { walletProvider, address } = input;
+  const provider = new ethers2.providers.Web3Provider(walletProvider);
+  const walletBalance = await provider.getBalance(address);
+  return {
+    balance: Number(ethers2.utils.formatEther(walletBalance)),
+    decimals: 18
+  };
+};
+
+// plugins/evm/core/hooks/useNativeBalance.ts
+var useNativeEvmBalance = () => {
+  const appkitAccountInfo = useAppKitAccount2();
+  const { address: signerAddress } = appkitAccountInfo || {};
+  const { walletProvider } = useAppKitProvider2("eip155");
+  const result = useQuery2({
+    queryKey: ["evmNativeBalance", signerAddress],
+    queryFn: async () => {
+      try {
+        const response = await getEvmBalance({
+          address: signerAddress,
+          walletProvider
+        });
+        return response;
+      } catch (e) {
+        const msg = `Error getting native balance for wallet ${signerAddress}`;
+        console.error(msg, e);
+        throw new Error(msg);
+      }
+    },
+    enabled: !!signerAddress && !!walletProvider,
+    staleTime: 1e3 * 60
+    // 1 min
+  });
+  const { data } = result;
+  return data;
+};
+var useNativeBalance_default = useNativeEvmBalance;
+
+// plugins/evm/core/hooks/useIsWalletReady.tsx
+import { useCallback, useEffect, useMemo as useMemo2 } from "react";
+import { useDispatch, useSelector as useSelector2 } from "react-redux";
+import {
+  useAppKitAccount as useAppKitAccount3,
+  useAppKitNetwork,
+  useAppKitProvider as useAppKitProvider3
+} from "@reown/appkit/react";
+
+// plugins/evm/core/contexts/useModal.tsx
+import { createContext as createContext2, useContext as useContext2 } from "react";
+var ModalContext2 = createContext2(null);
+var useModal2 = () => {
+  const context = useContext2(ModalContext2);
+  if (!context) {
+    throw new Error("useModal must be used within a ModalProvider");
+  }
+  return context;
+};
+
+// plugins/evm/core/hooks/useIsWalletReady.tsx
+import toast from "react-hot-toast";
+function useIsWalletReady() {
+  const dispatch = useDispatch();
+  const { walletProvider: evmProvider } = useAppKitProvider3("eip155");
+  const appkitAccountInfo = useAppKitAccount3();
+  const { chainId: walletChainId } = useAppKitNetwork();
+  const modal = useModal2();
+  const { address: walletAddress, isConnected } = appkitAccountInfo || {};
+  const sourceChain = useSelector2(selectSourceChain);
+  const networkOption = useSelector2(selectNetworkOption);
+  const correctEvmNetwork = useMemo2(() => {
+    return networkOption === "mainnet" /* mainnet */ ? CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET2[sourceChain] : CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET2[sourceChain];
+  }, [networkOption, sourceChain]);
+  const switchNetwork = useCallback(async () => {
+    if (evmProvider && correctEvmNetwork) {
+      try {
+        await modal.switchNetwork(correctEvmNetwork);
+        toast.success(`Switched to ${correctEvmNetwork.name}`);
+      } catch (e) {
+        toast.error(`Failed to switch to ${correctEvmNetwork.name}`);
+      }
+    }
+  }, [evmProvider, correctEvmNetwork, modal]);
+  useEffect(() => {
+    if (!isConnected) {
+      toast.error("Wallet not connected");
+    } else if (walletChainId !== correctEvmNetwork?.id) {
+      switchNetwork();
+    }
+  }, [isConnected, walletChainId, correctEvmNetwork, switchNetwork]);
+  useEffect(() => {
+    isConnected && dispatch(setSourceAddress(walletAddress));
+  }, [walletAddress, isConnected]);
+  return useMemo2(
+    () => ({
+      isReady: isConnected && walletChainId === correctEvmNetwork?.id,
+      statusMessage: isConnected ? walletChainId === correctEvmNetwork?.id ? "" : `Switching to ${correctEvmNetwork.name}...` : "Wallet not connected",
+      walletAddress: isConnected ? walletAddress : void 0
+    }),
+    [isConnected, walletChainId, correctEvmNetwork, walletAddress]
+  );
+}
+var useIsWalletReady_default = useIsWalletReady;
+
+// plugins/evm/core/hooks/useEvmAllowance.tsx
+import { useMemo as useMemo3, useState } from "react";
+import { useSelector as useSelector3 } from "react-redux";
+
+// src/utils/ethereum/erc20ABI.json
 var erc20ABI_default = {
   abi: [
     {
@@ -5615,367 +6022,16 @@ var erc20ABI_default = {
   ]
 };
 
-// plugins/evm/helpers/functions.tsx
-var formatterInt = new Intl.NumberFormat("en-US", {
-  maximumFractionDigits: 0
-});
-var formatterFloat = new Intl.NumberFormat("en-US", {
-  maximumFractionDigits: 9
-});
-function isEmptyObject(arg) {
-  return typeof arg === "object" && Object.keys(arg).length === 0;
-}
-
-// plugins/evm/core/hooks/useBalance.tsx
-function useBalance() {
-  const [balance, setBalance] = useState(0);
-  const appkitAccountInfo = useAppKitAccount();
-  const { address: signerAddress } = appkitAccountInfo || {};
-  const { walletProvider } = useAppKitProvider("eip155");
-  const errorHandler = useSelector(selectErrorHandler);
-  const sourceChain = useSelector(selectSourceChain);
-  const sourceCurrency = useSelector(selectSourceCurrency);
-  const tokenOptions = useSelector(selectTokenOptions);
-  const tokenAddress = useMemo(() => {
-    if (isEmptyObject(tokenOptions) || sourceChain === "FIAT" /* FIAT */) return "";
-    const coinOptions = tokenOptions[sourceCurrency];
-    if (coinOptions && typeof coinOptions === "object") {
-      return coinOptions[sourceChain];
-    }
-    return "";
-  }, [sourceCurrency, sourceChain, tokenOptions]);
-  useEffect(() => {
-    setBalance(0);
-  }, [sourceChain]);
-  useEffect(() => {
-    ;
-    (async () => {
-      if (!tokenAddress || !isEVMChain2(sourceChain) || !walletProvider) return;
-      try {
-        const provider = new ethers.providers.Web3Provider(
-          walletProvider
-        );
-        const signer = provider.getSigner();
-        if (!signer || !signerAddress) return;
-        const erc20Contract = new Contract(tokenAddress, erc20ABI_default.abi, signer);
-        const [decimals, userBalance] = await Promise.all([
-          erc20Contract.decimals(),
-          erc20Contract.balanceOf(signerAddress)
-        ]);
-        setBalance(+formatUnits(userBalance, decimals));
-      } catch (error) {
-        errorHandler(error);
-      }
-    })();
-  }, [signerAddress, tokenAddress, sourceChain, walletProvider]);
-  return useMemo(() => ({ balance }), [balance]);
-}
-
-// plugins/evm/core/hooks/useIsWalletReady.tsx
-import { useCallback, useEffect as useEffect2, useMemo as useMemo2 } from "react";
-import { useDispatch, useSelector as useSelector2 } from "react-redux";
-import {
-  useAppKitAccount as useAppKitAccount2,
-  useAppKitNetwork,
-  useAppKitProvider as useAppKitProvider2
-} from "@reown/appkit/react";
-
-// plugins/evm/core/contexts/useModal.tsx
-import { createContext as createContext2, useContext as useContext2 } from "react";
-var ModalContext2 = createContext2(null);
-var useModal2 = () => {
-  const context = useContext2(ModalContext2);
-  if (!context) {
-    throw new Error("useModal must be used within a ModalProvider");
-  }
-  return context;
-};
-
-// plugins/evm/core/hooks/useIsWalletReady.tsx
-import toast from "react-hot-toast";
-function useIsWalletReady() {
-  const dispatch = useDispatch();
-  const { walletProvider: evmProvider } = useAppKitProvider2("eip155");
-  const appkitAccountInfo = useAppKitAccount2();
-  const { chainId: walletChainId } = useAppKitNetwork();
-  const modal = useModal2();
-  const { address: walletAddress, isConnected } = appkitAccountInfo || {};
-  const sourceChain = useSelector2(selectSourceChain);
-  const networkOption = useSelector2(selectNetworkOption);
-  const correctEvmNetwork = useMemo2(() => {
-    return networkOption === "mainnet" /* mainnet */ ? CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET2[sourceChain] : CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET2[sourceChain];
-  }, [networkOption, sourceChain]);
-  const switchNetwork = useCallback(async () => {
-    if (evmProvider && correctEvmNetwork) {
-      try {
-        await modal.switchNetwork(correctEvmNetwork);
-        toast.success(`Switched to ${correctEvmNetwork.name}`);
-      } catch (e) {
-        toast.error(`Failed to switch to ${correctEvmNetwork.name}`);
-      }
-    }
-  }, [evmProvider, correctEvmNetwork, modal]);
-  useEffect2(() => {
-    if (!isConnected) {
-      toast.error("Wallet not connected");
-    } else if (walletChainId !== correctEvmNetwork?.id) {
-      switchNetwork();
-    }
-  }, [isConnected, walletChainId, correctEvmNetwork, switchNetwork]);
-  useEffect2(() => {
-    isConnected && dispatch(setSourceAddress(walletAddress));
-  }, [walletAddress, isConnected]);
-  return useMemo2(
-    () => ({
-      isReady: isConnected && walletChainId === correctEvmNetwork?.id,
-      statusMessage: isConnected ? walletChainId === correctEvmNetwork?.id ? "" : `Switching to ${correctEvmNetwork.name}...` : "Wallet not connected",
-      walletAddress: isConnected ? walletAddress : void 0
-    }),
-    [isConnected, walletChainId, correctEvmNetwork, walletAddress]
-  );
-}
-var useIsWalletReady_default = useIsWalletReady;
-
-// plugins/evm/core/hooks/useEvmAllowance.tsx
-import { useMemo as useMemo3, useState as useState2 } from "react";
-import { useSelector as useSelector3 } from "react-redux";
-
-// src/utils/ethereum/erc20ABI.json
-var erc20ABI_default2 = {
-  abi: [
-    {
-      constant: true,
-      inputs: [],
-      name: "name",
-      outputs: [
-        {
-          name: "",
-          type: "string"
-        }
-      ],
-      payable: false,
-      stateMutability: "view",
-      type: "function"
-    },
-    {
-      constant: false,
-      inputs: [
-        {
-          name: "_spender",
-          type: "address"
-        },
-        {
-          name: "_value",
-          type: "uint256"
-        }
-      ],
-      name: "approve",
-      outputs: [
-        {
-          name: "",
-          type: "bool"
-        }
-      ],
-      payable: false,
-      stateMutability: "nonpayable",
-      type: "function"
-    },
-    {
-      constant: true,
-      inputs: [],
-      name: "totalSupply",
-      outputs: [
-        {
-          name: "",
-          type: "uint256"
-        }
-      ],
-      payable: false,
-      stateMutability: "view",
-      type: "function"
-    },
-    {
-      constant: false,
-      inputs: [
-        {
-          name: "_from",
-          type: "address"
-        },
-        {
-          name: "_to",
-          type: "address"
-        },
-        {
-          name: "_value",
-          type: "uint256"
-        }
-      ],
-      name: "transferFrom",
-      outputs: [
-        {
-          name: "",
-          type: "bool"
-        }
-      ],
-      payable: false,
-      stateMutability: "nonpayable",
-      type: "function"
-    },
-    {
-      constant: true,
-      inputs: [],
-      name: "decimals",
-      outputs: [
-        {
-          name: "",
-          type: "uint8"
-        }
-      ],
-      payable: false,
-      stateMutability: "view",
-      type: "function"
-    },
-    {
-      constant: true,
-      inputs: [
-        {
-          name: "_owner",
-          type: "address"
-        }
-      ],
-      name: "balanceOf",
-      outputs: [
-        {
-          name: "balance",
-          type: "uint256"
-        }
-      ],
-      payable: false,
-      stateMutability: "view",
-      type: "function"
-    },
-    {
-      constant: true,
-      inputs: [],
-      name: "symbol",
-      outputs: [
-        {
-          name: "",
-          type: "string"
-        }
-      ],
-      payable: false,
-      stateMutability: "view",
-      type: "function"
-    },
-    {
-      constant: false,
-      inputs: [
-        {
-          name: "_to",
-          type: "address"
-        },
-        {
-          name: "_value",
-          type: "uint256"
-        }
-      ],
-      name: "transfer",
-      outputs: [
-        {
-          name: "",
-          type: "bool"
-        }
-      ],
-      payable: false,
-      stateMutability: "nonpayable",
-      type: "function"
-    },
-    {
-      constant: true,
-      inputs: [
-        {
-          name: "_owner",
-          type: "address"
-        },
-        {
-          name: "_spender",
-          type: "address"
-        }
-      ],
-      name: "allowance",
-      outputs: [
-        {
-          name: "",
-          type: "uint256"
-        }
-      ],
-      payable: false,
-      stateMutability: "view",
-      type: "function"
-    },
-    {
-      payable: true,
-      stateMutability: "payable",
-      type: "fallback"
-    },
-    {
-      anonymous: false,
-      inputs: [
-        {
-          indexed: true,
-          name: "owner",
-          type: "address"
-        },
-        {
-          indexed: true,
-          name: "spender",
-          type: "address"
-        },
-        {
-          indexed: false,
-          name: "value",
-          type: "uint256"
-        }
-      ],
-      name: "Approval",
-      type: "event"
-    },
-    {
-      anonymous: false,
-      inputs: [
-        {
-          indexed: true,
-          name: "from",
-          type: "address"
-        },
-        {
-          indexed: true,
-          name: "to",
-          type: "address"
-        },
-        {
-          indexed: false,
-          name: "value",
-          type: "uint256"
-        }
-      ],
-      name: "Transfer",
-      type: "event"
-    }
-  ]
-};
-
 // plugins/evm/core/hooks/useEvmAllowance.tsx
 import {
-  useAppKitAccount as useAppKitAccount3,
+  useAppKitAccount as useAppKitAccount4,
   useAppKitNetwork as useAppKitNetwork2,
-  useAppKitProvider as useAppKitProvider3
+  useAppKitProvider as useAppKitProvider4
 } from "@reown/appkit/react";
-import { useQuery as useQuery2 } from "@tanstack/react-query";
+import { useQuery as useQuery4 } from "@tanstack/react-query";
 
 // plugins/evm/utils/getTokenAllowance.tsx
-import { Contract as Contract2, ethers as ethers2 } from "ethers";
+import { Contract as Contract2, ethers as ethers3 } from "ethers";
 
 // src/utils/functions.tsx
 var getShortenedAddress = (address) => {
@@ -6035,18 +6091,18 @@ var getTokenAllowance = async ({
   walletProvider,
   userAddress,
   pools,
-  abi,
+  abi: abi2,
   chain
 }) => {
   try {
     const tokenAddress = getTokenAddress(tokenOptions, selectedCoin, chain);
     const poolAddress = getPoolAddress(pools, chain);
-    const provider = new ethers2.providers.Web3Provider(
+    const provider = new ethers3.providers.Web3Provider(
       walletProvider
     );
     const signer = provider?.getSigner();
     if (!tokenAddress || !poolAddress || !signer || !userAddress) return;
-    const erc20Contract = new Contract2(tokenAddress, abi.abi, signer);
+    const erc20Contract = new Contract2(tokenAddress, abi2.abi, signer);
     const allowance = await erc20Contract.allowance(userAddress, poolAddress);
     const balance = await erc20Contract.balanceOf(userAddress);
     const decimals = await erc20Contract.decimals();
@@ -6064,7 +6120,7 @@ var getTokenAllowance = async ({
 };
 
 // src/hooks/useGetPools.tsx
-import { useQuery } from "@tanstack/react-query";
+import { useQuery as useQuery3 } from "@tanstack/react-query";
 
 // src/helpers/fetch-wrapper.tsx
 var fetchWrapper = {
@@ -6118,7 +6174,7 @@ var getPools = async (backenUrl) => {
 
 // src/hooks/useGetPools.tsx
 var useGetPools = (backendUrl, networkOption) => {
-  const { data, error, isLoading } = useQuery({
+  const { data, error, isLoading } = useQuery3({
     queryKey: ["pools", networkOption],
     queryFn: async () => await getPools(backendUrl),
     refetchInterval: 3e5,
@@ -6133,13 +6189,13 @@ var useGetPools = (backendUrl, networkOption) => {
 var useGetPools_default = useGetPools;
 
 // plugins/evm/core/hooks/useEvmAllowance.tsx
-import { Contract as Contract3, ethers as ethers3 } from "ethers";
+import { Contract as Contract3, ethers as ethers4 } from "ethers";
 import { parseUnits } from "@ethersproject/units";
 function useEvmAllowance() {
-  const appkitAccountInfo = useAppKitAccount3();
+  const appkitAccountInfo = useAppKitAccount4();
   const { chainId: evmChainId } = useAppKitNetwork2();
   const { address: userAddress } = appkitAccountInfo;
-  const { walletProvider } = useAppKitProvider3("eip155");
+  const { walletProvider } = useAppKitProvider4("eip155");
   const sourceChain = useSelector3(selectSourceChain);
   const targetChain = useSelector3(selectTargetChain);
   const feeDeduct = useSelector3(selectFeeDeduct);
@@ -6149,7 +6205,7 @@ function useEvmAllowance() {
   const selectedCoin = useSelector3(selectSourceCurrency);
   const tokenOptions = useSelector3(selectTokenOptions);
   const backendUrl = useSelector3(selectBackendUrl);
-  const [approvalsCount, setApprovalsCount] = useState2(0);
+  const [approvalsCount, setApprovalsCount] = useState(0);
   const amountToShow = useMemo3(() => {
     return (feeDeduct ? +amount : +amount + totalFeeUsd).toFixed(2);
   }, [amount, totalFeeUsd, sourceChain, targetChain, feeDeduct]);
@@ -6158,7 +6214,7 @@ function useEvmAllowance() {
     data: allowanceData,
     isLoading,
     error
-  } = useQuery2({
+  } = useQuery4({
     queryKey: ["evmAllowance", userAddress, sourceChain, approvalsCount],
     queryFn: async () => getTokenAllowance({
       tokenOptions,
@@ -6166,12 +6222,12 @@ function useEvmAllowance() {
       walletProvider,
       userAddress,
       pools,
-      abi: erc20ABI_default2,
+      abi: erc20ABI_default,
       chain: sourceChain
     }),
     refetchInterval: 6e4,
     gcTime: 3e5,
-    enabled: !!tokenOptions && !!selectedCoin && !!walletProvider && !!userAddress && pools.length > 0 && !!erc20ABI_default2 && isEVMChain2(sourceChain)
+    enabled: !!tokenOptions && !!selectedCoin && !!walletProvider && !!userAddress && pools.length > 0 && !!erc20ABI_default && isEVMChain2(sourceChain)
   });
   const approveErc20TokenTransfer = async (isCancel = false) => {
     const tokenAddress = getTokenAddress(
@@ -6180,14 +6236,14 @@ function useEvmAllowance() {
       sourceChain
     );
     const poolAddress = getPoolAddress(pools, sourceChain);
-    const provider = new ethers3.providers.Web3Provider(
+    const provider = new ethers4.providers.Web3Provider(
       walletProvider
     );
     const signer = provider.getSigner();
     if (!allowanceData?.decimals || !tokenAddress || !signer || !poolAddress)
       return;
     try {
-      const erc20Contract = new Contract3(tokenAddress, erc20ABI_default2.abi, signer);
+      const erc20Contract = new Contract3(tokenAddress, erc20ABI_default.abi, signer);
       const approveTx = await erc20Contract.approve(
         poolAddress,
         isCancel ? "0" : parseUnits(amountToShow, allowanceData.decimals)
@@ -6220,9 +6276,8 @@ var EvmPlugin = class extends PluginBase {
       store: store2,
       id: "EVM",
       fetchChains: getChainData,
-      // TODO: implement approve hook
       useAllowance: useEvmAllowance,
-      useBalance,
+      useNativeBalance: useNativeBalance_default,
       useTokenBalance: useBalance,
       useWalletIsReady: useIsWalletReady_default
     });
@@ -6925,7 +6980,7 @@ async function getChainData2(backendURL = "http://localhost:3001") {
 
 // plugins/solana/core/hooks/useGetSolBalance.tsx
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { useQuery as useQuery3 } from "@tanstack/react-query";
+import { useQuery as useQuery5 } from "@tanstack/react-query";
 
 // plugins/solana/utils/getSolBalance.tsx
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
@@ -6946,7 +7001,7 @@ function useGetSolBalance() {
   const { publicKey } = useWallet();
   const { connection } = useConnection();
   const sourceNetwork = useSelector4(selectSourceChain);
-  const result = useQuery3({
+  const result = useQuery5({
     queryKey: ["getSolBalance", publicKey?.toBase58()],
     queryFn: async () => getSolBalance(connection, publicKey),
     enabled: !!publicKey && !!connection && sourceNetwork === "SOL",
@@ -6961,10 +7016,10 @@ function useGetSolBalance() {
 var useGetSolBalance_default = useGetSolBalance;
 
 // plugins/solana/core/hooks/useSolanaAllowance.tsx
-import { useMemo as useMemo4, useState as useState3 } from "react";
+import { useMemo as useMemo4, useState as useState2 } from "react";
 import { useSelector as useSelector5 } from "react-redux";
 import { useConnection as useConnection2, useWallet as useWallet2 } from "@solana/wallet-adapter-react";
-import { useQuery as useQuery4 } from "@tanstack/react-query";
+import { useQuery as useQuery6 } from "@tanstack/react-query";
 
 // plugins/solana/utils/getTokenAllowance.tsx
 import { getAssociatedTokenAddress } from "@solana/spl-token";
@@ -7017,7 +7072,7 @@ function useSolanaAllowance() {
   const selectedCoin = useSelector5(selectSourceCurrency);
   const tokenOptions = useSelector5(selectTokenOptions);
   const { pools } = useGetPools_default(backendUrl, networkOption);
-  const [approvalsCount, setApprovalsCount] = useState3(0);
+  const [approvalsCount, setApprovalsCount] = useState2(0);
   const amountToShow = useMemo4(() => {
     return (feeDeduct ? +amount : +amount + totalFeeUsd).toFixed(2);
   }, [amount, totalFeeUsd, sourceChain, targetChain, feeDeduct]);
@@ -7025,7 +7080,7 @@ function useSolanaAllowance() {
     data: allowanceData,
     isLoading,
     error
-  } = useQuery4({
+  } = useQuery6({
     queryKey: [
       "solanaAllowance",
       userPublicKey,
@@ -7104,7 +7159,7 @@ function useSolanaAllowance() {
 }
 
 // plugins/solana/core/hooks/useIsWalletReady.tsx
-import { useEffect as useEffect3, useMemo as useMemo5 } from "react";
+import { useEffect as useEffect2, useMemo as useMemo5 } from "react";
 import { useWallet as useSolanaWallet } from "@solana/wallet-adapter-react";
 import { useSelector as useSelector6 } from "react-redux";
 import { useDispatch as useDispatch2 } from "react-redux";
@@ -7117,7 +7172,7 @@ function useIsWalletReady2() {
   const dispatch = useDispatch2();
   const { publicKey: solanaAddress } = useSolanaWallet();
   const sourceChain = useSelector6(selectSourceChain);
-  useEffect3(() => {
+  useEffect2(() => {
     solanaAddress && sourceChain === "SOL" && dispatch(setSourceAddress(solanaAddress.toBase58()));
   }, [solanaAddress, sourceChain]);
   return useMemo5(() => {
@@ -7136,7 +7191,7 @@ var SolanaPlugin = class extends PluginBase {
       id: "SOL",
       fetchChains: getChainData2,
       useAllowance: useSolanaAllowance,
-      useBalance: useGetSolBalance_default,
+      useNativeBalance: useGetSolBalance_default,
       useTokenBalance: useSolanaAllowance,
       useWalletIsReady: useIsWalletReady_default2
     });
@@ -7838,7 +7893,7 @@ async function getChainData3(backendURL = "http://localhost:3001") {
 // plugins/tron/core/hooks/useGetTrxBalance.tsx
 import { useMemo as useMemo7 } from "react";
 import { useSelector as useSelector7 } from "react-redux";
-import { useQuery as useQuery5 } from "@tanstack/react-query";
+import { useQuery as useQuery7 } from "@tanstack/react-query";
 
 // plugins/tron/tronweb.tsx
 import { TronWeb } from "tronweb";
@@ -7879,7 +7934,7 @@ function useGetTronBalance() {
     () => networkOption === "testnet" /* testnet */ ? tronWebTestnet : tronWebMainnet,
     [networkOption]
   );
-  const result = useQuery5({
+  const result = useQuery7({
     queryKey: ["tronBalance", wallet?.adapter?.address, networkOption],
     // Query key
     queryFn: async () => getTrxBalance(wallet, tronWeb),
@@ -7897,13 +7952,13 @@ function useGetTronBalance() {
 var useGetTrxBalance_default = useGetTronBalance;
 
 // plugins/tron/core/hooks/useTronAllowance.tsx
-import { useMemo as useMemo8, useState as useState4 } from "react";
+import { useMemo as useMemo8, useState as useState3 } from "react";
 import { useSelector as useSelector8 } from "react-redux";
 import {
   useWallet as useTronWallet,
   useWallet as useWallet4
 } from "@tronweb3/tronwallet-adapter-react-hooks";
-import { useQuery as useQuery6 } from "@tanstack/react-query";
+import { useQuery as useQuery8 } from "@tanstack/react-query";
 
 // plugins/tron/utils/getTokenAllowance.tsx
 import { formatUnits as formatUnits3 } from "@ethersproject/units";
@@ -7913,12 +7968,12 @@ var getTokenAllowance3 = async ({
   userAddress,
   pools,
   tronWeb,
-  abi
+  abi: abi2
 }) => {
   try {
     const tokenAddress = getTokenAddress(tokenOptions, selectedCoin, "TRX");
     const poolAddress = getPoolAddress(pools, "TRX");
-    let trcContract = tronWeb.contract(abi.abi, tokenAddress);
+    let trcContract = tronWeb.contract(abi2.abi, tokenAddress);
     const [balance] = await trcContract.balanceOf(userAddress).call();
     const decimals = await trcContract.decimals().call();
     const allowance = await trcContract.allowance(userAddress, poolAddress).call();
@@ -7949,7 +8004,7 @@ function useTronAllowance() {
   const tokenOptions = useSelector8(selectTokenOptions);
   const { pools } = useGetPools_default(backendUrl, networkOption);
   const { address: userAddress, signTransaction: signTronTransaction } = useWallet4();
-  const [approvalsCount, setApprovalsCount] = useState4(0);
+  const [approvalsCount, setApprovalsCount] = useState3(0);
   const amountToShow = useMemo8(() => {
     return (feeDeduct ? +amount : +amount + totalFeeUsd).toFixed(2);
   }, [amount, totalFeeUsd, sourceChain, targetChain, feeDeduct]);
@@ -7960,7 +8015,7 @@ function useTronAllowance() {
     data: allowanceData,
     isLoading,
     error
-  } = useQuery6({
+  } = useQuery8({
     queryKey: ["tronAllowance", userAddress, approvalsCount],
     queryFn: async () => await getTokenAllowance3({
       tokenOptions,
@@ -7968,7 +8023,7 @@ function useTronAllowance() {
       userAddress,
       pools,
       tronWeb,
-      abi: erc20ABI_default2
+      abi: erc20ABI_default
     }),
     refetchInterval: 6e4,
     enabled: !!tokenOptions && !!selectedCoin && !!userAddress && !!tronWeb && pools.length > 0 && sourceChain === "TRX",
@@ -8014,7 +8069,7 @@ function useTronAllowance() {
 }
 
 // plugins/tron/core/hooks/useIsWalletReady.tsx
-import { useEffect as useEffect4, useMemo as useMemo9 } from "react";
+import { useEffect as useEffect3, useMemo as useMemo9 } from "react";
 import { useWallet as useTronWallet2 } from "@tronweb3/tronwallet-adapter-react-hooks";
 import { useDispatch as useDispatch3 } from "react-redux";
 import { useSelector as useSelector9 } from "react-redux";
@@ -8027,7 +8082,7 @@ function useIsWalletReady3() {
   const dispatch = useDispatch3();
   const sourceChain = useSelector9(selectSourceChain);
   const { address: tronAddress } = useTronWallet2();
-  useEffect4(() => {
+  useEffect3(() => {
     tronAddress && sourceChain === "TRX" && dispatch(setSourceAddress(tronAddress));
   }, [tronAddress, sourceChain]);
   return useMemo9(() => {
@@ -8046,9 +8101,8 @@ var TronPlugin = class extends PluginBase {
       store: store2,
       id: "TRX",
       fetchChains: getChainData3,
-      // provider: Provider,
       useAllowance: useTronAllowance,
-      useBalance: useGetTrxBalance_default,
+      useNativeBalance: useGetTrxBalance_default,
       useTokenBalance: useTronAllowance,
       useWalletIsReady: useIsWalletReady_default3
     });
@@ -8086,7 +8140,7 @@ var getNetworkOption2 = async (kimaBackendUrl) => {
 };
 
 // src/KimaProvider.tsx
-import { useQuery as useQuery7 } from "@tanstack/react-query";
+import { useQuery as useQuery9 } from "@tanstack/react-query";
 var InternalKimaProvider = React135.memo(
   ({ walletConnectProjectId, children }) => {
     const backendUrl = useSelector10(selectBackendUrl);
@@ -8096,7 +8150,7 @@ var InternalKimaProvider = React135.memo(
       data: networkOption,
       isLoading,
       error
-    } = useQuery7({
+    } = useQuery9({
       queryKey: ["networkOption"],
       queryFn: async () => getNetworkOption2(backendUrl)
     });
@@ -8131,11 +8185,11 @@ var KimaProvider = ({
 var KimaProvider_default = KimaProvider;
 
 // src/components/KimaTransactionWidget.tsx
-import React170, { useEffect as useEffect28 } from "react";
+import React170, { useEffect as useEffect27 } from "react";
 import { useDispatch as useDispatch29, useSelector as useSelector45 } from "react-redux";
 
 // src/components/TransactionWidget.tsx
-import React155, { useEffect as useEffect18, useState as useState14 } from "react";
+import React155, { useEffect as useEffect17, useState as useState13 } from "react";
 
 // src/components/reusable/Progressbar.tsx
 import React136 from "react";
@@ -8287,11 +8341,11 @@ var SecondaryButton = ({
 var SecondaryButton_default = SecondaryButton;
 
 // src/components/reusable/NetworkSelect.tsx
-import React143, { useEffect as useEffect6, useMemo as useMemo12, useRef, useState as useState6 } from "react";
+import React143, { useEffect as useEffect5, useMemo as useMemo12, useRef, useState as useState5 } from "react";
 import { useSelector as useSelector14, useDispatch as useDispatch5 } from "react-redux";
 
 // src/hooks/useNetworkOptions.tsx
-import { useEffect as useEffect5, useMemo as useMemo11, useState as useState5 } from "react";
+import { useEffect as useEffect4, useMemo as useMemo11, useState as useState4 } from "react";
 import { useSelector as useSelector13 } from "react-redux";
 import { useDispatch as useDispatch4 } from "react-redux";
 import toast3 from "react-hot-toast";
@@ -8299,8 +8353,8 @@ function useNetworkOptions() {
   const dispatch = useDispatch4();
   const useFIAT = useSelector13(selectUseFIAT);
   const backendUrl = useSelector13(selectBackendUrl);
-  const [options, setOptions] = useState5(networkOptions);
-  useEffect5(() => {
+  const [options, setOptions] = useState4(networkOptions);
+  useEffect4(() => {
     if (!backendUrl) return;
     (async function() {
       try {
@@ -8350,7 +8404,7 @@ var Network = ({ isOriginChain = true }) => {
   const nodeProviderQuery = useSelector14(selectNodeProviderQuery);
   const dispatch = useDispatch5();
   const sliderRef = useRef();
-  const [availableNetworks, setAvailableNetworks] = useState6(
+  const [availableNetworks, setAvailableNetworks] = useState5(
     []
   );
   const { options: networkOptions3 } = useNetworkOptions();
@@ -8369,7 +8423,7 @@ var Network = ({ isOriginChain = true }) => {
       (network) => availableNetworks.findIndex((id) => id === network.id) >= 0
     );
   }, [networkOptions3, isOriginChain, availableNetworks, dAppOption]);
-  useEffect6(() => {
+  useEffect5(() => {
     if (!nodeProviderQuery || mode !== "bridge" /* bridge */) return;
     (async function() {
       try {
@@ -8390,7 +8444,7 @@ var Network = ({ isOriginChain = true }) => {
       }
     })();
   }, [nodeProviderQuery, originNetwork, targetNetwork, mode, isOriginChain]);
-  useEffect6(() => {
+  useEffect5(() => {
     let isDown = false;
     let startX;
     let scrollLeft;
@@ -8469,7 +8523,7 @@ import { useDispatch as useDispatch6 } from "react-redux";
 import { useSelector as useSelector15 } from "react-redux";
 
 // src/components/reusable/WalletButton.tsx
-import React146, { useEffect as useEffect12, useMemo as useMemo15 } from "react";
+import React146, { useEffect as useEffect11, useMemo as useMemo15 } from "react";
 import { toast as toast6 } from "react-hot-toast";
 import { useDispatch as useDispatch8, useSelector as useSelector19 } from "react-redux";
 
@@ -8479,17 +8533,17 @@ import {
   BitcoinNetworkType,
   getAddress
 } from "sats-connect";
-import { useCallback as useCallback2, useEffect as useEffect7, useMemo as useMemo13 } from "react";
+import { useCallback as useCallback2, useEffect as useEffect6, useMemo as useMemo13 } from "react";
 import { useWallet as useSolanaWallet2 } from "@solana/wallet-adapter-react";
 import { useWallet as useTronWallet3 } from "@tronweb3/tronwallet-adapter-react-hooks";
 import { useSelector as useSelector16 } from "react-redux";
 import { useDispatch as useDispatch7 } from "react-redux";
 import toast5 from "react-hot-toast";
 import {
-  useAppKitAccount as useAppKitAccount4,
+  useAppKitAccount as useAppKitAccount5,
   useAppKitEvents,
   useAppKitNetwork as useAppKitNetwork3,
-  useAppKitProvider as useAppKitProvider4
+  useAppKitProvider as useAppKitProvider5
 } from "@reown/appkit/react";
 import { mainnet as mainnet4, sepolia as sepolia4 } from "@reown/appkit/networks";
 var createWalletStatus3 = (isReady, statusMessage = "", connectBitcoinWallet, walletAddress) => ({
@@ -8503,9 +8557,9 @@ function useIsWalletReady4() {
   const autoSwitch = useSelector16(selectWalletAutoConnect);
   const { publicKey: solanaAddress } = useSolanaWallet2();
   const { address: tronAddress } = useTronWallet3();
-  const { walletProvider: evmProvider } = useAppKitProvider4("eip155");
+  const { walletProvider: evmProvider } = useAppKitProvider5("eip155");
   const bitcoinAddress = useSelector16(selectBitcoinAddress);
-  const appkitAccountInfo = useAppKitAccount4();
+  const appkitAccountInfo = useAppKitAccount5();
   const { chainId: evmChainId } = useAppKitNetwork3();
   const modal = useModal();
   const { address: evmAddress, isConnected } = appkitAccountInfo || {
@@ -8529,7 +8583,7 @@ function useIsWalletReady4() {
   }, [networkOption, correctChain]);
   const hasCorrectEvmNetwork = evmChainId === correctEvmNetwork.id;
   const events = useAppKitEvents();
-  useEffect7(() => {
+  useEffect6(() => {
     if (events.data?.event === "SELECT_WALLET" || events.data?.event === "CONNECT_SUCCESS") {
       localStorage.setItem("wallet", events.data?.properties?.name);
     }
@@ -8673,14 +8727,14 @@ function useIsWalletReady4() {
 var useIsWalletReady_default4 = useIsWalletReady4;
 
 // src/hooks/useGetCurrentPlugin.tsx
-import { useEffect as useEffect9, useState as useState8, useMemo as useMemo14 } from "react";
+import { useEffect as useEffect8, useState as useState7, useMemo as useMemo14 } from "react";
 import { useSelector as useSelector18 } from "react-redux";
 
 // src/hooks/useGetChainData.tsx
-import { useEffect as useEffect8, useState as useState7, useCallback as useCallback3 } from "react";
+import { useEffect as useEffect7, useState as useState6, useCallback as useCallback3 } from "react";
 import { useSelector as useSelector17 } from "react-redux";
 var useGetChainData = () => {
-  const [chainData, setChainData] = useState7([]);
+  const [chainData, setChainData] = useState6([]);
   const plugins = useSelector17(selectAllPlugins);
   const fetchChainData = useCallback3(async () => {
     try {
@@ -8698,7 +8752,7 @@ var useGetChainData = () => {
       console.error("Error fetching chain data:", error);
     }
   }, [plugins]);
-  useEffect8(() => {
+  useEffect7(() => {
     fetchChainData();
   }, [fetchChainData]);
   return { chainData };
@@ -8707,7 +8761,7 @@ var useGetChainData_default = useGetChainData;
 
 // src/hooks/useGetCurrentPlugin.tsx
 var useGetCurrentPlugin = () => {
-  const [currentPlugin, setCurrentPlugin] = useState8(evm_default);
+  const [currentPlugin, setCurrentPlugin] = useState7(evm_default);
   const chainData = useGetChainData_default()?.chainData;
   console.log("Chain data:", chainData);
   const sourceChainID = useSelector18(selectSourceChain);
@@ -8745,7 +8799,7 @@ var useGetCurrentPlugin = () => {
       return matchedPlugin;
     }
   }, [chainData, sourceChainID]);
-  useEffect9(() => {
+  useEffect8(() => {
     console.log("Plugin updated:", plugin);
     setCurrentPlugin(plugin || evm_default);
   }, [plugin]);
@@ -8756,6 +8810,7 @@ var useGetCurrentPlugin_default = useGetCurrentPlugin;
 
 // src/hooks/useBalance.tsx
 var allPlugins = getAllPlugins();
+var zeroBalance2 = { balance: 0, decimals: 6 };
 function useBalance2() {
   const { currentPlugin } = useGetCurrentPlugin_default();
   const currentPluginID = currentPlugin?.data?.id;
@@ -8767,24 +8822,23 @@ function useBalance2() {
   console.info("cBalances: ", allBalances);
   console.info("cBalance ID:", currentPluginID);
   if (currentPluginID) {
-    const mainBalance = allBalances.filter(
+    const balance = allBalances.find(
       ({ pluginID }) => pluginID === currentPluginID
     );
-    const balance = mainBalance[0]?.balance ?? -3;
     console.info("cBalanceUpdated:", balance);
     return balance;
   }
-  return -200;
+  return zeroBalance2;
 }
 
 // src/hooks/useWidth.tsx
-import { useEffect as useEffect10, useState as useState9 } from "react";
+import { useEffect as useEffect9, useState as useState8 } from "react";
 var useWidth = () => {
-  const [width, setWidth] = useState9(0);
+  const [width, setWidth] = useState8(0);
   const updateWidth = (width2) => {
     setWidth(width2);
   };
-  useEffect10(() => {
+  useEffect9(() => {
     const handleResize = () => {
       setWidth(window.innerWidth);
     };
@@ -8801,10 +8855,10 @@ import { useWallet as useTronWallet4 } from "@tronweb3/tronwallet-adapter-react-
 import { useAppKit } from "@reown/appkit/react";
 
 // src/components/reusable/CopyButton.tsx
-import React145, { useEffect as useEffect11, useState as useState10 } from "react";
+import React145, { useEffect as useEffect10, useState as useState9 } from "react";
 var CopyButton = ({ text }) => {
-  const [copyClicked, setCopyClicked] = useState10(false);
-  useEffect11(() => {
+  const [copyClicked, setCopyClicked] = useState9(false);
+  useEffect10(() => {
     if (!copyClicked) return;
     setTimeout(() => {
       setCopyClicked(false);
@@ -8838,10 +8892,10 @@ var WalletButton = ({ errorBelow = false }) => {
   const { balance } = useBalance2();
   const { open } = useAppKit();
   const { width, updateWidth } = useWidth_default();
-  useEffect12(() => {
+  useEffect11(() => {
     console.info({ balance, walletAddress });
   }, [balance, walletAddress]);
-  useEffect12(() => {
+  useEffect11(() => {
     if (width === 0) {
       updateWidth(window.innerWidth);
     }
@@ -8878,7 +8932,7 @@ var WalletButton = ({ errorBelow = false }) => {
       return `Source address has ${sourceCompliant?.results?.[0].result?.risk_score} risk`;
     return "";
   }, [isReady, statusMessage, sourceCompliant, compliantOption]);
-  useEffect12(() => {
+  useEffect11(() => {
     if (!errorMessage) return;
     toast6.error(errorMessage);
   }, [errorMessage]);
@@ -8904,24 +8958,24 @@ var WalletButton = ({ errorBelow = false }) => {
 var WalletButton_default = WalletButton;
 
 // src/components/reusable/CoinDropdown.tsx
-import React147, { useEffect as useEffect14, useMemo as useMemo17, useRef as useRef2, useState as useState12 } from "react";
+import React147, { useEffect as useEffect13, useMemo as useMemo17, useRef as useRef2, useState as useState11 } from "react";
 import { useSelector as useSelector21 } from "react-redux";
 import { useDispatch as useDispatch10 } from "react-redux";
 
 // src/hooks/useCurrencyOptions.tsx
-import { useEffect as useEffect13, useMemo as useMemo16, useState as useState11 } from "react";
+import { useEffect as useEffect12, useMemo as useMemo16, useState as useState10 } from "react";
 import { useSelector as useSelector20 } from "react-redux";
 import { useDispatch as useDispatch9 } from "react-redux";
 import toast7 from "react-hot-toast";
 
 // src/components/reusable/NetworkDropdown.tsx
-import React148, { useEffect as useEffect15, useMemo as useMemo18, useRef as useRef3, useState as useState13 } from "react";
+import React148, { useEffect as useEffect14, useMemo as useMemo18, useRef as useRef3, useState as useState12 } from "react";
 import { useSelector as useSelector22, useDispatch as useDispatch11 } from "react-redux";
 import toast8 from "react-hot-toast";
 var NetworkDropdown = React148.memo(
   ({ isSourceChain = true }) => {
-    const [collapsed, setCollapsed] = useState13(true);
-    const [availableNetworks, setAvailableNetworks] = useState13([]);
+    const [collapsed, setCollapsed] = useState12(true);
+    const [availableNetworks, setAvailableNetworks] = useState12([]);
     const ref = useRef3();
     const sourceChangeRef = useRef3(false);
     const mode = useSelector22(selectMode);
@@ -8955,7 +9009,7 @@ var NetworkDropdown = React148.memo(
     ]);
     const theme = useSelector22(selectTheme);
     const dispatch = useDispatch11();
-    useEffect15(() => {
+    useEffect14(() => {
       if (!nodeProviderQuery || mode !== "bridge" /* bridge */) return;
       (async function() {
         try {
@@ -8995,7 +9049,7 @@ var NetworkDropdown = React148.memo(
       isSourceChain,
       useFIAT
     ]);
-    useEffect15(() => {
+    useEffect14(() => {
       if (!nodeProviderQuery || mode !== "payment" /* payment */) return;
       (async function() {
         try {
@@ -9017,7 +9071,7 @@ var NetworkDropdown = React148.memo(
         }
       })();
     }, [nodeProviderQuery, mode, targetNetwork, dAppOption]);
-    useEffect15(() => {
+    useEffect14(() => {
       const bodyMouseDowntHandler = (e) => {
         if (ref?.current && !ref.current.contains(e.target)) {
           setCollapsed(true);
@@ -9070,7 +9124,7 @@ var NetworkDropdown = React148.memo(
 );
 
 // src/components/reusable/ConfirmDetails.tsx
-import React149, { useEffect as useEffect16, useMemo as useMemo19 } from "react";
+import React149, { useEffect as useEffect15, useMemo as useMemo19 } from "react";
 import { useSelector as useSelector23 } from "react-redux";
 
 // src/helpers/functions.tsx
@@ -9113,7 +9167,7 @@ var ConfirmDetails = ({ isApproved }) => {
   const sourceCurrency = useSelector23(selectSourceCurrency);
   const targetCurrency = useSelector23(selectTargetCurrency);
   const { width, updateWidth } = useWidth_default();
-  useEffect16(() => {
+  useEffect15(() => {
     width === 0 && updateWidth(window.innerWidth);
   }, []);
   const SourceCoinIcon = COIN_LIST[sourceCurrency].icon || COIN_LIST["USDK"].icon;
@@ -9137,7 +9191,7 @@ var ConfirmDetails = ({ isApproved }) => {
 var ConfirmDetails_default = ConfirmDetails;
 
 // src/components/reusable/AddressInput.tsx
-import React150, { useEffect as useEffect17 } from "react";
+import React150, { useEffect as useEffect16 } from "react";
 import { useDispatch as useDispatch12 } from "react-redux";
 import { useSelector as useSelector24 } from "react-redux";
 var AddressInput = ({
@@ -9153,7 +9207,7 @@ var AddressInput = ({
   const isEvm = (chain) => {
     return chain !== "SOL" && chain !== "TRX" && chain !== "BTC";
   };
-  useEffect17(() => {
+  useEffect16(() => {
     if (mode === "payment" /* payment */) return;
     if (isEvm(sourceChain) && isEvm(targetChain)) {
       dispatch(setTargetAddress(isReady && sourceAddress ? sourceAddress : ""));
@@ -9319,21 +9373,21 @@ import { useSelector as useSelector29 } from "react-redux";
 import { useDispatch as useDispatch15 } from "react-redux";
 import { toast as toast9, Toaster } from "react-hot-toast";
 var TransactionWidget = ({ theme }) => {
-  const [step, setStep] = useState14(0);
-  const [focus, setFocus] = useState14(-1);
-  const [errorStep, setErrorStep] = useState14(-1);
-  const [errorMessage, setErrorMessage] = useState14("");
-  const [loadingStep, setLoadingStep] = useState14(-1);
-  const [minimized, setMinimized] = useState14(false);
-  const [percent, setPercent] = useState14(0);
-  const [data, setData] = useState14();
+  const [step, setStep] = useState13(0);
+  const [focus, setFocus] = useState13(-1);
+  const [errorStep, setErrorStep] = useState13(-1);
+  const [errorMessage, setErrorMessage] = useState13("");
+  const [loadingStep, setLoadingStep] = useState13(-1);
+  const [minimized, setMinimized] = useState13(false);
+  const [percent, setPercent] = useState13(0);
+  const [data, setData] = useState13();
   const dispatch = useDispatch15();
   const txId = useSelector29(selectTxId);
   const dAppOption = useSelector29(selectDappOption);
   const closeHandler = useSelector29(selectCloseHandler);
   const successHandler = useSelector29(selectSuccessHandler);
   const graphqlProviderQuery = useSelector29(selectGraphqlProviderQuery);
-  useEffect18(() => {
+  useEffect17(() => {
     if (!graphqlProviderQuery || txId < 0) return;
     const updateTxData = async () => {
       if (data?.status === "Completed" /* COMPLETED */) return;
@@ -9439,7 +9493,7 @@ var TransactionWidget = ({ theme }) => {
       clearInterval(timerId);
     };
   }, [graphqlProviderQuery, txId, dAppOption]);
-  useEffect18(() => {
+  useEffect17(() => {
     if (!data) {
       setStep(0);
       setLoadingStep(0);
@@ -9573,19 +9627,19 @@ var TransactionWidget = ({ theme }) => {
 };
 
 // src/components/TransferWidget.tsx
-import React169, { useEffect as useEffect27, useState as useState22, useRef as useRef10 } from "react";
+import React169, { useEffect as useEffect26, useState as useState21, useRef as useRef10 } from "react";
 import { useDispatch as useDispatch28, useSelector as useSelector44 } from "react-redux";
 
 // src/components/reusable/SingleForm.tsx
-import React160, { useEffect as useEffect23, useMemo as useMemo24, useState as useState19 } from "react";
+import React160, { useEffect as useEffect22, useMemo as useMemo24, useState as useState18 } from "react";
 import { toast as toast10 } from "react-hot-toast";
 import { useDispatch as useDispatch20, useSelector as useSelector34 } from "react-redux";
 
 // src/components/primary/SourceNetworkSelector.tsx
-import React156, { useState as useState15, useMemo as useMemo20, useRef as useRef4, useEffect as useEffect19 } from "react";
+import React156, { useState as useState14, useMemo as useMemo20, useRef as useRef4, useEffect as useEffect18 } from "react";
 import { useSelector as useSelector30, useDispatch as useDispatch16 } from "react-redux";
 var SourceNetworkSelectorComponent = () => {
-  const [collapsed, setCollapsed] = useState15(true);
+  const [collapsed, setCollapsed] = useState14(true);
   const ref = useRef4();
   const originNetwork = useSelector30(selectSourceChain);
   const dispatch = useDispatch16();
@@ -9605,7 +9659,7 @@ var SourceNetworkSelectorComponent = () => {
   const selectedNetwork = useMemo20(() => {
     return networks.find((option) => option.id === originNetwork) || networks[0] || { label: "Loading...", icon: null };
   }, [originNetwork, networks]);
-  useEffect19(() => {
+  useEffect18(() => {
   }, [chainData]);
   const handleNetworkChange = (networkId) => {
     console.info(`networkId: ${networkId} | originNetwork:`, originNetwork);
@@ -9613,7 +9667,7 @@ var SourceNetworkSelectorComponent = () => {
     dispatch(setSourceChain(networkId));
     setCollapsed(false);
   };
-  useEffect19(() => {
+  useEffect18(() => {
     const bodyMouseDownHandler = (e) => {
       if (ref?.current && !ref.current.contains(e.target)) {
         setCollapsed(true);
@@ -9655,10 +9709,10 @@ var SourceNetworkSelector = React156.memo(SourceNetworkSelectorComponent);
 var SourceNetworkSelector_default = SourceNetworkSelector;
 
 // src/components/primary/SourceTokenSelector.tsx
-import React157, { useState as useState16, useMemo as useMemo21, useRef as useRef5, useEffect as useEffect20 } from "react";
+import React157, { useState as useState15, useMemo as useMemo21, useRef as useRef5, useEffect as useEffect19 } from "react";
 import { useSelector as useSelector31, useDispatch as useDispatch17 } from "react-redux";
 var SourceTokenSelectorComponent = () => {
-  const [collapsed, setCollapsed] = useState16(true);
+  const [collapsed, setCollapsed] = useState15(true);
   const ref = useRef5();
   const dispatch = useDispatch17();
   const theme = useSelector31(selectTheme);
@@ -9687,7 +9741,7 @@ var SourceTokenSelectorComponent = () => {
     dispatch(setSourceCurrency(tokenId));
     setCollapsed(false);
   };
-  useEffect20(() => {
+  useEffect19(() => {
     const bodyMouseDownHandler = (e) => {
       if (ref?.current && !ref.current.contains(e.target)) {
         setCollapsed(true);
@@ -9729,10 +9783,10 @@ var SourceTokenSelector = React157.memo(SourceTokenSelectorComponent);
 var SourceTokenSelector_default = SourceTokenSelector;
 
 // src/components/primary/TargetNetworkSelector.tsx
-import React158, { useState as useState17, useMemo as useMemo22, useRef as useRef6, useEffect as useEffect21 } from "react";
+import React158, { useState as useState16, useMemo as useMemo22, useRef as useRef6, useEffect as useEffect20 } from "react";
 import { useSelector as useSelector32, useDispatch as useDispatch18 } from "react-redux";
 var TargetNetworkSelectorComponent = () => {
-  const [collapsed, setCollapsed] = useState17(true);
+  const [collapsed, setCollapsed] = useState16(true);
   const ref = useRef6();
   const dispatch = useDispatch18();
   const theme = useSelector32(selectTheme);
@@ -9749,7 +9803,7 @@ var TargetNetworkSelectorComponent = () => {
     console.info("Final data (target): ", data);
     return data;
   }, [chainData]);
-  useEffect21(() => {
+  useEffect20(() => {
     if (sourceNetwork === targetNetwork || !targetNetwork) {
       const validTarget = networks.find((network) => network.id !== sourceNetwork) || null;
       if (validTarget) {
@@ -9772,7 +9826,7 @@ var TargetNetworkSelectorComponent = () => {
     dispatch(setTargetChain(networkId));
     setCollapsed(false);
   };
-  useEffect21(() => {
+  useEffect20(() => {
     const bodyMouseDownHandler = (e) => {
       if (ref?.current && !ref.current.contains(e.target)) {
         setCollapsed(true);
@@ -9814,10 +9868,10 @@ var TargetNetworkSelector = React158.memo(TargetNetworkSelectorComponent);
 var TargetNetworkSelector_default = TargetNetworkSelector;
 
 // src/components/primary/TargetTokenSelector.tsx
-import React159, { useState as useState18, useMemo as useMemo23, useRef as useRef7, useEffect as useEffect22 } from "react";
+import React159, { useState as useState17, useMemo as useMemo23, useRef as useRef7, useEffect as useEffect21 } from "react";
 import { useSelector as useSelector33, useDispatch as useDispatch19 } from "react-redux";
 var TargetTokenSelectorComponent = () => {
-  const [collapsed, setCollapsed] = useState18(true);
+  const [collapsed, setCollapsed] = useState17(true);
   const ref = useRef7();
   const dispatch = useDispatch19();
   const theme = useSelector33(selectTheme);
@@ -9846,7 +9900,7 @@ var TargetTokenSelectorComponent = () => {
     dispatch(setTargetCurrency(tokenId));
     setCollapsed(false);
   };
-  useEffect22(() => {
+  useEffect21(() => {
     const bodyMouseDownHandler = (e) => {
       if (ref?.current && !ref.current.contains(e.target)) {
         setCollapsed(true);
@@ -9888,7 +9942,7 @@ var TargetTokenSelector = React159.memo(TargetTokenSelectorComponent);
 var TargetTokenSelector_default = TargetTokenSelector;
 
 // src/hooks/useGetFees.tsx
-import { useQuery as useQuery8 } from "@tanstack/react-query";
+import { useQuery as useQuery10 } from "@tanstack/react-query";
 
 // src/services/feesApi.ts
 var getFees = async (amount, originChain, targetChain, backendUrl) => {
@@ -9916,7 +9970,7 @@ var useGetFees = (amount, sourceNetwork, targetNetwork, backendUrl) => {
   console.log("amount: ", amount);
   console.log("sourceNetwork: ", sourceNetwork);
   console.log("targetNetwork: ", targetNetwork);
-  return useQuery8({
+  return useQuery10({
     queryKey: ["fees", amount, sourceNetwork, targetNetwork],
     queryFn: async () => {
       console.log("new call: ", amount, sourceNetwork, targetNetwork);
@@ -9945,7 +9999,7 @@ var SingleForm = ({}) => {
   const sourceNetwork = useSelector34(selectSourceChain);
   const targetNetwork = useSelector34(selectTargetChain);
   const { isReady } = useIsWalletReady_default4();
-  const [amountValue, setAmountValue] = useState19("");
+  const [amountValue, setAmountValue] = useState18("");
   const amount = useSelector34(selectAmount);
   const targetCurrency = useSelector34(selectTargetCurrency);
   const backendUrl = useSelector34(selectBackendUrl);
@@ -9955,7 +10009,7 @@ var SingleForm = ({}) => {
     isLoading,
     error
   } = useGetFees_default(parseFloat(amount), sourceNetwork, targetNetwork, backendUrl);
-  useEffect23(() => {
+  useEffect22(() => {
     if (fees) {
       dispatch(setServiceFee(fees));
     }
@@ -9965,11 +10019,11 @@ var SingleForm = ({}) => {
     () => compliantOption && targetCompliant !== null && !targetCompliant?.isCompliant ? `Target address has ${targetCompliant.results?.[0].result.risk_score} risk` : "",
     [compliantOption, targetCompliant]
   );
-  useEffect23(() => {
+  useEffect22(() => {
     if (!errorMessage) return;
     toast10.error(errorMessage);
   }, [errorMessage]);
-  useEffect23(() => {
+  useEffect22(() => {
     if (amountValue && amount != "") return;
     setAmountValue(amount);
   }, [amount]);
@@ -10040,7 +10094,7 @@ var SingleForm = ({}) => {
 var SingleForm_default = SingleForm;
 
 // src/components/reusable/CoinSelect.tsx
-import React161, { useState as useState20 } from "react";
+import React161, { useState as useState19 } from "react";
 import { useSelector as useSelector35 } from "react-redux";
 import { useDispatch as useDispatch21 } from "react-redux";
 var CoinSelect = () => {
@@ -10050,7 +10104,7 @@ var CoinSelect = () => {
   const selectedCoin = useSelector35(selectSourceCurrency);
   const sourceNetwork = useSelector35(selectSourceChain);
   const targetNetwork = useSelector35(selectTargetChain);
-  const [amountValue, setAmountValue] = useState20("");
+  const [amountValue, setAmountValue] = useState19("");
   const Icon = COIN_LIST[selectedCoin || "USDK"].icon;
   return /* @__PURE__ */ React161.createElement("div", { className: `coin-select` }, /* @__PURE__ */ React161.createElement("p", null, "Select Amount of Token for Funding"), /* @__PURE__ */ React161.createElement("div", { className: `amount-input ${theme.colorMode}` }, /* @__PURE__ */ React161.createElement("span", null, "Amount:"), /* @__PURE__ */ React161.createElement("div", { className: "input-wrapper" }, /* @__PURE__ */ React161.createElement(
     "input",
@@ -10070,7 +10124,7 @@ var CoinSelect = () => {
 var CoinSelect_default = CoinSelect;
 
 // src/hooks/useAllowance.tsx
-import { useCallback as useCallback4, useEffect as useEffect24, useMemo as useMemo25, useState as useState21 } from "react";
+import { useCallback as useCallback4, useEffect as useEffect23, useMemo as useMemo25, useState as useState20 } from "react";
 import { useSelector as useSelector36 } from "react-redux";
 import { Contract as Contract4 } from "@ethersproject/contracts";
 import { formatUnits as formatUnits5, parseUnits as parseUnits3 } from "@ethersproject/units";
@@ -10406,27 +10460,27 @@ function fromHex(address) {
 }
 
 // src/hooks/useAllowance.tsx
-import { ethers as ethers4 } from "ethers";
+import { ethers as ethers5 } from "ethers";
 import toast11 from "react-hot-toast";
 import {
-  useAppKitAccount as useAppKitAccount5,
+  useAppKitAccount as useAppKitAccount6,
   useAppKitNetwork as useAppKitNetwork4,
-  useAppKitProvider as useAppKitProvider5
+  useAppKitProvider as useAppKitProvider6
 } from "@reown/appkit/react";
 function useAllowance({
   setApproving,
   setCancellingApprove
 }) {
-  const [allowance, setAllowance] = useState21(0);
-  const [decimals, setDecimals] = useState21(null);
-  const appkitAccountInfo = useAppKitAccount5();
+  const [allowance, setAllowance] = useState20(0);
+  const [decimals, setDecimals] = useState20(null);
+  const appkitAccountInfo = useAppKitAccount6();
   const { chainId: evmChainId } = useAppKitNetwork4();
   const { address: signerAddress } = appkitAccountInfo || {
     address: null,
     chainId: null,
     isConnected: null
   };
-  const { walletProvider } = useAppKitProvider5("eip155");
+  const { walletProvider } = useAppKitProvider6("eip155");
   const selectedNetwork = useSelector36(selectSourceChain);
   const errorHandler = useSelector36(selectErrorHandler);
   const dAppOption = useSelector36(selectDappOption);
@@ -10461,8 +10515,8 @@ function useAllowance({
     }
     return "";
   }, [selectedCoin, sourceChain, tokenOptions]);
-  const [targetAddress, setTargetAddress2] = useState21();
-  const [poolAddress, setPoolAddress] = useState21("");
+  const [targetAddress, setTargetAddress2] = useState20();
+  const [poolAddress, setPoolAddress] = useState20("");
   const amountToShow = useMemo25(() => {
     if (sourceChain === "BTC" /* BTC */ || targetChain === "BTC" /* BTC */) {
       return (feeDeduct ? +amount : +amount + totalFeeUsd).toFixed(8);
@@ -10493,11 +10547,11 @@ function useAllowance({
       toast11.error("rpc disconnected");
     }
   };
-  useEffect24(() => {
+  useEffect23(() => {
     if (!nodeProviderQuery) return;
     updatePoolAddress();
   }, [nodeProviderQuery, sourceChain]);
-  useEffect24(() => {
+  useEffect23(() => {
     ;
     (async () => {
       try {
@@ -10524,7 +10578,7 @@ function useAllowance({
             );
           } else if (tronAddress && tokenAddress) {
             let trc20Contract = await tronWeb.contract(
-              erc20ABI_default2.abi,
+              erc20ABI_default.abi,
               tokenAddress
             );
             const decimals3 = await trc20Contract.decimals().call();
@@ -10536,12 +10590,12 @@ function useAllowance({
           }
           return;
         }
-        const provider = new ethers4.providers.Web3Provider(
+        const provider = new ethers5.providers.Web3Provider(
           walletProvider
         );
         const signer = provider?.getSigner();
         if (!tokenAddress || !targetAddress || !signer || !signerAddress) return;
-        const erc20Contract = new Contract4(tokenAddress, erc20ABI_default2.abi, signer);
+        const erc20Contract = new Contract4(tokenAddress, erc20ABI_default.abi, signer);
         const decimals2 = await erc20Contract.decimals();
         const userAllowance = await erc20Contract.allowance(
           signerAddress,
@@ -10565,14 +10619,16 @@ function useAllowance({
   ]);
   const approve = useCallback4(
     async (isCancel = false) => {
+      console.debug("useAllowance::approve");
       if (isEVMChain(sourceChain)) {
-        const provider = new ethers4.providers.Web3Provider(
+        console.debug("useAllowance::approve::evm");
+        const provider = new ethers5.providers.Web3Provider(
           walletProvider
         );
         const signer = provider.getSigner();
         if (!decimals || !tokenAddress || !signer || !targetAddress) return;
         try {
-          const erc20Contract = new Contract4(tokenAddress, erc20ABI_default2.abi, signer);
+          const erc20Contract = new Contract4(tokenAddress, erc20ABI_default.abi, signer);
           isCancel ? setCancellingApprove(true) : setApproving(true);
           const approve2 = await erc20Contract.approve(
             targetAddress,
@@ -10715,7 +10771,7 @@ import React165 from "react";
 import { useDispatch as useDispatch24, useSelector as useSelector40 } from "react-redux";
 
 // plugins/solana/components/SolanaWalletSelect.tsx
-import React163, { useEffect as useEffect25, useMemo as useMemo26, useRef as useRef8 } from "react";
+import React163, { useEffect as useEffect24, useMemo as useMemo26, useRef as useRef8 } from "react";
 import { useDispatch as useDispatch22, useSelector as useSelector38 } from "react-redux";
 import { useWallet as useWallet5 } from "@solana/wallet-adapter-react";
 import { WalletReadyState } from "@solana/wallet-adapter-base";
@@ -10736,7 +10792,7 @@ var SolanaWalletSelect = () => {
     }
     return [detected2, undetected2];
   }, [wallets]);
-  useEffect25(() => {
+  useEffect24(() => {
     let isDown = false;
     let startX;
     let scrollLeft;
@@ -10914,7 +10970,7 @@ var AccountDetailsModal2 = () => {
 var AccountDetailsModal_default2 = AccountDetailsModal2;
 
 // plugins/tron/components/TronWalletSelect.tsx
-import React167, { useEffect as useEffect26, useMemo as useMemo29, useRef as useRef9 } from "react";
+import React167, { useEffect as useEffect25, useMemo as useMemo29, useRef as useRef9 } from "react";
 import { useDispatch as useDispatch26, useSelector as useSelector42 } from "react-redux";
 import { useWallet as useWallet6 } from "@tronweb3/tronwallet-adapter-react-hooks";
 import { AdapterState } from "@tronweb3/tronwallet-abstract-adapter";
@@ -10941,7 +10997,7 @@ var TronWalletSelect = () => {
     }
     return [detected2, undetected2];
   }, [wallets]);
-  useEffect26(() => {
+  useEffect25(() => {
     let isDown = false;
     let startX;
     let scrollLeft;
@@ -10967,7 +11023,7 @@ var TronWalletSelect = () => {
       sliderRef.current.scrollLeft = scrollLeft - walk;
     });
   });
-  useEffect26(() => {
+  useEffect25(() => {
     connected && dispatch(setTronConnectModal(false));
   }, [connected]);
   const connectWallet = async (walletName) => {
@@ -11022,7 +11078,7 @@ var TronWalletConnectModal = () => {
 var TronWalletConnectModal_default = TronWalletConnectModal;
 
 // src/hooks/useComplianceCheck.tsx
-import { useQuery as useQuery9 } from "@tanstack/react-query";
+import { useQuery as useQuery11 } from "@tanstack/react-query";
 
 // src/services/complianceApi.ts
 var getCompliance = async (walletAddress, compliantOption, backendUrl) => {
@@ -11045,7 +11101,7 @@ var useComplianceCheck = (walletAddress, compliantOption, backendUrl) => {
     data: complianceData,
     error,
     isFetching
-  } = useQuery9({
+  } = useQuery11({
     queryKey: ["compliance", walletAddress, compliantOption],
     queryFn: async () => {
       return await getCompliance(walletAddress, compliantOption, backendUrl);
@@ -11074,9 +11130,9 @@ var TransferWidget = ({
 }) => {
   const dispatch = useDispatch28();
   const mainRef = useRef10(null);
-  const [isWizard, setWizard] = useState22(false);
-  const [formStep, setFormStep] = useState22(0);
-  const [wizardStep, setWizardStep] = useState22(0);
+  const [isWizard, setWizard] = useState21(false);
+  const [formStep, setFormStep] = useState21(0);
+  const [wizardStep, setWizardStep] = useState21(0);
   const mode = useSelector44(selectMode);
   const dAppOption = useSelector44(selectDappOption);
   const amount = useSelector44(selectAmount);
@@ -11095,11 +11151,11 @@ var TransferWidget = ({
   const backendUrl = useSelector44(selectBackendUrl);
   const networkOption = useSelector44(selectNetworkOption);
   const { totalFeeUsd, targetNetworkFee } = useSelector44(selectServiceFee);
-  const [isCancellingApprove, setCancellingApprove] = useState22(false);
-  const [isApproving, setApproving] = useState22(false);
-  const [isSubmitting, setSubmitting] = useState22(false);
-  const [isSigning, setSigning] = useState22(false);
-  const [isConfirming, setConfirming] = useState22(false);
+  const [isCancellingApprove, setCancellingApprove] = useState21(false);
+  const [isApproving, setApproving] = useState21(false);
+  const [isSubmitting, setSubmitting] = useState21(false);
+  const [isSigning, setSigning] = useState21(false);
+  const [isConfirming, setConfirming] = useState21(false);
   const pendingTxs = useSelector44(selectPendingTxs);
   const { allowance, isApproved, approve } = useAllowance({
     setApproving,
@@ -11114,7 +11170,7 @@ var TransferWidget = ({
     error: poolsBalanceError,
     isLoading
   } = useGetPools_default(backendUrl, networkOption);
-  useEffect27(() => {
+  useEffect26(() => {
     if (sourceComplianceError || targetComplianceError)
       toast12.error("Compliance check failed", {
         icon: /* @__PURE__ */ React169.createElement(Error_default, null)
@@ -11340,7 +11396,7 @@ var TransferWidget = ({
     dispatch(setAmount(""));
     closeHandler();
   };
-  useEffect27(() => {
+  useEffect26(() => {
     dispatch(setTheme(theme));
   }, [theme]);
   return /* @__PURE__ */ React169.createElement(
@@ -11461,7 +11517,7 @@ var KimaTransactionWidget = ({
   const submitted = useSelector45(selectSubmitted);
   const dispatch = useDispatch29();
   const { setThemeMode, setThemeVariables } = useAppKitTheme();
-  useEffect28(() => {
+  useEffect27(() => {
     dispatch(setTheme(theme));
     setThemeMode(theme.colorMode === "light" /* light */ ? "light" : "dark");
     setThemeVariables({
@@ -11503,7 +11559,7 @@ var KimaTransactionWidget = ({
     mode,
     networkOption
   ]);
-  useEffect28(() => {
+  useEffect27(() => {
     if (dAppOption === "none" /* None */ && mode === "bridge" /* bridge */) {
       dispatch(setTargetChain(""));
       dispatch(setSourceChain("ETH"));

@@ -15,9 +15,8 @@ export class TronPlugin extends PluginBase {
       store,
       id: 'TRX',
       fetchChains: getChainData,
-      // provider: Provider,
       useAllowance: useTronAllowance,
-      useBalance: useBalanceTron,
+      useNativeBalance: useBalanceTron,
       useTokenBalance: useTronAllowance,
       useWalletIsReady: useIsWalletReadyTron
     })

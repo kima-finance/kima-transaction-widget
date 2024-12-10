@@ -3,6 +3,7 @@ import useGetCurrentPlugin from './useGetCurrentPlugin'
 
 // Preload all plugins
 const allPlugins = getAllPlugins()
+const zeroBalance = { balance: 0, decimals: 6 }
 
 export default function useBalance() {
   // Get the current plugin and extract its ID
@@ -21,13 +22,12 @@ export default function useBalance() {
   // If we have a current plugin ID, filter down to just that plugin's balance
   // Otherwise, return all (in case currentPluginID is not defined)
   if (currentPluginID) {
-    const mainBalance = allBalances.filter(
+    const balance = allBalances.find(
       ({ pluginID }) => pluginID === currentPluginID
     )
-    const balance = mainBalance[0]?.balance ?? -3
     console.info('cBalanceUpdated:', balance)
     return balance
   }
 
-  return -200
+  return zeroBalance
 }

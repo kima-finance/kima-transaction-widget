@@ -16,7 +16,7 @@ export class SolanaPlugin extends PluginBase {
       id: 'SOL',
       fetchChains: getChainData,
       useAllowance: useSolanaAllowance,
-      useBalance: useGetSolBalance,
+      useNativeBalance: useGetSolBalance,
       useTokenBalance: useSolanaAllowance,
       useWalletIsReady: useSolIsWalletReady
     })

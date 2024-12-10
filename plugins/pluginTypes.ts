@@ -4,9 +4,9 @@ export interface Plugin {
 
   // hooks
   // TODO: refactor to return a UseQueryResult
-  useAllowance: () => PluginUseAllowanceResult
-  useBalance: () => PluginUseBalanceResult
-  useTokenBalance(): PluginUseBalanceResult
+  useAllowance: () => PluginUseAllowanceResult | undefined
+  useNativeBalance: () => PluginUseBalanceResult | undefined
+  useTokenBalance(): PluginUseBalanceResult | undefined
   useWalletIsReady: () => PluginUseWalletIsReadyResult
 }
 
@@ -20,6 +20,7 @@ export interface PluginUseAllowanceResult {
 
 export interface PluginUseBalanceResult {
   balance?: number | undefined
+  decimals?: number | undefined
 }
 
 export interface PluginUseWalletIsReadyResult {
