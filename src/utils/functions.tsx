@@ -31,7 +31,7 @@ export const checkPoolBalance = ({
   if (!targetNetworkFee)
     return { isPoolAvailable: false, error: 'Undefined target network fee' }
 
-  /* find the current selected token to transfer from kima pool */
+  /* find the current selected pool to transfer from kima pool */
   const targetPool = pools.find(
     (pool) => pool.chainName === targetChain // get the current target network pool info
   )
@@ -78,4 +78,17 @@ export const getTokenAddress = (
 // get pool address of a given chain
 export const getPoolAddress = (pools: Array<any>, chain: string) => {
   return pools.find((pool) => pool.chainName === chain).poolAddress
+}
+
+// get tx id from the tx status response
+export const getTransactionId = (transactionEvents: any) => {
+  for (const event of transactionEvents) {
+    if (event.type === 'transaction_requested') {
+      for (const attr of event.attributes) {
+        if (attr.key === 'txId') {
+          return attr.value
+        }
+      }
+    }
+  }
 }

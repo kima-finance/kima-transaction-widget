@@ -12,7 +12,6 @@ import {
 } from './reusable'
 import {
   ColorModeOptions,
-  DAppOptions,
   ModeOptions,
   PaymentTitleOption,
   ThemeOptions,
@@ -22,44 +21,37 @@ import SingleForm from './reusable/SingleForm'
 import CoinSelect from './reusable/CoinSelect' //yes
 
 // store
-import {
-  setAmount,
-  setSubmitted,
-  setTargetAddress,
-  setTheme,
-  setTxId
-} from '@store/optionSlice'
+import { setAmount, setTargetAddress, setTheme } from '@store/optionSlice'
 import {
   selectAmount,
   selectBackendUrl,
   selectCloseHandler,
   selectCompliantOption,
-  selectDappOption,
-  selectErrorHandler,
+  selectFeeDeduct,
   selectMode,
+  selectNetworkOption,
+  selectPendingTxs,
+  selectServiceFee,
+  selectSourceAddress,
   selectSourceChain,
+  selectSourceCurrency,
   selectTargetAddress,
   selectTargetChain,
-  selectKeplrHandler,
-  selectFeeDeduct,
-  selectPendingTxs,
-  selectSourceCurrency,
   selectTargetCurrency,
-  selectSourceAddress,
-  selectServiceFee,
-  selectNetworkOption,
   selectTransactionOption
 } from '@store/selectors'
 import useAllowance from '../hooks/useAllowance'
 import AddressInputWizard from './reusable/AddressInputWizard'
 import { toast, Toaster } from 'react-hot-toast'
-import useBalance from '../hooks/useBalance'
 import useWidth from '../hooks/useWidth'
 import SolanaWalletConnectModal from '@plugins/solana/components/SolanaWalletConnectModal'
 import TronWalletConnectModal from '@plugins/tron/components/TronWalletConnectModal'
-import { fetchWrapper } from 'src/helpers/fetch-wrapper'
+import useValidateTransaction, {
+  ValidationError
+} from '../hooks/useValidateTransaction'
+import useSubmitTransaction from '../hooks/useSubmitTransaction'
 import useComplianceCheck from '../hooks/useComplianceCheck'
-import { checkPoolBalance } from '@utils/functions'
+import useBalance from '../hooks/useBalance'
 import useGetPools from '../hooks/useGetPools'
 
 interface Props {
@@ -87,282 +79,116 @@ export const TransferWidget = ({
 
   // Redux variables
   const mode = useSelector(selectMode)
-  const dAppOption = useSelector(selectDappOption)
-  const amount = useSelector(selectAmount)
-  const feeDeduct = useSelector(selectFeeDeduct)
-  const sourceChain = useSelector(selectSourceChain)
+  const transactionOption = useSelector(selectTransactionOption)
+  const backendUrl = useSelector(selectBackendUrl)
   const sourceAddress = useSelector(selectSourceAddress)
   const targetAddress = useSelector(selectTargetAddress)
+  const sourceChain = useSelector(selectSourceChain)
   const targetChain = useSelector(selectTargetChain)
-  const transactionOption = useSelector(selectTransactionOption)
-  const compliantOption = useSelector(selectCompliantOption)
-  const errorHandler = useSelector(selectErrorHandler)
-  const keplrHandler = useSelector(selectKeplrHandler)
-  const closeHandler = useSelector(selectCloseHandler)
   const sourceCurrency = useSelector(selectSourceCurrency)
   const targetCurrency = useSelector(selectTargetCurrency)
-  const backendUrl = useSelector(selectBackendUrl)
-  const networkOption = useSelector(selectNetworkOption)
+  const amount = useSelector(selectAmount)
   const { totalFeeUsd, targetNetworkFee } = useSelector(selectServiceFee)
+  const compliantOption = useSelector(selectCompliantOption)
+  const networkOptions = useSelector(selectNetworkOption)
+  const feeDeduct = useSelector(selectFeeDeduct)
+  const closeHandler = useSelector(selectCloseHandler)
 
   // Hooks for wallet connection, allowance
   const [isCancellingApprove, setCancellingApprove] = useState(false)
   const [isApproving, setApproving] = useState(false)
-  const [isSubmitting, setSubmitting] = useState(false)
   const [isSigning, setSigning] = useState(false)
-  const [isConfirming, setConfirming] = useState(false)
   const pendingTxs = useSelector(selectPendingTxs)
-  const { allowance, isApproved, approve } = useAllowance({
+
+  const { width: windowWidth } = useWidth()
+
+  const { balance } = useBalance()
+
+  const { allowance, isApproved, approve, decimals } = useAllowance({
     setApproving,
     setCancellingApprove
   })
-  const { balance } = useBalance()
-  const { width: windowWidth } = useWidth()
 
-  /* Compliance check */
-  const { complianceData: sourceCompliant, error: sourceComplianceError } =
-    useComplianceCheck(sourceAddress, compliantOption, backendUrl)
-  const { complianceData: targetCompliant, error: targetComplianceError } =
-    useComplianceCheck(targetAddress, compliantOption, backendUrl)
+  const { complianceData: sourceCompliant } = useComplianceCheck(
+    sourceAddress,
+    compliantOption,
+    backendUrl
+  )
 
-  /* Pool balance fetch */
-  const {
+  const { complianceData: targetCompliant } = useComplianceCheck(
+    targetAddress,
+    compliantOption,
+    backendUrl
+  )
+
+  const { pools } = useGetPools(backendUrl, networkOptions)
+
+  const { validate } = useValidateTransaction({
+    allowance,
+    isApproved,
+    sourceAddress,
+    targetAddress,
+    targetChain,
+    balance,
+    amount,
+    totalFeeUsd,
+    sourceCompliant,
+    targetCompliant,
+    targetCurrency,
+    targetNetworkFee,
+    compliantOption,
+    mode,
     pools,
-    error: poolsBalanceError,
-    isLoading
-  } = useGetPools(backendUrl, networkOption)
+    feeDeduct
+  })
 
-  /* error handling for compliance errors */
-  useEffect(() => {
-    if (sourceComplianceError || targetComplianceError)
-      toast.error('Compliance check failed', {
-        icon: <ErrorIcon />
-      })
-  }, [sourceComplianceError, targetComplianceError])
+  const { submitTransaction, isSubmitting } = useSubmitTransaction({
+    mode,
+    amount,
+    totalFeeUsd,
+    originAddress: sourceAddress,
+    targetAddress,
+    originChain: sourceChain,
+    targetChain,
+    originSymbol: sourceCurrency,
+    targetSymbol: targetCurrency,
+    feeDeduct,
+    backendUrl,
+    decimals
+  })
 
   const handleSubmit = async () => {
-    if (totalFeeUsd < 0) {
-      toast.error('Fee is not calculated!', { icon: <ErrorIcon /> })
-      errorHandler('Fee is not calculated!')
-      return
+    const { error, message: validationMessage } = validate(true)
+
+    // check for validation errors
+    if (error === ValidationError.Error) {
+      return toast.error(validationMessage, { icon: <ErrorIcon /> })
     }
 
-    if (
-      dAppOption !== DAppOptions.LPDrain &&
-      balance < (feeDeduct ? +amount : +amount + totalFeeUsd)
-    ) {
-      toast.error('Insufficient balance!', { icon: <ErrorIcon /> })
-      errorHandler('Insufficient balance!')
-
-      return
+    // if is missing approve, trigger approval
+    if (error === ValidationError.ApprovalNeeded) {
+      return approve()
     }
 
-    // check for approval before submiting
-    const amountToShow =
-      mode === ModeOptions.payment
-        ? +amount + totalFeeUsd
-        : feeDeduct
-          ? +amount
-          : +amount + totalFeeUsd
-    if (allowance < amountToShow) {
-      return approve(false)
-    }
+    // submit the kima transaction
+    const { success, message: submitMessage } = await submitTransaction()
 
-    try {
-      setSubmitting(true)
-
-      if (
-        dAppOption === DAppOptions.LPDrain ||
-        dAppOption === DAppOptions.LPAdd
-      ) {
-        keplrHandler(sourceAddress)
-        return
-      }
-
-      console.log('continues...')
-
-      const feeParam = totalFeeUsd.toFixed(2)
-      const params = JSON.stringify({
-        originAddress: sourceAddress,
-        originChain: sourceChain,
-        targetAddress,
-        targetChain: targetChain,
-        originSymbol: sourceCurrency,
-        targetSymbol: targetCurrency,
-        amount: amountToShow.toString(),
-        fee: feeParam,
-        htlcCreationHash: '',
-        htlcCreationVout: 0,
-        htlcExpirationTimestamp: '0',
-        htlcVersion: '',
-        senderPubKey: ''
-      })
-
-      console.log(params)
-      const result: any = await fetchWrapper.post(
-        `${backendUrl}/submit`,
-        params
-      )
-
-      console.log(result)
-
-      if (result?.code !== 0) {
-        errorHandler(result)
-        toast.error('Failed to submit transaction!', { icon: <ErrorIcon /> })
-        setSubmitting(false)
-        return
-      }
-
-      let txId = -1
-
-      for (const event of result.events) {
-        if (event.type === 'transaction_requested') {
-          for (const attr of event.attributes) {
-            if (attr.key === 'txId') {
-              txId = attr.value
-            }
-          }
-        }
-      }
-
-      console.log(txId)
-      setSubmitting(false)
-      dispatch(setTxId(txId))
-      dispatch(setSubmitted(true))
-    } catch (e) {
-      errorHandler(e)
-      setSubmitting(false)
-      console.log(e?.status !== 500 ? 'rpc disconnected' : '', e)
-      toast.error('rpc disconnected', { icon: <ErrorIcon /> })
-      toast.error('Failed to submit transaction', { icon: <ErrorIcon /> })
-    }
+    if (!success) return toast.error(submitMessage, { icon: <ErrorIcon /> })
   }
 
   const onNext = () => {
-    if (isWizard && wizardStep < 5) {
-      if (wizardStep === 1 && !sourceAddress) {
-        toast.error('Wallet is not connected!', { icon: <ErrorIcon /> })
-        errorHandler('Wallet is not connected!')
-        return
-      }
-      if (wizardStep === 3) {
-        if (targetAddress) {
-          setWizardStep(4)
-        }
-        return
-      }
-      if (wizardStep === 4) {
-        if (totalFeeUsd >= 0 && +amount > 0) {
-          setWizardStep(5)
-        }
-        return
-      }
+    const { error, message } = validate()
 
-      if (totalFeeUsd > 0 && totalFeeUsd > +amount && feeDeduct) {
-        toast.error('Fee is greater than amount to transfer!', {
-          icon: <ErrorIcon />
-        })
-        errorHandler('Fee is greater than amount to transfer!')
-        return
-      }
-
-      setWizardStep((step) => step + 1)
+    // check if no errors and is in confirming step
+    if (error !== ValidationError.Error && !formStep) {
+      return setFormStep(1)
     }
 
-    if (!isWizard && !formStep) {
-      if (sourceAddress) {
-        if (mode === ModeOptions.payment && !transactionOption) {
-          toast.error('Invalid payment details!', { icon: <ErrorIcon /> })
-          errorHandler('Invalid payment details!')
-          return
-        }
-
-        if (mode === ModeOptions.bridge && +amount <= 0) {
-          toast.error('Invalid amount!', { icon: <ErrorIcon /> })
-          errorHandler('Invalid amount!')
-          return
-        }
-
-        if (totalFeeUsd < 0) {
-          toast.error('Fee is not calculated!', { icon: <ErrorIcon /> })
-          errorHandler('Fee is not calculated!')
-          return
-        }
-
-        if (!targetAddress) {
-          toast.error('Invalid target address!', { icon: <ErrorIcon /> })
-          errorHandler('Invalid target address!')
-          return
-        }
-
-        if (compliantOption) {
-          if (!sourceCompliant?.isCompliant) {
-            toast.error(
-              'The source address provided does not meet our compliance standards.',
-              {
-                icon: <ErrorIcon />
-              }
-            )
-            errorHandler(
-              'The source address provided does not meet our compliance standards.'
-            )
-
-            return
-          }
-
-          if (!targetCompliant?.isCompliant) {
-            toast.error(
-              'The target address provided does not meet our compliance standards.',
-              {
-                icon: <ErrorIcon />
-              }
-            )
-            errorHandler(
-              'The target address provided does not meet our compliance standards.'
-            )
-
-            return
-          }
-        }
-
-        if (totalFeeUsd > 0 && totalFeeUsd > +amount && feeDeduct) {
-          toast.error('Fee is greater than amount to transfer!', {
-            icon: <ErrorIcon />
-          })
-          errorHandler('Fee is greater than amount to transfer!')
-          return
-        }
-
-        const { isPoolAvailable, error } = checkPoolBalance({
-          pools,
-          targetChain,
-          targetCurrency,
-          amount,
-          targetNetworkFee
-        })
-        if (!isPoolAvailable || error != '') {
-          toast.error(error, {
-            icon: <ErrorIcon />
-          })
-          errorHandler(error)
-          return
-        }
-
-        if (mode === ModeOptions.payment || (targetAddress && +amount > 0)) {
-          setConfirming(true)
-          setFormStep(1)
-        }
-        return
-      } else {
-        toast.error('Wallet is not connected!', { icon: <ErrorIcon /> })
-        errorHandler('Wallet is not connected!')
-      }
+    if (error !== ValidationError.Error && formStep > 0) {
+      return handleSubmit()
     }
 
-    if ((isWizard && wizardStep === 5) || (!isWizard && formStep > 0)) {
-      handleSubmit()
-    }
-
+    toast.error(message, { icon: <ErrorIcon /> })
     mainRef.current?.click()
   }
 
@@ -371,12 +197,10 @@ export const TransferWidget = ({
     if (isWizard && wizardStep > 0) {
       if (mode === ModeOptions.payment && wizardStep === 5) setWizardStep(1)
       else setWizardStep((step) => step - 1)
-      setConfirming(false)
     }
 
     if (!isWizard && formStep > 0) {
       setFormStep(0)
-      setConfirming(false)
     }
 
     if ((isWizard && wizardStep === 0) || (!isWizard && formStep === 0)) {
@@ -462,11 +286,11 @@ export const TransferWidget = ({
                 <div className='menu-button'>I need help</div>
               </ExternalLink>
 
-              {formStep === 1 && (
+              {formStep === 0 && mode !== ModeOptions.payment && (
                 <button
                   className='reset-button'
                   onClick={resetForm}
-                  disabled={mode === ModeOptions.payment}
+                  disabled={isApproving || isSubmitting || isSigning}
                 >
                   Reset
                 </button>
