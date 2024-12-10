@@ -57,6 +57,22 @@ const ethereum = {
   rpcUrl: 'https://endpoints.omniatech.io/v1/eth/mainnet/public'
 }
 
+const baseTestnet = {
+  chainId: 84532,
+  name: 'Base Sepolia',
+  currency: 'ETH',
+  explorerUrl: 'https://sepolia.basescan.org',
+  rpcUrl: 'https://sepolia.base.org'
+}
+
+const base = {
+  chainId: 8453,
+  name: 'Base Mainnet',
+  currency: 'ETH',
+  explorerUrl: 'https://basescan.org',
+  rpcUrl: 'https://mainnet.base.org'
+}
+
 const bscTestnet = {
   chainId: 97,
   name: 'BNB Smart Chain Testnet',
@@ -209,9 +225,10 @@ export const KimaProvider = ({
     ethersConfig: defaultConfig({ metadata }),
     chains:
       networkOption === NetworkOptions.mainnet
-        ? [ethereum, bsc, polygon, arbitrum, optimism, avalanche, zkEVM]
+        ? [ethereum, base, bsc, polygon, arbitrum, optimism, avalanche, zkEVM]
         : [
             ethereumSepolia,
+            baseTestnet,
             bscTestnet,
             polygonAmoy,
             arbitrumSepolia,
