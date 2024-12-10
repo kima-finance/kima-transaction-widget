@@ -26,7 +26,7 @@ var sha256$1 = _interopDefault(require('crypto-js/sha256.js'));
 var Base64 = _interopDefault(require('crypto-js/enc-base64.js'));
 var buffer = require('buffer');
 var bitcoin = require('bitcoinjs-lib');
-var base = require('@scure/base');
+var base$1 = require('@scure/base');
 var btc = require('@kimafinance/btc-signer');
 require('hex64');
 
@@ -775,12 +775,30 @@ var Celo = function Celo(_ref) {
 };
 
 var _excluded$k = ["width", "height"];
+var Solana$1 = function Solana(_ref) {
+  var _ref$width = _ref.width,
+    width = _ref$width === void 0 ? 14 : _ref$width,
+    _ref$height = _ref.height,
+    height = _ref$height === void 0 ? 14 : _ref$height,
+    rest = _objectWithoutPropertiesLoose(_ref, _excluded$k);
+  return React__default.createElement("svg", Object.assign({
+    width: width,
+    height: height,
+    viewBox: '0 0 111 111',
+    xmlns: 'http://www.w3.org/2000/svg'
+  }, rest), React__default.createElement("path", {
+    d: 'M54.921 110.034C85.359 110.034 110.034 85.402 110.034 55.017C110.034 24.6319 85.359 0 54.921 0C26.0432 0 2.35281 22.1714 0 50.3923H72.8467V59.6416H3.9565e-07C2.35281 87.8625 26.0432 110.034 54.921 110.034Z',
+    fill: '#0052FF'
+  }));
+};
+
+var _excluded$l = ["width", "height"];
 var BTC = function BTC(_ref) {
   var _ref$width = _ref.width,
     width = _ref$width === void 0 ? 59 : _ref$width,
     _ref$height = _ref.height,
     height = _ref$height === void 0 ? 58 : _ref$height,
-    rest = _objectWithoutPropertiesLoose(_ref, _excluded$k);
+    rest = _objectWithoutPropertiesLoose(_ref, _excluded$l);
   return React__default.createElement("svg", Object.assign({
     width: width,
     height: height,
@@ -824,11 +842,11 @@ var BTC = function BTC(_ref) {
   }));
 };
 
-var _excluded$l = ["width", "height", "fill"];
+var _excluded$m = ["width", "height", "fill"];
 var Explorer = function Explorer(_ref) {
   var _ref$fill = _ref.fill,
     fill = _ref$fill === void 0 ? 'black' : _ref$fill,
-    rest = _objectWithoutPropertiesLoose(_ref, _excluded$l);
+    rest = _objectWithoutPropertiesLoose(_ref, _excluded$m);
   return React__default.createElement("svg", Object.assign({
     width: '21',
     height: '24',
@@ -841,11 +859,11 @@ var Explorer = function Explorer(_ref) {
   }));
 };
 
-var _excluded$m = ["width", "height", "fill"];
+var _excluded$n = ["width", "height", "fill"];
 var ExternalUrl = function ExternalUrl(_ref) {
   var _ref$fill = _ref.fill,
     fill = _ref$fill === void 0 ? 'black' : _ref$fill,
-    rest = _objectWithoutPropertiesLoose(_ref, _excluded$m);
+    rest = _objectWithoutPropertiesLoose(_ref, _excluded$n);
   return React__default.createElement("svg", Object.assign({
     width: '40',
     height: '40',
@@ -888,6 +906,7 @@ var _CHAIN_NAMES_TO_IDS_T, _CHAIN_NAMES_TO_IDS_M, _CHAIN_NAMES_TO_STRIN, _CHAIN_
   ChainName["TRON"] = "TRX";
   ChainName["FIAT"] = "FIAT";
   ChainName["BTC"] = "BTC";
+  ChainName["BASE"] = "BASE";
 })(exports.SupportNetworks || (exports.SupportNetworks = {}));
 var SupportedChainIdTestnet;
 (function (SupportedChainIdTestnet) {
@@ -898,8 +917,9 @@ var SupportedChainIdTestnet;
   SupportedChainIdTestnet[SupportedChainIdTestnet["ARBITRUM"] = 421614] = "ARBITRUM";
   SupportedChainIdTestnet[SupportedChainIdTestnet["OPTIMISM"] = 11155420] = "OPTIMISM";
   SupportedChainIdTestnet[SupportedChainIdTestnet["POLYGON_ZKEM"] = 2442] = "POLYGON_ZKEM";
+  SupportedChainIdTestnet[SupportedChainIdTestnet["BASE"] = 84532] = "BASE";
 })(SupportedChainIdTestnet || (SupportedChainIdTestnet = {}));
-var CHAIN_NAMES_TO_IDS_TESTNET = (_CHAIN_NAMES_TO_IDS_T = {}, _CHAIN_NAMES_TO_IDS_T[exports.SupportNetworks.ETHEREUM] = SupportedChainIdTestnet.ETHEREUM, _CHAIN_NAMES_TO_IDS_T[exports.SupportNetworks.POLYGON] = SupportedChainIdTestnet.POLYGON, _CHAIN_NAMES_TO_IDS_T[exports.SupportNetworks.AVALANCHE] = SupportedChainIdTestnet.AVALANCHE, _CHAIN_NAMES_TO_IDS_T[exports.SupportNetworks.BSC] = SupportedChainIdTestnet.BSC, _CHAIN_NAMES_TO_IDS_T[exports.SupportNetworks.OPTIMISM] = SupportedChainIdTestnet.OPTIMISM, _CHAIN_NAMES_TO_IDS_T[exports.SupportNetworks.ARBITRUM] = SupportedChainIdTestnet.ARBITRUM, _CHAIN_NAMES_TO_IDS_T[exports.SupportNetworks.POLYGON_ZKEVM] = SupportedChainIdTestnet.POLYGON_ZKEM, _CHAIN_NAMES_TO_IDS_T);
+var CHAIN_NAMES_TO_IDS_TESTNET = (_CHAIN_NAMES_TO_IDS_T = {}, _CHAIN_NAMES_TO_IDS_T[exports.SupportNetworks.ETHEREUM] = SupportedChainIdTestnet.ETHEREUM, _CHAIN_NAMES_TO_IDS_T[exports.SupportNetworks.POLYGON] = SupportedChainIdTestnet.POLYGON, _CHAIN_NAMES_TO_IDS_T[exports.SupportNetworks.AVALANCHE] = SupportedChainIdTestnet.AVALANCHE, _CHAIN_NAMES_TO_IDS_T[exports.SupportNetworks.BSC] = SupportedChainIdTestnet.BSC, _CHAIN_NAMES_TO_IDS_T[exports.SupportNetworks.OPTIMISM] = SupportedChainIdTestnet.OPTIMISM, _CHAIN_NAMES_TO_IDS_T[exports.SupportNetworks.ARBITRUM] = SupportedChainIdTestnet.ARBITRUM, _CHAIN_NAMES_TO_IDS_T[exports.SupportNetworks.POLYGON_ZKEVM] = SupportedChainIdTestnet.POLYGON_ZKEM, _CHAIN_NAMES_TO_IDS_T[exports.SupportNetworks.BASE] = SupportedChainIdTestnet.BASE, _CHAIN_NAMES_TO_IDS_T);
 var SupportedChainIdMainnet;
 (function (SupportedChainIdMainnet) {
   SupportedChainIdMainnet[SupportedChainIdMainnet["ETHEREUM"] = 1] = "ETHEREUM";
@@ -909,14 +929,15 @@ var SupportedChainIdMainnet;
   SupportedChainIdMainnet[SupportedChainIdMainnet["ARBITRUM"] = 42161] = "ARBITRUM";
   SupportedChainIdMainnet[SupportedChainIdMainnet["OPTIMISM"] = 10] = "OPTIMISM";
   SupportedChainIdMainnet[SupportedChainIdMainnet["POLYGON_ZKEM"] = 1101] = "POLYGON_ZKEM";
+  SupportedChainIdMainnet[SupportedChainIdMainnet["BASE"] = 8453] = "BASE";
 })(SupportedChainIdMainnet || (SupportedChainIdMainnet = {}));
-var CHAIN_NAMES_TO_IDS_MAINNET = (_CHAIN_NAMES_TO_IDS_M = {}, _CHAIN_NAMES_TO_IDS_M[exports.SupportNetworks.ETHEREUM] = SupportedChainIdMainnet.ETHEREUM, _CHAIN_NAMES_TO_IDS_M[exports.SupportNetworks.POLYGON] = SupportedChainIdMainnet.POLYGON, _CHAIN_NAMES_TO_IDS_M[exports.SupportNetworks.AVALANCHE] = SupportedChainIdMainnet.AVALANCHE, _CHAIN_NAMES_TO_IDS_M[exports.SupportNetworks.BSC] = SupportedChainIdMainnet.BSC, _CHAIN_NAMES_TO_IDS_M[exports.SupportNetworks.OPTIMISM] = SupportedChainIdMainnet.OPTIMISM, _CHAIN_NAMES_TO_IDS_M[exports.SupportNetworks.ARBITRUM] = SupportedChainIdMainnet.ARBITRUM, _CHAIN_NAMES_TO_IDS_M[exports.SupportNetworks.POLYGON_ZKEVM] = SupportedChainIdMainnet.POLYGON_ZKEM, _CHAIN_NAMES_TO_IDS_M);
-var CHAIN_NAMES_TO_STRING = (_CHAIN_NAMES_TO_STRIN = {}, _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.ETHEREUM] = 'Ethereum', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.POLYGON] = 'Polygon', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.AVALANCHE] = 'Avalanche', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.SOLANA] = 'Solana', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.BSC] = 'BNB Smart Chain', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.OPTIMISM] = 'Optimism', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.ARBITRUM] = 'Arbitrum', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.POLYGON_ZKEVM] = 'Polygon zkEVM', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.TRON] = 'Tron', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.FIAT] = 'Pay with FIAT', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.BTC] = 'Bitcoin', _CHAIN_NAMES_TO_STRIN);
-var CHAIN_STRING_TO_NAME = (_CHAIN_STRING_TO_NAME = {}, _CHAIN_STRING_TO_NAME['Ethereum'] = exports.SupportNetworks.ETHEREUM, _CHAIN_STRING_TO_NAME['Polygon'] = exports.SupportNetworks.POLYGON, _CHAIN_STRING_TO_NAME['Avalanche'] = exports.SupportNetworks.AVALANCHE, _CHAIN_STRING_TO_NAME['Solana'] = exports.SupportNetworks.SOLANA, _CHAIN_STRING_TO_NAME['Binance'] = exports.SupportNetworks.BSC, _CHAIN_STRING_TO_NAME['Optimism'] = exports.SupportNetworks.OPTIMISM, _CHAIN_STRING_TO_NAME['Arbitrum'] = exports.SupportNetworks.ARBITRUM, _CHAIN_STRING_TO_NAME['Polygon zkEVM'] = exports.SupportNetworks.POLYGON_ZKEVM, _CHAIN_STRING_TO_NAME['Tron'] = exports.SupportNetworks.TRON, _CHAIN_STRING_TO_NAME['Pay with FIAT'] = exports.SupportNetworks.FIAT, _CHAIN_STRING_TO_NAME['Bitcoin'] = exports.SupportNetworks.BTC, _CHAIN_STRING_TO_NAME);
-var CHAIN_NAMES_TO_EXPLORER_TESTNET = (_CHAIN_NAMES_TO_EXPLO = {}, _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.ETHEREUM] = 'sepolia.etherscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.POLYGON] = 'www.oklink.com/amoy', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.AVALANCHE] = 'testnet.snowtrace.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.SOLANA] = 'solscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.BSC] = 'testnet.bscscan.com', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.OPTIMISM] = 'sepolia-optimism.etherscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.ARBITRUM] = 'sepolia.arbiscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.POLYGON_ZKEVM] = 'cardona-zkevm.polygonscan.com', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.TRON] = 'nile.tronscan.org/#', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.BTC] = 'mempool.space/testnet', _CHAIN_NAMES_TO_EXPLO);
-var CHAIN_NAMES_TO_EXPLORER_MAINNET = (_CHAIN_NAMES_TO_EXPLO2 = {}, _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.ETHEREUM] = 'etherscan.io', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.POLYGON] = 'polygonscan.com', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.AVALANCHE] = 'snowtrace.io', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.SOLANA] = 'solscan.io', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.BSC] = 'bscscan.com', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.OPTIMISM] = 'optimistic.etherscan.io', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.ARBITRUM] = 'arbiscan.io', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.POLYGON_ZKEVM] = 'zkevm.polygonscan.com', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.TRON] = 'tronscan.org/#', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.BTC] = 'mempool.space', _CHAIN_NAMES_TO_EXPLO2);
-var CHAIN_IDS_TO_NAMES_TESTNET = (_CHAIN_IDS_TO_NAMES_T = {}, _CHAIN_IDS_TO_NAMES_T[SupportedChainIdTestnet.ETHEREUM] = exports.SupportNetworks.ETHEREUM, _CHAIN_IDS_TO_NAMES_T[SupportedChainIdTestnet.POLYGON] = exports.SupportNetworks.POLYGON, _CHAIN_IDS_TO_NAMES_T[SupportedChainIdTestnet.AVALANCHE] = exports.SupportNetworks.AVALANCHE, _CHAIN_IDS_TO_NAMES_T[SupportedChainIdTestnet.BSC] = exports.SupportNetworks.BSC, _CHAIN_IDS_TO_NAMES_T[SupportedChainIdTestnet.OPTIMISM] = exports.SupportNetworks.OPTIMISM, _CHAIN_IDS_TO_NAMES_T[SupportedChainIdTestnet.ARBITRUM] = exports.SupportNetworks.ARBITRUM, _CHAIN_IDS_TO_NAMES_T[SupportedChainIdTestnet.POLYGON_ZKEM] = exports.SupportNetworks.POLYGON_ZKEVM, _CHAIN_IDS_TO_NAMES_T);
-var CHAIN_IDS_TO_NAMES_MAINNET = (_CHAIN_IDS_TO_NAMES_M = {}, _CHAIN_IDS_TO_NAMES_M[SupportedChainIdMainnet.ETHEREUM] = exports.SupportNetworks.ETHEREUM, _CHAIN_IDS_TO_NAMES_M[SupportedChainIdMainnet.POLYGON] = exports.SupportNetworks.POLYGON, _CHAIN_IDS_TO_NAMES_M[SupportedChainIdMainnet.AVALANCHE] = exports.SupportNetworks.AVALANCHE, _CHAIN_IDS_TO_NAMES_M[SupportedChainIdMainnet.BSC] = exports.SupportNetworks.BSC, _CHAIN_IDS_TO_NAMES_M[SupportedChainIdMainnet.OPTIMISM] = exports.SupportNetworks.OPTIMISM, _CHAIN_IDS_TO_NAMES_M[SupportedChainIdMainnet.ARBITRUM] = exports.SupportNetworks.ARBITRUM, _CHAIN_IDS_TO_NAMES_M[SupportedChainIdMainnet.POLYGON_ZKEM] = exports.SupportNetworks.POLYGON_ZKEVM, _CHAIN_IDS_TO_NAMES_M);
+var CHAIN_NAMES_TO_IDS_MAINNET = (_CHAIN_NAMES_TO_IDS_M = {}, _CHAIN_NAMES_TO_IDS_M[exports.SupportNetworks.ETHEREUM] = SupportedChainIdMainnet.ETHEREUM, _CHAIN_NAMES_TO_IDS_M[exports.SupportNetworks.POLYGON] = SupportedChainIdMainnet.POLYGON, _CHAIN_NAMES_TO_IDS_M[exports.SupportNetworks.AVALANCHE] = SupportedChainIdMainnet.AVALANCHE, _CHAIN_NAMES_TO_IDS_M[exports.SupportNetworks.BSC] = SupportedChainIdMainnet.BSC, _CHAIN_NAMES_TO_IDS_M[exports.SupportNetworks.OPTIMISM] = SupportedChainIdMainnet.OPTIMISM, _CHAIN_NAMES_TO_IDS_M[exports.SupportNetworks.ARBITRUM] = SupportedChainIdMainnet.ARBITRUM, _CHAIN_NAMES_TO_IDS_M[exports.SupportNetworks.POLYGON_ZKEVM] = SupportedChainIdMainnet.POLYGON_ZKEM, _CHAIN_NAMES_TO_IDS_M[exports.SupportNetworks.BASE] = SupportedChainIdMainnet.BASE, _CHAIN_NAMES_TO_IDS_M);
+var CHAIN_NAMES_TO_STRING = (_CHAIN_NAMES_TO_STRIN = {}, _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.ETHEREUM] = 'Ethereum', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.POLYGON] = 'Polygon', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.AVALANCHE] = 'Avalanche', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.SOLANA] = 'Solana', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.BSC] = 'BNB Smart Chain', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.OPTIMISM] = 'Optimism', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.ARBITRUM] = 'Arbitrum', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.POLYGON_ZKEVM] = 'Polygon zkEVM', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.TRON] = 'Tron', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.FIAT] = 'Pay with FIAT', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.BTC] = 'Bitcoin', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.BASE] = 'Base', _CHAIN_NAMES_TO_STRIN);
+var CHAIN_STRING_TO_NAME = (_CHAIN_STRING_TO_NAME = {}, _CHAIN_STRING_TO_NAME['Ethereum'] = exports.SupportNetworks.ETHEREUM, _CHAIN_STRING_TO_NAME['Polygon'] = exports.SupportNetworks.POLYGON, _CHAIN_STRING_TO_NAME['Avalanche'] = exports.SupportNetworks.AVALANCHE, _CHAIN_STRING_TO_NAME['Solana'] = exports.SupportNetworks.SOLANA, _CHAIN_STRING_TO_NAME['Binance'] = exports.SupportNetworks.BSC, _CHAIN_STRING_TO_NAME['Optimism'] = exports.SupportNetworks.OPTIMISM, _CHAIN_STRING_TO_NAME['Arbitrum'] = exports.SupportNetworks.ARBITRUM, _CHAIN_STRING_TO_NAME['Polygon zkEVM'] = exports.SupportNetworks.POLYGON_ZKEVM, _CHAIN_STRING_TO_NAME['Tron'] = exports.SupportNetworks.TRON, _CHAIN_STRING_TO_NAME['Pay with FIAT'] = exports.SupportNetworks.FIAT, _CHAIN_STRING_TO_NAME['Bitcoin'] = exports.SupportNetworks.BTC, _CHAIN_STRING_TO_NAME['Base'] = exports.SupportNetworks.BASE, _CHAIN_STRING_TO_NAME);
+var CHAIN_NAMES_TO_EXPLORER_TESTNET = (_CHAIN_NAMES_TO_EXPLO = {}, _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.ETHEREUM] = 'sepolia.etherscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.POLYGON] = 'www.oklink.com/amoy', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.AVALANCHE] = 'testnet.snowtrace.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.SOLANA] = 'solscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.BSC] = 'testnet.bscscan.com', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.OPTIMISM] = 'sepolia-optimism.etherscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.ARBITRUM] = 'sepolia.arbiscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.POLYGON_ZKEVM] = 'cardona-zkevm.polygonscan.com', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.TRON] = 'nile.tronscan.org/#', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.BTC] = 'mempool.space/testnet', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.BASE] = 'sepolia.basescan.org', _CHAIN_NAMES_TO_EXPLO);
+var CHAIN_NAMES_TO_EXPLORER_MAINNET = (_CHAIN_NAMES_TO_EXPLO2 = {}, _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.ETHEREUM] = 'etherscan.io', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.POLYGON] = 'polygonscan.com', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.AVALANCHE] = 'snowtrace.io', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.SOLANA] = 'solscan.io', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.BSC] = 'bscscan.com', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.OPTIMISM] = 'optimistic.etherscan.io', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.ARBITRUM] = 'arbiscan.io', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.POLYGON_ZKEVM] = 'zkevm.polygonscan.com', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.TRON] = 'tronscan.org/#', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.BTC] = 'mempool.space', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.BASE] = 'basescan.org', _CHAIN_NAMES_TO_EXPLO2);
+var CHAIN_IDS_TO_NAMES_TESTNET = (_CHAIN_IDS_TO_NAMES_T = {}, _CHAIN_IDS_TO_NAMES_T[SupportedChainIdTestnet.ETHEREUM] = exports.SupportNetworks.ETHEREUM, _CHAIN_IDS_TO_NAMES_T[SupportedChainIdTestnet.POLYGON] = exports.SupportNetworks.POLYGON, _CHAIN_IDS_TO_NAMES_T[SupportedChainIdTestnet.AVALANCHE] = exports.SupportNetworks.AVALANCHE, _CHAIN_IDS_TO_NAMES_T[SupportedChainIdTestnet.BSC] = exports.SupportNetworks.BSC, _CHAIN_IDS_TO_NAMES_T[SupportedChainIdTestnet.OPTIMISM] = exports.SupportNetworks.OPTIMISM, _CHAIN_IDS_TO_NAMES_T[SupportedChainIdTestnet.ARBITRUM] = exports.SupportNetworks.ARBITRUM, _CHAIN_IDS_TO_NAMES_T[SupportedChainIdTestnet.POLYGON_ZKEM] = exports.SupportNetworks.POLYGON_ZKEVM, _CHAIN_IDS_TO_NAMES_T[SupportedChainIdTestnet.BASE] = exports.SupportNetworks.BASE, _CHAIN_IDS_TO_NAMES_T);
+var CHAIN_IDS_TO_NAMES_MAINNET = (_CHAIN_IDS_TO_NAMES_M = {}, _CHAIN_IDS_TO_NAMES_M[SupportedChainIdMainnet.ETHEREUM] = exports.SupportNetworks.ETHEREUM, _CHAIN_IDS_TO_NAMES_M[SupportedChainIdMainnet.POLYGON] = exports.SupportNetworks.POLYGON, _CHAIN_IDS_TO_NAMES_M[SupportedChainIdMainnet.AVALANCHE] = exports.SupportNetworks.AVALANCHE, _CHAIN_IDS_TO_NAMES_M[SupportedChainIdMainnet.BSC] = exports.SupportNetworks.BSC, _CHAIN_IDS_TO_NAMES_M[SupportedChainIdMainnet.OPTIMISM] = exports.SupportNetworks.OPTIMISM, _CHAIN_IDS_TO_NAMES_M[SupportedChainIdMainnet.ARBITRUM] = exports.SupportNetworks.ARBITRUM, _CHAIN_IDS_TO_NAMES_M[SupportedChainIdMainnet.POLYGON_ZKEM] = exports.SupportNetworks.POLYGON_ZKEVM, _CHAIN_IDS_TO_NAMES_M[SupportedChainIdMainnet.BASE] = exports.SupportNetworks.BASE, _CHAIN_IDS_TO_NAMES_M);
 var networkOptions = [{
   id: exports.SupportNetworks.ARBITRUM,
   label: 'Arbitrum',
@@ -925,6 +946,10 @@ var networkOptions = [{
   id: exports.SupportNetworks.AVALANCHE,
   label: 'Avalanche',
   icon: Avalanche
+}, {
+  id: exports.SupportNetworks.BASE,
+  label: 'Base',
+  icon: Solana$1
 }, {
   id: exports.SupportNetworks.BSC,
   label: 'Binance',
@@ -972,7 +997,7 @@ var getNetworkOption = function getNetworkOption(id) {
 var SOLANA_HOST_DEVNET = web3_js.clusterApiUrl('devnet');
 var SOLANA_HOST_MAINNET = web3_js.clusterApiUrl('mainnet-beta');
 var isEVMChain = function isEVMChain(chainId) {
-  return chainId === exports.SupportNetworks.ETHEREUM || chainId === exports.SupportNetworks.POLYGON || chainId === exports.SupportNetworks.AVALANCHE || chainId === exports.SupportNetworks.BSC || chainId === exports.SupportNetworks.OPTIMISM || chainId === exports.SupportNetworks.ARBITRUM || chainId === exports.SupportNetworks.POLYGON_ZKEVM;
+  return chainId === exports.SupportNetworks.ETHEREUM || chainId === exports.SupportNetworks.POLYGON || chainId === exports.SupportNetworks.AVALANCHE || chainId === exports.SupportNetworks.BSC || chainId === exports.SupportNetworks.OPTIMISM || chainId === exports.SupportNetworks.ARBITRUM || chainId === exports.SupportNetworks.POLYGON_ZKEVM || chainId === exports.SupportNetworks.BASE;
 };
 var COIN_LIST = {
   USDK: {
@@ -8504,7 +8529,7 @@ function createReclaimPsbt(reclaimerAddress, htlcAmount, htlcTimeout, htlcScript
   });
   var psbt = tx.toPSBT(0);
   console.log('txHex = ' + tx.hex);
-  var psbtB64 = base.base64.encode(psbt);
+  var psbtB64 = base$1.base64.encode(psbt);
   return psbtB64;
 }
 
@@ -8810,6 +8835,8 @@ const isFormData = (thing) => {
  * @returns {boolean} True if value is a URLSearchParams object, otherwise false
  */
 const isURLSearchParams = kindOfTest('URLSearchParams');
+
+const [isReadableStream, isRequest, isResponse, isHeaders] = ['ReadableStream', 'Request', 'Response', 'Headers'].map(kindOfTest);
 
 /**
  * Trim excess whitespace off the beginning and end of a string
@@ -9199,8 +9226,7 @@ const toObjectSet = (arrayOrString, delimiter) => {
 const noop = () => {};
 
 const toFiniteNumber = (value, defaultValue) => {
-  value = +value;
-  return Number.isFinite(value) ? value : defaultValue;
+  return value != null && Number.isFinite(value = +value) ? value : defaultValue;
 };
 
 const ALPHA = 'abcdefghijklmnopqrstuvwxyz';
@@ -9270,6 +9296,36 @@ const isAsyncFn = kindOfTest('AsyncFunction');
 const isThenable = (thing) =>
   thing && (isObject(thing) || isFunction(thing)) && isFunction(thing.then) && isFunction(thing.catch);
 
+// original code
+// https://github.com/DigitalBrainJS/AxiosPromise/blob/16deab13710ec09779922131f3fa5954320f83ab/lib/utils.js#L11-L34
+
+const _setImmediate = ((setImmediateSupported, postMessageSupported) => {
+  if (setImmediateSupported) {
+    return setImmediate;
+  }
+
+  return postMessageSupported ? ((token, callbacks) => {
+    _global.addEventListener("message", ({source, data}) => {
+      if (source === _global && data === token) {
+        callbacks.length && callbacks.shift()();
+      }
+    }, false);
+
+    return (cb) => {
+      callbacks.push(cb);
+      _global.postMessage(token, "*");
+    }
+  })(`axios@${Math.random()}`, []) : (cb) => setTimeout(cb);
+})(
+  typeof setImmediate === 'function',
+  isFunction(_global.postMessage)
+);
+
+const asap = typeof queueMicrotask !== 'undefined' ?
+  queueMicrotask.bind(_global) : ( typeof process !== 'undefined' && process.nextTick || _setImmediate);
+
+// *********************
+
 var utils$1 = {
   isArray,
   isArrayBuffer,
@@ -9281,6 +9337,10 @@ var utils$1 = {
   isBoolean,
   isObject,
   isPlainObject,
+  isReadableStream,
+  isRequest,
+  isResponse,
+  isHeaders,
   isUndefined,
   isDate,
   isFile,
@@ -9321,7 +9381,9 @@ var utils$1 = {
   isSpecCompliantForm,
   toJSONObject,
   isAsyncFn,
-  isThenable
+  isThenable,
+  setImmediate: _setImmediate,
+  asap
 };
 
 /**
@@ -9349,7 +9411,10 @@ function AxiosError(message, code, config, request, response) {
   code && (this.code = code);
   config && (this.config = config);
   request && (this.request = request);
-  response && (this.response = response);
+  if (response) {
+    this.response = response;
+    this.status = response.status ? response.status : null;
+  }
 }
 
 utils$1.inherits(AxiosError, Error, {
@@ -9369,7 +9434,7 @@ utils$1.inherits(AxiosError, Error, {
       // Axios
       config: utils$1.toJSONObject(this.config),
       code: this.code,
-      status: this.response && this.response.status ? this.response.status : null
+      status: this.status
     };
   }
 });
@@ -9835,6 +9900,8 @@ var platform = {
 
 const hasBrowserEnv = typeof window !== 'undefined' && typeof document !== 'undefined';
 
+const _navigator = typeof navigator === 'object' && navigator || undefined;
+
 /**
  * Determine if we're running in a standard browser environment
  *
@@ -9852,10 +9919,8 @@ const hasBrowserEnv = typeof window !== 'undefined' && typeof document !== 'unde
  *
  * @returns {boolean}
  */
-const hasStandardBrowserEnv = (
-  (product) => {
-    return hasBrowserEnv && ['ReactNative', 'NativeScript', 'NS'].indexOf(product) < 0
-  })(typeof navigator !== 'undefined' && navigator.product);
+const hasStandardBrowserEnv = hasBrowserEnv &&
+  (!_navigator || ['ReactNative', 'NativeScript', 'NS'].indexOf(_navigator.product) < 0);
 
 /**
  * Determine if we're running in a standard browser webWorker environment
@@ -9875,11 +9940,15 @@ const hasStandardBrowserWebWorkerEnv = (() => {
   );
 })();
 
+const origin = hasBrowserEnv && window.location.href || 'http://localhost';
+
 var utils$2 = {
   __proto__: null,
   hasBrowserEnv: hasBrowserEnv,
   hasStandardBrowserWebWorkerEnv: hasStandardBrowserWebWorkerEnv,
-  hasStandardBrowserEnv: hasStandardBrowserEnv
+  hasStandardBrowserEnv: hasStandardBrowserEnv,
+  navigator: _navigator,
+  origin: origin
 };
 
 var platform$1 = {
@@ -10019,7 +10088,7 @@ const defaults = {
 
   transitional: transitionalDefaults,
 
-  adapter: ['xhr', 'http'],
+  adapter: ['xhr', 'http', 'fetch'],
 
   transformRequest: [function transformRequest(data, headers) {
     const contentType = headers.getContentType() || '';
@@ -10040,7 +10109,8 @@ const defaults = {
       utils$1.isBuffer(data) ||
       utils$1.isStream(data) ||
       utils$1.isFile(data) ||
-      utils$1.isBlob(data)
+      utils$1.isBlob(data) ||
+      utils$1.isReadableStream(data)
     ) {
       return data;
     }
@@ -10082,6 +10152,10 @@ const defaults = {
     const transitional = this.transitional || defaults.transitional;
     const forcedJSONParsing = transitional && transitional.forcedJSONParsing;
     const JSONRequested = this.responseType === 'json';
+
+    if (utils$1.isResponse(data) || utils$1.isReadableStream(data)) {
+      return data;
+    }
 
     if (data && utils$1.isString(data) && ((forcedJSONParsing && !this.responseType) || JSONRequested)) {
       const silentJSONParsing = transitional && transitional.silentJSONParsing;
@@ -10284,6 +10358,10 @@ class AxiosHeaders {
       setHeaders(header, valueOrRewrite);
     } else if(utils$1.isString(header) && (header = header.trim()) && !isValidHeaderName(header)) {
       setHeaders(parseHeaders(header), valueOrRewrite);
+    } else if (utils$1.isHeaders(header)) {
+      for (const [key, value] of header.entries()) {
+        setHeader(value, key, rewrite);
+      }
     } else {
       header != null && setHeader(valueOrRewrite, header, rewrite);
     }
@@ -10549,6 +10627,210 @@ function settle(resolve, reject, response) {
   }
 }
 
+function parseProtocol(url) {
+  const match = /^([-+\w]{1,25})(:?\/\/|:)/.exec(url);
+  return match && match[1] || '';
+}
+
+/**
+ * Calculate data maxRate
+ * @param {Number} [samplesCount= 10]
+ * @param {Number} [min= 1000]
+ * @returns {Function}
+ */
+function speedometer(samplesCount, min) {
+  samplesCount = samplesCount || 10;
+  const bytes = new Array(samplesCount);
+  const timestamps = new Array(samplesCount);
+  let head = 0;
+  let tail = 0;
+  let firstSampleTS;
+
+  min = min !== undefined ? min : 1000;
+
+  return function push(chunkLength) {
+    const now = Date.now();
+
+    const startedAt = timestamps[tail];
+
+    if (!firstSampleTS) {
+      firstSampleTS = now;
+    }
+
+    bytes[head] = chunkLength;
+    timestamps[head] = now;
+
+    let i = tail;
+    let bytesCount = 0;
+
+    while (i !== head) {
+      bytesCount += bytes[i++];
+      i = i % samplesCount;
+    }
+
+    head = (head + 1) % samplesCount;
+
+    if (head === tail) {
+      tail = (tail + 1) % samplesCount;
+    }
+
+    if (now - firstSampleTS < min) {
+      return;
+    }
+
+    const passed = startedAt && now - startedAt;
+
+    return passed ? Math.round(bytesCount * 1000 / passed) : undefined;
+  };
+}
+
+/**
+ * Throttle decorator
+ * @param {Function} fn
+ * @param {Number} freq
+ * @return {Function}
+ */
+function throttle(fn, freq) {
+  let timestamp = 0;
+  let threshold = 1000 / freq;
+  let lastArgs;
+  let timer;
+
+  const invoke = (args, now = Date.now()) => {
+    timestamp = now;
+    lastArgs = null;
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
+    fn.apply(null, args);
+  };
+
+  const throttled = (...args) => {
+    const now = Date.now();
+    const passed = now - timestamp;
+    if ( passed >= threshold) {
+      invoke(args, now);
+    } else {
+      lastArgs = args;
+      if (!timer) {
+        timer = setTimeout(() => {
+          timer = null;
+          invoke(lastArgs);
+        }, threshold - passed);
+      }
+    }
+  };
+
+  const flush = () => lastArgs && invoke(lastArgs);
+
+  return [throttled, flush];
+}
+
+const progressEventReducer = (listener, isDownloadStream, freq = 3) => {
+  let bytesNotified = 0;
+  const _speedometer = speedometer(50, 250);
+
+  return throttle(e => {
+    const loaded = e.loaded;
+    const total = e.lengthComputable ? e.total : undefined;
+    const progressBytes = loaded - bytesNotified;
+    const rate = _speedometer(progressBytes);
+    const inRange = loaded <= total;
+
+    bytesNotified = loaded;
+
+    const data = {
+      loaded,
+      total,
+      progress: total ? (loaded / total) : undefined,
+      bytes: progressBytes,
+      rate: rate ? rate : undefined,
+      estimated: rate && total && inRange ? (total - loaded) / rate : undefined,
+      event: e,
+      lengthComputable: total != null,
+      [isDownloadStream ? 'download' : 'upload']: true
+    };
+
+    listener(data);
+  }, freq);
+};
+
+const progressEventDecorator = (total, throttled) => {
+  const lengthComputable = total != null;
+
+  return [(loaded) => throttled[0]({
+    lengthComputable,
+    total,
+    loaded
+  }), throttled[1]];
+};
+
+const asyncDecorator = (fn) => (...args) => utils$1.asap(() => fn(...args));
+
+var isURLSameOrigin = platform$1.hasStandardBrowserEnv ?
+
+// Standard browser envs have full support of the APIs needed to test
+// whether the request URL is of the same origin as current location.
+  (function standardBrowserEnv() {
+    const msie = platform$1.navigator && /(msie|trident)/i.test(platform$1.navigator.userAgent);
+    const urlParsingNode = document.createElement('a');
+    let originURL;
+
+    /**
+    * Parse a URL to discover its components
+    *
+    * @param {String} url The URL to be parsed
+    * @returns {Object}
+    */
+    function resolveURL(url) {
+      let href = url;
+
+      if (msie) {
+        // IE needs attribute set twice to normalize properties
+        urlParsingNode.setAttribute('href', href);
+        href = urlParsingNode.href;
+      }
+
+      urlParsingNode.setAttribute('href', href);
+
+      // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
+      return {
+        href: urlParsingNode.href,
+        protocol: urlParsingNode.protocol ? urlParsingNode.protocol.replace(/:$/, '') : '',
+        host: urlParsingNode.host,
+        search: urlParsingNode.search ? urlParsingNode.search.replace(/^\?/, '') : '',
+        hash: urlParsingNode.hash ? urlParsingNode.hash.replace(/^#/, '') : '',
+        hostname: urlParsingNode.hostname,
+        port: urlParsingNode.port,
+        pathname: (urlParsingNode.pathname.charAt(0) === '/') ?
+          urlParsingNode.pathname :
+          '/' + urlParsingNode.pathname
+      };
+    }
+
+    originURL = resolveURL(window.location.href);
+
+    /**
+    * Determine if a URL shares the same origin as the current location
+    *
+    * @param {String} requestURL The URL to test
+    * @returns {boolean} True if URL shares the same origin, otherwise false
+    */
+    return function isURLSameOrigin(requestURL) {
+      const parsed = (utils$1.isString(requestURL)) ? resolveURL(requestURL) : requestURL;
+      return (parsed.protocol === originURL.protocol &&
+          parsed.host === originURL.host);
+    };
+  })() :
+
+  // Non standard browser envs (web workers, react-native) lack needed support.
+  (function nonStandardBrowserEnv() {
+    return function isURLSameOrigin() {
+      return true;
+    };
+  })();
+
 var cookies = platform$1.hasStandardBrowserEnv ?
 
   // Standard browser envs support document.cookie
@@ -10633,200 +10915,183 @@ function buildFullPath(baseURL, requestedURL) {
   return requestedURL;
 }
 
-var isURLSameOrigin = platform$1.hasStandardBrowserEnv ?
-
-// Standard browser envs have full support of the APIs needed to test
-// whether the request URL is of the same origin as current location.
-  (function standardBrowserEnv() {
-    const msie = /(msie|trident)/i.test(navigator.userAgent);
-    const urlParsingNode = document.createElement('a');
-    let originURL;
-
-    /**
-    * Parse a URL to discover its components
-    *
-    * @param {String} url The URL to be parsed
-    * @returns {Object}
-    */
-    function resolveURL(url) {
-      let href = url;
-
-      if (msie) {
-        // IE needs attribute set twice to normalize properties
-        urlParsingNode.setAttribute('href', href);
-        href = urlParsingNode.href;
-      }
-
-      urlParsingNode.setAttribute('href', href);
-
-      // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
-      return {
-        href: urlParsingNode.href,
-        protocol: urlParsingNode.protocol ? urlParsingNode.protocol.replace(/:$/, '') : '',
-        host: urlParsingNode.host,
-        search: urlParsingNode.search ? urlParsingNode.search.replace(/^\?/, '') : '',
-        hash: urlParsingNode.hash ? urlParsingNode.hash.replace(/^#/, '') : '',
-        hostname: urlParsingNode.hostname,
-        port: urlParsingNode.port,
-        pathname: (urlParsingNode.pathname.charAt(0) === '/') ?
-          urlParsingNode.pathname :
-          '/' + urlParsingNode.pathname
-      };
-    }
-
-    originURL = resolveURL(window.location.href);
-
-    /**
-    * Determine if a URL shares the same origin as the current location
-    *
-    * @param {String} requestURL The URL to test
-    * @returns {boolean} True if URL shares the same origin, otherwise false
-    */
-    return function isURLSameOrigin(requestURL) {
-      const parsed = (utils$1.isString(requestURL)) ? resolveURL(requestURL) : requestURL;
-      return (parsed.protocol === originURL.protocol &&
-          parsed.host === originURL.host);
-    };
-  })() :
-
-  // Non standard browser envs (web workers, react-native) lack needed support.
-  (function nonStandardBrowserEnv() {
-    return function isURLSameOrigin() {
-      return true;
-    };
-  })();
-
-function parseProtocol(url) {
-  const match = /^([-+\w]{1,25})(:?\/\/|:)/.exec(url);
-  return match && match[1] || '';
-}
+const headersToObject = (thing) => thing instanceof AxiosHeaders ? { ...thing } : thing;
 
 /**
- * Calculate data maxRate
- * @param {Number} [samplesCount= 10]
- * @param {Number} [min= 1000]
- * @returns {Function}
+ * Config-specific merge-function which creates a new config-object
+ * by merging two configuration objects together.
+ *
+ * @param {Object} config1
+ * @param {Object} config2
+ *
+ * @returns {Object} New object resulting from merging config2 to config1
  */
-function speedometer(samplesCount, min) {
-  samplesCount = samplesCount || 10;
-  const bytes = new Array(samplesCount);
-  const timestamps = new Array(samplesCount);
-  let head = 0;
-  let tail = 0;
-  let firstSampleTS;
+function mergeConfig(config1, config2) {
+  // eslint-disable-next-line no-param-reassign
+  config2 = config2 || {};
+  const config = {};
 
-  min = min !== undefined ? min : 1000;
-
-  return function push(chunkLength) {
-    const now = Date.now();
-
-    const startedAt = timestamps[tail];
-
-    if (!firstSampleTS) {
-      firstSampleTS = now;
+  function getMergedValue(target, source, caseless) {
+    if (utils$1.isPlainObject(target) && utils$1.isPlainObject(source)) {
+      return utils$1.merge.call({caseless}, target, source);
+    } else if (utils$1.isPlainObject(source)) {
+      return utils$1.merge({}, source);
+    } else if (utils$1.isArray(source)) {
+      return source.slice();
     }
+    return source;
+  }
 
-    bytes[head] = chunkLength;
-    timestamps[head] = now;
-
-    let i = tail;
-    let bytesCount = 0;
-
-    while (i !== head) {
-      bytesCount += bytes[i++];
-      i = i % samplesCount;
+  // eslint-disable-next-line consistent-return
+  function mergeDeepProperties(a, b, caseless) {
+    if (!utils$1.isUndefined(b)) {
+      return getMergedValue(a, b, caseless);
+    } else if (!utils$1.isUndefined(a)) {
+      return getMergedValue(undefined, a, caseless);
     }
+  }
 
-    head = (head + 1) % samplesCount;
-
-    if (head === tail) {
-      tail = (tail + 1) % samplesCount;
+  // eslint-disable-next-line consistent-return
+  function valueFromConfig2(a, b) {
+    if (!utils$1.isUndefined(b)) {
+      return getMergedValue(undefined, b);
     }
+  }
 
-    if (now - firstSampleTS < min) {
-      return;
+  // eslint-disable-next-line consistent-return
+  function defaultToConfig2(a, b) {
+    if (!utils$1.isUndefined(b)) {
+      return getMergedValue(undefined, b);
+    } else if (!utils$1.isUndefined(a)) {
+      return getMergedValue(undefined, a);
     }
+  }
 
-    const passed = startedAt && now - startedAt;
+  // eslint-disable-next-line consistent-return
+  function mergeDirectKeys(a, b, prop) {
+    if (prop in config2) {
+      return getMergedValue(a, b);
+    } else if (prop in config1) {
+      return getMergedValue(undefined, a);
+    }
+  }
 
-    return passed ? Math.round(bytesCount * 1000 / passed) : undefined;
+  const mergeMap = {
+    url: valueFromConfig2,
+    method: valueFromConfig2,
+    data: valueFromConfig2,
+    baseURL: defaultToConfig2,
+    transformRequest: defaultToConfig2,
+    transformResponse: defaultToConfig2,
+    paramsSerializer: defaultToConfig2,
+    timeout: defaultToConfig2,
+    timeoutMessage: defaultToConfig2,
+    withCredentials: defaultToConfig2,
+    withXSRFToken: defaultToConfig2,
+    adapter: defaultToConfig2,
+    responseType: defaultToConfig2,
+    xsrfCookieName: defaultToConfig2,
+    xsrfHeaderName: defaultToConfig2,
+    onUploadProgress: defaultToConfig2,
+    onDownloadProgress: defaultToConfig2,
+    decompress: defaultToConfig2,
+    maxContentLength: defaultToConfig2,
+    maxBodyLength: defaultToConfig2,
+    beforeRedirect: defaultToConfig2,
+    transport: defaultToConfig2,
+    httpAgent: defaultToConfig2,
+    httpsAgent: defaultToConfig2,
+    cancelToken: defaultToConfig2,
+    socketPath: defaultToConfig2,
+    responseEncoding: defaultToConfig2,
+    validateStatus: mergeDirectKeys,
+    headers: (a, b) => mergeDeepProperties(headersToObject(a), headersToObject(b), true)
   };
+
+  utils$1.forEach(Object.keys(Object.assign({}, config1, config2)), function computeConfigValue(prop) {
+    const merge = mergeMap[prop] || mergeDeepProperties;
+    const configValue = merge(config1[prop], config2[prop], prop);
+    (utils$1.isUndefined(configValue) && merge !== mergeDirectKeys) || (config[prop] = configValue);
+  });
+
+  return config;
 }
 
-function progressEventReducer(listener, isDownloadStream) {
-  let bytesNotified = 0;
-  const _speedometer = speedometer(50, 250);
+var resolveConfig = (config) => {
+  const newConfig = mergeConfig({}, config);
 
-  return e => {
-    const loaded = e.loaded;
-    const total = e.lengthComputable ? e.total : undefined;
-    const progressBytes = loaded - bytesNotified;
-    const rate = _speedometer(progressBytes);
-    const inRange = loaded <= total;
+  let {data, withXSRFToken, xsrfHeaderName, xsrfCookieName, headers, auth} = newConfig;
 
-    bytesNotified = loaded;
+  newConfig.headers = headers = AxiosHeaders.from(headers);
 
-    const data = {
-      loaded,
-      total,
-      progress: total ? (loaded / total) : undefined,
-      bytes: progressBytes,
-      rate: rate ? rate : undefined,
-      estimated: rate && total && inRange ? (total - loaded) / rate : undefined,
-      event: e
-    };
+  newConfig.url = buildURL(buildFullPath(newConfig.baseURL, newConfig.url), config.params, config.paramsSerializer);
 
-    data[isDownloadStream ? 'download' : 'upload'] = true;
+  // HTTP basic authentication
+  if (auth) {
+    headers.set('Authorization', 'Basic ' +
+      btoa((auth.username || '') + ':' + (auth.password ? unescape(encodeURIComponent(auth.password)) : ''))
+    );
+  }
 
-    listener(data);
-  };
-}
+  let contentType;
+
+  if (utils$1.isFormData(data)) {
+    if (platform$1.hasStandardBrowserEnv || platform$1.hasStandardBrowserWebWorkerEnv) {
+      headers.setContentType(undefined); // Let the browser set it
+    } else if ((contentType = headers.getContentType()) !== false) {
+      // fix semicolon duplication issue for ReactNative FormData implementation
+      const [type, ...tokens] = contentType ? contentType.split(';').map(token => token.trim()).filter(Boolean) : [];
+      headers.setContentType([type || 'multipart/form-data', ...tokens].join('; '));
+    }
+  }
+
+  // Add xsrf header
+  // This is only done if running in a standard browser environment.
+  // Specifically not if we're in a web worker, or react-native.
+
+  if (platform$1.hasStandardBrowserEnv) {
+    withXSRFToken && utils$1.isFunction(withXSRFToken) && (withXSRFToken = withXSRFToken(newConfig));
+
+    if (withXSRFToken || (withXSRFToken !== false && isURLSameOrigin(newConfig.url))) {
+      // Add xsrf header
+      const xsrfValue = xsrfHeaderName && xsrfCookieName && cookies.read(xsrfCookieName);
+
+      if (xsrfValue) {
+        headers.set(xsrfHeaderName, xsrfValue);
+      }
+    }
+  }
+
+  return newConfig;
+};
 
 const isXHRAdapterSupported = typeof XMLHttpRequest !== 'undefined';
 
 var xhrAdapter = isXHRAdapterSupported && function (config) {
   return new Promise(function dispatchXhrRequest(resolve, reject) {
-    let requestData = config.data;
-    const requestHeaders = AxiosHeaders.from(config.headers).normalize();
-    let {responseType, withXSRFToken} = config;
+    const _config = resolveConfig(config);
+    let requestData = _config.data;
+    const requestHeaders = AxiosHeaders.from(_config.headers).normalize();
+    let {responseType, onUploadProgress, onDownloadProgress} = _config;
     let onCanceled;
+    let uploadThrottled, downloadThrottled;
+    let flushUpload, flushDownload;
+
     function done() {
-      if (config.cancelToken) {
-        config.cancelToken.unsubscribe(onCanceled);
-      }
+      flushUpload && flushUpload(); // flush events
+      flushDownload && flushDownload(); // flush events
 
-      if (config.signal) {
-        config.signal.removeEventListener('abort', onCanceled);
-      }
-    }
+      _config.cancelToken && _config.cancelToken.unsubscribe(onCanceled);
 
-    let contentType;
-
-    if (utils$1.isFormData(requestData)) {
-      if (platform$1.hasStandardBrowserEnv || platform$1.hasStandardBrowserWebWorkerEnv) {
-        requestHeaders.setContentType(false); // Let the browser set it
-      } else if ((contentType = requestHeaders.getContentType()) !== false) {
-        // fix semicolon duplication issue for ReactNative FormData implementation
-        const [type, ...tokens] = contentType ? contentType.split(';').map(token => token.trim()).filter(Boolean) : [];
-        requestHeaders.setContentType([type || 'multipart/form-data', ...tokens].join('; '));
-      }
+      _config.signal && _config.signal.removeEventListener('abort', onCanceled);
     }
 
     let request = new XMLHttpRequest();
 
-    // HTTP basic authentication
-    if (config.auth) {
-      const username = config.auth.username || '';
-      const password = config.auth.password ? unescape(encodeURIComponent(config.auth.password)) : '';
-      requestHeaders.set('Authorization', 'Basic ' + btoa(username + ':' + password));
-    }
-
-    const fullPath = buildFullPath(config.baseURL, config.url);
-
-    request.open(config.method.toUpperCase(), buildURL(fullPath, config.params, config.paramsSerializer), true);
+    request.open(_config.method.toUpperCase(), _config.url, true);
 
     // Set the request timeout in MS
-    request.timeout = config.timeout;
+    request.timeout = _config.timeout;
 
     function onloadend() {
       if (!request) {
@@ -10906,10 +11171,10 @@ var xhrAdapter = isXHRAdapterSupported && function (config) {
 
     // Handle timeout
     request.ontimeout = function handleTimeout() {
-      let timeoutErrorMessage = config.timeout ? 'timeout of ' + config.timeout + 'ms exceeded' : 'timeout exceeded';
-      const transitional = config.transitional || transitionalDefaults;
-      if (config.timeoutErrorMessage) {
-        timeoutErrorMessage = config.timeoutErrorMessage;
+      let timeoutErrorMessage = _config.timeout ? 'timeout of ' + _config.timeout + 'ms exceeded' : 'timeout exceeded';
+      const transitional = _config.transitional || transitionalDefaults;
+      if (_config.timeoutErrorMessage) {
+        timeoutErrorMessage = _config.timeoutErrorMessage;
       }
       reject(new AxiosError(
         timeoutErrorMessage,
@@ -10920,22 +11185,6 @@ var xhrAdapter = isXHRAdapterSupported && function (config) {
       // Clean up request
       request = null;
     };
-
-    // Add xsrf header
-    // This is only done if running in a standard browser environment.
-    // Specifically not if we're in a web worker, or react-native.
-    if(platform$1.hasStandardBrowserEnv) {
-      withXSRFToken && utils$1.isFunction(withXSRFToken) && (withXSRFToken = withXSRFToken(config));
-
-      if (withXSRFToken || (withXSRFToken !== false && isURLSameOrigin(fullPath))) {
-        // Add xsrf header
-        const xsrfValue = config.xsrfHeaderName && config.xsrfCookieName && cookies.read(config.xsrfCookieName);
-
-        if (xsrfValue) {
-          requestHeaders.set(config.xsrfHeaderName, xsrfValue);
-        }
-      }
-    }
 
     // Remove Content-Type if data is undefined
     requestData === undefined && requestHeaders.setContentType(null);
@@ -10948,26 +11197,31 @@ var xhrAdapter = isXHRAdapterSupported && function (config) {
     }
 
     // Add withCredentials to request if needed
-    if (!utils$1.isUndefined(config.withCredentials)) {
-      request.withCredentials = !!config.withCredentials;
+    if (!utils$1.isUndefined(_config.withCredentials)) {
+      request.withCredentials = !!_config.withCredentials;
     }
 
     // Add responseType to request if needed
     if (responseType && responseType !== 'json') {
-      request.responseType = config.responseType;
+      request.responseType = _config.responseType;
     }
 
     // Handle progress if needed
-    if (typeof config.onDownloadProgress === 'function') {
-      request.addEventListener('progress', progressEventReducer(config.onDownloadProgress, true));
+    if (onDownloadProgress) {
+      ([downloadThrottled, flushDownload] = progressEventReducer(onDownloadProgress, true));
+      request.addEventListener('progress', downloadThrottled);
     }
 
     // Not all browsers support upload events
-    if (typeof config.onUploadProgress === 'function' && request.upload) {
-      request.upload.addEventListener('progress', progressEventReducer(config.onUploadProgress));
+    if (onUploadProgress && request.upload) {
+      ([uploadThrottled, flushUpload] = progressEventReducer(onUploadProgress));
+
+      request.upload.addEventListener('progress', uploadThrottled);
+
+      request.upload.addEventListener('loadend', flushUpload);
     }
 
-    if (config.cancelToken || config.signal) {
+    if (_config.cancelToken || _config.signal) {
       // Handle cancellation
       // eslint-disable-next-line func-names
       onCanceled = cancel => {
@@ -10979,13 +11233,13 @@ var xhrAdapter = isXHRAdapterSupported && function (config) {
         request = null;
       };
 
-      config.cancelToken && config.cancelToken.subscribe(onCanceled);
-      if (config.signal) {
-        config.signal.aborted ? onCanceled() : config.signal.addEventListener('abort', onCanceled);
+      _config.cancelToken && _config.cancelToken.subscribe(onCanceled);
+      if (_config.signal) {
+        _config.signal.aborted ? onCanceled() : _config.signal.addEventListener('abort', onCanceled);
       }
     }
 
-    const protocol = parseProtocol(fullPath);
+    const protocol = parseProtocol(_config.url);
 
     if (protocol && platform$1.protocols.indexOf(protocol) === -1) {
       reject(new AxiosError('Unsupported protocol ' + protocol + ':', AxiosError.ERR_BAD_REQUEST, config));
@@ -10998,9 +11252,358 @@ var xhrAdapter = isXHRAdapterSupported && function (config) {
   });
 };
 
+const composeSignals = (signals, timeout) => {
+  const {length} = (signals = signals ? signals.filter(Boolean) : []);
+
+  if (timeout || length) {
+    let controller = new AbortController();
+
+    let aborted;
+
+    const onabort = function (reason) {
+      if (!aborted) {
+        aborted = true;
+        unsubscribe();
+        const err = reason instanceof Error ? reason : this.reason;
+        controller.abort(err instanceof AxiosError ? err : new CanceledError(err instanceof Error ? err.message : err));
+      }
+    };
+
+    let timer = timeout && setTimeout(() => {
+      timer = null;
+      onabort(new AxiosError(`timeout ${timeout} of ms exceeded`, AxiosError.ETIMEDOUT));
+    }, timeout);
+
+    const unsubscribe = () => {
+      if (signals) {
+        timer && clearTimeout(timer);
+        timer = null;
+        signals.forEach(signal => {
+          signal.unsubscribe ? signal.unsubscribe(onabort) : signal.removeEventListener('abort', onabort);
+        });
+        signals = null;
+      }
+    };
+
+    signals.forEach((signal) => signal.addEventListener('abort', onabort));
+
+    const {signal} = controller;
+
+    signal.unsubscribe = () => utils$1.asap(unsubscribe);
+
+    return signal;
+  }
+};
+
+const streamChunk = function* (chunk, chunkSize) {
+  let len = chunk.byteLength;
+
+  if (!chunkSize || len < chunkSize) {
+    yield chunk;
+    return;
+  }
+
+  let pos = 0;
+  let end;
+
+  while (pos < len) {
+    end = pos + chunkSize;
+    yield chunk.slice(pos, end);
+    pos = end;
+  }
+};
+
+const readBytes = async function* (iterable, chunkSize) {
+  for await (const chunk of readStream(iterable)) {
+    yield* streamChunk(chunk, chunkSize);
+  }
+};
+
+const readStream = async function* (stream) {
+  if (stream[Symbol.asyncIterator]) {
+    yield* stream;
+    return;
+  }
+
+  const reader = stream.getReader();
+  try {
+    for (;;) {
+      const {done, value} = await reader.read();
+      if (done) {
+        break;
+      }
+      yield value;
+    }
+  } finally {
+    await reader.cancel();
+  }
+};
+
+const trackStream = (stream, chunkSize, onProgress, onFinish) => {
+  const iterator = readBytes(stream, chunkSize);
+
+  let bytes = 0;
+  let done;
+  let _onFinish = (e) => {
+    if (!done) {
+      done = true;
+      onFinish && onFinish(e);
+    }
+  };
+
+  return new ReadableStream({
+    async pull(controller) {
+      try {
+        const {done, value} = await iterator.next();
+
+        if (done) {
+         _onFinish();
+          controller.close();
+          return;
+        }
+
+        let len = value.byteLength;
+        if (onProgress) {
+          let loadedBytes = bytes += len;
+          onProgress(loadedBytes);
+        }
+        controller.enqueue(new Uint8Array(value));
+      } catch (err) {
+        _onFinish(err);
+        throw err;
+      }
+    },
+    cancel(reason) {
+      _onFinish(reason);
+      return iterator.return();
+    }
+  }, {
+    highWaterMark: 2
+  })
+};
+
+const isFetchSupported = typeof fetch === 'function' && typeof Request === 'function' && typeof Response === 'function';
+const isReadableStreamSupported = isFetchSupported && typeof ReadableStream === 'function';
+
+// used only inside the fetch adapter
+const encodeText = isFetchSupported && (typeof TextEncoder === 'function' ?
+    ((encoder) => (str) => encoder.encode(str))(new TextEncoder()) :
+    async (str) => new Uint8Array(await new Response(str).arrayBuffer())
+);
+
+const test = (fn, ...args) => {
+  try {
+    return !!fn(...args);
+  } catch (e) {
+    return false
+  }
+};
+
+const supportsRequestStream = isReadableStreamSupported && test(() => {
+  let duplexAccessed = false;
+
+  const hasContentType = new Request(platform$1.origin, {
+    body: new ReadableStream(),
+    method: 'POST',
+    get duplex() {
+      duplexAccessed = true;
+      return 'half';
+    },
+  }).headers.has('Content-Type');
+
+  return duplexAccessed && !hasContentType;
+});
+
+const DEFAULT_CHUNK_SIZE = 64 * 1024;
+
+const supportsResponseStream = isReadableStreamSupported &&
+  test(() => utils$1.isReadableStream(new Response('').body));
+
+
+const resolvers = {
+  stream: supportsResponseStream && ((res) => res.body)
+};
+
+isFetchSupported && (((res) => {
+  ['text', 'arrayBuffer', 'blob', 'formData', 'stream'].forEach(type => {
+    !resolvers[type] && (resolvers[type] = utils$1.isFunction(res[type]) ? (res) => res[type]() :
+      (_, config) => {
+        throw new AxiosError(`Response type '${type}' is not supported`, AxiosError.ERR_NOT_SUPPORT, config);
+      });
+  });
+})(new Response));
+
+const getBodyLength = async (body) => {
+  if (body == null) {
+    return 0;
+  }
+
+  if(utils$1.isBlob(body)) {
+    return body.size;
+  }
+
+  if(utils$1.isSpecCompliantForm(body)) {
+    const _request = new Request(platform$1.origin, {
+      method: 'POST',
+      body,
+    });
+    return (await _request.arrayBuffer()).byteLength;
+  }
+
+  if(utils$1.isArrayBufferView(body) || utils$1.isArrayBuffer(body)) {
+    return body.byteLength;
+  }
+
+  if(utils$1.isURLSearchParams(body)) {
+    body = body + '';
+  }
+
+  if(utils$1.isString(body)) {
+    return (await encodeText(body)).byteLength;
+  }
+};
+
+const resolveBodyLength = async (headers, body) => {
+  const length = utils$1.toFiniteNumber(headers.getContentLength());
+
+  return length == null ? getBodyLength(body) : length;
+};
+
+var fetchAdapter = isFetchSupported && (async (config) => {
+  let {
+    url,
+    method,
+    data,
+    signal,
+    cancelToken,
+    timeout,
+    onDownloadProgress,
+    onUploadProgress,
+    responseType,
+    headers,
+    withCredentials = 'same-origin',
+    fetchOptions
+  } = resolveConfig(config);
+
+  responseType = responseType ? (responseType + '').toLowerCase() : 'text';
+
+  let composedSignal = composeSignals([signal, cancelToken && cancelToken.toAbortSignal()], timeout);
+
+  let request;
+
+  const unsubscribe = composedSignal && composedSignal.unsubscribe && (() => {
+      composedSignal.unsubscribe();
+  });
+
+  let requestContentLength;
+
+  try {
+    if (
+      onUploadProgress && supportsRequestStream && method !== 'get' && method !== 'head' &&
+      (requestContentLength = await resolveBodyLength(headers, data)) !== 0
+    ) {
+      let _request = new Request(url, {
+        method: 'POST',
+        body: data,
+        duplex: "half"
+      });
+
+      let contentTypeHeader;
+
+      if (utils$1.isFormData(data) && (contentTypeHeader = _request.headers.get('content-type'))) {
+        headers.setContentType(contentTypeHeader);
+      }
+
+      if (_request.body) {
+        const [onProgress, flush] = progressEventDecorator(
+          requestContentLength,
+          progressEventReducer(asyncDecorator(onUploadProgress))
+        );
+
+        data = trackStream(_request.body, DEFAULT_CHUNK_SIZE, onProgress, flush);
+      }
+    }
+
+    if (!utils$1.isString(withCredentials)) {
+      withCredentials = withCredentials ? 'include' : 'omit';
+    }
+
+    // Cloudflare Workers throws when credentials are defined
+    // see https://github.com/cloudflare/workerd/issues/902
+    const isCredentialsSupported = "credentials" in Request.prototype;
+    request = new Request(url, {
+      ...fetchOptions,
+      signal: composedSignal,
+      method: method.toUpperCase(),
+      headers: headers.normalize().toJSON(),
+      body: data,
+      duplex: "half",
+      credentials: isCredentialsSupported ? withCredentials : undefined
+    });
+
+    let response = await fetch(request);
+
+    const isStreamResponse = supportsResponseStream && (responseType === 'stream' || responseType === 'response');
+
+    if (supportsResponseStream && (onDownloadProgress || (isStreamResponse && unsubscribe))) {
+      const options = {};
+
+      ['status', 'statusText', 'headers'].forEach(prop => {
+        options[prop] = response[prop];
+      });
+
+      const responseContentLength = utils$1.toFiniteNumber(response.headers.get('content-length'));
+
+      const [onProgress, flush] = onDownloadProgress && progressEventDecorator(
+        responseContentLength,
+        progressEventReducer(asyncDecorator(onDownloadProgress), true)
+      ) || [];
+
+      response = new Response(
+        trackStream(response.body, DEFAULT_CHUNK_SIZE, onProgress, () => {
+          flush && flush();
+          unsubscribe && unsubscribe();
+        }),
+        options
+      );
+    }
+
+    responseType = responseType || 'text';
+
+    let responseData = await resolvers[utils$1.findKey(resolvers, responseType) || 'text'](response, config);
+
+    !isStreamResponse && unsubscribe && unsubscribe();
+
+    return await new Promise((resolve, reject) => {
+      settle(resolve, reject, {
+        data: responseData,
+        headers: AxiosHeaders.from(response.headers),
+        status: response.status,
+        statusText: response.statusText,
+        config,
+        request
+      });
+    })
+  } catch (err) {
+    unsubscribe && unsubscribe();
+
+    if (err && err.name === 'TypeError' && /fetch/i.test(err.message)) {
+      throw Object.assign(
+        new AxiosError('Network Error', AxiosError.ERR_NETWORK, config, request),
+        {
+          cause: err.cause || err
+        }
+      )
+    }
+
+    throw AxiosError.from(err, err && err.code, config, request);
+  }
+});
+
 const knownAdapters = {
   http: httpAdapter,
-  xhr: xhrAdapter
+  xhr: xhrAdapter,
+  fetch: fetchAdapter
 };
 
 utils$1.forEach(knownAdapters, (fn, value) => {
@@ -11144,109 +11747,7 @@ function dispatchRequest(config) {
   });
 }
 
-const headersToObject = (thing) => thing instanceof AxiosHeaders ? thing.toJSON() : thing;
-
-/**
- * Config-specific merge-function which creates a new config-object
- * by merging two configuration objects together.
- *
- * @param {Object} config1
- * @param {Object} config2
- *
- * @returns {Object} New object resulting from merging config2 to config1
- */
-function mergeConfig(config1, config2) {
-  // eslint-disable-next-line no-param-reassign
-  config2 = config2 || {};
-  const config = {};
-
-  function getMergedValue(target, source, caseless) {
-    if (utils$1.isPlainObject(target) && utils$1.isPlainObject(source)) {
-      return utils$1.merge.call({caseless}, target, source);
-    } else if (utils$1.isPlainObject(source)) {
-      return utils$1.merge({}, source);
-    } else if (utils$1.isArray(source)) {
-      return source.slice();
-    }
-    return source;
-  }
-
-  // eslint-disable-next-line consistent-return
-  function mergeDeepProperties(a, b, caseless) {
-    if (!utils$1.isUndefined(b)) {
-      return getMergedValue(a, b, caseless);
-    } else if (!utils$1.isUndefined(a)) {
-      return getMergedValue(undefined, a, caseless);
-    }
-  }
-
-  // eslint-disable-next-line consistent-return
-  function valueFromConfig2(a, b) {
-    if (!utils$1.isUndefined(b)) {
-      return getMergedValue(undefined, b);
-    }
-  }
-
-  // eslint-disable-next-line consistent-return
-  function defaultToConfig2(a, b) {
-    if (!utils$1.isUndefined(b)) {
-      return getMergedValue(undefined, b);
-    } else if (!utils$1.isUndefined(a)) {
-      return getMergedValue(undefined, a);
-    }
-  }
-
-  // eslint-disable-next-line consistent-return
-  function mergeDirectKeys(a, b, prop) {
-    if (prop in config2) {
-      return getMergedValue(a, b);
-    } else if (prop in config1) {
-      return getMergedValue(undefined, a);
-    }
-  }
-
-  const mergeMap = {
-    url: valueFromConfig2,
-    method: valueFromConfig2,
-    data: valueFromConfig2,
-    baseURL: defaultToConfig2,
-    transformRequest: defaultToConfig2,
-    transformResponse: defaultToConfig2,
-    paramsSerializer: defaultToConfig2,
-    timeout: defaultToConfig2,
-    timeoutMessage: defaultToConfig2,
-    withCredentials: defaultToConfig2,
-    withXSRFToken: defaultToConfig2,
-    adapter: defaultToConfig2,
-    responseType: defaultToConfig2,
-    xsrfCookieName: defaultToConfig2,
-    xsrfHeaderName: defaultToConfig2,
-    onUploadProgress: defaultToConfig2,
-    onDownloadProgress: defaultToConfig2,
-    decompress: defaultToConfig2,
-    maxContentLength: defaultToConfig2,
-    maxBodyLength: defaultToConfig2,
-    beforeRedirect: defaultToConfig2,
-    transport: defaultToConfig2,
-    httpAgent: defaultToConfig2,
-    httpsAgent: defaultToConfig2,
-    cancelToken: defaultToConfig2,
-    socketPath: defaultToConfig2,
-    responseEncoding: defaultToConfig2,
-    validateStatus: mergeDirectKeys,
-    headers: (a, b) => mergeDeepProperties(headersToObject(a), headersToObject(b), true)
-  };
-
-  utils$1.forEach(Object.keys(Object.assign({}, config1, config2)), function computeConfigValue(prop) {
-    const merge = mergeMap[prop] || mergeDeepProperties;
-    const configValue = merge(config1[prop], config2[prop], prop);
-    (utils$1.isUndefined(configValue) && merge !== mergeDirectKeys) || (config[prop] = configValue);
-  });
-
-  return config;
-}
-
-const VERSION = "1.6.7";
+const VERSION = "1.7.7";
 
 const validators = {};
 
@@ -11372,12 +11873,15 @@ class Axios {
 
         // slice off the Error: ... line
         const stack = dummy.stack ? dummy.stack.replace(/^.+\n/, '') : '';
-
-        if (!err.stack) {
-          err.stack = stack;
-          // match without the 2 top stack lines
-        } else if (stack && !String(err.stack).endsWith(stack.replace(/^.+\n.+\n/, ''))) {
-          err.stack += '\n' + stack;
+        try {
+          if (!err.stack) {
+            err.stack = stack;
+            // match without the 2 top stack lines
+          } else if (stack && !String(err.stack).endsWith(stack.replace(/^.+\n.+\n/, ''))) {
+            err.stack += '\n' + stack;
+          }
+        } catch (e) {
+          // ignore the case where "stack" is an un-writable property
         }
       }
 
@@ -11646,6 +12150,20 @@ class CancelToken {
     if (index !== -1) {
       this._listeners.splice(index, 1);
     }
+  }
+
+  toAbortSignal() {
+    const controller = new AbortController();
+
+    const abort = (err) => {
+      controller.abort(err);
+    };
+
+    this.subscribe(abort);
+
+    controller.signal.unsubscribe = () => this.unsubscribe(abort);
+
+    return controller.signal;
   }
 
   /**
@@ -12752,6 +13270,20 @@ var ethereum = {
   explorerUrl: 'https://etherscan.io',
   rpcUrl: 'https://endpoints.omniatech.io/v1/eth/mainnet/public'
 };
+var baseTestnet = {
+  chainId: 84532,
+  name: 'Base Sepolia',
+  currency: 'ETH',
+  explorerUrl: 'https://sepolia.basescan.org',
+  rpcUrl: 'https://sepolia.base.org'
+};
+var base = {
+  chainId: 8453,
+  name: 'Base Mainnet',
+  currency: 'ETH',
+  explorerUrl: 'https://basescan.org',
+  rpcUrl: 'https://mainnet.base.org'
+};
 var bscTestnet = {
   chainId: 97,
   name: 'BNB Smart Chain Testnet',
@@ -12872,7 +13404,7 @@ var KimaProvider = function KimaProvider(_ref) {
     ethersConfig: react.defaultConfig({
       metadata: metadata
     }),
-    chains: networkOption === exports.NetworkOptions.mainnet ? [ethereum, bsc, polygon, arbitrum, optimism, avalanche, zkEVM] : [ethereumSepolia, bscTestnet, polygonAmoy, arbitrumSepolia, optimismSepola, avalancheFuji, zkEVMTestnet],
+    chains: networkOption === exports.NetworkOptions.mainnet ? [ethereum, base, bsc, polygon, arbitrum, optimism, avalanche, zkEVM] : [ethereumSepolia, baseTestnet, bscTestnet, polygonAmoy, arbitrumSepolia, optimismSepola, avalancheFuji, zkEVMTestnet],
     projectId: walletConnectProjectId || 'e579511a495b5c312b572b036e60555a',
     enableAnalytics: false,
     featuredWalletIds: ['c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96', 'a797aa35c0fadbfc1a53e7f675162ed5226968b44a19ee3d24385c64d1d3c393', '4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0']
