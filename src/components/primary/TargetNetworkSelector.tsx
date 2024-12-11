@@ -36,8 +36,7 @@ const TargetNetworkSelectorComponent = () => {
   // Ensure there's always a fallback selected network
   const selectedNetwork = useMemo(() => {
     return (
-      networks.find((network) => network.id === targetNetwork) ||
-      networks.find((network) => network.id !== sourceNetwork) || {
+      networks.find((network) => network.id === targetNetwork) || {
         id: '',
         label: 'Select Network'
       }
@@ -47,6 +46,15 @@ const TargetNetworkSelectorComponent = () => {
   const availableTargetNetworks = useMemo(() => {
     return networks.filter((network) => network.id !== sourceNetwork)
   }, [networks, sourceNetwork])
+
+  useEffect(() => {
+    // Ensure there's always a fallback selected network
+    if (!availableTargetNetworks?.length) return
+    if (!!selectedNetwork && selectedNetwork.id !== '') return
+    const fallbackNetwork = availableTargetNetworks[0]
+    console.info('TargetNetworkSelector::setting fallback:', fallbackNetwork)
+    dispatch(setTargetChain(fallbackNetwork.id))
+  }, [selectedNetwork, availableTargetNetworks])
 
   const handleNetworkChange = (networkId: string) => {
     if (networkId === targetNetwork) return

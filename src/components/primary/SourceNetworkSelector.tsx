@@ -32,17 +32,23 @@ const SourceNetworkSelectorComponent = () => {
     return data
   }, [networkOptions])
 
-  // Ensure there's always a fallback selected network
   const selectedNetwork = useMemo(() => {
     return (
-      networks.find((option) => option.id === originNetwork) ||
-      networks[0] || { id: '', label: 'Loading...' } // Default to the first network if available // Provide safe fallback
+      networks.find((option) => option.id === originNetwork) || {
+        id: '',
+        label: 'Loading...'
+      }
     )
   }, [originNetwork, networks])
 
   useEffect(() => {
-    console.info('Source::Final networks:', networks)
-  }, [networks])
+    // Ensure there's always a fallback selected network
+    if (!networks?.length) return
+    if (!!selectedNetwork && selectedNetwork.id !== '') return
+    const fallbackNetwork = networks[0]
+    console.info('SourceNetworkSelector::setting fallback:', fallbackNetwork)
+    dispatch(setSourceChain(fallbackNetwork.id))
+  }, [selectedNetwork, networks])
 
   const handleNetworkChange = (networkId: string) => {
     console.info(`networkId: ${networkId} | originNetwork:`, originNetwork)
