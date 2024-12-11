@@ -1,23 +1,26 @@
 export interface Plugin {
   initialize: () => PluginInit
+  data: PluginData
 
   // hooks
   // TODO: refactor to return a UseQueryResult
-  useAllowance: () => PluginUseAllowanceResult
-  useBalance: () => PluginUseBalanceResult
-  useTokenBalance(): PluginUseBalanceResult
+  useAllowance: () => PluginUseAllowanceResult | undefined
+  useNativeBalance: () => PluginUseBalanceResult | undefined
+  useTokenBalance(): PluginUseBalanceResult | undefined
   useWalletIsReady: () => PluginUseWalletIsReadyResult
 }
 
 export interface PluginUseAllowanceResult {
   isApproved: boolean
-  poolAddress: string
   approve: (isCancel?: boolean) => Promise<void>
-  allowance: number
+  allowance?: number | undefined
+  balance?: number | undefined
+  decimals?: number | undefined
 }
 
 export interface PluginUseBalanceResult {
-  balance: number | undefined
+  balance?: number | undefined
+  decimals?: number | undefined
 }
 
 export interface PluginUseWalletIsReadyResult {

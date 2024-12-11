@@ -7,7 +7,7 @@ import defaultPlugin from '@plugins/default'
 
 const useGetCurrentPlugin = () => {
   // Initialize with defaultPlugin instead of null
-  const [currentPlugin, setCurrentPlugin] = useState<any>(defaultPlugin)
+  const [currentPlugin, setCurrentPlugin] = useState<Plugin>(defaultPlugin)
 
   const chainData = useGetChainData()?.chainData
   console.log('Chain data:', chainData)

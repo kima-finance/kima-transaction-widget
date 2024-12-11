@@ -18,18 +18,18 @@ export abstract class PluginBase implements Plugin {
   abstract Provider: React.FC<PluginProviderProps>
 
   // hooks
-  useAllowance: () => PluginUseAllowanceResult
-  useBalance: () => PluginUseBalanceResult
-  useTokenBalance: () => PluginUseBalanceResult
+  useAllowance: () => PluginUseAllowanceResult | undefined
+  useNativeBalance: () => PluginUseBalanceResult | undefined
+  useTokenBalance: () => PluginUseBalanceResult | undefined
   useWalletIsReady: () => PluginUseWalletIsReadyResult
 
   constructor(args: {
     store: any
     id: string
     fetchChains: () => Promise<PluginChain[]>
-    useAllowance: () => PluginUseAllowanceResult
-    useBalance: () => PluginUseBalanceResult
-    useTokenBalance(): PluginUseBalanceResult
+    useAllowance: () => PluginUseAllowanceResult | undefined
+    useNativeBalance: () => PluginUseBalanceResult | undefined
+    useTokenBalance(): PluginUseBalanceResult | undefined
     useWalletIsReady: () => PluginUseWalletIsReadyResult
   }) {
     this._store = args.store
@@ -41,7 +41,7 @@ export abstract class PluginBase implements Plugin {
     }
     this.fetchChains = args.fetchChains
     this.useAllowance = args.useAllowance
-    this.useBalance = args.useBalance
+    this.useNativeBalance = args.useNativeBalance
     this.useTokenBalance = args.useTokenBalance
     this.useWalletIsReady = args.useWalletIsReady
   }
