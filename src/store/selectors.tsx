@@ -7,6 +7,9 @@ import { RootState } from '.'
 // Core
 export const selectNetworkOption = (state: RootState) =>
   state.option.networkOption
+
+export const selectNetworks = (state: RootState) => state.option.networks
+
 // Core
 export const selectTokenOptions = (state: RootState) =>
   state.option.tokenOptions
@@ -25,7 +28,8 @@ export const selectSourceChain = (state: RootState) => state.option.sourceChain
 export const selectTargetChain = (state: RootState) => state.option.targetChain
 
 // Core
-export const selectSourceAddress = (state: RootState) => state.option.sourceAddress;
+export const selectSourceAddress = (state: RootState) =>
+  state.option.sourceAddress
 
 // Core
 export const selectTargetAddress = (state: RootState) =>
@@ -52,7 +56,8 @@ export const selectTronConnectModal = (state: RootState) =>
 
 // Core
 export const selectPendingTxs = (state: RootState) => state.option.pendingTxs
-export const selectPendingTxData = (state: RootState) => state.option.pendingTxData
+export const selectPendingTxData = (state: RootState) =>
+  state.option.pendingTxData
 
 // Core
 export const selectHelpPopup = (state: RootState) => state.option.helpPopup

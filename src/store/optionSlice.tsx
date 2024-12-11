@@ -5,6 +5,7 @@ import {
   DAppOptions,
   ModeOptions,
   NetworkOptions,
+  Option,
   ServiceFee,
   ThemeOptions,
   TransactionOption
@@ -93,10 +94,12 @@ export interface OptionState {
   pendingTxs: number // number of pending bitcoin transactions
   pendingTxData: Array<PendingTxData> // pending bitcoin transaction data
   networkOption: NetworkOptions // specify testnet or mainnet
+  networks: Option[]
 }
 
 const initialState: OptionState = {
   networkOption: NetworkOptions.testnet,
+  networks: [],
   theme: {},
   tokenOptions: {},
   pendingTxs: 0,
@@ -161,6 +164,9 @@ export const optionSlice = createSlice({
     },
     setNetworkOption: (state, action: PayloadAction<NetworkOptions>) => {
       state.networkOption = action.payload
+    },
+    setNetworks: (state, action: PayloadAction<Option[]>) => {
+      state.networks = action.payload
     },
     setPendingTxs: (state, action: PayloadAction<number>) => {
       state.pendingTxs = action.payload
@@ -321,6 +327,7 @@ export const optionSlice = createSlice({
 export const {
   initialize,
   setNetworkOption,
+  setNetworks,
   setTokenOptions,
   setKimaExplorer,
   setTheme,

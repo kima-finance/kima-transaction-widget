@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import useNetworkOptions from '../../hooks/useNetworkOptions'
 import { ArrowIcon } from '../../assets/icons'
 import {
   selectDappOption,
   selectMode,
+  selectNetworks,
   selectNodeProviderQuery,
   selectSourceChain,
   selectTargetChain,
@@ -19,6 +19,7 @@ import { ChainName } from '../../utils/constants'
 import { ModeOptions } from '../../interface'
 import { fetchWrapper } from '../../helpers/fetch-wrapper'
 import toast from 'react-hot-toast'
+import ChainIcon from './ChainIcon'
 
 interface Props {
   isOriginChain?: boolean
@@ -37,7 +38,7 @@ const Network = ({ isOriginChain = true }: Props) => {
   const [availableNetworks, setAvailableNetworks] = useState<Array<ChainName>>(
     []
   )
-  const { options: networkOptions } = useNetworkOptions()
+  const networkOptions = useSelector(selectNetworks)
   const selectedNetwork = useMemo(() => {
     const index = networkOptions.findIndex(
       (option) => option.id === (isOriginChain ? originNetwork : targetNetwork)
@@ -154,11 +155,11 @@ const Network = ({ isOriginChain = true }: Props) => {
                   sourceChangeRef.current = true
                 } else {
                   dispatch(setTargetChain(network.id))
-                  dispatch(setServiceFee(-1))
+                  dispatch(setServiceFee({ totalFeeUsd: -1 }))
                 }
               }}
             >
-              <network.icon />
+              <ChainIcon symbol={network.id} />
               <span>{network.label}</span>
             </div>
           ))}
