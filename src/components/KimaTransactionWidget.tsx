@@ -65,7 +65,6 @@ interface Props {
   kimaNodeProviderQuery: string
   kimaGraphqlProviderQuery: string
   kimaExplorer?: string
-  networkOption?: NetworkOptions
   errorHandler?: (e: any) => void
   closeHandler?: (e: any) => void
   successHandler?: (e: any) => void
@@ -77,7 +76,6 @@ const KimaTransactionWidget = ({
   mode,
   txId,
   autoSwitchChain = true,
-  networkOption = NetworkOptions.testnet,
   provider,
   dAppOption = DAppOptions.None,
   theme,
@@ -126,7 +124,6 @@ const KimaTransactionWidget = ({
     dispatch(setProvider(provider))
     dispatch(setDappOption(dAppOption))
     dispatch(setWalletAutoConnect(autoSwitchChain))
-    dispatch(setNetworkOption(networkOption))
 
     if (mode === ModeOptions.payment) {
       dispatch(
@@ -146,7 +143,6 @@ const KimaTransactionWidget = ({
     errorHandler,
     closeHandler,
     mode,
-    networkOption
   ])
 
   useEffect(() => {

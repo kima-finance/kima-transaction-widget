@@ -40,12 +40,12 @@ const useSubmitTransaction = ({
   const submitTransaction = async () => {
     try {
       setSubmitting(true)
-      const amountToShow =
+      const finalAmount =
         mode === ModeOptions.payment
-          ? +amount + totalFeeUsd
+          ? (+amount).toFixed(decimals || 6)
           : feeDeduct
-            ? +amount
-            : +amount + totalFeeUsd
+            ? (+amount - totalFeeUsd).toFixed(decimals || 6)
+            : (+amount).toFixed(decimals || 6)
 
       const params = JSON.stringify({
         originAddress,
@@ -54,7 +54,7 @@ const useSubmitTransaction = ({
         targetChain,
         originSymbol,
         targetSymbol,
-        amount: amountToShow,
+        amount: finalAmount,
         fee: totalFeeUsd.toFixed(decimals || 6),
         htlcCreationHash: '',
         htlcCreationVout: 0,
