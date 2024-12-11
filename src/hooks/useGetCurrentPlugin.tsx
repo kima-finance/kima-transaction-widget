@@ -3,8 +3,7 @@ import { useSelector } from 'react-redux'
 import { getPlugin } from '@pluginRegistry'
 import { selectSourceChain } from '@store/selectors'
 import useGetChainData from './useGetChainData'
-import { default as defaultPlugin } from '@plugins/evm'
-import { Plugin } from '../../plugins'
+import defaultPlugin from '@plugins/default'
 
 const useGetCurrentPlugin = () => {
   // Initialize with defaultPlugin instead of null
