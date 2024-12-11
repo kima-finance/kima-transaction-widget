@@ -92,16 +92,16 @@ interface ThemeOptions {
     backgroundColorDark?: string;
 }
 interface TransactionData {
-    status?: TransactionStatus;
-    sourceChain?: string;
-    targetChain?: string;
-    tssPullHash?: string;
-    tssReleaseHash?: string;
-    sourceSymbol?: string;
-    targetSymbol?: string;
-    amount?: number;
-    kimaTxHash?: string;
-    failReason?: string;
+    status: TransactionStatus;
+    sourceChain: string;
+    targetChain: string;
+    tssPullHash: string;
+    tssReleaseHash: string;
+    sourceSymbol: string;
+    targetSymbol: string;
+    amount: number;
+    kimaTxHash: string;
+    failReason: string;
 }
 interface Web3ModalAccountInfo {
     address?: string | undefined;

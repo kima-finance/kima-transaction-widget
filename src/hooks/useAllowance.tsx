@@ -199,7 +199,9 @@ export default function useAllowance({
             const parsedAccountInfo = accountInfo?.value
               ?.data as ParsedAccountData
 
-            setDecimals(parsedAccountInfo.parsed?.info?.tokenAmount?.decimals)
+            setDecimals(
+              Number(parsedAccountInfo.parsed?.info?.tokenAmount?.decimals)
+            )
             setAllowance(
               parsedAccountInfo.parsed?.info?.delegate === targetAddress
                 ? parsedAccountInfo.parsed?.info?.delegatedAmount?.uiAmount
@@ -216,7 +218,7 @@ export default function useAllowance({
               .allowance(tronAddress, targetAddress)
               .call()
 
-            setDecimals(+decimals)
+            setDecimals(Number(decimals))
             setAllowance(+formatUnits(userAllowance, decimals))
           } else {
             setAllowance(0)
@@ -294,8 +296,15 @@ export default function useAllowance({
           !tokenAddress ||
           !targetAddress ||
           !signTronTransaction
-        )
+        ) {
+          console.warn('useAllowance::approve::Tron: missing params', {
+            decimals,
+            tokenAddress,
+            targetAddress,
+            signTronTransaction
+          })
           return
+        }
 
         try {
           isCancel ? setCancellingApprove(true) : setApproving(true)

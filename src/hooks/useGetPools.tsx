@@ -7,6 +7,7 @@ const useGetPools = (backendUrl: string, networkOption: NetworkOptions) => {
     queryKey: ['pools', networkOption],
     queryFn: async () => await getPools(backendUrl),
     refetchInterval: 300000,
+    staleTime: 1000 * 60, // 1 min
     enabled: !!backendUrl && !!networkOption
   })
 

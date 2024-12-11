@@ -3,28 +3,23 @@ import { ErrorIcon, FooterLogo, MinimizeIcon } from '@assets/icons'
 import Progressbar from './reusable/Progressbar'
 import { NetworkLabel, StepBox } from './reusable'
 import '../index.css'
-import {
-  ColorModeOptions,
-  DAppOptions,
-  ThemeOptions,
-  TransactionData
-} from '@interface'
+import { ColorModeOptions, ThemeOptions } from '@interface'
 import { Provider } from 'react-redux'
 import { store } from '@store/index'
-import { fetchWrapper } from '../helpers/fetch-wrapper'
 import { TransactionStatus } from '../utils/constants'
 import { formatterFloat } from '../helpers/functions'
 import { useSelector } from 'react-redux'
 import {
+  selectBackendUrl,
   selectCloseHandler,
   selectDappOption,
-  selectGraphqlProviderQuery,
   selectSuccessHandler,
   selectTxId
 } from '@store/selectors'
 import { useDispatch } from 'react-redux'
 import { toast, Toaster } from 'react-hot-toast'
 import { setAmount, setSubmitted, setTargetAddress } from '@store/optionSlice'
+import useGetTxData from '../hooks/useGetTxData'
 
 export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [step, setStep] = useState(0)
@@ -34,141 +29,21 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [loadingStep, setLoadingStep] = useState(-1)
   const [minimized, setMinimized] = useState(false)
   const [percent, setPercent] = useState(0)
-  const [data, setData] = useState<TransactionData>()
   const dispatch = useDispatch()
   const txId = useSelector(selectTxId)
   const dAppOption = useSelector(selectDappOption)
   const closeHandler = useSelector(selectCloseHandler)
   const successHandler = useSelector(selectSuccessHandler)
-  const graphqlProviderQuery = useSelector(selectGraphqlProviderQuery)
+
+  const backendUrl = useSelector(selectBackendUrl)
+  const { data } = useGetTxData(txId, dAppOption, backendUrl)
 
   useEffect(() => {
-    if (!graphqlProviderQuery || txId < 0) return
-
-    const updateTxData = async () => {
-      if (data?.status === TransactionStatus.COMPLETED) return
-      try {
-        let data
-        // let result: any
-        const isLP =
-          dAppOption === DAppOptions.LPAdd || dAppOption === DAppOptions.LPDrain
-
-        const result: any = await fetchWrapper.post(
-          graphqlProviderQuery,
-          JSON.stringify({
-            query: isLP
-              ? `query TransactionDetailsKima($txId: String) {
-                  liquidity_transaction_data(where: { tx_id: { _eq: ${txId.toString()} } }, limit: 1) {
-                    failreason
-                    pullfailcount
-                    pullhash
-                    releasefailcount
-                    releasehash
-                    txstatus
-                    amount
-                    creator
-                    chain
-                    providerchainaddress
-                    symbol
-                    tx_id
-                    kimahash
-                  }
-                }`
-              : `query TransactionDetailsKima($txId: String) {
-                  transaction_data(where: { tx_id: { _eq: ${txId.toString()} } }, limit: 1) {
-                    failreason
-                    pullfailcount
-                    pullhash
-                    releasefailcount
-                    releasehash
-                    txstatus
-                    amount
-                    creator
-                    originaddress
-                    originchain
-                    originsymbol
-                    targetsymbol
-                    targetaddress
-                    targetchain
-                    tx_id
-                    kimahash
-                  }
-                }`
-          })
-        )
-
-        if (
-          (isLP && !result?.data?.liquidity_transaction_data?.length) ||
-          (!isLP && !result?.data?.transaction_data?.length)
-        ) {
-          return
-        }
-
-        if (isLP) {
-          data = result?.data.liquidity_transaction_data[0]
-        } else {
-          data = result?.data.transaction_data[0]
-        }
-
-        console.log(data)
-        if (!data) return
-
-        // Status of last transaction
-        if (isLP) {
-          setData({
-            status: data.txstatus,
-            sourceChain: data.chain,
-            targetChain: data.chain,
-            tssPullHash:
-              dAppOption === DAppOptions.LPAdd ? data.releasehash : '',
-            tssReleaseHash:
-              dAppOption === DAppOptions.LPDrain ? data.releasehash : '',
-            failReason: data.failreason,
-            amount: +data.amount,
-            sourceSymbol: data.symbol,
-            targetSymbol: data.symbol,
-            kimaTxHash: data.kimahash
-          })
-        } else {
-          setData({
-            status: data.txstatus,
-            sourceChain: data.originchain,
-            targetChain: data.targetchain,
-            tssPullHash: data.pullhash,
-            tssReleaseHash: data.releasehash,
-            failReason: data.failreason,
-            amount: +data.amount,
-            sourceSymbol: data.originsymbol,
-            targetSymbol: data.targetsymbol,
-            kimaTxHash: data.kimahash
-          })
-        }
-
-        if (data.status === TransactionStatus.COMPLETED) {
-          clearInterval(timerId)
-          setTimeout(() => {
-            successHandler({
-              txId
-            })
-          }, 3000)
-        }
-      } catch (e) {
-        toast.error('rpc disconnected', { icon: <ErrorIcon /> })
-        console.log('rpc disconnected', e)
-      }
-    }
-
-    const timerId = setInterval(() => {
-      // Monitor last transaction for now until transaction_data endpoint is ready
-      updateTxData()
-    }, 10000)
-
-    updateTxData()
-
-    return () => {
-      clearInterval(timerId)
-    }
-  }, [graphqlProviderQuery, txId, dAppOption])
+    if (!data || data.status !== TransactionStatus.COMPLETED) return
+    successHandler({
+      txId
+    })
+  }, [data])
 
   useEffect(() => {
     if (!data) {
