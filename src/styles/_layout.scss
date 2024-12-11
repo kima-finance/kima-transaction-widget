@@ -27,8 +27,16 @@
           margin: 0;
           font-size: 32px;
 
+          // &.transaction {
+          //   font-size: 26px;
+          // }
+
           @include breakpoint(phablet) {
             font-size: 26px;
+
+            // &.transaction{
+            //   font-size: 20px;
+            // }
           }
         }
 
@@ -323,7 +331,7 @@
     }
 
     @include breakpoint(phablet) {
-      margin-top: 60px;
+      margin-top: 70px;
 
       p {
         display: none;

@@ -19,7 +19,7 @@ import {
   selectSourceCurrency,
   selectTargetCurrency
 } from '../../store/selectors'
-import { ChainName, COIN_LIST, networkOptions } from '../../utils/constants'
+import { ChainName, networkOptions } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 import useWidth from '../../hooks/useWidth'
 
@@ -59,11 +59,6 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
   useEffect(() => {
     width === 0 && updateWidth(window.innerWidth)
   }, [])
-
-  const SourceCoinIcon =
-    COIN_LIST[sourceCurrency].icon || COIN_LIST['USDK'].icon
-  const TargetCoinIcon =
-    COIN_LIST[targetCurrency].icon || COIN_LIST['USDK'].icon
 
   const sourceWalletAddress = useMemo(() => {
     return width >= 916
@@ -147,21 +142,21 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
         </div>
       )}
       <div className='detail-item amount'>
-        <span className='label'>Amount:</span>
+        <span className='label'>Transaction Details:</span>
         <span className='amount-container'>
-          <div className='coin-details'>
-            <SourceCoinIcon />
-            <p>
-              {amountToShow} {sourceCurrency}
-            </p>
-          </div>
-          {sourceCurrency !== targetCurrency && (
-            <div className='coin-details'>
-              → <TargetCoinIcon /> {targetCurrency}
-            </div>
-          )}
           <div className='amount-details'>
-            <span>{feeDeduct ? 'Gas fee deduction' : 'Gas fees (Source + Dest)'}</span>
+            <span>Transfer amount</span>
+            <div className='coin-details'>
+              <p>
+                {amountToShow} {sourceCurrency}
+              </p>
+            </div>
+            {sourceCurrency !== targetCurrency && (
+              <div className='coin-details'>→ {targetCurrency}</div>
+            )}
+          </div>
+          <div className='amount-details'>
+            <span>Network costs</span>
             <span className='service-fee'>
               {serviceFee} {sourceCurrency}
             </span>

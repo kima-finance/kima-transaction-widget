@@ -12,12 +12,11 @@ import {
   selectServiceFee,
   selectFeeDeduct,
   selectAmount,
-  selectTargetCurrency,
-  selectNetworkOption
+  selectTargetCurrency
 } from '../../store/selectors'
 import { BankInput, CoinDropdown, CustomCheckbox, WalletButton } from './'
 import { setAmount, setFeeDeduct } from '../../store/optionSlice'
-import { ModeOptions, NetworkOptions } from '../../interface'
+import { ModeOptions } from '../../interface'
 import AddressInput from './AddressInput'
 import NetworkDropdown from './NetworkDropdown'
 import { COIN_LIST, ChainName } from '../../utils/constants'
@@ -29,7 +28,6 @@ const SingleForm = ({}) => {
   const dispatch = useDispatch()
   const mode = useSelector(selectMode)
   const theme = useSelector(selectTheme)
-  const networkOpion = useSelector(selectNetworkOption)
   const feeDeduct = useSelector(selectFeeDeduct)
   const serviceFee = useSelector(selectServiceFee)
   const compliantOption = useSelector(selectCompliantOption)
@@ -68,16 +66,7 @@ const SingleForm = ({}) => {
         <span className='label'>Source Network:</span>
         <div className='items'>
           <NetworkDropdown />
-          {networkOpion === NetworkOptions.mainnet ? (
-            <CoinDropdown isSourceChain={false} />
-          ) : (
-            <div className={`amount-label-container items ${theme.colorMode}`}>
-              <div className={`coin-wrapper ${theme.colorMode}`}>
-                <div className='icon-wrapper'>{<TargetIcon />}</div>
-                {targetCurrency}
-              </div>
-            </div>
-          )}
+          <CoinDropdown isSourceChain={false} />
         </div>
       </div>
 
@@ -98,18 +87,7 @@ const SingleForm = ({}) => {
             <span className='label'>Target Network:</span>
             <div className='items'>
               <NetworkDropdown isSourceChain={false} />
-              {networkOpion === NetworkOptions.mainnet ? (
-                <CoinDropdown isSourceChain={false} />
-              ) : (
-                <div
-                  className={`amount-label-container items ${theme.colorMode}`}
-                >
-                  <div className={`coin-wrapper ${theme.colorMode}`}>
-                    <div className='icon-wrapper'>{<TargetIcon />}</div>
-                    {targetCurrency}
-                  </div>
-                </div>
-              )}
+              <CoinDropdown isSourceChain={false} />
             </div>
           </div>
         )}
@@ -146,7 +124,7 @@ const SingleForm = ({}) => {
                     ? 8
                     : 2
                 setAmountValue(e.target.value)
-                dispatch(setAmount(_amount.toFixed(decimal)))
+                dispatch(setAmount(_amount ? _amount.toFixed(decimal) : ''))
               }}
             />
           </div>

@@ -102,7 +102,9 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
               </div>
             ) : null}
             {index === 1 && data?.tssPullHash ? (
-              <div className={`info-item ${theme.colorMode} source-chain`}>
+              <div
+                className={`info-item ${theme.colorMode} source-chain ${step >= 3 ? 'paid':''}`}
+              >
                 <div className='icon'>
                   {SourceInfo ? <SourceInfo.icon /> : <EthereumIcon />}
                 </div>

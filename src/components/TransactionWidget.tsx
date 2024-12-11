@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { CrossIcon, ErrorIcon, FooterLogo, MinimizeIcon } from '../assets/icons'
+import { ErrorIcon, FooterLogo, MinimizeIcon } from '../assets/icons'
 import Progressbar from './reusable/Progressbar'
-import { NetworkLabel, StepBox } from './reusable'
+import { StepBox } from './reusable'
 import '../index.css'
 import {
   ColorModeOptions,
@@ -16,15 +16,18 @@ import { TransactionStatus } from '../utils/constants'
 import { formatterFloat } from '../helpers/functions'
 import { useSelector } from 'react-redux'
 import {
+  selectAmount,
   selectCloseHandler,
   selectDappOption,
+  selectFeeDeduct,
   selectGraphqlProviderQuery,
+  selectServiceFee,
   selectSuccessHandler,
   selectTxId
 } from '../store/selectors'
 import { useDispatch } from 'react-redux'
 import { toast, Toaster } from 'react-hot-toast'
-import { initialize } from '../store/optionSlice'
+import { setAmount, setSubmitted, setTargetAddress } from '../store/optionSlice'
 
 export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [step, setStep] = useState(0)
@@ -33,7 +36,6 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [errorMessage, setErrorMessage] = useState('')
   const [loadingStep, setLoadingStep] = useState(-1)
   const [minimized, setMinimized] = useState(false)
-  const [percent, setPercent] = useState(0)
   const [data, setData] = useState<TransactionData>()
   const dispatch = useDispatch()
   const txId = useSelector(selectTxId)
@@ -41,6 +43,17 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const closeHandler = useSelector(selectCloseHandler)
   const successHandler = useSelector(selectSuccessHandler)
   const graphqlProviderQuery = useSelector(selectGraphqlProviderQuery)
+  const feeDeduct = useSelector(selectFeeDeduct)
+  const fee = useSelector(selectServiceFee)
+  const amount = useSelector(selectAmount)
+
+
+  const resetForm = () => {
+    dispatch(setSubmitted(false))
+    dispatch(setTargetAddress(''))
+    dispatch(setAmount(''))
+    closeHandler()
+  }
 
   useEffect(() => {
     if (!graphqlProviderQuery || txId < 0) return
@@ -153,7 +166,10 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
           }, 3000)
         }
       } catch (e) {
-        toast.error('Cannot get transaction status. Please try again later, or contact support for assistance.', { icon: <ErrorIcon /> })
+        toast.error(
+          'Cannot get transaction status. Please try again later, or contact support for assistance.',
+          { icon: <ErrorIcon /> }
+        )
         console.log('Cannot get transaction status. Please try again later.', e)
       }
     }
@@ -186,15 +202,12 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       status === TransactionStatus.PULLED
     ) {
       setStep(1)
-      setPercent(25)
       setLoadingStep(1)
     } else if (status === TransactionStatus.CONFIRMED) {
       setStep(2)
-      setPercent(50)
       setLoadingStep(2)
     } else if (status.startsWith(TransactionStatus.UNAVAILABLE)) {
       setStep(1)
-      setPercent(25)
       setErrorStep(1)
       setLoadingStep(-1)
       console.log(data.failReason)
@@ -202,15 +215,12 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setErrorMessage('Unavailable')
     } else if (status === TransactionStatus.KEYSIGNED) {
       setStep(3)
-      setPercent(75)
       setLoadingStep(3)
     } else if (status === TransactionStatus.PAID) {
       setStep(3)
-      setPercent(90)
       setLoadingStep(3)
     } else if (status === TransactionStatus.FAILEDTOPAY) {
       setStep(3)
-      setPercent(90)
       setErrorStep(3)
       setLoadingStep(-1)
       console.log(data.failReason)
@@ -220,7 +230,6 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setErrorMessage('Failed to release tokens to target!')
     } else if (status === TransactionStatus.FAILEDTOPULL) {
       setStep(1)
-      setPercent(25)
       setErrorStep(1)
       setLoadingStep(-1)
       console.log(data.failReason)
@@ -228,7 +237,6 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setErrorMessage('Failed to pull tokens from source!')
     } else if (status === TransactionStatus.COMPLETED) {
       setStep(4)
-      setPercent(100)
       setLoadingStep(-1)
     }
   }, [data?.status])
@@ -247,11 +255,24 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
         <div className='kima-card-header'>
           <div className='topbar'>
             <div className='title'>
-              <h3>
-                Transferring {formatterFloat.format(data?.amount || 0)}{' '}
-                {`${data?.sourceSymbol || 'USDK'} → ${data?.targetSymbol || 'USDK'}`}
-                &nbsp;&nbsp;
-                {`(${percent}%)`}
+              <h3 className='transaction'>
+                Transferring{' '}
+                {data?.amount &&
+                  data.sourceChain &&
+                  data.sourceSymbol &&
+                  data.targetChain &&
+                  data.targetSymbol && (
+                    <div>
+                      {formatterFloat.format(
+                        feeDeduct ? +amount || 0 + fee : +amount || 0 - fee
+                      )}{' '}
+                      {data?.sourceSymbol} ({data?.sourceChain}) →{' '}
+                      {formatterFloat.format(
+                        feeDeduct ? +amount - fee || 0 : +amount || 0
+                      )}{' '}
+                      {data?.targetSymbol} ({data?.targetChain})
+                    </div>
+                  )}
               </h3>
             </div>
 
@@ -265,19 +286,12 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                 >
                   <MinimizeIcon />
                 </button>
-                {loadingStep < 0 ? (
-                  <button
-                    className='cross-icon-button'
-                    onClick={() => {
-                      dispatch(initialize())
-                      closeHandler()
-                    }}
-                  >
-                    <CrossIcon
-                      fill={theme.colorMode === 'light' ? 'black' : 'white'}
-                    />
-                  </button>
-                ) : null}
+
+                {loadingStep < 0 && (
+                  <div className='reset-button' onClick={resetForm}>
+                    Reset
+                  </div>
+                )}
               </div>
             ) : (
               <div className='control-buttons'>
@@ -287,12 +301,12 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
               </div>
             )}
           </div>
-          {!minimized && data?.sourceChain && data?.targetChain && (
+          {/* {!minimized && data?.sourceChain && data?.targetChain && (
             <NetworkLabel
               sourceChain={data?.sourceChain}
               targetChain={data?.targetChain}
             />
-          )}
+          )} */}
         </div>
 
         <div className='kima-card-content'>

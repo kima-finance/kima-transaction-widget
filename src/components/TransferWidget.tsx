@@ -23,7 +23,6 @@ import CoinSelect from './reusable/CoinSelect'
 
 // store
 import {
-  initialize,
   setBankPopup,
   setAmount,
   setFeeDeduct,
@@ -33,7 +32,8 @@ import {
   setSubmitted,
   setTargetCompliant,
   setTheme,
-  setTxId
+  setTxId,
+  setTargetAddress
 } from '../store/optionSlice'
 import '../index.css'
 import {
@@ -160,7 +160,8 @@ export const TransferWidget = ({
     allowance,
     isApproved: approved,
     approve,
-    poolAddress
+    poolAddress,
+    decimals
   } = useAllowance({ setApproving, setCancellingApprove })
   const { isSigned, sign } = useSign({ setSigning })
   const { serviceFee: fee } = useServiceFee(isConfirming)
@@ -564,7 +565,9 @@ export const TransferWidget = ({
           targetChain: targetChain,
           originSymbol: sourceCurrency,
           targetSymbol: targetCurrency,
-          amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
+          amount: feeDeduct
+            ? (+amount - fee).toFixed(decimals || 6)
+            : (+amount).toFixed(decimals || 6),
           fee: feeParam,
           htlcCreationHash: btcHash,
           htlcCreationVout: 0,
@@ -784,7 +787,8 @@ export const TransferWidget = ({
   const resetForm = () => {
     if (isApproving || isSubmitting || isSigning) return
 
-    dispatch(initialize())
+    dispatch(setTargetAddress(''))
+    dispatch(setAmount(''))
     closeHandler()
   }
 
@@ -892,21 +896,6 @@ export const TransferWidget = ({
               <div className='reset-button' onClick={resetForm}>
                 Reset
               </div>
-
-              // <button
-              //   className='cross-icon-button'
-              //   onClick={() => {
-              //     if (isApproving || isSubmitting || isSigning )
-              //       return
-              //     dispatch(initialize())
-              //     closeHandler()
-              //   }}
-              //   disabled={isApproving || isSubmitting || isSigning}
-              // >
-              //   <CrossIcon
-              //     fill={theme.colorMode === 'light' ? 'black' : 'white'}
-              //   />
-              // </button>
             )}
           </div>
         </div>
