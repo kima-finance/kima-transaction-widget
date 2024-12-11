@@ -9,6 +9,8 @@ import '@plugins/index'
 import { getNetworkOption } from './services/envsApi'
 import { useQuery } from '@tanstack/react-query'
 import { selectBackendUrl } from '@store/selectors'
+import { useDispatch } from 'react-redux'
+import { setNetworkOption } from '@store/optionSlice'
 
 interface KimaProviderProps {
   walletConnectProjectId: string
@@ -17,6 +19,7 @@ interface KimaProviderProps {
 
 const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
   ({ walletConnectProjectId, children }) => {
+    const dispatch = useDispatch()
     const backendUrl = useSelector(selectBackendUrl)
 
     // Use a stable selector to avoid unnecessary re-renders
@@ -37,6 +40,7 @@ const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
     })
 
     console.log('network option: ', networkOption)
+    dispatch(setNetworkOption(networkOption))
 
     // Create providers dynamically but flatten their structure
     const WrappedProviders = useMemo(() => {

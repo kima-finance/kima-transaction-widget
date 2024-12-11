@@ -24,7 +24,7 @@ import {
 } from '@store/selectors'
 import { useDispatch } from 'react-redux'
 import { toast, Toaster } from 'react-hot-toast'
-import { setAmount, setTargetAddress } from '@store/optionSlice'
+import { setAmount, setSubmitted, setTargetAddress } from '@store/optionSlice'
 
 export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [step, setStep] = useState(0)
@@ -236,6 +236,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const resetForm = () => {
     dispatch(setTargetAddress('')) // reset target address
     dispatch(setAmount('')) // reset amount
+    dispatch(setSubmitted(false))
     // disconnect wallet?
     closeHandler()
   }
