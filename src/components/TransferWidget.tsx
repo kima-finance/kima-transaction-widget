@@ -186,8 +186,8 @@ export const TransferWidget = ({
         )
         dispatch(setSourceCompliant(res))
       } catch (e) {
-        toast.error('xplorisk check failed', { icon: <ErrorIcon /> })
-        console.log('xplorisk check failed', e)
+        toast.error('Compliance check failed. Please tray again later or contact support for assistance.', { icon: <ErrorIcon /> })
+        console.log('Compliance check failed. Please tray again later or contact support for assistance.', e)
       }
     })()
   }, [walletAddress, compliantOption])
@@ -204,8 +204,8 @@ export const TransferWidget = ({
         )
         dispatch(setTargetCompliant(res))
       } catch (e) {
-        toast.error('xplorisk check failed', { icon: <ErrorIcon /> })
-        console.log('xplorisk check failed', e)
+        toast.error('Compliance check failed. Please tray again later or contact support for assistance.', { icon: <ErrorIcon /> })
+        console.log('Compliance check failed. Please tray again later or contact support for assistance.', e)
       }
     })()
   }, [targetAddress, compliantOption])

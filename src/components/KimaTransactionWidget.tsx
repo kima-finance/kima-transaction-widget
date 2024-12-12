@@ -168,7 +168,7 @@ export const KimaTransactionWidget = ({
             )
             dispatch(setSourceChain(networks.Chains[0]))
           } catch (e) {
-            toast.error('Cannot get available chains. Please tray again later.')
+            toast.error('Cannot get available chains. Please tray again later or contact support for assistance.')
             console.log(
               'Cannot get available chains. Please tray again later.',
               e
@@ -186,8 +186,8 @@ export const KimaTransactionWidget = ({
               dispatch(setTargetCompliant(compliantRes))
             }
           } catch (e) {
-            toast.error('xplorisk check failed')
-            console.log('xplorisk check failed', e)
+            toast.error('Compliance check failed')
+            console.log('Compliance check failed', e)
           }
         })()
       }

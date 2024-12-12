@@ -1625,16 +1625,17 @@
     }
 
     .kima-custom-checkbox {
-      margin-left: 240px;
+      margin-left: 245px;
       margin-top: 16px;
       display: flex;
       align-items: center;
 
       @include breakpoint(phablet) {
-        margin-left: 160px;
+        margin-left: 110px;
       }
 
       @include breakpoint(mobile) {
+        margin-left: 0;
         justify-content: end;
       }
 

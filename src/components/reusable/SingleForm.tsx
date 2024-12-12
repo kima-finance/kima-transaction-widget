@@ -163,7 +163,7 @@ const SingleForm = ({}) => {
           text={
             sourceNetwork === ChainName.BTC
               ? `Deduct ${formatterFloat.format(serviceFee)} BTC fee`
-              : `Deduct $${formatterFloat.format(serviceFee)} fee`
+              : `Deduct $${formatterFloat.format(serviceFee)} fee from source network`
           }
           checked={feeDeduct}
           setCheck={(value: boolean) => dispatch(setFeeDeduct(value))}

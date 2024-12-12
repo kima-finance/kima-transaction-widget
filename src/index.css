@@ -1790,18 +1790,19 @@
   }
 }
 .kima-card .kima-card-content .kima-custom-checkbox {
-  margin-left: 240px;
+  margin-left: 245px;
   margin-top: 16px;
   display: flex;
   align-items: center;
 }
 @media (max-width: 768px) {
   .kima-card .kima-card-content .kima-custom-checkbox {
-    margin-left: 160px;
+    margin-left: 110px;
   }
 }
 @media (max-width: 500px) {
   .kima-card .kima-card-content .kima-custom-checkbox {
+    margin-left: 0;
     justify-content: end;
   }
 }

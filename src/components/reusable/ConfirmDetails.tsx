@@ -142,13 +142,13 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
         </div>
       )}
       <div className='detail-item amount'>
-        <span className='label'>Transaction Details:</span>
+        <span className='label'>Transaction <br/> Details:</span>
         <span className='amount-container'>
           <div className='amount-details'>
             <span>Transfer amount</span>
             <div className='coin-details'>
               <p>
-                {amountToShow} {sourceCurrency}
+                {formatterFloat.format(parseFloat(amountToShow)-serviceFee)} {sourceCurrency}
               </p>
             </div>
             {sourceCurrency !== targetCurrency && (
@@ -164,7 +164,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
           <div className='amount-details'>
             <span>Total</span>
             <span className='service-fee'>
-              {formatterFloat.format(parseFloat(amountToShow) - serviceFee)}{' '}
+              {formatterFloat.format(parseFloat(amountToShow))}{' '}
               {targetCurrency}
             </span>
           </div>
