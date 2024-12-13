@@ -22,12 +22,11 @@ import {
 } from '@tronweb3/tronwallet-adapter-react-hooks'
 import { tronWebMainnet, tronWebTestnet } from '../../tronweb'
 
-import toast from 'react-hot-toast'
 import { useQuery } from '@tanstack/react-query'
 import { getTokenAllowance } from '../../utils/getTokenAllowance'
 import useGetPools from '../../../../src/hooks/useGetPools'
 import { getPoolAddress, getTokenAddress } from '@utils/functions'
-import { formatUnits, parseUnits } from '@ethersproject/units'
+import { parseUnits } from '@ethersproject/units'
 
 export default function useTronAllowance() {
   const sourceChain = useSelector(selectSourceChain)
@@ -71,7 +70,7 @@ export default function useTronAllowance() {
         tronWeb,
         abi: ERC20ABI
       }),
-    refetchInterval: 60000,
+    refetchInterval: 1000 * 60, // 1 min
     enabled:
       !!tokenOptions &&
       !!selectedCoin &&
@@ -79,7 +78,7 @@ export default function useTronAllowance() {
       !!tronWeb &&
       pools.length > 0 &&
       sourceChain === 'TRX',
-    gcTime: 60000
+    staleTime: 1000 * 60 // 1 min
   })
 
   // TODO: refactor to use use Tanstack useMutaion hook
