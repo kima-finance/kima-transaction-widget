@@ -52,7 +52,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       return
     }
 
-    console.log(data.status, errorMessage)
+    console.log('tx status:', data.status, data.failReason, errorMessage)
     setErrorStep(-1)
     const status = data.status as string
 

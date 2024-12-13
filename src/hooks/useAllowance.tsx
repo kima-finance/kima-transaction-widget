@@ -242,6 +242,7 @@ export default function useAllowance({
         setDecimals(+decimals)
         setAllowance(+formatUnits(userAllowance, decimals))
       } catch (error) {
+        console.error('useAllowance:set decimals:error', error)
         errorHandler(error)
       }
     })()

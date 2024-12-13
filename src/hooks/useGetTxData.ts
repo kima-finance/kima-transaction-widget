@@ -49,11 +49,26 @@ interface KimaLiquidityTransactionDataResponse {
   }
 }
 
+const emptyStatus = {
+  status: TransactionStatus.AVAILABLE,
+  sourceChain: '',
+  targetChain: '',
+  tssPullHash: '',
+  tssReleaseHash: '',
+  sourceSymbol: '',
+  targetSymbol: '',
+  amount: 0,
+  kimaTxHash: '',
+  failReason: ''
+} satisfies TransactionData
+
 const selectStatus = (
   response: KimaTransactionDataResponse | KimaLiquidityTransactionDataResponse
 ): TransactionData | null => {
   if ('liquidity_transaction_data' in response.data) {
     const data = response.data.liquidity_transaction_data[0]
+    // the response could be empty if the transaction hasn't been processed yet
+    if (!data) return emptyStatus
     return {
       status: data.txstatus as TransactionStatus,
       sourceChain: data.chain,
@@ -69,6 +84,8 @@ const selectStatus = (
   }
 
   const data = response.data.transaction_data[0]
+  // the response could be empty if the transaction hasn't been processed yet
+  if (!data) return emptyStatus
   return {
     status: data.txstatus as TransactionStatus,
     sourceChain: data.originchain,
