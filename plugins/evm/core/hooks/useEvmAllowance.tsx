@@ -15,11 +15,7 @@ import {
   selectBackendUrl
 } from '@store/selectors'
 
-import {
-  useAppKitAccount,
-  useAppKitNetwork,
-  useAppKitProvider
-} from '@reown/appkit/react'
+import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
 import { useQuery } from '@tanstack/react-query'
 import { getTokenAllowance } from '../../utils/getTokenAllowance'
 import useGetPools from '../../../../src/hooks/useGetPools'
@@ -32,7 +28,6 @@ import { parseUnits } from '@ethersproject/units'
 export default function useEvmAllowance() {
   const appkitAccountInfo = useAppKitAccount()
 
-  const { chainId: evmChainId } = useAppKitNetwork()
   const { address: userAddress } = appkitAccountInfo
 
   const { walletProvider } = useAppKitProvider('eip155')
@@ -69,8 +64,8 @@ export default function useEvmAllowance() {
         abi: ERC20ABI,
         chain: sourceChain
       }),
-    refetchInterval: 60000,
-    gcTime: 300000,
+    refetchInterval: 1000 * 60, // 1 min
+    staleTime: 1000 * 60, // 1 min
     enabled:
       !!tokenOptions &&
       !!selectedCoin &&

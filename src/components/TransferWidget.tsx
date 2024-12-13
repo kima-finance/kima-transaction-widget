@@ -181,7 +181,10 @@ export const TransferWidget = ({
 
       console.log('continues...')
 
+      // amount param should reflect what the target receives
+      // i.e. should subtract total fee if feeDeduct is true
       const feeParam = totalFeeUsd.toFixed(2)
+      const amountParam = feeDeduct ? +amount - totalFeeUsd : +amount
       const params = JSON.stringify({
         originAddress: sourceAddress,
         originChain: sourceChain,
@@ -189,7 +192,7 @@ export const TransferWidget = ({
         targetChain: targetChain,
         originSymbol: sourceCurrency,
         targetSymbol: targetCurrency,
-        amount: amountToShow.toString(),
+        amount: amountParam.toString(),
         fee: feeParam,
         htlcCreationHash: '',
         htlcCreationVout: 0,

@@ -74,9 +74,8 @@ export default function useSolanaAllowance() {
       !!tokenOptions &&
       pools.length > 0 &&
       sourceChain === 'SOL',
-    refetchInterval: 60000,
-    staleTime: 1000,
-    gcTime: 60000
+    refetchInterval: 1000 * 60, // 1 min
+    staleTime: 1000 * 60 // 1 min
   })
 
   // TODO: refactor to use use Tanstack useMutaion hook
