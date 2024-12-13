@@ -1,12 +1,13 @@
 // plugins/solana/features/walletConnect/WalletProvider.tsx
 import React, { ReactNode } from 'react'
-import { ModalContext } from '../../../../src/contexts/useModal'
 import { setupAppKit } from '../../config/modalConfig'
+import { NetworkOptions } from '@interface'
+import '../../config/modalConfig'
 
 export interface WalletProviderProps {
   children: ReactNode
   walletConnectProjectId: string
-  networkOption: 'mainnet' | 'testnet'
+  networkOption: NetworkOptions
 }
 
 const WalletProvider = ({
@@ -14,13 +15,8 @@ const WalletProvider = ({
   networkOption,
   walletConnectProjectId
 }: WalletProviderProps) => {
-  return (
-    <ModalContext.Provider
-      value={setupAppKit(walletConnectProjectId, networkOption)}
-    >
-      {children}
-    </ModalContext.Provider>
-  )
+  setupAppKit(walletConnectProjectId, networkOption)
+  return <>{children}</>
 }
 
 export default WalletProvider

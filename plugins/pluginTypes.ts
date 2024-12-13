@@ -1,3 +1,5 @@
+import { NetworkOptions } from '@interface'
+
 export interface Plugin {
   initialize: () => PluginInit
   data: PluginData
@@ -37,7 +39,7 @@ export interface PluginInit {
 export interface PluginProviderProps {
   children: React.ReactNode
   walletConnectProjectId: string
-  networkOption: 'testnet' | 'mainnet'
+  networkOption: NetworkOptions
 }
 
 export interface PluginData {

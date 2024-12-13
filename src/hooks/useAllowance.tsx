@@ -268,6 +268,8 @@ export default function useAllowance({
 
           isCancel ? setCancellingApprove(true) : setApproving(true)
 
+          // TODO: fix. should add the total fee unless feeDeduct is true
+          // will be fixed when refactored to use the plugins as it is correct there
           const approve = await erc20Contract.approve(
             targetAddress,
             parseUnits(isCancel ? '0' : amountToShow, decimals),

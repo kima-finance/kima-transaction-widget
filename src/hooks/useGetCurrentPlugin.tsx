@@ -4,27 +4,28 @@ import { getPlugin } from '@pluginRegistry'
 import { selectSourceChain } from '@store/selectors'
 import useGetChainData from './useGetChainData'
 import defaultPlugin from '@plugins/default'
+import { Plugin } from '@plugins/pluginTypes'
 
 const useGetCurrentPlugin = () => {
   // Initialize with defaultPlugin instead of null
   const [currentPlugin, setCurrentPlugin] = useState<Plugin>(defaultPlugin)
 
   const chainData = useGetChainData()?.chainData
-  console.log('Chain data:', chainData)
+  // console.log('Chain data:', chainData)
 
   const sourceChainID = useSelector(selectSourceChain)
-  console.log('Source chain ID:', sourceChainID)
+  // console.log('Source chain ID:', sourceChainID)
 
   const plugin = useMemo(() => {
-    console.log('Computing plugin...')
+    console.log('useGetCurrentPlugin:Computing plugin...')
 
     if (!chainData) {
-      console.log('No chain data available.')
+      console.log('useGetCurrentPlugin:No chain data available.')
       return defaultPlugin
     }
 
     if (!sourceChainID) {
-      console.log('No source chain ID available.')
+      console.log('useGetCurrentPlugin:No source chain ID available.')
       return defaultPlugin
     }
 
@@ -33,26 +34,32 @@ const useGetCurrentPlugin = () => {
     )
 
     if (!currentChain) {
-      console.log('No current chain found for source chain ID:', sourceChainID)
+      console.log(
+        'useGetCurrentPlugin:No current chain found for source chain ID:',
+        sourceChainID
+      )
       return defaultPlugin
     }
 
-    console.info('currentChain: ', currentChain)
+    // console.info('useGetCurrentPlugin:currentChain: ', currentChain)
 
     const pluginID = currentChain.pluginID
     if (!pluginID) {
-      console.log('No plugin ID found for current chain:', currentChain)
+      console.log(
+        'useGetCurrentPlugin:No plugin ID found for current chain:',
+        currentChain
+      )
       return defaultPlugin
     }
 
-    console.info('current pluginID: ', pluginID)
+    // console.info('useGetCurrentPlugin:current pluginID: ', pluginID)
 
     const matchedPlugin = getPlugin(pluginID)
     if (!matchedPlugin) {
-      console.log('No plugin found for plugin ID:', pluginID)
+      // console.log('useGetCurrentPlugin:No plugin found for plugin ID:', pluginID)
       return defaultPlugin
     } else {
-      console.log('Matched plugin:', matchedPlugin)
+      // console.log('useGetCurrentPlugin:Matched plugin:', matchedPlugin)
       return matchedPlugin
     }
   }, [chainData, sourceChainID])
@@ -63,7 +70,7 @@ const useGetCurrentPlugin = () => {
     setCurrentPlugin(plugin || defaultPlugin)
   }, [plugin])
 
-  console.log('Current plugin state:', currentPlugin)
+  // console.log('Current plugin state:', currentPlugin)
 
   return { currentPlugin }
 }

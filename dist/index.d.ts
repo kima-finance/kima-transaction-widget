@@ -1,12 +1,6 @@
 import react, { ReactNode } from 'react';
 import { Web3Provider } from '@ethersproject/providers';
 
-interface KimaProviderProps {
-    walletConnectProjectId: string;
-    children: ReactNode;
-}
-declare const KimaProvider: react.FC<KimaProviderProps>;
-
 declare enum ChainName {
     ETHEREUM = "ETH",
     POLYGON = "POL",
@@ -114,6 +108,13 @@ interface ServiceFee {
     sourceNetworkFee?: NetworkFee;
     targetNetworkFee?: NetworkFee;
 }
+
+interface KimaProviderProps {
+    networkOption?: NetworkOptions;
+    walletConnectProjectId: string;
+    children: ReactNode;
+}
+declare const KimaProvider: react.FC<KimaProviderProps>;
 
 interface Props {
     theme: ThemeOptions;
