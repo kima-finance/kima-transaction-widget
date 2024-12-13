@@ -1,76 +1,62 @@
-import React from 'react'
 import store from './store'
-import { registerPlugin as registerPluginStore } from '@store/pluginSlice'
-import { Plugin, PluginProviderProps } from '@plugins'
+import { registerPlugin } from '@store/pluginSlice'
+import { ChainData, Plugin } from '@plugins/pluginTypes'
 
 // Registry to hold plugin provider components
 const pluginRegistry: Record<string, Plugin> = {}
-const pluginProviderRegistry: Record<string, React.FC<PluginProviderProps>> = {}
+let pluginsByChain: Record<string, Plugin> = {}
 
 export const initializePlugins = (plugins: Plugin[]): void => {
   for (const plugin of plugins) {
-
-    const { data, provider } = plugin.initialize()
-
-    registerPlugin(data.id, plugin)
-    registerPluginProvider(data.id, provider)
-
-    store.dispatch(registerPluginStore(data))
-
+    const { data } = plugin.initialize()
+    registerPluginProvider(data.id, plugin)
+    store.dispatch(registerPlugin(data))
+    pluginRegistry[data.id] = plugin
     console.log('initialized plugin::', data.id)
   }
 }
 
-// Function to register a plugin
-export const registerPlugin = (
-  id: string,
-  plugin: Plugin
-): void => {
+// Function to register a plugin provider
+export const registerPluginProvider = (id: string, plugin: Plugin): void => {
   if (pluginRegistry[id]) {
-    console.warn(`Plugin with id "${id}" is already registered.`)
+    console.warn(`Plugin provider with id "${id}" is already registered.`)
   }
   pluginRegistry[id] = plugin
 }
 
-// Function to register a plugin provider
-export const registerPluginProvider = (
-  id: string,
-  provider: React.FC<PluginProviderProps>
-): void => {
-  if (pluginProviderRegistry[id]) {
-    console.warn(`Plugin provider with id "${id}" is already registered.`)
+export const indexPluginsByChain = (chains: ChainData[]): void => {
+  pluginsByChain = {}
+  const plugins = Object.values(pluginRegistry)
+  for (const chain of chains) {
+    const plugin = plugins.find((p) => p.isCompatible(chain))
+    if (!plugin) {
+      console.warn(
+        `indexPluginsByChain: No plugin found for chain ${chain.shortName}`
+      )
+      continue
+    }
+    pluginsByChain[chain.shortName] = plugin
   }
-  pluginProviderRegistry[id] = provider
+  console.log('pluginsByChain::', pluginsByChain)
 }
 
-// Function to retrieve a plugin by ID
-export const getPlugin = (
-  id: string
-): Plugin | undefined => {
-  return pluginRegistry[id]
+export const getPlugin = (chain: string): Plugin | undefined => {
+  if (!chain) return undefined
+  return pluginsByChain[chain]
 }
 
 // Function to retrieve a plugin provider by ID
-export const getPluginProvider = (
-  id: string
-): React.FC<PluginProviderProps> | undefined => {
-  return pluginProviderRegistry[id]
-}
-
-// Function to retrieve all registered plugins
-export const getAllPlugins = (): Record<
-  string,
-  Plugin
-> => {
-  return pluginRegistry
+export const getPluginProvider = (id: string): Plugin | undefined => {
+  return pluginRegistry[id]
 }
 
 // Function to retrieve all registered plugin providers
-export const getAllPluginProviders = (): Record<
-  string,
-  React.FC<PluginProviderProps>
-> => {
-  return pluginProviderRegistry
+export const getAllPluginProviders = (): Record<string, Plugin> => {
+  return pluginRegistry
+}
+
+export const getAllPlugins = (): Record<string, Plugin> => {
+  return pluginRegistry
 }
 
 export default pluginRegistry

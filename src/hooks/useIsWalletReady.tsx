@@ -23,20 +23,16 @@ export default function useIsWalletReady(): PluginUseWalletIsReadyResult {
       return { pluginID, ...ready }
     } catch (err) {
       console.warn('useWalletIsReady: error for plugin', pluginID, err)
-      return { pluginID, ready: false, error: err }
+      return { pluginID, ...defaultStatus }
     }
   })
   // console.info('useIsWalletReady:cStates: ', { allData })
 
   // If we have a current plugin ID, filter down to just that plugin's balance
   // Otherwise, return all (in case currentPluginID is not defined)
-  if (currentPluginID) {
-    const mainConnection = allData.find(
-      ({ pluginID }) => pluginID === currentPluginID
-    )
-    return mainConnection ?? defaultStatus
-  }
-  // console.debug('useIsWalletReady:', { output })
+  const mainConnection = allData.find(
+    ({ pluginID }) => pluginID === currentPluginID
+  )
 
-  return defaultStatus
+  return mainConnection ?? defaultStatus
 }

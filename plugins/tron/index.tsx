@@ -3,8 +3,11 @@ import React from 'react' // Explicitly import React
 import { store } from '@store/index'
 import WalletProvider from '@plugins/tron/features/walletConnect/WalletProvider'
 import { PluginBase } from '@plugins/PluginBase'
-import { PluginProviderProps } from '@plugins/pluginTypes'
-import getChainData from '@plugins/tron/utils/getChainData'
+import {
+  ChainCompatibility,
+  ChainData,
+  PluginProviderProps
+} from '@plugins/pluginTypes'
 import useBalanceTron from '@plugins/tron/core/hooks/useGetTrxBalance'
 import useTronAllowance from '@plugins/tron/core/hooks/useTronAllowance'
 import useIsWalletReadyTron from '@plugins/tron/core/hooks/useIsWalletReady'
@@ -14,12 +17,16 @@ export class TronPlugin extends PluginBase {
     super({
       store,
       id: 'TRX',
-      fetchChains: getChainData,
+      compatibility: ChainCompatibility.SELF,
       useAllowance: useTronAllowance,
       useNativeBalance: useBalanceTron,
       useTokenBalance: useTronAllowance,
       useWalletIsReady: useIsWalletReadyTron
     })
+  }
+
+  isCompatible = (chain: ChainData): boolean => {
+    return chain.shortName === 'TRX'
   }
 
   Provider = ({

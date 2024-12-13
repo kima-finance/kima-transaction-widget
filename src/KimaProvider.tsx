@@ -26,17 +26,18 @@ const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
 
     // Create providers dynamically but flatten their structure
     const WrappedProviders = useMemo(() => {
-      return plugins.reduce<ReactNode>((acc, plugin) => {
-        const PluginProvider = getPluginProvider(plugin.id)
-        if (PluginProvider) {
+      return plugins.reduce<ReactNode>((acc, pluginData) => {
+        const plugin = getPluginProvider(pluginData.id)
+        if (plugin) {
+          const { Provider } = plugin
           return (
-            <PluginProvider
-              key={plugin.id}
+            <Provider
+              key={plugin.data.id}
               networkOption={networkOption}
               walletConnectProjectId={walletConnectProjectId}
             >
               {acc}
-            </PluginProvider>
+            </Provider>
           )
         }
         return acc
