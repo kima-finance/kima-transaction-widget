@@ -92,16 +92,16 @@ interface ThemeOptions {
     backgroundColorDark?: string;
 }
 interface TransactionData {
-    status?: TransactionStatus;
-    sourceChain?: string;
-    targetChain?: string;
-    tssPullHash?: string;
-    tssReleaseHash?: string;
-    sourceSymbol?: string;
-    targetSymbol?: string;
-    amount?: number;
-    kimaTxHash?: string;
-    failReason?: string;
+    status: TransactionStatus;
+    sourceChain: string;
+    targetChain: string;
+    tssPullHash: string;
+    tssReleaseHash: string;
+    sourceSymbol: string;
+    targetSymbol: string;
+    amount: number;
+    kimaTxHash: string;
+    failReason: string;
 }
 interface Web3ModalAccountInfo {
     address?: string | undefined;
@@ -136,13 +136,12 @@ interface Props {
     kimaNodeProviderQuery: string;
     kimaGraphqlProviderQuery: string;
     kimaExplorer?: string;
-    networkOption?: NetworkOptions;
     errorHandler?: (e: any) => void;
     closeHandler?: (e: any) => void;
     successHandler?: (e: any) => void;
     switchChainHandler?: (chainId: number) => void;
     keplrHandler?: (e: any) => void;
 }
-declare const KimaTransactionWidget: ({ mode, txId, autoSwitchChain, networkOption, provider, dAppOption, theme, titleOption, paymentTitleOption, helpURL, compliantOption, transactionOption, kimaBackendUrl, kimaNodeProviderQuery, kimaExplorer, feeURL, kimaGraphqlProviderQuery, errorHandler, closeHandler, successHandler, switchChainHandler, keplrHandler }: Props) => react.JSX.Element;
+declare const KimaTransactionWidget: ({ mode, txId, autoSwitchChain, provider, dAppOption, theme, titleOption, paymentTitleOption, helpURL, compliantOption, transactionOption, kimaBackendUrl, kimaNodeProviderQuery, kimaExplorer, feeURL, kimaGraphqlProviderQuery, errorHandler, closeHandler, successHandler, switchChainHandler, keplrHandler }: Props) => react.JSX.Element;
 
 export { CHAIN_NAMES_TO_STRING, CHAIN_STRING_TO_NAME, ColorModeOptions, type CompliantOption, CurrencyOptions, DAppOptions, KimaProvider, KimaTransactionWidget, ModeOptions, type NetworkFee, NetworkOptions, type Option, type PaymentTitleOption, type ServiceFee, ChainName as SupportNetworks, type ThemeOptions, type TitleOption, type TransactionData, type TransactionOption, type Web3ModalAccountInfo };
