@@ -18,12 +18,10 @@
       .value {
         position: absolute;
         z-index: 10;
-        height: 100%;
-        width: 100%;
+        height: 7px;
         border-radius: 16px;
         background: linear-gradient(90deg, #adf4a6, #80d7f5, #9990d5);
-        @include transition;
-        transition-duration: 1000ms;
+        transition: width 0.8s ease-in-out;
 
         &.step-25 {
           width: calc(25% + 0.5em);
@@ -44,6 +42,8 @@
         @include breakpoint(mobile) {
           background: linear-gradient(180deg, #adf4a6, #80d7f5, #9990d5);
           width: 7px !important;
+          transition: height 0.8s ease-in-out;
+
           &.step-25 {
             height: calc(25% + 0.5em);
           }
@@ -777,10 +777,10 @@
 
       .coin-dropdown {
         position: relative;
-        width: 115px;
+        width: 125px;
         border-radius: 50px;
         border: 0.5px solid $financeIcon;
-        padding-left: 12px;
+        padding-left: 4px;
         padding-right: 24px;
         height: 50px;
         display: flex;
@@ -790,7 +790,7 @@
         @include transition();
 
         @include breakpoint('max-width: 639px') {
-          width: 90px;
+          width: 105px;
         }
 
         .coin-wrapper {
@@ -1560,7 +1560,6 @@
           .coin-details {
             display: flex;
             flex-direction: row;
-            margin-bottom: 10px;
 
             @include breakpoint(mobile) {
               width: 100%;
@@ -1572,7 +1571,6 @@
             p {
               padding: 0;
               margin: 0;
-              margin-top: 6px;
               flex-grow: 0;
               width: fit-content;
             }
@@ -1586,6 +1584,11 @@
             padding: 8px 6px;
             font-size: 14px;
             border-top: 1px solid $financeIcon;
+
+            &:first-of-type {
+              border-top: none;
+              padding-top: 0;
+            }
 
             @include breakpoint(mobile) {
               margin-left: auto;
@@ -1623,16 +1626,17 @@
     }
 
     .kima-custom-checkbox {
-      margin-left: 240px;
+      margin-left: 245px;
       margin-top: 16px;
       display: flex;
       align-items: center;
 
       @include breakpoint(phablet) {
-        margin-left: 160px;
+        margin-left: 110px;
       }
 
       @include breakpoint(mobile) {
+        margin-left: 0;
         justify-content: end;
       }
 
@@ -1859,6 +1863,10 @@
               }
 
               &.source-chain {
+                margin-top: -20px;
+              }
+
+              &.paid {
                 margin-top: 20px;
               }
 

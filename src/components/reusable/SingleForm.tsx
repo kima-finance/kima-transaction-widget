@@ -16,7 +16,7 @@ import {
   selectNetworkOption,
   selectTargetAddress
 } from '../../store/selectors'
-import { BankInput, CustomCheckbox, WalletButton } from './'
+import { BankInput, CoinDropdown, CustomCheckbox, WalletButton } from './'
 import { setAmount, setFeeDeduct } from '../../store/optionSlice'
 import { ModeOptions } from '../../interface'
 import AddressInput from './AddressInput'
@@ -90,7 +90,7 @@ const SingleForm = ({}) => {
         <span className='label'>Source Network:</span>
         <div className='items'>
           <SourceNetworkSelector />
-          <SourceTokenSelector />
+          <CoinDropdown />
         </div>
       </div>
 
@@ -111,7 +111,7 @@ const SingleForm = ({}) => {
             <span className='label'>Target Network:</span>
             <div className='items'>
               <TargetNetworkSelector />
-              <TokenBadge symbol={targetCurrency} />
+              <CoinDropdown isSourceChain={false} />
             </div>
           </div>
         )}
@@ -188,7 +188,7 @@ const SingleForm = ({}) => {
           text={
             sourceNetwork === ChainName.BTC
               ? `Deduct ${formatterFloat.format(totalFeeUsd)} BTC fee`
-              : `Deduct $${formatterFloat.format(totalFeeUsd)} fee`
+              : `Deduct $${formatterFloat.format(totalFeeUsd)} fee from source network`
           }
           checked={feeDeduct}
           setCheck={(value: boolean) => dispatch(setFeeDeduct(value))}

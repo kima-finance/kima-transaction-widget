@@ -147,31 +147,33 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
         </div>
       )}
       <div className='detail-item amount'>
-        <span className='label'>Amount:</span>
+        <span className='label'>
+          Transaction
+          <br />
+          Details:
+        </span>
         <span className='amount-container'>
-          <div className='coin-details'>
-            <SourceCoinIcon />
-            <p>
-              {amountToShow} {sourceCurrency}
-            </p>
-          </div>
-          {sourceCurrency !== targetCurrency && (
-            <div className='coin-details'>
-              → <TargetCoinIcon /> {targetCurrency}
-            </div>
-          )}
           <div className='amount-details'>
-            <span>
-              {feeDeduct ? 'Gas fee deduction' : 'Gas fees (Source + Dest)'}
-            </span>
+            <span>Transfer amount</span>
+            <div className='coin-details'>
+              <p>
+              {formatterFloat.format(parseFloat(amountToShow)-totalFeeUsd)} {sourceCurrency}
+              </p>
+            </div>
+            {sourceCurrency !== targetCurrency && (
+              <div className='coin-details'>→ {targetCurrency}</div>
+            )}
+          </div>
+          <div className='amount-details'>
+            <span>Network costs</span>
             <span className='service-fee'>
-              {formatterFloat.format(totalFeeUsd)} {sourceCurrency}
+              {totalFeeUsd} {sourceCurrency}
             </span>
           </div>
           <div className='amount-details'>
             <span>Total</span>
             <span className='service-fee'>
-              {formatterFloat.format(parseFloat(amountToShow) - totalFeeUsd)}{' '}
+              {formatterFloat.format(parseFloat(amountToShow))}{' '}
               {targetCurrency}
             </span>
           </div>
