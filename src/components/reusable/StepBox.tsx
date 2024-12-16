@@ -29,7 +29,7 @@ interface Props {
   step: number
   errorStep: number
   loadingStep: number
-  data?: TransactionData
+  data?: TransactionData | null
 }
 
 const stepInfo = [

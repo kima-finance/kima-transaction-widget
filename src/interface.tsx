@@ -70,16 +70,16 @@ export interface ThemeOptions {
 }
 
 export interface TransactionData {
-  status?: TransactionStatus
-  sourceChain?: string
-  targetChain?: string
-  tssPullHash?: string
-  tssReleaseHash?: string
-  sourceSymbol?: string
-  targetSymbol?: string
-  amount?: number
-  kimaTxHash?: string
-  failReason?: string
+  status: TransactionStatus
+  sourceChain: string
+  targetChain: string
+  tssPullHash: string
+  tssReleaseHash: string
+  sourceSymbol: string
+  targetSymbol: string
+  amount: number
+  kimaTxHash: string
+  failReason: string
 }
 
 export interface Web3ModalAccountInfo {

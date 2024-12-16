@@ -9,7 +9,8 @@ import {
   OptimismIcon,
   BankIcon,
   TronIcon,
-  BTCIcon
+  BTCIcon,
+  BaseIcon
 } from '../../assets/icons'
 
 type IconProps = { width?: number; height?: number }
@@ -18,6 +19,7 @@ const chainIcons: Record<string, React.FC<IconProps>> = {
   ETH: EthereumIcon,
   POL: PolygonIcon,
   AVX: AvalancheIcon,
+  BASE: BaseIcon,
   BSC: BSCIcon,
   BTC: BTCIcon,
   ARB: ArbitrumIcon,
@@ -36,12 +38,16 @@ export default function ChainIcon({
   width = 30,
   height = 30
 }: ChainIconProps) {
-  if (!symbol) return null
-
+  // return an empty icon if no symbol found
   const Icon = chainIcons[symbol]
   if (!Icon) {
     console.warn(`Chain icon not found for symbol: ${symbol}`)
-    return null
+    return (
+      <div
+        className='icon'
+        style={{ width: `${width}px`, height: `${height}px` }}
+      ></div>
+    )
   }
 
   return (
