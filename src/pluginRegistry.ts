@@ -1,7 +1,6 @@
-import React from 'react'
-import { ChainData, Plugin, PluginProviderProps } from '../plugins'
 import store from './store'
 import { registerPlugin } from '@store/pluginSlice'
+import { ChainData, Plugin } from '@plugins/pluginTypes'
 
 // Registry to hold plugin provider components
 const pluginRegistry: Record<string, Plugin> = {}
@@ -10,9 +9,10 @@ let pluginsByChain: Record<string, Plugin> = {}
 export const initializePlugins = (plugins: Plugin[]): void => {
   for (const plugin of plugins) {
     const { data } = plugin.initialize()
-    console.log('initialized plugin::', data.id)
     registerPluginProvider(data.id, plugin)
     store.dispatch(registerPlugin(data))
+    pluginRegistry[data.id] = plugin
+    console.log('initialized plugin::', data.id)
   }
 }
 
@@ -52,6 +52,10 @@ export const getPluginProvider = (id: string): Plugin | undefined => {
 
 // Function to retrieve all registered plugin providers
 export const getAllPluginProviders = (): Record<string, Plugin> => {
+  return pluginRegistry
+}
+
+export const getAllPlugins = (): Record<string, Plugin> => {
   return pluginRegistry
 }
 

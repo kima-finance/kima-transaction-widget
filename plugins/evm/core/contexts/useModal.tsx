@@ -5,8 +5,7 @@ export const ModalContext = createContext<AppKit | null>(null)
 
 export const useModal = () => {
   const context = useContext(ModalContext)
-  if (!context) {
-    throw new Error('useModal must be used within a ModalProvider')
-  }
+  // If the provider is not ready yet, context will be null.
+  // Instead of throwing, just return null and let the calling component handle it.
   return context
 }

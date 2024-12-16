@@ -24,13 +24,7 @@ import {
 import { getPoolAddress, getTokenAddress } from '@utils/functions'
 import { PublicKey, Transaction } from '@solana/web3.js'
 
-export default function useSolanaAllowance({
-  setApproving,
-  setCancellingApprove
-}: {
-  setApproving: any
-  setCancellingApprove: any
-}) {
+export default function useSolanaAllowance() {
   const sourceChain = useSelector(selectSourceChain)
   const targetChain = useSelector(selectTargetChain)
   const feeDeduct = useSelector(selectFeeDeduct)
@@ -80,11 +74,11 @@ export default function useSolanaAllowance({
       !!tokenOptions &&
       pools.length > 0 &&
       sourceChain === 'SOL',
-    refetchInterval: 60000,
-    staleTime: 1000,
-    gcTime: 60000
+    refetchInterval: 1000 * 60, // 1 min
+    staleTime: 1000 * 60 // 1 min
   })
 
+  // TODO: refactor to use use Tanstack useMutaion hook
   const approveSPLTokenTransfer = async (isCancel: boolean = false) => {
     const poolAddress = getPoolAddress(pools, 'SOL')
     const tokenAddress = getTokenAddress(tokenOptions, selectedCoin, 'SOL')
@@ -143,7 +137,7 @@ export default function useSolanaAllowance({
       }
 
       setApprovalsCount((prev) => prev + 1) // trigger refetch
-      return transaction
+      // return transaction
     } catch (error) {
       console.error('Error approving SPL token transfer:', error)
       throw error
@@ -152,7 +146,9 @@ export default function useSolanaAllowance({
 
   return {
     ...allowanceData,
-    isApproved: allowanceData?.allowance >= amountToShow,
-    approveSPLTokenTransfer
+    isApproved: allowanceData?.allowance
+      ? allowanceData.allowance >= Number(amountToShow)
+      : false,
+    approve: approveSPLTokenTransfer
   }
 }
