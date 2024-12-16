@@ -1,5 +1,5 @@
 import store from './store'
-import { registerPlugin } from '@store/pluginSlice'
+import { registerPlugin, setPluginIsIndexed } from '@store/pluginSlice'
 import { ChainData, Plugin } from '@plugins/pluginTypes'
 
 // Registry to hold plugin provider components
@@ -38,9 +38,15 @@ export const indexPluginsByChain = (chains: ChainData[]): void => {
     pluginsByChain[chain.shortName] = plugin
   }
   console.log('pluginsByChain::', pluginsByChain)
+
+  // Update the store to indicate that the chain to plugin mapping has been indexed
+  // Prevents a race condition where the useGetCurrentPlugin hook may be called
+  // before the plugins are indexed by chain
+  store.dispatch(setPluginIsIndexed(true))
 }
 
 export const getPlugin = (chain: string): Plugin | undefined => {
+  console.log('getPlugin::', { chain, pluginsByChain })
   if (!chain) return undefined
   return pluginsByChain[chain]
 }
