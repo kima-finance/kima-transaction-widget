@@ -56,7 +56,6 @@ import useGetPools from '../hooks/useGetPools'
 
 interface Props {
   theme: ThemeOptions
-  feeURL: string
   helpURL?: string
   titleOption?: TitleOption
   paymentTitleOption?: PaymentTitleOption
@@ -64,7 +63,6 @@ interface Props {
 
 export const TransferWidget = ({
   theme,
-  feeURL,
   helpURL,
   titleOption,
   paymentTitleOption

@@ -7,15 +7,16 @@ export interface FeeResult
 }
 
 export const getFees = async (
-  amount: number | null,
+  amount: number,
   deductFee: boolean,
-  originChain: string | null,
-  targetChain: string | null,
+  originChain: string,
+  originSymbol: string,
+  targetChain: string,
   backendUrl: string
 ): Promise<ServiceFee> => {
   try {
     const response: any = await fetchWrapper.get(
-      `${backendUrl}/submit/fees?amount=${amount}&originChain=${originChain}&targetChain=${targetChain}&deductFee=${deductFee}`
+      `${backendUrl}/submit/fees?amount=${amount}&originChain=${originChain}&originSymbol=${originSymbol}&targetChain=${targetChain}&deductFee=${deductFee}`
     )
 
     console.log('response: ', response)

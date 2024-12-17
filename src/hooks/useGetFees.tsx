@@ -8,6 +8,7 @@ const useGetFees = (
   amount: number | null,
   deductFees: boolean,
   sourceNetwork: string | null,
+  sourceSymbol: string | null,
   targetNetwork: string | null,
   backendUrl: string
 ) => {
@@ -30,11 +31,17 @@ const useGetFees = (
         amount!,
         feeDeductWithMode!,
         sourceNetwork!,
+        sourceSymbol!,
         targetNetwork!,
         backendUrl
       )
     },
-    enabled: !!amount && !!sourceNetwork && !!targetNetwork, // Only run when all params are valid
+    enabled:
+      !!backendUrl &&
+      !!amount &&
+      !!sourceNetwork &&
+      !!sourceSymbol &&
+      !!targetNetwork, // Only run when all params are valid
     staleTime: 60000, // Cache for 60 seconds
     retry: 1
   })

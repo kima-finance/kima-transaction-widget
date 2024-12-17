@@ -20,7 +20,7 @@ import { isEVMChain } from '@plugins/evm/utils/constants'
 import { getPoolAddress, getTokenAddress } from '@utils/functions'
 import { Contract, ethers } from 'ethers'
 import { ExternalProvider, JsonRpcFetchFunc } from '@ethersproject/providers'
-import { parseUnits } from '@ethersproject/units'
+import { formatUnits } from '@ethersproject/units'
 
 export default function useEvmAllowance(): PluginUseAllowanceResult {
   const appkitAccountInfo = useAppKitAccount()
@@ -30,10 +30,11 @@ export default function useEvmAllowance(): PluginUseAllowanceResult {
   const { walletProvider } = useAppKitProvider('eip155')
   const sourceChain = useSelector(selectSourceChain)
   const networkOption = useSelector(selectNetworkOption)
-  const { allowanceAmount } = useSelector(selectServiceFee)
+  const { allowanceAmount, decimals } = useSelector(selectServiceFee)
   const selectedCoin = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
   const backendUrl = useSelector(selectBackendUrl)
+  const allowanceNumber = Number(formatUnits(allowanceAmount ?? '0', decimals))
 
   const [approvalsCount, setApprovalsCount] = useState(0)
 
@@ -83,8 +84,15 @@ export default function useEvmAllowance(): PluginUseAllowanceResult {
       walletProvider as ExternalProvider | JsonRpcFetchFunc
     )
     const signer = provider.getSigner()
-    if (!allowanceData?.decimals || !tokenAddress || !signer || !poolAddress) {
+    if (
+      !allowanceData?.decimals ||
+      !tokenAddress ||
+      !signer ||
+      !poolAddress ||
+      !allowanceAmount
+    ) {
       console.warn('useEvmAllowance: Missing required data', {
+        allowanceAmount,
         allowanceData,
         tokenAddress,
         signer,
@@ -97,9 +105,7 @@ export default function useEvmAllowance(): PluginUseAllowanceResult {
       const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer)
 
       // Initiate the approve transaction
-      const amount = isCancel
-        ? '0'
-        : parseUnits(allowanceAmount, allowanceData?.decimals).toString()
+      const amount = isCancel ? '0' : allowanceAmount
       console.log('useEvmAllowance: Approving amount:', amount)
       const approveTx = await erc20Contract.approve(poolAddress, amount)
 
@@ -128,7 +134,7 @@ export default function useEvmAllowance(): PluginUseAllowanceResult {
   return {
     ...allowanceData,
     isApproved: allowanceData?.allowance
-      ? allowanceData.allowance >= Number(allowanceAmount)
+      ? allowanceData.allowance >= allowanceNumber
       : false,
     approve: approveErc20TokenTransfer
   }

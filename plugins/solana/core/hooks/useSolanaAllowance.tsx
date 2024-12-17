@@ -21,13 +21,14 @@ import {
 import { getPoolAddress, getTokenAddress } from '@utils/functions'
 import { PublicKey, Transaction } from '@solana/web3.js'
 import { PluginUseAllowanceResult } from '@plugins/pluginTypes'
-import { parseUnits } from '@ethersproject/units'
+import { formatUnits } from '@ethersproject/units'
 
 export default function useSolanaAllowance(): PluginUseAllowanceResult {
   const sourceChain = useSelector(selectSourceChain)
-  const { allowanceAmount } = useSelector(selectServiceFee)
+  const { allowanceAmount, decimals } = useSelector(selectServiceFee)
   const backendUrl = useSelector(selectBackendUrl)
   const networkOption = useSelector(selectNetworkOption)
+  const allowanceNumber = Number(formatUnits(allowanceAmount ?? '0', decimals))
 
   const { connection } = useConnection()
   const { publicKey: userPublicKey, signTransaction } = useWallet()
@@ -68,6 +69,10 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
 
   // TODO: refactor to use use Tanstack useMutaion hook
   const approveSPLTokenTransfer = async (isCancel: boolean = false) => {
+    if (!allowanceAmount) {
+      console.warn('useSolanaAllowance: Missing allowance amount')
+      return
+    }
     const poolAddress = getPoolAddress(pools, 'SOL')
     const tokenAddress = getTokenAddress(tokenOptions, selectedCoin, 'SOL')
 
@@ -81,11 +86,7 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
       )
 
       // Create the approve instruction
-      const amount = isCancel
-        ? 0n
-        : BigInt(
-            parseUnits(allowanceAmount, allowanceData?.decimals ?? 6).toString()
-          )
+      const amount = isCancel ? 0n : BigInt(allowanceAmount)
       const approveInstruction = createApproveInstruction(
         tokenAccountAddress, // Source account (owner's token account)
         new PublicKey(poolAddress), // Delegate to approve
@@ -138,7 +139,7 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
   return {
     ...allowanceData,
     isApproved: allowanceData?.allowance
-      ? allowanceData.allowance >= Number(allowanceAmount)
+      ? allowanceData.allowance >= allowanceNumber
       : false,
     approve: approveSPLTokenTransfer
   }

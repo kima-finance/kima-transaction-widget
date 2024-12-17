@@ -21,16 +21,17 @@ import { getTokenAllowance } from '../../utils/getTokenAllowance'
 import useGetPools from '../../../../src/hooks/useGetPools'
 import { getPoolAddress, getTokenAddress } from '@utils/functions'
 import { PluginUseAllowanceResult } from '@plugins/pluginTypes'
-import { parseUnits } from '@ethersproject/units'
+import { formatUnits } from '@ethersproject/units'
 
 export default function useTronAllowance(): PluginUseAllowanceResult {
   const sourceChain = useSelector(selectSourceChain)
   const networkOption = useSelector(selectNetworkOption)
   const backendUrl = useSelector(selectBackendUrl)
-  const { allowanceAmount } = useSelector(selectServiceFee)
+  const { allowanceAmount, decimals } = useSelector(selectServiceFee)
   useTronWallet()
   const selectedCoin = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
+  const allowanceNumber = Number(formatUnits(allowanceAmount ?? '0', decimals))
 
   const { pools } = useGetPools(backendUrl, networkOption)
   const { address: userAddress, signTransaction: signTronTransaction } =
@@ -71,7 +72,14 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
 
   // TODO: refactor to use use Tanstack useMutaion hook
   const approveTrc20TokenTransfer = async (isCancel: boolean = false) => {
-    if (!userAddress || !pools || !tronWeb || !tokenOptions || !selectedCoin) {
+    if (
+      !userAddress ||
+      !pools ||
+      !tronWeb ||
+      !tokenOptions ||
+      !selectedCoin ||
+      !allowanceAmount
+    ) {
       console.warn('Missing required data for approveTrc20TokenTransfer')
       return
     }
@@ -82,9 +90,7 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
       // Define the contract method and parameters
       const functionSelector = 'approve(address,uint256)' // select the function to call
 
-      const amount = isCancel
-        ? '0'
-        : parseUnits(allowanceAmount, allowanceData?.decimals || 18).toString()
+      const amount = isCancel ? '0' : allowanceAmount
       const parameter = [
         { type: 'address', value: poolAddress },
         {
@@ -118,7 +124,7 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
   return {
     ...allowanceData,
     isApproved: allowanceData?.allowance
-      ? allowanceData?.allowance >= Number(allowanceAmount)
+      ? allowanceData.allowance >= allowanceNumber
       : false,
     approve: approveTrc20TokenTransfer
   }
