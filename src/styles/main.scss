@@ -12,7 +12,6 @@
   width: 100%;
   padding: 30px 40px;
   @include transition;
-  transition-delay: 0.2s;
   max-width: 900px;
 
   &.light {
