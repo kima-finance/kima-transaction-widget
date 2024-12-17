@@ -908,6 +908,10 @@
 .kima-card .kima-card-content .single-form .form-item .amount-label-container {
   display: flex;
 }
+.kima-card .kima-card-content .single-form .form-item .amount-label-container .max-button {
+  color: #86b8ce;
+  cursor: pointer;
+}
 .kima-card .kima-card-content .single-form .form-item .amount-label-container .coin-wrapper {
   display: flex;
   align-items: center;

@@ -1,3 +1,5 @@
 import React from 'react';
-declare const SingleForm: ({}: {}) => React.JSX.Element;
+declare const SingleForm: ({ balance }: {
+    balance: number;
+}) => React.JSX.Element;
 export default SingleForm;

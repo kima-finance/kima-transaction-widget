@@ -5,7 +5,6 @@ import { fetchWrapper } from '../helpers/fetch-wrapper'
 import { ModeOptions } from '../interface'
 import { setServiceFee } from '../store/optionSlice'
 import {
-  selectAmount,
   selectMode,
   selectSourceChain,
   selectServiceFee,
@@ -23,7 +22,6 @@ export default function useServiceFee(isConfirming: boolean = false) {
   const dispatch = useDispatch()
   const serviceFee = useSelector(selectServiceFee)
   const mode = useSelector(selectMode)
-  const amount_ = useSelector(selectAmount)
   const sourceChain = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
   const targetAddress_ = useSelector(selectTargetAddress)
@@ -43,10 +41,7 @@ export default function useServiceFee(isConfirming: boolean = false) {
         : targetAddress_,
     [transactionOption, mode, targetAddress_]
   )
-  const amount = useMemo(
-    () => (mode === ModeOptions.payment ? transactionOption?.amount : amount_),
-    [transactionOption, mode, amount_]
-  )
+
 
   const getServiceFee = async () => {
     if (
@@ -54,8 +49,7 @@ export default function useServiceFee(isConfirming: boolean = false) {
       !targetChain ||
       !isReady ||
       !walletAddress ||
-      !targetAddress ||
-      !amount
+      !targetAddress
     )
       return
 
@@ -106,7 +100,6 @@ export default function useServiceFee(isConfirming: boolean = false) {
     walletAddress,
     isConfirming,
     targetAddress,
-    amount
   ])
 
   return useMemo(

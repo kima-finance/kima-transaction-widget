@@ -622,6 +622,11 @@
         .amount-label-container {
           display: flex;
 
+          .max-button{
+            color: $financeIcon;
+            cursor: pointer;
+          }
+
           .coin-wrapper {
             display: flex;
             align-items: center;

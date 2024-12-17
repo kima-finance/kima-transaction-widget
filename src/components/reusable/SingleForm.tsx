@@ -23,8 +23,9 @@ import { COIN_LIST, ChainName } from '../../utils/constants'
 import { formatterFloat } from '../../helpers/functions'
 import ExpireTimeDropdown from './ExpireTimeDropdown'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
+import { preciseSubtraction } from '../../utils/functions'
 
-const SingleForm = ({}) => {
+const SingleForm = ({ balance }: { balance: number }) => {
   const dispatch = useDispatch()
   const mode = useSelector(selectMode)
   const theme = useSelector(selectTheme)
@@ -49,6 +50,18 @@ const SingleForm = ({}) => {
         : '',
     [compliantOption, targetCompliant]
   )
+
+  const maxValue = useMemo(() => {
+    console.log("balance: ", balance)
+    console.log("service fee: ", serviceFee)
+    if (feeDeduct) {
+      return balance
+    }
+
+    console.log("max value: ", balance-serviceFee)
+
+    return preciseSubtraction(balance, serviceFee)
+  }, [balance, serviceFee, feeDeduct])
 
   useEffect(() => {
     if (!errorMessage) return
@@ -113,20 +126,43 @@ const SingleForm = ({}) => {
           <div className={`amount-label-container items ${theme.colorMode}`}>
             <input
               className={`${theme.colorMode}`}
-              type='number'
+              type='text' // Use 'text' to avoid browser validation conflicts
               placeholder='Amount'
               value={amountValue || ''}
               onChange={(e) => {
-                let _amount = +e.target.value
+                const value = e.target.value
                 const decimal =
                   sourceNetwork === ChainName.BTC ||
                   targetNetwork === ChainName.BTC
                     ? 8
-                    : 2
-                setAmountValue(e.target.value)
-                dispatch(setAmount(_amount ? _amount.toFixed(decimal) : ''))
+                    : 6
+
+                // Mask the input
+                const maskedValue = value
+                  .replace(/[^0-9.]/g, '') // Remove non-numeric and non-dot characters
+                  .replace(/(\..*?)\..*/g, '$1') // Allow only one dot
+                  .replace(new RegExp(`(\\.\\d{${decimal}})\\d+`), '$1') // Limit to 'decimal' places
+
+                // Parse to a float and compare to balance
+                const numericValue = parseFloat(maskedValue)
+                if (!isNaN(numericValue) && numericValue > maxValue) {
+                  setAmountValue(maxValue.toString()) // Cap at maxValue
+                  dispatch(setAmount(maxValue.toString()))
+                } else {
+                  setAmountValue(maskedValue)
+                  dispatch(setAmount(maskedValue))
+                }
               }}
             />
+            <span
+              className='max-button'
+              onClick={() => {
+                setAmountValue(maxValue.toString())
+                dispatch(setAmount(maxValue.toString()))
+              }}
+            >
+              Max
+            </span>
           </div>
         </div>
       ) : (

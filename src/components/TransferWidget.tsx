@@ -94,6 +94,7 @@ import { sleep } from '../helpers/functions'
 import PendingTxPopup from './modals/PendingTxPopup'
 import { broadcastTransaction, getUTXOs } from '../utils/btc/utils'
 import * as btc from '@kimafinance/btc-signer'
+import { preciseSubtraction } from '../utils/functions'
 
 interface Props {
   theme: ThemeOptions
@@ -186,8 +187,14 @@ export const TransferWidget = ({
         )
         dispatch(setSourceCompliant(res))
       } catch (e) {
-        toast.error('Compliance check failed. Please tray again later or contact support for assistance.', { icon: <ErrorIcon /> })
-        console.log('Compliance check failed. Please tray again later or contact support for assistance.', e)
+        toast.error(
+          'Compliance check failed. Please tray again later or contact support for assistance.',
+          { icon: <ErrorIcon /> }
+        )
+        console.log(
+          'Compliance check failed. Please tray again later or contact support for assistance.',
+          e
+        )
       }
     })()
   }, [walletAddress, compliantOption])
@@ -204,8 +211,14 @@ export const TransferWidget = ({
         )
         dispatch(setTargetCompliant(res))
       } catch (e) {
-        toast.error('Compliance check failed. Please tray again later or contact support for assistance.', { icon: <ErrorIcon /> })
-        console.log('Compliance check failed. Please tray again later or contact support for assistance.', e)
+        toast.error(
+          'Compliance check failed. Please tray again later or contact support for assistance.',
+          { icon: <ErrorIcon /> }
+        )
+        console.log(
+          'Compliance check failed. Please tray again later or contact support for assistance.',
+          e
+        )
       }
     })()
   }, [targetAddress, compliantOption])
@@ -715,6 +728,30 @@ export const TransferWidget = ({
           return
         }
 
+        const currentMaxValue = feeDeduct
+          ? balance
+          : preciseSubtraction(balance, fee)
+
+        const totalAmount = feeDeduct
+          ? (+amount - fee).toFixed(decimals || 6)
+          : (+amount).toFixed(decimals || 6)
+
+        console.log('total amount: ', totalAmount)
+
+        // Check if the amount exceeds the max value
+        if (+totalAmount > currentMaxValue) {
+          toast.error(
+            `Amount exceeds the maximum allowed value [$${currentMaxValue}]`,
+            {
+              icon: <ErrorIcon />
+            }
+          )
+          errorHandler(
+            `Amount exceeds the maximum allowed value (${currentMaxValue}).`
+          )
+          return
+        }
+
         if (mode === ModeOptions.payment || (targetAddress && +amount > 0)) {
           setConfirming(true)
           setFormStep(1)
@@ -929,7 +966,7 @@ export const TransferWidget = ({
             />
           )
         ) : formStep === 0 ? (
-          <SingleForm />
+          <SingleForm balance={balance} />
         ) : (
           <ConfirmDetails
             isApproved={sourceChain === ChainName.FIAT ? isSigned : isApproved}
