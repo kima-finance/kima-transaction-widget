@@ -17,11 +17,13 @@ import {
   selectTransactionOption,
   selectDappOption,
   selectSourceCurrency,
-  selectTargetCurrency
+  selectTargetCurrency,
+  selectNetworks
 } from '@store/selectors'
-import { ChainName, COIN_LIST, networkOptions } from '../../utils/constants'
+import { ChainName } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 import useWidth from '../../hooks/useWidth'
+import ChainIcon from './ChainIcon'
 
 const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
   const feeDeduct = useSelector(selectFeeDeduct)
@@ -35,6 +37,9 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
   const targetAddress = useSelector(selectTargetAddress)
   const bankDetails = useSelector(selectBankDetails)
   const signature = useSelector(selectSignature)
+  const networkOptions = useSelector(selectNetworks)
+
+  console.log('network options: ', networkOptions)
   const transactionOption = useSelector(selectTransactionOption)
   const { walletAddress } = useIsWalletReady()
   const originNetworkOption = useMemo(
@@ -59,11 +64,6 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
   useEffect(() => {
     width === 0 && updateWidth(window.innerWidth)
   }, [])
-
-  const SourceCoinIcon =
-    COIN_LIST[sourceCurrency].icon || COIN_LIST['USDK'].icon
-  const TargetCoinIcon =
-    COIN_LIST[targetCurrency].icon || COIN_LIST['USDK'].icon
 
   const sourceWalletAddress = useMemo(() => {
     return width >= 916
@@ -129,7 +129,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
             <div className='kima-card-network-container'>
               <span className={`kima-card-network-label ${theme.colorMode}`}>
                 <div className='icon'>
-                  <originNetworkOption.icon />
+                  <ChainIcon symbol={originNetworkOption.id} />
                 </div>
                 {originNetworkOption.label}
               </span>
@@ -157,7 +157,8 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
             <span>Transfer amount</span>
             <div className='coin-details'>
               <p>
-              {formatterFloat.format(parseFloat(amountToShow)-totalFeeUsd)} {sourceCurrency}
+                {formatterFloat.format(parseFloat(amountToShow) - totalFeeUsd)}{' '}
+                {sourceCurrency}
               </p>
             </div>
             {sourceCurrency !== targetCurrency && (
@@ -167,14 +168,13 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
           <div className='amount-details'>
             <span>Network costs</span>
             <span className='service-fee'>
-              {totalFeeUsd} {sourceCurrency}
+              {formatterFloat.format(totalFeeUsd)} {sourceCurrency}
             </span>
           </div>
           <div className='amount-details'>
             <span>Total</span>
             <span className='service-fee'>
-              {formatterFloat.format(parseFloat(amountToShow))}{' '}
-              {targetCurrency}
+              {formatterFloat.format(parseFloat(amountToShow))} {targetCurrency}
             </span>
           </div>
         </span>
@@ -203,7 +203,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
             <div className='kima-card-network-container'>
               <span className={`kima-card-network-label ${theme.colorMode}`}>
                 <div className='icon'>
-                  <targetNetworkOption.icon />
+                  <ChainIcon symbol={targetNetworkOption.id} />
                 </div>
                 {targetNetworkOption.label}
               </span>
