@@ -22,6 +22,7 @@ import {
 import { ChainName, COIN_LIST, networkOptions } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 import useWidth from '../../hooks/useWidth'
+import ChainIcon from './ChainIcon'
 
 const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
   const feeDeduct = useSelector(selectFeeDeduct)
@@ -183,9 +184,10 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
             <span className='label'>IBAN:</span>
             <p>{bankDetails.iban}</p>
             <span className={`kima-card-network-label ${theme.colorMode}`}>
-              <div className='icon'>
+              <ChainIcon symbol={targetNetworkOption?.id} />
+              {/* <div className='icon'>
                 <targetNetworkOption.icon />
-              </div>
+              </div> */}
               FIAT
             </span>
           </div>
@@ -200,10 +202,11 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
           <div className='network-details'>
             <div className='kima-card-network-container'>
               <span className={`kima-card-network-label ${theme.colorMode}`}>
-                <div className='icon'>
-                  <targetNetworkOption.icon />
-                </div>
-                {targetNetworkOption.label}
+                <ChainIcon symbol={targetNetworkOption?.id} />
+                {/* <div className='icon'>
+                <targetNetworkOption.icon />
+              </div> */}
+                {targetNetworkOption?.label}
               </span>
             </div>
             <p className={theme.colorMode}>

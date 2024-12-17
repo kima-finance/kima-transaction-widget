@@ -94,8 +94,13 @@ export interface NetworkFee {
   amount: number
 }
 
+// use parseUnits to convert bigint to number
 export interface ServiceFee {
-  totalFeeUsd: number
+  allowanceAmount: string // bigint amount to approve for ERC20 allowance
+  decimals: number // number of decimals for bigint values
   sourceNetworkFee?: NetworkFee
+  submitAmount: string // bigint amount to submit for the Kima transaction
   targetNetworkFee?: NetworkFee
+  totalFeeUsd: number // total fee in USD for display purposes
+  totalFee: string // bigint total fee amount
 }

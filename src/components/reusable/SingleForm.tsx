@@ -53,7 +53,13 @@ const SingleForm = ({}) => {
     data: fees,
     isLoading,
     error
-  } = useGetFees(parseFloat(amount), sourceNetwork, targetNetwork, backendUrl)
+  } = useGetFees(
+    parseFloat(amount),
+    feeDeduct,
+    sourceNetwork,
+    targetNetwork,
+    backendUrl
+  )
 
   useEffect(() => {
     if (fees) {

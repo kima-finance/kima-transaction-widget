@@ -1,15 +1,12 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 
 import {
-  selectAmount,
   selectSourceCurrency,
   selectSourceChain,
   selectServiceFee,
   selectTokenOptions,
-  selectTargetChain,
-  selectFeeDeduct,
   selectBackendUrl,
   selectNetworkOption
 } from '@store/selectors'
@@ -23,13 +20,12 @@ import {
 } from '@solana/spl-token'
 import { getPoolAddress, getTokenAddress } from '@utils/functions'
 import { PublicKey, Transaction } from '@solana/web3.js'
+import { PluginUseAllowanceResult } from '@plugins/pluginTypes'
+import { parseUnits } from '@ethersproject/units'
 
-export default function useSolanaAllowance() {
+export default function useSolanaAllowance(): PluginUseAllowanceResult {
   const sourceChain = useSelector(selectSourceChain)
-  const targetChain = useSelector(selectTargetChain)
-  const feeDeduct = useSelector(selectFeeDeduct)
-  const amount = useSelector(selectAmount)
-  const { totalFeeUsd } = useSelector(selectServiceFee)
+  const { allowanceAmount } = useSelector(selectServiceFee)
   const backendUrl = useSelector(selectBackendUrl)
   const networkOption = useSelector(selectNetworkOption)
 
@@ -40,14 +36,6 @@ export default function useSolanaAllowance() {
   const { pools } = useGetPools(backendUrl, networkOption)
 
   const [approvalsCount, setApprovalsCount] = useState(0)
-
-  const amountToShow = useMemo(() => {
-    return (feeDeduct ? +amount : +amount + totalFeeUsd).toFixed(2)
-  }, [amount, totalFeeUsd, sourceChain, targetChain, feeDeduct])
-
-  // const isApproved = useMemo(() => {
-  //   return allowance.allowance >= +amountToShow
-  // }, [allowance, amountToShow])
 
   const {
     data: allowanceData,
@@ -93,13 +81,16 @@ export default function useSolanaAllowance() {
       )
 
       // Create the approve instruction
+      const amount = isCancel
+        ? 0n
+        : BigInt(
+            parseUnits(allowanceAmount, allowanceData?.decimals ?? 6).toString()
+          )
       const approveInstruction = createApproveInstruction(
         tokenAccountAddress, // Source account (owner's token account)
         new PublicKey(poolAddress), // Delegate to approve
         userPublicKey as PublicKey, // Owner of the token account
-        isCancel
-          ? 0
-          : +amountToShow * Math.pow(10, allowanceData?.decimals ?? 6), // Amount of tokens to approve (in raw units)
+        amount,
         [], // Multi-signers (if any, otherwise leave empty)
         TOKEN_PROGRAM_ID // SPL Token Program ID
       )
@@ -147,7 +138,7 @@ export default function useSolanaAllowance() {
   return {
     ...allowanceData,
     isApproved: allowanceData?.allowance
-      ? allowanceData.allowance >= Number(amountToShow)
+      ? allowanceData.allowance >= Number(allowanceAmount)
       : false,
     approve: approveSPLTokenTransfer
   }
