@@ -1,28 +1,30 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
-import { Contract } from '@ethersproject/contracts'
-import { formatUnits } from '@ethersproject/units'
-import { ethers } from 'ethers'
+// import { Contract } from '@ethersproject/contracts'
+// import { formatUnits } from '@ethersproject/units'
+// import { ethers } from 'ethers'
 import { ExternalProvider, JsonRpcFetchFunc } from '@ethersproject/providers'
 
 import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
 import {
-  selectErrorHandler,
+  // selectErrorHandler,
   selectSourceChain,
   selectTokenOptions,
   selectSourceCurrency
 } from '@store/selectors'
 import { ChainName, isEVMChain } from '../../utils/constants'
-import ERC20ABI from '../../utils/ethereum/erc20ABI.json'
+// import ERC20ABI from '../../utils/ethereum/erc20ABI.json'
 import { isEmptyObject } from '../../helpers/functions'
+import { getEvmTokenBalance } from '../../utils/getTokenBalance'
+import { useQuery } from '@tanstack/react-query'
+
+const zeroBalance = { balance: 0, decimals: 6 }
 
 export default function useBalance() {
-  const [balance, setBalance] = useState<number>(0)
   const appkitAccountInfo = useAppKitAccount()
   const { address: signerAddress } = appkitAccountInfo || {}
   const { walletProvider } = useAppKitProvider('eip155')
 
-  const errorHandler = useSelector(selectErrorHandler)
   const sourceChain = useSelector(selectSourceChain)
   const sourceCurrency = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
@@ -36,32 +38,26 @@ export default function useBalance() {
     return ''
   }, [sourceCurrency, sourceChain, tokenOptions])
 
-  useEffect(() => {
-    setBalance(0)
-  }, [sourceChain])
-
-  useEffect(() => {
-    ;(async () => {
-      if (!tokenAddress || !isEVMChain(sourceChain) || !walletProvider) return
+  const result = useQuery({
+    queryKey: ['evmBalance', sourceChain, tokenAddress, signerAddress],
+    queryFn: () => {
       try {
-        const provider = new ethers.providers.Web3Provider(
-          walletProvider as ExternalProvider | JsonRpcFetchFunc
-        )
-        const signer = provider.getSigner()
-        if (!signer || !signerAddress) return
-
-        const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer)
-        const [decimals, userBalance] = await Promise.all([
-          erc20Contract.decimals(),
-          erc20Contract.balanceOf(signerAddress)
-        ])
-
-        setBalance(+formatUnits(userBalance, decimals))
-      } catch (error) {
-        errorHandler(error)
+        if (!isEVMChain(sourceChain)) return zeroBalance
+        return getEvmTokenBalance({
+          address: signerAddress!,
+          tokenAddress,
+          walletProvider: walletProvider as ExternalProvider | JsonRpcFetchFunc
+        })
+      } catch (e) {
+        const msg = `Error getting ${sourceChain} ${sourceCurrency} balance for wallet ${signerAddress}`
+        console.error(msg, e)
+        throw new Error(msg)
       }
-    })()
-  }, [signerAddress, tokenAddress, sourceChain, walletProvider])
+    },
+    enabled: !!tokenAddress && !!walletProvider && !!signerAddress,
+    staleTime: 1000 * 60 // 1 min
+  })
+  const { data } = result
 
-  return useMemo(() => ({ balance }), [balance])
+  return data
 }

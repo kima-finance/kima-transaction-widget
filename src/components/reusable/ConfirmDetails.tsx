@@ -128,9 +128,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
           <div className='network-details'>
             <div className='kima-card-network-container'>
               <span className={`kima-card-network-label ${theme.colorMode}`}>
-                <div className='icon'>
-                  <ChainIcon symbol={originNetworkOption.id} />
-                </div>
+                <ChainIcon symbol={originNetworkOption.id} />
                 {originNetworkOption.label}
               </span>
             </div>
@@ -202,9 +200,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
           <div className='network-details'>
             <div className='kima-card-network-container'>
               <span className={`kima-card-network-label ${theme.colorMode}`}>
-                <div className='icon'>
-                  <ChainIcon symbol={targetNetworkOption.id} />
-                </div>
+                <ChainIcon symbol={targetNetworkOption.id} />
                 {targetNetworkOption.label}
               </span>
             </div>

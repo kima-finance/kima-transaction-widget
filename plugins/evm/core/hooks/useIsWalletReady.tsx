@@ -1,13 +1,11 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   useAppKitAccount,
   useAppKitNetwork,
   useAppKitProvider
 } from '@reown/appkit/react'
-import { useModal } from '../contexts/useModal'
 import toast from 'react-hot-toast'
-
 import {
   CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET,
   CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET
@@ -15,6 +13,7 @@ import {
 import { selectNetworkOption, selectSourceChain } from '@store/selectors'
 import { NetworkOptions } from '@interface'
 import { setSourceAddress } from '@store/optionSlice'
+import { appKitModel } from '@plugins/evm/config/modalConfig'
 
 function useIsWalletReady(): {
   isReady: boolean
@@ -25,55 +24,113 @@ function useIsWalletReady(): {
   const { walletProvider: evmProvider } = useAppKitProvider('eip155')
   const appkitAccountInfo = useAppKitAccount()
   const { chainId: walletChainId } = useAppKitNetwork()
-  const modal = useModal()
 
-  const { address: walletAddress, isConnected } = appkitAccountInfo || {}
+  const { address: walletAddress, isConnected: appkitIsConnected } =
+    appkitAccountInfo || {}
+  const isConnected = appkitIsConnected && walletAddress !== undefined
+
+  useEffect(() => {
+    console.group('useIsWalletReady:EVM Debug')
+    console.log('appkitIsConnected:', appkitIsConnected)
+    console.log('walletAddress:', walletAddress)
+    console.log('Derived isConnected:', isConnected)
+    console.groupEnd()
+  }, [walletAddress, appkitIsConnected, isConnected])
 
   const sourceChain = useSelector(selectSourceChain)
   const networkOption = useSelector(selectNetworkOption)
 
   const correctEvmNetwork = useMemo(() => {
-    return networkOption === NetworkOptions.mainnet
-      ? CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET[sourceChain]
-      : CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET[sourceChain]
+    const network =
+      networkOption === NetworkOptions.mainnet
+        ? CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET[sourceChain]
+        : CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET[sourceChain]
+    console.debug('useIsWalletReady:EVM:Correct EVM Network computed:', network)
+    return network
   }, [networkOption, sourceChain])
 
   const switchNetwork = useCallback(async () => {
-    if (evmProvider && correctEvmNetwork) {
+    console.debug('useIsWalletReady:EVM:Attempting to switch network...', {
+      hasProvider: !!evmProvider,
+      correctEvmNetwork,
+      modalExists: appKitModel !== null,
+      modal: appKitModel
+    })
+    if (evmProvider && correctEvmNetwork && appKitModel !== null) {
       try {
-        await modal.switchNetwork(correctEvmNetwork)
-        toast.success(`Switched to ${correctEvmNetwork.name}`)
+        await appKitModel.switchNetwork(correctEvmNetwork)
+        toast.success(
+          `useIsWalletReady:EVM:Switched to ${correctEvmNetwork.name}`
+        )
+        console.debug(
+          'useIsWalletReady:EVM:Network switch successful to:',
+          correctEvmNetwork.name
+        )
       } catch (e) {
-        toast.error(`Failed to switch to ${correctEvmNetwork.name}`)
+        toast.error(
+          `useIsWalletReady:EVM:Failed to switch to ${correctEvmNetwork.name}`
+        )
+        console.error('useIsWalletReady:EVM:Network switch failed:', e)
       }
     }
-  }, [evmProvider, correctEvmNetwork, modal])
+  }, [evmProvider, correctEvmNetwork, appKitModel])
 
   useEffect(() => {
+    console.debug('useIsWalletReady:EVM:Checking connection and chain:', {
+      isConnected,
+      walletChainId,
+      correctEvmNetwork
+    })
     if (!isConnected) {
       toast.error('Wallet not connected')
+      console.warn('useIsWalletReady:EVM:Wallet not connected - cannot proceed')
     } else if (walletChainId !== correctEvmNetwork?.id) {
+      console.warn(
+        'useIsWalletReady:EVM:Wallet connected but chain mismatch:',
+        {
+          currentChainId: walletChainId,
+          expectedId: correctEvmNetwork?.id
+        }
+      )
       switchNetwork()
     }
   }, [isConnected, walletChainId, correctEvmNetwork, switchNetwork])
 
   // dispatch target address upon connection
   useEffect(() => {
-    isConnected && dispatch(setSourceAddress(walletAddress))
-  }, [walletAddress, isConnected])
+    if (isConnected) {
+      console.debug(
+        'useIsWalletReady:EVM:Dispatching source address:',
+        walletAddress
+      )
+      dispatch(setSourceAddress(walletAddress ?? ''))
+    }
+  }, [walletAddress, isConnected, dispatch])
 
-  return useMemo(
-    () => ({
-      isReady: isConnected && walletChainId === correctEvmNetwork?.id,
-      statusMessage: isConnected
-        ? walletChainId === correctEvmNetwork?.id
-          ? ''
-          : `Switching to ${correctEvmNetwork.name}...`
-        : 'Wallet not connected',
+  const returnValue = useMemo(() => {
+    const ready = isConnected && walletChainId === correctEvmNetwork?.id
+    const msg = isConnected
+      ? walletChainId === correctEvmNetwork?.id
+        ? ''
+        : `Switching to ${correctEvmNetwork.name}...`
+      : 'Wallet not connected'
+
+    console.debug('useIsWalletReady:EVM:Final return values:', {
+      isReady: ready,
+      statusMessage: msg,
+      walletAddress: isConnected ? walletAddress : undefined,
+      correctEvmNetworkId: correctEvmNetwork?.id,
+      walletChainId
+    })
+
+    return {
+      isReady: ready,
+      statusMessage: msg,
       walletAddress: isConnected ? walletAddress : undefined
-    }),
-    [isConnected, walletChainId, correctEvmNetwork, walletAddress]
-  )
+    }
+  }, [isConnected, walletChainId, correctEvmNetwork, walletAddress])
+
+  return returnValue
 }
 
 export default useIsWalletReady

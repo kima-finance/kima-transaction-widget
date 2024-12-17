@@ -9,29 +9,24 @@ import {
   PluginProviderProps
 } from '@plugins/pluginTypes'
 import useGetSolBalance from '@plugins/solana/core/hooks/useGetSolBalance'
+import useSolanaAllowance from '@plugins/solana/core/hooks/useSolanaAllowance'
 import useSolIsWalletReady from '@plugins/solana/core/hooks/useIsWalletReady'
 
 export class SolanaPlugin extends PluginBase {
   constructor(store: any) {
     super({
       store,
-      id: 'solana',
+      id: 'SOL',
       compatibility: ChainCompatibility.SELF,
-      // TODO: implement approve hook
-      useAllowance: () => ({
-        isApproved: false,
-        poolAddress: '',
-        approve: () => Promise.resolve(),
-        allowance: 0
-      }),
-      useBalance: useGetSolBalance,
-      useTokenBalance: useGetSolBalance,
+      useAllowance: useSolanaAllowance,
+      useNativeBalance: useGetSolBalance,
+      useTokenBalance: useSolanaAllowance,
       useWalletIsReady: useSolIsWalletReady
     })
   }
 
   isCompatible = (chain: ChainData): boolean => {
-    return chain.name === 'SOL'
+    return chain.shortName === 'SOL'
   }
 
   Provider = ({

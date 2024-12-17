@@ -1,6 +1,6 @@
 // plugins/evm/config/modalConfig.ts
 
-import { createAppKit } from '@reown/appkit/react'
+import { AppKit, createAppKit } from '@reown/appkit/react'
 import {
   arbitrum,
   arbitrumSepolia,
@@ -20,6 +20,7 @@ import {
   sepolia
 } from '@reown/appkit/networks' // Adjust this import based on real networks you need to support
 import { Ethers5Adapter } from '@reown/appkit-adapter-ethers5'
+import { NetworkOptions } from '@interface'
 
 const appkitMainnetChains = [
   mainnet,
@@ -50,14 +51,26 @@ const metadata = {
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 }
 
+// use the this AppKit model instance directly, storing in context not necessary
+export let appKitModel: AppKit | null = null
+let appKitNetworkOption = NetworkOptions.testnet
+
 export const setupAppKit = (
   projectId: string,
-  networkOption: 'mainnet' | 'testnet'
+  networkOption: NetworkOptions
 ) => {
-  const networks: any =
-    networkOption === 'mainnet' ? appkitMainnetChains : appkitTestnetChains // Adjust networks per environment
+  // prevent calling createAppKit multiple times
+  if (networkOption === appKitNetworkOption && appKitModel) {
+    return appKitModel
+  }
 
-  return createAppKit({
+  appKitNetworkOption = networkOption
+  const networks: any =
+    networkOption === NetworkOptions.mainnet
+      ? appkitMainnetChains
+      : appkitTestnetChains // Adjust networks per environment
+
+  appKitModel = createAppKit({
     adapters: [new Ethers5Adapter()],
     metadata,
     networks,
@@ -66,4 +79,7 @@ export const setupAppKit = (
       analytics: false // Disable analytics as per previous configuration
     }
   })
+  console.debug('setupAppKit:networkOption:', networkOption)
+
+  return appKitModel
 }

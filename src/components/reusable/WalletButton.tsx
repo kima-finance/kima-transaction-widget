@@ -33,43 +33,53 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const selectedNetwork = useSelector(selectSourceChain)
   const { connected: isSolanaConnected } = useSolanaWallet()
   const { connected: isTronConnected } = useTronWallet()
-  const { isReady, statusMessage, walletAddress, connectBitcoinWallet } =
+  const { isReady, statusMessage, walletAddress /*, connectBitcoinWallet*/ } =
     useIsWalletReady()
   const { balance } = useBalance()
   const { open } = useAppKit()
   const { width, updateWidth } = useWidth()
 
   useEffect(() => {
+    console.info('WalletBalance:', {
+      balance,
+      walletAddress,
+      isReady,
+      statusMessage
+    })
+  }, [balance, walletAddress, isReady])
+
+  useEffect(() => {
     if (width === 0) {
       updateWidth(window.innerWidth)
     }
   }, [])
-
+  // TODO: refactor to use plugins
   const handleClick = async () => {
     console.info('Handling click')
-    console.info('Handling click: Case', 1)
+
     if (selectedNetwork === ChainName.SOLANA) {
+      console.info('Handling click: Case SOL', 1)
       isSolanaConnected
         ? dispatch(setAccountDetailsModal(true))
         : dispatch(setSolanaConnectModal(true))
       return
     }
 
-    console.info('Handling click: Case', 2)
     if (selectedNetwork === ChainName.TRON) {
+      console.info('Handling click: Case TRX', 2)
       isTronConnected
         ? dispatch(setAccountDetailsModal(true))
         : dispatch(setTronConnectModal(true))
       return
     }
 
-    console.info('Handling click: Case', 3)
-    if (selectedNetwork === ChainName.BTC) {
-      connectBitcoinWallet()
-      return
-    }
+    // if (selectedNetwork === ChainName.BTC) {
+    //   console.info('Handling click: Case BTC', 3)
+    //   connectBitcoinWallet()
+    //   return
+    // }
 
-    console.info('Handling click: Case', 4)
+    console.info('Handling click: Case EVM', 4)
     try {
       console.info('Attempting to open AppKitModal')
       await open() // Ensure await usage
@@ -119,7 +129,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
         {isReady && <CopyButton text={walletAddress as string} />}
       </div>
 
-      {isReady ? (
+      {isReady && balance !== undefined ? (
         <p className='balance-info'>
           {balance.toFixed(2)} {selectedCoin} available
         </p>

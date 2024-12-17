@@ -4,43 +4,25 @@ import { store } from '@store/index'
 import { selectAllPlugins } from '@store/pluginSlice'
 import { getPluginProvider } from '@pluginRegistry'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { NetworkOptions } from '@interface'
 
 import '@plugins/index'
-import { getNetworkOption } from './services/envsApi'
-import { useQuery } from '@tanstack/react-query'
-import { selectBackendUrl } from '@store/selectors'
-import { useDispatch } from 'react-redux'
-import { setNetworkOption } from '@store/optionSlice'
 
 interface KimaProviderProps {
+  networkOption?: NetworkOptions
   walletConnectProjectId: string
   children: ReactNode
 }
 
 const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
-  ({ walletConnectProjectId, children }) => {
-    const dispatch = useDispatch()
-    const backendUrl = useSelector(selectBackendUrl)
-
+  ({
+    networkOption = NetworkOptions.testnet,
+    walletConnectProjectId,
+    children
+  }) => {
     // Use a stable selector to avoid unnecessary re-renders
     const plugins = useSelector(selectAllPlugins, (prev, next) => prev === next)
     console.info('Registered Plugins:', plugins)
-
-    // Fetch networkOption using React Query
-    const {
-      data: networkOption,
-      isLoading,
-      error
-    } = useQuery({
-      queryKey: ['networkOption'],
-      queryFn: async () => getNetworkOption(backendUrl),
-      staleTime: 1000 * 60 * 60 * 24, // Cache for 24 hours
-      gcTime: 1000 * 60 * 60 * 24 * 7, // Cache for 7 days
-      enabled: !!backendUrl
-    })
-
-    console.log('network option: ', networkOption)
-    dispatch(setNetworkOption(networkOption))
 
     // Create providers dynamically but flatten their structure
     const WrappedProviders = useMemo(() => {
@@ -51,7 +33,7 @@ const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
           return (
             <Provider
               key={plugin.data.id}
-              networkOption={networkOption || 'testnet'}
+              networkOption={networkOption}
               walletConnectProjectId={walletConnectProjectId}
             >
               {acc}

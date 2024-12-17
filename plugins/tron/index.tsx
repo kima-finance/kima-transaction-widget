@@ -9,28 +9,24 @@ import {
   PluginProviderProps
 } from '@plugins/pluginTypes'
 import useBalanceTron from '@plugins/tron/core/hooks/useGetTrxBalance'
+import useTronAllowance from '@plugins/tron/core/hooks/useTronAllowance'
 import useIsWalletReadyTron from '@plugins/tron/core/hooks/useIsWalletReady'
 
 export class TronPlugin extends PluginBase {
   constructor(store: any) {
     super({
       store,
-      id: 'tron',
+      id: 'TRX',
       compatibility: ChainCompatibility.SELF,
-      useAllowance: () => ({
-        isApproved: false,
-        poolAddress: '',
-        approve: () => Promise.resolve(),
-        allowance: 0
-      }),
-      useBalance: useBalanceTron,
-      useTokenBalance: useBalanceTron,
+      useAllowance: useTronAllowance,
+      useNativeBalance: useBalanceTron,
+      useTokenBalance: useTronAllowance,
       useWalletIsReady: useIsWalletReadyTron
     })
   }
 
   isCompatible = (chain: ChainData): boolean => {
-    return chain.name === 'TRX'
+    return chain.shortName === 'TRX'
   }
 
   Provider = ({
