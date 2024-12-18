@@ -735,9 +735,7 @@ export const TransferWidget = ({
         const totalAmount = feeDeduct
           ? (+amount - fee).toFixed(decimals || 6)
           : (+amount).toFixed(decimals || 6)
-
-        console.log('total amount: ', totalAmount)
-
+        
         // Check if the amount exceeds the max value
         if (+totalAmount > currentMaxValue) {
           toast.error(

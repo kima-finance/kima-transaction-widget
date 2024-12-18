@@ -52,15 +52,13 @@ const SingleForm = ({ balance }: { balance: number }) => {
   )
 
   const maxValue = useMemo(() => {
-    console.log("balance: ", balance)
-    console.log("service fee: ", serviceFee)
     if (feeDeduct) {
       return balance
     }
 
-    console.log("max value: ", balance-serviceFee)
+    const amountMinusFees = preciseSubtraction(balance, serviceFee)
 
-    return preciseSubtraction(balance, serviceFee)
+    return amountMinusFees > 0 ? amountMinusFees : 0
   }, [balance, serviceFee, feeDeduct])
 
   useEffect(() => {
