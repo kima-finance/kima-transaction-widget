@@ -58,7 +58,6 @@ interface Props {
   titleOption?: TitleOption
   compliantOption?: boolean
   helpURL?: string
-  feeURL?: string
   transactionOption?: TransactionOption
   paymentTitleOption?: PaymentTitleOption
   kimaBackendUrl: string
@@ -89,7 +88,6 @@ const KimaTransactionWidget = ({
   kimaBackendUrl,
   kimaNodeProviderQuery,
   kimaExplorer = 'https://explorer.kima.finance',
-  feeURL = 'https://fee.kima.finance',
   kimaGraphqlProviderQuery = 'https://graphql.kima.finance/v1/graphql',
   errorHandler = () => void 0,
   closeHandler = () => void 0,
@@ -162,7 +160,6 @@ const KimaTransactionWidget = ({
   ) : (
     <TransferWidget
       theme={theme}
-      feeURL={feeURL}
       helpURL={helpURL}
       titleOption={titleOption}
       paymentTitleOption={paymentTitleOption}

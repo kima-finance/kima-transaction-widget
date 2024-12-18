@@ -10,7 +10,7 @@ export interface Plugin {
 
   // hooks
   // TODO: refactor to return a UseQueryResult
-  useAllowance: () => PluginUseAllowanceResult | undefined
+  useAllowance: () => PluginUseAllowanceResult
   useNativeBalance: () => PluginUseBalanceResult | undefined
   useTokenBalance(): PluginUseBalanceResult | undefined
   useWalletIsReady: () => PluginUseWalletIsReadyResult

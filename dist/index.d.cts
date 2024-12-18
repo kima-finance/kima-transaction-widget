@@ -109,9 +109,13 @@ interface NetworkFee {
     amount: number;
 }
 interface ServiceFee {
-    totalFeeUsd: number;
+    allowanceAmount: string;
+    decimals: number;
     sourceNetworkFee?: NetworkFee;
+    submitAmount: string;
     targetNetworkFee?: NetworkFee;
+    totalFeeUsd: number;
+    totalFee: string;
 }
 
 interface KimaProviderProps {

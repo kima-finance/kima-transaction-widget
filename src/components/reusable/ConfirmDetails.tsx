@@ -183,9 +183,10 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
             <span className='label'>IBAN:</span>
             <p>{bankDetails.iban}</p>
             <span className={`kima-card-network-label ${theme.colorMode}`}>
-              <div className='icon'>
+              <ChainIcon symbol={targetNetworkOption?.id} />
+              {/* <div className='icon'>
                 <targetNetworkOption.icon />
-              </div>
+              </div> */}
               FIAT
             </span>
           </div>

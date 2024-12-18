@@ -1,16 +1,13 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useSelector } from 'react-redux'
 
+import { PluginUseAllowanceResult } from '@plugins/pluginTypes'
 import ERC20ABI from '@utils/ethereum/erc20ABI.json'
 import {
-  selectAmount,
   selectSourceCurrency,
-  selectErrorHandler,
   selectSourceChain,
   selectServiceFee,
   selectTokenOptions,
-  selectTargetChain,
-  selectFeeDeduct,
   selectNetworkOption,
   selectBackendUrl
 } from '@store/selectors'
@@ -23,28 +20,23 @@ import { isEVMChain } from '@plugins/evm/utils/constants'
 import { getPoolAddress, getTokenAddress } from '@utils/functions'
 import { Contract, ethers } from 'ethers'
 import { ExternalProvider, JsonRpcFetchFunc } from '@ethersproject/providers'
-import { parseUnits } from '@ethersproject/units'
+import { formatUnits } from '@ethersproject/units'
 
-export default function useEvmAllowance() {
+export default function useEvmAllowance(): PluginUseAllowanceResult {
   const appkitAccountInfo = useAppKitAccount()
 
   const { address: userAddress } = appkitAccountInfo
 
   const { walletProvider } = useAppKitProvider('eip155')
   const sourceChain = useSelector(selectSourceChain)
-  const targetChain = useSelector(selectTargetChain)
-  const feeDeduct = useSelector(selectFeeDeduct)
   const networkOption = useSelector(selectNetworkOption)
-  const amount = useSelector(selectAmount)
-  const { totalFeeUsd } = useSelector(selectServiceFee)
+  const { allowanceAmount, decimals } = useSelector(selectServiceFee)
   const selectedCoin = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
   const backendUrl = useSelector(selectBackendUrl)
+  const allowanceNumber = Number(formatUnits(allowanceAmount ?? '0', decimals))
 
   const [approvalsCount, setApprovalsCount] = useState(0)
-  const amountToShow = useMemo(() => {
-    return (feeDeduct ? +amount : +amount + totalFeeUsd).toFixed(2)
-  }, [amount, totalFeeUsd, sourceChain, targetChain, feeDeduct])
 
   const { pools } = useGetPools(backendUrl, networkOption)
 
@@ -92,41 +84,49 @@ export default function useEvmAllowance() {
       walletProvider as ExternalProvider | JsonRpcFetchFunc
     )
     const signer = provider.getSigner()
-    if (!allowanceData?.decimals || !tokenAddress || !signer || !poolAddress)
+    if (
+      !allowanceData?.decimals ||
+      !tokenAddress ||
+      !signer ||
+      !poolAddress ||
+      !allowanceAmount
+    ) {
+      console.warn('useEvmAllowance: Missing required data', {
+        allowanceAmount,
+        allowanceData,
+        tokenAddress,
+        signer,
+        poolAddress
+      })
       return
+    }
 
     try {
       const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer)
 
-      // Toggle approving state
-      // isCancel ? setCancellingApprove(true) : setApproving(true)
-
       // Initiate the approve transaction
-      const approveTx = await erc20Contract.approve(
-        poolAddress,
-        isCancel ? '0' : parseUnits(amountToShow, allowanceData.decimals)
-      )
+      const amount = isCancel ? '0' : allowanceAmount
+      console.log('useEvmAllowance: Approving amount:', amount)
+      const approveTx = await erc20Contract.approve(poolAddress, amount)
 
-      console.log('Transaction sent, waiting for confirmation:', approveTx.hash)
+      console.log(
+        'useEvmAllowance: Transaction sent, waiting for confirmation:',
+        approveTx.hash
+      )
 
       // Wait for the transaction to be mined
       const receipt = await approveTx.wait()
 
       // Check receipt status
       if (receipt.status === 1) {
-        console.log('Transaction successful:', receipt)
+        console.log('useEvmAllowance: Transaction successful:', receipt)
         setApprovalsCount((prev) => prev + 1)
       } else {
-        console.error('Transaction failed:', receipt)
+        console.error('useEvmAllowance: Transaction failed:', receipt)
         throw new Error('Transaction failed')
       }
-
-      // Reset approving state
-      // isCancel ? setCancellingApprove(false) : setApproving(false)
     } catch (error) {
-      console.error('Error on EVM approval:', error)
-      // isCancel ? setCancellingApprove(false) : setApproving(false)
-
+      console.error('useEvmAllowance: Error on EVM approval:', error)
       throw new Error('Error on EVM approval')
     }
   }
@@ -134,7 +134,7 @@ export default function useEvmAllowance() {
   return {
     ...allowanceData,
     isApproved: allowanceData?.allowance
-      ? allowanceData.allowance >= Number(amountToShow)
+      ? allowanceData.allowance >= allowanceNumber
       : false,
     approve: approveErc20TokenTransfer
   }
