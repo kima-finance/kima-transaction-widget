@@ -21,7 +21,7 @@ export abstract class PluginBase implements Plugin {
   abstract Provider: React.FC<PluginProviderProps>
 
   // hooks
-  useAllowance: () => PluginUseAllowanceResult | undefined
+  useAllowance: () => PluginUseAllowanceResult
   useNativeBalance: () => PluginUseBalanceResult | undefined
   useTokenBalance: () => PluginUseBalanceResult | undefined
   useWalletIsReady: () => PluginUseWalletIsReadyResult
@@ -30,7 +30,7 @@ export abstract class PluginBase implements Plugin {
     store: any
     id: string
     compatibility: ChainCompatibility
-    useAllowance: () => PluginUseAllowanceResult | undefined
+    useAllowance: () => PluginUseAllowanceResult
     useNativeBalance: () => PluginUseBalanceResult | undefined
     useTokenBalance(): PluginUseBalanceResult | undefined
     useWalletIsReady: () => PluginUseWalletIsReadyResult

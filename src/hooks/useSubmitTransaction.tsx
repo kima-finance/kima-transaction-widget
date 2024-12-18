@@ -2,15 +2,11 @@ import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { fetchWrapper } from 'src/helpers/fetch-wrapper'
 import { setTxId, setSubmitted } from '@store/optionSlice'
-import useAllowance from '../hooks/useAllowance'
-import { ModeOptions } from '@interface'
 import { getTransactionId } from '@utils/functions'
 
 const useSubmitTransaction = ({
-  mode,
   amount,
-  totalFeeUsd,
-  feeDeduct,
+  totalFee,
   originAddress,
   targetAddress,
   originChain,
@@ -20,10 +16,8 @@ const useSubmitTransaction = ({
   backendUrl,
   decimals
 }: {
-  mode: ModeOptions
-  amount: string
-  totalFeeUsd: number
-  feeDeduct: boolean
+  amount: bigint
+  totalFee: bigint
   originAddress: string
   targetAddress: string
   originChain: string
@@ -31,7 +25,7 @@ const useSubmitTransaction = ({
   originSymbol: string
   targetSymbol: string
   backendUrl: string
-  decimals: number | null
+  decimals: number
 }) => {
   const dispatch = useDispatch()
 
@@ -40,12 +34,6 @@ const useSubmitTransaction = ({
   const submitTransaction = async () => {
     try {
       setSubmitting(true)
-      const finalAmount =
-        mode === ModeOptions.payment
-          ? (+amount).toFixed(decimals || 6)
-          : feeDeduct
-            ? (+amount - totalFeeUsd).toFixed(decimals || 6)
-            : (+amount).toFixed(decimals || 6)
 
       const params = JSON.stringify({
         originAddress,
@@ -54,8 +42,9 @@ const useSubmitTransaction = ({
         targetChain,
         originSymbol,
         targetSymbol,
-        amount: finalAmount,
-        fee: totalFeeUsd.toFixed(decimals || 6),
+        amount: amount.toString(),
+        fee: totalFee.toString(),
+        decimals,
         htlcCreationHash: '',
         htlcCreationVout: 0,
         htlcExpirationTimestamp: '0',
@@ -81,6 +70,7 @@ const useSubmitTransaction = ({
 
       return { success: true, message: 'Transaction submitted successfully.' }
     } catch (error) {
+      console.error('Error submitting transaction:', error)
       setSubmitting(false)
       return { success: false, message: 'Failed to submit transaction' }
     }

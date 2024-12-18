@@ -2,9 +2,11 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { useDispatch, useSelector } from 'react-redux'
 import {
+  selectBackendUrl,
   selectCompliantOption,
   selectMode,
   selectSourceChain,
+  selectSourceCurrency,
   selectTargetCompliant,
   selectTargetChain,
   selectTheme,
@@ -12,9 +14,7 @@ import {
   selectServiceFee,
   selectFeeDeduct,
   selectAmount,
-  selectTargetCurrency,
-  selectNetworkOption,
-  selectTargetAddress
+  selectTargetCurrency
 } from '../../store/selectors'
 import { BankInput, CustomCheckbox, WalletButton } from './'
 import { setAmount, setFeeDeduct } from '../../store/optionSlice'
@@ -27,7 +27,6 @@ import SourceNetworkSelector from '@components/primary/SourceNetworkSelector'
 import SourceTokenSelector from '@components/primary/SourceTokenSelector'
 import TargetNetworkSelector from '@components/primary/TargetNetworkSelector'
 import TokenBadge from '@components/primary/TokenBadge'
-import { selectBackendUrl } from '@store/selectors'
 import useGetFees from '../../hooks/useGetFees'
 import { setServiceFee } from '@store/optionSlice'
 
@@ -35,7 +34,6 @@ const SingleForm = ({}) => {
   const dispatch = useDispatch()
   const mode = useSelector(selectMode)
   const theme = useSelector(selectTheme)
-  const networkOpion = useSelector(selectNetworkOption)
   const feeDeduct = useSelector(selectFeeDeduct)
   const { totalFeeUsd } = useSelector(selectServiceFee)
   const compliantOption = useSelector(selectCompliantOption)
@@ -46,6 +44,7 @@ const SingleForm = ({}) => {
   const { isReady } = useIsWalletReady()
   const [amountValue, setAmountValue] = useState('')
   const amount = useSelector(selectAmount)
+  const sourceCurrency = useSelector(selectSourceCurrency)
   const targetCurrency = useSelector(selectTargetCurrency)
   const backendUrl = useSelector(selectBackendUrl)
 
@@ -53,7 +52,14 @@ const SingleForm = ({}) => {
     data: fees,
     isLoading,
     error
-  } = useGetFees(parseFloat(amount), sourceNetwork, targetNetwork, backendUrl)
+  } = useGetFees(
+    parseFloat(amount),
+    feeDeduct,
+    sourceNetwork,
+    sourceCurrency,
+    targetNetwork,
+    backendUrl
+  )
 
   useEffect(() => {
     if (fees) {
