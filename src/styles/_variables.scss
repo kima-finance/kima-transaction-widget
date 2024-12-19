@@ -27,7 +27,8 @@ $hover: #d6e4ea;
   transition:
     all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1),
     color 0ms,
-    background-color 0ms;
+    background-color 0ms,
+    border-color 0ms;
 }
 
 @mixin breakpoint($point) {

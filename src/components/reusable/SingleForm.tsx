@@ -29,8 +29,15 @@ import TargetNetworkSelector from '@components/primary/TargetNetworkSelector'
 import TokenBadge from '@components/primary/TokenBadge'
 import useGetFees from '../../hooks/useGetFees'
 import { setServiceFee } from '@store/optionSlice'
+import { preciseSubtraction } from '@utils/functions'
 
-const SingleForm = ({}) => {
+const SingleForm = ({
+  balance,
+  decimals
+}: {
+  balance: number | undefined
+  decimals: number | undefined
+}) => {
   const dispatch = useDispatch()
   const mode = useSelector(selectMode)
   const theme = useSelector(selectTheme)
@@ -80,6 +87,17 @@ const SingleForm = ({}) => {
     [compliantOption, targetCompliant]
   )
 
+  const maxValue = useMemo(() => {
+    // console.log('maxValue:balance: ', balance)
+    // console.log('maxalue:service fee: ', totalFeeUsd)
+    if (!balance || !totalFeeUsd) return 0
+
+    if (feeDeduct || totalFeeUsd < 0) return balance
+
+    const amountMinusFees = preciseSubtraction(balance as number, totalFeeUsd)
+    return amountMinusFees > 0 ? amountMinusFees : 0
+  }, [balance, totalFeeUsd, feeDeduct])
+
   useEffect(() => {
     if (!errorMessage) return
     toast.error(errorMessage)
@@ -89,6 +107,13 @@ const SingleForm = ({}) => {
     if (amountValue && amount != '') return
     setAmountValue(amount)
   }, [amount])
+
+  useEffect(() => {
+    if (!feeDeduct && maxValue < +amountValue) {
+      setAmountValue(maxValue.toString()) // Cap at maxValue
+      dispatch(setAmount(maxValue.toString()))
+    }
+  }, [feeDeduct])
 
   return (
     <div className='single-form'>
@@ -143,20 +168,38 @@ const SingleForm = ({}) => {
           <div className={`amount-label-container items ${theme.colorMode}`}>
             <input
               className={`${theme.colorMode}`}
-              type='number'
+              type='text' // Use 'text' to avoid browser validation conflicts
               placeholder='Amount'
               value={amountValue || ''}
               onChange={(e) => {
-                let _amount = +e.target.value
-                const decimal =
-                  sourceNetwork === ChainName.BTC ||
-                  targetNetwork === ChainName.BTC
-                    ? 8
-                    : 2
-                setAmountValue(e.target.value)
-                dispatch(setAmount(_amount.toFixed(decimal)))
+                const value = e.target.value
+
+                // Mask the input
+                const maskedValue = value
+                  .replace(/[^0-9.]/g, '') // Remove non-numeric and non-dot characters
+                  .replace(/(\..*?)\..*/g, '$1') // Allow only one dot
+                  .replace(new RegExp(`(\\.\\d{${decimals}})\\d+`), '$1') // Limit to 'decimal' places
+
+                // Parse to a float and compare to balance
+                const numericValue = parseFloat(maskedValue)
+                if (!isNaN(numericValue) && numericValue > maxValue) {
+                  setAmountValue(maxValue.toString()) // Cap at maxValue
+                  dispatch(setAmount(maxValue.toString()))
+                } else {
+                  setAmountValue(maskedValue)
+                  dispatch(setAmount(maskedValue))
+                }
               }}
             />
+            <span
+              className='max-button'
+              onClick={() => {
+                setAmountValue(maxValue.toString())
+                dispatch(setAmount(maxValue.toString()))
+              }}
+            >
+              Max
+            </span>
           </div>
         </div>
       ) : (

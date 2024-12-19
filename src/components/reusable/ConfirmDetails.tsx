@@ -69,7 +69,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
     return width >= 916
       ? walletAddress
       : getShortenedAddress(walletAddress || '')
-  }, [walletAddress])
+  }, [width, walletAddress])
 
   const targetWalletAddress = useMemo(() => {
     return getShortenedAddress(

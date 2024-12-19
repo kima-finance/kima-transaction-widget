@@ -522,6 +522,7 @@
       font-size: 16px;
       font-weight: 500;
       letter-spacing: 0.5px;
+      margin-top: 20px;
 
       @include breakpoint(phablet) {
         padding-left: 0;
@@ -622,6 +623,26 @@
 
         .amount-label-container {
           display: flex;
+
+          .max-button {
+            font-family: 'Manrope';
+            font-size: 14px;
+            font-weight: 500;
+            padding: 4px 16px;
+            border: 1px solid $financeGrey;
+            border-radius: 50px;
+            background-color: $hover;
+            color: $finance;
+            cursor: pointer;
+  
+            &:hover {
+              opacity: 75%;
+            }
+  
+            @include breakpoint(mobile) {
+              font-size: $fontSmall;
+            }
+          }
 
           .coin-wrapper {
             display: flex;
@@ -1545,7 +1566,6 @@
         .amount-container {
           display: flex;
           flex-direction: column;
-          margin-left: 10px;
           justify-content: start;
 
           @include breakpoint(mobile) {

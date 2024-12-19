@@ -1,5 +1,6 @@
-import { checkPoolBalance } from '@utils/functions'
+import { checkPoolBalance, preciseSubtraction } from '@utils/functions'
 import { ModeOptions, NetworkFee } from '@interface'
+import { useMemo } from 'react'
 
 export enum ValidationError {
   Error = 'ValidationError',
@@ -42,6 +43,20 @@ const useValidateTransaction = ({
   mode: ModeOptions
   pools: any[]
 }) => {
+  const maxValue = useMemo(() => {
+    // console.log('maxValue:balance: ', balance)
+    // console.log('maxalue:service fee: ', totalFeeUsd)
+    if (!balance || !totalFeeUsd) return 0
+
+    if (feeDeduct || totalFeeUsd < 0) return balance
+
+    const amountMinusFees = preciseSubtraction(balance as number, totalFeeUsd)
+    console.log("amountMinusFees: ", amountMinusFees)
+    return amountMinusFees > 0 ? amountMinusFees : 0
+  }, [balance, totalFeeUsd, feeDeduct])
+
+  console.log("maxValue: ", maxValue)
+
   const validate = (isSubmitting: boolean = false) => {
     console.log('allowance: ', allowance)
     console.log('isApproved: ', isApproved)
@@ -95,7 +110,25 @@ const useValidateTransaction = ({
           ? +amount
           : +amount + totalFeeUsd
 
-    if (balance < amountToShow + totalFeeUsd) {
+    console.log('useValidate:amountToshow: ', amountToShow)
+    console.log('useValidate:maxValue ', maxValue)
+
+    if (amountToShow < totalFeeUsd) {
+      return {
+        error: ValidationError.Error,
+        message: 'Fees are greater than the amount to transfer'
+      }
+    }
+
+    // Check if the amount exceeds the max value
+    if (amountToShow > maxValue) {
+      return {
+        error: ValidationError.Error,
+        message: `Amount exceeds the maximum allowed value [$${maxValue}]`
+      }
+    }
+
+    if (balance < amountToShow) {
       return {
         error: ValidationError.Error,
         message: 'Insufficient balance for the transaction'
