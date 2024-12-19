@@ -59,17 +59,17 @@ function useIsWalletReady(): {
     if (evmProvider && correctEvmNetwork && appKitModel !== null) {
       try {
         await appKitModel.switchNetwork(correctEvmNetwork)
-        toast.success(
-          `useIsWalletReady:EVM:Switched to ${correctEvmNetwork.name}`
-        )
+        // toast.success(
+        //   `useIsWalletReady:EVM:Switched to ${correctEvmNetwork.name}`
+        // )
         console.debug(
           'useIsWalletReady:EVM:Network switch successful to:',
           correctEvmNetwork.name
         )
       } catch (e) {
-        toast.error(
-          `useIsWalletReady:EVM:Failed to switch to ${correctEvmNetwork.name}`
-        )
+        // toast.error(
+        //   `useIsWalletReady:EVM:Failed to switch to ${correctEvmNetwork.name}`
+        // )
         console.error('useIsWalletReady:EVM:Network switch failed:', e)
       }
     }
@@ -82,7 +82,7 @@ function useIsWalletReady(): {
       correctEvmNetwork
     })
     if (!isConnected) {
-      toast.error('Wallet not connected')
+      // toast.error('Wallet not connected')
       console.warn('useIsWalletReady:EVM:Wallet not connected - cannot proceed')
     } else if (walletChainId !== correctEvmNetwork?.id) {
       console.warn(
