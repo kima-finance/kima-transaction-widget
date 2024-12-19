@@ -88,10 +88,7 @@ const SingleForm = ({
   )
 
   const maxValue = useMemo(() => {
-    // console.log('maxValue:balance: ', balance)
-    // console.log('maxalue:service fee: ', totalFeeUsd)
-    if (!balance || !totalFeeUsd) return 0
-
+    if (!balance) return 0
     if (feeDeduct || totalFeeUsd < 0) return balance
 
     const amountMinusFees = preciseSubtraction(balance as number, totalFeeUsd)
