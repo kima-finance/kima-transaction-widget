@@ -2738,17 +2738,18 @@ var useGetPools_default = useGetPools;
 
 // plugins/evm/core/hooks/useEvmAllowance.tsx
 import { Contract as Contract3, ethers as ethers4 } from "ethers";
-import { parseUnits } from "@ethersproject/units";
+import { formatUnits as formatUnits3 } from "@ethersproject/units";
 function useEvmAllowance() {
   const appkitAccountInfo = useAppKitAccount4();
   const { address: userAddress } = appkitAccountInfo;
   const { walletProvider } = useAppKitProvider4("eip155");
   const sourceChain = useSelector3(selectSourceChain);
   const networkOption = useSelector3(selectNetworkOption);
-  const { allowanceAmount } = useSelector3(selectServiceFee);
+  const { allowanceAmount, decimals } = useSelector3(selectServiceFee);
   const selectedCoin = useSelector3(selectSourceCurrency);
   const tokenOptions = useSelector3(selectTokenOptions);
   const backendUrl = useSelector3(selectBackendUrl);
+  const allowanceNumber = Number(formatUnits3(allowanceAmount ?? "0", decimals));
   const [approvalsCount, setApprovalsCount] = useState2(0);
   const { pools } = useGetPools_default(backendUrl, networkOption);
   const {
@@ -2783,8 +2784,9 @@ function useEvmAllowance() {
       walletProvider
     );
     const signer = provider.getSigner();
-    if (!allowanceData?.decimals || !tokenAddress || !signer || !poolAddress) {
+    if (!allowanceData?.decimals || !tokenAddress || !signer || !poolAddress || !allowanceAmount) {
       console.warn("useEvmAllowance: Missing required data", {
+        allowanceAmount,
         allowanceData,
         tokenAddress,
         signer,
@@ -2794,7 +2796,7 @@ function useEvmAllowance() {
     }
     try {
       const erc20Contract = new Contract3(tokenAddress, erc20ABI_default.abi, signer);
-      const amount = isCancel ? "0" : parseUnits(allowanceAmount, allowanceData?.decimals).toString();
+      const amount = isCancel ? "0" : allowanceAmount;
       console.log("useEvmAllowance: Approving amount:", amount);
       const approveTx = await erc20Contract.approve(poolAddress, amount);
       console.log(
@@ -2816,7 +2818,7 @@ function useEvmAllowance() {
   };
   return {
     ...allowanceData,
-    isApproved: allowanceData?.allowance ? allowanceData.allowance >= Number(allowanceAmount) : false,
+    isApproved: allowanceData?.allowance ? allowanceData.allowance >= allowanceNumber : false,
     approve: approveErc20TokenTransfer
   };
 }
@@ -2997,12 +2999,13 @@ import {
   TOKEN_PROGRAM_ID
 } from "@solana/spl-token";
 import { PublicKey as PublicKey3, Transaction } from "@solana/web3.js";
-import { parseUnits as parseUnits2 } from "@ethersproject/units";
+import { formatUnits as formatUnits4 } from "@ethersproject/units";
 function useSolanaAllowance() {
   const sourceChain = useSelector5(selectSourceChain);
-  const { allowanceAmount } = useSelector5(selectServiceFee);
+  const { allowanceAmount, decimals } = useSelector5(selectServiceFee);
   const backendUrl = useSelector5(selectBackendUrl);
   const networkOption = useSelector5(selectNetworkOption);
+  const allowanceNumber = Number(formatUnits4(allowanceAmount ?? "0", decimals));
   const { connection } = useConnection2();
   const { publicKey: userPublicKey, signTransaction } = useWallet2();
   const selectedCoin = useSelector5(selectSourceCurrency);
@@ -3037,6 +3040,10 @@ function useSolanaAllowance() {
     // 1 min
   });
   const approveSPLTokenTransfer = async (isCancel = false) => {
+    if (!allowanceAmount) {
+      console.warn("useSolanaAllowance: Missing allowance amount");
+      return;
+    }
     const poolAddress = getPoolAddress(pools, "SOL");
     const tokenAddress = getTokenAddress(tokenOptions, selectedCoin, "SOL");
     if (!signTransaction) return;
@@ -3045,9 +3052,7 @@ function useSolanaAllowance() {
         new PublicKey3(tokenAddress),
         userPublicKey
       );
-      const amount = isCancel ? 0n : BigInt(
-        parseUnits2(allowanceAmount, allowanceData?.decimals ?? 6).toString()
-      );
+      const amount = isCancel ? 0n : BigInt(allowanceAmount);
       const approveInstruction = createApproveInstruction(
         tokenAccountAddress,
         // Source account (owner's token account)
@@ -3089,7 +3094,7 @@ function useSolanaAllowance() {
   };
   return {
     ...allowanceData,
-    isApproved: allowanceData?.allowance ? allowanceData.allowance >= Number(allowanceAmount) : false,
+    isApproved: allowanceData?.allowance ? allowanceData.allowance >= allowanceNumber : false,
     approve: approveSPLTokenTransfer
   };
 }
@@ -3283,7 +3288,7 @@ import {
 import { useQuery as useQuery8 } from "@tanstack/react-query";
 
 // plugins/tron/utils/getTokenAllowance.tsx
-import { formatUnits as formatUnits3 } from "@ethersproject/units";
+import { formatUnits as formatUnits5 } from "@ethersproject/units";
 var getTokenAllowance3 = async ({
   tokenOptions,
   selectedCoin,
@@ -3301,8 +3306,8 @@ var getTokenAllowance3 = async ({
     const allowance = await trcContract.allowance(userAddress, poolAddress).call();
     console.log("getTronAllowance:", { allowance, balance, decimals });
     return {
-      allowance: Number(formatUnits3(allowance, decimals)),
-      balance: Number(formatUnits3(balance, decimals)),
+      allowance: Number(formatUnits5(allowance, decimals)),
+      balance: Number(formatUnits5(balance, decimals)),
       decimals: Number(decimals)
     };
   } catch (error) {
@@ -3312,15 +3317,16 @@ var getTokenAllowance3 = async ({
 };
 
 // plugins/tron/core/hooks/useTronAllowance.tsx
-import { parseUnits as parseUnits3 } from "@ethersproject/units";
+import { formatUnits as formatUnits6 } from "@ethersproject/units";
 function useTronAllowance() {
   const sourceChain = useSelector8(selectSourceChain);
   const networkOption = useSelector8(selectNetworkOption);
   const backendUrl = useSelector8(selectBackendUrl);
-  const { allowanceAmount } = useSelector8(selectServiceFee);
+  const { allowanceAmount, decimals } = useSelector8(selectServiceFee);
   useTronWallet();
   const selectedCoin = useSelector8(selectSourceCurrency);
   const tokenOptions = useSelector8(selectTokenOptions);
+  const allowanceNumber = Number(formatUnits6(allowanceAmount ?? "0", decimals));
   const { pools } = useGetPools_default(backendUrl, networkOption);
   const { address: userAddress, signTransaction: signTronTransaction } = useWallet4();
   const [approvalsCount, setApprovalsCount] = useState4(0);
@@ -3348,7 +3354,7 @@ function useTronAllowance() {
     // 1 min
   });
   const approveTrc20TokenTransfer = async (isCancel = false) => {
-    if (!userAddress || !pools || !tronWeb || !tokenOptions || !selectedCoin) {
+    if (!userAddress || !pools || !tronWeb || !tokenOptions || !selectedCoin || !allowanceAmount) {
       console.warn("Missing required data for approveTrc20TokenTransfer");
       return;
     }
@@ -3356,7 +3362,7 @@ function useTronAllowance() {
     const tokenAddress = getTokenAddress(tokenOptions, selectedCoin, "TRX");
     try {
       const functionSelector = "approve(address,uint256)";
-      const amount = isCancel ? "0" : parseUnits3(allowanceAmount, allowanceData?.decimals || 18).toString();
+      const amount = isCancel ? "0" : allowanceAmount;
       const parameter = [
         { type: "address", value: poolAddress },
         {
@@ -3384,7 +3390,7 @@ function useTronAllowance() {
   };
   return {
     ...allowanceData,
-    isApproved: allowanceData?.allowance ? allowanceData?.allowance >= Number(allowanceAmount) : false,
+    isApproved: allowanceData?.allowance ? allowanceData.allowance >= allowanceNumber : false,
     approve: approveTrc20TokenTransfer
   };
 }
@@ -5068,10 +5074,10 @@ import { useQuery as useQuery11 } from "@tanstack/react-query";
 import { useSelector as useSelector32 } from "react-redux";
 
 // src/services/feesApi.ts
-var getFees = async (amount, deductFee, originChain, targetChain, backendUrl) => {
+var getFees = async (amount, deductFee, originChain, originSymbol, targetChain, backendUrl) => {
   try {
     const response = await fetchWrapper.get(
-      `${backendUrl}/submit/fees?amount=${amount}&originChain=${originChain}&targetChain=${targetChain}&deductFee=${deductFee}`
+      `${backendUrl}/submit/fees?amount=${amount}&originChain=${originChain}&originSymbol=${originSymbol}&targetChain=${targetChain}&deductFee=${deductFee}`
     );
     console.log("response: ", response);
     const { breakdown, ...totals } = response;
@@ -5089,29 +5095,29 @@ var getFees = async (amount, deductFee, originChain, targetChain, backendUrl) =>
 };
 
 // src/hooks/useGetFees.tsx
-var useGetFees = (amount, deductFees, sourceNetwork, targetNetwork, backendUrl) => {
+var useGetFees = (amount, deductFees, sourceNetwork, sourceSymbol, targetNetwork, backendUrl) => {
   const mode = useSelector32(selectMode);
   const feeDeductWithMode = mode === "payment" /* payment */ ? false : deductFees;
   return useQuery11({
     queryKey: ["fees", amount, feeDeductWithMode, sourceNetwork, targetNetwork],
     queryFn: async () => {
-      console.log(
-        "useGetFees: ",
+      console.log("useGetFees: ", {
         amount,
         deductFees,
         feeDeductWithMode,
         sourceNetwork,
         targetNetwork
-      );
+      });
       return await getFees(
         amount,
         feeDeductWithMode,
         sourceNetwork,
+        sourceSymbol,
         targetNetwork,
         backendUrl
       );
     },
-    enabled: !!amount && !!sourceNetwork && !!targetNetwork,
+    enabled: !!backendUrl && !!amount && !!sourceNetwork && !!sourceSymbol && !!targetNetwork,
     // Only run when all params are valid
     staleTime: 6e4,
     // Cache for 60 seconds
@@ -5125,7 +5131,6 @@ var SingleForm = ({}) => {
   const dispatch = useDispatch18();
   const mode = useSelector33(selectMode);
   const theme = useSelector33(selectTheme);
-  const networkOpion = useSelector33(selectNetworkOption);
   const feeDeduct = useSelector33(selectFeeDeduct);
   const { totalFeeUsd } = useSelector33(selectServiceFee);
   const compliantOption = useSelector33(selectCompliantOption);
@@ -5136,6 +5141,7 @@ var SingleForm = ({}) => {
   const { isReady } = useIsWalletReady4();
   const [amountValue, setAmountValue] = useState16("");
   const amount = useSelector33(selectAmount);
+  const sourceCurrency = useSelector33(selectSourceCurrency);
   const targetCurrency = useSelector33(selectTargetCurrency);
   const backendUrl = useSelector33(selectBackendUrl);
   const {
@@ -5146,6 +5152,7 @@ var SingleForm = ({}) => {
     parseFloat(amount),
     feeDeduct,
     sourceNetwork,
+    sourceCurrency,
     targetNetwork,
     backendUrl
   );
@@ -5714,10 +5721,8 @@ var useValidateTransaction_default = useValidateTransaction;
 import { useState as useState18 } from "react";
 import { useDispatch as useDispatch26 } from "react-redux";
 var useSubmitTransaction = ({
-  mode,
   amount,
   totalFee,
-  // feeDeduct,
   originAddress,
   targetAddress,
   originChain,
@@ -5740,7 +5745,6 @@ var useSubmitTransaction = ({
         originSymbol,
         targetSymbol,
         amount: amount.toString(),
-        // amount: finalAmount,
         fee: totalFee.toString(),
         decimals,
         htlcCreationHash: "",
@@ -5748,11 +5752,6 @@ var useSubmitTransaction = ({
         htlcExpirationTimestamp: "0",
         htlcVersion: "",
         senderPubKey: ""
-      });
-      console.log("params: ", {
-        decimals,
-        totalFee,
-        params: JSON.parse(params)
       });
       const transactionResult = await fetchWrapper.post(
         `${backendUrl}/submit`,
@@ -5823,7 +5822,6 @@ var useComplianceCheck_default = useComplianceCheck;
 // src/components/TransferWidget.tsx
 var TransferWidget = ({
   theme,
-  feeURL,
   helpURL,
   titleOption,
   paymentTitleOption
@@ -5894,7 +5892,6 @@ var TransferWidget = ({
     feeDeduct
   });
   const { submitTransaction, isSubmitting } = useSubmitTransaction_default({
-    mode,
     amount: BigInt(submitAmount ?? "0"),
     totalFee: BigInt(totalFee ?? "0"),
     originAddress: sourceAddress,
@@ -6072,7 +6069,6 @@ var KimaTransactionWidget = ({
   kimaBackendUrl,
   kimaNodeProviderQuery,
   kimaExplorer = "https://explorer.kima.finance",
-  feeURL = "https://fee.kima.finance",
   kimaGraphqlProviderQuery = "https://graphql.kima.finance/v1/graphql",
   errorHandler = () => void 0,
   closeHandler = () => void 0,
@@ -6135,7 +6131,6 @@ var KimaTransactionWidget = ({
     TransferWidget,
     {
       theme,
-      feeURL,
       helpURL,
       titleOption,
       paymentTitleOption
