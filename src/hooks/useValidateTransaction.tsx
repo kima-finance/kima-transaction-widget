@@ -44,18 +44,16 @@ const useValidateTransaction = ({
   pools: any[]
 }) => {
   const maxValue = useMemo(() => {
-    // console.log('maxValue:balance: ', balance)
-    // console.log('maxalue:service fee: ', totalFeeUsd)
-    if (!balance || !totalFeeUsd) return 0
+    if (!balance) return 0
 
     if (feeDeduct || totalFeeUsd < 0) return balance
 
     const amountMinusFees = preciseSubtraction(balance as number, totalFeeUsd)
-    console.log("amountMinusFees: ", amountMinusFees)
-    return amountMinusFees > 0 ? amountMinusFees : 0
-  }, [balance, totalFeeUsd, feeDeduct])
+    const maxVal = amountMinusFees > 0 ? amountMinusFees : 0
+    console.log('maxValue: ', { maxVal, amountMinusFees })
 
-  console.log("maxValue: ", maxValue)
+    return maxVal
+  }, [balance, totalFeeUsd, feeDeduct])
 
   const validate = (isSubmitting: boolean = false) => {
     console.log('allowance: ', allowance)
