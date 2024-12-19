@@ -23,6 +23,7 @@ import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import { useAppKit } from '@reown/appkit/react'
 import CopyButton from './CopyButton'
+import { formatUSD } from 'src/helpers/functions'
 
 const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const dispatch = useDispatch()
@@ -100,10 +101,10 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
     return ''
   }, [isReady, statusMessage, sourceCompliant, compliantOption])
 
-  useEffect(() => {
-    if (!errorMessage) return
-    toast.error(errorMessage)
-  }, [errorMessage])
+  // useEffect(() => {
+  //   if (!errorMessage) return
+  //   toast.error(errorMessage)
+  // }, [errorMessage])
 
   return (
     <div
@@ -131,7 +132,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
 
       {isReady && balance !== undefined ? (
         <p className='balance-info'>
-          {balance.toFixed(2)} {selectedCoin} available
+          {formatUSD(balance)} {selectedCoin} available
         </p>
       ) : null}
     </div>

@@ -21,9 +21,7 @@ const COIN_LIST: Record<string, React.FC<IconProps>> = {
 }
 
 export default function TokenIcon({
-  symbol,
-  width = 30,
-  height = 30
+  symbol
 }: TokenIconProps) {
   if (!symbol) return null
 

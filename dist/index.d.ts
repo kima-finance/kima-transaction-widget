@@ -6,6 +6,7 @@ declare enum ChainName {
     POLYGON = "POL",
     AVALANCHE = "AVX",
     SOLANA = "SOL",
+    BASE = "BASE",
     BSC = "BSC",
     ARBITRUM = "ARB",
     OPTIMISM = "OPT",

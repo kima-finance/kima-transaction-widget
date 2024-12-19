@@ -297,7 +297,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .kima-card .kima-card-footer .button-group.confirm .primary-button-wrapper:last-of-type {
-    grid-column: span 2 / span 2;
+    grid-column: span 2/span 2;
   }
   .kima-card .kima-card-footer .button-group.confirm * {
     margin-left: auto;
@@ -313,7 +313,7 @@
 }
 @media (max-width: 768px) {
   .kima-card .kima-card-footer {
-    margin-top: 60px;
+    margin-top: 70px;
   }
   .kima-card .kima-card-footer p {
     display: none;
@@ -387,8 +387,7 @@
 .kima-card .kima-card-content .kima-progressbar .value {
   position: absolute;
   z-index: 10;
-  height: 100%;
-  width: 100%;
+  height: 7px;
   border-radius: 16px;
   background:
     linear-gradient(
@@ -396,8 +395,7 @@
       #adf4a6,
       #80d7f5,
       #9990d5);
-  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
-  transition-duration: 1000ms;
+  transition: width 0.8s ease-in-out;
 }
 .kima-card .kima-card-content .kima-progressbar .value.step-25 {
   width: calc(25% + 0.5em);
@@ -420,6 +418,7 @@
         #80d7f5,
         #9990d5);
     width: 7px !important;
+    transition: height 0.8s ease-in-out;
   }
   .kima-card .kima-card-content .kima-progressbar .value.step-25 {
     height: calc(25% + 0.5em);
@@ -963,10 +962,10 @@
 .kima-card .kima-card-content .single-form .form-item .amount-label-container .coin-wrapper .icon-wrapper {
   display: flex;
   justify-content: center;
-  padding: 4px;
+  padding: 8px;
   background-color: white;
   margin-right: 6px;
-  border-radius: 40px;
+  border-radius: 9999px;
 }
 .kima-card .kima-card-content .single-form .form-item .amount-label-container .coin-wrapper.light {
   background-color: #edf2f5;
@@ -1086,7 +1085,7 @@
 }
 .kima-card .kima-card-content .single-form .coin-dropdown {
   position: relative;
-  width: 115px;
+  width: 125px;
   border-radius: 50px;
   border: 0.5px solid #86b8ce;
   padding-left: 4px;
@@ -1098,12 +1097,9 @@
   box-sizing: content-box;
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
-.kima-card .kima-card-content .single-form .coin-dropdown.single-coin {
-  cursor: default;
-}
 @media (max-width: 639px) {
   .kima-card .kima-card-content .single-form .coin-dropdown {
-    width: 90px;
+    width: 105px;
   }
 }
 .kima-card .kima-card-content .single-form .coin-dropdown .coin-wrapper {
@@ -1116,10 +1112,10 @@
 .kima-card .kima-card-content .single-form .coin-dropdown .coin-wrapper .icon-wrapper {
   display: flex;
   justify-content: center;
-  padding: 4px;
+  padding: 8px;
   background-color: white;
   margin-right: 6px;
-  border-radius: 40px;
+  border-radius: 9999px;
 }
 .kima-card .kima-card-content .single-form .coin-dropdown.light {
   color: black;
@@ -1770,7 +1766,6 @@
 .kima-card .kima-card-content .confirm-details .detail-item .amount-container .coin-details {
   display: flex;
   flex-direction: row;
-  margin-bottom: 10px;
 }
 @media (max-width: 500px) {
   .kima-card .kima-card-content .confirm-details .detail-item .amount-container .coin-details {
@@ -1783,7 +1778,6 @@
 .kima-card .kima-card-content .confirm-details .detail-item .amount-container .coin-details p {
   padding: 0;
   margin: 0;
-  margin-top: 6px;
   flex-grow: 0;
   width: fit-content;
 }
@@ -1795,6 +1789,10 @@
   padding: 8px 6px;
   font-size: 14px;
   border-top: 1px solid #86b8ce;
+}
+.kima-card .kima-card-content .confirm-details .detail-item .amount-container .amount-details:first-of-type {
+  border-top: none;
+  padding-top: 0;
 }
 @media (max-width: 500px) {
   .kima-card .kima-card-content .confirm-details .detail-item .amount-container .amount-details {
@@ -1829,18 +1827,19 @@
   }
 }
 .kima-card .kima-card-content .kima-custom-checkbox {
-  margin-left: 240px;
+  margin-left: 245px;
   margin-top: 16px;
   display: flex;
   align-items: center;
 }
 @media (max-width: 768px) {
   .kima-card .kima-card-content .kima-custom-checkbox {
-    margin-left: 160px;
+    margin-left: 110px;
   }
 }
 @media (max-width: 500px) {
   .kima-card .kima-card-content .kima-custom-checkbox {
+    margin-left: 0;
     justify-content: end;
   }
 }
@@ -2034,6 +2033,9 @@
     color: white;
   }
   .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item.source-chain {
+    margin-top: -20px;
+  }
+  .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item.paid {
     margin-top: 20px;
   }
   .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item.target-chain {
@@ -2692,10 +2694,10 @@
 .kima-card .icon-wrapper {
   display: flex;
   justify-content: center;
-  padding: 4px;
+  padding: 8px;
   background-color: white;
   margin-right: 6px;
-  border-radius: 40px;
+  border-radius: 9999px;
 }
 .kima-card input::-webkit-outer-spin-button,
 .kima-card input::-webkit-inner-spin-button {

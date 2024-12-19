@@ -299,9 +299,9 @@ export const TransferWidget = ({
               )}
             </div>
           </div>
-          <h4 className='subtitle'>
-            {mode === ModeOptions.payment && paymentTitleOption?.title}
-          </h4>
+          {mode === ModeOptions.payment && paymentTitleOption?.title && (
+            <h4 className='subtitle'>{paymentTitleOption.title}</h4>
+          )}
         </div>
 
         <div className='kima-card-content' ref={mainRef}>
@@ -323,7 +323,7 @@ export const TransferWidget = ({
               <ConfirmDetails isApproved={isApproved} />
             )
           ) : formStep === 0 ? (
-            <SingleForm />
+            <SingleForm {...{balance, decimals}}/>
           ) : (
             <ConfirmDetails isApproved={isApproved} />
           )}
@@ -333,7 +333,7 @@ export const TransferWidget = ({
           className={`kima-card-footer ${mode === ModeOptions.bridge && formStep === 0 && 'bridge'}`}
         >
           <div
-            className={`button-group ${formStep !== 0 && allowance > 0 && 'confirm'}`}
+            className={`button-group ${formStep > 0 ? (allowance > 0 ? 'grid' : 'row') : 'row'}`}
           >
             {formStep !== 0 && (
               <SecondaryButton
