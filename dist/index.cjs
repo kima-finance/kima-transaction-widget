@@ -1028,7 +1028,7 @@ var ExternalUrl_default = ExternalUrl;
 
 // src/assets/icons/Base.tsx
 var import_react33 = __toESM(require("react"), 1);
-var Base = ({ width = 14, height = 14, ...rest }) => {
+var Base = ({ width = 27, height = 27, ...rest }) => {
   return /* @__PURE__ */ import_react33.default.createElement(
     "svg",
     {
@@ -2632,6 +2632,20 @@ var getTransactionId = (transactionEvents) => {
     }
   }
 };
+var preciseSubtraction = (a, b) => {
+  const numA = typeof a === "string" ? parseFloat(a) : a;
+  const numB = typeof b === "string" ? parseFloat(b) : b;
+  if (isNaN(numA) || isNaN(numB)) {
+    throw new Error(
+      "Both inputs must be valid numbers or strings that can be parsed into numbers."
+    );
+  }
+  const aDecimals = (numA.toString().split(".")[1] || "").length;
+  const bDecimals = (numB.toString().split(".")[1] || "").length;
+  const maxDecimals = Math.max(aDecimals, bDecimals);
+  const result = (numA * Math.pow(10, maxDecimals) - numB * Math.pow(10, maxDecimals)) / Math.pow(10, maxDecimals);
+  return parseFloat(result.toFixed(maxDecimals));
+};
 
 // plugins/evm/utils/getTokenAllowance.tsx
 var import_units2 = require("@ethersproject/units");
@@ -2748,18 +2762,13 @@ function useEvmAllowance() {
   const { address: userAddress } = appkitAccountInfo;
   const { walletProvider } = (0, import_react75.useAppKitProvider)("eip155");
   const sourceChain = (0, import_react_redux3.useSelector)(selectSourceChain);
-  const targetChain = (0, import_react_redux3.useSelector)(selectTargetChain);
-  const feeDeduct = (0, import_react_redux3.useSelector)(selectFeeDeduct);
   const networkOption = (0, import_react_redux3.useSelector)(selectNetworkOption);
-  const amount = (0, import_react_redux3.useSelector)(selectAmount);
-  const { totalFeeUsd } = (0, import_react_redux3.useSelector)(selectServiceFee);
+  const { allowanceAmount, decimals } = (0, import_react_redux3.useSelector)(selectServiceFee);
   const selectedCoin = (0, import_react_redux3.useSelector)(selectSourceCurrency);
   const tokenOptions = (0, import_react_redux3.useSelector)(selectTokenOptions);
   const backendUrl = (0, import_react_redux3.useSelector)(selectBackendUrl);
+  const allowanceNumber = Number((0, import_units3.formatUnits)(allowanceAmount ?? "0", decimals));
   const [approvalsCount, setApprovalsCount] = (0, import_react74.useState)(0);
-  const amountToShow = (0, import_react74.useMemo)(() => {
-    return (feeDeduct ? +amount : +amount + totalFeeUsd).toFixed(2);
-  }, [amount, totalFeeUsd, sourceChain, targetChain, feeDeduct]);
   const { pools } = useGetPools_default(backendUrl, networkOption);
   const {
     data: allowanceData,
@@ -2793,31 +2802,41 @@ function useEvmAllowance() {
       walletProvider
     );
     const signer = provider.getSigner();
-    if (!allowanceData?.decimals || !tokenAddress || !signer || !poolAddress)
+    if (!allowanceData?.decimals || !tokenAddress || !signer || !poolAddress || !allowanceAmount) {
+      console.warn("useEvmAllowance: Missing required data", {
+        allowanceAmount,
+        allowanceData,
+        tokenAddress,
+        signer,
+        poolAddress
+      });
       return;
+    }
     try {
       const erc20Contract = new import_ethers4.Contract(tokenAddress, erc20ABI_default.abi, signer);
-      const approveTx = await erc20Contract.approve(
-        poolAddress,
-        isCancel ? "0" : (0, import_units3.parseUnits)(amountToShow, allowanceData.decimals)
+      const amount = isCancel ? "0" : allowanceAmount;
+      console.log("useEvmAllowance: Approving amount:", amount);
+      const approveTx = await erc20Contract.approve(poolAddress, amount);
+      console.log(
+        "useEvmAllowance: Transaction sent, waiting for confirmation:",
+        approveTx.hash
       );
-      console.log("Transaction sent, waiting for confirmation:", approveTx.hash);
       const receipt = await approveTx.wait();
       if (receipt.status === 1) {
-        console.log("Transaction successful:", receipt);
+        console.log("useEvmAllowance: Transaction successful:", receipt);
         setApprovalsCount((prev) => prev + 1);
       } else {
-        console.error("Transaction failed:", receipt);
+        console.error("useEvmAllowance: Transaction failed:", receipt);
         throw new Error("Transaction failed");
       }
     } catch (error2) {
-      console.error("Error on EVM approval:", error2);
+      console.error("useEvmAllowance: Error on EVM approval:", error2);
       throw new Error("Error on EVM approval");
     }
   };
   return {
     ...allowanceData,
-    isApproved: allowanceData?.allowance ? allowanceData.allowance >= Number(amountToShow) : false,
+    isApproved: allowanceData?.allowance ? allowanceData.allowance >= allowanceNumber : false,
     approve: approveErc20TokenTransfer
   };
 }
@@ -2984,23 +3003,19 @@ var getTokenAllowance2 = async ({
 // plugins/solana/core/hooks/useSolanaAllowance.tsx
 var import_spl_token2 = require("@solana/spl-token");
 var import_web35 = require("@solana/web3.js");
+var import_units4 = require("@ethersproject/units");
 function useSolanaAllowance() {
   const sourceChain = (0, import_react_redux5.useSelector)(selectSourceChain);
-  const targetChain = (0, import_react_redux5.useSelector)(selectTargetChain);
-  const feeDeduct = (0, import_react_redux5.useSelector)(selectFeeDeduct);
-  const amount = (0, import_react_redux5.useSelector)(selectAmount);
-  const { totalFeeUsd } = (0, import_react_redux5.useSelector)(selectServiceFee);
+  const { allowanceAmount, decimals } = (0, import_react_redux5.useSelector)(selectServiceFee);
   const backendUrl = (0, import_react_redux5.useSelector)(selectBackendUrl);
   const networkOption = (0, import_react_redux5.useSelector)(selectNetworkOption);
+  const allowanceNumber = Number((0, import_units4.formatUnits)(allowanceAmount ?? "0", decimals));
   const { connection } = (0, import_wallet_adapter_react3.useConnection)();
   const { publicKey: userPublicKey, signTransaction } = (0, import_wallet_adapter_react3.useWallet)();
   const selectedCoin = (0, import_react_redux5.useSelector)(selectSourceCurrency);
   const tokenOptions = (0, import_react_redux5.useSelector)(selectTokenOptions);
   const { pools } = useGetPools_default(backendUrl, networkOption);
   const [approvalsCount, setApprovalsCount] = (0, import_react78.useState)(0);
-  const amountToShow = (0, import_react78.useMemo)(() => {
-    return (feeDeduct ? +amount : +amount + totalFeeUsd).toFixed(2);
-  }, [amount, totalFeeUsd, sourceChain, targetChain, feeDeduct]);
   const {
     data: allowanceData,
     isLoading,
@@ -3029,6 +3044,10 @@ function useSolanaAllowance() {
     // 1 min
   });
   const approveSPLTokenTransfer = async (isCancel = false) => {
+    if (!allowanceAmount) {
+      console.warn("useSolanaAllowance: Missing allowance amount");
+      return;
+    }
     const poolAddress = getPoolAddress(pools, "SOL");
     const tokenAddress = getTokenAddress(tokenOptions, selectedCoin, "SOL");
     if (!signTransaction) return;
@@ -3037,6 +3056,7 @@ function useSolanaAllowance() {
         new import_web35.PublicKey(tokenAddress),
         userPublicKey
       );
+      const amount = isCancel ? 0n : BigInt(allowanceAmount);
       const approveInstruction = (0, import_spl_token2.createApproveInstruction)(
         tokenAccountAddress,
         // Source account (owner's token account)
@@ -3044,8 +3064,7 @@ function useSolanaAllowance() {
         // Delegate to approve
         userPublicKey,
         // Owner of the token account
-        isCancel ? 0 : +amountToShow * Math.pow(10, allowanceData?.decimals ?? 6),
-        // Amount of tokens to approve (in raw units)
+        amount,
         [],
         // Multi-signers (if any, otherwise leave empty)
         import_spl_token2.TOKEN_PROGRAM_ID
@@ -3079,7 +3098,7 @@ function useSolanaAllowance() {
   };
   return {
     ...allowanceData,
-    isApproved: allowanceData?.allowance ? allowanceData.allowance >= Number(amountToShow) : false,
+    isApproved: allowanceData?.allowance ? allowanceData.allowance >= allowanceNumber : false,
     approve: approveSPLTokenTransfer
   };
 }
@@ -3267,7 +3286,7 @@ var import_tronwallet_adapter_react_hooks3 = require("@tronweb3/tronwallet-adapt
 var import_react_query8 = require("@tanstack/react-query");
 
 // plugins/tron/utils/getTokenAllowance.tsx
-var import_units4 = require("@ethersproject/units");
+var import_units5 = require("@ethersproject/units");
 var getTokenAllowance3 = async ({
   tokenOptions,
   selectedCoin,
@@ -3285,8 +3304,8 @@ var getTokenAllowance3 = async ({
     const allowance = await trcContract.allowance(userAddress, poolAddress).call();
     console.log("getTronAllowance:", { allowance, balance, decimals });
     return {
-      allowance: Number((0, import_units4.formatUnits)(allowance, decimals)),
-      balance: Number((0, import_units4.formatUnits)(balance, decimals)),
+      allowance: Number((0, import_units5.formatUnits)(allowance, decimals)),
+      balance: Number((0, import_units5.formatUnits)(balance, decimals)),
       decimals: Number(decimals)
     };
   } catch (error) {
@@ -3296,24 +3315,19 @@ var getTokenAllowance3 = async ({
 };
 
 // plugins/tron/core/hooks/useTronAllowance.tsx
-var import_units5 = require("@ethersproject/units");
+var import_units6 = require("@ethersproject/units");
 function useTronAllowance() {
   const sourceChain = (0, import_react_redux9.useSelector)(selectSourceChain);
-  const targetChain = (0, import_react_redux9.useSelector)(selectTargetChain);
-  const feeDeduct = (0, import_react_redux9.useSelector)(selectFeeDeduct);
   const networkOption = (0, import_react_redux9.useSelector)(selectNetworkOption);
   const backendUrl = (0, import_react_redux9.useSelector)(selectBackendUrl);
-  const amount = (0, import_react_redux9.useSelector)(selectAmount);
-  const { totalFeeUsd } = (0, import_react_redux9.useSelector)(selectServiceFee);
+  const { allowanceAmount, decimals } = (0, import_react_redux9.useSelector)(selectServiceFee);
   (0, import_tronwallet_adapter_react_hooks3.useWallet)();
   const selectedCoin = (0, import_react_redux9.useSelector)(selectSourceCurrency);
   const tokenOptions = (0, import_react_redux9.useSelector)(selectTokenOptions);
+  const allowanceNumber = Number((0, import_units6.formatUnits)(allowanceAmount ?? "0", decimals));
   const { pools } = useGetPools_default(backendUrl, networkOption);
   const { address: userAddress, signTransaction: signTronTransaction } = (0, import_tronwallet_adapter_react_hooks3.useWallet)();
   const [approvalsCount, setApprovalsCount] = (0, import_react83.useState)(0);
-  const amountToShow = (0, import_react83.useMemo)(() => {
-    return (feeDeduct ? +amount : +amount + totalFeeUsd).toFixed(2);
-  }, [amount, totalFeeUsd, sourceChain, targetChain, feeDeduct]);
   const tronWeb = (0, import_react83.useMemo)(() => {
     return networkOption === "mainnet" ? tronWebMainnet : tronWebTestnet;
   }, [networkOption]);
@@ -3338,7 +3352,7 @@ function useTronAllowance() {
     // 1 min
   });
   const approveTrc20TokenTransfer = async (isCancel = false) => {
-    if (!userAddress || !pools || !tronWeb || !tokenOptions || !selectedCoin) {
+    if (!userAddress || !pools || !tronWeb || !tokenOptions || !selectedCoin || !allowanceAmount) {
       console.warn("Missing required data for approveTrc20TokenTransfer");
       return;
     }
@@ -3346,13 +3360,15 @@ function useTronAllowance() {
     const tokenAddress = getTokenAddress(tokenOptions, selectedCoin, "TRX");
     try {
       const functionSelector = "approve(address,uint256)";
+      const amount = isCancel ? "0" : allowanceAmount;
       const parameter = [
         { type: "address", value: poolAddress },
         {
           type: "uint256",
-          value: isCancel ? "0" : (0, import_units5.parseUnits)(amountToShow, allowanceData?.decimals || 18).toString()
+          value: amount
         }
       ];
+      console.log("useTronAllowance: Approving amount:", amount);
       const transaction = await tronWeb.transactionBuilder.triggerSmartContract(
         tronWeb.address.toHex(tokenAddress),
         functionSelector,
@@ -3361,7 +3377,8 @@ function useTronAllowance() {
         tronWeb.address.toHex(userAddress)
       );
       const signedTx = await signTronTransaction(transaction.transaction);
-      await tronWeb.trx.sendRawTransaction(signedTx);
+      const tx = await tronWeb.trx.sendRawTransaction(signedTx);
+      console.log("useTronAllowance: Transaction sent: hash", tx.txID);
       setApprovalsCount((prev) => prev + 1);
       return;
     } catch (error2) {
@@ -3371,7 +3388,7 @@ function useTronAllowance() {
   };
   return {
     ...allowanceData,
-    isApproved: allowanceData?.allowance ? allowanceData?.allowance >= Number(amountToShow) : false,
+    isApproved: allowanceData?.allowance ? allowanceData.allowance >= allowanceNumber : false,
     approve: approveTrc20TokenTransfer
   };
 }
@@ -3479,8 +3496,8 @@ var KimaProvider = ({
 var KimaProvider_default = KimaProvider;
 
 // src/components/KimaTransactionWidget.tsx
-var import_react127 = __toESM(require("react"), 1);
-var import_react_redux52 = require("react-redux");
+var import_react128 = __toESM(require("react"), 1);
+var import_react_redux53 = require("react-redux");
 
 // src/components/TransactionWidget.tsx
 var import_react113 = __toESM(require("react"), 1);
@@ -4371,7 +4388,7 @@ var ConfirmDetails = ({ isApproved }) => {
   }, []);
   const sourceWalletAddress = (0, import_react106.useMemo)(() => {
     return width >= 916 ? walletAddress : getShortenedAddress(walletAddress || "");
-  }, [walletAddress]);
+  }, [width, walletAddress]);
   const targetWalletAddress = (0, import_react106.useMemo)(() => {
     return getShortenedAddress(
       (mode === "payment" /* payment */ ? transactionOption?.targetAddress : targetAddress) || ""
@@ -4383,7 +4400,7 @@ var ConfirmDetails = ({ isApproved }) => {
     }
     return formatterFloat2.format(feeDeduct ? +amount : +amount + totalFeeUsd);
   }, [amount, totalFeeUsd, originNetwork, targetNetwork, feeDeduct]);
-  return /* @__PURE__ */ import_react106.default.createElement("div", { className: `confirm-details ${theme.colorMode}` }, /* @__PURE__ */ import_react106.default.createElement("p", null, "Step ", isApproved ? "2" : "1", "\xA0of 2\xA0\xA0\xA0", isApproved ? "Submit transaction" : originNetwork === "FIAT" /* FIAT */ ? "Bank Details" : "Approval"), originNetwork === "FIAT" /* FIAT */ ? /* @__PURE__ */ import_react106.default.createElement("div", null, /* @__PURE__ */ import_react106.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react106.default.createElement("span", { className: "label" }, "IBAN:"), /* @__PURE__ */ import_react106.default.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ import_react106.default.createElement("div", { className: "icon" }, /* @__PURE__ */ import_react106.default.createElement(originNetworkOption.icon, null)), "FIAT"), /* @__PURE__ */ import_react106.default.createElement("p", null, "ES6621000418401234567891")), /* @__PURE__ */ import_react106.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react106.default.createElement("span", { className: "label" }, "Recipient:"), /* @__PURE__ */ import_react106.default.createElement("p", null, "Kima Sandbox")), /* @__PURE__ */ import_react106.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react106.default.createElement("span", { className: "label" }, "BIC:"), /* @__PURE__ */ import_react106.default.createElement("p", null, "CAIXESBBXXX")), /* @__PURE__ */ import_react106.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react106.default.createElement("span", { className: "label" }, "Description:"), /* @__PURE__ */ import_react106.default.createElement("p", { className: "signature" }, signature))) : /* @__PURE__ */ import_react106.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react106.default.createElement("span", { className: "label" }, "Source wallet:"), /* @__PURE__ */ import_react106.default.createElement("div", { className: "network-details" }, /* @__PURE__ */ import_react106.default.createElement("div", { className: "kima-card-network-container" }, /* @__PURE__ */ import_react106.default.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ import_react106.default.createElement(ChainIcon, { symbol: originNetworkOption.id }), originNetworkOption.label)), /* @__PURE__ */ import_react106.default.createElement("p", { className: theme.colorMode }, width >= 916 ? dAppOption === "LPDrain" /* LPDrain */ ? targetAddress : walletAddress : dAppOption === "LPDrain" /* LPDrain */ ? targetWalletAddress : sourceWalletAddress))), /* @__PURE__ */ import_react106.default.createElement("div", { className: "detail-item amount" }, /* @__PURE__ */ import_react106.default.createElement("span", { className: "label" }, "Transaction", /* @__PURE__ */ import_react106.default.createElement("br", null), "Details:"), /* @__PURE__ */ import_react106.default.createElement("span", { className: "amount-container" }, /* @__PURE__ */ import_react106.default.createElement("div", { className: "amount-details" }, /* @__PURE__ */ import_react106.default.createElement("span", null, "Transfer amount"), /* @__PURE__ */ import_react106.default.createElement("div", { className: "coin-details" }, /* @__PURE__ */ import_react106.default.createElement("p", null, formatterFloat2.format(parseFloat(amountToShow) - totalFeeUsd), " ", sourceCurrency)), sourceCurrency !== targetCurrency && /* @__PURE__ */ import_react106.default.createElement("div", { className: "coin-details" }, "\u2192 ", targetCurrency)), /* @__PURE__ */ import_react106.default.createElement("div", { className: "amount-details" }, /* @__PURE__ */ import_react106.default.createElement("span", null, "Network costs"), /* @__PURE__ */ import_react106.default.createElement("span", { className: "service-fee" }, formatterFloat2.format(totalFeeUsd), " ", sourceCurrency)), /* @__PURE__ */ import_react106.default.createElement("div", { className: "amount-details" }, /* @__PURE__ */ import_react106.default.createElement("span", null, "Total"), /* @__PURE__ */ import_react106.default.createElement("span", { className: "service-fee" }, formatterFloat2.format(parseFloat(amountToShow)), " ", targetCurrency)))), targetNetwork === "FIAT" /* FIAT */ ? /* @__PURE__ */ import_react106.default.createElement("div", null, /* @__PURE__ */ import_react106.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react106.default.createElement("span", { className: "label" }, "IBAN:"), /* @__PURE__ */ import_react106.default.createElement("p", null, bankDetails.iban), /* @__PURE__ */ import_react106.default.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ import_react106.default.createElement("div", { className: "icon" }, /* @__PURE__ */ import_react106.default.createElement(targetNetworkOption.icon, null)), "FIAT")), /* @__PURE__ */ import_react106.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react106.default.createElement("span", { className: "label" }, "Recipient:"), /* @__PURE__ */ import_react106.default.createElement("p", null, bankDetails.recipient))) : /* @__PURE__ */ import_react106.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react106.default.createElement("span", { className: "label" }, "Target wallet:"), /* @__PURE__ */ import_react106.default.createElement("div", { className: "network-details" }, /* @__PURE__ */ import_react106.default.createElement("div", { className: "kima-card-network-container" }, /* @__PURE__ */ import_react106.default.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ import_react106.default.createElement(ChainIcon, { symbol: targetNetworkOption.id }), targetNetworkOption.label)), /* @__PURE__ */ import_react106.default.createElement("p", { className: theme.colorMode }, width >= 916 ? dAppOption === "LPDrain" /* LPDrain */ ? walletAddress : targetAddress : dAppOption === "LPDrain" /* LPDrain */ ? sourceWalletAddress : targetWalletAddress))));
+  return /* @__PURE__ */ import_react106.default.createElement("div", { className: `confirm-details ${theme.colorMode}` }, /* @__PURE__ */ import_react106.default.createElement("p", null, "Step ", isApproved ? "2" : "1", "\xA0of 2\xA0\xA0\xA0", isApproved ? "Submit transaction" : originNetwork === "FIAT" /* FIAT */ ? "Bank Details" : "Approval"), originNetwork === "FIAT" /* FIAT */ ? /* @__PURE__ */ import_react106.default.createElement("div", null, /* @__PURE__ */ import_react106.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react106.default.createElement("span", { className: "label" }, "IBAN:"), /* @__PURE__ */ import_react106.default.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ import_react106.default.createElement("div", { className: "icon" }, /* @__PURE__ */ import_react106.default.createElement(originNetworkOption.icon, null)), "FIAT"), /* @__PURE__ */ import_react106.default.createElement("p", null, "ES6621000418401234567891")), /* @__PURE__ */ import_react106.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react106.default.createElement("span", { className: "label" }, "Recipient:"), /* @__PURE__ */ import_react106.default.createElement("p", null, "Kima Sandbox")), /* @__PURE__ */ import_react106.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react106.default.createElement("span", { className: "label" }, "BIC:"), /* @__PURE__ */ import_react106.default.createElement("p", null, "CAIXESBBXXX")), /* @__PURE__ */ import_react106.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react106.default.createElement("span", { className: "label" }, "Description:"), /* @__PURE__ */ import_react106.default.createElement("p", { className: "signature" }, signature))) : /* @__PURE__ */ import_react106.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react106.default.createElement("span", { className: "label" }, "Source wallet:"), /* @__PURE__ */ import_react106.default.createElement("div", { className: "network-details" }, /* @__PURE__ */ import_react106.default.createElement("div", { className: "kima-card-network-container" }, /* @__PURE__ */ import_react106.default.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ import_react106.default.createElement(ChainIcon, { symbol: originNetworkOption.id }), originNetworkOption.label)), /* @__PURE__ */ import_react106.default.createElement("p", { className: theme.colorMode }, width >= 916 ? dAppOption === "LPDrain" /* LPDrain */ ? targetAddress : walletAddress : dAppOption === "LPDrain" /* LPDrain */ ? targetWalletAddress : sourceWalletAddress))), /* @__PURE__ */ import_react106.default.createElement("div", { className: "detail-item amount" }, /* @__PURE__ */ import_react106.default.createElement("span", { className: "label" }, "Transaction", /* @__PURE__ */ import_react106.default.createElement("br", null), "Details:"), /* @__PURE__ */ import_react106.default.createElement("span", { className: "amount-container" }, /* @__PURE__ */ import_react106.default.createElement("div", { className: "amount-details" }, /* @__PURE__ */ import_react106.default.createElement("span", null, "Transfer amount"), /* @__PURE__ */ import_react106.default.createElement("div", { className: "coin-details" }, /* @__PURE__ */ import_react106.default.createElement("p", null, formatterFloat2.format(parseFloat(amountToShow) - totalFeeUsd), " ", sourceCurrency)), sourceCurrency !== targetCurrency && /* @__PURE__ */ import_react106.default.createElement("div", { className: "coin-details" }, "\u2192 ", targetCurrency)), /* @__PURE__ */ import_react106.default.createElement("div", { className: "amount-details" }, /* @__PURE__ */ import_react106.default.createElement("span", null, "Network costs"), /* @__PURE__ */ import_react106.default.createElement("span", { className: "service-fee" }, formatterFloat2.format(totalFeeUsd), " ", sourceCurrency)), /* @__PURE__ */ import_react106.default.createElement("div", { className: "amount-details" }, /* @__PURE__ */ import_react106.default.createElement("span", null, "Total"), /* @__PURE__ */ import_react106.default.createElement("span", { className: "service-fee" }, formatterFloat2.format(parseFloat(amountToShow)), " ", targetCurrency)))), targetNetwork === "FIAT" /* FIAT */ ? /* @__PURE__ */ import_react106.default.createElement("div", null, /* @__PURE__ */ import_react106.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react106.default.createElement("span", { className: "label" }, "IBAN:"), /* @__PURE__ */ import_react106.default.createElement("p", null, bankDetails.iban), /* @__PURE__ */ import_react106.default.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ import_react106.default.createElement(ChainIcon, { symbol: targetNetworkOption?.id }), "FIAT")), /* @__PURE__ */ import_react106.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react106.default.createElement("span", { className: "label" }, "Recipient:"), /* @__PURE__ */ import_react106.default.createElement("p", null, bankDetails.recipient))) : /* @__PURE__ */ import_react106.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react106.default.createElement("span", { className: "label" }, "Target wallet:"), /* @__PURE__ */ import_react106.default.createElement("div", { className: "network-details" }, /* @__PURE__ */ import_react106.default.createElement("div", { className: "kima-card-network-container" }, /* @__PURE__ */ import_react106.default.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ import_react106.default.createElement(ChainIcon, { symbol: targetNetworkOption.id }), targetNetworkOption.label)), /* @__PURE__ */ import_react106.default.createElement("p", { className: theme.colorMode }, width >= 916 ? dAppOption === "LPDrain" /* LPDrain */ ? walletAddress : targetAddress : dAppOption === "LPDrain" /* LPDrain */ ? sourceWalletAddress : targetWalletAddress))));
 };
 var ConfirmDetails_default = ConfirmDetails;
 
@@ -4809,13 +4826,13 @@ var TransactionWidget = ({ theme }) => {
 };
 
 // src/components/TransferWidget.tsx
-var import_react126 = __toESM(require("react"), 1);
-var import_react_redux50 = require("react-redux");
+var import_react127 = __toESM(require("react"), 1);
+var import_react_redux51 = require("react-redux");
 
 // src/components/reusable/SingleForm.tsx
 var import_react116 = __toESM(require("react"), 1);
 var import_react_hot_toast8 = require("react-hot-toast");
-var import_react_redux39 = require("react-redux");
+var import_react_redux40 = require("react-redux");
 
 // src/components/primary/SourceNetworkSelector.tsx
 var import_react114 = __toESM(require("react"), 1);
@@ -4973,18 +4990,19 @@ var TargetNetworkSelector_default = TargetNetworkSelector;
 
 // src/hooks/useGetFees.tsx
 var import_react_query11 = require("@tanstack/react-query");
+var import_react_redux39 = require("react-redux");
 
 // src/services/feesApi.ts
-var getFees = async (amount, originChain, targetChain, backendUrl) => {
+var getFees = async (amount, deductFee, originChain, originSymbol, targetChain, backendUrl) => {
   try {
     const response = await fetchWrapper.get(
-      `${backendUrl}/submit/fees?amount=${amount}&originChain=${originChain}&targetChain=${targetChain}`
+      `${backendUrl}/submit/fees?amount=${amount}&originChain=${originChain}&originSymbol=${originSymbol}&targetChain=${targetChain}&deductFee=${deductFee}`
     );
     console.log("response: ", response);
-    const { totalFeeUsd, breakdown } = response;
+    const { breakdown, ...totals } = response;
     const [sourceNetworkFee, targetNetworkFee] = breakdown;
     const serviceFees = {
-      totalFeeUsd,
+      ...totals,
       sourceNetworkFee,
       targetNetworkFee
     };
@@ -4996,17 +5014,29 @@ var getFees = async (amount, originChain, targetChain, backendUrl) => {
 };
 
 // src/hooks/useGetFees.tsx
-var useGetFees = (amount, sourceNetwork, targetNetwork, backendUrl) => {
-  console.log("amount: ", amount);
-  console.log("sourceNetwork: ", sourceNetwork);
-  console.log("targetNetwork: ", targetNetwork);
+var useGetFees = (amount, deductFees, sourceNetwork, sourceSymbol, targetNetwork, backendUrl) => {
+  const mode = (0, import_react_redux39.useSelector)(selectMode);
+  const feeDeductWithMode = mode === "payment" /* payment */ ? false : deductFees;
   return (0, import_react_query11.useQuery)({
-    queryKey: ["fees", amount, sourceNetwork, targetNetwork],
+    queryKey: ["fees", amount, feeDeductWithMode, sourceNetwork, targetNetwork],
     queryFn: async () => {
-      console.log("new call: ", amount, sourceNetwork, targetNetwork);
-      return await getFees(amount, sourceNetwork, targetNetwork, backendUrl);
+      console.log("useGetFees: ", {
+        amount,
+        deductFees,
+        feeDeductWithMode,
+        sourceNetwork,
+        targetNetwork
+      });
+      return await getFees(
+        amount,
+        feeDeductWithMode,
+        sourceNetwork,
+        sourceSymbol,
+        targetNetwork,
+        backendUrl
+      );
     },
-    enabled: !!amount && !!sourceNetwork && !!targetNetwork,
+    enabled: !!backendUrl && !!amount && !!sourceNetwork && !!sourceSymbol && !!targetNetwork,
     // Only run when all params are valid
     staleTime: 6e4,
     // Cache for 60 seconds
@@ -5016,28 +5046,38 @@ var useGetFees = (amount, sourceNetwork, targetNetwork, backendUrl) => {
 var useGetFees_default = useGetFees;
 
 // src/components/reusable/SingleForm.tsx
-var SingleForm = ({}) => {
-  const dispatch = (0, import_react_redux39.useDispatch)();
-  const mode = (0, import_react_redux39.useSelector)(selectMode);
-  const theme = (0, import_react_redux39.useSelector)(selectTheme);
-  const networkOpion = (0, import_react_redux39.useSelector)(selectNetworkOption);
-  const feeDeduct = (0, import_react_redux39.useSelector)(selectFeeDeduct);
-  const { totalFeeUsd } = (0, import_react_redux39.useSelector)(selectServiceFee);
-  const compliantOption = (0, import_react_redux39.useSelector)(selectCompliantOption);
-  const targetCompliant = (0, import_react_redux39.useSelector)(selectTargetCompliant);
-  const transactionOption = (0, import_react_redux39.useSelector)(selectTransactionOption);
-  const sourceNetwork = (0, import_react_redux39.useSelector)(selectSourceChain);
-  const targetNetwork = (0, import_react_redux39.useSelector)(selectTargetChain);
+var SingleForm = ({
+  balance,
+  decimals
+}) => {
+  const dispatch = (0, import_react_redux40.useDispatch)();
+  const mode = (0, import_react_redux40.useSelector)(selectMode);
+  const theme = (0, import_react_redux40.useSelector)(selectTheme);
+  const feeDeduct = (0, import_react_redux40.useSelector)(selectFeeDeduct);
+  const { totalFeeUsd } = (0, import_react_redux40.useSelector)(selectServiceFee);
+  const compliantOption = (0, import_react_redux40.useSelector)(selectCompliantOption);
+  const targetCompliant = (0, import_react_redux40.useSelector)(selectTargetCompliant);
+  const transactionOption = (0, import_react_redux40.useSelector)(selectTransactionOption);
+  const sourceNetwork = (0, import_react_redux40.useSelector)(selectSourceChain);
+  const targetNetwork = (0, import_react_redux40.useSelector)(selectTargetChain);
   const { isReady } = useIsWalletReady4();
   const [amountValue, setAmountValue] = (0, import_react116.useState)("");
-  const amount = (0, import_react_redux39.useSelector)(selectAmount);
-  const targetCurrency = (0, import_react_redux39.useSelector)(selectTargetCurrency);
-  const backendUrl = (0, import_react_redux39.useSelector)(selectBackendUrl);
+  const amount = (0, import_react_redux40.useSelector)(selectAmount);
+  const sourceCurrency = (0, import_react_redux40.useSelector)(selectSourceCurrency);
+  const targetCurrency = (0, import_react_redux40.useSelector)(selectTargetCurrency);
+  const backendUrl = (0, import_react_redux40.useSelector)(selectBackendUrl);
   const {
     data: fees,
     isLoading,
     error
-  } = useGetFees_default(parseFloat(amount), sourceNetwork, targetNetwork, backendUrl);
+  } = useGetFees_default(
+    parseFloat(amount),
+    feeDeduct,
+    sourceNetwork,
+    sourceCurrency,
+    targetNetwork,
+    backendUrl
+  );
   (0, import_react116.useEffect)(() => {
     if (fees) {
       dispatch(setServiceFee(fees));
@@ -5048,6 +5088,12 @@ var SingleForm = ({}) => {
     () => compliantOption && targetCompliant !== null && !targetCompliant?.isCompliant ? `Target address has ${targetCompliant.results?.[0].result.risk_score} risk` : "",
     [compliantOption, targetCompliant]
   );
+  const maxValue = (0, import_react116.useMemo)(() => {
+    if (!balance || !totalFeeUsd) return 0;
+    if (feeDeduct || totalFeeUsd < 0) return balance;
+    const amountMinusFees = preciseSubtraction(balance, totalFeeUsd);
+    return amountMinusFees > 0 ? amountMinusFees : 0;
+  }, [balance, totalFeeUsd, feeDeduct]);
   (0, import_react116.useEffect)(() => {
     if (!errorMessage) return;
     import_react_hot_toast8.toast.error(errorMessage);
@@ -5056,6 +5102,12 @@ var SingleForm = ({}) => {
     if (amountValue && amount != "") return;
     setAmountValue(amount);
   }, [amount]);
+  (0, import_react116.useEffect)(() => {
+    if (!feeDeduct && maxValue < +amountValue) {
+      setAmountValue(maxValue.toString());
+      dispatch(setAmount(maxValue.toString()));
+    }
+  }, [feeDeduct]);
   return /* @__PURE__ */ import_react116.default.createElement("div", { className: "single-form" }, /* @__PURE__ */ import_react116.default.createElement("div", { className: "form-item" }, /* @__PURE__ */ import_react116.default.createElement("span", { className: "label" }, "Source Network:"), /* @__PURE__ */ import_react116.default.createElement("div", { className: "items" }, /* @__PURE__ */ import_react116.default.createElement(SourceNetworkSelector_default, null), /* @__PURE__ */ import_react116.default.createElement(CoinDropdown_default, null))), /* @__PURE__ */ import_react116.default.createElement(
     "div",
     {
@@ -5080,16 +5132,32 @@ var SingleForm = ({}) => {
     "input",
     {
       className: `${theme.colorMode}`,
-      type: "number",
+      type: "text",
       placeholder: "Amount",
       value: amountValue || "",
       onChange: (e) => {
-        let _amount = +e.target.value;
-        const decimal = sourceNetwork === "BTC" /* BTC */ || targetNetwork === "BTC" /* BTC */ ? 8 : 2;
-        setAmountValue(e.target.value);
-        dispatch(setAmount(_amount.toFixed(decimal)));
+        const value = e.target.value;
+        const maskedValue = value.replace(/[^0-9.]/g, "").replace(/(\..*?)\..*/g, "$1").replace(new RegExp(`(\\.\\d{${decimals}})\\d+`), "$1");
+        const numericValue = parseFloat(maskedValue);
+        if (!isNaN(numericValue) && numericValue > maxValue) {
+          setAmountValue(maxValue.toString());
+          dispatch(setAmount(maxValue.toString()));
+        } else {
+          setAmountValue(maskedValue);
+          dispatch(setAmount(maskedValue));
+        }
       }
     }
+  ), /* @__PURE__ */ import_react116.default.createElement(
+    "span",
+    {
+      className: "max-button",
+      onClick: () => {
+        setAmountValue(maxValue.toString());
+        dispatch(setAmount(maxValue.toString()));
+      }
+    },
+    "Max"
   ))) : /* @__PURE__ */ import_react116.default.createElement("div", { className: `form-item ${theme.colorMode}` }, /* @__PURE__ */ import_react116.default.createElement("span", { className: "label" }, "Amount:"), /* @__PURE__ */ import_react116.default.createElement("div", { className: `amount-label-container items ${theme.colorMode}` }, /* @__PURE__ */ import_react116.default.createElement(
     "input",
     {
@@ -5118,15 +5186,15 @@ var SingleForm_default = SingleForm;
 
 // src/components/reusable/CoinSelect.tsx
 var import_react117 = __toESM(require("react"), 1);
-var import_react_redux40 = require("react-redux");
 var import_react_redux41 = require("react-redux");
+var import_react_redux42 = require("react-redux");
 var CoinSelect = () => {
-  const dispatch = (0, import_react_redux41.useDispatch)();
-  const theme = (0, import_react_redux40.useSelector)(selectTheme);
-  const mode = (0, import_react_redux40.useSelector)(selectMode);
-  const selectedCoin = (0, import_react_redux40.useSelector)(selectSourceCurrency);
-  const sourceNetwork = (0, import_react_redux40.useSelector)(selectSourceChain);
-  const targetNetwork = (0, import_react_redux40.useSelector)(selectTargetChain);
+  const dispatch = (0, import_react_redux42.useDispatch)();
+  const theme = (0, import_react_redux41.useSelector)(selectTheme);
+  const mode = (0, import_react_redux41.useSelector)(selectMode);
+  const selectedCoin = (0, import_react_redux41.useSelector)(selectSourceCurrency);
+  const sourceNetwork = (0, import_react_redux41.useSelector)(selectSourceChain);
+  const targetNetwork = (0, import_react_redux41.useSelector)(selectTargetChain);
   const [amountValue, setAmountValue] = (0, import_react117.useState)("");
   const Icon = COIN_LIST[selectedCoin || "USDK"].icon;
   return /* @__PURE__ */ import_react117.default.createElement("div", { className: `coin-select` }, /* @__PURE__ */ import_react117.default.createElement("p", null, "Select Amount of Token for Funding"), /* @__PURE__ */ import_react117.default.createElement("div", { className: `amount-input ${theme.colorMode}` }, /* @__PURE__ */ import_react117.default.createElement("span", null, "Amount:"), /* @__PURE__ */ import_react117.default.createElement("div", { className: "input-wrapper" }, /* @__PURE__ */ import_react117.default.createElement(
@@ -5189,9 +5257,9 @@ function useAllowance({
 
 // src/components/reusable/AddressInputWizard.tsx
 var import_react118 = __toESM(require("react"), 1);
-var import_react_redux42 = require("react-redux");
+var import_react_redux43 = require("react-redux");
 var AddressInputWizard = () => {
-  const theme = (0, import_react_redux42.useSelector)(selectTheme);
+  const theme = (0, import_react_redux43.useSelector)(selectTheme);
   return /* @__PURE__ */ import_react118.default.createElement("div", { className: `coin-select` }, /* @__PURE__ */ import_react118.default.createElement("p", null, "Select Target Address for Funding"), /* @__PURE__ */ import_react118.default.createElement("div", { className: `address-input ${theme.colorMode}` }, /* @__PURE__ */ import_react118.default.createElement("span", null, "Target Address:"), /* @__PURE__ */ import_react118.default.createElement(AddressInput_default, { theme: theme.colorMode, placeholder: "Target address" })));
 };
 var AddressInputWizard_default = AddressInputWizard;
@@ -5201,16 +5269,16 @@ var import_react_hot_toast9 = require("react-hot-toast");
 
 // plugins/solana/components/SolanaWalletConnectModal.tsx
 var import_react121 = __toESM(require("react"), 1);
-var import_react_redux45 = require("react-redux");
+var import_react_redux46 = require("react-redux");
 
 // plugins/solana/components/SolanaWalletSelect.tsx
 var import_react119 = __toESM(require("react"), 1);
-var import_react_redux43 = require("react-redux");
+var import_react_redux44 = require("react-redux");
 var import_wallet_adapter_react6 = require("@solana/wallet-adapter-react");
 var import_wallet_adapter_base = require("@solana/wallet-adapter-base");
 var SolanaWalletSelect = () => {
-  const theme = (0, import_react_redux43.useSelector)(selectTheme);
-  const dispatch = (0, import_react_redux43.useDispatch)();
+  const theme = (0, import_react_redux44.useSelector)(selectTheme);
+  const dispatch = (0, import_react_redux44.useDispatch)();
   const sliderRef = (0, import_react119.useRef)();
   const { wallets, select } = (0, import_wallet_adapter_react6.useWallet)();
   const [detected, undetected] = (0, import_react119.useMemo)(() => {
@@ -5277,14 +5345,14 @@ var SolanaWalletSelect_default = SolanaWalletSelect;
 
 // plugins/solana/components/AccountDetailsModal.tsx
 var import_react120 = __toESM(require("react"), 1);
-var import_react_redux44 = require("react-redux");
+var import_react_redux45 = require("react-redux");
 var import_wallet_adapter_react7 = require("@solana/wallet-adapter-react");
 var AccountDetailsModal = () => {
-  const dispatch = (0, import_react_redux44.useDispatch)();
-  const theme = (0, import_react_redux44.useSelector)(selectTheme);
-  const networkOption = (0, import_react_redux44.useSelector)(selectNetworkOption);
-  const sourceChain = (0, import_react_redux44.useSelector)(selectSourceChain);
-  const accountDetailsModal = (0, import_react_redux44.useSelector)(selectAccountDetailsModal);
+  const dispatch = (0, import_react_redux45.useDispatch)();
+  const theme = (0, import_react_redux45.useSelector)(selectTheme);
+  const networkOption = (0, import_react_redux45.useSelector)(selectNetworkOption);
+  const sourceChain = (0, import_react_redux45.useSelector)(selectSourceChain);
+  const accountDetailsModal = (0, import_react_redux45.useSelector)(selectAccountDetailsModal);
   const { walletAddress } = useIsWalletReady_default2();
   const { disconnect: solanaWalletDisconnect } = (0, import_wallet_adapter_react7.useWallet)();
   const { balance: solBalance } = useGetSolBalance_default();
@@ -5322,9 +5390,9 @@ var AccountDetailsModal_default = AccountDetailsModal;
 
 // plugins/solana/components/SolanaWalletConnectModal.tsx
 var SolanaWalletConnectModal = () => {
-  const dispatch = (0, import_react_redux45.useDispatch)();
-  const theme = (0, import_react_redux45.useSelector)(selectTheme);
-  const connectModal = (0, import_react_redux45.useSelector)(selectSolanaConnectModal);
+  const dispatch = (0, import_react_redux46.useDispatch)();
+  const theme = (0, import_react_redux46.useSelector)(selectTheme);
+  const connectModal = (0, import_react_redux46.useSelector)(selectSolanaConnectModal);
   return /* @__PURE__ */ import_react121.default.createElement("div", null, /* @__PURE__ */ import_react121.default.createElement(AccountDetailsModal_default, null), /* @__PURE__ */ import_react121.default.createElement(
     "div",
     {
@@ -5351,22 +5419,22 @@ var SolanaWalletConnectModal_default = SolanaWalletConnectModal;
 
 // plugins/tron/components/TronWalletConnectModal.tsx
 var import_react124 = __toESM(require("react"), 1);
-var import_react_redux48 = require("react-redux");
+var import_react_redux49 = require("react-redux");
 
 // plugins/tron/components/AccountDetailsModal.tsx
 var import_react122 = __toESM(require("react"), 1);
-var import_react_redux46 = require("react-redux");
+var import_react_redux47 = require("react-redux");
 var import_tronwallet_adapter_react_hooks6 = require("@tronweb3/tronwallet-adapter-react-hooks");
 var AccountDetailsModal2 = () => {
-  const dispatch = (0, import_react_redux46.useDispatch)();
-  const theme = (0, import_react_redux46.useSelector)(selectTheme);
-  const networkOption = (0, import_react_redux46.useSelector)(selectNetworkOption);
-  const accountDetailsModal = (0, import_react_redux46.useSelector)(selectAccountDetailsModal);
-  const sourcheChain = (0, import_react_redux46.useSelector)(selectSourceChain);
+  const dispatch = (0, import_react_redux47.useDispatch)();
+  const theme = (0, import_react_redux47.useSelector)(selectTheme);
+  const networkOption = (0, import_react_redux47.useSelector)(selectNetworkOption);
+  const accountDetailsModal = (0, import_react_redux47.useSelector)(selectAccountDetailsModal);
+  const sourcheChain = (0, import_react_redux47.useSelector)(selectSourceChain);
   const { walletAddress } = useIsWalletReady_default3();
   const { disconnect: tronWalletDisconnect } = (0, import_tronwallet_adapter_react_hooks6.useWallet)();
   const { balance: tronBalance } = useGetTrxBalance_default();
-  const selectedNetwork = (0, import_react_redux46.useSelector)(selectSourceChain);
+  const selectedNetwork = (0, import_react_redux47.useSelector)(selectSourceChain);
   const networkDetails = (0, import_react122.useMemo)(
     () => networkOptions.find(({ id }) => id === selectedNetwork),
     [selectedNetwork]
@@ -5404,13 +5472,13 @@ var AccountDetailsModal_default2 = AccountDetailsModal2;
 
 // plugins/tron/components/TronWalletSelect.tsx
 var import_react123 = __toESM(require("react"), 1);
-var import_react_redux47 = require("react-redux");
+var import_react_redux48 = require("react-redux");
 var import_tronwallet_adapter_react_hooks7 = require("@tronweb3/tronwallet-adapter-react-hooks");
 var import_tronwallet_abstract_adapter2 = require("@tronweb3/tronwallet-abstract-adapter");
 var TronWalletSelect = () => {
-  const theme = (0, import_react_redux47.useSelector)(selectTheme);
+  const theme = (0, import_react_redux48.useSelector)(selectTheme);
   const sliderRef = (0, import_react123.useRef)();
-  const dispatch = (0, import_react_redux47.useDispatch)();
+  const dispatch = (0, import_react_redux48.useDispatch)();
   const {
     wallets,
     select,
@@ -5484,9 +5552,9 @@ var TronWalletSelect_default = TronWalletSelect;
 
 // plugins/tron/components/TronWalletConnectModal.tsx
 var TronWalletConnectModal = () => {
-  const dispatch = (0, import_react_redux48.useDispatch)();
-  const theme = (0, import_react_redux48.useSelector)(selectTheme);
-  const connectModal = (0, import_react_redux48.useSelector)(selectTronConnectModal);
+  const dispatch = (0, import_react_redux49.useDispatch)();
+  const theme = (0, import_react_redux49.useSelector)(selectTheme);
+  const connectModal = (0, import_react_redux49.useSelector)(selectTronConnectModal);
   return /* @__PURE__ */ import_react124.default.createElement("div", null, /* @__PURE__ */ import_react124.default.createElement(AccountDetailsModal_default2, null), /* @__PURE__ */ import_react124.default.createElement(
     "div",
     {
@@ -5511,6 +5579,7 @@ var TronWalletConnectModal = () => {
 var TronWalletConnectModal_default = TronWalletConnectModal;
 
 // src/hooks/useValidateTransaction.tsx
+var import_react125 = require("react");
 var useValidateTransaction = ({
   allowance,
   isApproved,
@@ -5529,6 +5598,14 @@ var useValidateTransaction = ({
   mode,
   pools
 }) => {
+  const maxValue = (0, import_react125.useMemo)(() => {
+    if (!balance || !totalFeeUsd) return 0;
+    if (feeDeduct || totalFeeUsd < 0) return balance;
+    const amountMinusFees = preciseSubtraction(balance, totalFeeUsd);
+    console.log("amountMinusFees: ", amountMinusFees);
+    return amountMinusFees > 0 ? amountMinusFees : 0;
+  }, [balance, totalFeeUsd, feeDeduct]);
+  console.log("maxValue: ", maxValue);
   const validate = (isSubmitting = false) => {
     console.log("allowance: ", allowance);
     console.log("isApproved: ", isApproved);
@@ -5568,7 +5645,21 @@ var useValidateTransaction = ({
       }
     }
     const amountToShow = mode === "payment" /* payment */ ? +amount + totalFeeUsd : feeDeduct ? +amount : +amount + totalFeeUsd;
-    if (balance < amountToShow + totalFeeUsd) {
+    console.log("useValidate:amountToshow: ", amountToShow);
+    console.log("useValidate:maxValue ", maxValue);
+    if (amountToShow < totalFeeUsd) {
+      return {
+        error: "ValidationError" /* Error */,
+        message: "Fees are greater than the amount to transfer"
+      };
+    }
+    if (amountToShow > maxValue) {
+      return {
+        error: "ValidationError" /* Error */,
+        message: `Amount exceeds the maximum allowed value [$${maxValue}]`
+      };
+    }
+    if (balance < amountToShow) {
       return {
         error: "ValidationError" /* Error */,
         message: "Insufficient balance for the transaction"
@@ -5600,13 +5691,11 @@ var useValidateTransaction = ({
 var useValidateTransaction_default = useValidateTransaction;
 
 // src/hooks/useSubmitTransaction.tsx
-var import_react125 = require("react");
-var import_react_redux49 = require("react-redux");
+var import_react126 = require("react");
+var import_react_redux50 = require("react-redux");
 var useSubmitTransaction = ({
-  mode,
   amount,
-  totalFeeUsd,
-  feeDeduct,
+  totalFee,
   originAddress,
   targetAddress,
   originChain,
@@ -5616,12 +5705,11 @@ var useSubmitTransaction = ({
   backendUrl,
   decimals
 }) => {
-  const dispatch = (0, import_react_redux49.useDispatch)();
-  const [isSubmitting, setSubmitting] = (0, import_react125.useState)(false);
+  const dispatch = (0, import_react_redux50.useDispatch)();
+  const [isSubmitting, setSubmitting] = (0, import_react126.useState)(false);
   const submitTransaction = async () => {
     try {
       setSubmitting(true);
-      const finalAmount = mode === "payment" /* payment */ ? (+amount).toFixed(decimals || 6) : feeDeduct ? (+amount - totalFeeUsd).toFixed(decimals || 6) : (+amount).toFixed(decimals || 6);
       const params = JSON.stringify({
         originAddress,
         originChain,
@@ -5629,8 +5717,9 @@ var useSubmitTransaction = ({
         targetChain,
         originSymbol,
         targetSymbol,
-        amount: finalAmount,
-        fee: totalFeeUsd.toFixed(decimals || 6),
+        amount: amount.toString(),
+        fee: totalFee.toString(),
+        decimals,
         htlcCreationHash: "",
         htlcCreationVout: 0,
         htlcExpirationTimestamp: "0",
@@ -5651,6 +5740,7 @@ var useSubmitTransaction = ({
       setSubmitting(false);
       return { success: true, message: "Transaction submitted successfully." };
     } catch (error) {
+      console.error("Error submitting transaction:", error);
       setSubmitting(false);
       return { success: false, message: "Failed to submit transaction" };
     }
@@ -5705,35 +5795,40 @@ var useComplianceCheck_default = useComplianceCheck;
 // src/components/TransferWidget.tsx
 var TransferWidget = ({
   theme,
-  feeURL,
   helpURL,
   titleOption,
   paymentTitleOption
 }) => {
-  const dispatch = (0, import_react_redux50.useDispatch)();
-  const mainRef = (0, import_react126.useRef)(null);
-  const [isWizard, setWizard] = (0, import_react126.useState)(false);
-  const [formStep, setFormStep] = (0, import_react126.useState)(0);
-  const [wizardStep, setWizardStep] = (0, import_react126.useState)(0);
-  const mode = (0, import_react_redux50.useSelector)(selectMode);
-  const transactionOption = (0, import_react_redux50.useSelector)(selectTransactionOption);
-  const backendUrl = (0, import_react_redux50.useSelector)(selectBackendUrl);
-  const sourceAddress = (0, import_react_redux50.useSelector)(selectSourceAddress);
-  const targetAddress = (0, import_react_redux50.useSelector)(selectTargetAddress);
-  const sourceChain = (0, import_react_redux50.useSelector)(selectSourceChain);
-  const targetChain = (0, import_react_redux50.useSelector)(selectTargetChain);
-  const sourceCurrency = (0, import_react_redux50.useSelector)(selectSourceCurrency);
-  const targetCurrency = (0, import_react_redux50.useSelector)(selectTargetCurrency);
-  const amount = (0, import_react_redux50.useSelector)(selectAmount);
-  const { totalFeeUsd, targetNetworkFee } = (0, import_react_redux50.useSelector)(selectServiceFee);
-  const compliantOption = (0, import_react_redux50.useSelector)(selectCompliantOption);
-  const networkOptions3 = (0, import_react_redux50.useSelector)(selectNetworkOption);
-  const feeDeduct = (0, import_react_redux50.useSelector)(selectFeeDeduct);
-  const closeHandler = (0, import_react_redux50.useSelector)(selectCloseHandler);
-  const [isCancellingApprove, setCancellingApprove] = (0, import_react126.useState)(false);
-  const [isApproving, setApproving] = (0, import_react126.useState)(false);
-  const [isSigning, setSigning] = (0, import_react126.useState)(false);
-  const pendingTxs = (0, import_react_redux50.useSelector)(selectPendingTxs);
+  const dispatch = (0, import_react_redux51.useDispatch)();
+  const mainRef = (0, import_react127.useRef)(null);
+  const [isWizard, setWizard] = (0, import_react127.useState)(false);
+  const [formStep, setFormStep] = (0, import_react127.useState)(0);
+  const [wizardStep, setWizardStep] = (0, import_react127.useState)(0);
+  const mode = (0, import_react_redux51.useSelector)(selectMode);
+  const transactionOption = (0, import_react_redux51.useSelector)(selectTransactionOption);
+  const backendUrl = (0, import_react_redux51.useSelector)(selectBackendUrl);
+  const sourceAddress = (0, import_react_redux51.useSelector)(selectSourceAddress);
+  const targetAddress = (0, import_react_redux51.useSelector)(selectTargetAddress);
+  const sourceChain = (0, import_react_redux51.useSelector)(selectSourceChain);
+  const targetChain = (0, import_react_redux51.useSelector)(selectTargetChain);
+  const sourceCurrency = (0, import_react_redux51.useSelector)(selectSourceCurrency);
+  const targetCurrency = (0, import_react_redux51.useSelector)(selectTargetCurrency);
+  const amount = (0, import_react_redux51.useSelector)(selectAmount);
+  const {
+    totalFeeUsd,
+    totalFee,
+    targetNetworkFee,
+    submitAmount,
+    decimals: feeDecimals
+  } = (0, import_react_redux51.useSelector)(selectServiceFee);
+  const compliantOption = (0, import_react_redux51.useSelector)(selectCompliantOption);
+  const networkOptions3 = (0, import_react_redux51.useSelector)(selectNetworkOption);
+  const feeDeduct = (0, import_react_redux51.useSelector)(selectFeeDeduct);
+  const closeHandler = (0, import_react_redux51.useSelector)(selectCloseHandler);
+  const [isCancellingApprove, setCancellingApprove] = (0, import_react127.useState)(false);
+  const [isApproving, setApproving] = (0, import_react127.useState)(false);
+  const [isSigning, setSigning] = (0, import_react127.useState)(false);
+  const pendingTxs = (0, import_react_redux51.useSelector)(selectPendingTxs);
   const { width: windowWidth } = useWidth_default();
   const { balance } = useBalance2();
   const { allowance, isApproved, approve, decimals } = useAllowance({
@@ -5770,29 +5865,27 @@ var TransferWidget = ({
     feeDeduct
   });
   const { submitTransaction, isSubmitting } = useSubmitTransaction_default({
-    mode,
-    amount,
-    totalFeeUsd,
+    amount: BigInt(submitAmount ?? "0"),
+    totalFee: BigInt(totalFee ?? "0"),
     originAddress: sourceAddress,
     targetAddress,
     originChain: sourceChain,
     targetChain,
     originSymbol: sourceCurrency,
     targetSymbol: targetCurrency,
-    feeDeduct,
     backendUrl,
-    decimals
+    decimals: feeDecimals
   });
   const handleSubmit = async () => {
     const { error, message: validationMessage } = validate(true);
     if (error === "ValidationError" /* Error */) {
-      return import_react_hot_toast9.toast.error(validationMessage, { icon: /* @__PURE__ */ import_react126.default.createElement(Error_default, null) });
+      return import_react_hot_toast9.toast.error(validationMessage, { icon: /* @__PURE__ */ import_react127.default.createElement(Error_default, null) });
     }
     if (error === "ApprovalNeeded" /* ApprovalNeeded */) {
       return approve();
     }
     const { success, message: submitMessage } = await submitTransaction();
-    if (!success) return import_react_hot_toast9.toast.error(submitMessage, { icon: /* @__PURE__ */ import_react126.default.createElement(Error_default, null) });
+    if (!success) return import_react_hot_toast9.toast.error(submitMessage, { icon: /* @__PURE__ */ import_react127.default.createElement(Error_default, null) });
   };
   const onNext = () => {
     const { error, message } = validate();
@@ -5802,7 +5895,7 @@ var TransferWidget = ({
     if (error !== "ValidationError" /* Error */ && formStep > 0) {
       return handleSubmit();
     }
-    import_react_hot_toast9.toast.error(message, { icon: /* @__PURE__ */ import_react126.default.createElement(Error_default, null) });
+    import_react_hot_toast9.toast.error(message, { icon: /* @__PURE__ */ import_react127.default.createElement(Error_default, null) });
     mainRef.current?.click();
   };
   const onBack = () => {
@@ -5839,10 +5932,10 @@ var TransferWidget = ({
     dispatch(setAmount(""));
     closeHandler();
   };
-  (0, import_react126.useEffect)(() => {
+  (0, import_react127.useEffect)(() => {
     dispatch(setTheme(theme));
   }, [theme]);
-  return /* @__PURE__ */ import_react126.default.createElement(
+  return /* @__PURE__ */ import_react127.default.createElement(
     "div",
     {
       className: `kima-card ${theme.colorMode}`,
@@ -5850,14 +5943,14 @@ var TransferWidget = ({
         background: theme.colorMode === "light" /* light */ ? theme.backgroundColorLight : theme.backgroundColorDark
       }
     },
-    mode === "payment" /* payment */ && !transactionOption && /* @__PURE__ */ import_react126.default.createElement("h2", { className: "invalid-option-banner" }, "We're unable to process your payment. Please ensure the necessary transaction details are provided. Contact support if the issue persists."),
-    /* @__PURE__ */ import_react126.default.createElement("div", { className: "transfer-card" }, /* @__PURE__ */ import_react126.default.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ import_react126.default.createElement("div", { className: "topbar" }, /* @__PURE__ */ import_react126.default.createElement("div", { className: "title" }, /* @__PURE__ */ import_react126.default.createElement("h3", null, formStep === 0 ? titleOption?.initialTitle ? titleOption.initialTitle : mode === "payment" /* payment */ ? "New Purchase" : "New Transfer" : titleOption?.confirmTitle ? titleOption.confirmTitle : mode === "payment" /* payment */ ? "Confirm Purchase" : "Transfer Details")), /* @__PURE__ */ import_react126.default.createElement("div", { className: "control-buttons" }, pendingTxs > 0 ? /* @__PURE__ */ import_react126.default.createElement(TxButton_default, { theme }) : null, /* @__PURE__ */ import_react126.default.createElement(
+    mode === "payment" /* payment */ && !transactionOption && /* @__PURE__ */ import_react127.default.createElement("h2", { className: "invalid-option-banner" }, "We're unable to process your payment. Please ensure the necessary transaction details are provided. Contact support if the issue persists."),
+    /* @__PURE__ */ import_react127.default.createElement("div", { className: "transfer-card" }, /* @__PURE__ */ import_react127.default.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ import_react127.default.createElement("div", { className: "topbar" }, /* @__PURE__ */ import_react127.default.createElement("div", { className: "title" }, /* @__PURE__ */ import_react127.default.createElement("h3", null, formStep === 0 ? titleOption?.initialTitle ? titleOption.initialTitle : mode === "payment" /* payment */ ? "New Purchase" : "New Transfer" : titleOption?.confirmTitle ? titleOption.confirmTitle : mode === "payment" /* payment */ ? "Confirm Purchase" : "Transfer Details")), /* @__PURE__ */ import_react127.default.createElement("div", { className: "control-buttons" }, pendingTxs > 0 ? /* @__PURE__ */ import_react127.default.createElement(TxButton_default, { theme }) : null, /* @__PURE__ */ import_react127.default.createElement(
       ExternalLink_default,
       {
         to: helpURL ? helpURL : "https://docs.kima.network/kima-network/try-kima-with-the-demo-app"
       },
-      /* @__PURE__ */ import_react126.default.createElement("div", { className: "menu-button" }, "I need help")
-    ), formStep === 0 && mode !== "payment" /* payment */ && /* @__PURE__ */ import_react126.default.createElement(
+      /* @__PURE__ */ import_react127.default.createElement("div", { className: "menu-button" }, "I need help")
+    ), formStep === 0 && mode !== "payment" /* payment */ && /* @__PURE__ */ import_react127.default.createElement(
       "button",
       {
         className: "reset-button",
@@ -5865,17 +5958,17 @@ var TransferWidget = ({
         disabled: isApproving || isSubmitting || isSigning
       },
       "Reset"
-    ))), /* @__PURE__ */ import_react126.default.createElement("h4", { className: "subtitle" }, mode === "payment" /* payment */ && paymentTitleOption?.title)), /* @__PURE__ */ import_react126.default.createElement("div", { className: "kima-card-content", ref: mainRef }, isWizard ? wizardStep === 0 ? /* @__PURE__ */ import_react126.default.createElement(NetworkSelect_default, null) : wizardStep === 1 ? /* @__PURE__ */ import_react126.default.createElement("div", { className: "connect-wallet-step" }, /* @__PURE__ */ import_react126.default.createElement("p", null, "Connect your wallet"), /* @__PURE__ */ import_react126.default.createElement(WalletButton_default, { errorBelow: true })) : wizardStep === 2 ? /* @__PURE__ */ import_react126.default.createElement(NetworkSelect_default, { isOriginChain: false }) : wizardStep === 3 ? /* @__PURE__ */ import_react126.default.createElement(AddressInputWizard_default, null) : wizardStep === 4 ? /* @__PURE__ */ import_react126.default.createElement(CoinSelect_default, null) : /* @__PURE__ */ import_react126.default.createElement(ConfirmDetails_default, { isApproved }) : formStep === 0 ? /* @__PURE__ */ import_react126.default.createElement(SingleForm_default, null) : /* @__PURE__ */ import_react126.default.createElement(ConfirmDetails_default, { isApproved })), /* @__PURE__ */ import_react126.default.createElement(
+    ))), mode === "payment" /* payment */ && paymentTitleOption?.title && /* @__PURE__ */ import_react127.default.createElement("h4", { className: "subtitle" }, paymentTitleOption.title)), /* @__PURE__ */ import_react127.default.createElement("div", { className: "kima-card-content", ref: mainRef }, isWizard ? wizardStep === 0 ? /* @__PURE__ */ import_react127.default.createElement(NetworkSelect_default, null) : wizardStep === 1 ? /* @__PURE__ */ import_react127.default.createElement("div", { className: "connect-wallet-step" }, /* @__PURE__ */ import_react127.default.createElement("p", null, "Connect your wallet"), /* @__PURE__ */ import_react127.default.createElement(WalletButton_default, { errorBelow: true })) : wizardStep === 2 ? /* @__PURE__ */ import_react127.default.createElement(NetworkSelect_default, { isOriginChain: false }) : wizardStep === 3 ? /* @__PURE__ */ import_react127.default.createElement(AddressInputWizard_default, null) : wizardStep === 4 ? /* @__PURE__ */ import_react127.default.createElement(CoinSelect_default, null) : /* @__PURE__ */ import_react127.default.createElement(ConfirmDetails_default, { isApproved }) : formStep === 0 ? /* @__PURE__ */ import_react127.default.createElement(SingleForm_default, { ...{ balance, decimals } }) : /* @__PURE__ */ import_react127.default.createElement(ConfirmDetails_default, { isApproved })), /* @__PURE__ */ import_react127.default.createElement(
       "div",
       {
         className: `kima-card-footer ${mode === "bridge" /* bridge */ && formStep === 0 && "bridge"}`
       },
-      /* @__PURE__ */ import_react126.default.createElement(
+      /* @__PURE__ */ import_react127.default.createElement(
         "div",
         {
-          className: `button-group ${formStep !== 0 && allowance > 0 && "confirm"}`
+          className: `button-group ${formStep > 0 ? allowance > 0 ? "grid" : "row" : "row"}`
         },
-        formStep !== 0 && /* @__PURE__ */ import_react126.default.createElement(
+        formStep !== 0 && /* @__PURE__ */ import_react127.default.createElement(
           SecondaryButton_default,
           {
             clickHandler: onBack,
@@ -5884,7 +5977,7 @@ var TransferWidget = ({
           },
           isWizard && wizardStep > 0 || !isWizard && formStep > 0 ? "Back" : "Cancel"
         ),
-        allowance > 0 && (isWizard && wizardStep === 5 || !isWizard && formStep === 1) ? /* @__PURE__ */ import_react126.default.createElement(
+        allowance > 0 && (isWizard && wizardStep === 5 || !isWizard && formStep === 1) ? /* @__PURE__ */ import_react127.default.createElement(
           PrimaryButton_default,
           {
             clickHandler: onCancelApprove,
@@ -5893,7 +5986,7 @@ var TransferWidget = ({
           },
           isCancellingApprove ? "Cancelling Approval" : "Cancel Approve"
         ) : null,
-        /* @__PURE__ */ import_react126.default.createElement(
+        /* @__PURE__ */ import_react127.default.createElement(
           PrimaryButton_default,
           {
             clickHandler: onNext,
@@ -5903,7 +5996,7 @@ var TransferWidget = ({
           getButtonLabel()
         )
       )
-    ), /* @__PURE__ */ import_react126.default.createElement(SolanaWalletConnectModal_default, null), /* @__PURE__ */ import_react126.default.createElement(TronWalletConnectModal_default, null), /* @__PURE__ */ import_react126.default.createElement(
+    ), /* @__PURE__ */ import_react127.default.createElement(SolanaWalletConnectModal_default, null), /* @__PURE__ */ import_react127.default.createElement(TronWalletConnectModal_default, null), /* @__PURE__ */ import_react127.default.createElement(
       import_react_hot_toast9.Toaster,
       {
         position: "top-right",
@@ -5927,18 +6020,18 @@ var TransferWidget = ({
           }
         }
       }
-    ), /* @__PURE__ */ import_react126.default.createElement("div", { className: "floating-footer" }, /* @__PURE__ */ import_react126.default.createElement("div", { className: `items ${theme.colorMode}` }, /* @__PURE__ */ import_react126.default.createElement("span", null, "Powered by"), /* @__PURE__ */ import_react126.default.createElement(FooterLogo_default, { width: 50, fill: "black" }), /* @__PURE__ */ import_react126.default.createElement("strong", null, "Network"))))
+    ), /* @__PURE__ */ import_react127.default.createElement("div", { className: "floating-footer" }, /* @__PURE__ */ import_react127.default.createElement("div", { className: `items ${theme.colorMode}` }, /* @__PURE__ */ import_react127.default.createElement("span", null, "Powered by"), /* @__PURE__ */ import_react127.default.createElement(FooterLogo_default, { width: 50, fill: "black" }), /* @__PURE__ */ import_react127.default.createElement("strong", null, "Network"))))
   );
 };
 
 // src/components/KimaTransactionWidget.tsx
-var import_react128 = require("@reown/appkit/react");
+var import_react129 = require("@reown/appkit/react");
 
 // src/hooks/useChainData.ts
 var import_react_query13 = require("@tanstack/react-query");
-var import_react_redux51 = require("react-redux");
+var import_react_redux52 = require("react-redux");
 var useChainData = (backendURL, chainName) => {
-  const dispatch = (0, import_react_redux51.useDispatch)();
+  const dispatch = (0, import_react_redux52.useDispatch)();
   const ouput = (0, import_react_query13.useQuery)({
     queryKey: ["chainData"],
     queryFn: async () => {
@@ -6002,7 +6095,6 @@ var KimaTransactionWidget = ({
   kimaBackendUrl,
   kimaNodeProviderQuery,
   kimaExplorer = "https://explorer.kima.finance",
-  feeURL = "https://fee.kima.finance",
   kimaGraphqlProviderQuery = "https://graphql.kima.finance/v1/graphql",
   errorHandler = () => void 0,
   closeHandler = () => void 0,
@@ -6010,11 +6102,11 @@ var KimaTransactionWidget = ({
   switchChainHandler = () => void 0,
   keplrHandler = () => void 0
 }) => {
-  const submitted = (0, import_react_redux52.useSelector)(selectSubmitted);
-  const dispatch = (0, import_react_redux52.useDispatch)();
-  const { setThemeMode, setThemeVariables } = (0, import_react128.useAppKitTheme)();
+  const submitted = (0, import_react_redux53.useSelector)(selectSubmitted);
+  const dispatch = (0, import_react_redux53.useDispatch)();
+  const { setThemeMode, setThemeVariables } = (0, import_react129.useAppKitTheme)();
   const { data: chainData } = useChainData(kimaBackendUrl);
-  (0, import_react127.useEffect)(() => {
+  (0, import_react128.useEffect)(() => {
     dispatch(setTheme(theme));
     setThemeMode(theme.colorMode === "light" /* light */ ? "light" : "dark");
     setThemeVariables({
@@ -6048,7 +6140,7 @@ var KimaTransactionWidget = ({
       dispatch(setSubmitted(true));
     }
   }, [provider, theme, transactionOption, errorHandler, closeHandler, mode]);
-  (0, import_react127.useEffect)(() => {
+  (0, import_react128.useEffect)(() => {
     if (dAppOption === "none" /* None */ && mode === "bridge" /* bridge */) {
       dispatch(setTargetChain(""));
       dispatch(setSourceChain("ETH"));
@@ -6057,15 +6149,14 @@ var KimaTransactionWidget = ({
       dispatch(setSubmitted(true));
     }
   }, [dAppOption, mode]);
-  (0, import_react127.useEffect)(() => {
+  (0, import_react128.useEffect)(() => {
     if (!chainData?.length) return;
     indexPluginsByChain(chainData);
   }, [chainData]);
-  return submitted ? /* @__PURE__ */ import_react127.default.createElement(TransactionWidget, { theme }) : /* @__PURE__ */ import_react127.default.createElement(
+  return submitted ? /* @__PURE__ */ import_react128.default.createElement(TransactionWidget, { theme }) : /* @__PURE__ */ import_react128.default.createElement(
     TransferWidget,
     {
       theme,
-      feeURL,
       helpURL,
       titleOption,
       paymentTitleOption
