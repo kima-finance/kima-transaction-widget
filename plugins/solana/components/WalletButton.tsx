@@ -18,7 +18,7 @@ import { ChainName } from '../../utils/constants'
 // import { getShortenedAddress } from '../../utils/functions'
 import { connectWalletBtn } from '../../utils/testId'
 import useBalance from '../../hooks/useBalance'
-import { useWeb3Modal } from '@web3modal/ethers5/react'
+import { useAppKit } from '@reown/appkit/react'
 import { WalletIcon } from '../../assets/icons'
 import useWidth from '../../hooks/useWidth'
 import { getShortenedAddress } from '../../utils/functions'
@@ -37,7 +37,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const { isReady, statusMessage, walletAddress, connectBitcoinWallet } =
     useIsWalletReady()
   const { balance } = useBalance()
-  const { open } = useWeb3Modal()
+  const { open } = useAppKit()
   const { width, updateWidth } = useWidth()
 
   useEffect(() => {
