@@ -4,11 +4,9 @@ import { ErrorIcon, FooterLogo } from '../assets/icons'
 import {
   ConfirmDetails,
   ExternalLink,
-  NetworkSelect,
   PrimaryButton,
   SecondaryButton,
-  TxButton,
-  WalletButton
+  TxButton
 } from './reusable'
 import {
   ColorModeOptions,
@@ -18,7 +16,6 @@ import {
   TitleOption
 } from '../interface'
 import SingleForm from './reusable/SingleForm'
-import CoinSelect from './reusable/CoinSelect' //yes
 
 // store
 import { setAmount, setTargetAddress, setTheme } from '@store/optionSlice'
@@ -41,7 +38,6 @@ import {
   selectTransactionOption
 } from '@store/selectors'
 import useAllowance from '../hooks/useAllowance'
-import AddressInputWizard from './reusable/AddressInputWizard'
 import { toast, Toaster } from 'react-hot-toast'
 import useWidth from '../hooks/useWidth'
 import SolanaWalletConnectModal from '@plugins/solana/components/SolanaWalletConnectModal'
@@ -71,9 +67,7 @@ export const TransferWidget = ({
   const mainRef = useRef<HTMLDivElement>(null)
 
   // State variables for UI
-  const [isWizard, setWizard] = useState(false)
   const [formStep, setFormStep] = useState(0)
-  const [wizardStep, setWizardStep] = useState(0)
 
   // Redux variables
   const mode = useSelector(selectMode)
@@ -196,22 +190,18 @@ export const TransferWidget = ({
 
   const onBack = () => {
     if (isApproving || isSubmitting || isSigning) return
-    if (isWizard && wizardStep > 0) {
-      if (mode === ModeOptions.payment && wizardStep === 5) setWizardStep(1)
-      else setWizardStep((step) => step - 1)
-    }
 
-    if (!isWizard && formStep > 0) {
+    if (formStep > 0) {
       setFormStep(0)
     }
 
-    if ((isWizard && wizardStep === 0) || (!isWizard && formStep === 0)) {
+    if (formStep === 0) {
       closeHandler()
     }
   }
 
   const getButtonLabel = () => {
-    if ((isWizard && wizardStep === 5) || (!isWizard && formStep === 1)) {
+    if (formStep === 1) {
       if (isApproved) {
         return isSubmitting ? 'Submitting...' : 'Submit'
       } else {
@@ -305,25 +295,8 @@ export const TransferWidget = ({
         </div>
 
         <div className='kima-card-content' ref={mainRef}>
-          {isWizard ? (
-            wizardStep === 0 ? (
-              <NetworkSelect />
-            ) : wizardStep === 1 ? (
-              <div className='connect-wallet-step'>
-                <p>Connect your wallet</p>
-                <WalletButton errorBelow={true} />
-              </div>
-            ) : wizardStep === 2 ? (
-              <NetworkSelect isOriginChain={false} />
-            ) : wizardStep === 3 ? (
-              <AddressInputWizard />
-            ) : wizardStep === 4 ? (
-              <CoinSelect />
-            ) : (
-              <ConfirmDetails isApproved={isApproved} />
-            )
-          ) : formStep === 0 ? (
-            <SingleForm {...{balance, decimals}}/>
+          {formStep === 0 ? (
+            <SingleForm {...{ balance, decimals }} />
           ) : (
             <ConfirmDetails isApproved={isApproved} />
           )}
@@ -341,14 +314,10 @@ export const TransferWidget = ({
                 theme={theme.colorMode}
                 disabled={isApproving || isSubmitting || isSigning}
               >
-                {(isWizard && wizardStep > 0) || (!isWizard && formStep > 0)
-                  ? 'Back'
-                  : 'Cancel'}
+                {formStep > 0 ? 'Back' : 'Cancel'}
               </SecondaryButton>
             )}
-            {allowance > 0 &&
-            ((isWizard && wizardStep === 5) ||
-              (!isWizard && formStep === 1)) ? (
+            {allowance > 0 ? (
               <PrimaryButton
                 clickHandler={onCancelApprove}
                 isLoading={isCancellingApprove}
