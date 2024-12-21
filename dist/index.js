@@ -2249,7 +2249,6 @@ import {
   useAppKitNetwork,
   useAppKitProvider as useAppKitProvider3
 } from "@reown/appkit/react";
-import toast from "react-hot-toast";
 function useIsWalletReady() {
   const dispatch = useDispatch();
   const { walletProvider: evmProvider } = useAppKitProvider3("eip155");
@@ -2281,17 +2280,11 @@ function useIsWalletReady() {
     if (evmProvider && correctEvmNetwork && appKitModel !== null) {
       try {
         await appKitModel.switchNetwork(correctEvmNetwork);
-        toast.success(
-          `useIsWalletReady:EVM:Switched to ${correctEvmNetwork.name}`
-        );
         console.debug(
           "useIsWalletReady:EVM:Network switch successful to:",
           correctEvmNetwork.name
         );
       } catch (e) {
-        toast.error(
-          `useIsWalletReady:EVM:Failed to switch to ${correctEvmNetwork.name}`
-        );
         console.error("useIsWalletReady:EVM:Network switch failed:", e);
       }
     }
@@ -2303,7 +2296,6 @@ function useIsWalletReady() {
       correctEvmNetwork
     });
     if (!isConnected) {
-      toast.error("Wallet not connected");
       console.warn("useIsWalletReady:EVM:Wallet not connected - cannot proceed");
     } else if (walletChainId !== correctEvmNetwork?.id) {
       console.warn(
@@ -3200,7 +3192,7 @@ import {
   WalletDisconnectedError,
   WalletNotFoundError
 } from "@tronweb3/tronwallet-abstract-adapter";
-import { toast as toast2 } from "react-hot-toast";
+import { toast } from "react-hot-toast";
 var WalletProvider3 = ({ children, networkOption }) => {
   const adapters = useMemo4(
     () => [
@@ -3213,17 +3205,17 @@ var WalletProvider3 = ({ children, networkOption }) => {
   );
   function onError(e) {
     if (e instanceof WalletNotFoundError) {
-      toast2.error(e.message);
+      toast.error(e.message);
     } else if (e instanceof WalletDisconnectedError) {
-      toast2.error(e.message);
+      toast.error(e.message);
     } else {
-      toast2.error(e.message);
+      toast.error(e.message);
     }
   }
   const onChainChanged = (chainData) => {
     if (networkOption === "testnet") {
       if (chainData.chainId === "0xcd8690dc") {
-        toast2.error("Please switch to Tron Shasta Testnet!");
+        toast.error("Please switch to Tron Shasta Testnet!");
         adapters[0].switchChain("0x3e9");
       } else if (chainData.chainId !== "0x3e9") {
         adapters[0].switchChain("0x3e9");
@@ -3526,11 +3518,11 @@ var KimaProvider = ({
 var KimaProvider_default = KimaProvider;
 
 // src/components/KimaTransactionWidget.tsx
-import React108, { useEffect as useEffect21 } from "react";
+import React109, { useEffect as useEffect21 } from "react";
 import { useDispatch as useDispatch27, useSelector as useSelector40 } from "react-redux";
 
 // src/components/TransactionWidget.tsx
-import React95, { useEffect as useEffect14, useState as useState12 } from "react";
+import React96, { useEffect as useEffect14, useState as useState11 } from "react";
 
 // src/components/reusable/Progressbar.tsx
 import React74 from "react";
@@ -3677,7 +3669,7 @@ var SecondaryButton_default = SecondaryButton;
 // src/components/reusable/NetworkSelect.tsx
 import React82, { useEffect as useEffect4, useMemo as useMemo9, useRef, useState as useState5 } from "react";
 import { useSelector as useSelector13, useDispatch as useDispatch4 } from "react-redux";
-import toast3 from "react-hot-toast";
+import toast2 from "react-hot-toast";
 
 // src/components/reusable/ChainIcon.tsx
 import React81 from "react";
@@ -3757,7 +3749,7 @@ var Network = ({ isOriginChain = true }) => {
         }
       } catch (e) {
         console.log("rpc disconnected", e);
-        toast3.error("rpc disconnected");
+        toast2.error("rpc disconnected");
       }
     })();
   }, [nodeProviderQuery, originNetwork, targetNetwork, mode, isOriginChain]);
@@ -3841,7 +3833,6 @@ import { useSelector as useSelector14 } from "react-redux";
 
 // src/components/reusable/WalletButton.tsx
 import React86, { useEffect as useEffect8, useMemo as useMemo10 } from "react";
-import { toast as toast4 } from "react-hot-toast";
 import { useDispatch as useDispatch6, useSelector as useSelector16 } from "react-redux";
 
 // src/hooks/useGetCurrentPlugin.tsx
@@ -3997,6 +3988,26 @@ var CopyButton = ({ text }) => {
 };
 var CopyButton_default = CopyButton;
 
+// src/helpers/functions.tsx
+var formatterInt2 = new Intl.NumberFormat("en-US", {
+  maximumFractionDigits: 0
+});
+var formatterFloat2 = new Intl.NumberFormat("en-US", {
+  maximumFractionDigits: 9
+});
+var formatUSD = (amount) => {
+  const numericAmount = typeof amount === "string" ? parseFloat(amount) : amount;
+  if (isNaN(numericAmount)) {
+    throw new Error(
+      "Invalid input: amount must be a number or a numeric string"
+    );
+  }
+  return numericAmount.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD"
+  });
+};
+
 // src/components/reusable/WalletButton.tsx
 var WalletButton = ({ errorBelow = false }) => {
   const dispatch = useDispatch6();
@@ -4056,10 +4067,6 @@ var WalletButton = ({ errorBelow = false }) => {
       return `Source address has ${sourceCompliant?.results?.[0].result?.risk_score} risk`;
     return "";
   }, [isReady, statusMessage, sourceCompliant, compliantOption]);
-  useEffect8(() => {
-    if (!errorMessage) return;
-    toast4.error(errorMessage);
-  }, [errorMessage]);
   return /* @__PURE__ */ React86.createElement(
     "div",
     {
@@ -4076,80 +4083,125 @@ var WalletButton = ({ errorBelow = false }) => {
       !isReady && /* @__PURE__ */ React86.createElement(Wallet_default, null),
       !isReady && "Connect Wallet"
     ), isReady && /* @__PURE__ */ React86.createElement(CopyButton_default, { text: walletAddress })),
-    isReady && balance !== void 0 ? /* @__PURE__ */ React86.createElement("p", { className: "balance-info" }, balance.toFixed(2), " ", selectedCoin, " available") : null
+    isReady && balance !== void 0 ? /* @__PURE__ */ React86.createElement("p", { className: "balance-info" }, formatUSD(balance), " ", selectedCoin, " available") : null
   );
 };
 var WalletButton_default = WalletButton;
 
 // src/components/reusable/CoinDropdown.tsx
-import React87, { useEffect as useEffect10, useMemo as useMemo12, useRef as useRef2, useState as useState10 } from "react";
+import React88, { useEffect as useEffect10, useRef as useRef2, useState as useState9 } from "react";
 import { useSelector as useSelector18 } from "react-redux";
-import { useDispatch as useDispatch8 } from "react-redux";
+import { useDispatch as useDispatch9 } from "react-redux";
 
 // src/hooks/useCurrencyOptions.tsx
-import { useEffect as useEffect9, useMemo as useMemo11, useState as useState9 } from "react";
+import { useEffect as useEffect9, useMemo as useMemo11 } from "react";
 import { useSelector as useSelector17 } from "react-redux";
+import { useDispatch as useDispatch8 } from "react-redux";
+
+// src/hooks/useChainData.ts
+import { useQuery as useQuery9 } from "@tanstack/react-query";
 import { useDispatch as useDispatch7 } from "react-redux";
-import toast5 from "react-hot-toast";
-function useCurrencyOptions() {
+var useChainData = (backendURL, chainName) => {
   const dispatch = useDispatch7();
-  const [tokenList, setTokenList] = useState9(["USDK"]);
+  const ouput = useQuery9({
+    queryKey: ["chainData"],
+    queryFn: async () => {
+      try {
+        const response = await fetchWrapper.get(`${backendURL}/chains`);
+        const chains = typeof response === "string" ? [] : response;
+        const { networks, tokens } = getChainAndTokensOptions(chains);
+        dispatch(setNetworks(networks));
+        dispatch(setTokenOptions(tokens));
+        console.log("useChainData::Chain data:", { networks, tokens, chains });
+        return chains;
+      } catch (error) {
+        console.error("Error fetching chain data:", error);
+        return [];
+      }
+    },
+    select: (data) => {
+      if (!chainName) return data;
+      return data.filter((chain) => chain.shortName === chainName);
+    },
+    enabled: !!backendURL,
+    staleTime: 1e3 * 60 * 15,
+    // Cache for 15 minutes
+    gcTime: 1e3 * 60 * 60
+    // Garbage collect after 1 hour
+  });
+  return ouput;
+};
+function getChainAndTokensOptions(chains) {
+  const networks = [];
+  const tokens = {};
+  chains.forEach((chain) => {
+    networks.push({
+      id: chain.shortName,
+      label: chain.name
+    });
+    chain.supportedTokens.forEach((token) => {
+      if (!tokens[token.symbol]) {
+        tokens[token.symbol] = {};
+      }
+      tokens[token.symbol][chain.shortName] = token.address;
+    });
+  });
+  return { networks, tokens };
+}
+
+// src/hooks/useCurrencyOptions.tsx
+function useCurrencyOptions() {
+  const dispatch = useDispatch8();
   const mode = useSelector17(selectMode);
   const transactionOption = useSelector17(selectTransactionOption);
-  const nodeProviderQuery = useSelector17(selectNodeProviderQuery);
   const originNetwork = useSelector17(selectSourceChain);
-  const targetNetwork = useSelector17(selectTargetChain);
-  const dAppOption = useSelector17(selectDappOption);
+  const backendUrl = useSelector17(selectBackendUrl);
+  const { data: chains } = useChainData(backendUrl, originNetwork);
+  const output = useMemo11(() => {
+    return !!chains ? { tokenList: chains[0].supportedTokens } : { tokenList: [] };
+  }, [chains]);
+  const { tokenList } = output;
   useEffect9(() => {
-    if (!nodeProviderQuery || !originNetwork || !targetNetwork || !transactionOption && mode === "payment" /* payment */)
+    if (!originNetwork || !transactionOption && mode === "payment" /* payment */ || !tokenList.length) {
       return;
-    (async function() {
-      try {
-        if (originNetwork === "FIAT" /* FIAT */ || targetNetwork === "FIAT" /* FIAT */) {
-          dispatch(setSourceCurrency("KEUR"));
-          dispatch(setTargetCurrency("KEUR"));
-          return;
-        }
-        const coins = await fetchWrapper.get(
-          `${nodeProviderQuery}/kima-finance/kima-blockchain/chains/get_currencies/${originNetwork}/${targetNetwork}`
-        );
-        let _tokenList = coins.Currencies.map(
-          (coin) => coin.toUpperCase()
-        ) || ["USDK"];
-        if (originNetwork === "BTC" /* BTC */ || targetNetwork === "BTC" /* BTC */) {
-          _tokenList = ["WBTC"];
-        }
-        if (transactionOption?.currency && _tokenList.findIndex((item) => item === transactionOption.currency) >= 0) {
-          dispatch(setSourceCurrency(transactionOption.currency));
-          dispatch(setTargetCurrency(transactionOption.currency));
-        } else {
-          dispatch(setSourceCurrency(_tokenList[0]));
-          dispatch(setTargetCurrency(_tokenList[0]));
-        }
-        if (dAppOption !== "none" /* None */) {
-          setTokenList([transactionOption?.currency || "USDK"]);
-        } else {
-          setTokenList(_tokenList);
-        }
-      } catch (e) {
-        console.log("rpc disconnected", e);
-        toast5.error("rpc disconnected");
-      }
-    })();
-  }, [
-    nodeProviderQuery,
-    originNetwork,
-    targetNetwork,
-    transactionOption,
-    mode,
-    dAppOption
-  ]);
-  return useMemo11(
-    () => ({
-      tokenList
-    }),
-    [tokenList]
-  );
+    }
+    if (transactionOption?.currency && tokenList?.findIndex(
+      (item) => item.symbol === transactionOption.currency
+    ) >= 0) {
+      dispatch(setSourceCurrency(transactionOption.currency));
+      dispatch(setTargetCurrency(transactionOption.currency));
+    } else {
+      const [firstToken] = tokenList;
+      const firstTokenSymbol = firstToken.symbol;
+      dispatch(setSourceCurrency(firstTokenSymbol));
+      dispatch(setTargetCurrency(firstTokenSymbol));
+    }
+  }, [originNetwork, tokenList, transactionOption, mode]);
+  return output;
+}
+
+// src/components/reusable/TokenIcon.tsx
+import React87 from "react";
+var COIN_LIST2 = {
+  KEUR: KEUR_default,
+  KIMAUSD: USDK_default,
+  USDC: USDC_default,
+  USDK: USDK_default,
+  USDT: USDT_default,
+  WBTC: BTC_default
+};
+function TokenIcon({
+  symbol,
+  width = 30,
+  height = 30
+}) {
+  if (!symbol) return null;
+  const Icon = COIN_LIST2[symbol];
+  if (!Icon) {
+    console.warn(`Token icon not found for symbol: ${symbol}`);
+    return null;
+  }
+  return /* @__PURE__ */ React87.createElement("div", { className: "icon-wrapper" }, /* @__PURE__ */ React87.createElement(Icon, { width, height }));
 }
 
 // src/components/reusable/CoinDropdown.tsx
@@ -4157,16 +4209,13 @@ var CoinDropdown = ({
   isSourceChain = true
 }) => {
   const ref = useRef2();
-  const dispatch = useDispatch8();
-  const [collapsed, setCollapsed] = useState10(true);
+  const dispatch = useDispatch9();
+  const [collapsed, setCollapsed] = useState9(true);
   const sourceCurrency = useSelector18(selectSourceCurrency);
   const targetCurrency = useSelector18(selectTargetCurrency);
   const { tokenList } = useCurrencyOptions();
   const theme = useSelector18(selectTheme);
-  const Icon = useMemo12(() => {
-    const selectedCoin = isSourceChain ? sourceCurrency : targetCurrency;
-    return COIN_LIST[selectedCoin || "USDK"]?.icon || COIN_LIST["USDK"].icon;
-  }, [sourceCurrency, targetCurrency, isSourceChain]);
+  const tokenSymbol = isSourceChain ? sourceCurrency : targetCurrency;
   useEffect10(() => {
     const bodyMouseDowntHandler = (e) => {
       if (ref?.current && !ref.current.contains(e.target)) {
@@ -4178,52 +4227,50 @@ var CoinDropdown = ({
       document.removeEventListener("mousedown", bodyMouseDowntHandler);
     };
   }, [setCollapsed]);
-  return /* @__PURE__ */ React87.createElement(
+  const handleDropdownItemClick = (symbol) => {
+    if (isSourceChain) {
+      dispatch(setSourceCurrency(symbol));
+    } else {
+      dispatch(setTargetCurrency(symbol));
+    }
+  };
+  return /* @__PURE__ */ React88.createElement(
     "div",
     {
       className: `coin-dropdown ${theme.colorMode} ${collapsed ? "collapsed" : "toggled"}`,
       onClick: () => setCollapsed((prev) => !prev),
       ref
     },
-    /* @__PURE__ */ React87.createElement("div", { className: "coin-wrapper" }, /* @__PURE__ */ React87.createElement("div", { className: "icon-wrapper" }, /* @__PURE__ */ React87.createElement(Icon, null)), /* @__PURE__ */ React87.createElement("span", { className: "coin" }, isSourceChain ? sourceCurrency : targetCurrency)),
-    /* @__PURE__ */ React87.createElement(
+    /* @__PURE__ */ React88.createElement("div", { className: "coin-wrapper" }, /* @__PURE__ */ React88.createElement(TokenIcon, { symbol: tokenSymbol, width: 24, height: 24 }), /* @__PURE__ */ React88.createElement("span", { className: "coin" }, tokenSymbol)),
+    /* @__PURE__ */ React88.createElement(
       "div",
       {
         className: `coin-menu ${theme.colorMode} ${collapsed ? "collapsed" : "toggled"}`
       },
-      tokenList.map((token) => {
-        const CoinIcon = COIN_LIST[token].icon || COIN_LIST["USDK"].icon;
-        return /* @__PURE__ */ React87.createElement(
-          "div",
-          {
-            className: `coin-item ${theme.colorMode}`,
-            key: COIN_LIST[token]?.symbol,
-            onClick: () => {
-              if (isSourceChain) {
-                dispatch(setSourceCurrency(COIN_LIST[token]?.symbol));
-              } else {
-                dispatch(setTargetCurrency(COIN_LIST[token]?.symbol));
-              }
-            }
-          },
-          /* @__PURE__ */ React87.createElement("div", { className: "icon-wrapper" }, /* @__PURE__ */ React87.createElement(CoinIcon, null)),
-          /* @__PURE__ */ React87.createElement("p", null, COIN_LIST[token]?.symbol)
-        );
-      })
+      tokenList.map((token) => /* @__PURE__ */ React88.createElement(
+        "div",
+        {
+          className: `coin-item ${theme.colorMode}`,
+          key: token.symbol,
+          onClick: () => handleDropdownItemClick(token.symbol)
+        },
+        /* @__PURE__ */ React88.createElement(TokenIcon, { symbol: token.symbol, width: 24, height: 24 }),
+        /* @__PURE__ */ React88.createElement("p", null, token.symbol)
+      ))
     ),
-    /* @__PURE__ */ React87.createElement("div", { className: `dropdown-icon ${collapsed ? "toggled" : "collapsed"}` }, /* @__PURE__ */ React87.createElement(Arrow_default, { fill: "none" }))
+    /* @__PURE__ */ React88.createElement("div", { className: `dropdown-icon ${collapsed ? "toggled" : "collapsed"}` }, /* @__PURE__ */ React88.createElement(Arrow_default, { fill: "none" }))
   );
 };
 var CoinDropdown_default = CoinDropdown;
 
 // src/components/reusable/NetworkDropdown.tsx
-import React88, { useEffect as useEffect11, useMemo as useMemo13, useRef as useRef3, useState as useState11 } from "react";
-import { useSelector as useSelector19, useDispatch as useDispatch9 } from "react-redux";
-import toast6 from "react-hot-toast";
-var NetworkDropdown = React88.memo(
+import React89, { useEffect as useEffect11, useMemo as useMemo12, useRef as useRef3, useState as useState10 } from "react";
+import { useSelector as useSelector19, useDispatch as useDispatch10 } from "react-redux";
+import toast3 from "react-hot-toast";
+var NetworkDropdown = React89.memo(
   ({ isSourceChain = true }) => {
-    const [collapsed, setCollapsed] = useState11(true);
-    const [availableNetworks, setAvailableNetworks] = useState11([]);
+    const [collapsed, setCollapsed] = useState10(true);
+    const [availableNetworks, setAvailableNetworks] = useState10([]);
     const ref = useRef3();
     const sourceChangeRef = useRef3(false);
     const mode = useSelector19(selectMode);
@@ -4234,14 +4281,14 @@ var NetworkDropdown = React88.memo(
     const targetNetwork = useSelector19(selectTargetChain);
     const nodeProviderQuery = useSelector19(selectNodeProviderQuery);
     const networkOptions3 = useSelector19(selectNetworks);
-    const selectedNetwork = useMemo13(() => {
+    const selectedNetwork = useMemo12(() => {
       const index = networkOptions3.findIndex(
         (option) => option.id === (isSourceChain ? originNetwork : targetNetwork)
       );
       if (index >= 0) return networkOptions3[index];
       return networkOptions3[3];
     }, [originNetwork, targetNetwork, networkOptions3]);
-    const networks = useMemo13(() => {
+    const networks = useMemo12(() => {
       if (isSourceChain && mode === "bridge" /* bridge */) {
         return networkOptions3;
       }
@@ -4256,7 +4303,7 @@ var NetworkDropdown = React88.memo(
       originNetwork
     ]);
     const theme = useSelector19(selectTheme);
-    const dispatch = useDispatch9();
+    const dispatch = useDispatch10();
     useEffect11(() => {
       if (!nodeProviderQuery || mode !== "bridge" /* bridge */) return;
       (async function() {
@@ -4286,7 +4333,7 @@ var NetworkDropdown = React88.memo(
           }
         } catch (e) {
           console.log("rpc disconnected", e);
-          toast6.error("rpc disconnected");
+          toast3.error("rpc disconnected");
         }
       })();
     }, [
@@ -4315,7 +4362,7 @@ var NetworkDropdown = React88.memo(
           }
         } catch (e) {
           console.log("rpc disconnected", e);
-          toast6.error("rpc disconnected");
+          toast3.error("rpc disconnected");
         }
       })();
     }, [nodeProviderQuery, mode, targetNetwork, dAppOption]);
@@ -4330,7 +4377,7 @@ var NetworkDropdown = React88.memo(
         document.removeEventListener("mousedown", bodyMouseDowntHandler);
       };
     }, [setCollapsed]);
-    return /* @__PURE__ */ React88.createElement(
+    return /* @__PURE__ */ React89.createElement(
       "div",
       {
         className: `network-dropdown ${theme.colorMode} ${collapsed ? "collapsed" : "toggled"}`,
@@ -4340,13 +4387,13 @@ var NetworkDropdown = React88.memo(
         },
         ref
       },
-      /* @__PURE__ */ React88.createElement("div", { className: "network-wrapper" }, /* @__PURE__ */ React88.createElement(ChainIcon, { symbol: selectedNetwork.id }), /* @__PURE__ */ React88.createElement("span", null, selectedNetwork.label)),
-      /* @__PURE__ */ React88.createElement(
+      /* @__PURE__ */ React89.createElement("div", { className: "network-wrapper" }, /* @__PURE__ */ React89.createElement(ChainIcon, { symbol: selectedNetwork.id }), /* @__PURE__ */ React89.createElement("span", null, selectedNetwork.label)),
+      /* @__PURE__ */ React89.createElement(
         "div",
         {
           className: `network-menu ${networks.length > 1 && "custom-scrollbar"} ${theme.colorMode} ${collapsed ? "collapsed" : "toggled"}`
         },
-        networks.map((network) => /* @__PURE__ */ React88.createElement(
+        networks.map((network) => /* @__PURE__ */ React89.createElement(
           "div",
           {
             className: `network-menu-item ${theme.colorMode}`,
@@ -4362,28 +4409,18 @@ var NetworkDropdown = React88.memo(
               }
             }
           },
-          /* @__PURE__ */ React88.createElement(ChainIcon, { symbol: network.id }),
-          /* @__PURE__ */ React88.createElement("p", null, network.label)
+          /* @__PURE__ */ React89.createElement(ChainIcon, { symbol: network.id }),
+          /* @__PURE__ */ React89.createElement("p", null, network.label)
         ))
       ),
-      /* @__PURE__ */ React88.createElement("div", { className: `dropdown-icon ${collapsed ? "toggled" : "collapsed"}` }, /* @__PURE__ */ React88.createElement(Arrow_default, { fill: "none" }))
+      /* @__PURE__ */ React89.createElement("div", { className: `dropdown-icon ${collapsed ? "toggled" : "collapsed"}` }, /* @__PURE__ */ React89.createElement(Arrow_default, { fill: "none" }))
     );
   }
 );
 
 // src/components/reusable/ConfirmDetails.tsx
-import React89, { useEffect as useEffect12, useMemo as useMemo14 } from "react";
+import React90, { useEffect as useEffect12, useMemo as useMemo13 } from "react";
 import { useSelector as useSelector20 } from "react-redux";
-
-// src/helpers/functions.tsx
-var formatterInt2 = new Intl.NumberFormat("en-US", {
-  maximumFractionDigits: 0
-});
-var formatterFloat2 = new Intl.NumberFormat("en-US", {
-  maximumFractionDigits: 9
-});
-
-// src/components/reusable/ConfirmDetails.tsx
 var ConfirmDetails = ({ isApproved }) => {
   const feeDeduct = useSelector20(selectFeeDeduct);
   const mode = useSelector20(selectMode);
@@ -4400,11 +4437,11 @@ var ConfirmDetails = ({ isApproved }) => {
   console.log("network options: ", networkOptions3);
   const transactionOption = useSelector20(selectTransactionOption);
   const { walletAddress } = useIsWalletReady4();
-  const originNetworkOption = useMemo14(
+  const originNetworkOption = useMemo13(
     () => networkOptions3.filter((network) => network.id === originNetwork)[0],
     [networkOptions3, originNetwork]
   );
-  const targetNetworkOption = useMemo14(
+  const targetNetworkOption = useMemo13(
     () => networkOptions3.filter(
       (network) => network.id === (mode === "payment" /* payment */ ? transactionOption?.targetChain : targetNetwork)
     )[0],
@@ -4416,33 +4453,33 @@ var ConfirmDetails = ({ isApproved }) => {
   useEffect12(() => {
     width === 0 && updateWidth(window.innerWidth);
   }, []);
-  const sourceWalletAddress = useMemo14(() => {
+  const sourceWalletAddress = useMemo13(() => {
     return width >= 916 ? walletAddress : getShortenedAddress(walletAddress || "");
   }, [width, walletAddress]);
-  const targetWalletAddress = useMemo14(() => {
+  const targetWalletAddress = useMemo13(() => {
     return getShortenedAddress(
       (mode === "payment" /* payment */ ? transactionOption?.targetAddress : targetAddress) || ""
     );
   }, [mode, transactionOption, targetAddress]);
-  const amountToShow = useMemo14(() => {
+  const amountToShow = useMemo13(() => {
     if (originNetwork === "BTC" /* BTC */ || targetNetwork === "BTC" /* BTC */) {
       return (feeDeduct ? +amount : +amount + totalFeeUsd).toFixed(8);
     }
     return formatterFloat2.format(feeDeduct ? +amount : +amount + totalFeeUsd);
   }, [amount, totalFeeUsd, originNetwork, targetNetwork, feeDeduct]);
-  return /* @__PURE__ */ React89.createElement("div", { className: `confirm-details ${theme.colorMode}` }, /* @__PURE__ */ React89.createElement("p", null, "Step ", isApproved ? "2" : "1", "\xA0of 2\xA0\xA0\xA0", isApproved ? "Submit transaction" : originNetwork === "FIAT" /* FIAT */ ? "Bank Details" : "Approval"), originNetwork === "FIAT" /* FIAT */ ? /* @__PURE__ */ React89.createElement("div", null, /* @__PURE__ */ React89.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React89.createElement("span", { className: "label" }, "IBAN:"), /* @__PURE__ */ React89.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ React89.createElement("div", { className: "icon" }, /* @__PURE__ */ React89.createElement(originNetworkOption.icon, null)), "FIAT"), /* @__PURE__ */ React89.createElement("p", null, "ES6621000418401234567891")), /* @__PURE__ */ React89.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React89.createElement("span", { className: "label" }, "Recipient:"), /* @__PURE__ */ React89.createElement("p", null, "Kima Sandbox")), /* @__PURE__ */ React89.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React89.createElement("span", { className: "label" }, "BIC:"), /* @__PURE__ */ React89.createElement("p", null, "CAIXESBBXXX")), /* @__PURE__ */ React89.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React89.createElement("span", { className: "label" }, "Description:"), /* @__PURE__ */ React89.createElement("p", { className: "signature" }, signature))) : /* @__PURE__ */ React89.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React89.createElement("span", { className: "label" }, "Source wallet:"), /* @__PURE__ */ React89.createElement("div", { className: "network-details" }, /* @__PURE__ */ React89.createElement("div", { className: "kima-card-network-container" }, /* @__PURE__ */ React89.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ React89.createElement(ChainIcon, { symbol: originNetworkOption.id }), originNetworkOption.label)), /* @__PURE__ */ React89.createElement("p", { className: theme.colorMode }, width >= 916 ? dAppOption === "LPDrain" /* LPDrain */ ? targetAddress : walletAddress : dAppOption === "LPDrain" /* LPDrain */ ? targetWalletAddress : sourceWalletAddress))), /* @__PURE__ */ React89.createElement("div", { className: "detail-item amount" }, /* @__PURE__ */ React89.createElement("span", { className: "label" }, "Transaction", /* @__PURE__ */ React89.createElement("br", null), "Details:"), /* @__PURE__ */ React89.createElement("span", { className: "amount-container" }, /* @__PURE__ */ React89.createElement("div", { className: "amount-details" }, /* @__PURE__ */ React89.createElement("span", null, "Transfer amount"), /* @__PURE__ */ React89.createElement("div", { className: "coin-details" }, /* @__PURE__ */ React89.createElement("p", null, formatterFloat2.format(parseFloat(amountToShow) - totalFeeUsd), " ", sourceCurrency)), sourceCurrency !== targetCurrency && /* @__PURE__ */ React89.createElement("div", { className: "coin-details" }, "\u2192 ", targetCurrency)), /* @__PURE__ */ React89.createElement("div", { className: "amount-details" }, /* @__PURE__ */ React89.createElement("span", null, "Network costs"), /* @__PURE__ */ React89.createElement("span", { className: "service-fee" }, formatterFloat2.format(totalFeeUsd), " ", sourceCurrency)), /* @__PURE__ */ React89.createElement("div", { className: "amount-details" }, /* @__PURE__ */ React89.createElement("span", null, "Total"), /* @__PURE__ */ React89.createElement("span", { className: "service-fee" }, formatterFloat2.format(parseFloat(amountToShow)), " ", targetCurrency)))), targetNetwork === "FIAT" /* FIAT */ ? /* @__PURE__ */ React89.createElement("div", null, /* @__PURE__ */ React89.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React89.createElement("span", { className: "label" }, "IBAN:"), /* @__PURE__ */ React89.createElement("p", null, bankDetails.iban), /* @__PURE__ */ React89.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ React89.createElement(ChainIcon, { symbol: targetNetworkOption?.id }), "FIAT")), /* @__PURE__ */ React89.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React89.createElement("span", { className: "label" }, "Recipient:"), /* @__PURE__ */ React89.createElement("p", null, bankDetails.recipient))) : /* @__PURE__ */ React89.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React89.createElement("span", { className: "label" }, "Target wallet:"), /* @__PURE__ */ React89.createElement("div", { className: "network-details" }, /* @__PURE__ */ React89.createElement("div", { className: "kima-card-network-container" }, /* @__PURE__ */ React89.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ React89.createElement(ChainIcon, { symbol: targetNetworkOption.id }), targetNetworkOption.label)), /* @__PURE__ */ React89.createElement("p", { className: theme.colorMode }, width >= 916 ? dAppOption === "LPDrain" /* LPDrain */ ? walletAddress : targetAddress : dAppOption === "LPDrain" /* LPDrain */ ? sourceWalletAddress : targetWalletAddress))));
+  return /* @__PURE__ */ React90.createElement("div", { className: `confirm-details ${theme.colorMode}` }, /* @__PURE__ */ React90.createElement("p", null, "Step ", isApproved ? "2" : "1", "\xA0of 2\xA0\xA0\xA0", isApproved ? "Submit transaction" : originNetwork === "FIAT" /* FIAT */ ? "Bank Details" : "Approval"), originNetwork === "FIAT" /* FIAT */ ? /* @__PURE__ */ React90.createElement("div", null, /* @__PURE__ */ React90.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React90.createElement("span", { className: "label" }, "IBAN:"), /* @__PURE__ */ React90.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ React90.createElement("div", { className: "icon" }, /* @__PURE__ */ React90.createElement(originNetworkOption.icon, null)), "FIAT"), /* @__PURE__ */ React90.createElement("p", null, "ES6621000418401234567891")), /* @__PURE__ */ React90.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React90.createElement("span", { className: "label" }, "Recipient:"), /* @__PURE__ */ React90.createElement("p", null, "Kima Sandbox")), /* @__PURE__ */ React90.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React90.createElement("span", { className: "label" }, "BIC:"), /* @__PURE__ */ React90.createElement("p", null, "CAIXESBBXXX")), /* @__PURE__ */ React90.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React90.createElement("span", { className: "label" }, "Description:"), /* @__PURE__ */ React90.createElement("p", { className: "signature" }, signature))) : /* @__PURE__ */ React90.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React90.createElement("span", { className: "label" }, "Source wallet:"), /* @__PURE__ */ React90.createElement("div", { className: "network-details" }, /* @__PURE__ */ React90.createElement("div", { className: "kima-card-network-container" }, /* @__PURE__ */ React90.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ React90.createElement(ChainIcon, { symbol: originNetworkOption.id }), originNetworkOption.label)), /* @__PURE__ */ React90.createElement("p", { className: theme.colorMode }, width >= 916 ? dAppOption === "LPDrain" /* LPDrain */ ? targetAddress : walletAddress : dAppOption === "LPDrain" /* LPDrain */ ? targetWalletAddress : sourceWalletAddress))), /* @__PURE__ */ React90.createElement("div", { className: "detail-item amount" }, /* @__PURE__ */ React90.createElement("span", { className: "label" }, "Transaction", /* @__PURE__ */ React90.createElement("br", null), "Details:"), /* @__PURE__ */ React90.createElement("span", { className: "amount-container" }, /* @__PURE__ */ React90.createElement("div", { className: "amount-details" }, /* @__PURE__ */ React90.createElement("span", null, "Transfer amount"), /* @__PURE__ */ React90.createElement("div", { className: "coin-details" }, /* @__PURE__ */ React90.createElement("p", null, formatterFloat2.format(parseFloat(amountToShow) - totalFeeUsd), " ", sourceCurrency)), sourceCurrency !== targetCurrency && /* @__PURE__ */ React90.createElement("div", { className: "coin-details" }, "\u2192 ", targetCurrency)), /* @__PURE__ */ React90.createElement("div", { className: "amount-details" }, /* @__PURE__ */ React90.createElement("span", null, "Network costs"), /* @__PURE__ */ React90.createElement("span", { className: "service-fee" }, formatterFloat2.format(totalFeeUsd), " ", sourceCurrency)), /* @__PURE__ */ React90.createElement("div", { className: "amount-details" }, /* @__PURE__ */ React90.createElement("span", null, "Total"), /* @__PURE__ */ React90.createElement("span", { className: "service-fee" }, formatterFloat2.format(parseFloat(amountToShow)), " ", targetCurrency)))), targetNetwork === "FIAT" /* FIAT */ ? /* @__PURE__ */ React90.createElement("div", null, /* @__PURE__ */ React90.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React90.createElement("span", { className: "label" }, "IBAN:"), /* @__PURE__ */ React90.createElement("p", null, bankDetails.iban), /* @__PURE__ */ React90.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ React90.createElement(ChainIcon, { symbol: targetNetworkOption?.id }), "FIAT")), /* @__PURE__ */ React90.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React90.createElement("span", { className: "label" }, "Recipient:"), /* @__PURE__ */ React90.createElement("p", null, bankDetails.recipient))) : /* @__PURE__ */ React90.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React90.createElement("span", { className: "label" }, "Target wallet:"), /* @__PURE__ */ React90.createElement("div", { className: "network-details" }, /* @__PURE__ */ React90.createElement("div", { className: "kima-card-network-container" }, /* @__PURE__ */ React90.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ React90.createElement(ChainIcon, { symbol: targetNetworkOption.id }), targetNetworkOption.label)), /* @__PURE__ */ React90.createElement("p", { className: theme.colorMode }, width >= 916 ? dAppOption === "LPDrain" /* LPDrain */ ? walletAddress : targetAddress : dAppOption === "LPDrain" /* LPDrain */ ? sourceWalletAddress : targetWalletAddress))));
 };
 var ConfirmDetails_default = ConfirmDetails;
 
 // src/components/reusable/AddressInput.tsx
-import React90, { useEffect as useEffect13 } from "react";
-import { useDispatch as useDispatch10 } from "react-redux";
+import React91, { useEffect as useEffect13 } from "react";
+import { useDispatch as useDispatch11 } from "react-redux";
 import { useSelector as useSelector21 } from "react-redux";
 var AddressInput = ({
   theme,
   placeholder
 }) => {
-  const dispatch = useDispatch10();
+  const dispatch = useDispatch11();
   const mode = useSelector21(selectMode);
   const sourceChain = useSelector21(selectSourceChain);
   const targetChain = useSelector21(selectTargetChain);
@@ -4462,7 +4499,7 @@ var AddressInput = ({
     );
     dispatch(setTargetAddress(""));
   }, [sourceChain, targetChain, sourceAddress, isReady, mode, dispatch]);
-  return /* @__PURE__ */ React90.createElement(
+  return /* @__PURE__ */ React91.createElement(
     "input",
     {
       className: `kima-address-input ${theme}`,
@@ -4477,24 +4514,24 @@ var AddressInput = ({
 var AddressInput_default = AddressInput;
 
 // src/components/reusable/CustomCheckbox.tsx
-import React91 from "react";
+import React92 from "react";
 import { useSelector as useSelector22 } from "react-redux";
 var CustomCheckbox = ({ text, checked, setCheck }) => {
   const theme = useSelector22(selectTheme);
-  return /* @__PURE__ */ React91.createElement("div", { className: "kima-custom-checkbox" }, /* @__PURE__ */ React91.createElement(
+  return /* @__PURE__ */ React92.createElement("div", { className: "kima-custom-checkbox" }, /* @__PURE__ */ React92.createElement(
     "div",
     {
       className: "custom-checkbox-content",
       onClick: () => setCheck(!checked)
     },
-    /* @__PURE__ */ React91.createElement("div", { className: `custom-checkbox-icon-wrapper ${theme.colorMode}` }, checked && /* @__PURE__ */ React91.createElement(Check_default, null)),
-    /* @__PURE__ */ React91.createElement("span", null, text)
+    /* @__PURE__ */ React92.createElement("div", { className: `custom-checkbox-icon-wrapper ${theme.colorMode}` }, checked && /* @__PURE__ */ React92.createElement(Check_default, null)),
+    /* @__PURE__ */ React92.createElement("span", null, text)
   ));
 };
 var CustomCheckbox_default = CustomCheckbox;
 
 // src/components/reusable/StepBox.tsx
-import React92 from "react";
+import React93 from "react";
 import { useSelector as useSelector23 } from "react-redux";
 var stepInfo2 = [
   {
@@ -4520,47 +4557,47 @@ var StepBox = ({ step, errorStep, loadingStep, data }) => {
   const SourceInfo = getNetworkOption(data?.sourceChain);
   const TargetInfo = getNetworkOption(data?.targetChain);
   const CHAIN_NAMES_TO_EXPLORER = networkOption === "mainnet" /* mainnet */ ? CHAIN_NAMES_TO_EXPLORER_MAINNET : CHAIN_NAMES_TO_EXPLORER_TESTNET;
-  return /* @__PURE__ */ React92.createElement("div", { className: "kima-stepbox" }, /* @__PURE__ */ React92.createElement("div", { className: `content-wrapper ${theme.colorMode}` }, stepInfo2.map((item, index) => /* @__PURE__ */ React92.createElement("div", { key: item.title, className: "step-item" }, /* @__PURE__ */ React92.createElement(
+  return /* @__PURE__ */ React93.createElement("div", { className: "kima-stepbox" }, /* @__PURE__ */ React93.createElement("div", { className: `content-wrapper ${theme.colorMode}` }, stepInfo2.map((item, index) => /* @__PURE__ */ React93.createElement("div", { key: item.title, className: "step-item" }, /* @__PURE__ */ React93.createElement(
     "div",
     {
       className: `info-item
                   ${step >= index ? index === loadingStep ? "active" : index === errorStep ? "error" : "completed" : ""} 
                   ${step < index && "locked"} ${theme.colorMode}`
     },
-    step < index && /* @__PURE__ */ React92.createElement(Lock_default, null),
-    step >= index ? index === loadingStep ? /* @__PURE__ */ React92.createElement(Loader_default, { className: "loader" }) : index === errorStep ? /* @__PURE__ */ React92.createElement(Warning_default, null) : /* @__PURE__ */ React92.createElement(Check_default, null) : null,
-    /* @__PURE__ */ React92.createElement("p", null, item.title)
-  ), index === 0 && data?.kimaTxHash ? /* @__PURE__ */ React92.createElement("div", { className: `info-item ${theme.colorMode}` }, /* @__PURE__ */ React92.createElement("div", { className: "icon" }, /* @__PURE__ */ React92.createElement(USDK_default, null)), /* @__PURE__ */ React92.createElement("p", { className: "chain-name" }, "Kima TX ID:"), /* @__PURE__ */ React92.createElement("p", null, /* @__PURE__ */ React92.createElement(
+    step < index && /* @__PURE__ */ React93.createElement(Lock_default, null),
+    step >= index ? index === loadingStep ? /* @__PURE__ */ React93.createElement(Loader_default, { className: "loader" }) : index === errorStep ? /* @__PURE__ */ React93.createElement(Warning_default, null) : /* @__PURE__ */ React93.createElement(Check_default, null) : null,
+    /* @__PURE__ */ React93.createElement("p", null, item.title)
+  ), index === 0 && data?.kimaTxHash ? /* @__PURE__ */ React93.createElement("div", { className: `info-item ${theme.colorMode}` }, /* @__PURE__ */ React93.createElement("div", { className: "icon" }, /* @__PURE__ */ React93.createElement(USDK_default, null)), /* @__PURE__ */ React93.createElement("p", { className: "chain-name" }, "Kima TX ID:"), /* @__PURE__ */ React93.createElement("p", null, /* @__PURE__ */ React93.createElement(
     ExternalLink_default,
     {
       to: `${explorerUrl}/transactions/?tx=${data?.kimaTxHash}`
     },
     getShortenedAddress(data?.kimaTxHash || "")
-  ), /* @__PURE__ */ React92.createElement(CopyButton_default, { text: data?.kimaTxHash }))) : null, index === 1 && data?.tssPullHash ? /* @__PURE__ */ React92.createElement("div", { className: `info-item ${theme.colorMode} source-chain ${step >= 3 ? "paid" : ""}` }, /* @__PURE__ */ React92.createElement("div", { className: "icon" }, SourceInfo ? /* @__PURE__ */ React92.createElement(SourceInfo.icon, null) : /* @__PURE__ */ React92.createElement(Ethereum_default, null)), /* @__PURE__ */ React92.createElement("p", { className: "chain-name" }, CHAIN_NAMES_TO_STRING[data?.sourceChain || "ETH" /* ETHEREUM */], " ", "TX ID:"), /* @__PURE__ */ React92.createElement("p", null, /* @__PURE__ */ React92.createElement(
+  ), /* @__PURE__ */ React93.createElement(CopyButton_default, { text: data?.kimaTxHash }))) : null, index === 1 && data?.tssPullHash ? /* @__PURE__ */ React93.createElement("div", { className: `info-item ${theme.colorMode} source-chain ${step >= 3 ? "paid" : ""}` }, /* @__PURE__ */ React93.createElement("div", { className: "icon" }, SourceInfo ? /* @__PURE__ */ React93.createElement(SourceInfo.icon, null) : /* @__PURE__ */ React93.createElement(Ethereum_default, null)), /* @__PURE__ */ React93.createElement("p", { className: "chain-name" }, CHAIN_NAMES_TO_STRING[data?.sourceChain || "ETH" /* ETHEREUM */], " ", "TX ID:"), /* @__PURE__ */ React93.createElement("p", null, /* @__PURE__ */ React93.createElement(
     ExternalLink_default,
     {
       to: `https://${CHAIN_NAMES_TO_EXPLORER[data?.sourceChain || "ETH" /* ETHEREUM */]}/${data?.sourceChain === "TRX" /* TRON */ ? "transaction" : "tx"}/${data?.tssPullHash}${data?.sourceChain === "SOL" /* SOLANA */ && networkOption === "testnet" /* testnet */ ? "?cluster=devnet" : ""}`
     },
     getShortenedAddress(data?.tssPullHash || "")
-  ), /* @__PURE__ */ React92.createElement(CopyButton_default, { text: data?.tssPullHash || "" }))) : null, index === 3 && data?.tssReleaseHash ? /* @__PURE__ */ React92.createElement("div", { className: `info-item ${theme.colorMode} target-chain` }, /* @__PURE__ */ React92.createElement("div", { className: "icon" }, TargetInfo ? /* @__PURE__ */ React92.createElement(TargetInfo.icon, null) : /* @__PURE__ */ React92.createElement(Ethereum_default, null)), /* @__PURE__ */ React92.createElement("p", { className: "chain-name" }, CHAIN_NAMES_TO_STRING[data?.targetChain || "ETH" /* ETHEREUM */], " ", "TX ID:"), /* @__PURE__ */ React92.createElement("p", null, /* @__PURE__ */ React92.createElement(
+  ), /* @__PURE__ */ React93.createElement(CopyButton_default, { text: data?.tssPullHash || "" }))) : null, index === 3 && data?.tssReleaseHash ? /* @__PURE__ */ React93.createElement("div", { className: `info-item ${theme.colorMode} target-chain` }, /* @__PURE__ */ React93.createElement("div", { className: "icon" }, TargetInfo ? /* @__PURE__ */ React93.createElement(TargetInfo.icon, null) : /* @__PURE__ */ React93.createElement(Ethereum_default, null)), /* @__PURE__ */ React93.createElement("p", { className: "chain-name" }, CHAIN_NAMES_TO_STRING[data?.targetChain || "ETH" /* ETHEREUM */], " ", "TX ID:"), /* @__PURE__ */ React93.createElement("p", null, /* @__PURE__ */ React93.createElement(
     ExternalLink_default,
     {
       to: `https://${CHAIN_NAMES_TO_EXPLORER[data?.targetChain || "ETH" /* ETHEREUM */]}/${data?.targetChain === "TRX" /* TRON */ ? "transaction" : "tx"}/${data?.tssReleaseHash}${data?.targetChain === "SOL" /* SOLANA */ && networkOption === "testnet" /* testnet */ ? "?cluster=devnet" : ""}`
     },
     getShortenedAddress(data?.tssReleaseHash || "")
-  ), /* @__PURE__ */ React92.createElement(CopyButton_default, { text: data?.tssReleaseHash || "" }))) : null))));
+  ), /* @__PURE__ */ React93.createElement(CopyButton_default, { text: data?.tssReleaseHash || "" }))) : null))));
 };
 var StepBox_default = StepBox;
 
 // src/components/reusable/BankInput.tsx
-import React93 from "react";
-import { useDispatch as useDispatch11 } from "react-redux";
+import React94 from "react";
+import { useDispatch as useDispatch12 } from "react-redux";
 import { useSelector as useSelector24 } from "react-redux";
 var BankInput = () => {
-  const dispatch = useDispatch11();
+  const dispatch = useDispatch12();
   const theme = useSelector24(selectTheme);
   const bankDetails = useSelector24(selectBankDetails);
-  return /* @__PURE__ */ React93.createElement("div", { className: "bank-input" }, /* @__PURE__ */ React93.createElement("div", { className: `form-item ${theme.colorMode}` }, /* @__PURE__ */ React93.createElement("span", { className: "label" }, "IBAN:"), /* @__PURE__ */ React93.createElement(
+  return /* @__PURE__ */ React94.createElement("div", { className: "bank-input" }, /* @__PURE__ */ React94.createElement("div", { className: `form-item ${theme.colorMode}` }, /* @__PURE__ */ React94.createElement("span", { className: "label" }, "IBAN:"), /* @__PURE__ */ React94.createElement(
     "input",
     {
       className: "kima-address-input",
@@ -4568,7 +4605,7 @@ var BankInput = () => {
       value: bankDetails.iban,
       onChange: (e) => dispatch(setBankDetails({ ...bankDetails, iban: e.target.value }))
     }
-  )), /* @__PURE__ */ React93.createElement("div", { className: `form-item ${theme.colorMode}` }, /* @__PURE__ */ React93.createElement("span", { className: "label" }, "Recipient:"), /* @__PURE__ */ React93.createElement(
+  )), /* @__PURE__ */ React94.createElement("div", { className: `form-item ${theme.colorMode}` }, /* @__PURE__ */ React94.createElement("span", { className: "label" }, "Recipient:"), /* @__PURE__ */ React94.createElement(
     "input",
     {
       className: "kima-address-input",
@@ -4583,23 +4620,23 @@ var BankInput = () => {
 var BankInput_default = BankInput;
 
 // src/components/reusable/TxButton.tsx
-import React94 from "react";
-import { useDispatch as useDispatch12 } from "react-redux";
+import React95 from "react";
+import { useDispatch as useDispatch13 } from "react-redux";
 import { useSelector as useSelector25 } from "react-redux";
 var TxButton = ({ theme }) => {
-  const dispatch = useDispatch12();
+  const dispatch = useDispatch13();
   const handleClick = () => {
     dispatch(setPendingTxPopup(true));
   };
   const txCount = useSelector25(selectPendingTxs);
-  return /* @__PURE__ */ React94.createElement(
+  return /* @__PURE__ */ React95.createElement(
     "button",
     {
       className: `secondary-button tx-button ${theme.colorMode}`,
       onClick: handleClick
     },
     txCount,
-    /* @__PURE__ */ React94.createElement(
+    /* @__PURE__ */ React95.createElement(
       ring_default,
       {
         height: 16,
@@ -4614,12 +4651,12 @@ var TxButton_default = TxButton;
 // src/components/TransactionWidget.tsx
 import { Provider as Provider2 } from "react-redux";
 import { useSelector as useSelector26 } from "react-redux";
-import { useDispatch as useDispatch13 } from "react-redux";
-import { toast as toast7, Toaster } from "react-hot-toast";
+import { useDispatch as useDispatch14 } from "react-redux";
+import { toast as toast4, Toaster } from "react-hot-toast";
 
 // src/hooks/useGetTxData.ts
 import { useRef as useRef4 } from "react";
-import { useQuery as useQuery9 } from "@tanstack/react-query";
+import { useQuery as useQuery10 } from "@tanstack/react-query";
 var POLLING_INTERVAL_MS = 1e3 * 10;
 var emptyStatus = {
   status: "Available" /* AVAILABLE */,
@@ -4677,7 +4714,7 @@ var isFinished = (data) => {
 var useGetTxData = (txId, dAppOption, backendUrl) => {
   const refPollForUpdates = useRef4(false);
   const isLP = dAppOption === "LPAdd" /* LPAdd */ || dAppOption === "LPDrain" /* LPDrain */;
-  const result = useQuery9({
+  const result = useQuery10({
     queryKey: ["txData", txId, dAppOption],
     queryFn: async () => {
       try {
@@ -4708,13 +4745,13 @@ var useGetTxData_default = useGetTxData;
 
 // src/components/TransactionWidget.tsx
 var TransactionWidget = ({ theme }) => {
-  const [step, setStep] = useState12(0);
-  const [focus, setFocus] = useState12(-1);
-  const [errorStep, setErrorStep] = useState12(-1);
-  const [errorMessage, setErrorMessage] = useState12("");
-  const [loadingStep, setLoadingStep] = useState12(-1);
-  const [minimized, setMinimized] = useState12(false);
-  const dispatch = useDispatch13();
+  const [step, setStep] = useState11(0);
+  const [focus, setFocus] = useState11(-1);
+  const [errorStep, setErrorStep] = useState11(-1);
+  const [errorMessage, setErrorMessage] = useState11("");
+  const [loadingStep, setLoadingStep] = useState11(-1);
+  const [minimized, setMinimized] = useState11(false);
+  const dispatch = useDispatch14();
   const mode = useSelector26(selectMode);
   const feeDeduct = useSelector26(selectFeeDeduct);
   const amount = useSelector26(selectAmount);
@@ -4751,7 +4788,7 @@ var TransactionWidget = ({ theme }) => {
       setErrorStep(1);
       setLoadingStep(-1);
       console.log(data.failReason);
-      toast7.error("Unavailable", { icon: /* @__PURE__ */ React95.createElement(Error_default, null) });
+      toast4.error("Unavailable", { icon: /* @__PURE__ */ React96.createElement(Error_default, null) });
       setErrorMessage("Unavailable");
     } else if (status === "KeySigned" /* KEYSIGNED */) {
       setStep(3);
@@ -4764,8 +4801,8 @@ var TransactionWidget = ({ theme }) => {
       setErrorStep(3);
       setLoadingStep(-1);
       console.log(data.failReason);
-      toast7.error("Failed to release tokens to target!", {
-        icon: /* @__PURE__ */ React95.createElement(Error_default, null)
+      toast4.error("Failed to release tokens to target!", {
+        icon: /* @__PURE__ */ React96.createElement(Error_default, null)
       });
       setErrorMessage("Failed to release tokens to target!");
     } else if (status === "FailedToPull" /* FAILEDTOPULL */) {
@@ -4773,7 +4810,7 @@ var TransactionWidget = ({ theme }) => {
       setErrorStep(1);
       setLoadingStep(-1);
       console.log(data.failReason);
-      toast7.error("Failed to pull tokens from source!", { icon: /* @__PURE__ */ React95.createElement(Error_default, null) });
+      toast4.error("Failed to pull tokens from source!", { icon: /* @__PURE__ */ React96.createElement(Error_default, null) });
       setErrorMessage("Failed to pull tokens from source!");
     } else if (status === "Completed" /* COMPLETED */) {
       setStep(4);
@@ -4786,7 +4823,7 @@ var TransactionWidget = ({ theme }) => {
     dispatch(setSubmitted(false));
     closeHandler();
   };
-  return /* @__PURE__ */ React95.createElement(Provider2, { store }, /* @__PURE__ */ React95.createElement(
+  return /* @__PURE__ */ React96.createElement(Provider2, { store }, /* @__PURE__ */ React96.createElement(
     "div",
     {
       className: `kima-card transaction-card ${theme.colorMode} ${minimized ? "minimized" : ""}`,
@@ -4794,11 +4831,11 @@ var TransactionWidget = ({ theme }) => {
         background: theme.colorMode === "light" /* light */ ? theme.backgroundColorLight : theme.backgroundColorDark
       }
     },
-    /* @__PURE__ */ React95.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React95.createElement("div", { className: "topbar" }, /* @__PURE__ */ React95.createElement("div", { className: "title" }, /* @__PURE__ */ React95.createElement("h3", { className: "transaction" }, "Transferring", " ", data?.amount && data.sourceChain && data.sourceSymbol && data.targetChain && data.targetSymbol && /* @__PURE__ */ React95.createElement("div", null, formatterFloat2.format(
+    /* @__PURE__ */ React96.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React96.createElement("div", { className: "topbar" }, /* @__PURE__ */ React96.createElement("div", { className: "title" }, /* @__PURE__ */ React96.createElement("h3", { className: "transaction" }, "Transferring", " ", data?.amount && data.sourceChain && data.sourceSymbol && data.targetChain && data.targetSymbol && /* @__PURE__ */ React96.createElement("div", null, formatterFloat2.format(
       mode === "status" /* status */ ? data.amount : feeDeduct ? +amount || 0 + totalFeeUsd : +amount || 0 - totalFeeUsd
     ), " ", data?.sourceSymbol, " (", data?.sourceChain, ") \u2192", " ", formatterFloat2.format(
       mode === "status" /* status */ ? data.amount : feeDeduct ? +amount - totalFeeUsd || 0 : +amount || 0
-    ), " ", data?.targetSymbol, " (", data?.targetChain, ")"))), !minimized ? /* @__PURE__ */ React95.createElement("div", { className: "control-buttons" }, /* @__PURE__ */ React95.createElement(
+    ), " ", data?.targetSymbol, " (", data?.targetChain, ")"))), !minimized ? /* @__PURE__ */ React96.createElement("div", { className: "control-buttons" }, /* @__PURE__ */ React96.createElement(
       "button",
       {
         className: "icon-button minimize",
@@ -4806,9 +4843,9 @@ var TransactionWidget = ({ theme }) => {
           setMinimized(true);
         }
       },
-      /* @__PURE__ */ React95.createElement(Minimize_default, null)
-    ), loadingStep < 0 ? /* @__PURE__ */ React95.createElement("button", { className: "reset-button", onClick: resetForm }, "Reset") : null) : /* @__PURE__ */ React95.createElement("div", { className: "control-buttons" }, /* @__PURE__ */ React95.createElement("div", { className: "maximize", onClick: () => setMinimized(false) }, "View")))),
-    /* @__PURE__ */ React95.createElement("div", { className: "kima-card-content" }, /* @__PURE__ */ React95.createElement(
+      /* @__PURE__ */ React96.createElement(Minimize_default, null)
+    ), loadingStep < 0 ? /* @__PURE__ */ React96.createElement("button", { className: "reset-button", onClick: resetForm }, "Reset") : null) : /* @__PURE__ */ React96.createElement("div", { className: "control-buttons" }, /* @__PURE__ */ React96.createElement("div", { className: "maximize", onClick: () => setMinimized(false) }, "View")))),
+    /* @__PURE__ */ React96.createElement("div", { className: "kima-card-content" }, /* @__PURE__ */ React96.createElement(
       Progressbar_default,
       {
         step,
@@ -4817,7 +4854,7 @@ var TransactionWidget = ({ theme }) => {
         setFocus,
         loadingStep
       }
-    ), /* @__PURE__ */ React95.createElement(
+    ), /* @__PURE__ */ React96.createElement(
       StepBox_default,
       {
         step,
@@ -4826,7 +4863,7 @@ var TransactionWidget = ({ theme }) => {
         data
       }
     )),
-    /* @__PURE__ */ React95.createElement(
+    /* @__PURE__ */ React96.createElement(
       Toaster,
       {
         position: "top-right",
@@ -4851,35 +4888,35 @@ var TransactionWidget = ({ theme }) => {
         }
       }
     ),
-    /* @__PURE__ */ React95.createElement("div", { className: "floating-footer" }, /* @__PURE__ */ React95.createElement("div", { className: `items ${theme.colorMode}` }, /* @__PURE__ */ React95.createElement("span", null, "Powered by"), /* @__PURE__ */ React95.createElement(FooterLogo_default, { fill: "black" }), /* @__PURE__ */ React95.createElement("strong", null, "Network")))
+    /* @__PURE__ */ React96.createElement("div", { className: "floating-footer" }, /* @__PURE__ */ React96.createElement("div", { className: `items ${theme.colorMode}` }, /* @__PURE__ */ React96.createElement("span", null, "Powered by"), /* @__PURE__ */ React96.createElement(FooterLogo_default, { fill: "black" }), /* @__PURE__ */ React96.createElement("strong", null, "Network")))
   ));
 };
 
 // src/components/TransferWidget.tsx
-import React107, { useEffect as useEffect20, useState as useState18, useRef as useRef9 } from "react";
-import { useDispatch as useDispatch25, useSelector as useSelector39 } from "react-redux";
+import React108, { useEffect as useEffect20, useState as useState17, useRef as useRef9 } from "react";
+import { useDispatch as useDispatch26, useSelector as useSelector39 } from "react-redux";
 
 // src/components/reusable/SingleForm.tsx
-import React98, { useEffect as useEffect17, useMemo as useMemo17, useState as useState15 } from "react";
-import { toast as toast8 } from "react-hot-toast";
-import { useDispatch as useDispatch16, useSelector as useSelector30 } from "react-redux";
+import React99, { useEffect as useEffect17, useMemo as useMemo16, useState as useState14 } from "react";
+import { toast as toast5 } from "react-hot-toast";
+import { useDispatch as useDispatch17, useSelector as useSelector30 } from "react-redux";
 
 // src/components/primary/SourceNetworkSelector.tsx
-import React96, { useState as useState13, useMemo as useMemo15, useRef as useRef5, useEffect as useEffect15 } from "react";
-import { useSelector as useSelector27, useDispatch as useDispatch14 } from "react-redux";
+import React97, { useState as useState12, useMemo as useMemo14, useRef as useRef5, useEffect as useEffect15 } from "react";
+import { useSelector as useSelector27, useDispatch as useDispatch15 } from "react-redux";
 var SourceNetworkSelectorComponent = () => {
-  const [collapsed, setCollapsed] = useState13(true);
+  const [collapsed, setCollapsed] = useState12(true);
   const ref = useRef5();
   const originNetwork = useSelector27(selectSourceChain);
-  const dispatch = useDispatch14();
+  const dispatch = useDispatch15();
   const theme = useSelector27(selectTheme);
   const networkOptions3 = useSelector27(selectNetworks);
   const targetChain = useSelector27(selectTargetChain);
-  const networks = useMemo15(() => {
+  const networks = useMemo14(() => {
     const data = networkOptions3.filter((network) => network.id !== targetChain);
     return data;
-  }, [networkOptions3]);
-  const selectedNetwork = useMemo15(() => {
+  }, [networkOptions3, targetChain]);
+  const selectedNetwork = useMemo14(() => {
     return networks.find((option) => option.id === originNetwork) || {
       id: "",
       label: "Loading..."
@@ -4909,60 +4946,60 @@ var SourceNetworkSelectorComponent = () => {
       document.removeEventListener("mousedown", bodyMouseDownHandler);
     };
   }, []);
-  return /* @__PURE__ */ React96.createElement(
+  return /* @__PURE__ */ React97.createElement(
     "div",
     {
       className: `network-dropdown ${theme?.colorMode ?? ""} ${collapsed ? "collapsed" : "toggled"}`,
       onClick: () => setCollapsed((prev) => !prev),
       ref
     },
-    /* @__PURE__ */ React96.createElement("div", { className: "network-wrapper" }, /* @__PURE__ */ React96.createElement(ChainIcon, { symbol: selectedNetwork.id }), /* @__PURE__ */ React96.createElement("span", null, selectedNetwork.label)),
-    /* @__PURE__ */ React96.createElement(
+    /* @__PURE__ */ React97.createElement("div", { className: "network-wrapper" }, /* @__PURE__ */ React97.createElement(ChainIcon, { symbol: selectedNetwork.id }), /* @__PURE__ */ React97.createElement("span", null, selectedNetwork.label)),
+    /* @__PURE__ */ React97.createElement(
       "div",
       {
         className: `network-menu custom-scrollbar ${theme?.colorMode ?? ""} ${collapsed ? "collapsed" : "toggled"}`
       },
-      networks.filter((network) => network.id !== selectedNetwork.id).map((filteredNetwork) => /* @__PURE__ */ React96.createElement(
+      networks.filter((network) => network.id !== selectedNetwork.id).map((filteredNetwork) => /* @__PURE__ */ React97.createElement(
         "div",
         {
           key: filteredNetwork.id,
           className: `network-menu-item ${theme?.colorMode ?? ""}`,
           onClick: () => handleNetworkChange(filteredNetwork.id)
         },
-        /* @__PURE__ */ React96.createElement(ChainIcon, { symbol: filteredNetwork.id }),
-        /* @__PURE__ */ React96.createElement("p", null, filteredNetwork.label)
+        /* @__PURE__ */ React97.createElement(ChainIcon, { symbol: filteredNetwork.id }),
+        /* @__PURE__ */ React97.createElement("p", null, filteredNetwork.label)
       ))
     ),
-    /* @__PURE__ */ React96.createElement("div", { className: `dropdown-icon ${collapsed ? "toggled" : "collapsed"}` }, /* @__PURE__ */ React96.createElement(Arrow_default, { fill: "none" }))
+    /* @__PURE__ */ React97.createElement("div", { className: `dropdown-icon ${collapsed ? "toggled" : "collapsed"}` }, /* @__PURE__ */ React97.createElement(Arrow_default, { fill: "none" }))
   );
 };
-var SourceNetworkSelector = React96.memo(SourceNetworkSelectorComponent);
+var SourceNetworkSelector = React97.memo(SourceNetworkSelectorComponent);
 var SourceNetworkSelector_default = SourceNetworkSelector;
 
 // src/components/primary/TargetNetworkSelector.tsx
-import React97, { useState as useState14, useMemo as useMemo16, useRef as useRef6, useEffect as useEffect16 } from "react";
-import { useSelector as useSelector28, useDispatch as useDispatch15 } from "react-redux";
+import React98, { useState as useState13, useMemo as useMemo15, useRef as useRef6, useEffect as useEffect16 } from "react";
+import { useSelector as useSelector28, useDispatch as useDispatch16 } from "react-redux";
 var TargetNetworkSelectorComponent = () => {
-  const [collapsed, setCollapsed] = useState14(true);
+  const [collapsed, setCollapsed] = useState13(true);
   const ref = useRef6();
-  const dispatch = useDispatch15();
+  const dispatch = useDispatch16();
   const theme = useSelector28(selectTheme);
   const sourceNetwork = useSelector28(selectSourceChain);
   const targetNetwork = useSelector28(selectTargetChain);
   const networkOptions3 = useSelector28(selectNetworks);
-  const networks = useMemo16(() => {
+  const networks = useMemo15(() => {
     const data = networkOptions3.filter(
       (network) => network.id !== sourceNetwork
     );
     return data;
   }, [networkOptions3]);
-  const selectedNetwork = useMemo16(() => {
+  const selectedNetwork = useMemo15(() => {
     return networks.find((network) => network.id === targetNetwork) || {
       id: "",
       label: "Select Network"
     };
   }, [sourceNetwork, targetNetwork, networks]);
-  const availableTargetNetworks = useMemo16(() => {
+  const availableTargetNetworks = useMemo15(() => {
     return networks.filter((network) => network.id !== sourceNetwork);
   }, [networks, sourceNetwork]);
   useEffect16(() => {
@@ -4988,38 +5025,38 @@ var TargetNetworkSelectorComponent = () => {
       document.removeEventListener("mousedown", bodyMouseDownHandler);
     };
   }, []);
-  return /* @__PURE__ */ React97.createElement(
+  return /* @__PURE__ */ React98.createElement(
     "div",
     {
       className: `network-dropdown ${theme?.colorMode ?? ""} ${collapsed ? "collapsed" : "toggled"}`,
       onClick: () => setCollapsed((prev) => !prev),
       ref
     },
-    /* @__PURE__ */ React97.createElement("div", { className: "network-wrapper" }, /* @__PURE__ */ React97.createElement(ChainIcon, { symbol: selectedNetwork.id }), /* @__PURE__ */ React97.createElement("span", null, selectedNetwork.label)),
-    /* @__PURE__ */ React97.createElement(
+    /* @__PURE__ */ React98.createElement("div", { className: "network-wrapper" }, /* @__PURE__ */ React98.createElement(ChainIcon, { symbol: selectedNetwork.id }), /* @__PURE__ */ React98.createElement("span", null, selectedNetwork.label)),
+    /* @__PURE__ */ React98.createElement(
       "div",
       {
         className: `network-menu custom-scrollbar ${theme?.colorMode ?? ""} ${collapsed ? "collapsed" : "toggled"}`
       },
-      availableTargetNetworks.map((network) => /* @__PURE__ */ React97.createElement(
+      availableTargetNetworks.map((network) => /* @__PURE__ */ React98.createElement(
         "div",
         {
           key: network.id,
           className: `network-menu-item ${theme?.colorMode ?? ""}`,
           onClick: () => handleNetworkChange(network.id)
         },
-        /* @__PURE__ */ React97.createElement(ChainIcon, { symbol: network.id }),
-        /* @__PURE__ */ React97.createElement("p", null, network.label)
+        /* @__PURE__ */ React98.createElement(ChainIcon, { symbol: network.id }),
+        /* @__PURE__ */ React98.createElement("p", null, network.label)
       ))
     ),
-    /* @__PURE__ */ React97.createElement("div", { className: `dropdown-icon ${collapsed ? "toggled" : "collapsed"}` }, /* @__PURE__ */ React97.createElement(Arrow_default, { fill: "none" }))
+    /* @__PURE__ */ React98.createElement("div", { className: `dropdown-icon ${collapsed ? "toggled" : "collapsed"}` }, /* @__PURE__ */ React98.createElement(Arrow_default, { fill: "none" }))
   );
 };
-var TargetNetworkSelector = React97.memo(TargetNetworkSelectorComponent);
+var TargetNetworkSelector = React98.memo(TargetNetworkSelectorComponent);
 var TargetNetworkSelector_default = TargetNetworkSelector;
 
 // src/hooks/useGetFees.tsx
-import { useQuery as useQuery10 } from "@tanstack/react-query";
+import { useQuery as useQuery11 } from "@tanstack/react-query";
 import { useSelector as useSelector29 } from "react-redux";
 
 // src/services/feesApi.ts
@@ -5047,7 +5084,7 @@ var getFees = async (amount, deductFee, originChain, originSymbol, targetChain, 
 var useGetFees = (amount, deductFees, sourceNetwork, sourceSymbol, targetNetwork, backendUrl) => {
   const mode = useSelector29(selectMode);
   const feeDeductWithMode = mode === "payment" /* payment */ ? false : deductFees;
-  return useQuery10({
+  return useQuery11({
     queryKey: ["fees", amount, feeDeductWithMode, sourceNetwork, targetNetwork],
     queryFn: async () => {
       console.log("useGetFees: ", {
@@ -5080,7 +5117,7 @@ var SingleForm = ({
   balance,
   decimals
 }) => {
-  const dispatch = useDispatch16();
+  const dispatch = useDispatch17();
   const mode = useSelector30(selectMode);
   const theme = useSelector30(selectTheme);
   const feeDeduct = useSelector30(selectFeeDeduct);
@@ -5091,7 +5128,7 @@ var SingleForm = ({
   const sourceNetwork = useSelector30(selectSourceChain);
   const targetNetwork = useSelector30(selectTargetChain);
   const { isReady } = useIsWalletReady4();
-  const [amountValue, setAmountValue] = useState15("");
+  const [amountValue, setAmountValue] = useState14("");
   const amount = useSelector30(selectAmount);
   const sourceCurrency = useSelector30(selectSourceCurrency);
   const targetCurrency = useSelector30(selectTargetCurrency);
@@ -5114,19 +5151,19 @@ var SingleForm = ({
     }
   }, [fees, dispatch]);
   const TargetIcon = COIN_LIST[targetCurrency || "USDK"]?.icon || COIN_LIST["USDK"].icon;
-  const errorMessage = useMemo17(
+  const errorMessage = useMemo16(
     () => compliantOption && targetCompliant !== null && !targetCompliant?.isCompliant ? `Target address has ${targetCompliant.results?.[0].result.risk_score} risk` : "",
     [compliantOption, targetCompliant]
   );
-  const maxValue = useMemo17(() => {
-    if (!balance || !totalFeeUsd) return 0;
+  const maxValue = useMemo16(() => {
+    if (!balance) return 0;
     if (feeDeduct || totalFeeUsd < 0) return balance;
     const amountMinusFees = preciseSubtraction(balance, totalFeeUsd);
     return amountMinusFees > 0 ? amountMinusFees : 0;
   }, [balance, totalFeeUsd, feeDeduct]);
   useEffect17(() => {
     if (!errorMessage) return;
-    toast8.error(errorMessage);
+    toast5.error(errorMessage);
   }, [errorMessage]);
   useEffect17(() => {
     if (amountValue && amount != "") return;
@@ -5138,27 +5175,27 @@ var SingleForm = ({
       dispatch(setAmount(maxValue.toString()));
     }
   }, [feeDeduct]);
-  return /* @__PURE__ */ React98.createElement("div", { className: "single-form" }, /* @__PURE__ */ React98.createElement("div", { className: "form-item" }, /* @__PURE__ */ React98.createElement("span", { className: "label" }, "Source Network:"), /* @__PURE__ */ React98.createElement("div", { className: "items" }, /* @__PURE__ */ React98.createElement(SourceNetworkSelector_default, null), /* @__PURE__ */ React98.createElement(CoinDropdown_default, null))), /* @__PURE__ */ React98.createElement(
+  return /* @__PURE__ */ React99.createElement("div", { className: "single-form" }, /* @__PURE__ */ React99.createElement("div", { className: "form-item" }, /* @__PURE__ */ React99.createElement("span", { className: "label" }, "Source Network:"), /* @__PURE__ */ React99.createElement("div", { className: "items" }, /* @__PURE__ */ React99.createElement(SourceNetworkSelector_default, null), /* @__PURE__ */ React99.createElement(CoinDropdown_default, null))), /* @__PURE__ */ React99.createElement(
     "div",
     {
       className: `dynamic-area ${sourceNetwork === "FIAT" /* FIAT */ ? "reverse" : "1"}`
     },
-    /* @__PURE__ */ React98.createElement(
+    /* @__PURE__ */ React99.createElement(
       "div",
       {
         className: `form-item wallet-button-item ${isReady && "connected"}`
       },
-      /* @__PURE__ */ React98.createElement("span", { className: "label" }, "Connect wallet:"),
-      /* @__PURE__ */ React98.createElement(WalletButton_default, null)
+      /* @__PURE__ */ React99.createElement("span", { className: "label" }, "Connect wallet:"),
+      /* @__PURE__ */ React99.createElement(WalletButton_default, null)
     ),
-    mode === "bridge" /* bridge */ && /* @__PURE__ */ React98.createElement("div", { className: "form-item" }, /* @__PURE__ */ React98.createElement("span", { className: "label" }, "Target Network:"), /* @__PURE__ */ React98.createElement("div", { className: "items" }, /* @__PURE__ */ React98.createElement(TargetNetworkSelector_default, null), /* @__PURE__ */ React98.createElement(CoinDropdown_default, { isSourceChain: false })))
-  ), mode === "bridge" /* bridge */ && sourceNetwork !== "FIAT" /* FIAT */ ? targetNetwork === "FIAT" /* FIAT */ ? /* @__PURE__ */ React98.createElement(BankInput_default, null) : /* @__PURE__ */ React98.createElement("div", { className: `form-item ${theme.colorMode}` }, /* @__PURE__ */ React98.createElement("span", { className: "label" }, "Target Address:"), /* @__PURE__ */ React98.createElement(
+    mode === "bridge" /* bridge */ && /* @__PURE__ */ React99.createElement("div", { className: "form-item" }, /* @__PURE__ */ React99.createElement("span", { className: "label" }, "Target Network:"), /* @__PURE__ */ React99.createElement("div", { className: "items" }, /* @__PURE__ */ React99.createElement(TargetNetworkSelector_default, null), /* @__PURE__ */ React99.createElement(CoinDropdown_default, { isSourceChain: false })))
+  ), mode === "bridge" /* bridge */ && sourceNetwork !== "FIAT" /* FIAT */ ? targetNetwork === "FIAT" /* FIAT */ ? /* @__PURE__ */ React99.createElement(BankInput_default, null) : /* @__PURE__ */ React99.createElement("div", { className: `form-item ${theme.colorMode}` }, /* @__PURE__ */ React99.createElement("span", { className: "label" }, "Target Address:"), /* @__PURE__ */ React99.createElement(
     AddressInput_default,
     {
       theme: theme.colorMode,
       placeholder: "Target address"
     }
-  )) : null, mode === "bridge" /* bridge */ ? /* @__PURE__ */ React98.createElement("div", { className: `form-item ${theme.colorMode}` }, /* @__PURE__ */ React98.createElement("span", { className: "label" }, "Amount:"), /* @__PURE__ */ React98.createElement("div", { className: `amount-label-container items ${theme.colorMode}` }, /* @__PURE__ */ React98.createElement(
+  )) : null, mode === "bridge" /* bridge */ ? /* @__PURE__ */ React99.createElement("div", { className: `form-item ${theme.colorMode}` }, /* @__PURE__ */ React99.createElement("span", { className: "label" }, "Amount:"), /* @__PURE__ */ React99.createElement("div", { className: `amount-label-container items ${theme.colorMode}` }, /* @__PURE__ */ React99.createElement(
     "input",
     {
       className: `${theme.colorMode}`,
@@ -5178,7 +5215,7 @@ var SingleForm = ({
         }
       }
     }
-  ), /* @__PURE__ */ React98.createElement(
+  ), /* @__PURE__ */ React99.createElement(
     "span",
     {
       className: "max-button",
@@ -5188,7 +5225,7 @@ var SingleForm = ({
       }
     },
     "Max"
-  ))) : /* @__PURE__ */ React98.createElement("div", { className: `form-item ${theme.colorMode}` }, /* @__PURE__ */ React98.createElement("span", { className: "label" }, "Amount:"), /* @__PURE__ */ React98.createElement("div", { className: `amount-label-container items ${theme.colorMode}` }, /* @__PURE__ */ React98.createElement(
+  ))) : /* @__PURE__ */ React99.createElement("div", { className: `form-item ${theme.colorMode}` }, /* @__PURE__ */ React99.createElement("span", { className: "label" }, "Amount:"), /* @__PURE__ */ React99.createElement("div", { className: `amount-label-container items ${theme.colorMode}` }, /* @__PURE__ */ React99.createElement(
     "input",
     {
       className: `${theme.colorMode}`,
@@ -5203,7 +5240,7 @@ var SingleForm = ({
       },
       disabled: transactionOption?.amount !== void 0
     }
-  ), /* @__PURE__ */ React98.createElement("div", { className: `coin-wrapper ${theme.colorMode}` }, /* @__PURE__ */ React98.createElement("div", { className: "icon-wrapper" }, /* @__PURE__ */ React98.createElement(TargetIcon, null)), targetCurrency))), mode === "bridge" /* bridge */ && totalFeeUsd > 0 ? /* @__PURE__ */ React98.createElement(
+  ), /* @__PURE__ */ React99.createElement("div", { className: `coin-wrapper ${theme.colorMode}` }, /* @__PURE__ */ React99.createElement("div", { className: "icon-wrapper" }, /* @__PURE__ */ React99.createElement(TargetIcon, null)), targetCurrency))), mode === "bridge" /* bridge */ && totalFeeUsd > 0 ? /* @__PURE__ */ React99.createElement(
     CustomCheckbox_default,
     {
       text: sourceNetwork === "BTC" /* BTC */ ? `Deduct ${formatterFloat2.format(totalFeeUsd)} BTC fee` : `Deduct $${formatterFloat2.format(totalFeeUsd)} fee from source network`,
@@ -5215,19 +5252,19 @@ var SingleForm = ({
 var SingleForm_default = SingleForm;
 
 // src/components/reusable/CoinSelect.tsx
-import React99, { useState as useState16 } from "react";
+import React100, { useState as useState15 } from "react";
 import { useSelector as useSelector31 } from "react-redux";
-import { useDispatch as useDispatch17 } from "react-redux";
+import { useDispatch as useDispatch18 } from "react-redux";
 var CoinSelect = () => {
-  const dispatch = useDispatch17();
+  const dispatch = useDispatch18();
   const theme = useSelector31(selectTheme);
   const mode = useSelector31(selectMode);
   const selectedCoin = useSelector31(selectSourceCurrency);
   const sourceNetwork = useSelector31(selectSourceChain);
   const targetNetwork = useSelector31(selectTargetChain);
-  const [amountValue, setAmountValue] = useState16("");
+  const [amountValue, setAmountValue] = useState15("");
   const Icon = COIN_LIST[selectedCoin || "USDK"].icon;
-  return /* @__PURE__ */ React99.createElement("div", { className: `coin-select` }, /* @__PURE__ */ React99.createElement("p", null, "Select Amount of Token for Funding"), /* @__PURE__ */ React99.createElement("div", { className: `amount-input ${theme.colorMode}` }, /* @__PURE__ */ React99.createElement("span", null, "Amount:"), /* @__PURE__ */ React99.createElement("div", { className: "input-wrapper" }, /* @__PURE__ */ React99.createElement(
+  return /* @__PURE__ */ React100.createElement("div", { className: `coin-select` }, /* @__PURE__ */ React100.createElement("p", null, "Select Amount of Token for Funding"), /* @__PURE__ */ React100.createElement("div", { className: `amount-input ${theme.colorMode}` }, /* @__PURE__ */ React100.createElement("span", null, "Amount:"), /* @__PURE__ */ React100.createElement("div", { className: "input-wrapper" }, /* @__PURE__ */ React100.createElement(
     "input",
     {
       type: "number",
@@ -5240,7 +5277,7 @@ var CoinSelect = () => {
         dispatch(setAmount(_amount.toFixed(decimal)));
       }
     }
-  ), /* @__PURE__ */ React99.createElement("div", { className: "coin-label" }, /* @__PURE__ */ React99.createElement(Icon, null), /* @__PURE__ */ React99.createElement("span", null, selectedCoin)))));
+  ), /* @__PURE__ */ React100.createElement("div", { className: "coin-label" }, /* @__PURE__ */ React100.createElement(Icon, null), /* @__PURE__ */ React100.createElement("span", null, selectedCoin)))));
 };
 var CoinSelect_default = CoinSelect;
 
@@ -5286,32 +5323,32 @@ function useAllowance({
 }
 
 // src/components/reusable/AddressInputWizard.tsx
-import React100 from "react";
+import React101 from "react";
 import { useSelector as useSelector32 } from "react-redux";
 var AddressInputWizard = () => {
   const theme = useSelector32(selectTheme);
-  return /* @__PURE__ */ React100.createElement("div", { className: `coin-select` }, /* @__PURE__ */ React100.createElement("p", null, "Select Target Address for Funding"), /* @__PURE__ */ React100.createElement("div", { className: `address-input ${theme.colorMode}` }, /* @__PURE__ */ React100.createElement("span", null, "Target Address:"), /* @__PURE__ */ React100.createElement(AddressInput_default, { theme: theme.colorMode, placeholder: "Target address" })));
+  return /* @__PURE__ */ React101.createElement("div", { className: `coin-select` }, /* @__PURE__ */ React101.createElement("p", null, "Select Target Address for Funding"), /* @__PURE__ */ React101.createElement("div", { className: `address-input ${theme.colorMode}` }, /* @__PURE__ */ React101.createElement("span", null, "Target Address:"), /* @__PURE__ */ React101.createElement(AddressInput_default, { theme: theme.colorMode, placeholder: "Target address" })));
 };
 var AddressInputWizard_default = AddressInputWizard;
 
 // src/components/TransferWidget.tsx
-import { toast as toast9, Toaster as Toaster2 } from "react-hot-toast";
+import { toast as toast6, Toaster as Toaster2 } from "react-hot-toast";
 
 // plugins/solana/components/SolanaWalletConnectModal.tsx
-import React103 from "react";
-import { useDispatch as useDispatch20, useSelector as useSelector35 } from "react-redux";
+import React104 from "react";
+import { useDispatch as useDispatch21, useSelector as useSelector35 } from "react-redux";
 
 // plugins/solana/components/SolanaWalletSelect.tsx
-import React101, { useEffect as useEffect18, useMemo as useMemo18, useRef as useRef7 } from "react";
-import { useDispatch as useDispatch18, useSelector as useSelector33 } from "react-redux";
+import React102, { useEffect as useEffect18, useMemo as useMemo17, useRef as useRef7 } from "react";
+import { useDispatch as useDispatch19, useSelector as useSelector33 } from "react-redux";
 import { useWallet as useWallet5 } from "@solana/wallet-adapter-react";
 import { WalletReadyState } from "@solana/wallet-adapter-base";
 var SolanaWalletSelect = () => {
   const theme = useSelector33(selectTheme);
-  const dispatch = useDispatch18();
+  const dispatch = useDispatch19();
   const sliderRef = useRef7();
   const { wallets, select } = useWallet5();
-  const [detected, undetected] = useMemo18(() => {
+  const [detected, undetected] = useMemo17(() => {
     const detected2 = [];
     const undetected2 = [];
     for (const wallet of wallets) {
@@ -5353,32 +5390,32 @@ var SolanaWalletSelect = () => {
     select(walletName);
     dispatch(setSolanaConnectModal(false));
   };
-  return /* @__PURE__ */ React101.createElement("div", { className: `wallet-select` }, /* @__PURE__ */ React101.createElement("div", { className: "slide-area hide-scrollbar", ref: sliderRef }, /* @__PURE__ */ React101.createElement("div", { className: "wallet-container" }, detected.map((wallet, index) => /* @__PURE__ */ React101.createElement(
+  return /* @__PURE__ */ React102.createElement("div", { className: `wallet-select` }, /* @__PURE__ */ React102.createElement("div", { className: "slide-area hide-scrollbar", ref: sliderRef }, /* @__PURE__ */ React102.createElement("div", { className: "wallet-container" }, detected.map((wallet, index) => /* @__PURE__ */ React102.createElement(
     "div",
     {
       className: `card-item ${theme.colorMode}`,
       onClick: () => connectWallet(wallet.adapter.name),
       key: `${wallet.adapter.name}-${index}`
     },
-    /* @__PURE__ */ React101.createElement("div", { className: "wallet-item" }, /* @__PURE__ */ React101.createElement("img", { src: wallet.adapter.icon, alt: wallet.adapter.name }), /* @__PURE__ */ React101.createElement("span", null, wallet.adapter.name))
-  )), undetected.map((wallet, index) => /* @__PURE__ */ React101.createElement(
+    /* @__PURE__ */ React102.createElement("div", { className: "wallet-item" }, /* @__PURE__ */ React102.createElement("img", { src: wallet.adapter.icon, alt: wallet.adapter.name }), /* @__PURE__ */ React102.createElement("span", null, wallet.adapter.name))
+  )), undetected.map((wallet, index) => /* @__PURE__ */ React102.createElement(
     ExternalLink_default,
     {
       to: wallet.adapter.url,
       className: `card-item ${theme.colorMode}`,
       key: `${wallet.adapter.name}-${index}`
     },
-    /* @__PURE__ */ React101.createElement("div", { className: "wallet-item" }, /* @__PURE__ */ React101.createElement("img", { src: wallet.adapter.icon, alt: wallet.adapter.name }), /* @__PURE__ */ React101.createElement("span", null, "Install ", wallet.adapter.name))
+    /* @__PURE__ */ React102.createElement("div", { className: "wallet-item" }, /* @__PURE__ */ React102.createElement("img", { src: wallet.adapter.icon, alt: wallet.adapter.name }), /* @__PURE__ */ React102.createElement("span", null, "Install ", wallet.adapter.name))
   )))));
 };
 var SolanaWalletSelect_default = SolanaWalletSelect;
 
 // plugins/solana/components/AccountDetailsModal.tsx
-import React102, { useMemo as useMemo19 } from "react";
-import { useDispatch as useDispatch19, useSelector as useSelector34 } from "react-redux";
+import React103, { useMemo as useMemo18 } from "react";
+import { useDispatch as useDispatch20, useSelector as useSelector34 } from "react-redux";
 import { useWallet as useSolanaWallet3 } from "@solana/wallet-adapter-react";
 var AccountDetailsModal = () => {
-  const dispatch = useDispatch19();
+  const dispatch = useDispatch20();
   const theme = useSelector34(selectTheme);
   const networkOption = useSelector34(selectNetworkOption);
   const sourceChain = useSelector34(selectSourceChain);
@@ -5387,7 +5424,7 @@ var AccountDetailsModal = () => {
   const { disconnect: solanaWalletDisconnect } = useSolanaWallet3();
   const { balance: solBalance } = useGetSolBalance_default();
   const networkDetails = networkOptions2[0];
-  const explorerUrl = useMemo19(() => {
+  const explorerUrl = useMemo18(() => {
     return `https://solscan.io/account/address/${walletAddress}?cluster=${networkOption === "mainnet" ? "mainnet" : "devnet"}`;
   }, [walletAddress, networkOption]);
   const handleDisconnect = () => {
@@ -5395,46 +5432,46 @@ var AccountDetailsModal = () => {
     dispatch(setAccountDetailsModal(false));
   };
   if (sourceChain !== "SOL") return;
-  return /* @__PURE__ */ React102.createElement(
+  return /* @__PURE__ */ React103.createElement(
     "div",
     {
       className: `kima-modal ${theme.colorMode} ${accountDetailsModal && "open"}`
     },
-    /* @__PURE__ */ React102.createElement("div", { className: "modal-overlay" }),
-    /* @__PURE__ */ React102.createElement("div", { className: `modal-content-container ${theme.colorMode}` }, /* @__PURE__ */ React102.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React102.createElement("div", { className: "topbar" }, /* @__PURE__ */ React102.createElement("div", { className: "title" }, /* @__PURE__ */ React102.createElement("h3", null, "Account Details")), /* @__PURE__ */ React102.createElement("div", { className: "control-buttons" }, /* @__PURE__ */ React102.createElement(
+    /* @__PURE__ */ React103.createElement("div", { className: "modal-overlay" }),
+    /* @__PURE__ */ React103.createElement("div", { className: `modal-content-container ${theme.colorMode}` }, /* @__PURE__ */ React103.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React103.createElement("div", { className: "topbar" }, /* @__PURE__ */ React103.createElement("div", { className: "title" }, /* @__PURE__ */ React103.createElement("h3", null, "Account Details")), /* @__PURE__ */ React103.createElement("div", { className: "control-buttons" }, /* @__PURE__ */ React103.createElement(
       "button",
       {
         className: "cross-icon-button",
         onClick: () => dispatch(setAccountDetailsModal(false))
       },
-      /* @__PURE__ */ React102.createElement(
+      /* @__PURE__ */ React103.createElement(
         Cross_default,
         {
           fill: theme.colorMode === "light" ? "black" : "white"
         }
       )
-    )))), /* @__PURE__ */ React102.createElement("div", { className: "modal-content" }, /* @__PURE__ */ React102.createElement("div", { className: "summary" }, networkDetails && /* @__PURE__ */ React102.createElement(networkDetails.icon, { width: 60, height: 60 }), /* @__PURE__ */ React102.createElement("div", { className: "address" }, /* @__PURE__ */ React102.createElement("h2", null, getShortenedAddress(walletAddress || "")), /* @__PURE__ */ React102.createElement(CopyButton_default, { text: walletAddress })), /* @__PURE__ */ React102.createElement("h3", null, solBalance, " $SOL")), /* @__PURE__ */ React102.createElement(SecondaryButton_default, { className: "block-explorer" }, /* @__PURE__ */ React102.createElement(ExternalLink_default, { className: "link", to: explorerUrl }, /* @__PURE__ */ React102.createElement(Explorer_default, { fill: "#778DA3" }), /* @__PURE__ */ React102.createElement("p", null, "Block explorer"), /* @__PURE__ */ React102.createElement(ExternalUrl_default, { fill: "#778DA3" }))), /* @__PURE__ */ React102.createElement(PrimaryButton_default, { clickHandler: handleDisconnect }, "Discconect")))
+    )))), /* @__PURE__ */ React103.createElement("div", { className: "modal-content" }, /* @__PURE__ */ React103.createElement("div", { className: "summary" }, networkDetails && /* @__PURE__ */ React103.createElement(networkDetails.icon, { width: 60, height: 60 }), /* @__PURE__ */ React103.createElement("div", { className: "address" }, /* @__PURE__ */ React103.createElement("h2", null, getShortenedAddress(walletAddress || "")), /* @__PURE__ */ React103.createElement(CopyButton_default, { text: walletAddress })), /* @__PURE__ */ React103.createElement("h3", null, solBalance, " $SOL")), /* @__PURE__ */ React103.createElement(SecondaryButton_default, { className: "block-explorer" }, /* @__PURE__ */ React103.createElement(ExternalLink_default, { className: "link", to: explorerUrl }, /* @__PURE__ */ React103.createElement(Explorer_default, { fill: "#778DA3" }), /* @__PURE__ */ React103.createElement("p", null, "Block explorer"), /* @__PURE__ */ React103.createElement(ExternalUrl_default, { fill: "#778DA3" }))), /* @__PURE__ */ React103.createElement(PrimaryButton_default, { clickHandler: handleDisconnect }, "Discconect")))
   );
 };
 var AccountDetailsModal_default = AccountDetailsModal;
 
 // plugins/solana/components/SolanaWalletConnectModal.tsx
 var SolanaWalletConnectModal = () => {
-  const dispatch = useDispatch20();
+  const dispatch = useDispatch21();
   const theme = useSelector35(selectTheme);
   const connectModal = useSelector35(selectSolanaConnectModal);
-  return /* @__PURE__ */ React103.createElement("div", null, /* @__PURE__ */ React103.createElement(AccountDetailsModal_default, null), /* @__PURE__ */ React103.createElement(
+  return /* @__PURE__ */ React104.createElement("div", null, /* @__PURE__ */ React104.createElement(AccountDetailsModal_default, null), /* @__PURE__ */ React104.createElement(
     "div",
     {
       className: `kima-modal wallet-connect ${connectModal ? "open" : ""}`
     },
-    /* @__PURE__ */ React103.createElement("div", { className: `modal-content-container ${theme.colorMode}` }, /* @__PURE__ */ React103.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React103.createElement("div", { className: "topbar" }, /* @__PURE__ */ React103.createElement("div", { className: "title" }, /* @__PURE__ */ React103.createElement("h3", null, "Connect Wallet")), /* @__PURE__ */ React103.createElement("div", { className: "control-buttons" }, /* @__PURE__ */ React103.createElement(
+    /* @__PURE__ */ React104.createElement("div", { className: `modal-content-container ${theme.colorMode}` }, /* @__PURE__ */ React104.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React104.createElement("div", { className: "topbar" }, /* @__PURE__ */ React104.createElement("div", { className: "title" }, /* @__PURE__ */ React104.createElement("h3", null, "Connect Wallet")), /* @__PURE__ */ React104.createElement("div", { className: "control-buttons" }, /* @__PURE__ */ React104.createElement(
       "button",
       {
         className: "cross-icon-button",
         onClick: () => dispatch(setSolanaConnectModal(false))
       },
-      /* @__PURE__ */ React103.createElement(
+      /* @__PURE__ */ React104.createElement(
         Cross_default,
         {
           width: 30,
@@ -5442,21 +5479,21 @@ var SolanaWalletConnectModal = () => {
           fill: theme.colorMode === "light" ? "black" : "white"
         }
       )
-    )))), /* @__PURE__ */ React103.createElement("div", { className: "modal-content" }, /* @__PURE__ */ React103.createElement(SolanaWalletSelect_default, null)))
+    )))), /* @__PURE__ */ React104.createElement("div", { className: "modal-content" }, /* @__PURE__ */ React104.createElement(SolanaWalletSelect_default, null)))
   ));
 };
 var SolanaWalletConnectModal_default = SolanaWalletConnectModal;
 
 // plugins/tron/components/TronWalletConnectModal.tsx
-import React106 from "react";
-import { useDispatch as useDispatch23, useSelector as useSelector38 } from "react-redux";
+import React107 from "react";
+import { useDispatch as useDispatch24, useSelector as useSelector38 } from "react-redux";
 
 // plugins/tron/components/AccountDetailsModal.tsx
-import React104, { useMemo as useMemo20 } from "react";
-import { useDispatch as useDispatch21, useSelector as useSelector36 } from "react-redux";
+import React105, { useMemo as useMemo19 } from "react";
+import { useDispatch as useDispatch22, useSelector as useSelector36 } from "react-redux";
 import { useWallet as useTronWallet4 } from "@tronweb3/tronwallet-adapter-react-hooks";
 var AccountDetailsModal2 = () => {
-  const dispatch = useDispatch21();
+  const dispatch = useDispatch22();
   const theme = useSelector36(selectTheme);
   const networkOption = useSelector36(selectNetworkOption);
   const accountDetailsModal = useSelector36(selectAccountDetailsModal);
@@ -5465,11 +5502,11 @@ var AccountDetailsModal2 = () => {
   const { disconnect: tronWalletDisconnect } = useTronWallet4();
   const { balance: tronBalance } = useGetTrxBalance_default();
   const selectedNetwork = useSelector36(selectSourceChain);
-  const networkDetails = useMemo20(
+  const networkDetails = useMemo19(
     () => networkOptions.find(({ id }) => id === selectedNetwork),
     [selectedNetwork]
   );
-  const explorerUrl = useMemo20(() => {
+  const explorerUrl = useMemo19(() => {
     return `https://${networkOption === "testnet" && "nile."}tronscan.io/#/address/${walletAddress}`;
   }, [walletAddress, networkOption]);
   const handleDisconnect = () => {
@@ -5477,38 +5514,38 @@ var AccountDetailsModal2 = () => {
     dispatch(setAccountDetailsModal(false));
   };
   if (sourcheChain !== "TRX") return;
-  return /* @__PURE__ */ React104.createElement(
+  return /* @__PURE__ */ React105.createElement(
     "div",
     {
       className: `kima-modal ${theme.colorMode} ${accountDetailsModal && "open"}`
     },
-    /* @__PURE__ */ React104.createElement("div", { className: "modal-overlay" }),
-    /* @__PURE__ */ React104.createElement("div", { className: `modal-content-container ${theme.colorMode}` }, /* @__PURE__ */ React104.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React104.createElement("div", { className: "topbar" }, /* @__PURE__ */ React104.createElement("div", { className: "title" }, /* @__PURE__ */ React104.createElement("h3", null, "Account Details")), /* @__PURE__ */ React104.createElement("div", { className: "control-buttons" }, /* @__PURE__ */ React104.createElement(
+    /* @__PURE__ */ React105.createElement("div", { className: "modal-overlay" }),
+    /* @__PURE__ */ React105.createElement("div", { className: `modal-content-container ${theme.colorMode}` }, /* @__PURE__ */ React105.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React105.createElement("div", { className: "topbar" }, /* @__PURE__ */ React105.createElement("div", { className: "title" }, /* @__PURE__ */ React105.createElement("h3", null, "Account Details")), /* @__PURE__ */ React105.createElement("div", { className: "control-buttons" }, /* @__PURE__ */ React105.createElement(
       "button",
       {
         className: "cross-icon-button",
         onClick: () => dispatch(setAccountDetailsModal(false))
       },
-      /* @__PURE__ */ React104.createElement(
+      /* @__PURE__ */ React105.createElement(
         Cross_default,
         {
           fill: theme.colorMode === "light" ? "black" : "white"
         }
       )
-    )))), /* @__PURE__ */ React104.createElement("div", { className: "modal-content" }, /* @__PURE__ */ React104.createElement("div", { className: "summary" }, networkDetails && /* @__PURE__ */ React104.createElement(networkDetails.icon, { width: 60, height: 60 }), /* @__PURE__ */ React104.createElement("div", { className: "address" }, /* @__PURE__ */ React104.createElement("h2", null, getShortenedAddress(walletAddress || "")), /* @__PURE__ */ React104.createElement(CopyButton_default, { text: walletAddress })), /* @__PURE__ */ React104.createElement("h3", null, tronBalance, " ", selectedNetwork)), /* @__PURE__ */ React104.createElement(SecondaryButton_default, { className: "block-explorer" }, /* @__PURE__ */ React104.createElement(ExternalLink_default, { className: "link", to: explorerUrl }, /* @__PURE__ */ React104.createElement(Explorer_default, { fill: "#778DA3" }), /* @__PURE__ */ React104.createElement("p", null, "Block explorer"), /* @__PURE__ */ React104.createElement(ExternalUrl_default, { fill: "#778DA3" }))), /* @__PURE__ */ React104.createElement(PrimaryButton_default, { clickHandler: handleDisconnect }, "Disconnect")))
+    )))), /* @__PURE__ */ React105.createElement("div", { className: "modal-content" }, /* @__PURE__ */ React105.createElement("div", { className: "summary" }, networkDetails && /* @__PURE__ */ React105.createElement(networkDetails.icon, { width: 60, height: 60 }), /* @__PURE__ */ React105.createElement("div", { className: "address" }, /* @__PURE__ */ React105.createElement("h2", null, getShortenedAddress(walletAddress || "")), /* @__PURE__ */ React105.createElement(CopyButton_default, { text: walletAddress })), /* @__PURE__ */ React105.createElement("h3", null, tronBalance, " ", selectedNetwork)), /* @__PURE__ */ React105.createElement(SecondaryButton_default, { className: "block-explorer" }, /* @__PURE__ */ React105.createElement(ExternalLink_default, { className: "link", to: explorerUrl }, /* @__PURE__ */ React105.createElement(Explorer_default, { fill: "#778DA3" }), /* @__PURE__ */ React105.createElement("p", null, "Block explorer"), /* @__PURE__ */ React105.createElement(ExternalUrl_default, { fill: "#778DA3" }))), /* @__PURE__ */ React105.createElement(PrimaryButton_default, { clickHandler: handleDisconnect }, "Disconnect")))
   );
 };
 var AccountDetailsModal_default2 = AccountDetailsModal2;
 
 // plugins/tron/components/TronWalletSelect.tsx
-import React105, { useEffect as useEffect19, useMemo as useMemo21, useRef as useRef8 } from "react";
-import { useDispatch as useDispatch22, useSelector as useSelector37 } from "react-redux";
+import React106, { useEffect as useEffect19, useMemo as useMemo20, useRef as useRef8 } from "react";
+import { useDispatch as useDispatch23, useSelector as useSelector37 } from "react-redux";
 import { useWallet as useWallet6 } from "@tronweb3/tronwallet-adapter-react-hooks";
 import { AdapterState } from "@tronweb3/tronwallet-abstract-adapter";
 var TronWalletSelect = () => {
   const theme = useSelector37(selectTheme);
   const sliderRef = useRef8();
-  const dispatch = useDispatch22();
+  const dispatch = useDispatch23();
   const {
     wallets,
     select,
@@ -5516,7 +5553,7 @@ var TronWalletSelect = () => {
     connect,
     connected
   } = useWallet6();
-  const [detected, undetected] = useMemo21(() => {
+  const [detected, undetected] = useMemo20(() => {
     const detected2 = [];
     const undetected2 = [];
     for (const wallet of wallets) {
@@ -5560,56 +5597,56 @@ var TronWalletSelect = () => {
   const connectWallet = async (walletName) => {
     currentWallet?.adapter.name === walletName ? await connect() : select(walletName);
   };
-  return /* @__PURE__ */ React105.createElement("div", { className: `wallet-select` }, /* @__PURE__ */ React105.createElement("div", { className: "slide-area hide-scrollbar", ref: sliderRef }, /* @__PURE__ */ React105.createElement("div", { className: "wallet-container" }, detected.map((wallet, index) => /* @__PURE__ */ React105.createElement(
+  return /* @__PURE__ */ React106.createElement("div", { className: `wallet-select` }, /* @__PURE__ */ React106.createElement("div", { className: "slide-area hide-scrollbar", ref: sliderRef }, /* @__PURE__ */ React106.createElement("div", { className: "wallet-container" }, detected.map((wallet, index) => /* @__PURE__ */ React106.createElement(
     "div",
     {
       className: `card-item ${theme.colorMode}`,
       onClick: () => connectWallet(wallet.adapter.name),
       key: `${wallet.adapter.name}-${index}`
     },
-    /* @__PURE__ */ React105.createElement("div", { className: "wallet-item" }, /* @__PURE__ */ React105.createElement("img", { src: wallet.adapter.icon, alt: wallet.adapter.name }), /* @__PURE__ */ React105.createElement("span", null, wallet.adapter.name))
-  )), undetected.map((wallet, index) => /* @__PURE__ */ React105.createElement(
+    /* @__PURE__ */ React106.createElement("div", { className: "wallet-item" }, /* @__PURE__ */ React106.createElement("img", { src: wallet.adapter.icon, alt: wallet.adapter.name }), /* @__PURE__ */ React106.createElement("span", null, wallet.adapter.name))
+  )), undetected.map((wallet, index) => /* @__PURE__ */ React106.createElement(
     ExternalLink_default,
     {
       to: wallet.adapter.url,
       className: `card-item ${theme.colorMode}`,
       key: `${wallet.adapter.name}-${index}`
     },
-    /* @__PURE__ */ React105.createElement("div", { className: "wallet-item" }, /* @__PURE__ */ React105.createElement("img", { src: wallet.adapter.icon, alt: wallet.adapter.name }), /* @__PURE__ */ React105.createElement("span", null, "Install ", wallet.adapter.name))
+    /* @__PURE__ */ React106.createElement("div", { className: "wallet-item" }, /* @__PURE__ */ React106.createElement("img", { src: wallet.adapter.icon, alt: wallet.adapter.name }), /* @__PURE__ */ React106.createElement("span", null, "Install ", wallet.adapter.name))
   )))));
 };
 var TronWalletSelect_default = TronWalletSelect;
 
 // plugins/tron/components/TronWalletConnectModal.tsx
 var TronWalletConnectModal = () => {
-  const dispatch = useDispatch23();
+  const dispatch = useDispatch24();
   const theme = useSelector38(selectTheme);
   const connectModal = useSelector38(selectTronConnectModal);
-  return /* @__PURE__ */ React106.createElement("div", null, /* @__PURE__ */ React106.createElement(AccountDetailsModal_default2, null), /* @__PURE__ */ React106.createElement(
+  return /* @__PURE__ */ React107.createElement("div", null, /* @__PURE__ */ React107.createElement(AccountDetailsModal_default2, null), /* @__PURE__ */ React107.createElement(
     "div",
     {
       className: `kima-modal wallet-connect ${theme.colorMode} ${connectModal ? "open" : ""}`
     },
-    /* @__PURE__ */ React106.createElement("div", { className: "modal-overlay" }),
-    /* @__PURE__ */ React106.createElement("div", { className: `modal-content-container ${theme.colorMode}` }, /* @__PURE__ */ React106.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React106.createElement("div", { className: "topbar" }, /* @__PURE__ */ React106.createElement("div", { className: "title" }, /* @__PURE__ */ React106.createElement("h3", null, "Connect Wallet")), /* @__PURE__ */ React106.createElement("div", { className: "control-buttons" }, /* @__PURE__ */ React106.createElement(
+    /* @__PURE__ */ React107.createElement("div", { className: "modal-overlay" }),
+    /* @__PURE__ */ React107.createElement("div", { className: `modal-content-container ${theme.colorMode}` }, /* @__PURE__ */ React107.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React107.createElement("div", { className: "topbar" }, /* @__PURE__ */ React107.createElement("div", { className: "title" }, /* @__PURE__ */ React107.createElement("h3", null, "Connect Wallet")), /* @__PURE__ */ React107.createElement("div", { className: "control-buttons" }, /* @__PURE__ */ React107.createElement(
       "button",
       {
         className: "icon-button",
         onClick: () => dispatch(setTronConnectModal(false))
       },
-      /* @__PURE__ */ React106.createElement(
+      /* @__PURE__ */ React107.createElement(
         Cross_default,
         {
           fill: theme.colorMode === "light" ? "black" : "white"
         }
       )
-    )))), /* @__PURE__ */ React106.createElement("div", { className: "modal-content" }, /* @__PURE__ */ React106.createElement(TronWalletSelect_default, null)))
+    )))), /* @__PURE__ */ React107.createElement("div", { className: "modal-content" }, /* @__PURE__ */ React107.createElement(TronWalletSelect_default, null)))
   ));
 };
 var TronWalletConnectModal_default = TronWalletConnectModal;
 
 // src/hooks/useValidateTransaction.tsx
-import { useMemo as useMemo22 } from "react";
+import { useMemo as useMemo21 } from "react";
 var useValidateTransaction = ({
   allowance,
   isApproved,
@@ -5628,14 +5665,14 @@ var useValidateTransaction = ({
   mode,
   pools
 }) => {
-  const maxValue = useMemo22(() => {
-    if (!balance || !totalFeeUsd) return 0;
+  const maxValue = useMemo21(() => {
+    if (!balance) return 0;
     if (feeDeduct || totalFeeUsd < 0) return balance;
     const amountMinusFees = preciseSubtraction(balance, totalFeeUsd);
-    console.log("amountMinusFees: ", amountMinusFees);
-    return amountMinusFees > 0 ? amountMinusFees : 0;
+    const maxVal = amountMinusFees > 0 ? amountMinusFees : 0;
+    console.log("maxValue: ", { maxVal, amountMinusFees });
+    return maxVal;
   }, [balance, totalFeeUsd, feeDeduct]);
-  console.log("maxValue: ", maxValue);
   const validate = (isSubmitting = false) => {
     console.log("allowance: ", allowance);
     console.log("isApproved: ", isApproved);
@@ -5721,8 +5758,8 @@ var useValidateTransaction = ({
 var useValidateTransaction_default = useValidateTransaction;
 
 // src/hooks/useSubmitTransaction.tsx
-import { useState as useState17 } from "react";
-import { useDispatch as useDispatch24 } from "react-redux";
+import { useState as useState16 } from "react";
+import { useDispatch as useDispatch25 } from "react-redux";
 var useSubmitTransaction = ({
   amount,
   totalFee,
@@ -5735,8 +5772,8 @@ var useSubmitTransaction = ({
   backendUrl,
   decimals
 }) => {
-  const dispatch = useDispatch24();
-  const [isSubmitting, setSubmitting] = useState17(false);
+  const dispatch = useDispatch25();
+  const [isSubmitting, setSubmitting] = useState16(false);
   const submitTransaction = async () => {
     try {
       setSubmitting(true);
@@ -5780,7 +5817,7 @@ var useSubmitTransaction = ({
 var useSubmitTransaction_default = useSubmitTransaction;
 
 // src/hooks/useComplianceCheck.tsx
-import { useQuery as useQuery11 } from "@tanstack/react-query";
+import { useQuery as useQuery12 } from "@tanstack/react-query";
 
 // src/services/complianceApi.ts
 var getCompliance = async (walletAddress, compliantOption, backendUrl) => {
@@ -5803,7 +5840,7 @@ var useComplianceCheck = (walletAddress, compliantOption, backendUrl) => {
     data: complianceData,
     error,
     isFetching
-  } = useQuery11({
+  } = useQuery12({
     queryKey: ["compliance", walletAddress, compliantOption],
     queryFn: async () => {
       return await getCompliance(walletAddress, compliantOption, backendUrl);
@@ -5829,11 +5866,11 @@ var TransferWidget = ({
   titleOption,
   paymentTitleOption
 }) => {
-  const dispatch = useDispatch25();
+  const dispatch = useDispatch26();
   const mainRef = useRef9(null);
-  const [isWizard, setWizard] = useState18(false);
-  const [formStep, setFormStep] = useState18(0);
-  const [wizardStep, setWizardStep] = useState18(0);
+  const [isWizard, setWizard] = useState17(false);
+  const [formStep, setFormStep] = useState17(0);
+  const [wizardStep, setWizardStep] = useState17(0);
   const mode = useSelector39(selectMode);
   const transactionOption = useSelector39(selectTransactionOption);
   const backendUrl = useSelector39(selectBackendUrl);
@@ -5855,9 +5892,9 @@ var TransferWidget = ({
   const networkOptions3 = useSelector39(selectNetworkOption);
   const feeDeduct = useSelector39(selectFeeDeduct);
   const closeHandler = useSelector39(selectCloseHandler);
-  const [isCancellingApprove, setCancellingApprove] = useState18(false);
-  const [isApproving, setApproving] = useState18(false);
-  const [isSigning, setSigning] = useState18(false);
+  const [isCancellingApprove, setCancellingApprove] = useState17(false);
+  const [isApproving, setApproving] = useState17(false);
+  const [isSigning, setSigning] = useState17(false);
   const pendingTxs = useSelector39(selectPendingTxs);
   const { width: windowWidth } = useWidth_default();
   const { balance } = useBalance2();
@@ -5909,13 +5946,13 @@ var TransferWidget = ({
   const handleSubmit = async () => {
     const { error, message: validationMessage } = validate(true);
     if (error === "ValidationError" /* Error */) {
-      return toast9.error(validationMessage, { icon: /* @__PURE__ */ React107.createElement(Error_default, null) });
+      return toast6.error(validationMessage, { icon: /* @__PURE__ */ React108.createElement(Error_default, null) });
     }
     if (error === "ApprovalNeeded" /* ApprovalNeeded */) {
       return approve();
     }
     const { success, message: submitMessage } = await submitTransaction();
-    if (!success) return toast9.error(submitMessage, { icon: /* @__PURE__ */ React107.createElement(Error_default, null) });
+    if (!success) return toast6.error(submitMessage, { icon: /* @__PURE__ */ React108.createElement(Error_default, null) });
   };
   const onNext = () => {
     const { error, message } = validate();
@@ -5925,7 +5962,7 @@ var TransferWidget = ({
     if (error !== "ValidationError" /* Error */ && formStep > 0) {
       return handleSubmit();
     }
-    toast9.error(message, { icon: /* @__PURE__ */ React107.createElement(Error_default, null) });
+    toast6.error(message, { icon: /* @__PURE__ */ React108.createElement(Error_default, null) });
     mainRef.current?.click();
   };
   const onBack = () => {
@@ -5965,7 +6002,7 @@ var TransferWidget = ({
   useEffect20(() => {
     dispatch(setTheme(theme));
   }, [theme]);
-  return /* @__PURE__ */ React107.createElement(
+  return /* @__PURE__ */ React108.createElement(
     "div",
     {
       className: `kima-card ${theme.colorMode}`,
@@ -5973,14 +6010,14 @@ var TransferWidget = ({
         background: theme.colorMode === "light" /* light */ ? theme.backgroundColorLight : theme.backgroundColorDark
       }
     },
-    mode === "payment" /* payment */ && !transactionOption && /* @__PURE__ */ React107.createElement("h2", { className: "invalid-option-banner" }, "We're unable to process your payment. Please ensure the necessary transaction details are provided. Contact support if the issue persists."),
-    /* @__PURE__ */ React107.createElement("div", { className: "transfer-card" }, /* @__PURE__ */ React107.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React107.createElement("div", { className: "topbar" }, /* @__PURE__ */ React107.createElement("div", { className: "title" }, /* @__PURE__ */ React107.createElement("h3", null, formStep === 0 ? titleOption?.initialTitle ? titleOption.initialTitle : mode === "payment" /* payment */ ? "New Purchase" : "New Transfer" : titleOption?.confirmTitle ? titleOption.confirmTitle : mode === "payment" /* payment */ ? "Confirm Purchase" : "Transfer Details")), /* @__PURE__ */ React107.createElement("div", { className: "control-buttons" }, pendingTxs > 0 ? /* @__PURE__ */ React107.createElement(TxButton_default, { theme }) : null, /* @__PURE__ */ React107.createElement(
+    mode === "payment" /* payment */ && !transactionOption && /* @__PURE__ */ React108.createElement("h2", { className: "invalid-option-banner" }, "We're unable to process your payment. Please ensure the necessary transaction details are provided. Contact support if the issue persists."),
+    /* @__PURE__ */ React108.createElement("div", { className: "transfer-card" }, /* @__PURE__ */ React108.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React108.createElement("div", { className: "topbar" }, /* @__PURE__ */ React108.createElement("div", { className: "title" }, /* @__PURE__ */ React108.createElement("h3", null, formStep === 0 ? titleOption?.initialTitle ? titleOption.initialTitle : mode === "payment" /* payment */ ? "New Purchase" : "New Transfer" : titleOption?.confirmTitle ? titleOption.confirmTitle : mode === "payment" /* payment */ ? "Confirm Purchase" : "Transfer Details")), /* @__PURE__ */ React108.createElement("div", { className: "control-buttons" }, pendingTxs > 0 ? /* @__PURE__ */ React108.createElement(TxButton_default, { theme }) : null, /* @__PURE__ */ React108.createElement(
       ExternalLink_default,
       {
         to: helpURL ? helpURL : "https://docs.kima.network/kima-network/try-kima-with-the-demo-app"
       },
-      /* @__PURE__ */ React107.createElement("div", { className: "menu-button" }, "I need help")
-    ), formStep === 0 && mode !== "payment" /* payment */ && /* @__PURE__ */ React107.createElement(
+      /* @__PURE__ */ React108.createElement("div", { className: "menu-button" }, "I need help")
+    ), formStep === 0 && mode !== "payment" /* payment */ && /* @__PURE__ */ React108.createElement(
       "button",
       {
         className: "reset-button",
@@ -5988,17 +6025,17 @@ var TransferWidget = ({
         disabled: isApproving || isSubmitting || isSigning
       },
       "Reset"
-    ))), mode === "payment" /* payment */ && paymentTitleOption?.title && /* @__PURE__ */ React107.createElement("h4", { className: "subtitle" }, paymentTitleOption.title)), /* @__PURE__ */ React107.createElement("div", { className: "kima-card-content", ref: mainRef }, isWizard ? wizardStep === 0 ? /* @__PURE__ */ React107.createElement(NetworkSelect_default, null) : wizardStep === 1 ? /* @__PURE__ */ React107.createElement("div", { className: "connect-wallet-step" }, /* @__PURE__ */ React107.createElement("p", null, "Connect your wallet"), /* @__PURE__ */ React107.createElement(WalletButton_default, { errorBelow: true })) : wizardStep === 2 ? /* @__PURE__ */ React107.createElement(NetworkSelect_default, { isOriginChain: false }) : wizardStep === 3 ? /* @__PURE__ */ React107.createElement(AddressInputWizard_default, null) : wizardStep === 4 ? /* @__PURE__ */ React107.createElement(CoinSelect_default, null) : /* @__PURE__ */ React107.createElement(ConfirmDetails_default, { isApproved }) : formStep === 0 ? /* @__PURE__ */ React107.createElement(SingleForm_default, { ...{ balance, decimals } }) : /* @__PURE__ */ React107.createElement(ConfirmDetails_default, { isApproved })), /* @__PURE__ */ React107.createElement(
+    ))), mode === "payment" /* payment */ && paymentTitleOption?.title && /* @__PURE__ */ React108.createElement("h4", { className: "subtitle" }, paymentTitleOption.title)), /* @__PURE__ */ React108.createElement("div", { className: "kima-card-content", ref: mainRef }, isWizard ? wizardStep === 0 ? /* @__PURE__ */ React108.createElement(NetworkSelect_default, null) : wizardStep === 1 ? /* @__PURE__ */ React108.createElement("div", { className: "connect-wallet-step" }, /* @__PURE__ */ React108.createElement("p", null, "Connect your wallet"), /* @__PURE__ */ React108.createElement(WalletButton_default, { errorBelow: true })) : wizardStep === 2 ? /* @__PURE__ */ React108.createElement(NetworkSelect_default, { isOriginChain: false }) : wizardStep === 3 ? /* @__PURE__ */ React108.createElement(AddressInputWizard_default, null) : wizardStep === 4 ? /* @__PURE__ */ React108.createElement(CoinSelect_default, null) : /* @__PURE__ */ React108.createElement(ConfirmDetails_default, { isApproved }) : formStep === 0 ? /* @__PURE__ */ React108.createElement(SingleForm_default, { ...{ balance, decimals } }) : /* @__PURE__ */ React108.createElement(ConfirmDetails_default, { isApproved })), /* @__PURE__ */ React108.createElement(
       "div",
       {
         className: `kima-card-footer ${mode === "bridge" /* bridge */ && formStep === 0 && "bridge"}`
       },
-      /* @__PURE__ */ React107.createElement(
+      /* @__PURE__ */ React108.createElement(
         "div",
         {
           className: `button-group ${formStep > 0 ? allowance > 0 ? "grid" : "row" : "row"}`
         },
-        formStep !== 0 && /* @__PURE__ */ React107.createElement(
+        formStep !== 0 && /* @__PURE__ */ React108.createElement(
           SecondaryButton_default,
           {
             clickHandler: onBack,
@@ -6007,7 +6044,7 @@ var TransferWidget = ({
           },
           isWizard && wizardStep > 0 || !isWizard && formStep > 0 ? "Back" : "Cancel"
         ),
-        allowance > 0 && (isWizard && wizardStep === 5 || !isWizard && formStep === 1) ? /* @__PURE__ */ React107.createElement(
+        allowance > 0 && (isWizard && wizardStep === 5 || !isWizard && formStep === 1) ? /* @__PURE__ */ React108.createElement(
           PrimaryButton_default,
           {
             clickHandler: onCancelApprove,
@@ -6016,7 +6053,7 @@ var TransferWidget = ({
           },
           isCancellingApprove ? "Cancelling Approval" : "Cancel Approve"
         ) : null,
-        /* @__PURE__ */ React107.createElement(
+        /* @__PURE__ */ React108.createElement(
           PrimaryButton_default,
           {
             clickHandler: onNext,
@@ -6026,7 +6063,7 @@ var TransferWidget = ({
           getButtonLabel()
         )
       )
-    ), /* @__PURE__ */ React107.createElement(SolanaWalletConnectModal_default, null), /* @__PURE__ */ React107.createElement(TronWalletConnectModal_default, null), /* @__PURE__ */ React107.createElement(
+    ), /* @__PURE__ */ React108.createElement(SolanaWalletConnectModal_default, null), /* @__PURE__ */ React108.createElement(TronWalletConnectModal_default, null), /* @__PURE__ */ React108.createElement(
       Toaster2,
       {
         position: "top-right",
@@ -6050,65 +6087,12 @@ var TransferWidget = ({
           }
         }
       }
-    ), /* @__PURE__ */ React107.createElement("div", { className: "floating-footer" }, /* @__PURE__ */ React107.createElement("div", { className: `items ${theme.colorMode}` }, /* @__PURE__ */ React107.createElement("span", null, "Powered by"), /* @__PURE__ */ React107.createElement(FooterLogo_default, { width: 50, fill: "black" }), /* @__PURE__ */ React107.createElement("strong", null, "Network"))))
+    ), /* @__PURE__ */ React108.createElement("div", { className: "floating-footer" }, /* @__PURE__ */ React108.createElement("div", { className: `items ${theme.colorMode}` }, /* @__PURE__ */ React108.createElement("span", null, "Powered by"), /* @__PURE__ */ React108.createElement(FooterLogo_default, { width: 50, fill: "black" }), /* @__PURE__ */ React108.createElement("strong", null, "Network"))))
   );
 };
 
 // src/components/KimaTransactionWidget.tsx
 import { useAppKitTheme } from "@reown/appkit/react";
-
-// src/hooks/useChainData.ts
-import { useQuery as useQuery12 } from "@tanstack/react-query";
-import { useDispatch as useDispatch26 } from "react-redux";
-var useChainData = (backendURL, chainName) => {
-  const dispatch = useDispatch26();
-  const ouput = useQuery12({
-    queryKey: ["chainData"],
-    queryFn: async () => {
-      try {
-        const response = await fetchWrapper.get(`${backendURL}/chains`);
-        const chains = typeof response === "string" ? [] : response;
-        const { networks, tokens } = getChainAndTokensOptions(chains);
-        dispatch(setNetworks(networks));
-        dispatch(setTokenOptions(tokens));
-        console.log("useChainData::Chain data:", { networks, tokens, chains });
-        return chains;
-      } catch (error) {
-        console.error("Error fetching chain data:", error);
-        return [];
-      }
-    },
-    select: (data) => {
-      if (!chainName) return data;
-      return data.filter((chain) => chain.shortName === chainName);
-    },
-    enabled: !!backendURL,
-    staleTime: 1e3 * 60 * 15,
-    // Cache for 15 minutes
-    gcTime: 1e3 * 60 * 60
-    // Garbage collect after 1 hour
-  });
-  return ouput;
-};
-function getChainAndTokensOptions(chains) {
-  const networks = [];
-  const tokens = {};
-  chains.forEach((chain) => {
-    networks.push({
-      id: chain.shortName,
-      label: chain.name
-    });
-    chain.supportedTokens.forEach((token) => {
-      if (!tokens[token.symbol]) {
-        tokens[token.symbol] = {};
-      }
-      tokens[token.symbol][chain.shortName] = token.address;
-    });
-  });
-  return { networks, tokens };
-}
-
-// src/components/KimaTransactionWidget.tsx
 var KimaTransactionWidget = ({
   mode,
   txId,
@@ -6183,7 +6167,7 @@ var KimaTransactionWidget = ({
     if (!chainData?.length) return;
     indexPluginsByChain(chainData);
   }, [chainData]);
-  return submitted ? /* @__PURE__ */ React108.createElement(TransactionWidget, { theme }) : /* @__PURE__ */ React108.createElement(
+  return submitted ? /* @__PURE__ */ React109.createElement(TransactionWidget, { theme }) : /* @__PURE__ */ React109.createElement(
     TransferWidget,
     {
       theme,

@@ -30,7 +30,7 @@ const SourceNetworkSelectorComponent = () => {
   const networks = useMemo(() => {
     const data = networkOptions.filter((network) => network.id !== targetChain)
     return data
-  }, [networkOptions])
+  }, [networkOptions, targetChain])
 
   const selectedNetwork = useMemo(() => {
     return (
