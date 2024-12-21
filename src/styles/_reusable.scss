@@ -2071,6 +2071,10 @@
     letter-spacing: 0;
     font-size: 16px;
     @include transition;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
 
     &.dark {
       color: white;

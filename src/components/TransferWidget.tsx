@@ -317,10 +317,11 @@ export const TransferWidget = ({
                 {formStep > 0 ? 'Back' : 'Cancel'}
               </SecondaryButton>
             )}
-            {allowance > 0 ? (
-              <PrimaryButton
+            {allowance > 0 && formStep !== 0 ? (
+              <SecondaryButton
                 clickHandler={onCancelApprove}
                 isLoading={isCancellingApprove}
+                theme={theme.colorMode}
                 disabled={
                   isCancellingApprove ||
                   isApproving ||
@@ -329,7 +330,7 @@ export const TransferWidget = ({
                 }
               >
                 {isCancellingApprove ? 'Cancelling Approval' : 'Cancel Approve'}
-              </PrimaryButton>
+              </SecondaryButton>
             ) : null}
             <PrimaryButton
               clickHandler={onNext}

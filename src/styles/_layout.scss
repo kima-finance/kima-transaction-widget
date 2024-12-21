@@ -310,15 +310,18 @@
       margin-bottom: 20px;
 
       &.row {
-        @include breakpoint(phablet) {
           margin-top: 40px;
-        }
       }
 
       &.grid {
         margin-top: 40px;
 
+        @include breakpoint(phablet){
+          margin-top: -60px;
+        }
+
         @include breakpoint(mobile) {
+          margin-top: 40px;
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
 
@@ -333,11 +336,6 @@
           }
         }
       }
-    }
-
-    svg {
-      width: 10em;
-      height: 2.5em;
     }
 
     p {

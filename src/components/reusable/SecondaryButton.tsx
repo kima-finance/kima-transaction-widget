@@ -1,3 +1,4 @@
+import { Loading180Ring } from '@assets/loading'
 import React from 'react'
 
 interface Props {
@@ -7,6 +8,7 @@ interface Props {
   theme?: string
   style?: any
   disabled?: boolean
+  isLoading?: boolean
 }
 
 const SecondaryButton = ({
@@ -15,7 +17,8 @@ const SecondaryButton = ({
   children,
   theme,
   style,
-  disabled = false
+  disabled = false,
+  isLoading
 }: Props) => (
   <button
     className={`secondary-button ${className} ${theme}`}
@@ -23,6 +26,11 @@ const SecondaryButton = ({
     {...style}
     disabled={disabled}
   >
+    {isLoading && (
+      <div className='loading-indicator'>
+        <Loading180Ring width={24} height={24} fill='black' />
+      </div>
+    )}
     {children}
   </button>
 )
