@@ -1742,6 +1742,11 @@
             position: relative;
             align-items: center;
 
+            @include breakpoint(mobile){
+              width: 195px;
+              height: 40px;
+            }
+
             .icon {
               border-radius: 9999px;
               background-color: white;
@@ -1763,6 +1768,7 @@
               align-items: center;
 
               @include breakpoint(mobile) {
+                
                 &.chain-name {
                   display: none;
                 }
@@ -1883,11 +1889,11 @@
               }
 
               &.source-chain {
-                margin-top: -20px;
+                margin-top: -30px;
               }
 
               &.paid {
-                margin-top: 20px;
+                margin-top: 10px;
               }
 
               &.target-chain {

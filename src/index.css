@@ -1923,6 +1923,12 @@
   position: relative;
   align-items: center;
 }
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item {
+    width: 195px;
+    height: 40px;
+  }
+}
 .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item .icon {
   border-radius: 9999px;
   background-color: white;
@@ -2036,10 +2042,10 @@
     color: white;
   }
   .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item.source-chain {
-    margin-top: -20px;
+    margin-top: -30px;
   }
   .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item.paid {
-    margin-top: 20px;
+    margin-top: 10px;
   }
   .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item.target-chain {
     margin-top: 60px;

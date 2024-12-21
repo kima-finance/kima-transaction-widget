@@ -5,8 +5,8 @@ import { TokenOptions } from '@store/optionSlice'
 
 export const getShortenedAddress = (address: string) => {
   const is0x = (addr: string) => addr?.startsWith('0x')
-  return `${address?.substring(0, is0x(address) ? 6 : 4)}...${address?.substr(
-    address.length - (is0x(address) ? 8 : 5)
+  return `${address?.substring(0, is0x(address) ? 6 : 5)}...${address?.substr(
+    address.length - (is0x(address) ? 8 : 8)
   )}`
 }
 

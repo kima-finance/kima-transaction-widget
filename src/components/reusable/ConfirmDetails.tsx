@@ -39,7 +39,6 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
   const signature = useSelector(selectSignature)
   const networkOptions = useSelector(selectNetworks)
 
-  console.log('network options: ', networkOptions)
   const transactionOption = useSelector(selectTransactionOption)
   const { walletAddress } = useIsWalletReady()
   const originNetworkOption = useMemo(
