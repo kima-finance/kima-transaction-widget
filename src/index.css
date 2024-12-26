@@ -52,17 +52,21 @@
 }
 .kima-card .kima-card-header .topbar .title h3 {
   margin: 0;
-  font-size: 32px;
+  font-size: 28px;
 }
 @media (max-width: 768px) {
   .kima-card .kima-card-header .topbar .title h3 {
-    font-size: 26px;
+    font-size: 24px;
   }
 }
 .kima-card .kima-card-header .topbar .title span {
   color: #5aa0db;
   font-weight: bold;
   margin: 0 0 0 1em;
+}
+.kima-card .kima-card-header .topbar .title .title-icon {
+  display: inline-block;
+  vertical-align: middle;
 }
 .kima-card .kima-card-header .topbar .title .percent {
   margin-left: 0.5em;

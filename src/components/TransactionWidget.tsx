@@ -24,6 +24,7 @@ import { useDispatch } from 'react-redux'
 import { toast, Toaster } from 'react-hot-toast'
 import { setAmount, setSubmitted, setTargetAddress } from '@store/optionSlice'
 import useGetTxData from '../hooks/useGetTxData'
+import ChainIcon from './reusable/ChainIcon'
 
 export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [step, setStep] = useState(0)
@@ -144,7 +145,11 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                             ? +amount || 0 + totalFeeUsd
                             : +amount || 0 - totalFeeUsd
                       )}{' '}
-                      {data?.sourceSymbol} ({data?.sourceChain}) →{' '}
+                      {data?.sourceSymbol}{' '}
+                      <div className='title-icon'>
+                        <ChainIcon symbol={data.sourceChain} />
+                      </div>{' '}
+                      ({data?.sourceChain}) →{' '}
                       {formatterFloat.format(
                         mode === ModeOptions.status
                           ? data.amount
@@ -152,7 +157,11 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                             ? +amount - totalFeeUsd || 0
                             : +amount || 0
                       )}{' '}
-                      {data?.targetSymbol} ({data?.targetChain})
+                      {data?.targetSymbol}{' '}
+                      <div className='title-icon'>
+                        <ChainIcon symbol={data.targetChain} />
+                      </div>{' '}
+                      ({data?.targetChain})
                     </div>
                   )}
               </h3>
