@@ -30,6 +30,7 @@ import TokenBadge from '@components/primary/TokenBadge'
 import useGetFees from '../../hooks/useGetFees'
 import { setServiceFee } from '@store/optionSlice'
 import { preciseSubtraction } from '@utils/functions'
+import NetworkSelector from '@components/primary/NetworkSelector'
 
 const SingleForm = ({
   balance,
@@ -117,7 +118,7 @@ const SingleForm = ({
       <div className='form-item'>
         <span className='label'>Source Network:</span>
         <div className='items'>
-          <SourceNetworkSelector />
+          <NetworkSelector type='source' />
           <CoinDropdown />
         </div>
       </div>
@@ -138,7 +139,7 @@ const SingleForm = ({
           <div className='form-item'>
             <span className='label'>Target Network:</span>
             <div className='items'>
-              <TargetNetworkSelector />
+              <NetworkSelector type='target' />
               <CoinDropdown isSourceChain={false} />
             </div>
           </div>
