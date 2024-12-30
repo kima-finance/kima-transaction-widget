@@ -49,6 +49,7 @@ import useSubmitTransaction from '../hooks/useSubmitTransaction'
 import useComplianceCheck from '../hooks/useComplianceCheck'
 import useBalance from '../hooks/useBalance'
 import useGetPools from '../hooks/useGetPools'
+import useDisconnectWallet from '../hooks/useDisconnectWallet'
 
 interface Props {
   theme: ThemeOptions
@@ -99,6 +100,8 @@ export const TransferWidget = ({
   const pendingTxs = useSelector(selectPendingTxs)
 
   const { width: windowWidth } = useWidth()
+
+  const {disconnectWallet} = useDisconnectWallet()
 
   const { balance } = useBalance()
 
@@ -217,13 +220,13 @@ export const TransferWidget = ({
     approve(true)
   }
 
-  const resetForm = () => {
+  const resetForm = async () => {
     if (isApproving || isSubmitting || isSigning) return
 
     setFormStep(0)
     dispatch(setTargetAddress('')) // reset target address
     dispatch(setAmount('')) // reset amount
-    // disconnect wallet?
+    await disconnectWallet()
     closeHandler()
   }
 

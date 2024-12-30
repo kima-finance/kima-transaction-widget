@@ -21,9 +21,10 @@ import useWidth from '../../hooks/useWidth'
 import { getShortenedAddress } from '../../utils/functions'
 import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
-import { useAppKit } from '@reown/appkit/react'
+import { useAppKit, useAppKitState } from '@reown/appkit/react'
 import CopyButton from './CopyButton'
 import { formatUSD } from 'src/helpers/functions'
+import useHideWuiListItem from '../../hooks/useHideActivityTab'
 
 const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const dispatch = useDispatch()
@@ -39,6 +40,8 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const { balance } = useBalance()
   const { open } = useAppKit()
   const { width, updateWidth } = useWidth()
+  const { open: isModalOpen } = useAppKitState()
+  useHideWuiListItem(isModalOpen)
 
   useEffect(() => {
     console.info('WalletBalance:', {

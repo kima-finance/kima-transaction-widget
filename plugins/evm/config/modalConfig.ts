@@ -76,8 +76,13 @@ export const setupAppKit = (
     networks,
     projectId, // Use the provided or default project ID
     features: {
-      analytics: false // Disable analytics as per previous configuration
-    }
+      analytics: false, // Disable analytics as per previous configuration
+      swaps: false,
+      onramp: false,
+      email: false,
+      socials: false,
+      history: false,
+    },
   })
   console.debug('setupAppKit:networkOption:', networkOption)
 

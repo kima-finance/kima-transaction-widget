@@ -11,6 +11,7 @@ import {
 import useBalanceTron from '@plugins/tron/core/hooks/useGetTrxBalance'
 import useTronAllowance from '@plugins/tron/core/hooks/useTronAllowance'
 import useIsWalletReadyTron from '@plugins/tron/core/hooks/useIsWalletReady'
+import useDisconnectWallet from './core/hooks/useDisconnectWallet'
 
 export class TronPlugin extends PluginBase {
   constructor(store: any) {
@@ -21,7 +22,8 @@ export class TronPlugin extends PluginBase {
       useAllowance: useTronAllowance,
       useNativeBalance: useBalanceTron,
       useTokenBalance: useTronAllowance,
-      useWalletIsReady: useIsWalletReadyTron
+      useWalletIsReady: useIsWalletReadyTron,
+      useDisconnectWallet: useDisconnectWallet
     })
   }
 

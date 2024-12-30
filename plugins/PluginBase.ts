@@ -8,6 +8,7 @@ import {
   PluginProviderProps,
   PluginUseAllowanceResult,
   PluginUseBalanceResult,
+  PluginUseDisconnectWalletResult,
   PluginUseWalletIsReadyResult
 } from './pluginTypes'
 
@@ -25,6 +26,7 @@ export abstract class PluginBase implements Plugin {
   useNativeBalance: () => PluginUseBalanceResult | undefined
   useTokenBalance: () => PluginUseBalanceResult | undefined
   useWalletIsReady: () => PluginUseWalletIsReadyResult
+  useDisconnectWallet: () => PluginUseDisconnectWalletResult
 
   constructor(args: {
     store: any
@@ -34,6 +36,7 @@ export abstract class PluginBase implements Plugin {
     useNativeBalance: () => PluginUseBalanceResult | undefined
     useTokenBalance(): PluginUseBalanceResult | undefined
     useWalletIsReady: () => PluginUseWalletIsReadyResult
+    useDisconnectWallet: () => PluginUseDisconnectWalletResult
   }) {
     this._store = args.store
     this.data = {
@@ -46,6 +49,7 @@ export abstract class PluginBase implements Plugin {
     this.useNativeBalance = args.useNativeBalance
     this.useTokenBalance = args.useTokenBalance
     this.useWalletIsReady = args.useWalletIsReady
+    this.useDisconnectWallet = args.useDisconnectWallet
   }
 
   initialize = (): PluginInit => {
