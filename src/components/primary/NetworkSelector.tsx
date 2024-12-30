@@ -68,7 +68,7 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({ type }) => {
         dispatch(setTargetChain(networkId));
       }
     }
-    setCollapsed(true);
+    setCollapsed(true); // Explicitly collapse the dropdown after selection
   };
 
   useEffect(() => {
@@ -107,7 +107,10 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({ type }) => {
             <div
               key={network.id}
               className={`network-menu-item ${theme?.colorMode ?? ''}`}
-              onClick={() => handleNetworkChange(network.id)}
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent the dropdown toggle click
+                handleNetworkChange(network.id);
+              }}
             >
               <ChainIcon symbol={network.id} />
               <p>{network.label}</p>
