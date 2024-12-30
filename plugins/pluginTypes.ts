@@ -14,6 +14,7 @@ export interface Plugin {
   useNativeBalance: () => PluginUseBalanceResult | undefined
   useTokenBalance(): PluginUseBalanceResult | undefined
   useWalletIsReady: () => PluginUseWalletIsReadyResult
+  useDisconnectWallet: () => PluginUseDisconnectWalletResult
 }
 
 export interface PluginUseAllowanceResult {
@@ -33,6 +34,10 @@ export interface PluginUseWalletIsReadyResult {
   isReady: boolean
   statusMessage: string
   walletAddress?: string
+}
+
+export interface PluginUseDisconnectWalletResult {
+  disconnectWallet: () => Promise<void>
 }
 
 export interface PluginInit {

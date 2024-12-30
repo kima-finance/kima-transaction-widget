@@ -11,6 +11,7 @@ import {
 import useGetSolBalance from '@plugins/solana/core/hooks/useGetSolBalance'
 import useSolanaAllowance from '@plugins/solana/core/hooks/useSolanaAllowance'
 import useSolIsWalletReady from '@plugins/solana/core/hooks/useIsWalletReady'
+import useDisconnectWallet from './core/hooks/useDisconnectWallet'
 
 export class SolanaPlugin extends PluginBase {
   constructor(store: any) {
@@ -21,7 +22,8 @@ export class SolanaPlugin extends PluginBase {
       useAllowance: useSolanaAllowance,
       useNativeBalance: useGetSolBalance,
       useTokenBalance: useSolanaAllowance,
-      useWalletIsReady: useSolIsWalletReady
+      useWalletIsReady: useSolIsWalletReady,
+      useDisconnectWallet: useDisconnectWallet
     })
   }
 

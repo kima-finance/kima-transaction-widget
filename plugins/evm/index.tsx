@@ -12,6 +12,7 @@ import useBalanceEvm from '@plugins/evm/core/hooks/useBalance'
 import useNativeEvmBalance from '@plugins/evm/core/hooks/useNativeBalance'
 import useIsWalletReadyEvm from '@plugins/evm/core/hooks/useIsWalletReady'
 import useEvmAllowance from '@plugins/evm/core/hooks/useEvmAllowance'
+import useDisconnectWallet from './core/hooks/useDisconnectWallet'
 
 export class EvmPlugin extends PluginBase {
   constructor(store: any) {
@@ -22,7 +23,8 @@ export class EvmPlugin extends PluginBase {
       useAllowance: useEvmAllowance,
       useNativeBalance: useNativeEvmBalance,
       useTokenBalance: useBalanceEvm,
-      useWalletIsReady: useIsWalletReadyEvm
+      useWalletIsReady: useIsWalletReadyEvm,
+      useDisconnectWallet: useDisconnectWallet
     })
   }
 
