@@ -12,11 +12,8 @@ import {
 
 import {
   KIMA_EXPLORER_URL,
-  GRAPHQL_PROVIDER_QUERY_URL,
   DEFAULT_SOURCE_CURRENCY,
   DEFAULT_TARGET_CURRENCY,
-  DEFAULT_MODE,
-  DEFAULT_SERVICE_FEE,
   DEFAULT_COMPLIANCE_STATUS
 } from './constants'
 
@@ -50,8 +47,6 @@ interface CoreState {
   initChainFromProvider: boolean // chainId is initialized from provider or not
   serviceFee: ServiceFee // service fee from Kima node
   backendUrl: string // URL for Kima-transaction-backend component
-  nodeProviderQuery: string // REST API endpoint to query Kima node
-  graphqlProviderQuery: string // GraphQL endpoint to query Kima transaction data
   kimaExplorerUrl: string // URL for Kima Explorer
   txId: number // transaction ID to monitor its status
   sourceCurrency: string // Currently selected token for source chain
@@ -68,7 +63,6 @@ const initialState: CoreState = {
   theme: {}, // Define your default theme object here
   tokenOptions: {},
   kimaExplorerUrl: KIMA_EXPLORER_URL,
-  graphqlProviderQuery: GRAPHQL_PROVIDER_QUERY_URL,
   mode: ModeOptions.bridge,
   sourceChain: '',
   targetChain: '',
@@ -101,30 +95,7 @@ export const coreSlice = createSlice({
   initialState,
   reducers: {
     initialize: (state) => {
-      state.submitted = false
-      state.txId = -1
-      state.serviceFee = { totalFeeUsd: -1 }
-      state.amount = ''
-      state.targetAddress = ''
-      state.compliantOption = true
-      state.sourceCompliant = 'low'
-      state.targetCompliant = 'low'
-      state.initChainFromProvider = false
-      state.targetNetworkFetching = false
-      state.tokenOptions = {}
-      state.helpPopup = false
-      state.hashPopup = false
-      state.errorHandler = () => void 0
-      state.closeHandler = () => void 0
-      state.successHandler = () => void 0
-      state.switchChainHandler = () => void 0
-      state.backendUrl = ''
-      state.nodeProviderQuery = ''
-      state.graphqlProviderQuery = ''
-      state.kimaExplorerUrl = KIMA_EXPLORER_URL
-      state.sourceCurrency = 'USDK'
-      state.targetCurrency = 'USDK'
-      state.amount = ''
+      Object.assign(state, initialState) // Reset the state to initial
     },
     setNetworkOption: (state, action: PayloadAction<NetworkOptions>) => {
       state.networkOption = action.payload
@@ -192,12 +163,6 @@ export const coreSlice = createSlice({
     setBackendUrl: (state, action: PayloadAction<string>) => {
       state.backendUrl = action.payload
     },
-    setNodeProviderQuery: (state, action: PayloadAction<string>) => {
-      state.nodeProviderQuery = action.payload
-    },
-    setGraphqlProviderQuery: (state, action: PayloadAction<string>) => {
-      state.graphqlProviderQuery = action.payload
-    },
     setTxId: (state, action: PayloadAction<number>) => {
       state.txId = action.payload
     },
@@ -247,8 +212,6 @@ export const {
   setMode,
   setFeeDeduct,
   setBackendUrl,
-  setNodeProviderQuery,
-  setGraphqlProviderQuery,
   setTxId,
   setSourceCurrency,
   setTargetCurrency,
