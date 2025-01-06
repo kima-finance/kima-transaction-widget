@@ -28,8 +28,6 @@ export const selectServiceFee = (state: RootState) => state.core.serviceFee
 export const selectMode = (state: RootState) => state.core.mode
 export const selectFeeDeduct = (state: RootState) => state.core.feeDeduct
 export const selectBackendUrl = (state: RootState) => state.core.backendUrl
-export const selectNodeProviderQuery = (state: RootState) => state.core.nodeProviderQuery
-export const selectGraphqlProviderQuery = (state: RootState) => state.core.graphqlProviderQuery
 export const selectTxId = (state: RootState) => state.core.txId
 export const selectSourceCurrency = (state: RootState) => state.core.sourceCurrency
 export const selectTargetCurrency = (state: RootState) => state.core.targetCurrency
@@ -39,4 +37,3 @@ export const selectTargetCompliant = (state: RootState) => state.core.targetComp
 export const selectTargetChainFetching = (state: RootState) => state.core.targetNetworkFetching
 export const selectPendingTxs = (state: RootState) => state.core.pendingTxs
 export const selectPendingTxData = (state: RootState) => state.core.pendingTxData
-export const selectTxId = (state: RootState) => state.core.txId
