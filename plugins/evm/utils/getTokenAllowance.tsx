@@ -1,4 +1,8 @@
-import { ExternalProvider, JsonRpcFetchFunc } from '@ethersproject/providers'
+import {
+  ExternalProvider,
+  JsonRpcFetchFunc,
+  Web3Provider
+} from '@ethersproject/providers'
 import { Contract, ethers } from 'ethers'
 import { TokenOptions } from '@store/optionSlice'
 import { getTokenAddress, getPoolAddress } from '@utils/functions'
@@ -15,7 +19,7 @@ export const getTokenAllowance = async ({
 }: {
   tokenOptions: TokenOptions
   selectedCoin: string
-  walletProvider: ExternalProvider | JsonRpcFetchFunc
+  walletProvider: ExternalProvider | JsonRpcFetchFunc | Web3Provider
   userAddress: string
   chain: string
   pools: Array<any>
@@ -25,19 +29,23 @@ export const getTokenAllowance = async ({
     const tokenAddress = getTokenAddress(tokenOptions, selectedCoin, chain)
     const poolAddress = getPoolAddress(pools, chain)
 
-    const provider = new ethers.providers.Web3Provider(
-      walletProvider as ExternalProvider | JsonRpcFetchFunc
-    )
-    const signer = provider?.getSigner()
+    const provider =
+      walletProvider instanceof Web3Provider // check for external provider
+        ? walletProvider
+        : new ethers.providers.Web3Provider(
+            walletProvider as ExternalProvider | JsonRpcFetchFunc
+          )
+    const signer = provider.getSigner()
     if (!tokenAddress || !poolAddress || !signer || !userAddress) return
 
     const erc20Contract = new Contract(tokenAddress, abi.abi, signer)
-    const allowance = await erc20Contract.allowance(userAddress, poolAddress)
-    const balance = await erc20Contract.balanceOf(userAddress)
-    const decimals = await erc20Contract.decimals()
 
-    console.log('evm get allowance: ', +formatUnits(allowance, decimals))
-    console.log('evm get decimals: ', decimals)
+    const allowance = await erc20Contract.allowance(userAddress, poolAddress)
+    console.log('allowance: ', allowance)
+    const balance = await erc20Contract.balanceOf(userAddress)
+    console.log('usdk balance: ', balance)
+    const decimals = await erc20Contract.decimals()
+    console.log('usdk decimals: ', decimals)
 
     return {
       allowance: Number(formatUnits(allowance, decimals)),
@@ -45,7 +53,7 @@ export const getTokenAllowance = async ({
       decimals: Number(decimals)
     }
   } catch (error) {
-    console.error('Error getting evm allowance: ', error)
-    throw new Error('Error getting evm allowance')
+    console.error('Error getting EVM allowance: ', error)
+    throw new Error('Error getting EVM allowance')
   }
 }

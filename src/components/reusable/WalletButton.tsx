@@ -11,7 +11,8 @@ import {
   selectSourceCurrency,
   selectSourceChain,
   selectSourceCompliant,
-  selectTheme
+  selectTheme,
+  selectExternalProvider
 } from '../../store/selectors'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
 import { ChainName } from '../../utils/constants'
@@ -33,6 +34,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const sourceCompliant = useSelector(selectSourceCompliant)
   const compliantOption = useSelector(selectCompliantOption)
   const selectedNetwork = useSelector(selectSourceChain)
+  const externalProvider = useSelector(selectExternalProvider)
   const { connected: isSolanaConnected } = useSolanaWallet()
   const { connected: isTronConnected } = useTronWallet()
   const { isReady, statusMessage, walletAddress /*, connectBitcoinWallet*/ } =
@@ -48,9 +50,10 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
       balance,
       walletAddress,
       isReady,
-      statusMessage
+      statusMessage,
+      externalProvider
     })
-  }, [balance, walletAddress, isReady])
+  }, [balance, walletAddress, isReady, externalProvider])
 
   useEffect(() => {
     if (width === 0) {
@@ -82,6 +85,9 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
     //   connectBitcoinWallet()
     //   return
     // }
+
+    // TODO: Refactor to use evm account details modal
+    if (externalProvider) return
 
     console.info('Handling click: Case EVM', 4)
     try {

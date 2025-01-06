@@ -1,7 +1,14 @@
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
+import { useQuery } from '@tanstack/react-query'
+import { Contract, ethers } from 'ethers'
+import {
+  Web3Provider,
+  ExternalProvider,
+  JsonRpcFetchFunc
+} from '@ethersproject/providers'
+import { formatUnits } from '@ethersproject/units'
 
-import { PluginUseAllowanceResult } from '@plugins/pluginTypes'
 import ERC20ABI from '@utils/ethereum/erc20ABI.json'
 import {
   selectSourceCurrency,
@@ -9,25 +16,21 @@ import {
   selectServiceFee,
   selectTokenOptions,
   selectNetworkOption,
-  selectBackendUrl
+  selectBackendUrl,
+  selectExternalProvider
 } from '@store/selectors'
-
 import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
-import { useQuery } from '@tanstack/react-query'
-import { getTokenAllowance } from '../../utils/getTokenAllowance'
 import useGetPools from '../../../../src/hooks/useGetPools'
-import { isEVMChain } from '@plugins/evm/utils/constants'
+import { getTokenAllowance } from '../../utils/getTokenAllowance'
 import { getPoolAddress, getTokenAddress } from '@utils/functions'
-import { Contract, ethers } from 'ethers'
-import { ExternalProvider, JsonRpcFetchFunc } from '@ethersproject/providers'
-import { formatUnits } from '@ethersproject/units'
+import { isEVMChain } from '@plugins/evm/utils/constants'
 
-export default function useEvmAllowance(): PluginUseAllowanceResult {
+export default function useEvmAllowance() {
+  const externalProvider = useSelector(selectExternalProvider)
+  const { walletProvider: appkitProvider } =
+    useAppKitProvider<ExternalProvider>('eip155')
   const appkitAccountInfo = useAppKitAccount()
 
-  const { address: userAddress } = appkitAccountInfo
-
-  const { walletProvider } = useAppKitProvider('eip155')
   const sourceChain = useSelector(selectSourceChain)
   const networkOption = useSelector(selectNetworkOption)
   const { allowanceAmount, decimals } = useSelector(selectServiceFee)
@@ -36,53 +39,65 @@ export default function useEvmAllowance(): PluginUseAllowanceResult {
   const backendUrl = useSelector(selectBackendUrl)
   const allowanceNumber = Number(formatUnits(allowanceAmount ?? '0', decimals))
 
+  const { pools } = useGetPools(backendUrl, networkOption)
+
+  // get the proper address
+  const walletAddress =
+    externalProvider?.signer?._address || appkitAccountInfo?.address
+
+  // get the proper provider
+  const walletProvider: Web3Provider | ExternalProvider =
+    externalProvider?.provider || appkitProvider
+
   const [approvalsCount, setApprovalsCount] = useState(0)
 
-  const { pools } = useGetPools(backendUrl, networkOption)
+  const queryKey = ['evmAllowance', walletAddress, sourceChain, approvalsCount]
+
+  const enabled =
+    !!walletAddress &&
+    !!tokenOptions &&
+    !!selectedCoin &&
+    !!ERC20ABI &&
+    pools.length > 0 &&
+    isEVMChain(sourceChain) &&
+    (!!externalProvider?.provider || !!appkitProvider)
 
   const {
     data: allowanceData,
     isLoading,
-    error
+    refetch
   } = useQuery({
-    queryKey: ['evmAllowance', userAddress, sourceChain, approvalsCount],
-    queryFn: async () =>
+    queryKey,
+    queryFn: () =>
       getTokenAllowance({
         tokenOptions,
         selectedCoin,
-        walletProvider: walletProvider!,
-        userAddress: userAddress!,
+        walletProvider,
+        userAddress: walletAddress!,
         pools,
         abi: ERC20ABI,
         chain: sourceChain
       }),
-    refetchInterval: 1000 * 60, // 1 min
-    staleTime: 1000 * 60, // 1 min
-    enabled:
-      !!tokenOptions &&
-      !!selectedCoin &&
-      !!walletProvider &&
-      !!userAddress &&
-      pools.length > 0 &&
-      !!ERC20ABI &&
-      isEVMChain(sourceChain)
+    staleTime: 60 * 1000,
+    refetchInterval: 60 * 1000,
+    enabled
   })
 
-  // TODO: refactor to use use Tanstack useMutaion hook
-  const approveErc20TokenTransfer = async (isCancel: boolean = false) => {
-    // Get token address
+  const approveErc20TokenTransfer = async (isCancel = false) => {
     const tokenAddress = getTokenAddress(
       tokenOptions,
       selectedCoin,
       sourceChain
     )
-
-    // Get kima pool address
     const poolAddress = getPoolAddress(pools, sourceChain)
 
-    const provider = new ethers.providers.Web3Provider(
-      walletProvider as ExternalProvider | JsonRpcFetchFunc
-    )
+    // set the proper provider
+    const provider =
+      walletProvider instanceof Web3Provider
+        ? walletProvider
+        : new ethers.providers.Web3Provider(walletProvider)
+
+    // get the proper signer from the provider
     const signer = provider.getSigner()
     if (
       !allowanceData?.decimals ||
@@ -103,10 +118,7 @@ export default function useEvmAllowance(): PluginUseAllowanceResult {
 
     try {
       const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer)
-
-      // Initiate the approve transaction
       const amount = isCancel ? '0' : allowanceAmount
-      console.log('useEvmAllowance: Approving amount:', amount)
       const approveTx = await erc20Contract.approve(poolAddress, amount)
 
       console.log(
@@ -114,13 +126,11 @@ export default function useEvmAllowance(): PluginUseAllowanceResult {
         approveTx.hash
       )
 
-      // Wait for the transaction to be mined
       const receipt = await approveTx.wait()
 
-      // Check receipt status
       if (receipt.status === 1) {
         console.log('useEvmAllowance: Transaction successful:', receipt)
-        setApprovalsCount((prev) => prev + 1)
+        setApprovalsCount((prev: number) => prev + 1)
       } else {
         console.error('useEvmAllowance: Transaction failed:', receipt)
         throw new Error('Transaction failed')
@@ -132,10 +142,12 @@ export default function useEvmAllowance(): PluginUseAllowanceResult {
   }
 
   return {
-    ...allowanceData,
+    allowanceData,
     isApproved: allowanceData?.allowance
       ? allowanceData.allowance >= allowanceNumber
       : false,
-    approve: approveErc20TokenTransfer
+    approve: approveErc20TokenTransfer,
+    isLoading,
+    refetch
   }
 }

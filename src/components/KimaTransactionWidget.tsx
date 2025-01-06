@@ -8,7 +8,8 @@ import {
   PaymentTitleOption,
   DAppOptions,
   ColorModeOptions,
-  NetworkOptions
+  NetworkOptions,
+  ExternalProvider
 } from '../interface'
 
 // store
@@ -36,17 +37,22 @@ import {
   setGraphqlProviderQuery,
   setTargetCurrency,
   setTargetAddress,
-  setAmount
+  setAmount,
+  setExternalProvider,
+  setSourceAddress,
+  initialize
 } from '../store/optionSlice'
 import '../index.css'
 import { selectSubmitted } from '../store/selectors'
 import { TransactionWidget } from './TransactionWidget'
 import { TransferWidget } from './TransferWidget'
-import { Web3Provider } from '@ethersproject/providers'
-import { useAppKitTheme } from '@reown/appkit/react'
+import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
+import { useAppKitTheme, useDisconnect } from '@reown/appkit/react'
 import { ChainName } from '@utils/constants'
 import { useChainData } from '../hooks/useChainData'
 import { indexPluginsByChain } from '../pluginRegistry'
+import useDisconnectWallet from '../hooks/useDisconnectWallet'
+import { isValidExternalProvider } from '@utils/functions'
 
 interface Props {
   theme: ThemeOptions
@@ -65,6 +71,7 @@ interface Props {
   kimaGraphqlProviderQuery: string
   kimaExplorer?: string
   networkOption?: NetworkOptions
+  externalProvider?: ExternalProvider
   errorHandler?: (e: any) => void
   closeHandler?: (e: any) => void
   successHandler?: (e: any) => void
@@ -89,6 +96,7 @@ const KimaTransactionWidget = ({
   kimaNodeProviderQuery,
   kimaExplorer = 'https://explorer.kima.finance',
   kimaGraphqlProviderQuery = 'https://graphql.kima.finance/v1/graphql',
+  externalProvider,
   errorHandler = () => void 0,
   closeHandler = () => void 0,
   successHandler = () => void 0,
@@ -98,9 +106,12 @@ const KimaTransactionWidget = ({
   const submitted = useSelector(selectSubmitted)
   const dispatch = useDispatch()
   const { setThemeMode, setThemeVariables } = useAppKitTheme()
+  const { disconnectWallet } = useDisconnectWallet()
   const { data: chainData } = useChainData(kimaBackendUrl)
 
   useEffect(() => {
+    // reset state to ensure props are loaded from scratch
+    dispatch(initialize())
     dispatch(setTheme(theme))
     setThemeMode(theme.colorMode === ColorModeOptions.light ? 'light' : 'dark')
     setThemeVariables({
@@ -110,6 +121,16 @@ const KimaTransactionWidget = ({
 
     if (transactionOption) dispatch(setTransactionOption(transactionOption))
 
+    // TODO: add validation for provider
+    if (externalProvider && isValidExternalProvider(externalProvider)) {
+      disconnectWallet() // disconnect any previous connected wallet to avoid conflicts
+      if (externalProvider.signer instanceof JsonRpcSigner)
+        dispatch(setSourceAddress(externalProvider.signer?._address as string))
+
+      dispatch(setExternalProvider(externalProvider))
+    } else {
+      // TODO: toast error
+    }
     dispatch(setKimaExplorer(kimaExplorer))
     dispatch(setCompliantOption(compliantOption))
     dispatch(setErrorHandler(errorHandler))

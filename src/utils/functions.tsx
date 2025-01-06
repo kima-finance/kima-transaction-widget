@@ -1,6 +1,11 @@
 // Return shortened address for EVM, Solana wallet address
 
-import { CHAIN_NAMES_TO_STRING, NetworkFee } from '@interface'
+import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
+import {
+  CHAIN_NAMES_TO_STRING,
+  ExternalProvider,
+  NetworkFee,
+} from '@interface'
 import { TokenOptions } from '@store/optionSlice'
 
 export const getShortenedAddress = (address: string) => {
@@ -106,13 +111,28 @@ export const preciseSubtraction = (
     )
   }
   // Extract decimal places for precision
-  const aDecimals = (numA.toString().split('.')[1] || '').length 
-  const bDecimals = (numB.toString().split('.')[1] || '').length 
+  const aDecimals = (numA.toString().split('.')[1] || '').length
+  const bDecimals = (numB.toString().split('.')[1] || '').length
   const maxDecimals = Math.max(aDecimals, bDecimals) // Use the larger number of decimals
-  
+
   // Normalize and subtract
   const result =
     (numA * Math.pow(10, maxDecimals) - numB * Math.pow(10, maxDecimals)) /
     Math.pow(10, maxDecimals)
   return parseFloat(result.toFixed(maxDecimals))
+}
+
+export const isValidExternalProvider = (externalProvider: ExternalProvider) => {
+  const { type, provider, signer } = externalProvider
+
+  // evm provider type check
+  if (type === 'evm') {
+    if (
+      !(provider instanceof Web3Provider) ||
+      !(signer instanceof JsonRpcSigner)
+    )
+      return false
+  }
+
+  return true
 }
