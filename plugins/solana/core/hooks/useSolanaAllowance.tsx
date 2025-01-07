@@ -8,7 +8,8 @@ import {
   selectServiceFee,
   selectTokenOptions,
   selectBackendUrl,
-  selectNetworkOption
+  selectNetworkOption,
+  selectExternalProvider
 } from '@store/selectors'
 import { useQuery } from '@tanstack/react-query'
 import { getTokenAllowance } from '../../utils/getTokenAllowance'
@@ -29,14 +30,28 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
   const backendUrl = useSelector(selectBackendUrl)
   const networkOption = useSelector(selectNetworkOption)
   const allowanceNumber = Number(formatUnits(allowanceAmount ?? '0', decimals))
+  const externalProvider = useSelector(selectExternalProvider)
 
-  const { connection } = useConnection()
-  const { publicKey: userPublicKey, signTransaction } = useWallet()
+  const { connection: internalConnection } = useConnection()
+  const {
+    publicKey: internalPublicKey,
+    signTransaction: internalSignTransaction
+  } = useWallet()
   const selectedCoin = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
   const { pools } = useGetPools(backendUrl, networkOption)
 
   const [approvalsCount, setApprovalsCount] = useState(0)
+
+  // set the proper publickey
+  const userPublicKey = externalProvider?.signer || internalPublicKey
+
+  // set the proper signTransaction object
+  const signTransaction =
+    externalProvider?.provider.signTransaction || internalSignTransaction
+
+  // set the proper connection object
+  const connection = externalProvider?.provider.connection || internalConnection
 
   const {
     data: allowanceData,

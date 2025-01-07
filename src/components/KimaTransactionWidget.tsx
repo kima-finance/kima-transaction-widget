@@ -53,6 +53,7 @@ import { useChainData } from '../hooks/useChainData'
 import { indexPluginsByChain } from '../pluginRegistry'
 import useDisconnectWallet from '../hooks/useDisconnectWallet'
 import { isValidExternalProvider } from '@utils/functions'
+import { PublicKey } from '@solana/web3.js'
 
 interface Props {
   theme: ThemeOptions
@@ -126,6 +127,8 @@ const KimaTransactionWidget = ({
       disconnectWallet() // disconnect any previous connected wallet to avoid conflicts
       if (externalProvider.signer instanceof JsonRpcSigner)
         dispatch(setSourceAddress(externalProvider.signer?._address as string))
+      if (externalProvider.signer instanceof PublicKey)
+        dispatch(setSourceAddress(externalProvider.signer.toBase58()))
 
       dispatch(setExternalProvider(externalProvider))
     } else {

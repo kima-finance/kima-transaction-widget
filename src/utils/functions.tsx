@@ -1,11 +1,8 @@
 // Return shortened address for EVM, Solana wallet address
 
 import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
-import {
-  CHAIN_NAMES_TO_STRING,
-  ExternalProvider,
-  NetworkFee,
-} from '@interface'
+import { CHAIN_NAMES_TO_STRING, ExternalProvider, NetworkFee, SolProvider } from '@interface'
+import { Connection, PublicKey } from '@solana/web3.js'
 import { TokenOptions } from '@store/optionSlice'
 
 export const getShortenedAddress = (address: string) => {
@@ -134,5 +131,19 @@ export const isValidExternalProvider = (externalProvider: ExternalProvider) => {
       return false
   }
 
+  if (type === 'solana') {
+    if (
+      !(isSolProvider(provider as SolProvider)) ||
+      !(signer instanceof PublicKey)
+    )
+      return false
+  }
+
+
   return true
+}
+
+const isSolProvider = (provider:SolProvider) => {
+  // TODO: refactor to a class or check the right function signature
+  return (provider && provider.connection instanceof Connection && typeof provider.signTransaction === 'function')
 }

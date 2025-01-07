@@ -64,30 +64,31 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const handleClick = async () => {
     console.info('Handling click')
 
+    // TODO: Refactor to use evm account details modal
+    if (externalProvider) return
+    
     if (selectedNetwork === ChainName.SOLANA) {
       console.info('Handling click: Case SOL', 1)
       isSolanaConnected
-        ? dispatch(setAccountDetailsModal(true))
-        : dispatch(setSolanaConnectModal(true))
+      ? dispatch(setAccountDetailsModal(true))
+      : dispatch(setSolanaConnectModal(true))
       return
     }
-
+    
     if (selectedNetwork === ChainName.TRON) {
       console.info('Handling click: Case TRX', 2)
       isTronConnected
-        ? dispatch(setAccountDetailsModal(true))
-        : dispatch(setTronConnectModal(true))
+      ? dispatch(setAccountDetailsModal(true))
+      : dispatch(setTronConnectModal(true))
       return
     }
-
+    
     // if (selectedNetwork === ChainName.BTC) {
-    //   console.info('Handling click: Case BTC', 3)
-    //   connectBitcoinWallet()
-    //   return
-    // }
-
-    // TODO: Refactor to use evm account details modal
-    if (externalProvider) return
+      //   console.info('Handling click: Case BTC', 3)
+      //   connectBitcoinWallet()
+      //   return
+      // }
+      
 
     console.info('Handling click: Case EVM', 4)
     try {

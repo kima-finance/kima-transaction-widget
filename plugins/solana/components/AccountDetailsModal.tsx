@@ -86,6 +86,7 @@ const AccountDetailsModal = () => {
               <ExternalUrlIcon fill='#778DA3' />
             </ExternalLink>
           </SecondaryButton>
+          {/* todo: add check for external provider (don't allow disconnection at this point ) */}
           <PrimaryButton clickHandler={handleDisconnect}>
             Discconect
           </PrimaryButton>

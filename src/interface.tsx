@@ -5,6 +5,12 @@ import {
   ChainName as SupportNetworks,
   TransactionStatus
 } from './utils/constants'
+import {
+  Connection,
+  PublicKey,
+  Transaction,
+  VersionedTransaction
+} from '@solana/web3.js'
 
 export enum NetworkOptions {
   testnet = 'testnet',
@@ -106,8 +112,15 @@ export interface ServiceFee {
   totalFee: string // bigint total fee amount
 }
 
+export interface SolProvider {
+  connection: Connection
+  signTransaction: <T extends Transaction | VersionedTransaction>(
+    transaction: T
+  ) => Promise<T>
+}
+
 export interface ExternalProvider {
   type: 'evm' | 'solana' | 'tron'
-  provider?: Web3Provider 
-  signer?: JsonRpcSigner
+  provider: Web3Provider | SolProvider
+  signer: JsonRpcSigner | PublicKey
 }
