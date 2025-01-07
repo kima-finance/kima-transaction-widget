@@ -11,6 +11,8 @@ import {
   Transaction,
   VersionedTransaction
 } from '@solana/web3.js'
+import { TronWeb } from 'tronweb'
+import { SignedTransaction } from '@tronweb3/tronwallet-abstract-adapter'
 
 export enum NetworkOptions {
   testnet = 'testnet',
@@ -112,6 +114,14 @@ export interface ServiceFee {
   totalFee: string // bigint total fee amount
 }
 
+export interface TronProvider {
+  tronWeb: TronWeb
+  signTransaction: (
+    transaction: Transaction,
+    privateKey?: string
+  ) => Promise<SignedTransaction>
+}
+
 export interface SolProvider {
   connection: Connection
   signTransaction: <T extends Transaction | VersionedTransaction>(
@@ -121,6 +131,6 @@ export interface SolProvider {
 
 export interface ExternalProvider {
   type: 'evm' | 'solana' | 'tron'
-  provider: Web3Provider | SolProvider
-  signer: JsonRpcSigner | PublicKey
+  provider: Web3Provider | SolProvider | TronProvider
+  signer: JsonRpcSigner | PublicKey | string
 }

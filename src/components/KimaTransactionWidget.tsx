@@ -125,10 +125,21 @@ const KimaTransactionWidget = ({
     // TODO: add validation for provider
     if (externalProvider && isValidExternalProvider(externalProvider)) {
       disconnectWallet() // disconnect any previous connected wallet to avoid conflicts
-      if (externalProvider.signer instanceof JsonRpcSigner)
+      if (
+        externalProvider.type === 'evm' &&
+        externalProvider.signer instanceof JsonRpcSigner
+      )
         dispatch(setSourceAddress(externalProvider.signer?._address as string))
-      if (externalProvider.signer instanceof PublicKey)
+      if (
+        externalProvider.type === 'solana' &&
+        externalProvider.signer instanceof PublicKey
+      )
         dispatch(setSourceAddress(externalProvider.signer.toBase58()))
+      if (
+        externalProvider.type === 'tron' &&
+        typeof externalProvider.signer === 'string'
+      )
+        dispatch(setSourceAddress(externalProvider.signer))
 
       dispatch(setExternalProvider(externalProvider))
     } else {

@@ -1,9 +1,16 @@
 // Return shortened address for EVM, Solana wallet address
 
 import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
-import { CHAIN_NAMES_TO_STRING, ExternalProvider, NetworkFee, SolProvider } from '@interface'
+import {
+  CHAIN_NAMES_TO_STRING,
+  ExternalProvider,
+  NetworkFee,
+  SolProvider,
+  TronProvider
+} from '@interface'
 import { Connection, PublicKey } from '@solana/web3.js'
 import { TokenOptions } from '@store/optionSlice'
+import { TronWeb } from 'tronweb'
 
 export const getShortenedAddress = (address: string) => {
   const is0x = (addr: string) => addr?.startsWith('0x')
@@ -133,17 +140,34 @@ export const isValidExternalProvider = (externalProvider: ExternalProvider) => {
 
   if (type === 'solana') {
     if (
-      !(isSolProvider(provider as SolProvider)) ||
+      !isSolProvider(provider as SolProvider) ||
       !(signer instanceof PublicKey)
     )
       return false
   }
 
+  if (type === 'tron') {
+    if (!isTronProvider(provider as TronProvider) || typeof signer !== 'string')
+      return false
+  }
 
   return true
 }
 
-const isSolProvider = (provider:SolProvider) => {
+const isSolProvider = (provider: SolProvider) => {
   // TODO: refactor to a class or check the right function signature
-  return (provider && provider.connection instanceof Connection && typeof provider.signTransaction === 'function')
+  return (
+    provider &&
+    provider.connection instanceof Connection &&
+    typeof provider.signTransaction === 'function'
+  )
+}
+
+const isTronProvider = (provider: TronProvider) => {
+  // TODO: refactor to a class or check the right function signature
+  return (
+    provider &&
+    provider.tronWeb instanceof TronWeb &&
+    typeof provider.signTransaction === 'function'
+  )
 }

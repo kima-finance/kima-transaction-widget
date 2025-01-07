@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import { useDispatch } from 'react-redux'
 import { useSelector } from 'react-redux'
-import { selectSourceAddress, selectSourceChain } from '@store/selectors'
+import { selectExternalProvider, selectSourceAddress, selectSourceChain } from '@store/selectors'
 import { setSourceAddress } from '@store/optionSlice'
 
 const createWalletStatus = (
@@ -22,21 +22,29 @@ function useIsWalletReady(): {
 } {
   const dispatch = useDispatch()
   const sourceChain = useSelector(selectSourceChain)
-  const { address: tronAddress } = useTronWallet()
+  const externalProvider = useSelector(selectExternalProvider)
+  const { address: internalTronAddress } = useTronWallet()
 
   // set source address upon connection & valid network selected
   useEffect(() => {
-    tronAddress &&
+    internalTronAddress &&
       sourceChain === 'TRX' &&
-      dispatch(setSourceAddress(tronAddress))
-  }, [tronAddress, sourceChain])
+      dispatch(setSourceAddress(internalTronAddress))
+  }, [internalTronAddress, sourceChain])
 
   return useMemo(() => {
-    if (tronAddress) {
-      return createWalletStatus(true, undefined, tronAddress)
-    }
-    return createWalletStatus(false, 'Wallet not connected', '')
-  }, [tronAddress])
+    if (externalProvider && externalProvider.type === 'tron')
+      return createWalletStatus(
+        true,
+        'Connected with external provider',
+        (externalProvider.signer as string)
+      )
+
+    if (internalTronAddress)
+      return createWalletStatus(true, undefined, internalTronAddress)
+
+    return createWalletStatus(false, 'Solana wallet not connected', '')
+  }, [sourceChain, internalTronAddress, externalProvider])
 }
 
 export default useIsWalletReady
