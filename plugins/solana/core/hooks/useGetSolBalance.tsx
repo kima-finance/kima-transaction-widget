@@ -11,15 +11,24 @@ function useGetSolBalance() {
   const { connection: internalConnection } = useConnection()
   const sourceNetwork = useSelector(selectSourceChain)
 
+  // helper function to check if the key is a Solana PublicKey
+  const isSolanaPublicKey = (key: unknown): key is PublicKey => {
+    return key instanceof PublicKey
+  }
+
   // set the proper public key
-  const publicKey = externalProvider?.signer || internalPublicKey
+  const publicKey = isSolanaPublicKey(externalProvider?.signer)
+    ? externalProvider.signer
+    : internalPublicKey
+
+  console.log("public key: ", publicKey)
 
   // set the proper connection
   const connection = externalProvider?.provider.connection || internalConnection
 
   // TODO: refactor usages so can return UseQueryResult
   const result = useQuery<number>({
-    queryKey: ['getSolBalance', publicKey?.toBase58()],
+    queryKey: ['getSolBalance', publicKey ? publicKey.toBase58() : null],
     queryFn: async () => getSolBalance(connection, publicKey as PublicKey),
     enabled: !!publicKey && !!connection && sourceNetwork === 'SOL',
     refetchInterval: 60000, // refetch every 60 sec
