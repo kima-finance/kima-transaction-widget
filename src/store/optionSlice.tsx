@@ -77,8 +77,6 @@ export interface OptionState {
   initChainFromProvider: boolean // chainId is initialized from provider or not
   serviceFee: ServiceFee // service fee from kima node
   backendUrl: string // URL for kima-transaction-backend component
-  nodeProviderQuery: string // REST API endpoint to query kima node
-  graphqlProviderQuery: string // Graphql endpoint to query kima transaction data
   kimaExplorerUrl: string // URL for kima explore (testnet, staging or demo)
   txId: number // transaction id to monitor it's status
   sourceCurrency: string // Currently selected token for source chain
@@ -108,7 +106,6 @@ const initialState: OptionState = {
   pendingTxs: 0,
   pendingTxData: [],
   kimaExplorerUrl: 'https://explorer.kima.network',
-  graphqlProviderQuery: 'https://graphql.kima.finance',
   mode: ModeOptions.bridge,
   sourceChain: '',
   targetChain: '',
@@ -137,9 +134,14 @@ const initialState: OptionState = {
   switchChainHandler: () => void 0,
   keplrHandler: () => void 0,
   initChainFromProvider: false,
-  serviceFee: { totalFeeUsd: -1 },
+  serviceFee: { 
+    allowanceAmount: '0',
+    decimals: 18,
+    submitAmount: '0',
+    totalFee: '0',
+    totalFeeUsd: -1
+  },
   backendUrl: '',
-  nodeProviderQuery: '',
   txId: -1,
   sourceCurrency: 'USDK',
   targetCurrency: 'USDK',
@@ -163,169 +165,163 @@ export const optionSlice = createSlice({
   name: 'option',
   initialState,
   reducers: {
-    initialize: (state) => {
+    initialize: (state: OptionState) => {
       Object.assign(state, initialState) // Reset the state to initial
     },
-    setNetworkOption: (state, action: PayloadAction<NetworkOptions>) => {
+    setNetworkOption: (state: OptionState, action: PayloadAction<NetworkOptions>) => {
       state.networkOption = action.payload
     },
-    setNetworks: (state, action: PayloadAction<Option[]>) => {
+    setNetworks: (state: OptionState, action: PayloadAction<Option[]>) => {
       state.networks = action.payload
     },
-    setPendingTxs: (state, action: PayloadAction<number>) => {
+    setPendingTxs: (state: OptionState, action: PayloadAction<number>) => {
       state.pendingTxs = action.payload
     },
-    setPendingTxData: (state, action: PayloadAction<Array<PendingTxData>>) => {
+    setPendingTxData: (state: OptionState, action: PayloadAction<Array<PendingTxData>>) => {
       state.pendingTxData = action.payload
     },
-    setTokenOptions: (state, action: PayloadAction<TokenOptions>) => {
+    setTokenOptions: (state: OptionState, action: PayloadAction<TokenOptions>) => {
       state.tokenOptions = action.payload
     },
-    setTheme: (state, action: PayloadAction<ThemeOptions>) => {
+    setTheme: (state: OptionState, action: PayloadAction<ThemeOptions>) => {
       state.theme = action.payload
     },
-    setKimaExplorer: (state, action: PayloadAction<string>) => {
+    setKimaExplorer: (state: OptionState, action: PayloadAction<string>) => {
       state.kimaExplorerUrl = action.payload
     },
-    setSourceChain: (state, action: PayloadAction<string>) => {
+    setSourceChain: (state: OptionState, action: PayloadAction<string>) => {
       state.sourceChain = action.payload
     },
-    setTargetChain: (state, action: PayloadAction<string>) => {
+    setTargetChain: (state: OptionState, action: PayloadAction<string>) => {
       state.targetChain = action.payload
     },
-    setSourceAddress: (state, action: PayloadAction<string>) => {
+    setSourceAddress: (state: OptionState, action: PayloadAction<string>) => {
       state.sourceAddress = action.payload
     },
-    setTargetAddress: (state, action: PayloadAction<string>) => {
+    setTargetAddress: (state: OptionState, action: PayloadAction<string>) => {
       state.targetAddress = action.payload
     },
-    setBitcoinAddress: (state, action: PayloadAction<string>) => {
+    setBitcoinAddress: (state: OptionState, action: PayloadAction<string>) => {
       state.bitcoinAddress = action.payload
     },
-    setBitcoinPubkey: (state, action: PayloadAction<string>) => {
+    setBitcoinPubkey: (state: OptionState, action: PayloadAction<string>) => {
       state.bitcoinPubkey = action.payload
     },
-    setSolanaConnectModal: (state, action: PayloadAction<boolean>) => {
+    setSolanaConnectModal: (state: OptionState, action: PayloadAction<boolean>) => {
       state.solanaConnectModal = action.payload
     },
-    setTronConnectModal: (state, action: PayloadAction<boolean>) => {
+    setTronConnectModal: (state: OptionState, action: PayloadAction<boolean>) => {
       state.tronConnectModal = action.payload
     },
-    setAccountDetailsModal: (state, action: PayloadAction<boolean>) => {
+    setAccountDetailsModal: (state: OptionState, action: PayloadAction<boolean>) => {
       state.accountDetailsModal = action.payload
     },
-    setHelpPopup: (state, action: PayloadAction<boolean>) => {
+    setHelpPopup: (state: OptionState, action: PayloadAction<boolean>) => {
       state.helpPopup = action.payload
     },
-    setHashPopup: (state, action: PayloadAction<boolean>) => {
+    setHashPopup: (state: OptionState, action: PayloadAction<boolean>) => {
       state.hashPopup = action.payload
     },
-    setPendingTxPopup: (state, action: PayloadAction<boolean>) => {
+    setPendingTxPopup: (state: OptionState, action: PayloadAction<boolean>) => {
       state.pendingTxPopup = action.payload
     },
-    setBankPopup: (state, action: PayloadAction<boolean>) => {
+    setBankPopup: (state: OptionState, action: PayloadAction<boolean>) => {
       state.bankPopup = action.payload
     },
-    setProvider: (state, action: PayloadAction<any>) => {
+    setProvider: (state: OptionState, action: PayloadAction<any>) => {
       state.provider = action.payload
     },
-    setDappOption: (state, action: PayloadAction<DAppOptions>) => {
+    setDappOption: (state: OptionState, action: PayloadAction<DAppOptions>) => {
       state.dAppOption = action.payload
     },
-    setWalletAutoConnect: (state, action: PayloadAction<boolean>) => {
+    setWalletAutoConnect: (state: OptionState, action: PayloadAction<boolean>) => {
       state.walletAutoConnect = action.payload
     },
     setExternalProvider: (state, action: PayloadAction<ExternalProvider>) => {
       state.externalProvider = action.payload
     },
-    setSolanaProvider: (state, action: PayloadAction<any>) => {
+    setSolanaProvider: (state: OptionState, action: PayloadAction<any>) => {
       state.solanaProvider = action.payload
     },
-    setTronProvider: (state, action: PayloadAction<any>) => {
+    setTronProvider: (state: OptionState, action: PayloadAction<any>) => {
       state.tronProvider = action.payload
     },
-    setSubmitted: (state, action: PayloadAction<boolean>) => {
+    setSubmitted: (state: OptionState, action: PayloadAction<boolean>) => {
       state.submitted = action.payload
     },
-    setTransactionOption: (state, action: PayloadAction<TransactionOption>) => {
+    setTransactionOption: (state: OptionState, action: PayloadAction<TransactionOption>) => {
       state.transactionOption = action.payload
     },
-    setAmount: (state, action: PayloadAction<string>) => {
+    setAmount: (state: OptionState, action: PayloadAction<string>) => {
       state.amount = action.payload
     },
-    setErrorHandler: (state, action: PayloadAction<Function>) => {
+    setErrorHandler: (state: OptionState, action: PayloadAction<Function>) => {
       state.errorHandler = action.payload
     },
-    setKeplrHandler: (state, action: PayloadAction<Function>) => {
+    setKeplrHandler: (state: OptionState, action: PayloadAction<Function>) => {
       state.keplrHandler = action.payload
     },
-    setCloseHandler: (state, action: PayloadAction<Function>) => {
+    setCloseHandler: (state: OptionState, action: PayloadAction<Function>) => {
       state.closeHandler = action.payload
     },
-    setSwitchChainHandler: (state, action: PayloadAction<Function>) => {
+    setSwitchChainHandler: (state: OptionState, action: PayloadAction<Function>) => {
       state.switchChainHandler = action.payload
     },
-    setInitChainFromProvider: (state, action: PayloadAction<boolean>) => {
+    setInitChainFromProvider: (state: OptionState, action: PayloadAction<boolean>) => {
       state.initChainFromProvider = action.payload
     },
-    setSuccessHandler: (state, action: PayloadAction<Function>) => {
+    setSuccessHandler: (state: OptionState, action: PayloadAction<Function>) => {
       state.successHandler = action.payload
     },
-    setServiceFee: (state, action: PayloadAction<ServiceFee>) => {
+    setServiceFee: (state: OptionState, action: PayloadAction<ServiceFee>) => {
       state.serviceFee = action.payload
     },
-    setMode: (state, action: PayloadAction<ModeOptions>) => {
+    setMode: (state: OptionState, action: PayloadAction<ModeOptions>) => {
       state.mode = action.payload
     },
-    setFeeDeduct: (state, action: PayloadAction<boolean>) => {
+    setFeeDeduct: (state: OptionState, action: PayloadAction<boolean>) => {
       state.feeDeduct = action.payload
     },
-    setBackendUrl: (state, action: PayloadAction<string>) => {
+    setBackendUrl: (state: OptionState, action: PayloadAction<string>) => {
       state.backendUrl = action.payload
     },
-    setNodeProviderQuery: (state, action: PayloadAction<string>) => {
-      state.nodeProviderQuery = action.payload
-    },
-    setGraphqlProviderQuery: (state, action: PayloadAction<string>) => {
-      state.graphqlProviderQuery = action.payload
-    },
-    setTxId: (state, action: PayloadAction<number>) => {
+    setTxId: (state: OptionState, action: PayloadAction<number>) => {
       state.txId = action.payload
     },
-    setSourceCurrency: (state, action: PayloadAction<string>) => {
+    setSourceCurrency: (state: OptionState, action: PayloadAction<string>) => {
       state.sourceCurrency = action.payload
     },
-    setTargetCurrency: (state, action: PayloadAction<string>) => {
+    setTargetCurrency: (state: OptionState, action: PayloadAction<string>) => {
       state.targetCurrency = action.payload
     },
-    setCompliantOption: (state, action: PayloadAction<boolean>) => {
+    setCompliantOption: (state: OptionState, action: PayloadAction<boolean>) => {
       state.compliantOption = action.payload
     },
-    setSourceCompliant: (state, action: PayloadAction<string>) => {
+    setSourceCompliant: (state: OptionState, action: PayloadAction<ComplianceResult>) => {
       state.sourceCompliant = action.payload
     },
-    setTargetCompliant: (state, action: PayloadAction<string>) => {
+    setTargetCompliant: (state: OptionState, action: PayloadAction<ComplianceResult>) => {
       state.targetCompliant = action.payload
     },
-    setUseFIAT: (state, action: PayloadAction<boolean>) => {
+    setUseFIAT: (state: OptionState, action: PayloadAction<boolean>) => {
       state.useFIAT = action.payload
     },
-    setBankDetails: (state, action: PayloadAction<BankDetails>) => {
+    setBankDetails: (state: OptionState, action: PayloadAction<BankDetails>) => {
       state.bankDetails = action.payload
     },
-    setTargetChainFetching: (state, action: PayloadAction<boolean>) => {
+    setTargetChainFetching: (state: OptionState, action: PayloadAction<boolean>) => {
       state.targetNetworkFetching = action.payload
     },
-    setSignature: (state, action: PayloadAction<string>) => {
+    setSignature: (state: OptionState, action: PayloadAction<string>) => {
       state.signature = action.payload
     },
-    setUuid: (state, action: PayloadAction<string>) => {
+    setUuid: (state: OptionState, action: PayloadAction<string>) => {
       state.uuid = action.payload
     },
-    setKYCStatus: (state, action: PayloadAction<string>) => {
+    setKYCStatus: (state: OptionState, action: PayloadAction<string>) => {
       state.kycStatus = action.payload
     },
-    setExpireTime: (state, action: PayloadAction<string>) => {
+    setExpireTime: (state: OptionState, action: PayloadAction<string>) => {
       state.expireTime = action.payload
     }
   }
@@ -369,8 +365,6 @@ export const {
   setMode,
   setFeeDeduct,
   setBackendUrl,
-  setNodeProviderQuery,
-  setGraphqlProviderQuery,
   setTxId,
   setSourceCurrency,
   setTargetCurrency,

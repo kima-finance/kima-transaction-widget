@@ -36,9 +36,6 @@ const App = () => {
             networkOption={NetworkOptions.testnet}
             dAppOption={DAppOptions.LPAdd}
             kimaBackendUrl='http://localhost:3001'
-            kimaNodeProviderQuery='https://api-testnet.kima.finance'
-            kimaExplorer='https://explorer-testnet.kima.finance'
-            feeURL='https://fee.kima.finance'
             kimaGraphqlProviderQuery='https://graphql-testnet.kima.finance/v1/graphql'
             // autoSwitchChain={false}
             // useFIAT={true}

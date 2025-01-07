@@ -24,7 +24,6 @@ import {
   setTransactionOption,
   setSuccessHandler,
   setBackendUrl,
-  setNodeProviderQuery,
   setTargetChain,
   setSourceChain,
   setProvider,
@@ -34,8 +33,6 @@ import {
   setKeplrHandler,
   setKimaExplorer,
   setNetworkOption,
-  setGraphqlProviderQuery,
-  setTargetCurrency,
   setTargetAddress,
   setAmount,
   setExternalProvider,
@@ -68,8 +65,6 @@ interface Props {
   transactionOption?: TransactionOption
   paymentTitleOption?: PaymentTitleOption
   kimaBackendUrl: string
-  kimaNodeProviderQuery: string
-  kimaGraphqlProviderQuery: string
   kimaExplorer?: string
   networkOption?: NetworkOptions
   externalProvider?: ExternalProvider
@@ -94,9 +89,7 @@ const KimaTransactionWidget = ({
   compliantOption = true,
   transactionOption,
   kimaBackendUrl,
-  kimaNodeProviderQuery,
   kimaExplorer = 'https://explorer.kima.finance',
-  kimaGraphqlProviderQuery = 'https://graphql.kima.finance/v1/graphql',
   externalProvider,
   errorHandler = () => void 0,
   closeHandler = () => void 0,
@@ -153,8 +146,6 @@ const KimaTransactionWidget = ({
     dispatch(setSuccessHandler(successHandler))
     dispatch(setSwitchChainHandler(switchChainHandler))
     dispatch(setBackendUrl(kimaBackendUrl))
-    dispatch(setNodeProviderQuery(kimaNodeProviderQuery))
-    dispatch(setGraphqlProviderQuery(kimaGraphqlProviderQuery))
     dispatch(setMode(mode))
     dispatch(setProvider(provider))
     dispatch(setDappOption(dAppOption))
