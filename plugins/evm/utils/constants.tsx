@@ -473,12 +473,12 @@ export const ethersNetworks = [
   },
   {
     name: "Optimism Sepolia", // Optimism Goerli Testnet
-    chainId: 420,
-    hexChainId: decimalToHex(420),
-    rpcUrl: "https://goerli.optimism.io",
-    explorer: "https://goerli-optimism.etherscan.io",
+    chainId: 11155420,
+    hexChainId: decimalToHex(11155420),
+    rpcUrl: "https://sepolia.optimism.io",
+    explorer: "https://sepolia-optimism.etherscan.io",
     nativeCurrency: {
-      name: "Optimism Goerli Ether",
+      name: "Optimism Sepolia Ether",
       symbol: "ETH",
       decimals: 18,
     },

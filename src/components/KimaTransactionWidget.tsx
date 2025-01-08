@@ -105,7 +105,6 @@ const KimaTransactionWidget = ({
 
   useEffect(() => {
     // reset state to ensure props are loaded from scratch
-    dispatch(initialize())
     dispatch(setTheme(theme))
     setThemeMode(theme.colorMode === ColorModeOptions.light ? 'light' : 'dark')
     setThemeVariables({
