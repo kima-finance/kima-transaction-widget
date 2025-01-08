@@ -461,8 +461,8 @@ export const ethersNetworks = [
   },
   {
     name: "Base Sepolia", // Base Sepolia Testnet
-    chainId: 84531,
-    hexChainId: decimalToHex(84531),
+    chainId: 84532,
+    hexChainId: decimalToHex(84532),
     rpcUrl: "https://sepolia.base.org",
     explorer: "https://sepolia.basescan.org",
     nativeCurrency: {

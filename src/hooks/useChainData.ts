@@ -25,6 +25,7 @@ export const useChainData = (
 
         // update the store
         const { networks, tokens } = getChainAndTokensOptions(chains)
+        console.log('tokens: ', tokens)
         dispatch(setNetworks(networks))
         dispatch(setTokenOptions(tokens))
 
@@ -60,10 +61,19 @@ function getChainAndTokensOptions(chains: ChainData[]): {
       label: chain.name
     })
     chain.supportedTokens.forEach((token) => {
-      if (!tokens[token.symbol]) {
-        tokens[token.symbol] = {}
+      const tokenSymbol = token.symbol === 'KIMAUSD' ? 'USDK' : token.symbol
+
+      console.log(
+        chain.name,
+        ' token symbol prev ',
+        token.symbol,
+        'after: ',
+        tokenSymbol
+      )
+      if (!tokens[tokenSymbol]) {
+        tokens[tokenSymbol] = {}
       }
-      tokens[token.symbol][chain.shortName] = token.address
+      tokens[tokenSymbol][chain.shortName] = token.address
     })
   })
   return { networks, tokens }
