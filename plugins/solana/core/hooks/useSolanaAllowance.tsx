@@ -8,8 +8,7 @@ import {
   selectServiceFee,
   selectTokenOptions,
   selectBackendUrl,
-  selectNetworkOption,
-  selectExternalProvider
+  selectNetworkOption
 } from '@store/selectors'
 import { useQuery } from '@tanstack/react-query'
 import { getTokenAllowance } from '../../utils/getTokenAllowance'
@@ -23,6 +22,7 @@ import { getPoolAddress, getTokenAddress } from '@utils/functions'
 import { PublicKey, Transaction } from '@solana/web3.js'
 import { PluginUseAllowanceResult } from '@plugins/pluginTypes'
 import { formatUnits } from '@ethersproject/units'
+import { useKimaContext } from '../../../../src/KimaProvider'
 
 export default function useSolanaAllowance(): PluginUseAllowanceResult {
   const sourceChain = useSelector(selectSourceChain)
@@ -30,7 +30,7 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
   const backendUrl = useSelector(selectBackendUrl)
   const networkOption = useSelector(selectNetworkOption)
   const allowanceNumber = Number(formatUnits(allowanceAmount ?? '0', decimals))
-  const externalProvider = useSelector(selectExternalProvider)
+  const { externalProvider } = useKimaContext()
 
   const { connection: internalConnection } = useConnection()
   const {
@@ -54,24 +54,24 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
   const userPublicKey = isSolanaProvider
     ? externalProvider.signer
     : sourceChain === 'SOL'
-    ? internalPublicKey
-    : undefined
+      ? internalPublicKey
+      : undefined
 
   // Set the proper signTransaction object only for Solana
   const signTransaction =
     isSolanaProvider && externalProvider.provider.signTransaction
       ? externalProvider.provider.signTransaction
       : sourceChain === 'SOL'
-      ? internalSignTransaction
-      : undefined
+        ? internalSignTransaction
+        : undefined
 
   // Set the proper connection object only for Solana
   const connection =
     isSolanaProvider && externalProvider.provider.connection
       ? externalProvider.provider.connection
       : sourceChain === 'SOL'
-      ? internalConnection
-      : undefined
+        ? internalConnection
+        : undefined
 
   const {
     data: allowanceData,
@@ -107,7 +107,12 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
       console.warn('useSolanaAllowance: Missing allowance amount')
       return
     }
-    if (!isSolanaProvider || !signTransaction || !connection || !userPublicKey) {
+    if (
+      !isSolanaProvider ||
+      !signTransaction ||
+      !connection ||
+      !userPublicKey
+    ) {
       console.warn('useSolanaAllowance: Missing Solana provider setup')
       return
     }

@@ -8,8 +8,7 @@ import {
   selectServiceFee,
   selectTokenOptions,
   selectNetworkOption,
-  selectBackendUrl,
-  selectExternalProvider
+  selectBackendUrl
 } from '@store/selectors'
 import {
   useWallet as useTronWallet,
@@ -29,9 +28,10 @@ import { PluginUseAllowanceResult } from '@plugins/pluginTypes'
 import { formatUnits } from '@ethersproject/units'
 import { TronWeb } from 'tronweb'
 import { TronProvider } from '@interface'
+import { useKimaContext } from '../../../../src/KimaProvider'
 
 export default function useTronAllowance(): PluginUseAllowanceResult {
-  const externalProvider = useSelector(selectExternalProvider)
+  const { externalProvider } = useKimaContext()
   const sourceChain = useSelector(selectSourceChain)
   const networkOption = useSelector(selectNetworkOption)
   const backendUrl = useSelector(selectBackendUrl)

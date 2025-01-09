@@ -9,16 +9,13 @@ import {
   CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET,
   CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET
 } from '../../utils/constants'
-import {
-  selectNetworkOption,
-  selectSourceChain,
-  selectExternalProvider
-} from '@store/selectors'
-import { NetworkOptions, ExternalProvider } from '@interface'
+import { selectNetworkOption, selectSourceChain } from '@store/selectors'
+import { NetworkOptions } from '@interface'
 import { setSourceAddress } from '@store/optionSlice'
 import { appKitModel } from '@plugins/evm/config/modalConfig'
 import { switchNetworkEthers } from '../../utils/switchNetworkEthers'
 import { Web3Provider } from '@ethersproject/providers'
+import { useKimaContext } from '../../../../src/KimaProvider'
 
 function useIsWalletReady(): {
   isReady: boolean
@@ -26,9 +23,7 @@ function useIsWalletReady(): {
   walletAddress?: string
 } {
   const dispatch = useDispatch()
-  const externalProvider = useSelector(selectExternalProvider) as
-    | ExternalProvider
-    | undefined
+  const { externalProvider } = useKimaContext()
 
   const { walletProvider: evmProvider } = useAppKitProvider('eip155')
   const appkitAccountInfo = useAppKitAccount()

@@ -2,8 +2,9 @@ import { useEffect, useMemo } from 'react'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import { useDispatch } from 'react-redux'
 import { useSelector } from 'react-redux'
-import { selectExternalProvider, selectSourceAddress, selectSourceChain } from '@store/selectors'
+import { selectSourceChain } from '@store/selectors'
 import { setSourceAddress } from '@store/optionSlice'
+import { useKimaContext } from '../../../../src/KimaProvider'
 
 const createWalletStatus = (
   isReady: boolean,
@@ -22,7 +23,7 @@ function useIsWalletReady(): {
 } {
   const dispatch = useDispatch()
   const sourceChain = useSelector(selectSourceChain)
-  const externalProvider = useSelector(selectExternalProvider)
+  const { externalProvider } = useKimaContext()
   const { address: internalTronAddress } = useTronWallet()
 
   // set source address upon connection & valid network selected
@@ -37,7 +38,7 @@ function useIsWalletReady(): {
       return createWalletStatus(
         true,
         'Connected with external provider',
-        (externalProvider.signer as string)
+        externalProvider.signer as string
       )
 
     if (internalTronAddress)

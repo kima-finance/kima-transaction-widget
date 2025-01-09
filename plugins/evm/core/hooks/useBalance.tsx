@@ -15,13 +15,13 @@ import {
   selectSourceChain,
   selectTokenOptions,
   selectSourceCurrency,
-  selectExternalProvider
 } from '@store/selectors'
 import { ChainName, isEVMChain } from '../../utils/constants'
 // import ERC20ABI from '../../utils/ethereum/erc20ABI.json'
 import { isEmptyObject } from '../../helpers/functions'
 import { getEvmTokenBalance } from '../../utils/getTokenBalance'
 import { useQuery } from '@tanstack/react-query'
+import { useKimaContext } from '../../../../src/KimaProvider'
 
 const zeroBalance = { balance: 0, decimals: 6 }
 
@@ -29,7 +29,7 @@ export default function useBalance() {
   const appkitAccountInfo = useAppKitAccount()
   const { address: signerAddress } = appkitAccountInfo || {}
   const { walletProvider } = useAppKitProvider('eip155')
-  const externalProvider = useSelector(selectExternalProvider)
+  const {externalProvider} = useKimaContext()
 
   const sourceChain = useSelector(selectSourceChain)
   const sourceCurrency = useSelector(selectSourceCurrency)

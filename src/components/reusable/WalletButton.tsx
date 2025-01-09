@@ -11,8 +11,7 @@ import {
   selectSourceCurrency,
   selectSourceChain,
   selectSourceCompliant,
-  selectTheme,
-  selectExternalProvider
+  selectTheme
 } from '../../store/selectors'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
 import { ChainName } from '../../utils/constants'
@@ -26,6 +25,7 @@ import { useAppKit, useAppKitState } from '@reown/appkit/react'
 import CopyButton from './CopyButton'
 import { formatUSD } from 'src/helpers/functions'
 import useHideWuiListItem from '../../hooks/useHideActivityTab'
+import { useKimaContext } from 'src/KimaProvider'
 
 const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const dispatch = useDispatch()
@@ -34,7 +34,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const sourceCompliant = useSelector(selectSourceCompliant)
   const compliantOption = useSelector(selectCompliantOption)
   const selectedNetwork = useSelector(selectSourceChain)
-  const externalProvider = useSelector(selectExternalProvider)
+  const { externalProvider } = useKimaContext()
   const { connected: isSolanaConnected } = useSolanaWallet()
   const { connected: isTronConnected } = useTronWallet()
   const { isReady, statusMessage, walletAddress /*, connectBitcoinWallet*/ } =
@@ -66,29 +66,28 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
 
     // TODO: Refactor to use evm account details modal
     if (externalProvider) return
-    
+
     if (selectedNetwork === ChainName.SOLANA) {
       console.info('Handling click: Case SOL', 1)
       isSolanaConnected
-      ? dispatch(setAccountDetailsModal(true))
-      : dispatch(setSolanaConnectModal(true))
+        ? dispatch(setAccountDetailsModal(true))
+        : dispatch(setSolanaConnectModal(true))
       return
     }
-    
+
     if (selectedNetwork === ChainName.TRON) {
       console.info('Handling click: Case TRX', 2)
       isTronConnected
-      ? dispatch(setAccountDetailsModal(true))
-      : dispatch(setTronConnectModal(true))
+        ? dispatch(setAccountDetailsModal(true))
+        : dispatch(setTronConnectModal(true))
       return
     }
-    
+
     // if (selectedNetwork === ChainName.BTC) {
-      //   console.info('Handling click: Case BTC', 3)
-      //   connectBitcoinWallet()
-      //   return
-      // }
-      
+    //   console.info('Handling click: Case BTC', 3)
+    //   connectBitcoinWallet()
+    //   return
+    // }
 
     console.info('Handling click: Case EVM', 4)
     try {

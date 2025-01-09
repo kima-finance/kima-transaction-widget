@@ -1,9 +1,10 @@
 import { useEffect, useMemo } from 'react'
 import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
 import { useSelector } from 'react-redux'
-import { selectExternalProvider, selectSourceChain } from '@store/selectors'
+import { selectSourceChain } from '@store/selectors'
 import { useDispatch } from 'react-redux'
 import { setSourceAddress } from '@store/optionSlice'
+import { useKimaContext } from '../../../../src/KimaProvider'
 
 const createWalletStatus = (
   isReady: boolean,
@@ -21,7 +22,7 @@ function useIsWalletReady(): {
   walletAddress?: string
 } {
   const dispatch = useDispatch()
-  const externalProvider = useSelector(selectExternalProvider)
+  const { externalProvider } = useKimaContext()
   const { publicKey: solanaAddress } = useSolanaWallet()
 
   const sourceChain = useSelector(selectSourceChain)

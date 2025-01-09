@@ -3,10 +3,11 @@ import { useQuery } from '@tanstack/react-query'
 import { getSolBalance } from '../../utils/getSolBalance'
 import { PublicKey } from '@solana/web3.js'
 import { useSelector } from 'react-redux'
-import { selectExternalProvider, selectSourceChain } from '@store/selectors'
+import { selectSourceChain } from '@store/selectors'
+import { useKimaContext } from '../../../../src/KimaProvider'
 
 function useGetSolBalance() {
-  const externalProvider = useSelector(selectExternalProvider)
+  const { externalProvider } = useKimaContext()
   const { publicKey: internalPublicKey } = useWallet()
   const { connection: internalConnection } = useConnection()
   const sourceNetwork = useSelector(selectSourceChain)
@@ -21,7 +22,7 @@ function useGetSolBalance() {
     ? externalProvider.signer
     : internalPublicKey
 
-  console.log("public key: ", publicKey)
+  console.log('public key: ', publicKey)
 
   // set the proper connection
   const connection = externalProvider?.provider.connection || internalConnection

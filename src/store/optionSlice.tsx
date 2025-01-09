@@ -2,7 +2,6 @@ import * as toolkitRaw from '@reduxjs/toolkit'
 import { PayloadAction } from '@reduxjs/toolkit'
 const { createSlice } = toolkitRaw
 import {
-  ExternalProvider,
   DAppOptions,
   ModeOptions,
   NetworkOptions,
@@ -95,7 +94,6 @@ export interface OptionState {
   pendingTxData: Array<PendingTxData> // pending bitcoin transaction data
   networkOption: NetworkOptions // specify testnet or mainnet
   networks: Option[]
-  externalProvider?: ExternalProvider
 }
 
 const initialState: OptionState = {
@@ -158,7 +156,6 @@ const initialState: OptionState = {
   uuid: '',
   kycStatus: '',
   expireTime: '1 hour',
-  externalProvider: undefined
 }
 
 export const optionSlice = createSlice({
@@ -236,9 +233,6 @@ export const optionSlice = createSlice({
     },
     setWalletAutoConnect: (state: OptionState, action: PayloadAction<boolean>) => {
       state.walletAutoConnect = action.payload
-    },
-    setExternalProvider: (state, action: PayloadAction<ExternalProvider>) => {
-      state.externalProvider = action.payload
     },
     setSolanaProvider: (state: OptionState, action: PayloadAction<any>) => {
       state.solanaProvider = action.payload
@@ -380,7 +374,6 @@ export const {
   setExpireTime,
   setPendingTxData,
   setPendingTxs,
-  setExternalProvider
 } = optionSlice.actions
 
 export default optionSlice.reducer

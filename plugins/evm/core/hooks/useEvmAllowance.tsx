@@ -24,9 +24,10 @@ import useGetPools from '../../../../src/hooks/useGetPools'
 import { getTokenAllowance } from '../../utils/getTokenAllowance'
 import { getPoolAddress, getTokenAddress } from '@utils/functions'
 import { isEVMChain } from '@plugins/evm/utils/constants'
+import { useKimaContext } from '../../../../src/KimaProvider'
 
 export default function useEvmAllowance() {
-  const externalProvider = useSelector(selectExternalProvider)
+  const { externalProvider } = useKimaContext()
   const { walletProvider: appkitProvider } =
     useAppKitProvider<ExternalProvider>('eip155')
   const appkitAccountInfo = useAppKitAccount()

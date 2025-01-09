@@ -35,9 +35,7 @@ import {
   setNetworkOption,
   setTargetAddress,
   setAmount,
-  setExternalProvider,
-  setSourceAddress,
-  initialize
+  setSourceAddress
 } from '../store/optionSlice'
 import '../index.css'
 import { selectSubmitted } from '../store/selectors'
@@ -51,6 +49,7 @@ import { indexPluginsByChain } from '../pluginRegistry'
 import useDisconnectWallet from '../hooks/useDisconnectWallet'
 import { isValidExternalProvider } from '@utils/functions'
 import { PublicKey } from '@solana/web3.js'
+import { useKimaContext } from 'src/KimaProvider'
 
 interface Props {
   theme: ThemeOptions
@@ -67,7 +66,6 @@ interface Props {
   kimaBackendUrl: string
   kimaExplorer?: string
   networkOption?: NetworkOptions
-  externalProvider?: ExternalProvider
   errorHandler?: (e: any) => void
   closeHandler?: (e: any) => void
   successHandler?: (e: any) => void
@@ -90,7 +88,6 @@ const KimaTransactionWidget = ({
   transactionOption,
   kimaBackendUrl,
   kimaExplorer = 'https://explorer.kima.finance',
-  externalProvider,
   errorHandler = () => void 0,
   closeHandler = () => void 0,
   successHandler = () => void 0,
@@ -102,6 +99,7 @@ const KimaTransactionWidget = ({
   const { setThemeMode, setThemeVariables } = useAppKitTheme()
   const { disconnectWallet } = useDisconnectWallet()
   const { data: chainData } = useChainData(kimaBackendUrl)
+  const { externalProvider } = useKimaContext()
 
   useEffect(() => {
     // reset state to ensure props are loaded from scratch
@@ -114,29 +112,6 @@ const KimaTransactionWidget = ({
 
     if (transactionOption) dispatch(setTransactionOption(transactionOption))
 
-    // TODO: add validation for provider
-    if (externalProvider && isValidExternalProvider(externalProvider)) {
-      disconnectWallet() // disconnect any previous connected wallet to avoid conflicts
-      if (
-        externalProvider.type === 'evm' &&
-        externalProvider.signer instanceof JsonRpcSigner
-      )
-        dispatch(setSourceAddress(externalProvider.signer?._address as string))
-      if (
-        externalProvider.type === 'solana' &&
-        externalProvider.signer instanceof PublicKey
-      )
-        dispatch(setSourceAddress(externalProvider.signer.toBase58()))
-      if (
-        externalProvider.type === 'tron' &&
-        typeof externalProvider.signer === 'string'
-      )
-        dispatch(setSourceAddress(externalProvider.signer))
-
-      dispatch(setExternalProvider(externalProvider))
-    } else {
-      // TODO: toast error
-    }
     dispatch(setKimaExplorer(kimaExplorer))
     dispatch(setCompliantOption(compliantOption))
     dispatch(setErrorHandler(errorHandler))
