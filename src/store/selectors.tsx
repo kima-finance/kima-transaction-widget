@@ -82,10 +82,6 @@ export const selectProvider = (state: RootState) => state.option.provider
 // Core
 export const selectDappOption = (state: RootState) => state.option.dAppOption
 
-// Core | Wallet
-export const selectWalletAutoConnect = (state: RootState) =>
-  state.option.walletAutoConnect
-
 // Core
 export const selectSubmitted = (state: RootState) => state.option.submitted
 
