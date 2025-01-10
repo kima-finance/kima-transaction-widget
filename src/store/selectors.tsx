@@ -152,19 +152,19 @@ export const selectBackendUrl = (state: RootState) => state.option.backendUrl
 export const selectFeeDeduct = (state: RootState) => state.option.feeDeduct
 
 // Core
-export const selectNodeProviderQuery = (state: RootState) =>
-  state.option.nodeProviderQuery
-
-// Core
-export const selectGraphqlProviderQuery = (state: RootState) =>
-  state.option.graphqlProviderQuery
-
-// Core
 export const selectTargetChainFetching = (state: RootState) =>
   state.option.targetNetworkFetching
 
 // Core
 export const selectTxId = (state: RootState) => state.option.txId
+
+// Core
+export const selectExcludedSourceNetworks = (state: RootState) =>
+  state.option.excludedSourceNetworks
+
+// Core
+export const selectExcludedTargetNetworks = (state: RootState) =>
+  state.option.excludedTargetNetworks
 
 // Solana & Tron | Should be seggregated
 export const selectAccountDetailsModal = (state: RootState) =>

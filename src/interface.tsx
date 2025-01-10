@@ -45,7 +45,7 @@ export enum DAppOptions {
 }
 
 export interface Option {
-  id: string
+  id: 'ARB' | 'AVX' | 'BASE' | 'BSC' | 'ETH' | 'OPT' | 'POL' | 'SOL' | 'TRX'
   label: string
 }
 

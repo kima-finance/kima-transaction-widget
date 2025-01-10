@@ -9,7 +9,7 @@ import {
   DAppOptions,
   ColorModeOptions,
   NetworkOptions,
-  ExternalProvider
+  Option
 } from '../interface'
 
 // store
@@ -35,21 +35,18 @@ import {
   setNetworkOption,
   setTargetAddress,
   setAmount,
-  setSourceAddress
+  setExcludedSourceNetworks,
+  setExcludedTargetNetworks
 } from '../store/optionSlice'
 import '../index.css'
 import { selectSubmitted } from '../store/selectors'
 import { TransactionWidget } from './TransactionWidget'
 import { TransferWidget } from './TransferWidget'
-import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
-import { useAppKitTheme, useDisconnect } from '@reown/appkit/react'
+import { Web3Provider } from '@ethersproject/providers'
+import { useAppKitTheme } from '@reown/appkit/react'
 import { ChainName } from '@utils/constants'
 import { useChainData } from '../hooks/useChainData'
 import { indexPluginsByChain } from '../pluginRegistry'
-import useDisconnectWallet from '../hooks/useDisconnectWallet'
-import { isValidExternalProvider } from '@utils/functions'
-import { PublicKey } from '@solana/web3.js'
-import { useKimaContext } from 'src/KimaProvider'
 
 interface Props {
   theme: ThemeOptions
@@ -71,6 +68,12 @@ interface Props {
   successHandler?: (e: any) => void
   switchChainHandler?: (chainId: number) => void
   keplrHandler?: (e: any) => void
+  excludedSourceNetworks?: Array<
+    'ARB' | 'AVX' | 'BASE' | 'BSC' | 'ETH' | 'OPT' | 'POL' | 'SOL' | 'TRX'
+  >
+  excludedTargetNetworks?: Array<
+    'ARB' | 'AVX' | 'BASE' | 'BSC' | 'ETH' | 'OPT' | 'POL' | 'SOL' | 'TRX'
+  >
 }
 
 const KimaTransactionWidget = ({
@@ -92,14 +95,14 @@ const KimaTransactionWidget = ({
   closeHandler = () => void 0,
   successHandler = () => void 0,
   switchChainHandler = () => void 0,
-  keplrHandler = () => void 0
+  keplrHandler = () => void 0,
+  excludedSourceNetworks = [],
+  excludedTargetNetworks = []
 }: Props) => {
   const submitted = useSelector(selectSubmitted)
   const dispatch = useDispatch()
   const { setThemeMode, setThemeVariables } = useAppKitTheme()
-  const { disconnectWallet } = useDisconnectWallet()
   const { data: chainData } = useChainData(kimaBackendUrl)
-  const { externalProvider } = useKimaContext()
 
   useEffect(() => {
     // reset state to ensure props are loaded from scratch
@@ -111,6 +114,9 @@ const KimaTransactionWidget = ({
     })
 
     if (transactionOption) dispatch(setTransactionOption(transactionOption))
+
+    dispatch(setExcludedSourceNetworks(excludedSourceNetworks))
+    dispatch(setExcludedTargetNetworks(excludedTargetNetworks))
 
     dispatch(setKimaExplorer(kimaExplorer))
     dispatch(setCompliantOption(compliantOption))
