@@ -60,17 +60,21 @@
 }
 .kima-card .kima-card-header .topbar .title h3 {
   margin: 0;
-  font-size: 32px;
+  font-size: 28px;
 }
 @media (max-width: 768px) {
   .kima-card .kima-card-header .topbar .title h3 {
-    font-size: 26px;
+    font-size: 24px;
   }
 }
 .kima-card .kima-card-header .topbar .title span {
   color: #5aa0db;
   font-weight: bold;
   margin: 0 0 0 1em;
+}
+.kima-card .kima-card-header .topbar .title .title-icon {
+  display: inline-block;
+  vertical-align: middle;
 }
 .kima-card .kima-card-header .topbar .title .percent {
   margin-left: 0.5em;
@@ -303,16 +307,20 @@
   margin-top: 120px;
   margin-bottom: 20px;
 }
-@media (max-width: 768px) {
-  .kima-card .kima-card-footer .button-group.row {
-    margin-top: 40px;
-  }
+.kima-card .kima-card-footer .button-group.row {
+  margin-top: 40px;
 }
 .kima-card .kima-card-footer .button-group.grid {
   margin-top: 40px;
 }
+@media (max-width: 768px) {
+  .kima-card .kima-card-footer .button-group.grid {
+    margin-top: -60px;
+  }
+}
 @media (max-width: 500px) {
   .kima-card .kima-card-footer .button-group.grid {
+    margin-top: 40px;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -322,10 +330,6 @@
   .kima-card .kima-card-footer .button-group.grid * {
     margin-left: auto;
   }
-}
-.kima-card .kima-card-footer svg {
-  width: 10em;
-  height: 2.5em;
 }
 .kima-card .kima-card-footer p {
   font-size: 0.8em;
@@ -2035,6 +2039,12 @@
   position: relative;
   align-items: center;
 }
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item {
+    width: 195px;
+    height: 40px;
+  }
+}
 .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item .icon {
   border-radius: 9999px;
   background-color: white;
@@ -2152,10 +2162,10 @@
     color: white;
   }
   .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item.source-chain {
-    margin-top: -20px;
+    margin-top: -30px;
   }
   .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item.paid {
-    margin-top: 20px;
+    margin-top: 10px;
   }
   .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item.target-chain {
     margin-top: 60px;
@@ -2325,6 +2335,10 @@
     color 0ms,
     background-color 0ms,
     border-color 0ms;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 .kima-card .secondary-button.dark {
   color: white;

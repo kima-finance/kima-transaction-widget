@@ -210,14 +210,6 @@ Used to specify fiat option usage.
 - Type: `boolean`
 - Default: `false`
 
-### `autoConnect`
-
-Used to specify automatiction connection of wallet providers like metamask, solana or tron wallets.
-
-- Required: `false`
-- Type: `boolean`
-- Default: `false`
-
 ### `dAppOption`
 
 Used to specify which dApp interacts with the widget

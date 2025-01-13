@@ -42,7 +42,6 @@ const WalletProvider = ({
           new SolongWalletAdapter(),
           new TorusWalletAdapter()
         ]}
-        autoConnect={true}
       >
         {children}
       </SolanaWalletProvider>

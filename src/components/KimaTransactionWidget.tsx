@@ -27,7 +27,6 @@ import {
   setTargetChain,
   setSourceChain,
   setProvider,
-  setWalletAutoConnect,
   setDappOption,
   setSwitchChainHandler,
   setKeplrHandler,
@@ -125,7 +124,6 @@ const KimaTransactionWidget = ({
     dispatch(setMode(mode))
     dispatch(setProvider(provider))
     dispatch(setDappOption(dAppOption))
-    dispatch(setWalletAutoConnect(autoSwitchChain))
     dispatch(setNetworkOption(networkOption))
 
     if (mode === ModeOptions.payment) {

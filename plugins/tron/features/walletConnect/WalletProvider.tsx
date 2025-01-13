@@ -59,7 +59,6 @@ const WalletProvider = ({ children, networkOption }: WalletProviderProps) => {
   return (
     <TronWalletProviderBase
       adapters={adapters}
-      autoConnect={true}
       onError={onError}
       onChainChanged={onChainChanged}
     >
