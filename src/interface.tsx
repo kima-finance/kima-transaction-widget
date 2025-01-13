@@ -2,6 +2,7 @@ export { ChainName as SupportNetworks } from './utils/constants'
 export { CHAIN_STRING_TO_NAME, CHAIN_NAMES_TO_STRING } from './utils/constants'
 import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import {
+  ChainName,
   ChainName as SupportNetworks,
   TransactionStatus
 } from './utils/constants'
@@ -45,7 +46,7 @@ export enum DAppOptions {
 }
 
 export interface Option {
-  id: 'ARB' | 'AVX' | 'BASE' | 'BSC' | 'ETH' | 'OPT' | 'POL' | 'SOL' | 'TRX'
+  id: ChainName | string
   label: string
 }
 

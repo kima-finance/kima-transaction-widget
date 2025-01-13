@@ -11,7 +11,7 @@ import {
   TransactionOption,
   ColorModeOptions
 } from '../interface'
-import { PendingTxData } from '../utils/constants'
+import { ChainName, PendingTxData } from '../utils/constants'
 
 type BankDetails = {
   iban: string
@@ -94,12 +94,8 @@ export interface OptionState {
   pendingTxData: Array<PendingTxData> // pending bitcoin transaction data
   networkOption: NetworkOptions // specify testnet or mainnet
   networks: Option[]
-  excludedSourceNetworks: Array<
-    'ARB' | 'AVX' | 'BASE' | 'BSC' | 'ETH' | 'OPT' | 'POL' | 'SOL' | 'TRX'
-  > // array of allowed strings or empty
-  excludedTargetNetworks: Array<
-    'ARB' | 'AVX' | 'BASE' | 'BSC' | 'ETH' | 'OPT' | 'POL' | 'SOL' | 'TRX'
-  > // array of allowed strings or empty
+  excludedSourceNetworks: Array<ChainName> // array of allowed strings or empty
+  excludedTargetNetworks: Array<ChainName> // array of allowed strings or empty
 }
 
 const initialState: OptionState = {
@@ -376,21 +372,13 @@ export const optionSlice = createSlice({
     },
     setExcludedSourceNetworks: (
       state: OptionState,
-      action: PayloadAction<
-        Array<
-          'ARB' | 'AVX' | 'BASE' | 'BSC' | 'ETH' | 'OPT' | 'POL' | 'SOL' | 'TRX'
-        >
-      >
+      action: PayloadAction<Array<ChainName>>
     ) => {
       state.excludedSourceNetworks = action.payload
     },
     setExcludedTargetNetworks: (
       state: OptionState,
-      action: PayloadAction<
-        Array<
-          'ARB' | 'AVX' | 'BASE' | 'BSC' | 'ETH' | 'OPT' | 'POL' | 'SOL' | 'TRX'
-        >
-      >
+      action: PayloadAction<Array<ChainName>>
     ) => {
       state.excludedTargetNetworks = action.payload
     }

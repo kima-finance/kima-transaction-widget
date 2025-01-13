@@ -1,7 +1,5 @@
 import { Web3Provider } from '@ethersproject/providers'
-import { ethersNetworks } from './constants'
-import { ChainName } from '@utils/constants'
-import { decimalToHex } from './common'
+import { ethers } from 'ethers'
 
 /**
  * Requests a network change or adds the network if it doesn't exist.
@@ -10,13 +8,14 @@ import { decimalToHex } from './common'
  */
 export async function switchNetworkEthers(
   provider: Web3Provider,
-  chainId: number
+  chainId: number,
+  chains: any
 ): Promise<void> {
   try {
     console.log('attempting to switch...')
     // Attempt to switch to the specified network
     await provider.send('wallet_switchEthereumChain', [
-      { chainId: decimalToHex(chainId) }
+      { chainId: ethers.utils.hexValue(chainId) }
     ])
     console.log(`Switched to network: ${chainId}`)
   } catch (error: any) {
@@ -24,25 +23,27 @@ export async function switchNetworkEthers(
       console.log('error switching network: ', error)
       // If the network is not added, attempt to add it
       try {
-        console.log('ethersnetworks: ', ethersNetworks)
+        console.log('chains: ', chains)
 
-        const network = ethersNetworks.find(
-          (ethersNetwork) => ethersNetwork.chainId === chainId
+        const network = chains.find(
+          (ethersNetwork: any) => ethersNetwork.id === chainId
         )
 
         console.log('network found: ', network)
-        
+
         if (!network) {
-          throw new Error(
-            `Network with chainId ${chainId} not found in ethersNetworks`
-          );
+          throw new Error(`Network with chainId ${chainId} not found in chains`)
         }
 
         const chainConfig = {
-          chainId: network?.hexChainId,
+          chainId: ethers.utils.hexValue(network?.id),
           chainName: network?.name,
-          rpcUrls: [network?.rpcUrl],
-          blockExplorerUrls: [network?.explorer],
+          blockExplorerUrls: Object.values(network.blockExplorers).flatMap(
+            (explorer: any) => Object.values(explorer)
+          ),
+          rpcUrls: Object.values(network.rpcUrls).flatMap(
+            (item: any) => item.http
+          ),
           nativeCurrency: network?.nativeCurrency
         }
         console.log('chainConfig: ', chainConfig)

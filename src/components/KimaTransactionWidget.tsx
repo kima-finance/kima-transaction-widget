@@ -68,12 +68,8 @@ interface Props {
   successHandler?: (e: any) => void
   switchChainHandler?: (chainId: number) => void
   keplrHandler?: (e: any) => void
-  excludedSourceNetworks?: Array<
-    'ARB' | 'AVX' | 'BASE' | 'BSC' | 'ETH' | 'OPT' | 'POL' | 'SOL' | 'TRX'
-  >
-  excludedTargetNetworks?: Array<
-    'ARB' | 'AVX' | 'BASE' | 'BSC' | 'ETH' | 'OPT' | 'POL' | 'SOL' | 'TRX'
-  >
+  excludedSourceNetworks?: Array<ChainName>
+  excludedTargetNetworks?: Array<ChainName>
 }
 
 const KimaTransactionWidget = ({
