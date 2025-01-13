@@ -11,15 +11,15 @@ import {
   selectErrorHandler,
   selectSourceChain,
   selectTokenOptions,
-  selectSourceCurrency,
-  selectExternalProvider
+  selectSourceCurrency
 } from '@store/selectors'
 import { isEmptyObject } from '../../helpers/functions'
 import { getOrCreateAssociatedTokenAccount } from '../../utils/solana/getOrCreateAssociatedTokenAccount'
+import { useKimaContext } from '../../../../src/KimaProvider'
 
 export default function useBalance() {
   const [balance, setBalance] = useState<number>(0)
-  const externalProvider = useSelector(selectExternalProvider)
+  const { externalProvider } = useKimaContext()
   const {
     publicKey: internalPublicKey,
     signTransaction: internalSignTransaction
@@ -52,15 +52,10 @@ export default function useBalance() {
 
   useEffect(() => {
     ;(async () => {
-      if (
-        !tokenAddress ||
-        sourceChain !== 'SOL' ||
-        !publicKey ||
-        !connection
-      )
+      if (!tokenAddress || sourceChain !== 'SOL' || !publicKey || !connection)
         return
       try {
-        console.log("solana use balance effect...")
+        console.log('solana use balance effect...')
         const mint = new PublicKey(tokenAddress)
         const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
           connection,

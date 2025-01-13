@@ -17,7 +17,6 @@ import {
   selectTokenOptions,
   selectNetworkOption,
   selectBackendUrl,
-  selectExternalProvider
 } from '@store/selectors'
 import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
 import useGetPools from '../../../../src/hooks/useGetPools'

@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import {
   setAccountDetailsModal,
   setSolanaConnectModal,
+  setSourceAddress,
   setTronConnectModal
 } from '../../store/optionSlice'
 import {
@@ -54,6 +55,10 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
       externalProvider
     })
   }, [balance, walletAddress, isReady, externalProvider])
+
+  useEffect(() => {
+    if (walletAddress) dispatch(setSourceAddress(walletAddress))
+  }, [walletAddress])
 
   useEffect(() => {
     if (width === 0) {

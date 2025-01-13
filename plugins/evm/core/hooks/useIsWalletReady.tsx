@@ -9,13 +9,19 @@ import {
   CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET,
   CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET
 } from '../../utils/constants'
-import { selectNetworkOption, selectSourceChain } from '@store/selectors'
+import {
+  selectBackendUrl,
+  selectNetworkOption,
+  selectSourceChain
+} from '@store/selectors'
 import { NetworkOptions } from '@interface'
 import { setSourceAddress } from '@store/optionSlice'
 import { appKitModel } from '@plugins/evm/config/modalConfig'
 import { switchNetworkEthers } from '../../utils/switchNetworkEthers'
 import { Web3Provider } from '@ethersproject/providers'
 import { useKimaContext } from '../../../../src/KimaProvider'
+import { useChainData } from '../../../../src/hooks/useChainData'
+import { ChainData } from '@plugins/pluginTypes'
 
 function useIsWalletReady(): {
   isReady: boolean
@@ -24,6 +30,8 @@ function useIsWalletReady(): {
 } {
   const dispatch = useDispatch()
   const { externalProvider } = useKimaContext()
+  const backendUrl = useSelector(selectBackendUrl)
+  const {data: chains} = useChainData(backendUrl)
 
   const { walletProvider: evmProvider } = useAppKitProvider('eip155')
   const appkitAccountInfo = useAppKitAccount()
@@ -94,7 +102,8 @@ function useIsWalletReady(): {
         try {
           switchNetworkEthers(
             externalProvider.provider as Web3Provider,
-            correctEvmNetwork.id
+            correctEvmNetwork.id,
+            chains as ChainData[]
           )
         } catch (error) {
           console.warn(
