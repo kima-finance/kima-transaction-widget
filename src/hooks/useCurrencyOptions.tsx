@@ -21,7 +21,6 @@ export default function useCurrencyOptions() {
   const { data: chains } = useChainData(backendUrl, originNetwork)
 
   const output = useMemo(() => {
-    console.log('using currency options...')
     return !!chains
       ? { tokenList: chains[0].supportedTokens }
       : { tokenList: [] }
@@ -47,8 +46,7 @@ export default function useCurrencyOptions() {
       dispatch(setTargetCurrency(transactionOption.currency))
     } else {
       const [firstToken] = tokenList
-      const firstTokenSymbol =
-        firstToken.symbol === 'KIMAUSD' ? 'USDK' : firstToken.symbol
+      const firstTokenSymbol = firstToken.symbol
       dispatch(setSourceCurrency(firstTokenSymbol))
       dispatch(setTargetCurrency(firstTokenSymbol))
     }

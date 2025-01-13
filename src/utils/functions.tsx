@@ -1,5 +1,5 @@
 // Return shortened address for EVM, Solana wallet address
-
+import { ethers } from 'ethers'
 import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import {
   CHAIN_NAMES_TO_STRING,
@@ -35,6 +35,8 @@ export const checkPoolBalance = ({
   amount: string
   targetNetworkFee: NetworkFee | undefined
 }): { isPoolAvailable: boolean; error: string } => {
+  const finalTargetCurrency =
+    targetCurrency === 'KIMAUSD' ? 'USDK' : targetCurrency
   if (!pools) return { isPoolAvailable: false, error: 'Pools data unavailable' }
 
   if (!targetNetworkFee)
@@ -54,7 +56,7 @@ export const checkPoolBalance = ({
   // find the selected token in the target pool
   const { balance: poolTokens, nativeGasAmount: poolGasAvailable } = targetPool
   const targetToken = poolTokens.find(
-    (token: any) => token.tokenSymbol === targetCurrency
+    (token: any) => token.tokenSymbol === finalTargetCurrency
   )
   const { amount: targetTokenBalance } = targetToken
 
@@ -104,26 +106,18 @@ export const getTransactionId = (transactionEvents: any) => {
 
 export const preciseSubtraction = (
   a: number | string,
-  b: number | string
+  b: number | string,
+  decimals: number = 18 // Default to 18 decimals for precision
 ): number => {
-  // Ensure both inputs are numbers
-  const numA = typeof a === 'string' ? parseFloat(a) : a
-  const numB = typeof b === 'string' ? parseFloat(b) : b
-  if (isNaN(numA) || isNaN(numB)) {
-    throw new Error(
-      'Both inputs must be valid numbers or strings that can be parsed into numbers.'
-    )
-  }
-  // Extract decimal places for precision
-  const aDecimals = (numA.toString().split('.')[1] || '').length
-  const bDecimals = (numB.toString().split('.')[1] || '').length
-  const maxDecimals = Math.max(aDecimals, bDecimals) // Use the larger number of decimals
+  // Parse inputs into BigNumbers using ethers' parseUnits
+  const numA = ethers.utils.parseUnits(a.toString(), decimals)
+  const numB = ethers.utils.parseUnits(b.toString(), decimals)
 
-  // Normalize and subtract
-  const result =
-    (numA * Math.pow(10, maxDecimals) - numB * Math.pow(10, maxDecimals)) /
-    Math.pow(10, maxDecimals)
-  return parseFloat(result.toFixed(maxDecimals))
+  // Perform the subtraction using BigNumber
+  const result = numA.sub(numB)
+
+  // Format the result back to a decimal string
+  return parseFloat(ethers.utils.formatUnits(result, decimals))
 }
 
 export const isValidExternalProvider = (externalProvider: ExternalProvider) => {
