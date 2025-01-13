@@ -8,9 +8,10 @@ import {
   Option,
   ServiceFee,
   ThemeOptions,
-  TransactionOption
+  TransactionOption,
+  ColorModeOptions
 } from '../interface'
-import { PendingTxData } from '../utils/constants'
+import { ChainName, PendingTxData } from '../utils/constants'
 
 type BankDetails = {
   iban: string
@@ -92,12 +93,14 @@ export interface OptionState {
   pendingTxData: Array<PendingTxData> // pending bitcoin transaction data
   networkOption: NetworkOptions // specify testnet or mainnet
   networks: Option[]
+  excludedSourceNetworks: Array<ChainName> // array of allowed strings or empty
+  excludedTargetNetworks: Array<ChainName> // array of allowed strings or empty
 }
 
 const initialState: OptionState = {
   networkOption: NetworkOptions.testnet,
   networks: [],
-  theme: {},
+  theme: { colorMode: ColorModeOptions.light },
   tokenOptions: {},
   pendingTxs: 0,
   pendingTxData: [],
@@ -129,7 +132,7 @@ const initialState: OptionState = {
   switchChainHandler: () => void 0,
   keplrHandler: () => void 0,
   initChainFromProvider: false,
-  serviceFee: { 
+  serviceFee: {
     allowanceAmount: '0',
     decimals: 18,
     submitAmount: '0',
@@ -152,7 +155,9 @@ const initialState: OptionState = {
   signature: '',
   uuid: '',
   kycStatus: '',
-  expireTime: '1 hour'
+  expireTime: '1 hour',
+  excludedSourceNetworks: [],
+  excludedTargetNetworks: []
 }
 
 export const optionSlice = createSlice({
@@ -162,7 +167,10 @@ export const optionSlice = createSlice({
     initialize: (state: OptionState) => {
       Object.assign(state, initialState) // Reset the state to initial
     },
-    setNetworkOption: (state: OptionState, action: PayloadAction<NetworkOptions>) => {
+    setNetworkOption: (
+      state: OptionState,
+      action: PayloadAction<NetworkOptions>
+    ) => {
       state.networkOption = action.payload
     },
     setNetworks: (state: OptionState, action: PayloadAction<Option[]>) => {
@@ -171,10 +179,16 @@ export const optionSlice = createSlice({
     setPendingTxs: (state: OptionState, action: PayloadAction<number>) => {
       state.pendingTxs = action.payload
     },
-    setPendingTxData: (state: OptionState, action: PayloadAction<Array<PendingTxData>>) => {
+    setPendingTxData: (
+      state: OptionState,
+      action: PayloadAction<Array<PendingTxData>>
+    ) => {
       state.pendingTxData = action.payload
     },
-    setTokenOptions: (state: OptionState, action: PayloadAction<TokenOptions>) => {
+    setTokenOptions: (
+      state: OptionState,
+      action: PayloadAction<TokenOptions>
+    ) => {
       state.tokenOptions = action.payload
     },
     setTheme: (state: OptionState, action: PayloadAction<ThemeOptions>) => {
@@ -201,13 +215,22 @@ export const optionSlice = createSlice({
     setBitcoinPubkey: (state: OptionState, action: PayloadAction<string>) => {
       state.bitcoinPubkey = action.payload
     },
-    setSolanaConnectModal: (state: OptionState, action: PayloadAction<boolean>) => {
+    setSolanaConnectModal: (
+      state: OptionState,
+      action: PayloadAction<boolean>
+    ) => {
       state.solanaConnectModal = action.payload
     },
-    setTronConnectModal: (state: OptionState, action: PayloadAction<boolean>) => {
+    setTronConnectModal: (
+      state: OptionState,
+      action: PayloadAction<boolean>
+    ) => {
       state.tronConnectModal = action.payload
     },
-    setAccountDetailsModal: (state: OptionState, action: PayloadAction<boolean>) => {
+    setAccountDetailsModal: (
+      state: OptionState,
+      action: PayloadAction<boolean>
+    ) => {
       state.accountDetailsModal = action.payload
     },
     setHelpPopup: (state: OptionState, action: PayloadAction<boolean>) => {
@@ -237,7 +260,10 @@ export const optionSlice = createSlice({
     setSubmitted: (state: OptionState, action: PayloadAction<boolean>) => {
       state.submitted = action.payload
     },
-    setTransactionOption: (state: OptionState, action: PayloadAction<TransactionOption>) => {
+    setTransactionOption: (
+      state: OptionState,
+      action: PayloadAction<TransactionOption>
+    ) => {
       state.transactionOption = action.payload
     },
     setAmount: (state: OptionState, action: PayloadAction<string>) => {
@@ -252,13 +278,22 @@ export const optionSlice = createSlice({
     setCloseHandler: (state: OptionState, action: PayloadAction<Function>) => {
       state.closeHandler = action.payload
     },
-    setSwitchChainHandler: (state: OptionState, action: PayloadAction<Function>) => {
+    setSwitchChainHandler: (
+      state: OptionState,
+      action: PayloadAction<Function>
+    ) => {
       state.switchChainHandler = action.payload
     },
-    setInitChainFromProvider: (state: OptionState, action: PayloadAction<boolean>) => {
+    setInitChainFromProvider: (
+      state: OptionState,
+      action: PayloadAction<boolean>
+    ) => {
       state.initChainFromProvider = action.payload
     },
-    setSuccessHandler: (state: OptionState, action: PayloadAction<Function>) => {
+    setSuccessHandler: (
+      state: OptionState,
+      action: PayloadAction<Function>
+    ) => {
       state.successHandler = action.payload
     },
     setServiceFee: (state: OptionState, action: PayloadAction<ServiceFee>) => {
@@ -282,22 +317,37 @@ export const optionSlice = createSlice({
     setTargetCurrency: (state: OptionState, action: PayloadAction<string>) => {
       state.targetCurrency = action.payload
     },
-    setCompliantOption: (state: OptionState, action: PayloadAction<boolean>) => {
+    setCompliantOption: (
+      state: OptionState,
+      action: PayloadAction<boolean>
+    ) => {
       state.compliantOption = action.payload
     },
-    setSourceCompliant: (state: OptionState, action: PayloadAction<ComplianceResult>) => {
+    setSourceCompliant: (
+      state: OptionState,
+      action: PayloadAction<ComplianceResult>
+    ) => {
       state.sourceCompliant = action.payload
     },
-    setTargetCompliant: (state: OptionState, action: PayloadAction<ComplianceResult>) => {
+    setTargetCompliant: (
+      state: OptionState,
+      action: PayloadAction<ComplianceResult>
+    ) => {
       state.targetCompliant = action.payload
     },
     setUseFIAT: (state: OptionState, action: PayloadAction<boolean>) => {
       state.useFIAT = action.payload
     },
-    setBankDetails: (state: OptionState, action: PayloadAction<BankDetails>) => {
+    setBankDetails: (
+      state: OptionState,
+      action: PayloadAction<BankDetails>
+    ) => {
       state.bankDetails = action.payload
     },
-    setTargetChainFetching: (state: OptionState, action: PayloadAction<boolean>) => {
+    setTargetChainFetching: (
+      state: OptionState,
+      action: PayloadAction<boolean>
+    ) => {
       state.targetNetworkFetching = action.payload
     },
     setSignature: (state: OptionState, action: PayloadAction<string>) => {
@@ -311,6 +361,18 @@ export const optionSlice = createSlice({
     },
     setExpireTime: (state: OptionState, action: PayloadAction<string>) => {
       state.expireTime = action.payload
+    },
+    setExcludedSourceNetworks: (
+      state: OptionState,
+      action: PayloadAction<Array<ChainName>>
+    ) => {
+      state.excludedSourceNetworks = action.payload
+    },
+    setExcludedTargetNetworks: (
+      state: OptionState,
+      action: PayloadAction<Array<ChainName>>
+    ) => {
+      state.excludedTargetNetworks = action.payload
     }
   }
 })
@@ -366,7 +428,9 @@ export const {
   setKYCStatus,
   setExpireTime,
   setPendingTxData,
-  setPendingTxs
+  setPendingTxs,
+  setExcludedSourceNetworks,
+  setExcludedTargetNetworks
 } = optionSlice.actions
 
 export default optionSlice.reducer

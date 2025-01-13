@@ -14,7 +14,11 @@ import {
   useWallet as useTronWallet,
   useWallet
 } from '@tronweb3/tronwallet-adapter-react-hooks'
-import { tronWebMainnet, tronWebTestnet } from '../../tronweb'
+import {
+  TRON_USDK_OWNER_ADDRESS,
+  tronWebMainnet,
+  tronWebTestnet
+} from '../../tronweb'
 
 import { useQuery } from '@tanstack/react-query'
 import { getTokenAllowance } from '../../utils/getTokenAllowance'
@@ -22,8 +26,12 @@ import useGetPools from '../../../../src/hooks/useGetPools'
 import { getPoolAddress, getTokenAddress } from '@utils/functions'
 import { PluginUseAllowanceResult } from '@plugins/pluginTypes'
 import { formatUnits } from '@ethersproject/units'
+import { TronWeb } from 'tronweb'
+import { TronProvider } from '@interface'
+import { useKimaContext } from '../../../../src/KimaProvider'
 
 export default function useTronAllowance(): PluginUseAllowanceResult {
+  const { externalProvider } = useKimaContext()
   const sourceChain = useSelector(selectSourceChain)
   const networkOption = useSelector(selectNetworkOption)
   const backendUrl = useSelector(selectBackendUrl)
@@ -34,15 +42,42 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
   const allowanceNumber = Number(formatUnits(allowanceAmount ?? '0', decimals))
 
   const { pools } = useGetPools(backendUrl, networkOption)
-  const { address: userAddress, signTransaction: signTronTransaction } =
-    useWallet()
+  const {
+    address: internalUserAddress,
+    signTransaction: internalSignTronTransaction
+  } = useWallet()
 
   const [approvalsCount, setApprovalsCount] = useState(0) // for refetch purposes after approving
 
-  // select the corresponding provider
+  // Ensure only Tron-specific logic is executed when sourceChain is Tron
+  const isTronProvider =
+    sourceChain === 'TRX' &&
+    externalProvider?.type === 'tron' &&
+    (externalProvider.provider as TronProvider).tronWeb instanceof TronWeb &&
+    typeof externalProvider.signer === 'string'
+
+  // Set the proper TronWeb instance
   const tronWeb = useMemo(() => {
+    if (isTronProvider)
+      return (externalProvider.provider as TronProvider).tronWeb
     return networkOption === 'mainnet' ? tronWebMainnet : tronWebTestnet
-  }, [networkOption])
+  }, [isTronProvider, externalProvider, networkOption])
+
+  isTronProvider && tronWeb.setAddress(TRON_USDK_OWNER_ADDRESS)
+
+  // Set the proper user address
+  const userAddress = isTronProvider
+    ? (externalProvider.signer as string)
+    : internalUserAddress
+
+  // Set the proper signTransaction function
+  const signTronTransaction = isTronProvider
+    ? (externalProvider.provider as TronProvider).signTransaction
+    : internalSignTronTransaction
+
+  // console.log('tronWeb: ', tronWeb)
+  // console.log('userAddress: ', userAddress)
+  // console.log('signTronTransaction: ', signTronTransaction)
 
   const {
     data: allowanceData,
@@ -108,7 +143,7 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
         tronWeb.address.toHex(userAddress)
       )
 
-      const signedTx = await signTronTransaction(transaction.transaction)
+      const signedTx = await signTronTransaction(transaction.transaction as any)
       const tx = await tronWeb.trx.sendRawTransaction(signedTx)
       console.log('useTronAllowance: Transaction sent: hash', tx.txID)
 

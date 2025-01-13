@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import {
   setAccountDetailsModal,
   setSolanaConnectModal,
+  setSourceAddress,
   setTronConnectModal
 } from '../../store/optionSlice'
 import {
@@ -25,6 +26,7 @@ import { useAppKit, useAppKitState } from '@reown/appkit/react'
 import CopyButton from './CopyButton'
 import { formatUSD } from 'src/helpers/functions'
 import useHideWuiListItem from '../../hooks/useHideActivityTab'
+import { useKimaContext } from 'src/KimaProvider'
 
 const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const dispatch = useDispatch()
@@ -33,6 +35,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const sourceCompliant = useSelector(selectSourceCompliant)
   const compliantOption = useSelector(selectCompliantOption)
   const selectedNetwork = useSelector(selectSourceChain)
+  const { externalProvider } = useKimaContext()
   const { connected: isSolanaConnected } = useSolanaWallet()
   const { connected: isTronConnected } = useTronWallet()
   const { isReady, statusMessage, walletAddress /*, connectBitcoinWallet*/ } =
@@ -48,9 +51,14 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
       balance,
       walletAddress,
       isReady,
-      statusMessage
+      statusMessage,
+      externalProvider
     })
-  }, [balance, walletAddress, isReady])
+  }, [balance, walletAddress, isReady, externalProvider])
+
+  useEffect(() => {
+    if (walletAddress) dispatch(setSourceAddress(walletAddress))
+  }, [walletAddress])
 
   useEffect(() => {
     if (width === 0) {
@@ -60,6 +68,9 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   // TODO: refactor to use plugins
   const handleClick = async () => {
     console.info('Handling click')
+
+    // TODO: Refactor to use evm account details modal
+    if (externalProvider) return
 
     if (selectedNetwork === ChainName.SOLANA) {
       console.info('Handling click: Case SOL', 1)

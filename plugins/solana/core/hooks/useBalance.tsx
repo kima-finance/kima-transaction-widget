@@ -15,11 +15,22 @@ import {
 } from '@store/selectors'
 import { isEmptyObject } from '../../helpers/functions'
 import { getOrCreateAssociatedTokenAccount } from '../../utils/solana/getOrCreateAssociatedTokenAccount'
+import { useKimaContext } from '../../../../src/KimaProvider'
 
 export default function useBalance() {
   const [balance, setBalance] = useState<number>(0)
-  const { publicKey: solanaAddress, signTransaction } = useSolanaWallet()
-  const { connection } = useConnection()
+  const { externalProvider } = useKimaContext()
+  const {
+    publicKey: internalPublicKey,
+    signTransaction: internalSignTransaction
+  } = useSolanaWallet()
+  const { connection: internalConnection } = useConnection()
+
+  // set the proper query values
+  const publicKey = externalProvider?.signer || internalPublicKey
+  const signTransaction =
+    externalProvider?.provider.signTransaction || internalSignTransaction
+  const connection = externalProvider?.provider.connection || internalConnection
 
   const errorHandler = useSelector(selectErrorHandler)
   const sourceChain = useSelector(selectSourceChain)
@@ -41,20 +52,16 @@ export default function useBalance() {
 
   useEffect(() => {
     ;(async () => {
-      if (
-        !tokenAddress ||
-        sourceChain !== 'SOL' ||
-        !solanaAddress ||
-        !connection
-      )
+      if (!tokenAddress || sourceChain !== 'SOL' || !publicKey || !connection)
         return
       try {
+        console.log('solana use balance effect...')
         const mint = new PublicKey(tokenAddress)
         const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
           connection,
-          solanaAddress,
+          publicKey,
           mint,
-          solanaAddress,
+          publicKey,
           signTransaction
         )
 
@@ -70,7 +77,7 @@ export default function useBalance() {
         errorHandler(error)
       }
     })()
-  }, [tokenAddress, sourceChain, solanaAddress, connection, signTransaction])
+  }, [tokenAddress, sourceChain, publicKey, connection, signTransaction])
 
   return useMemo(() => ({ balance }), [balance])
 }

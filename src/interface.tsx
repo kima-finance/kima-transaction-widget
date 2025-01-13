@@ -1,9 +1,19 @@
 export { ChainName as SupportNetworks } from './utils/constants'
 export { CHAIN_STRING_TO_NAME, CHAIN_NAMES_TO_STRING } from './utils/constants'
+import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import {
+  ChainName,
   ChainName as SupportNetworks,
   TransactionStatus
 } from './utils/constants'
+import {
+  Connection,
+  PublicKey,
+  Transaction,
+  VersionedTransaction
+} from '@solana/web3.js'
+import { TronWeb } from 'tronweb'
+import { SignedTransaction } from '@tronweb3/tronwallet-abstract-adapter'
 
 export enum NetworkOptions {
   testnet = 'testnet',
@@ -36,7 +46,7 @@ export enum DAppOptions {
 }
 
 export interface Option {
-  id: string
+  id: ChainName | string
   label: string
 }
 
@@ -103,4 +113,25 @@ export interface ServiceFee {
   targetNetworkFee?: NetworkFee
   totalFeeUsd: number // total fee in USD for display purposes
   totalFee: string // bigint total fee amount
+}
+
+export interface TronProvider {
+  tronWeb: TronWeb
+  signTransaction: (
+    transaction: Transaction,
+    privateKey?: string
+  ) => Promise<SignedTransaction>
+}
+
+export interface SolProvider {
+  connection: Connection
+  signTransaction: <T extends Transaction | VersionedTransaction>(
+    transaction: T
+  ) => Promise<T>
+}
+
+export interface ExternalProvider {
+  type: 'evm' | 'solana' | 'tron'
+  provider: Web3Provider | SolProvider | TronProvider
+  signer: JsonRpcSigner | PublicKey | string
 }

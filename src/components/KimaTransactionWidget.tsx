@@ -8,7 +8,8 @@ import {
   PaymentTitleOption,
   DAppOptions,
   ColorModeOptions,
-  NetworkOptions
+  NetworkOptions,
+  Option
 } from '../interface'
 
 // store
@@ -32,7 +33,9 @@ import {
   setKimaExplorer,
   setNetworkOption,
   setTargetAddress,
-  setAmount
+  setAmount,
+  setExcludedSourceNetworks,
+  setExcludedTargetNetworks
 } from '../store/optionSlice'
 import '../index.css'
 import { selectSubmitted } from '../store/selectors'
@@ -64,6 +67,8 @@ interface Props {
   successHandler?: (e: any) => void
   switchChainHandler?: (chainId: number) => void
   keplrHandler?: (e: any) => void
+  excludedSourceNetworks?: Array<ChainName>
+  excludedTargetNetworks?: Array<ChainName>
 }
 
 const KimaTransactionWidget = ({
@@ -85,7 +90,9 @@ const KimaTransactionWidget = ({
   closeHandler = () => void 0,
   successHandler = () => void 0,
   switchChainHandler = () => void 0,
-  keplrHandler = () => void 0
+  keplrHandler = () => void 0,
+  excludedSourceNetworks = [],
+  excludedTargetNetworks = []
 }: Props) => {
   const submitted = useSelector(selectSubmitted)
   const dispatch = useDispatch()
@@ -93,6 +100,7 @@ const KimaTransactionWidget = ({
   const { data: chainData } = useChainData(kimaBackendUrl)
 
   useEffect(() => {
+    // reset state to ensure props are loaded from scratch
     dispatch(setTheme(theme))
     setThemeMode(theme.colorMode === ColorModeOptions.light ? 'light' : 'dark')
     setThemeVariables({
@@ -101,6 +109,9 @@ const KimaTransactionWidget = ({
     })
 
     if (transactionOption) dispatch(setTransactionOption(transactionOption))
+
+    dispatch(setExcludedSourceNetworks(excludedSourceNetworks))
+    dispatch(setExcludedTargetNetworks(excludedTargetNetworks))
 
     dispatch(setKimaExplorer(kimaExplorer))
     dispatch(setCompliantOption(compliantOption))

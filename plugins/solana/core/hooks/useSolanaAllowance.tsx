@@ -22,6 +22,7 @@ import { getPoolAddress, getTokenAddress } from '@utils/functions'
 import { PublicKey, Transaction } from '@solana/web3.js'
 import { PluginUseAllowanceResult } from '@plugins/pluginTypes'
 import { formatUnits } from '@ethersproject/units'
+import { useKimaContext } from '../../../../src/KimaProvider'
 
 export default function useSolanaAllowance(): PluginUseAllowanceResult {
   const sourceChain = useSelector(selectSourceChain)
@@ -29,14 +30,48 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
   const backendUrl = useSelector(selectBackendUrl)
   const networkOption = useSelector(selectNetworkOption)
   const allowanceNumber = Number(formatUnits(allowanceAmount ?? '0', decimals))
+  const { externalProvider } = useKimaContext()
 
-  const { connection } = useConnection()
-  const { publicKey: userPublicKey, signTransaction } = useWallet()
+  const { connection: internalConnection } = useConnection()
+  const {
+    publicKey: internalPublicKey,
+    signTransaction: internalSignTransaction
+  } = useWallet()
   const selectedCoin = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
   const { pools } = useGetPools(backendUrl, networkOption)
 
   const [approvalsCount, setApprovalsCount] = useState(0)
+
+  // Ensure only Solana-specific logic is executed when sourceChain is SOL
+  const isSolanaProvider =
+    sourceChain === 'SOL' &&
+    externalProvider?.type === 'solana' &&
+    externalProvider.provider &&
+    externalProvider.signer instanceof PublicKey
+
+  // Set the proper publicKey only for Solana
+  const userPublicKey = isSolanaProvider
+    ? externalProvider.signer
+    : sourceChain === 'SOL'
+      ? internalPublicKey
+      : undefined
+
+  // Set the proper signTransaction object only for Solana
+  const signTransaction =
+    isSolanaProvider && externalProvider.provider.signTransaction
+      ? externalProvider.provider.signTransaction
+      : sourceChain === 'SOL'
+        ? internalSignTransaction
+        : undefined
+
+  // Set the proper connection object only for Solana
+  const connection =
+    isSolanaProvider && externalProvider.provider.connection
+      ? externalProvider.provider.connection
+      : sourceChain === 'SOL'
+        ? internalConnection
+        : undefined
 
   const {
     data: allowanceData,
@@ -45,7 +80,7 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
   } = useQuery({
     queryKey: [
       'solanaAllowance',
-      userPublicKey, // for different accounts
+      userPublicKey?.toBase58(), // for different accounts
       selectedCoin, // for coin selection
       approvalsCount // for updates
     ],
@@ -67,48 +102,48 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
     staleTime: 1000 * 60 // 1 min
   })
 
-  // TODO: refactor to use use Tanstack useMutaion hook
   const approveSPLTokenTransfer = async (isCancel: boolean = false) => {
     if (!allowanceAmount) {
       console.warn('useSolanaAllowance: Missing allowance amount')
       return
     }
+    if (
+      !isSolanaProvider ||
+      !signTransaction ||
+      !connection ||
+      !userPublicKey
+    ) {
+      console.warn('useSolanaAllowance: Missing Solana provider setup')
+      return
+    }
+
     const poolAddress = getPoolAddress(pools, 'SOL')
     const tokenAddress = getTokenAddress(tokenOptions, selectedCoin, 'SOL')
 
-    if (!signTransaction) return
-
     try {
-      // Get the associated token account of the owner for the given mint
       const tokenAccountAddress = await getAssociatedTokenAddress(
         new PublicKey(tokenAddress),
-        userPublicKey as PublicKey
+        userPublicKey
       )
 
-      // Create the approve instruction
       const amount = isCancel ? 0n : BigInt(allowanceAmount)
       const approveInstruction = createApproveInstruction(
-        tokenAccountAddress, // Source account (owner's token account)
-        new PublicKey(poolAddress), // Delegate to approve
-        userPublicKey as PublicKey, // Owner of the token account
+        tokenAccountAddress,
+        new PublicKey(poolAddress),
+        userPublicKey,
         amount,
-        [], // Multi-signers (if any, otherwise leave empty)
-        TOKEN_PROGRAM_ID // SPL Token Program ID
+        [],
+        TOKEN_PROGRAM_ID
       )
 
-      // Create the transaction and add the instruction
       const transaction = new Transaction().add(approveInstruction)
-
-      // Set a recent blockhash and fee payer
       transaction.feePayer = userPublicKey
       transaction.recentBlockhash = (
         await connection.getLatestBlockhash()
       ).blockhash
 
-      // Sign the transaction using the wallet
       const signedTransaction = await signTransaction(transaction)
 
-      // Send the signed transaction
       const signature = await connection.sendRawTransaction(
         signedTransaction.serialize(),
         {
@@ -128,8 +163,7 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
         return
       }
 
-      setApprovalsCount((prev) => prev + 1) // trigger refetch
-      // return transaction
+      setApprovalsCount((prev) => prev + 1)
     } catch (error) {
       console.error('Error approving SPL token transfer:', error)
       throw error
