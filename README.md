@@ -29,32 +29,30 @@ import {
 
 const App = () => {
   return (
-    <KimaProvider>
+    <KimaProvider
+      walletConnectProjectId='e579511a495b5c312b572b036e60555a'
+      externalProvider={} // in case you want to provide an already connected wallet
+    >
       <KimaTransactionWidget
         theme={{
-          colorMode: ColorModeOptions.light,
-          fontSize: FontSizeOptions.medium
+          colorMode: ColorModeOptions.light
         }}
         mode={ModeOptions.payment}
-        kimaBackendUrl='https://demo.kima.finance/backend'
-        kimaNodeProviderQuery='https://api.kima.finance'
+        kimaBackendUrl='http://localhost:3001' // or your deployed backend instance
+        kimaExplorer='https://explorer.sardis.kima.network' // or explorer.kima.network for mainnet
         titleOption={{
           initialTitle: 'New Purchase'
         }}
         paymentTitleOption={{
           title:
-            'You can now purchase our NFT on Polygon, using funds from other chains.',
-          style: {
-            fontSize: '1.2em',
-            fontWeight: '500',
-            color: '#DDDDDD'
-          }
+            'You can now purchase our NFT on Polygon, using funds from other chains.'
         }}
         compliantOption={false}
         transactionOption={{
           targetChain: SupportNetworks.AVALANCHE,
           targetAddress: '0x67cc400c434F691Ed45e452dC8F2Baf0101a9B63',
-          amount: 5
+          amount: 5,
+          currency: 'USDK'
         }}
         errorHandler={(e: any) => {
           console.log('error:', e)
@@ -88,15 +86,18 @@ import {
 
 const App = () => {
   return (
-    <KimaProvider>
+    <KimaProvider
+      walletConnectProjectId='e579511a495b5c312b572b036e60555a'
+      externalProvider={} // in case you want to provide an already connected wallet
+    >
       <KimaTransactionWidget
         theme={{
           colorMode: ColorModeOptions.light,
           fontSize: FontSizeOptions.medium
         }}
         mode={ModeOptions.bridge}
-        kimaBackendUrl='https://demo.kima.finance/backend'
-        kimaNodeProviderQuery='https://api.kima.finance'
+        kimaBackendUrl='http://localhost:3001' // or your deployed backend instance
+        kimaExplorer='https://explorer.sardis.kima.network' // or explorer.kima.network for mainnet
         compliantOption={false}
         errorHandler={(e: any) => {
           console.log('error:', e)
@@ -107,6 +108,8 @@ const App = () => {
         closeHandler={() => {
           console.log('closed')
         }}
+        excludedSourceNetworks={[SupportNetworks.SOLANA]} // exclude networks that your dapp doesn't support
+        excludedTargetNetworks={[SupportNetworks.SOLANA]}
       />
     </KimaProvider>
   )
@@ -137,8 +140,8 @@ const App = () => {
           fontSize: FontSizeOptions.medium
         }}
         mode={ModeOptions.status}
-        kimaBackendUrl='https://demo.kima.finance/backend'
-        kimaNodeProviderQuery='https://api.kima.finance'
+        kimaBackendUrl='http://localhost:3001' // or your deployed backend instance
+        kimaExplorer='https://explorer.sardis.kima.network' // or explorer.kima.network for mainnet
         txId={10}
         errorHandler={(e: any) => {
           console.log('error:', e)
@@ -171,8 +174,6 @@ Used to specify theme options of kima-transaction-widget.
 <KimaTransactionWidget
   theme={{
     colorMode: ColorModeOptions.light,
-    fontSize: FontSizeOptions.medium,
-    fontFamily: 'Sans Serif',
     backgroundColorLight: '#CCCCCC', // background color of widget when light mode
     backgroundColorDark: '#FFDDFF' // background color of widget when dark mode
   }}
@@ -201,37 +202,6 @@ Used to specify transaction index to keep tracking of it's status and progress u
 - Required: `false`
 - Type: `boolean`
 - Default: `-1`
-
-### `useFIAT`
-
-Used to specify fiat option usage.
-
-- Required: `false`
-- Type: `boolean`
-- Default: `false`
-
-### `dAppOption`
-
-Used to specify which dApp interacts with the widget
-
-- Required: `false`
-- Type: `DAppOptions`
-- Default: `DAppOptions.None`
-
-```tsx
-export enum DAppOptions {
-  None = 'none',
-  LPAdd = 'LPAdd',
-  LPDrain = 'LPDrain'
-}
-```
-
-### `provider`
-
-Used to specify web3 wallet provider to share with dApp which implemented kima-transaction-widget
-
-- Required: `false`
-- Type: `Web3Provider`
 
 ### `titleOption`
 
@@ -284,7 +254,8 @@ Used to specify payment scenario option.
   transactionOption={{
     targetChain: SupportNetworks.AVALANCHE, // target chain to receive payment
     targetAddress: '0x8222ADB2A2092c3774105a5F558987265D920C09', // target address to receive payment
-    amount: 5 // USDT amount to receive payment
+    amount: 5 // token amount to receive payment
+    currency: 'USDK' // token to be used (default as USDK for testnet)
   }}
 />
 ```
@@ -317,13 +288,6 @@ Used to specify kima transaction backend url.
 - Required: `true`
 - Type: `string`
 
-### `kimaNodeProviderQuery`
-
-Used to specify REST API url for kima blockchain.
-
-- Required: `true`
-- Type: `string`
-
 ### `kimaExplorer`
 
 Used to specify url of kima block explorer.
@@ -348,6 +312,7 @@ Used to specify url of kima block explorer.
 <KimaProvider
   walletConnectProjectId='e579511a495b5c312b572b036e60555a'
   networkOption={NetworkOptions.testnet}
+  externalProvider={new Web3Provider()}
 >
   {/ * etc */}
 </KimaProvider>
@@ -376,6 +341,21 @@ enum NetworkOptions {
 - Required: `false`
 - Type: `NetworkOptions`
 - Default: `NetworkOptions.testnet`
+
+### `externalProvider`
+
+Used to provide an already connected wallet instance from your app. Depending on the network your dapp is currently connected to is the instance that you will need to provide.
+
+```ts
+interface ExternalProvider {
+  type: 'evm' | 'solana' | 'tron'
+  provider: Web3Provider | SolProvider | TronProvider
+  signer: JsonRpcSigner | PublicKey | string
+}
+```
+
+- Required: `false`
+- Type: `ExternalProvider`
 
 ## Note
 

@@ -52,8 +52,6 @@ interface Props {
   mode: ModeOptions
   txId?: number
   autoSwitchChain?: boolean
-  dAppOption?: DAppOptions
-  provider?: Web3Provider
   titleOption?: TitleOption
   compliantOption?: boolean
   helpURL?: string
@@ -76,8 +74,6 @@ const KimaTransactionWidget = ({
   txId,
   autoSwitchChain = true,
   networkOption = NetworkOptions.testnet,
-  provider,
-  dAppOption = DAppOptions.None,
   theme,
   titleOption,
   paymentTitleOption,
@@ -85,7 +81,7 @@ const KimaTransactionWidget = ({
   compliantOption = true,
   transactionOption,
   kimaBackendUrl,
-  kimaExplorer = 'https://explorer.kima.finance',
+  kimaExplorer = 'https://explorer.kima.network',
   errorHandler = () => void 0,
   closeHandler = () => void 0,
   successHandler = () => void 0,
@@ -122,8 +118,6 @@ const KimaTransactionWidget = ({
     dispatch(setSwitchChainHandler(switchChainHandler))
     dispatch(setBackendUrl(kimaBackendUrl))
     dispatch(setMode(mode))
-    dispatch(setProvider(provider))
-    dispatch(setDappOption(dAppOption))
     dispatch(setNetworkOption(networkOption))
 
     if (mode === ModeOptions.payment) {
@@ -137,17 +131,7 @@ const KimaTransactionWidget = ({
       dispatch(setTxId(txId || 1))
       dispatch(setSubmitted(true))
     }
-  }, [provider, theme, transactionOption, errorHandler, closeHandler, mode])
-
-  useEffect(() => {
-    if (dAppOption === DAppOptions.None && mode === ModeOptions.bridge) {
-      dispatch(setTargetChain(''))
-      dispatch(setSourceChain('ETH'))
-    } else if (mode === ModeOptions.status) {
-      dispatch(setTxId(txId || 1))
-      dispatch(setSubmitted(true))
-    }
-  }, [dAppOption, mode])
+  }, [theme, transactionOption, errorHandler, closeHandler, mode])
 
   useEffect(() => {
     if (!chainData?.length) return
