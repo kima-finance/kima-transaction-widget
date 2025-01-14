@@ -37,8 +37,8 @@ const App = () => {
           fontSize: FontSizeOptions.medium
         }}
         mode={ModeOptions.payment}
-        kimaBackendUrl='https://demo.kima.finance/backend'
-        kimaNodeProviderQuery='https://api.kima.finance'
+        kimaBackendUrl='http://localhost:3001'
+        kimaNodeProviderQuery='https://api.kima.network'
         titleOption={{
           initialTitle: 'New Purchase'
         }}
@@ -97,8 +97,8 @@ const App = () => {
           fontSize: FontSizeOptions.medium
         }}
         mode={ModeOptions.bridge}
-        kimaBackendUrl='https://demo.kima.finance/backend'
-        kimaNodeProviderQuery='https://api.kima.finance'
+        kimaBackendUrl='http://localhost:3001'
+        kimaNodeProviderQuery='https://api.kima.network'
         compliantOption={false}
         errorHandler={(e: any) => {
           console.log('error:', e)
@@ -140,8 +140,8 @@ const App = () => {
           fontSize: FontSizeOptions.medium
         }}
         mode={ModeOptions.status}
-        kimaBackendUrl='https://demo.kima.finance/backend'
-        kimaNodeProviderQuery='https://api.kima.finance'
+        kimaBackendUrl='http://localhost:3001'
+        kimaNodeProviderQuery='https://api.kima.network'
         txId={10}
         errorHandler={(e: any) => {
           console.log('error:', e)
@@ -341,7 +341,7 @@ Used to specify url of kima block explorer.
 
 - Required: `false`
 - Type: `string`
-- Default: `explorer.kima.finance`
+- Default: `explorer.kima.network`
 
 ### Event handlers
 
