@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { WalletReadyState } from '@solana/wallet-adapter-base'
@@ -11,7 +11,7 @@ const SolanaWalletSelect = () => {
   const dispatch = useDispatch()
   const sliderRef = useRef<any>()
 
-  const { wallets, select } = useWallet()
+  const { wallet, wallets, select, connect, connected } = useWallet()
   const [detected, undetected] = useMemo(() => {
     const detected: any[] = []
     const undetected: any[] = []
@@ -56,10 +56,19 @@ const SolanaWalletSelect = () => {
     })
   })
 
-  const connectWallet = (walletName: any) => {
-    select(walletName)
+  const handleWalletClick = useCallback(
+    (walletName: any) => {
+      select(walletName)
+    },
+    [select]
+  )
+
+  useEffect(() => {
+    if (connected) return
+
+    connect()
     dispatch(setSolanaConnectModal(false))
-  }
+  }, [wallet])
 
   return (
     <div className={`wallet-select`}>
@@ -68,7 +77,7 @@ const SolanaWalletSelect = () => {
           {detected.map((wallet, index) => (
             <div
               className={`card-item ${theme.colorMode}`}
-              onClick={() => connectWallet(wallet.adapter.name)}
+              onClick={() => handleWalletClick(wallet.adapter.name)}
               key={`${wallet.adapter.name}-${index}`}
             >
               <div className='wallet-item'>
