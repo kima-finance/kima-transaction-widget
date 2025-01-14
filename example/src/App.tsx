@@ -35,10 +35,10 @@ const App = () => {
             networkOption={NetworkOptions.testnet}
             // dAppOption={DAppOptions.LPAdd}
             kimaBackendUrl='http://localhost:3001'
-            kimaNodeProviderQuery='https://api-testnet.kima.finance'
-            kimaExplorer='https://explorer-testnet.kima.finance'
-            feeURL='https://fee.kima.finance'
-            kimaGraphqlProviderQuery='https://graphql-testnet.kima.finance/v1/graphql'
+            kimaNodeProviderQuery='https://api.sardis.kima.network'
+            kimaExplorer='https://explorer.sardis.kima.network'
+            feeURL='https://fee.sardis.kima.network'
+            kimaGraphqlProviderQuery='https://graphql.sardis.kima.network/v1/graphql'
             // autoSwitchChain={false}
             // useFIAT={true}
             // titleOption={{
