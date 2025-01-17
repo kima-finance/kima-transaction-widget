@@ -6,10 +6,8 @@ import {
   ModeOptions,
   TitleOption,
   PaymentTitleOption,
-  DAppOptions,
   ColorModeOptions,
-  NetworkOptions,
-  Option
+  NetworkOptions
 } from '../interface'
 
 // store
@@ -25,9 +23,6 @@ import {
   setSuccessHandler,
   setBackendUrl,
   setTargetChain,
-  setSourceChain,
-  setProvider,
-  setDappOption,
   setSwitchChainHandler,
   setKeplrHandler,
   setKimaExplorer,
@@ -35,7 +30,8 @@ import {
   setTargetAddress,
   setAmount,
   setExcludedSourceNetworks,
-  setExcludedTargetNetworks
+  setExcludedTargetNetworks,
+  setTargetCurrency
 } from '../store/optionSlice'
 import '../index.css'
 import { selectSubmitted } from '../store/selectors'
@@ -126,6 +122,7 @@ const KimaTransactionWidget = ({
       )
 
       dispatch(setTargetAddress(transactionOption?.targetAddress || ''))
+      dispatch(setTargetCurrency(transactionOption?.currency || ''))
       dispatch(setAmount(transactionOption?.amount.toString() || ''))
     } else if (mode === ModeOptions.status) {
       dispatch(setTxId(txId || 1))

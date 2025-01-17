@@ -4,6 +4,7 @@ import {
   selectBackendUrl,
   selectMode,
   selectSourceChain,
+  selectTargetChain,
   selectTransactionOption
 } from '../store/selectors'
 import { useDispatch } from 'react-redux'
@@ -11,14 +12,16 @@ import { ModeOptions } from '../interface'
 import { setSourceCurrency, setTargetCurrency } from '../store/optionSlice'
 import { useChainData } from './useChainData'
 
-export default function useCurrencyOptions() {
+export default function useCurrencyOptions(isSourceChain: boolean) {
   const dispatch = useDispatch()
   const mode = useSelector(selectMode)
+  const sourceChain = useSelector(selectSourceChain)
+  const targetChain = useSelector(selectTargetChain)
+  const chainName = isSourceChain ? sourceChain : targetChain
   const transactionOption = useSelector(selectTransactionOption)
-  const originNetwork = useSelector(selectSourceChain)
 
   const backendUrl = useSelector(selectBackendUrl)
-  const { data: chains } = useChainData(backendUrl, originNetwork)
+  const { data: chains } = useChainData(backendUrl, chainName)
 
   const output = useMemo(() => {
     return !!chains
@@ -28,29 +31,18 @@ export default function useCurrencyOptions() {
   const { tokenList } = output
 
   useEffect(() => {
-    if (
-      !originNetwork ||
-      (!transactionOption && mode === ModeOptions.payment) ||
-      !tokenList.length
-    ) {
-      return
-    }
+    // set the defualt currency when the chain changes
+    // should never set the target currency in payment mode
+    if (!tokenList.length) return
+    if (mode === ModeOptions.payment && !isSourceChain) return
 
-    if (
-      transactionOption?.currency &&
-      tokenList?.findIndex(
-        (item) => item.symbol === transactionOption.currency
-      ) >= 0
-    ) {
-      dispatch(setSourceCurrency(transactionOption.currency))
-      dispatch(setTargetCurrency(transactionOption.currency))
+    const [firstToken] = tokenList
+    if (isSourceChain) {
+      dispatch(setSourceCurrency(firstToken.symbol))
     } else {
-      const [firstToken] = tokenList
-      const firstTokenSymbol = firstToken.symbol
-      dispatch(setSourceCurrency(firstTokenSymbol))
-      dispatch(setTargetCurrency(firstTokenSymbol))
+      dispatch(setTargetCurrency(firstToken.symbol))
     }
-  }, [originNetwork, tokenList, transactionOption, mode])
+  }, [tokenList, transactionOption, isSourceChain])
 
   return output
 }

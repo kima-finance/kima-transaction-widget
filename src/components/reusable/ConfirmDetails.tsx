@@ -101,9 +101,10 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
           <div className='detail-item'>
             <span className='label'>IBAN:</span>
             <span className={`kima-card-network-label ${theme.colorMode}`}>
-              <div className='icon'>
+              <ChainIcon symbol={originNetworkOption?.id} />
+              {/* <div className='icon'>
                 <originNetworkOption.icon />
-              </div>
+              </div> */}
               FIAT
             </span>
             <p>ES6621000418401234567891</p>
@@ -127,7 +128,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
           <div className='network-details'>
             <div className='kima-card-network-container'>
               <span className={`kima-card-network-label ${theme.colorMode}`}>
-                <ChainIcon symbol={originNetworkOption.id} />
+                <ChainIcon symbol={originNetworkOption?.id} />
                 {originNetworkOption.label}
               </span>
             </div>
@@ -200,8 +201,8 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
           <div className='network-details'>
             <div className='kima-card-network-container'>
               <span className={`kima-card-network-label ${theme.colorMode}`}>
-                <ChainIcon symbol={targetNetworkOption.id} />
-                {targetNetworkOption.label}
+                <ChainIcon symbol={targetNetworkOption?.id} />
+                {targetNetworkOption?.label}
               </span>
             </div>
             <p className={theme.colorMode}>
