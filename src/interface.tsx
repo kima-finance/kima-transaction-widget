@@ -51,6 +51,7 @@ export interface Option {
 }
 
 export interface TransactionOption {
+  sourceChain?: SupportNetworks
   targetChain: SupportNetworks
   targetAddress: string
   amount: number
