@@ -7,7 +7,8 @@ import {
   TitleOption,
   PaymentTitleOption,
   ColorModeOptions,
-  NetworkOptions
+  NetworkOptions,
+  DAppOptions
 } from '../interface'
 
 // store
@@ -32,7 +33,8 @@ import {
   setExcludedSourceNetworks,
   setExcludedTargetNetworks,
   setTargetCurrency,
-  setSourceChain
+  setSourceChain,
+  setDappOption
 } from '../store/optionSlice'
 import '../index.css'
 import { selectSubmitted } from '../store/selectors'
@@ -47,7 +49,7 @@ interface Props {
   theme: ThemeOptions
   mode: ModeOptions
   txId?: number
-  autoSwitchChain?: boolean
+  dAppOption?: DAppOptions
   titleOption?: TitleOption
   compliantOption?: boolean
   helpURL?: string
@@ -68,8 +70,8 @@ interface Props {
 const KimaTransactionWidget = ({
   mode,
   txId,
-  autoSwitchChain = true,
   networkOption = NetworkOptions.testnet,
+  dAppOption = DAppOptions.None,
   theme,
   titleOption,
   paymentTitleOption,
@@ -114,6 +116,7 @@ const KimaTransactionWidget = ({
     dispatch(setSwitchChainHandler(switchChainHandler))
     dispatch(setBackendUrl(kimaBackendUrl))
     dispatch(setMode(mode))
+    dispatch(setDappOption(dAppOption))
     dispatch(setNetworkOption(networkOption))
 
     if (transactionOption) {

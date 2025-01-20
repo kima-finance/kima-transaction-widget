@@ -5,12 +5,14 @@ import {
   selectExcludedTargetNetworks,
   selectNetworks,
   selectSourceChain,
+  selectSwitchChainHandler,
   selectTargetChain,
   selectTheme
 } from '@store/selectors'
 import { setSourceChain, setTargetChain } from '@store/optionSlice'
 import Arrow from '@assets/icons/Arrow'
 import ChainIcon from '../reusable/ChainIcon'
+import { ChainName } from '@utils/constants'
 
 interface NetworkSelectorProps {
   type: 'source' | 'target' // Determines if this is a source or target selector
@@ -27,6 +29,7 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({ type }) => {
   const targetNetwork = useSelector(selectTargetChain)
   const excludedSourceNetworks = useSelector(selectExcludedSourceNetworks)
   const excludedTargetNetworks = useSelector(selectExcludedTargetNetworks)
+  const switchChainHandler = useSelector(selectSwitchChainHandler)
 
   const isSourceSelector = type === 'source'
 
@@ -34,15 +37,21 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({ type }) => {
   const networks = useMemo(() => {
     if (isSourceSelector) {
       return networkOptions.filter(
-        (network) => !excludedSourceNetworks.includes(network.id)
+        (network) => !excludedSourceNetworks.includes(network.id as ChainName)
       )
     }
     return networkOptions.filter(
       (network) =>
         network.id !== sourceNetwork &&
-        !excludedTargetNetworks.includes(network.id)
+        !excludedTargetNetworks.includes(network.id as ChainName)
     ) // Exclude source from target options
-  }, [networkOptions, sourceNetwork, isSourceSelector, excludedSourceNetworks, excludedTargetNetworks])
+  }, [
+    networkOptions,
+    sourceNetwork,
+    isSourceSelector,
+    excludedSourceNetworks,
+    excludedTargetNetworks
+  ])
 
   const selectedNetwork = useMemo(() => {
     const selectedId = isSourceSelector ? sourceNetwork : targetNetwork
@@ -72,6 +81,7 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({ type }) => {
     if (isSourceSelector) {
       if (networkId !== sourceNetwork) {
         dispatch(setSourceChain(networkId))
+        switchChainHandler && switchChainHandler(networkId)
       }
     } else {
       if (networkId !== targetNetwork) {
