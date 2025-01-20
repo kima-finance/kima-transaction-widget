@@ -21,7 +21,7 @@ const CoinDropdown = ({
   const [collapsed, setCollapsed] = useState(true)
   const sourceCurrency = useSelector(selectSourceCurrency)
   const targetCurrency = useSelector(selectTargetCurrency)
-  const { tokenList } = useCurrencyOptions()
+  const { tokenList } = useCurrencyOptions(isSourceChain)
   const theme = useSelector(selectTheme)
   const tokenSymbol = isSourceChain ? sourceCurrency : targetCurrency
 

@@ -6,10 +6,8 @@ import {
   ModeOptions,
   TitleOption,
   PaymentTitleOption,
-  DAppOptions,
   ColorModeOptions,
-  NetworkOptions,
-  Option
+  NetworkOptions
 } from '../interface'
 
 // store
@@ -25,9 +23,6 @@ import {
   setSuccessHandler,
   setBackendUrl,
   setTargetChain,
-  setSourceChain,
-  setProvider,
-  setDappOption,
   setSwitchChainHandler,
   setKeplrHandler,
   setKimaExplorer,
@@ -35,13 +30,14 @@ import {
   setTargetAddress,
   setAmount,
   setExcludedSourceNetworks,
-  setExcludedTargetNetworks
+  setExcludedTargetNetworks,
+  setTargetCurrency,
+  setSourceChain
 } from '../store/optionSlice'
 import '../index.css'
 import { selectSubmitted } from '../store/selectors'
 import { TransactionWidget } from './TransactionWidget'
 import { TransferWidget } from './TransferWidget'
-import { Web3Provider } from '@ethersproject/providers'
 import { useAppKitTheme } from '@reown/appkit/react'
 import { ChainName } from '@utils/constants'
 import { useChainData } from '../hooks/useChainData'
@@ -120,13 +116,23 @@ const KimaTransactionWidget = ({
     dispatch(setMode(mode))
     dispatch(setNetworkOption(networkOption))
 
-    if (mode === ModeOptions.payment) {
+    if (transactionOption) {
+      // set default transaction values
+      if (transactionOption.sourceChain) {
+        dispatch(setSourceChain(transactionOption.sourceChain))
+      }
       dispatch(
-        setTargetChain(transactionOption?.targetChain || ChainName.ETHEREUM)
+        setTargetChain(transactionOption.targetChain || ChainName.ETHEREUM)
       )
+      dispatch(setTargetAddress(transactionOption.targetAddress || ''))
+      dispatch(setTargetCurrency(transactionOption.currency || ''))
+      dispatch(setAmount(transactionOption.amount.toString() || ''))
+    }
 
-      dispatch(setTargetAddress(transactionOption?.targetAddress || ''))
-      dispatch(setAmount(transactionOption?.amount.toString() || ''))
+    if (mode === ModeOptions.payment && !transactionOption) {
+      throw new Error(
+        'Config error: KimaTransactionWidget.transactionOption is required in payment mode'
+      )
     } else if (mode === ModeOptions.status) {
       dispatch(setTxId(txId || 1))
       dispatch(setSubmitted(true))

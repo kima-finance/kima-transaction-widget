@@ -18,7 +18,14 @@ import {
 import SingleForm from './reusable/SingleForm'
 
 // store
-import { setAmount, setTargetAddress, setTheme } from '@store/optionSlice'
+import {
+  setAmount,
+  setSourceChain,
+  setTargetAddress,
+  setTargetChain,
+  setTargetCurrency,
+  setTheme
+} from '@store/optionSlice'
 import {
   selectAmount,
   selectBackendUrl,
@@ -101,7 +108,7 @@ export const TransferWidget = ({
 
   const { width: windowWidth } = useWidth()
 
-  const {disconnectWallet} = useDisconnectWallet()
+  const { disconnectWallet } = useDisconnectWallet()
 
   const { balance } = useBalance()
 
@@ -224,8 +231,14 @@ export const TransferWidget = ({
     if (isApproving || isSubmitting || isSigning) return
 
     setFormStep(0)
-    dispatch(setTargetAddress('')) // reset target address
-    dispatch(setAmount('')) // reset amount
+    if (mode !== ModeOptions.payment) {
+      // reset to default values
+      dispatch(setSourceChain(transactionOption?.sourceChain || ''))
+      dispatch(setTargetChain(transactionOption?.targetChain || ''))
+      dispatch(setTargetAddress(transactionOption?.targetAddress || ''))
+      dispatch(setTargetCurrency(transactionOption?.currency || ''))
+      dispatch(setAmount(transactionOption?.amount.toString() || ''))
+    }
     await disconnectWallet()
     closeHandler()
   }

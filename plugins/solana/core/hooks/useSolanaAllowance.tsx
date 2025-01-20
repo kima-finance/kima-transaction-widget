@@ -108,7 +108,7 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
       return
     }
     if (
-      !isSolanaProvider ||
+      // !isSolanaProvider ||
       !signTransaction ||
       !connection ||
       !userPublicKey

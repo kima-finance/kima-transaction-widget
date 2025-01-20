@@ -18,11 +18,19 @@ import {
   selectMode,
   selectServiceFee,
   selectSuccessHandler,
+  selectTransactionOption,
   selectTxId
 } from '@store/selectors'
 import { useDispatch } from 'react-redux'
 import { toast, Toaster } from 'react-hot-toast'
-import { setAmount, setSubmitted, setTargetAddress } from '@store/optionSlice'
+import {
+  setAmount,
+  setSourceChain,
+  setSubmitted,
+  setTargetAddress,
+  setTargetChain,
+  setTargetCurrency
+} from '@store/optionSlice'
 import useGetTxData from '../hooks/useGetTxData'
 import ChainIcon from './reusable/ChainIcon'
 
@@ -42,6 +50,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const closeHandler = useSelector(selectCloseHandler)
   const successHandler = useSelector(selectSuccessHandler)
   const { totalFeeUsd } = useSelector(selectServiceFee)
+  const transactionOption = useSelector(selectTransactionOption)
 
   const backendUrl = useSelector(selectBackendUrl)
   const { data } = useGetTxData(txId, dAppOption, backendUrl)
@@ -109,8 +118,14 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   }, [data?.status])
 
   const resetForm = () => {
-    dispatch(setTargetAddress('')) // reset target address
-    dispatch(setAmount('')) // reset amount
+    if (mode !== ModeOptions.payment) {
+      // reset to default values
+      dispatch(setSourceChain(transactionOption?.sourceChain || ''))
+      dispatch(setTargetChain(transactionOption?.targetChain || ''))
+      dispatch(setTargetAddress(transactionOption?.targetAddress || ''))
+      dispatch(setTargetCurrency(transactionOption?.currency || ''))
+      dispatch(setAmount(transactionOption?.amount.toString() || ''))
+    }
     dispatch(setSubmitted(false))
     // disconnect wallet?
     closeHandler()
