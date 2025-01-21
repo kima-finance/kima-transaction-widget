@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useMemo } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { ErrorIcon, FooterLogo } from '../assets/icons'
 import {
@@ -10,6 +10,7 @@ import {
 } from './reusable'
 import {
   ColorModeOptions,
+  DAppOptions,
   ModeOptions,
   PaymentTitleOption,
   ThemeOptions,
@@ -31,7 +32,9 @@ import {
   selectBackendUrl,
   selectCloseHandler,
   selectCompliantOption,
+  selectDappOption,
   selectFeeDeduct,
+  selectKeplrHandler,
   selectMode,
   selectNetworkOption,
   selectPendingTxs,
@@ -78,6 +81,8 @@ export const TransferWidget = ({
   const [formStep, setFormStep] = useState(0)
 
   // Redux variables
+  const dAppOption = useSelector(selectDappOption)
+  const keplrHandler = useSelector(selectKeplrHandler)
   const mode = useSelector(selectMode)
   const transactionOption = useSelector(selectTransactionOption)
   const backendUrl = useSelector(selectBackendUrl)
@@ -174,6 +179,17 @@ export const TransferWidget = ({
     // if is missing approve, trigger approval
     if (error === ValidationError.ApprovalNeeded) {
       return approve()
+    }
+
+    // for liquidity tranasctions, invoke the callback
+    // TODO: either fully support LP in the widget, or
+    // refactor to use a separate component
+    if (
+      dAppOption === DAppOptions.LPDrain ||
+      dAppOption === DAppOptions.LPAdd
+    ) {
+      keplrHandler && keplrHandler(sourceAddress)
+      return
     }
 
     // submit the kima transaction
