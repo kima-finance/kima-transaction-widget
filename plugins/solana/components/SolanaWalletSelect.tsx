@@ -66,8 +66,10 @@ const SolanaWalletSelect = () => {
   useEffect(() => {
     if (connected) return
 
-    connect()
-    dispatch(setSolanaConnectModal(false))
+    if (wallet) {
+      connect()
+      dispatch(setSolanaConnectModal(false))
+    }
   }, [wallet])
 
   return (
