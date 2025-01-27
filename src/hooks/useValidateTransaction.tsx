@@ -90,14 +90,14 @@ const useValidateTransaction = ({
     }
 
     if (compliantOption) {
-      if (!sourceCompliant?.isCompliant) {
+      if (!sourceCompliant?.isCompliant && sourceChain !== ChainName.FIAT) {
         return {
           error: ValidationError.Error,
           message: 'Source address compliance check failed'
         }
       }
 
-      if (!targetCompliant?.isCompliant) {
+      if (!targetCompliant?.isCompliant && targetChain !== ChainName.FIAT) {
         return {
           error: ValidationError.Error,
           message: 'Target address compliance check failed'
