@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { ErrorIcon, FooterLogo } from '../assets/icons'
 import {
@@ -22,6 +22,7 @@ import SingleForm from './reusable/SingleForm'
 import {
   setAmount,
   setSourceChain,
+  setSubmitted,
   setTargetAddress,
   setTargetChain,
   setTargetCurrency,
@@ -42,10 +43,12 @@ import {
   selectSourceAddress,
   selectSourceChain,
   selectSourceCurrency,
+  selectSubmitted,
   selectTargetAddress,
   selectTargetChain,
   selectTargetCurrency,
-  selectTransactionOption
+  selectTransactionOption,
+  selectTxId
 } from '@store/selectors'
 import useAllowance from '../hooks/useAllowance'
 import { toast, Toaster } from 'react-hot-toast'
@@ -60,6 +63,8 @@ import useComplianceCheck from '../hooks/useComplianceCheck'
 import useBalance from '../hooks/useBalance'
 import useGetPools from '../hooks/useGetPools'
 import useDisconnectWallet from '../hooks/useDisconnectWallet'
+import { ChainName } from '@utils/constants'
+import { formatterFloat } from 'src/helpers/functions'
 
 interface Props {
   theme: ThemeOptions
@@ -104,12 +109,22 @@ export const TransferWidget = ({
   const networkOptions = useSelector(selectNetworkOption)
   const feeDeduct = useSelector(selectFeeDeduct)
   const closeHandler = useSelector(selectCloseHandler)
+  const submitted = useSelector(selectSubmitted)
+  const txId = useSelector(selectTxId)
 
   // Hooks for wallet connection, allowance
   const [isCancellingApprove, setCancellingApprove] = useState(false)
   const [isApproving, setApproving] = useState(false)
   const [isSigning, setSigning] = useState(false)
   const pendingTxs = useSelector(selectPendingTxs)
+  const amountToShow = useMemo(() => {
+    if (sourceChain === ChainName.BTC || targetChain === ChainName.BTC) {
+      return (feeDeduct ? +amount : +amount + totalFeeUsd).toFixed(8)
+    }
+
+    return formatterFloat.format(feeDeduct ? +amount : +amount + totalFeeUsd)
+  }, [amount, totalFeeUsd, sourceChain, targetChain, feeDeduct])
+
 
   const { width: windowWidth } = useWidth()
 
@@ -140,6 +155,7 @@ export const TransferWidget = ({
     allowance,
     isApproved,
     sourceAddress,
+    sourceChain,
     targetAddress,
     targetChain,
     balance,
@@ -167,13 +183,23 @@ export const TransferWidget = ({
     backendUrl,
     decimals: feeDecimals
   })
-
+  
   const handleSubmit = async () => {
     const { error, message: validationMessage } = validate(true)
 
     // check for validation errors
     if (error === ValidationError.Error) {
       return toast.error(validationMessage, { icon: <ErrorIcon /> })
+    }
+
+    if (sourceChain === ChainName.FIAT) {
+      // submit initial kima transaction
+      if (!txId || txId < 0) {
+        const { success, message: submitMessage } = await submitTransaction()
+
+        if (!success) return toast.error(submitMessage, { icon: <ErrorIcon /> })
+      }
+      return dispatch(setSubmitted(true))
     }
 
     // if is missing approve, trigger approval
@@ -217,6 +243,8 @@ export const TransferWidget = ({
   const onBack = () => {
     if (isApproving || isSubmitting || isSigning) return
 
+    if (submitted) return dispatch(setSubmitted(false))
+
     if (formStep > 0) {
       setFormStep(0)
     }
@@ -227,7 +255,7 @@ export const TransferWidget = ({
   }
 
   const getButtonLabel = () => {
-    if (formStep === 1) {
+    if (formStep === 1 && sourceChain !== ChainName.FIAT) {
       if (isApproved) {
         return isSubmitting ? 'Submitting...' : 'Submit'
       } else {
@@ -329,6 +357,14 @@ export const TransferWidget = ({
         <div className='kima-card-content' ref={mainRef}>
           {formStep === 0 ? (
             <SingleForm {...{ balance, decimals }} />
+          ) : sourceChain === ChainName.FIAT && submitted ? (
+            <iframe
+              src={`https://widget-sandbox.depasify.com/widgets/kyc?partner=Kima&user_uuid=850c1249-ca55-4e39-bfeb-df62ffcd6906&address=CalleMisma&postal_code=46010&city=valencia&country_code=ES&currency=USD&amount=${amountToShow}&scenario=fund_without_amount_select&redirect_url=http://localhost:3000?txId=${txId}&trx_uuid=${txId}`}
+              width='560px'
+              height='650px'
+              frameBorder='0'
+              allow='camera'
+            ></iframe>
           ) : (
             <ConfirmDetails isApproved={isApproved} />
           )}
@@ -364,18 +400,20 @@ export const TransferWidget = ({
                 {isCancellingApprove ? 'Cancelling Approval' : 'Cancel Approve'}
               </SecondaryButton>
             ) : null}
-            <PrimaryButton
-              clickHandler={onNext}
-              isLoading={isApproving || isSubmitting || isSigning}
-              disabled={
-                isApproving ||
-                isSubmitting ||
-                isSigning ||
-                (mode === ModeOptions.payment && !transactionOption)
-              }
-            >
-              {getButtonLabel()}
-            </PrimaryButton>
+            {!submitted && (
+              <PrimaryButton
+                clickHandler={onNext}
+                isLoading={isApproving || isSubmitting || isSigning}
+                disabled={
+                  isApproving ||
+                  isSubmitting ||
+                  isSigning ||
+                  (mode === ModeOptions.payment && !transactionOption)
+                }
+              >
+                {getButtonLabel()}
+              </PrimaryButton>
+            )}
           </div>
         </div>
         <SolanaWalletConnectModal />

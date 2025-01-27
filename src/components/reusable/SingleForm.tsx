@@ -27,6 +27,7 @@ import useGetFees from '../../hooks/useGetFees'
 import { setServiceFee } from '@store/optionSlice'
 import { preciseSubtraction } from '@utils/functions'
 import NetworkSelector from '@components/primary/NetworkSelector'
+import TokenIcon from './TokenIcon'
 
 const SingleForm = ({
   balance,
@@ -62,6 +63,7 @@ const SingleForm = ({
     sourceNetwork,
     sourceCurrency,
     targetNetwork,
+    targetCurrency,
     backendUrl
   )
 
@@ -70,9 +72,6 @@ const SingleForm = ({
       dispatch(setServiceFee(fees))
     }
   }, [fees, dispatch])
-
-  const TargetIcon =
-    COIN_LIST[targetCurrency || 'USDK']?.icon || COIN_LIST['USDK'].icon
 
   const errorMessage = useMemo(
     () =>
@@ -85,6 +84,7 @@ const SingleForm = ({
   )
 
   const maxValue = useMemo(() => {
+    if (sourceNetwork === 'FIAT') return 10000000000
     if (!balance) return 0
     if (feeDeduct || totalFeeUsd < 0) return balance
 
@@ -142,7 +142,7 @@ const SingleForm = ({
         )}
       </div>
 
-      {mode === ModeOptions.bridge && sourceNetwork !== ChainName.FIAT ? (
+      {mode === ModeOptions.bridge && sourceNetwork ? (
         targetNetwork === ChainName.FIAT ? (
           <BankInput />
         ) : (
@@ -185,15 +185,17 @@ const SingleForm = ({
                 }
               }}
             />
-            <span
-              className='max-button'
-              onClick={() => {
-                setAmountValue(maxValue.toString())
-                dispatch(setAmount(maxValue.toString()))
-              }}
-            >
-              Max
-            </span>
+            {sourceNetwork !== 'FIAT' && (
+              <span
+                className='max-button'
+                onClick={() => {
+                  setAmountValue(maxValue.toString())
+                  dispatch(setAmount(maxValue.toString()))
+                }}
+              >
+                Max
+              </span>
+            )}
           </div>
         </div>
       ) : (
@@ -218,7 +220,7 @@ const SingleForm = ({
               disabled={transactionOption?.amount !== undefined}
             />
             <div className={`coin-wrapper ${theme.colorMode}`}>
-              <div className='icon-wrapper'>{<TargetIcon />}</div>
+              <TokenIcon symbol={targetCurrency} />
               {targetCurrency}
             </div>
           </div>

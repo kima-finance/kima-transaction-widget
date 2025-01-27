@@ -12,7 +12,8 @@ import {
   selectSourceCurrency,
   selectSourceChain,
   selectSourceCompliant,
-  selectTheme
+  selectTheme,
+  selectTargetChain
 } from '../../store/selectors'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
 import { ChainName } from '../../utils/constants'
@@ -34,7 +35,8 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const selectedCoin = useSelector(selectSourceCurrency)
   const sourceCompliant = useSelector(selectSourceCompliant)
   const compliantOption = useSelector(selectCompliantOption)
-  const selectedNetwork = useSelector(selectSourceChain)
+  const sourceNetwork = useSelector(selectSourceChain)
+  const targetNetwork = useSelector(selectTargetChain)
   const { externalProvider } = useKimaContext()
   const { connected: isSolanaConnected } = useSolanaWallet()
   const { connected: isTronConnected } = useTronWallet()
@@ -57,7 +59,9 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   }, [balance, walletAddress, isReady, externalProvider])
 
   useEffect(() => {
-    if (walletAddress) dispatch(setSourceAddress(walletAddress))
+    if (walletAddress) {
+      dispatch(setSourceAddress(walletAddress))
+    }
   }, [walletAddress])
 
   useEffect(() => {
@@ -71,6 +75,9 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
 
     // TODO: Refactor to use evm account details modal
     if (externalProvider) return
+
+    const selectedNetwork =
+      sourceNetwork !== ChainName.FIAT ? sourceNetwork : targetNetwork
 
     if (selectedNetwork === ChainName.SOLANA) {
       console.info('Handling click: Case SOL', 1)

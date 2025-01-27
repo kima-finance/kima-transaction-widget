@@ -1,6 +1,7 @@
 import { checkPoolBalance, preciseSubtraction } from '@utils/functions'
 import { ModeOptions, NetworkFee } from '@interface'
 import { useMemo } from 'react'
+import { ChainName } from '@utils/constants'
 
 export enum ValidationError {
   Error = 'ValidationError',
@@ -12,6 +13,7 @@ const useValidateTransaction = ({
   allowance,
   isApproved,
   sourceAddress,
+  sourceChain,
   targetAddress,
   targetChain,
   targetCurrency,
@@ -29,6 +31,7 @@ const useValidateTransaction = ({
   allowance: number
   isApproved: boolean
   sourceAddress: string
+  sourceChain: string
   targetAddress: string
   targetChain: string
   targetCurrency: string
@@ -44,6 +47,7 @@ const useValidateTransaction = ({
   pools: any[]
 }) => {
   const maxValue = useMemo(() => {
+    if(sourceChain === ChainName.FIAT) return 1000000000;
     if (!balance) return 0
 
     if (feeDeduct || totalFeeUsd < 0) return balance
@@ -60,7 +64,7 @@ const useValidateTransaction = ({
     console.log('isApproved: ', isApproved)
 
     // Validation logic
-    if (!sourceAddress) {
+    if (!sourceAddress && sourceChain !== ChainName.FIAT) {
       return {
         error: ValidationError.Error,
         message: 'Wallet is not connected'
@@ -126,14 +130,14 @@ const useValidateTransaction = ({
       }
     }
 
-    if (balance < amountToShow) {
+    if (balance < amountToShow && sourceChain !== ChainName.FIAT) {
       return {
         error: ValidationError.Error,
         message: 'Insufficient balance for the transaction'
       }
     }
 
-    if (!isApproved && isSubmitting) {
+    if (!isApproved && isSubmitting && sourceChain !== ChainName.FIAT) {
       return {
         error: ValidationError.ApprovalNeeded,
         message: 'Allowance is insufficient for the transaction'

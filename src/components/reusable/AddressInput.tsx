@@ -10,6 +10,7 @@ import {
 } from '../../store/selectors'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
 import { ModeOptions } from '../../interface'
+import { ChainName } from '@utils/constants'
 
 /**
  * Component for target address input
@@ -43,7 +44,7 @@ const AddressInput = ({
     if (mode === ModeOptions.payment) return
 
     // when both source and target addresses are EVM addresses are compatible
-    if (isEvm(sourceChain) && isEvm(targetChain)) {
+    if (isEvm(sourceChain) && isEvm(targetChain) || sourceChain === ChainName.FIAT) {
       dispatch(setTargetAddress(isReady && sourceAddress ? sourceAddress : ''))
       return
     }

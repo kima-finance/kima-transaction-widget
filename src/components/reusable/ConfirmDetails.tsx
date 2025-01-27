@@ -97,32 +97,46 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
             : 'Approval'}
       </p>
       {originNetwork === ChainName.FIAT ? (
-        <div>
-          <div className='detail-item'>
-            <span className='label'>IBAN:</span>
-            <span className={`kima-card-network-label ${theme.colorMode}`}>
-              <ChainIcon symbol={originNetworkOption?.id} />
-              {/* <div className='icon'>
-                <originNetworkOption.icon />
-              </div> */}
-              FIAT
-            </span>
-            <p>ES6621000418401234567891</p>
-          </div>
-          <div className='detail-item'>
-            <span className='label'>Recipient:</span>
-            <p>Kima Sandbox</p>
-          </div>
-          <div className='detail-item'>
-            <span className='label'>BIC:</span>
-            <p>CAIXESBBXXX</p>
-          </div>
-          <div className='detail-item'>
-            <span className='label'>Description:</span>
-            <p className='signature'>{signature}</p>
+        <div className='detail-item'>
+          <span className='label'>Recipient:</span>
+          <div className='network-details'>
+            <div className='kima-card-network-container'>
+              <span className={`kima-card-network-label ${theme.colorMode}`}>
+                <ChainIcon symbol={originNetworkOption?.id} />
+                {originNetworkOption.label}
+              </span>
+            </div>
+            <p className={theme.colorMode}>
+              KIMA Sandbox
+            </p>
           </div>
         </div>
       ) : (
+        // <div>
+        //   <div className='detail-item'>
+        //     <span className='label'>IBAN:</span>
+        //     <span className={`kima-card-network-label ${theme.colorMode}`}>
+        //       <ChainIcon symbol={originNetworkOption?.id} />
+        //       {/* <div className='icon'>
+        //         <originNetworkOption.icon />
+        //       </div> */}
+        //       FIAT
+        //     </span>
+        //     <p>ES6621000418401234567891</p>
+        //   </div>
+        //   {/* <div className='detail-item'>
+        //     <span className='label'>Recipient:</span>
+        //     <p>Kima Sandbox</p>
+        //   </div> */}
+        //   {/* <div className='detail-item'>
+        //     <span className='label'>BIC:</span>
+        //     <p>CAIXESBBXXX</p>
+        //   </div> */}
+        //   {/* <div className='detail-item'>
+        //     <span className='label'>Description:</span>
+        //     <p className='signature'>{signature}</p>
+        //   </div> */}
+        // </div>
         <div className='detail-item'>
           <span className='label'>Source wallet:</span>
           <div className='network-details'>

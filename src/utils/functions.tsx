@@ -165,3 +165,8 @@ const isTronProvider = (provider: TronProvider) => {
     typeof provider.signTransaction === 'function'
   )
 }
+
+export function getQueryParam(param: string): string | null {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(param);
+}

@@ -12,11 +12,12 @@ export const getFees = async (
   originChain: string,
   originSymbol: string,
   targetChain: string,
+  targetSymbol: string,
   backendUrl: string
 ): Promise<ServiceFee> => {
   try {
     const response: any = await fetchWrapper.get(
-      `${backendUrl}/submit/fees?amount=${amount}&originChain=${originChain}&originSymbol=${originSymbol}&targetChain=${targetChain}&deductFee=${deductFee}`
+      `${backendUrl}/submit/fees?amount=${amount}&originChain=${originChain}&originSymbol=${originSymbol}&targetChain=${targetChain}&targetSymbol=${targetSymbol}&deductFee=${deductFee}`
     )
 
     console.log('response: ', response)

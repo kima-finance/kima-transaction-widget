@@ -37,13 +37,14 @@ import {
   setDappOption
 } from '../store/optionSlice'
 import '../index.css'
-import { selectSubmitted } from '../store/selectors'
+import { selectSourceChain, selectSubmitted } from '../store/selectors'
 import { TransactionWidget } from './TransactionWidget'
 import { TransferWidget } from './TransferWidget'
 import { useAppKitTheme } from '@reown/appkit/react'
 import { ChainName } from '@utils/constants'
 import { useChainData } from '../hooks/useChainData'
 import { indexPluginsByChain } from '../pluginRegistry'
+import { getQueryParam } from '@utils/functions'
 
 interface Props {
   theme: ThemeOptions
@@ -89,6 +90,7 @@ const KimaTransactionWidget = ({
   excludedTargetNetworks = []
 }: Props) => {
   const submitted = useSelector(selectSubmitted)
+  const sourceChain = useSelector(selectSourceChain)
   const dispatch = useDispatch()
   const { setThemeMode, setThemeVariables } = useAppKitTheme()
   const { data: chainData } = useChainData(kimaBackendUrl)
@@ -119,6 +121,8 @@ const KimaTransactionWidget = ({
     dispatch(setDappOption(dAppOption))
     dispatch(setNetworkOption(networkOption))
 
+    const queryTxId = getQueryParam('txId')
+
     if (transactionOption) {
       // set default transaction values
       if (transactionOption.sourceChain) {
@@ -132,7 +136,10 @@ const KimaTransactionWidget = ({
       dispatch(setAmount(transactionOption.amount.toString() || ''))
     }
 
-    if (mode === ModeOptions.payment && !transactionOption) {
+    if (queryTxId) {
+      dispatch(setTxId(queryTxId))
+      dispatch(setSubmitted(true))
+    } else if (mode === ModeOptions.payment && !transactionOption) {
       throw new Error(
         'Config error: KimaTransactionWidget.transactionOption is required in payment mode'
       )
@@ -148,7 +155,7 @@ const KimaTransactionWidget = ({
     indexPluginsByChain(chainData)
   }, [chainData])
 
-  return submitted ? (
+  return submitted && txId && sourceChain !== ChainName.FIAT ? (
     <TransactionWidget theme={theme} />
   ) : (
     <TransferWidget
