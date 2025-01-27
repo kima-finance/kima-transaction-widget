@@ -359,7 +359,7 @@ export const TransferWidget = ({
             <SingleForm {...{ balance, decimals }} />
           ) : sourceChain === ChainName.FIAT && submitted ? (
             <iframe
-              src={`https://widget-sandbox.depasify.com/widgets/kyc?partner=Kima&user_uuid=850c1249-ca55-4e39-bfeb-df62ffcd6906&address=CalleMisma&postal_code=46010&city=valencia&country_code=ES&currency=USD&amount=${amountToShow}&scenario=fund_without_amount_select&redirect_url=http://localhost:3000?txId=${txId}&trx_uuid=${txId}`}
+              src={`https://widget-sandbox.depasify.com/widgets/kyc?partner=Kima&user_uuid=850c1249-ca55-4e39-bfeb-df62ffcd6906&address=CalleMisma&postal_code=46010&city=valencia&country_code=ES&currency=USD&amount=${amountToShow}&scenario=fund_without_amount_select&redirect_url=https://fiat-demo-221056059036.us-central1.run.app?txId=${txId}&trx_uuid=${txId}`}
               width='560px'
               height='650px'
               frameBorder='0'
