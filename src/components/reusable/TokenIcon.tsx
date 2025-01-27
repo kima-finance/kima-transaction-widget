@@ -4,7 +4,8 @@ import {
   USDTIcon,
   USDCIcon,
   KEURICON,
-  BTCIcon
+  BTCIcon,
+  USDIcon
 } from '../../assets/icons'
 
 type IconProps = { width?: number; height?: number }
@@ -18,13 +19,14 @@ const COIN_LIST: Record<string, React.FC<IconProps>> = {
   USDC: USDCIcon,
   USDK: USDKIcon,
   USDT: USDTIcon,
-  WBTC: BTCIcon
+  WBTC: BTCIcon,
+  USD: USDIcon
 }
 
 export default function TokenIcon({
   symbol,
-  width = 30,
-  height = 30
+  width = 24,
+  height = 24
 }: TokenIconProps) {
   if (!symbol) return null
 
