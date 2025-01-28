@@ -167,6 +167,110 @@ const isTronProvider = (provider: TronProvider) => {
 }
 
 export function getQueryParam(param: string): string | null {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get(param);
+  const urlParams = new URLSearchParams(window.location.search)
+  return urlParams.get(param)
+}
+
+export const calcKimaFee = (amount: string) => {
+  // parse amount to big int
+  const parsedAmount = parseUnits(amount.toString(), 4)
+
+  // 0.015% Kima service fee
+  // fiat onramp transaction takes 3% fees as comission
+  const kimaFee = (parsedAmount * BigInt(15)) / BigInt(10000)
+
+  return formatUnits(kimaFee, 4)
+}
+
+export const calcCreditCardFee = (
+  amount: string,
+  targetNetworkFee: NetworkFee
+) => {
+  console.log('calcCreditCardFee: amount: ', amount)
+  console.log('calcCreditCardFee: targetNetworkFee', targetNetworkFee)
+
+  // parse amount to big int
+  const parsedAmount = parseUnits(amount.toString(), 2)
+
+  // 0.015% Kima service fee
+  // fiat onramp transaction takes 3% fees as comission
+  const kimaFee = (parsedAmount * BigInt(15)) / BigInt(10000)
+
+  console.log('calcCreditCardFee: kimaFee', formatUnits(kimaFee, 2))
+
+  const targetFee = parseUnits(targetNetworkFee.amount.toString(), 2)
+
+  // Calculate the total base amount (sum of the amount and other fees)
+  const baseFiatAmount = parsedAmount + kimaFee + targetFee
+  console.log(
+    'calcCreditCardFee: baseFiatAmount',
+    formatUnits(baseFiatAmount, 2)
+  )
+
+  const creditCardFee = (baseFiatAmount * BigInt(3)) / BigInt(100)
+  console.log(
+    'calcCreditCardFee: creditCardFee',
+    formatUnits(baseFiatAmount, 2)
+  )
+
+  return formatUnits(creditCardFee, 2)
+}
+
+export function parseUnits(value: string, decimals: number) {
+  if (!/^(-?)([0-9]*)\.?([0-9]*)$/.test(value)) throw new Error(value)
+
+  let [integer, fraction = '0'] = value.split('.')
+
+  const negative = integer.startsWith('-')
+  if (negative) integer = integer.slice(1)
+
+  // trim trailing zeros.
+  fraction = fraction.replace(/(0+)$/, '')
+
+  // round off if the fraction is larger than the number of decimals.
+  if (decimals === 0) {
+    if (Math.round(Number(`.${fraction}`)) === 1)
+      integer = `${BigInt(integer) + 1n}`
+    fraction = ''
+  } else if (fraction.length > decimals) {
+    const [left, unit, right] = [
+      fraction.slice(0, decimals - 1),
+      fraction.slice(decimals - 1, decimals),
+      fraction.slice(decimals)
+    ]
+
+    const rounded = Math.round(Number(`${unit}.${right}`))
+    if (rounded > 9)
+      fraction = `${BigInt(left) + BigInt(1)}0`.padStart(left.length + 1, '0')
+    else fraction = `${left}${rounded}`
+
+    if (fraction.length > decimals) {
+      fraction = fraction.slice(1)
+      integer = `${BigInt(integer) + 1n}`
+    }
+
+    fraction = fraction.slice(0, decimals)
+  } else {
+    fraction = fraction.padEnd(decimals, '0')
+  }
+
+  return BigInt(`${negative ? '-' : ''}${integer}${fraction}`)
+}
+
+export function formatUnits(value: bigint, decimals: number) {
+  let display = value.toString()
+
+  const negative = display.startsWith('-')
+  if (negative) display = display.slice(1)
+
+  display = display.padStart(decimals, '0')
+
+  let [integer, fraction] = [
+    display.slice(0, display.length - decimals),
+    display.slice(display.length - decimals)
+  ]
+  fraction = fraction.replace(/(0+)$/, '')
+  return `${negative ? '-' : ''}${integer || '0'}${
+    fraction ? `.${fraction}` : ''
+  }`
 }

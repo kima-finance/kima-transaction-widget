@@ -10,7 +10,8 @@ import {
   BankIcon,
   TronIcon,
   BTCIcon,
-  BaseIcon
+  BaseIcon,
+  CreditCardIcon
 } from '../../assets/icons'
 
 type IconProps = { width?: number; height?: number }
@@ -26,7 +27,7 @@ const chainIcons: Record<string, React.FC<IconProps>> = {
   OPT: OptimismIcon,
   TRX: TronIcon,
   SOL: SolanaIcon,
-  FIAT: BankIcon
+  FIAT: CreditCardIcon
 }
 
 export interface ChainIconProps extends IconProps {

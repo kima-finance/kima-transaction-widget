@@ -8,7 +8,7 @@ import {
   BSCIcon,
   ArbitrumIcon,
   OptimismIcon,
-  BankIcon,
+  CreditCardIcon,
   KEURICON,
   TronIcon,
   BTCIcon,
@@ -136,7 +136,7 @@ export const CHAIN_NAMES_TO_STRING: { [chainName: string]: string } = {
   [ChainName.ARBITRUM]: 'Arbitrum',
   [ChainName.POLYGON_ZKEVM]: 'Polygon zkEVM',
   [ChainName.TRON]: 'Tron',
-  [ChainName.FIAT]: 'Pay with FIAT',
+  [ChainName.FIAT]: 'Credit Card',
   [ChainName.BTC]: 'Bitcoin',
   [ChainName.BASE]: 'Base'
 }
@@ -151,7 +151,7 @@ export const CHAIN_STRING_TO_NAME: { [chainName: string]: ChainName } = {
   ['Arbitrum']: ChainName.ARBITRUM,
   ['Polygon zkEVM']: ChainName.POLYGON_ZKEVM,
   ['Tron']: ChainName.TRON,
-  ['Pay with FIAT']: ChainName.FIAT,
+  ['Credit Card']: ChainName.FIAT,
   ['Bitcoin']: ChainName.BTC,
   ['Base']: ChainName.BASE
 }
@@ -237,8 +237,8 @@ export const networkOptions = [
   },
   {
     id: ChainName.FIAT,
-    label: 'Pay with FIAT',
-    icon: BankIcon
+    label: 'Credit Card',
+    icon: CreditCardIcon
   },
   {
     id: ChainName.OPTIMISM,

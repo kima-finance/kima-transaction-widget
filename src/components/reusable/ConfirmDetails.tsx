@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { formatterFloat } from '../../helpers/functions'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
-import { DAppOptions, ModeOptions } from '../../interface'
+import { DAppOptions, ModeOptions, NetworkFee } from '../../interface'
 import {
   selectAmount,
   selectBankDetails,
@@ -21,9 +21,14 @@ import {
   selectNetworks
 } from '@store/selectors'
 import { ChainName } from '../../utils/constants'
-import { getShortenedAddress } from '../../utils/functions'
+import {
+  calcCreditCardFee,
+  calcKimaFee,
+  getShortenedAddress
+} from '../../utils/functions'
 import useWidth from '../../hooks/useWidth'
 import ChainIcon from './ChainIcon'
+import { parseUnits } from '@ethersproject/units'
 
 const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
   const feeDeduct = useSelector(selectFeeDeduct)
@@ -31,7 +36,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
   const dAppOption = useSelector(selectDappOption)
   const theme = useSelector(selectTheme)
   const amount = useSelector(selectAmount)
-  const { totalFeeUsd } = useSelector(selectServiceFee)
+  const { totalFeeUsd, targetNetworkFee } = useSelector(selectServiceFee)
   const originNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
   const targetAddress = useSelector(selectTargetAddress)
@@ -106,9 +111,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
                 {originNetworkOption.label}
               </span>
             </div>
-            <p className={theme.colorMode}>
-              KIMA Sandbox
-            </p>
+            <p className={theme.colorMode}>KIMA Sandbox</p>
           </div>
         </div>
       ) : (
@@ -177,12 +180,39 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
               <div className='coin-details'>→ {targetCurrency}</div>
             )}
           </div>
-          <div className='amount-details'>
-            <span>Network costs</span>
-            <span className='service-fee'>
-              {formatterFloat.format(totalFeeUsd)} {sourceCurrency}
-            </span>
-          </div>
+          {originNetwork !== ChainName.FIAT ? (
+            <div className='amount-details'>
+              <span>Network costs</span>
+              <span className='service-fee'>
+                {formatterFloat.format(totalFeeUsd)} {sourceCurrency}
+              </span>
+            </div>
+          ) : (
+            <div>
+              <div
+                className='amount-details'
+                style={{ borderTop: '1px solid #86b8ce', paddingTop: '8px' }}
+              >
+                <span>CC processing fee</span>
+                <span className='service-fee'>
+                  {calcCreditCardFee(amount, targetNetworkFee as NetworkFee)}{' '}
+                  {sourceCurrency}
+                </span>
+              </div>
+              <div className='amount-details'>
+                <span>Kima business fee</span>
+                <span className='service-fee'>
+                  {calcKimaFee(amount)} {sourceCurrency}
+                </span>
+              </div>
+              <div className='amount-details'>
+                <span>Target network costs</span>
+                <span className='service-fee'>
+                  {(targetNetworkFee?.amount)} {sourceCurrency}
+                </span>
+              </div>
+            </div>
+          )}
           <div className='amount-details'>
             <span>Total</span>
             <span className='service-fee'>

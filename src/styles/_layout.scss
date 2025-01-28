@@ -300,6 +300,16 @@
     font-size: 14px;
     font-weight: 700;
 
+    &.extra-space-below {
+      @include breakpoint(mobile) {
+        margin-top: 110px;
+      }
+
+      @include breakpoint('min-width: 769px') {
+        margin-top: 30px;
+      }
+    }
+
     @include breakpoint(phablet){
       padding-bottom: 32px;
     }

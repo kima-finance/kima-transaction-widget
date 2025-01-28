@@ -292,6 +292,16 @@
   font-size: 14px;
   font-weight: 700;
 }
+@media (max-width: 500px) {
+  .kima-card .kima-card-footer.extra-space-below {
+    margin-top: 110px;
+  }
+}
+@media (min-width: 769px) {
+  .kima-card .kima-card-footer.extra-space-below {
+    margin-top: 30px;
+  }
+}
 @media (max-width: 768px) {
   .kima-card .kima-card-footer {
     padding-bottom: 32px;
