@@ -28,7 +28,6 @@ import {
 } from '../../utils/functions'
 import useWidth from '../../hooks/useWidth'
 import ChainIcon from './ChainIcon'
-import { parseUnits } from '@ethersproject/units'
 
 const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
   const feeDeduct = useSelector(selectFeeDeduct)
@@ -216,7 +215,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
           <div className='amount-details'>
             <span>Total</span>
             <span className='service-fee'>
-              {formatterFloat.format(parseFloat(amountToShow))} {targetCurrency}
+              {formatterFloat.format(parseFloat(amountToShow))} {sourceCurrency}
             </span>
           </div>
         </span>

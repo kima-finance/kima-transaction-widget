@@ -125,9 +125,11 @@ export const TransferWidget = ({
     return formatterFloat.format(feeDeduct ? +amount : +amount + totalFeeUsd)
   }, [amount, totalFeeUsd, sourceChain, targetChain, feeDeduct])
 
+  const { width: windowWidth, updateWidth } = useWidth()
 
-  const { width: windowWidth } = useWidth()
-
+  useEffect(() => {
+    windowWidth === 0 && updateWidth(window.innerWidth)
+  }, [])
   const { disconnectWallet } = useDisconnectWallet()
 
   const { balance } = useBalance()
@@ -183,7 +185,7 @@ export const TransferWidget = ({
     backendUrl,
     decimals: feeDecimals
   })
-  
+
   const handleSubmit = async () => {
     const { error, message: validationMessage } = validate(true)
 
@@ -360,7 +362,7 @@ export const TransferWidget = ({
           ) : sourceChain === ChainName.FIAT && submitted ? (
             <iframe
               src={`https://widget-sandbox.depasify.com/en/widgets/kyc?partner=Kima&user_uuid=850c1249-ca55-4e39-bfeb-df62ffcd6906&address=CalleMisma&postal_code=46010&city=valencia&country_code=ES&currency=USD&amount=${amountToShow}&scenario=fund_without_amount_select&redirect_url=https://fiat-demo-221056059036.us-central1.run.app?txId=${txId}&trx_uuid=${txId}`}
-              width='560px'
+              width={`${windowWidth >= 916 ? 850 : windowWidth * 0.8}px`}
               height='650px'
               frameBorder='0'
               allow='camera'
@@ -371,7 +373,7 @@ export const TransferWidget = ({
         </div>
 
         <div
-          className={`kima-card-footer ${(sourceChain === 'FIAT' && 'extra-space-below')} ${mode === ModeOptions.bridge && formStep === 0 && 'bridge'}`}
+          className={`kima-card-footer ${sourceChain === 'FIAT' && !submitted && 'extra-space-below'} ${(mode === ModeOptions.bridge && formStep === 0 && 'bridge')}`}
         >
           <div
             className={`button-group ${formStep > 0 ? (allowance > 0 ? 'grid' : 'row') : 'row'}`}
