@@ -4901,13 +4901,10 @@ var TransactionWidget = ({ theme }) => {
   const [minimized, setMinimized] = useState8(false);
   const dispatch = useDispatch12();
   const mode = useSelector24(selectMode);
-  const feeDeduct = useSelector24(selectFeeDeduct);
-  const amount = useSelector24(selectAmount);
   const txId = useSelector24(selectTxId);
   const dAppOption = useSelector24(selectDappOption);
   const closeHandler = useSelector24(selectCloseHandler);
   const successHandler = useSelector24(selectSuccessHandler);
-  const { totalFeeUsd } = useSelector24(selectServiceFee);
   const transactionOption = useSelector24(selectTransactionOption);
   const backendUrl = useSelector24(selectBackendUrl);
   const { data } = useGetTxData_default(txId, dAppOption, backendUrl);
@@ -4985,11 +4982,7 @@ var TransactionWidget = ({ theme }) => {
         background: theme.colorMode === "light" /* light */ ? theme.backgroundColorLight : theme.backgroundColorDark
       }
     },
-    /* @__PURE__ */ React97.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React97.createElement("div", { className: "topbar" }, /* @__PURE__ */ React97.createElement("div", { className: "title" }, /* @__PURE__ */ React97.createElement("h3", { className: "transaction" }, "Transferring", " ", data?.amount && data.sourceChain && data.sourceSymbol && data.targetChain && data.targetSymbol && /* @__PURE__ */ React97.createElement("div", null, formatterFloat2.format(
-      mode === "status" /* status */ ? data.amount : feeDeduct ? +amount || 0 + totalFeeUsd : +amount || 0 - totalFeeUsd
-    ), " ", data?.sourceSymbol, " ", /* @__PURE__ */ React97.createElement("div", { className: "title-icon" }, /* @__PURE__ */ React97.createElement(ChainIcon, { symbol: data.sourceChain })), " ", "(", data?.sourceChain, ") \u2192", " ", formatterFloat2.format(
-      mode === "status" /* status */ ? data.amount : feeDeduct ? +amount - totalFeeUsd || 0 : +amount || 0
-    ), " ", data?.targetSymbol, " ", /* @__PURE__ */ React97.createElement("div", { className: "title-icon" }, /* @__PURE__ */ React97.createElement(ChainIcon, { symbol: data.targetChain })), " ", "(", data?.targetChain, ")"))), !minimized ? /* @__PURE__ */ React97.createElement("div", { className: "control-buttons" }, /* @__PURE__ */ React97.createElement(
+    /* @__PURE__ */ React97.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React97.createElement("div", { className: "topbar" }, /* @__PURE__ */ React97.createElement("div", { className: "title" }, /* @__PURE__ */ React97.createElement("h3", { className: "transaction" }, "Transferring", " ", data?.amount && data.sourceChain && data.sourceSymbol && data.targetChain && data.targetSymbol && /* @__PURE__ */ React97.createElement("div", null, data.amount, " ", data?.sourceSymbol, " ", /* @__PURE__ */ React97.createElement("div", { className: "title-icon" }, /* @__PURE__ */ React97.createElement(ChainIcon, { symbol: data.sourceChain })), " ", "(", data?.sourceChain, ") \u2192 ", data.amount, " ", data?.targetSymbol, " ", /* @__PURE__ */ React97.createElement("div", { className: "title-icon" }, /* @__PURE__ */ React97.createElement(ChainIcon, { symbol: data.targetChain })), " ", "(", data?.targetChain, ")"))), !minimized ? /* @__PURE__ */ React97.createElement("div", { className: "control-buttons" }, /* @__PURE__ */ React97.createElement(
       "button",
       {
         className: "icon-button minimize",

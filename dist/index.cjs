@@ -28,8 +28,8 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // src/index.tsx
-var index_exports = {};
-__export(index_exports, {
+var src_exports = {};
+__export(src_exports, {
   CHAIN_NAMES_TO_STRING: () => CHAIN_NAMES_TO_STRING,
   CHAIN_STRING_TO_NAME: () => CHAIN_STRING_TO_NAME,
   ColorModeOptions: () => ColorModeOptions,
@@ -41,7 +41,7 @@ __export(index_exports, {
   NetworkOptions: () => NetworkOptions,
   SupportNetworks: () => ChainName
 });
-module.exports = __toCommonJS(index_exports);
+module.exports = __toCommonJS(src_exports);
 
 // src/KimaProvider.tsx
 var import_react90 = __toESM(require("react"), 1);
@@ -4865,13 +4865,10 @@ var TransactionWidget = ({ theme }) => {
   const [minimized, setMinimized] = (0, import_react117.useState)(false);
   const dispatch = (0, import_react_redux35.useDispatch)();
   const mode = (0, import_react_redux34.useSelector)(selectMode);
-  const feeDeduct = (0, import_react_redux34.useSelector)(selectFeeDeduct);
-  const amount = (0, import_react_redux34.useSelector)(selectAmount);
   const txId = (0, import_react_redux34.useSelector)(selectTxId);
   const dAppOption = (0, import_react_redux34.useSelector)(selectDappOption);
   const closeHandler = (0, import_react_redux34.useSelector)(selectCloseHandler);
   const successHandler = (0, import_react_redux34.useSelector)(selectSuccessHandler);
-  const { totalFeeUsd } = (0, import_react_redux34.useSelector)(selectServiceFee);
   const transactionOption = (0, import_react_redux34.useSelector)(selectTransactionOption);
   const backendUrl = (0, import_react_redux34.useSelector)(selectBackendUrl);
   const { data } = useGetTxData_default(txId, dAppOption, backendUrl);
@@ -4949,11 +4946,7 @@ var TransactionWidget = ({ theme }) => {
         background: theme.colorMode === "light" /* light */ ? theme.backgroundColorLight : theme.backgroundColorDark
       }
     },
-    /* @__PURE__ */ import_react117.default.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ import_react117.default.createElement("div", { className: "topbar" }, /* @__PURE__ */ import_react117.default.createElement("div", { className: "title" }, /* @__PURE__ */ import_react117.default.createElement("h3", { className: "transaction" }, "Transferring", " ", data?.amount && data.sourceChain && data.sourceSymbol && data.targetChain && data.targetSymbol && /* @__PURE__ */ import_react117.default.createElement("div", null, formatterFloat2.format(
-      mode === "status" /* status */ ? data.amount : feeDeduct ? +amount || 0 + totalFeeUsd : +amount || 0 - totalFeeUsd
-    ), " ", data?.sourceSymbol, " ", /* @__PURE__ */ import_react117.default.createElement("div", { className: "title-icon" }, /* @__PURE__ */ import_react117.default.createElement(ChainIcon, { symbol: data.sourceChain })), " ", "(", data?.sourceChain, ") \u2192", " ", formatterFloat2.format(
-      mode === "status" /* status */ ? data.amount : feeDeduct ? +amount - totalFeeUsd || 0 : +amount || 0
-    ), " ", data?.targetSymbol, " ", /* @__PURE__ */ import_react117.default.createElement("div", { className: "title-icon" }, /* @__PURE__ */ import_react117.default.createElement(ChainIcon, { symbol: data.targetChain })), " ", "(", data?.targetChain, ")"))), !minimized ? /* @__PURE__ */ import_react117.default.createElement("div", { className: "control-buttons" }, /* @__PURE__ */ import_react117.default.createElement(
+    /* @__PURE__ */ import_react117.default.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ import_react117.default.createElement("div", { className: "topbar" }, /* @__PURE__ */ import_react117.default.createElement("div", { className: "title" }, /* @__PURE__ */ import_react117.default.createElement("h3", { className: "transaction" }, "Transferring", " ", data?.amount && data.sourceChain && data.sourceSymbol && data.targetChain && data.targetSymbol && /* @__PURE__ */ import_react117.default.createElement("div", null, data.amount, " ", data?.sourceSymbol, " ", /* @__PURE__ */ import_react117.default.createElement("div", { className: "title-icon" }, /* @__PURE__ */ import_react117.default.createElement(ChainIcon, { symbol: data.sourceChain })), " ", "(", data?.sourceChain, ") \u2192 ", data.amount, " ", data?.targetSymbol, " ", /* @__PURE__ */ import_react117.default.createElement("div", { className: "title-icon" }, /* @__PURE__ */ import_react117.default.createElement(ChainIcon, { symbol: data.targetChain })), " ", "(", data?.targetChain, ")"))), !minimized ? /* @__PURE__ */ import_react117.default.createElement("div", { className: "control-buttons" }, /* @__PURE__ */ import_react117.default.createElement(
       "button",
       {
         className: "icon-button minimize",

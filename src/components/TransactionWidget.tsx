@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { ErrorIcon, FooterLogo, MinimizeIcon } from '@assets/icons'
 import Progressbar from './reusable/Progressbar'
-import { NetworkLabel, StepBox } from './reusable'
+import { StepBox } from './reusable'
 import '../index.css'
 import { ColorModeOptions, ModeOptions, ThemeOptions } from '@interface'
 import { Provider } from 'react-redux'
 import { store } from '@store/index'
 import { TransactionStatus } from '../utils/constants'
-import { formatterFloat } from '../helpers/functions'
 import { useSelector } from 'react-redux'
 import {
   selectAmount,
@@ -43,13 +42,10 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [minimized, setMinimized] = useState(false)
   const dispatch = useDispatch()
   const mode = useSelector(selectMode)
-  const feeDeduct = useSelector(selectFeeDeduct)
-  const amount = useSelector(selectAmount)
   const txId = useSelector(selectTxId)
   const dAppOption = useSelector(selectDappOption)
   const closeHandler = useSelector(selectCloseHandler)
   const successHandler = useSelector(selectSuccessHandler)
-  const { totalFeeUsd } = useSelector(selectServiceFee)
   const transactionOption = useSelector(selectTransactionOption)
 
   const backendUrl = useSelector(selectBackendUrl)
@@ -153,26 +149,11 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                   data.targetChain &&
                   data.targetSymbol && (
                     <div>
-                      {formatterFloat.format(
-                        mode === ModeOptions.status
-                          ? data.amount
-                          : feeDeduct
-                            ? +amount || 0 + totalFeeUsd
-                            : +amount || 0 - totalFeeUsd
-                      )}{' '}
-                      {data?.sourceSymbol}{' '}
+                      {data.amount} {data?.sourceSymbol}{' '}
                       <div className='title-icon'>
                         <ChainIcon symbol={data.sourceChain} />
                       </div>{' '}
-                      ({data?.sourceChain}) →{' '}
-                      {formatterFloat.format(
-                        mode === ModeOptions.status
-                          ? data.amount
-                          : feeDeduct
-                            ? +amount - totalFeeUsd || 0
-                            : +amount || 0
-                      )}{' '}
-                      {data?.targetSymbol}{' '}
+                      ({data?.sourceChain}) → {data.amount} {data?.targetSymbol}{' '}
                       <div className='title-icon'>
                         <ChainIcon symbol={data.targetChain} />
                       </div>{' '}
