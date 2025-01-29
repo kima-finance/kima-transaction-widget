@@ -228,7 +228,7 @@ const SingleForm = ({
       )}
 
       {/* checkbox shall only be displayed in transfer scenario */}
-      {mode === ModeOptions.bridge && totalFeeUsd > 0 ? (
+      {mode === ModeOptions.bridge && totalFeeUsd > 0 && sourceNetwork !== ChainName.FIAT ? (
         <CustomCheckbox
           text={
             sourceNetwork === ChainName.BTC

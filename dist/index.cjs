@@ -2915,7 +2915,7 @@ function getQueryParam(param) {
 var calcKimaFee = (amount) => {
   const parsedAmount = parseUnits(amount.toString(), 4);
   const kimaFee = parsedAmount * BigInt(15) / BigInt(1e4);
-  return formatUnits2(kimaFee, 4);
+  return formatUnits2(kimaFee > BigInt(100) ? kimaFee : BigInt(100), 4);
 };
 var calcCreditCardFee = (amount, targetNetworkFee) => {
   console.log("calcCreditCardFee: amount: ", amount);
@@ -5310,7 +5310,7 @@ var SingleForm = ({
       },
       disabled: transactionOption?.amount !== void 0
     }
-  ), /* @__PURE__ */ import_react119.default.createElement("div", { className: `coin-wrapper ${theme.colorMode}` }, /* @__PURE__ */ import_react119.default.createElement(TokenIcon, { symbol: targetCurrency }), targetCurrency))), mode === "bridge" /* bridge */ && totalFeeUsd > 0 ? /* @__PURE__ */ import_react119.default.createElement(
+  ), /* @__PURE__ */ import_react119.default.createElement("div", { className: `coin-wrapper ${theme.colorMode}` }, /* @__PURE__ */ import_react119.default.createElement(TokenIcon, { symbol: targetCurrency }), targetCurrency))), mode === "bridge" /* bridge */ && totalFeeUsd > 0 && sourceNetwork !== "FIAT" /* FIAT */ ? /* @__PURE__ */ import_react119.default.createElement(
     CustomCheckbox_default,
     {
       text: sourceNetwork === "BTC" /* BTC */ ? `Deduct ${formatterFloat2.format(totalFeeUsd)} BTC fee` : `Deduct $${formatterFloat2.format(totalFeeUsd)} fee from source network`,

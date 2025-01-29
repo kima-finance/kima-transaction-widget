@@ -179,7 +179,7 @@ export const calcKimaFee = (amount: string) => {
   // fiat onramp transaction takes 3% fees as comission
   const kimaFee = (parsedAmount * BigInt(15)) / BigInt(10000)
 
-  return formatUnits(kimaFee, 4)
+  return formatUnits(kimaFee > BigInt(100) ? kimaFee : BigInt(100), 4)
 }
 
 export const calcCreditCardFee = (
