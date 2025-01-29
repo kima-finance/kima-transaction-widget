@@ -90,7 +90,7 @@ const SingleForm = ({
 
     const amountMinusFees = preciseSubtraction(balance as number, totalFeeUsd)
     return amountMinusFees > 0 ? amountMinusFees : 0
-  }, [balance, totalFeeUsd, feeDeduct])
+  }, [balance, totalFeeUsd, feeDeduct, sourceNetwork])
 
   useEffect(() => {
     if (!errorMessage) return

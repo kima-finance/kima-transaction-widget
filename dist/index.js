@@ -5266,7 +5266,7 @@ var SingleForm = ({
     if (feeDeduct || totalFeeUsd < 0) return balance;
     const amountMinusFees = preciseSubtraction(balance, totalFeeUsd);
     return amountMinusFees > 0 ? amountMinusFees : 0;
-  }, [balance, totalFeeUsd, feeDeduct]);
+  }, [balance, totalFeeUsd, feeDeduct, sourceNetwork]);
   useEffect15(() => {
     if (!errorMessage) return;
     toast3.error(errorMessage);

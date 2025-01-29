@@ -5230,7 +5230,7 @@ var SingleForm = ({
     if (feeDeduct || totalFeeUsd < 0) return balance;
     const amountMinusFees = preciseSubtraction(balance, totalFeeUsd);
     return amountMinusFees > 0 ? amountMinusFees : 0;
-  }, [balance, totalFeeUsd, feeDeduct]);
+  }, [balance, totalFeeUsd, feeDeduct, sourceNetwork]);
   (0, import_react119.useEffect)(() => {
     if (!errorMessage) return;
     import_react_hot_toast3.toast.error(errorMessage);
