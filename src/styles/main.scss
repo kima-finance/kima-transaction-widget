@@ -63,10 +63,14 @@
     padding: 1.5em;
   }
 
+  @include breakpoint(mobile) {
+    padding: 20px;
+  }
+
+
   &-content {
     width: 100%;
     opacity: 1;
-    max-height: 360px;
     position: relative;
     z-index: 10;
     display: flex;

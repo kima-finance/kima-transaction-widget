@@ -335,10 +335,10 @@ export const TransferWidget = ({
         </div>
 
         <div
-          className={`kima-card-footer ${mode === ModeOptions.bridge && formStep === 0 && 'bridge'}`}
+          className={`kima-card-footer ${mode === ModeOptions.bridge && formStep !== 0 && 'confirm'}`}
         >
           <div
-            className={`button-group ${formStep > 0 ? (allowance > 0 ? 'grid' : 'row') : 'row'}`}
+            className={`button-group`}
           >
             {formStep !== 0 && (
               <SecondaryButton

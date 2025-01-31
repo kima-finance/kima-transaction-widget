@@ -86,8 +86,6 @@
     }
   }
 
-  pointer-events: none;
-
   &.open {
     pointer-events: auto;
     height: 100vh;

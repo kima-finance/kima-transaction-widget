@@ -147,7 +147,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
       <div className='detail-item amount'>
         <span className='label'>
           Transaction
-          <br />
+          {width > 500 && <br />}
           Details:
         </span>
         <span className='amount-container'>

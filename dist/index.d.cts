@@ -1,5 +1,8 @@
 import react, { ReactNode } from 'react';
-import { Web3Provider } from '@ethersproject/providers';
+import { Web3Provider, JsonRpcSigner } from '@ethersproject/providers';
+import { Transaction, Connection, VersionedTransaction, PublicKey } from '@solana/web3.js';
+import { TronWeb } from 'tronweb';
+import { SignedTransaction } from '@tronweb3/tronwallet-abstract-adapter';
 
 declare enum ChainName {
     ETHEREUM = "ETH",
@@ -59,10 +62,11 @@ declare enum DAppOptions {
     LPDrain = "LPDrain"
 }
 interface Option {
-    id: string;
+    id: ChainName | string;
     label: string;
 }
 interface TransactionOption {
+    sourceChain?: ChainName;
     targetChain: ChainName;
     targetAddress: string;
     amount: number;
@@ -117,10 +121,24 @@ interface ServiceFee {
     totalFeeUsd: number;
     totalFee: string;
 }
+interface TronProvider {
+    tronWeb: TronWeb;
+    signTransaction: (transaction: Transaction, privateKey?: string) => Promise<SignedTransaction>;
+}
+interface SolProvider {
+    connection: Connection;
+    signTransaction: <T extends Transaction | VersionedTransaction>(transaction: T) => Promise<T>;
+}
+interface ExternalProvider {
+    type: 'evm' | 'solana' | 'tron';
+    provider: Web3Provider | SolProvider | TronProvider;
+    signer: JsonRpcSigner | PublicKey | string;
+}
 
 interface KimaProviderProps {
     networkOption?: NetworkOptions;
     walletConnectProjectId: string;
+    externalProvider?: ExternalProvider;
     children: ReactNode;
 }
 declare const KimaProvider: react.FC<KimaProviderProps>;
@@ -129,9 +147,7 @@ interface Props {
     theme: ThemeOptions;
     mode: ModeOptions;
     txId?: number;
-    autoSwitchChain?: boolean;
     dAppOption?: DAppOptions;
-    provider?: Web3Provider;
     titleOption?: TitleOption;
     compliantOption?: boolean;
     helpURL?: string;
@@ -145,7 +161,9 @@ interface Props {
     successHandler?: (e: any) => void;
     switchChainHandler?: (chainId: number) => void;
     keplrHandler?: (e: any) => void;
+    excludedSourceNetworks?: Array<ChainName>;
+    excludedTargetNetworks?: Array<ChainName>;
 }
-declare const KimaTransactionWidget: ({ mode, txId, autoSwitchChain, networkOption, provider, dAppOption, theme, titleOption, paymentTitleOption, helpURL, compliantOption, transactionOption, kimaBackendUrl, kimaExplorer, errorHandler, closeHandler, successHandler, switchChainHandler, keplrHandler }: Props) => react.JSX.Element;
+declare const KimaTransactionWidget: ({ mode, txId, networkOption, dAppOption, theme, titleOption, paymentTitleOption, helpURL, compliantOption, transactionOption, kimaBackendUrl, kimaExplorer, errorHandler, closeHandler, successHandler, switchChainHandler, keplrHandler, excludedSourceNetworks, excludedTargetNetworks }: Props) => react.JSX.Element;
 
-export { CHAIN_NAMES_TO_STRING, CHAIN_STRING_TO_NAME, ColorModeOptions, type CompliantOption, CurrencyOptions, DAppOptions, KimaProvider, KimaTransactionWidget, ModeOptions, type NetworkFee, NetworkOptions, type Option, type PaymentTitleOption, type ServiceFee, ChainName as SupportNetworks, type ThemeOptions, type TitleOption, type TransactionData, type TransactionOption, type Web3ModalAccountInfo };
+export { CHAIN_NAMES_TO_STRING, CHAIN_STRING_TO_NAME, ColorModeOptions, type CompliantOption, CurrencyOptions, DAppOptions, type ExternalProvider, KimaProvider, KimaTransactionWidget, ModeOptions, type NetworkFee, NetworkOptions, type Option, type PaymentTitleOption, type ServiceFee, type SolProvider, ChainName as SupportNetworks, type ThemeOptions, type TitleOption, type TransactionData, type TransactionOption, type TronProvider, type Web3ModalAccountInfo };

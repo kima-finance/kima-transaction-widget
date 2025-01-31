@@ -127,7 +127,7 @@ const SingleForm = ({
         <div
           className={`form-item wallet-button-item ${isReady && 'connected'}`}
         >
-          <span className='label'>Connect wallet:</span>
+          <span className='label'>Wallet:</span>
           <WalletButton />
         </div>
 

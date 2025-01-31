@@ -540,8 +540,19 @@
         display: flex;
         align-items: center;
 
+        @include breakpoint(mobile) {
+          flex-direction: column;
+          justify-content: center;
+          width: 100%;
+          padding-bottom: 20px;
+        }
+
         &:not(:first-of-type) {
           margin-top: 16px;
+        }
+
+        &:last-of-type{
+          border-bottom: none;
         }
 
         > span {
@@ -553,8 +564,11 @@
           }
 
           @include breakpoint(mobile) {
+            width: 100%;
+            margin-bottom: 10px;
             margin-right: 0;
-            margin-bottom: auto;
+            text-align: start;
+            font-weight: bolder;
           }
         }
 
@@ -569,7 +583,7 @@
           @include breakpoint(mobile) {
             flex-direction: column;
             justify-content: center;
-            align-items: end;
+            width: 100%;
           }
         }
 
@@ -623,6 +637,10 @@
 
         .amount-label-container {
           display: flex;
+
+          @include breakpoint(mobile){
+            flex-direction: row;
+          }
 
           .max-button {
             font-family: 'Manrope';
@@ -720,6 +738,11 @@
           box-sizing: content-box;
           font-size: 14px;
 
+          @include breakpoint(mobile) {
+            padding: 15px 10px;
+            width: 100%;
+          }
+
           ::placeholder {
             color: $finance;
           }
@@ -737,7 +760,7 @@
             }
 
             @include breakpoint(mobile) {
-              width: 150px;
+              width: 100%;
               font-size: 12px;
             }
           }
@@ -765,6 +788,10 @@
           &.connected {
             align-items: flex-start;
 
+            @include breakpoint(mobile){
+              width: 100%;
+            }
+
             button {
               @include breakpoint('min-width: 585xp') {
                 width: 220px;
@@ -779,14 +806,13 @@
               }
 
               @include breakpoint(mobile) {
-                width: 200px;
+                width: 100%;
               }
             }
           }
 
           @include breakpoint(mobile) {
             .wallet-button {
-              align-items: flex-end;
             }
           }
         }
@@ -812,6 +838,10 @@
 
         @include breakpoint('max-width: 639px') {
           width: 105px;
+        }
+
+        @include breakpoint(mobile){
+          width: 100%;
         }
 
         .coin-wrapper {
@@ -1070,7 +1100,8 @@
         }
 
         @include breakpoint(mobile) {
-          width: 165px;
+          width: 100%;
+          max-width: none;
         }
 
         .network-wrapper {
@@ -1089,7 +1120,7 @@
             padding: 4px 4px;
             border-radius: 40px;
             background-color: white;
-            margin-right: 14px;
+            margin-right: 5px;
           }
 
           span {
@@ -1209,6 +1240,11 @@
         flex-direction: column;
         @include transition;
 
+        @include breakpoint(mobile){
+          padding-bottom: 10px;
+          width: 100%;
+        }
+
         &.reverse {
           flex-direction: column-reverse;
         }
@@ -1222,18 +1258,19 @@
     .wallet-button {
       display: flex;
       flex-direction: column;
-
+      
       @include breakpoint(phablet) {
         width: 430px;
-      }
-
-      @include breakpoint(phablet) {
         align-items: flex-start;
         flex-direction: column;
 
         .balance-info {
           margin-left: auto;
         }
+      }
+
+      @include breakpoint(mobile){
+        width: 100%;
       }
 
       .info-wrapper {
@@ -1244,6 +1281,11 @@
         @include breakpoint('max-width: 639px') {
           flex-direction: row-reverse;
           gap: 3px;
+        }
+
+        @include breakpoint(mobile) {
+          gap: 5px;
+          width: 100%;
         }
 
         svg {
@@ -1276,7 +1318,7 @@
 
         @include breakpoint(mobile) {
           font-size: 12px;
-          width: 195px;
+          width: 235x;
         }
 
         &.shortened {
@@ -1325,7 +1367,6 @@
       }
 
       .balance-info {
-        margin-left: 1em;
         color: $finance;
       }
     }
@@ -1479,6 +1520,11 @@
         align-items: center;
         border-top: 1px solid $secondary;
 
+        @include breakpoint(mobile) {
+          flex-direction: column;
+          width: 100%;
+        }
+
         @include breakpoint(phablet) {
           padding: 16px 0;
         }
@@ -1500,7 +1546,7 @@
           font-size: 14px;
 
           @include breakpoint(mobile) {
-            width: 210px;
+            width: 100%;
             font-size: 12px;
           }
 
@@ -1518,6 +1564,11 @@
         .label {
           font-weight: bolder;
           width: 10em;
+
+          @include breakpoint(mobile) {
+            width: 100%;
+            margin-bottom: 10px;
+          }
         }
 
         .network-details {
@@ -1528,13 +1579,16 @@
 
           @include breakpoint(mobile) {
             flex-direction: column;
-            align-items: end;
-            margin-left: auto;
+            width: 100%;
           }
         }
 
         .kima-card-network-container {
           width: 210px;
+
+          @include breakpoint(mobile) {
+            width: 100%;
+          }
         }
 
         .kima-card-network-label {
@@ -1570,7 +1624,6 @@
 
           @include breakpoint(mobile) {
             width: 100%;
-            justify-content: end;
           }
 
           svg {
@@ -1611,8 +1664,7 @@
             }
 
             @include breakpoint(mobile) {
-              margin-left: auto;
-              width: 200px;
+              width: 100%;
               font-size: 12px;
             }
 
@@ -1657,7 +1709,7 @@
 
       @include breakpoint(mobile) {
         margin-left: 0;
-        justify-content: end;
+        justify-content: center;
       }
 
       .custom-checkbox-content {
@@ -2002,6 +2054,10 @@
     padding: 2px;
     border-radius: 30px;
     max-height: 48px;
+
+    @include breakpoint(mobile){
+      width: 100%;
+    }
   }
 
   .primary-button {
