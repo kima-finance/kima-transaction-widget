@@ -142,7 +142,7 @@ export default function useEvmAllowance() {
   }
 
   return {
-    allowanceData,
+    ...allowanceData,
     isApproved: allowanceData?.allowance
       ? allowanceData.allowance >= allowanceNumber
       : false,
