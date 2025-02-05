@@ -16,7 +16,8 @@ declare enum ChainName {
     POLYGON_ZKEVM = "ZKE",
     TRON = "TRX",
     FIAT = "FIAT",
-    BTC = "BTC"
+    BTC = "BTC",
+    BERA = "BERA"
 }
 declare const CHAIN_NAMES_TO_STRING: {
     [chainName: string]: string;

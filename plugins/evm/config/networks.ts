@@ -101,5 +101,12 @@ export const testnetChains = [
     currency: 'ETH',
     explorerUrl: 'https://cardona-zkevm.polygonscan.com',
     rpcUrl: 'https://polygon-zkevm-cardona.blockpi.network/v1/rpc/public'
-  }
+  },
+  {
+    chainId: 80084,
+    name: 'Bera bArtio',
+    currency: 'BERA',
+    explorerUrl: 'https://bartio.beratrail.io',
+    rpcUrl: 'https://bartio.rpc.berachain.com'
+  },
 ]
