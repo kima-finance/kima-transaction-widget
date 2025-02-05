@@ -146,7 +146,7 @@ declare const KimaProvider: react.FC<KimaProviderProps>;
 interface Props {
     theme: ThemeOptions;
     mode: ModeOptions;
-    txId?: number;
+    txId?: number | string;
     dAppOption?: DAppOptions;
     titleOption?: TitleOption;
     compliantOption?: boolean;

@@ -25,6 +25,7 @@ import { useDispatch } from 'react-redux'
 import { toast, Toaster } from 'react-hot-toast'
 import {
   setAmount,
+  setMode,
   setSourceChain,
   setSubmitted,
   setTargetAddress,
@@ -33,6 +34,7 @@ import {
 } from '@store/optionSlice'
 import useGetTxData from '../hooks/useGetTxData'
 import ChainIcon from './reusable/ChainIcon'
+import TransactionStatusMessage from './reusable/TransactionStatusMessage'
 
 export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [step, setStep] = useState(0)
@@ -118,15 +120,17 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   }, [data?.status])
 
   const resetForm = () => {
-    if (mode !== ModeOptions.payment) {
-      // reset to default values
-      dispatch(setSourceChain(transactionOption?.sourceChain || ''))
-      dispatch(setTargetChain(transactionOption?.targetChain || ''))
-      dispatch(setTargetAddress(transactionOption?.targetAddress || ''))
-      dispatch(setTargetCurrency(transactionOption?.currency || ''))
-      dispatch(setAmount(transactionOption?.amount.toString() || ''))
-    }
+    // reset to default values
+    dispatch(setSourceChain(transactionOption?.sourceChain || ''))
+    dispatch(setTargetChain(transactionOption?.targetChain || ''))
+    dispatch(setTargetAddress(transactionOption?.targetAddress || ''))
+    dispatch(setTargetCurrency(transactionOption?.currency || ''))
+    dispatch(setAmount(transactionOption?.amount.toString() || ''))
     dispatch(setSubmitted(false))
+
+    dispatch(
+      setMode(transactionOption ? ModeOptions.payment : ModeOptions.bridge)
+    )
     // disconnect wallet?
     closeHandler()
   }
@@ -209,25 +213,31 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
         </div>
 
         <div className='kima-card-content'>
-          <Progressbar
-            step={step}
-            focus={focus}
-            errorStep={errorStep}
-            setFocus={setFocus}
-            loadingStep={loadingStep}
-          />
-          {/* <Tooltip
+          <div className='transaction-content'>
+            <Progressbar
+              step={step}
+              focus={focus}
+              errorStep={errorStep}
+              setFocus={setFocus}
+              loadingStep={loadingStep}
+            />
+            {/* <Tooltip
             step={step}
             focus={focus}
             errorStep={errorStep}
             loadingStep={loadingStep}
             data={data}
           /> */}
-          <StepBox
-            step={step}
-            errorStep={errorStep}
-            loadingStep={loadingStep}
-            data={data}
+            <StepBox
+              step={step}
+              errorStep={errorStep}
+              loadingStep={loadingStep}
+              data={data}
+            />
+          </div>
+          <TransactionStatusMessage
+            isCompleted={data?.status as TransactionStatus}
+            transactionId={txId.toString()}
           />
         </div>
 
@@ -257,7 +267,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
             }
           }}
         />
-        <div className='floating-footer'>
+        <div className='floating-footer status'>
           <div className={`items ${theme.colorMode}`}>
             <span>Powered by</span>
             <FooterLogo fill='black' />

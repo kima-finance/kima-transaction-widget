@@ -21,6 +21,7 @@ import SingleForm from './reusable/SingleForm'
 // store
 import {
   setAmount,
+  setMode,
   setSourceChain,
   setTargetAddress,
   setTargetChain,
@@ -60,6 +61,7 @@ import useComplianceCheck from '../hooks/useComplianceCheck'
 import useBalance from '../hooks/useBalance'
 import useGetPools from '../hooks/useGetPools'
 import useDisconnectWallet from '../hooks/useDisconnectWallet'
+import TransactionSearch from './reusable/TransactionSearch'
 
 interface Props {
   theme: ThemeOptions
@@ -247,14 +249,16 @@ export const TransferWidget = ({
     if (isApproving || isSubmitting || isSigning) return
 
     setFormStep(0)
-    if (mode !== ModeOptions.payment) {
-      // reset to default values
-      dispatch(setSourceChain(transactionOption?.sourceChain || ''))
-      dispatch(setTargetChain(transactionOption?.targetChain || ''))
-      dispatch(setTargetAddress(transactionOption?.targetAddress || ''))
-      dispatch(setTargetCurrency(transactionOption?.currency || ''))
-      dispatch(setAmount(transactionOption?.amount.toString() || ''))
-    }
+    // reset to default values
+    dispatch(setSourceChain(transactionOption?.sourceChain || ''))
+    dispatch(setTargetChain(transactionOption?.targetChain || ''))
+    dispatch(setTargetAddress(transactionOption?.targetAddress || ''))
+    dispatch(setTargetCurrency(transactionOption?.currency || ''))
+    dispatch(setAmount(transactionOption?.amount.toString() || ''))
+
+    dispatch(
+      setMode(transactionOption ? ModeOptions.payment : ModeOptions.bridge)
+    )
     await disconnectWallet()
     closeHandler()
   }
@@ -328,56 +332,43 @@ export const TransferWidget = ({
 
         <div className='kima-card-content' ref={mainRef}>
           {formStep === 0 ? (
-            <SingleForm {...{ balance, decimals }} />
+            <SingleForm
+              {...{
+                allowance,
+                balance,
+                decimals,
+                formStep,
+                onBack,
+                onCancelApprove,
+                onNext,
+                getButtonLabel,
+                isApproving,
+                isSigning,
+                isSubmitting,
+                isCancellingApprove
+              }}
+            />
           ) : (
-            <ConfirmDetails isApproved={isApproved} />
+            <ConfirmDetails
+              {...{
+                allowance,
+                balance,
+                decimals,
+                formStep,
+                onBack,
+                onCancelApprove,
+                onNext,
+                getButtonLabel,
+                isApproving,
+                isSigning,
+                isSubmitting,
+                isCancellingApprove,
+                isApproved
+              }}
+            />
           )}
         </div>
 
-        <div
-          className={`kima-card-footer ${mode === ModeOptions.bridge && formStep !== 0 && 'confirm'}`}
-        >
-          <div
-            className={`button-group`}
-          >
-            {formStep !== 0 && (
-              <SecondaryButton
-                clickHandler={onBack}
-                theme={theme.colorMode}
-                disabled={isApproving || isSubmitting || isSigning}
-              >
-                {formStep > 0 ? 'Back' : 'Cancel'}
-              </SecondaryButton>
-            )}
-            {allowance > 0 && formStep !== 0 ? (
-              <SecondaryButton
-                clickHandler={onCancelApprove}
-                isLoading={isCancellingApprove}
-                theme={theme.colorMode}
-                disabled={
-                  isCancellingApprove ||
-                  isApproving ||
-                  isSubmitting ||
-                  isSigning
-                }
-              >
-                {isCancellingApprove ? 'Cancelling Approval' : 'Cancel Approve'}
-              </SecondaryButton>
-            ) : null}
-            <PrimaryButton
-              clickHandler={onNext}
-              isLoading={isApproving || isSubmitting || isSigning}
-              disabled={
-                isApproving ||
-                isSubmitting ||
-                isSigning ||
-                (mode === ModeOptions.payment && !transactionOption)
-              }
-            >
-              {getButtonLabel()}
-            </PrimaryButton>
-          </div>
-        </div>
         <SolanaWalletConnectModal />
         <TronWalletConnectModal />
         <Toaster

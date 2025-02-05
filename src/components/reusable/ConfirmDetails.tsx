@@ -24,8 +24,38 @@ import { ChainName } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 import useWidth from '../../hooks/useWidth'
 import ChainIcon from './ChainIcon'
+import SecondaryButton from './SecondaryButton'
+import PrimaryButton from './PrimaryButton'
 
-const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
+const ConfirmDetails = ({
+  allowance,
+  balance,
+  decimals,
+  formStep,
+  onBack,
+  onCancelApprove,
+  onNext,
+  getButtonLabel,
+  isApproving,
+  isSigning,
+  isSubmitting,
+  isCancellingApprove,
+  isApproved
+}: {
+  allowance: number | undefined
+  balance: number | undefined
+  decimals: number | undefined
+  formStep: number
+  onBack: () => void
+  onCancelApprove: () => void
+  onNext: () => void
+  getButtonLabel: () => string
+  isApproving: boolean
+  isSigning: boolean
+  isSubmitting: boolean
+  isCancellingApprove: boolean
+  isApproved: boolean
+}) => {
   const feeDeduct = useSelector(selectFeeDeduct)
   const mode = useSelector(selectMode)
   const dAppOption = useSelector(selectDappOption)
@@ -217,6 +247,46 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
           </div>
         </div>
       )}
+
+      <div
+        className={`kima-card-footer ${mode === ModeOptions.bridge && formStep !== 0 && 'confirm'}`}
+      >
+        <div className={`button-group`}>
+          {formStep !== 0 && (
+            <SecondaryButton
+              clickHandler={onBack}
+              theme={theme.colorMode}
+              disabled={isApproving || isSubmitting || isSigning}
+            >
+              {formStep > 0 ? 'Back' : 'Cancel'}
+            </SecondaryButton>
+          )}
+          {allowance > 0 && formStep !== 0 ? (
+            <SecondaryButton
+              clickHandler={onCancelApprove}
+              isLoading={isCancellingApprove}
+              theme={theme.colorMode}
+              disabled={
+                isCancellingApprove || isApproving || isSubmitting || isSigning
+              }
+            >
+              {isCancellingApprove ? 'Cancelling Approval' : 'Cancel Approve'}
+            </SecondaryButton>
+          ) : null}
+          <PrimaryButton
+            clickHandler={onNext}
+            isLoading={isApproving || isSubmitting || isSigning}
+            disabled={
+              isApproving ||
+              isSubmitting ||
+              isSigning ||
+              (mode === ModeOptions.payment && !transactionOption)
+            }
+          >
+            {getButtonLabel()}
+          </PrimaryButton>
+        </div>
+      </div>
     </div>
   )
 }

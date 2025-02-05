@@ -292,9 +292,7 @@
     align-items: center;
     @include transition;
     max-height: 50px;
-    padding-top: 32px;
     margin-top: 20px;
-    padding-bottom: 30px;
     opacity: 1;
     box-sizing: content-box;
     font-family: 'Manrope';
@@ -380,8 +378,16 @@
     font-family: 'Manrope';
     right: 0;
 
+    &.status {
+      margin-top: 10px;
+    }
+
     @include breakpoint(phablet) {
       margin-top: 25px;
+
+      &.status{
+        margin-top: 10px;
+      }
     }
 
     @include breakpoint(mobile) {

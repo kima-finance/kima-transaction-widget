@@ -16,7 +16,7 @@ import {
   selectAmount,
   selectTargetCurrency
 } from '../../store/selectors'
-import { BankInput, CoinDropdown, CustomCheckbox, WalletButton } from './'
+import { BankInput, CoinDropdown, CustomCheckbox, PrimaryButton, SecondaryButton, WalletButton } from './'
 import { setAmount, setFeeDeduct } from '../../store/optionSlice'
 import { ModeOptions } from '../../interface'
 import AddressInput from './AddressInput'
@@ -27,13 +27,35 @@ import useGetFees from '../../hooks/useGetFees'
 import { setServiceFee } from '@store/optionSlice'
 import { preciseSubtraction } from '@utils/functions'
 import NetworkSelector from '@components/primary/NetworkSelector'
+import TransactionSearch from './TransactionSearch'
+import OptionDivider from './OptionDivider'
 
 const SingleForm = ({
+  allowance,
   balance,
-  decimals
+  decimals,
+  formStep,
+  onBack,
+  onCancelApprove,
+  onNext,
+  getButtonLabel,
+  isApproving,
+  isSigning,
+  isSubmitting,
+  isCancellingApprove
 }: {
+  allowance: number | undefined
   balance: number | undefined
   decimals: number | undefined
+  formStep: number
+  onBack: () => void
+  onCancelApprove: () => void
+  onNext: () => void
+  getButtonLabel: () => string
+  isApproving: boolean
+  isSigning: boolean
+  isSubmitting: boolean
+  isCancellingApprove: boolean
 }) => {
   const dispatch = useDispatch()
   const mode = useSelector(selectMode)
@@ -237,6 +259,49 @@ const SingleForm = ({
           setCheck={(value: boolean) => dispatch(setFeeDeduct(value))}
         />
       ) : null}
+
+      <div
+        className={`kima-card-footer ${mode === ModeOptions.bridge && formStep !== 0 && 'confirm'}`}
+      >
+        <div className={`button-group`}>
+          {formStep !== 0 && (
+            <SecondaryButton
+              clickHandler={onBack}
+              theme={theme.colorMode}
+              disabled={isApproving || isSubmitting || isSigning}
+            >
+              {formStep > 0 ? 'Back' : 'Cancel'}
+            </SecondaryButton>
+          )}
+          {allowance > 0 && formStep !== 0 ? (
+            <SecondaryButton
+              clickHandler={onCancelApprove}
+              isLoading={isCancellingApprove}
+              theme={theme.colorMode}
+              disabled={
+                isCancellingApprove || isApproving || isSubmitting || isSigning
+              }
+            >
+              {isCancellingApprove ? 'Cancelling Approval' : 'Cancel Approve'}
+            </SecondaryButton>
+          ) : null}
+          <PrimaryButton
+            clickHandler={onNext}
+            isLoading={isApproving || isSubmitting || isSigning}
+            disabled={
+              isApproving ||
+              isSubmitting ||
+              isSigning ||
+              (mode === ModeOptions.payment && !transactionOption)
+            }
+          >
+            {getButtonLabel()}
+          </PrimaryButton>
+        </div>
+      </div>
+
+      <OptionDivider text='or' />
+      <TransactionSearch />
     </div>
   )
 }

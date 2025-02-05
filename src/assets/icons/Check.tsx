@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Check = ({ width = 60, height = 60, fill = '#86B8CE', ...rest }) => {
+const Check = ({ width = 30, height = 30, fill = '#86B8CE', ...rest }) => {
   return (
     <svg
       className='check-icon'

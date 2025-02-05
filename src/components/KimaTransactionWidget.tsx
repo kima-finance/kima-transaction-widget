@@ -48,7 +48,7 @@ import { indexPluginsByChain } from '../pluginRegistry'
 interface Props {
   theme: ThemeOptions
   mode: ModeOptions
-  txId?: number
+  txId?: number | string
   dAppOption?: DAppOptions
   titleOption?: TitleOption
   compliantOption?: boolean
