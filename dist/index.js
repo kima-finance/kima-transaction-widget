@@ -5205,7 +5205,7 @@ var TransactionSearch = () => {
     dispatch(setMode("status" /* status */));
     dispatch(setSubmitted(true));
   };
-  return /* @__PURE__ */ React98.createElement("div", { className: "form-item transaction-search" }, /* @__PURE__ */ React98.createElement("span", { className: "label" }, "Follow the status of a previous transaction"), /* @__PURE__ */ React98.createElement("div", { className: "transaction-input" }, /* @__PURE__ */ React98.createElement(
+  return /* @__PURE__ */ React98.createElement("div", { className: "form-item transaction-search" }, /* @__PURE__ */ React98.createElement("div", { className: "transaction-input" }, /* @__PURE__ */ React98.createElement("span", { className: "label" }, "Search Transaction:"), /* @__PURE__ */ React98.createElement(
     "input",
     {
       className: `${theme.colorMode}`,
@@ -5215,7 +5215,7 @@ var TransactionSearch = () => {
       onChange: (e) => setTransactionId(e.target.value),
       spellCheck: false
     }
-  ), /* @__PURE__ */ React98.createElement(SecondaryButton_default, { clickHandler: handleSearch }, "Search")));
+  )), /* @__PURE__ */ React98.createElement(SecondaryButton_default, { clickHandler: handleSearch }, "Search"));
 };
 var TransactionSearch_default = TransactionSearch;
 

@@ -1051,17 +1051,37 @@
 }
 .kima-card .kima-card-content .single-form .form-item.transaction-search {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: 10px;
   margin-bottom: 20px;
+  width: 100%;
 }
 .kima-card .kima-card-content .single-form .form-item.transaction-search span {
-  margin-right: 0;
+  margin-right: 85px;
 }
-.kima-card .kima-card-content .single-form .form-item.transaction-search .label {
-  width: 100%;
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .single-form .form-item.transaction-search span {
+    text-align: start;
+    margin-right: auto;
+    margin-bottom: 10px;
+    font-weight: bolder;
+  }
+}
+.kima-card .kima-card-content .single-form .form-item.transaction-search button {
+  margin-left: auto;
+  margin-top: 20px;
+}
+@media (min-width: 565px) {
+  .kima-card .kima-card-content .single-form .form-item.transaction-search button {
+    width: 140px;
+  }
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .single-form .form-item.transaction-search button {
+    width: 100%;
+  }
 }
 @media (max-width: 768px) {
   .kima-card .kima-card-content .single-form .form-item.transaction-search {
@@ -1072,16 +1092,17 @@
 .kima-card .kima-card-content .single-form .form-item.transaction-search .transaction-input {
   display: flex;
   flex-direction: row;
-  gap: 10px;
-  margin-left: auto;
+  width: 100%;
+  align-items: center;
 }
 @media (max-width: 500px) {
   .kima-card .kima-card-content .single-form .form-item.transaction-search .transaction-input {
     width: 100%;
+    flex-direction: column;
   }
 }
 .kima-card .kima-card-content .single-form .form-item.transaction-search .transaction-input input {
-  width: 150px;
+  width: 390px;
 }
 @media (max-width: 500px) {
   .kima-card .kima-card-content .single-form .form-item.transaction-search .transaction-input input {

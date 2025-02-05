@@ -5169,7 +5169,7 @@ var TransactionSearch = () => {
     dispatch(setMode("status" /* status */));
     dispatch(setSubmitted(true));
   };
-  return /* @__PURE__ */ import_react118.default.createElement("div", { className: "form-item transaction-search" }, /* @__PURE__ */ import_react118.default.createElement("span", { className: "label" }, "Follow the status of a previous transaction"), /* @__PURE__ */ import_react118.default.createElement("div", { className: "transaction-input" }, /* @__PURE__ */ import_react118.default.createElement(
+  return /* @__PURE__ */ import_react118.default.createElement("div", { className: "form-item transaction-search" }, /* @__PURE__ */ import_react118.default.createElement("div", { className: "transaction-input" }, /* @__PURE__ */ import_react118.default.createElement("span", { className: "label" }, "Search Transaction:"), /* @__PURE__ */ import_react118.default.createElement(
     "input",
     {
       className: `${theme.colorMode}`,
@@ -5179,7 +5179,7 @@ var TransactionSearch = () => {
       onChange: (e) => setTransactionId(e.target.value),
       spellCheck: false
     }
-  ), /* @__PURE__ */ import_react118.default.createElement(SecondaryButton_default, { clickHandler: handleSearch }, "Search")));
+  )), /* @__PURE__ */ import_react118.default.createElement(SecondaryButton_default, { clickHandler: handleSearch }, "Search"));
 };
 var TransactionSearch_default = TransactionSearch;
 

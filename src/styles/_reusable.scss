@@ -729,18 +729,34 @@
 
         &.transaction-search{
           display: flex;
-          flex-direction: row;
+          flex-direction: column;
           align-items: center;
-          justify-content: center;
+          justify-content: space-between;
           gap: 10px;
           margin-bottom: 20px;
+          width: 100%;
 
           span {
-            margin-right: 0;
+            margin-right: 85px;
+
+            @include breakpoint(mobile){
+              text-align: start;
+              margin-right: auto;
+              margin-bottom: 10px;
+              font-weight: bolder;
+            }
           }
 
-          .label {
-            width: 100%;
+          button {
+            margin-left: auto;
+            margin-top: 20px;
+            @include breakpoint('min-width: 565px') {
+              width: 140px;
+            }
+
+            @include breakpoint(mobile) {
+              width: 100%;
+            }
           }
 
           @include breakpoint(phablet){
@@ -751,15 +767,16 @@
           .transaction-input {
             display: flex;
             flex-direction: row;
-            gap: 10px;
-            margin-left: auto;
+            width: 100%;
+            align-items: center;
 
             @include breakpoint(mobile) {
               width: 100%;
+              flex-direction: column;
             }
 
             input {
-              width: 150px;
+              width: 390px;
 
               @include breakpoint(mobile){
                 width: 100%;

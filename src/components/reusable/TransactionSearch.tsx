@@ -50,8 +50,8 @@ const TransactionSearch = () => {
 
   return (
     <div className='form-item transaction-search'>
-      <span className='label'>Follow the status of a previous transaction</span>
       <div className='transaction-input'>
+      <span className='label'>Search Transaction:</span>
         <input
           className={`${theme.colorMode}`}
           type='text'
@@ -60,8 +60,8 @@ const TransactionSearch = () => {
           onChange={(e) => setTransactionId(e.target.value)}
           spellCheck={false}
         />
-        <SecondaryButton clickHandler={handleSearch}>Search</SecondaryButton>
       </div>
+        <SecondaryButton clickHandler={handleSearch}>Search</SecondaryButton>
     </div>
   )
 }
