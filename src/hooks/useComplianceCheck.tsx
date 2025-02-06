@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { getCompliance } from 'src/services/complianceApi'
+import { getCompliance } from '../services/complianceApi'
 
 const useComplianceCheck = (
   walletAddress: string,

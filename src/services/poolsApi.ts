@@ -1,4 +1,4 @@
-import { fetchWrapper } from 'src/helpers/fetch-wrapper'
+import { fetchWrapper } from '../helpers/fetch-wrapper'
 
 export const getPools = async (backenUrl: string): Promise<any> => {
   const poolsData: any = await fetchWrapper.get(`${backenUrl}/chains/pool`)

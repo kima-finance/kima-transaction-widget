@@ -20,7 +20,7 @@ interface KimaProviderProps {
   networkOption?: NetworkOptions
   walletConnectProjectId: string
   externalProvider?: ExternalProvider
-  children: ReactNode
+  children?: ReactNode
 }
 
 const KimaContext = createContext<KimaContextProps | undefined>(undefined)
@@ -70,7 +70,7 @@ const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
 
 const KimaProvider: React.FC<KimaProviderProps> = ({
   walletConnectProjectId,
-  children,
+  children = null,
   externalProvider
 }) => {
   const queryClient = new QueryClient()

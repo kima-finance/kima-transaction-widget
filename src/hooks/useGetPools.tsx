@@ -1,6 +1,6 @@
 import { NetworkOptions } from '@interface'
 import { useQuery } from '@tanstack/react-query'
-import { getPools } from 'src/services/poolsApi'
+import { getPools } from '../services/poolsApi'
 
 const useGetPools = (backendUrl: string, networkOption: NetworkOptions) => {
   const { data, error, isLoading } = useQuery<Array<any>>({

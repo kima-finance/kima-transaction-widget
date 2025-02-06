@@ -1,14 +1,21 @@
 {
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@kimafinance/kima-transaction-widget": [
+        "../dist/index.js"
+      ]
+    },
+    "typeRoots": ["node_modules/@types", "node_modules", "../dist/"],
+    "skipLibCheck": true,
+    "allowJs": true,
+    "esModuleInterop": true
+  },
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
+    { "path": "./tsconfig.node.json" },
+    { "path": "../" }
   ],
-  "compilerOptions": {
-    "moduleResolution": "node",
-    "baseUrl": "./",
-    "paths": {
-      "@kimafinance/kima-transaction-widget": ["../src"]
-    }
-  }
+  "exclude": ["node_modules/kima-transaction-widget"]
 }

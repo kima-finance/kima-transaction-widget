@@ -7,12 +7,37 @@ export default defineConfig({
   assetsInclude: ['**/*.woff', '**/*.woff2', '**/*.ttf'],
   resolve: {
     alias: {
-      '@kimafinance/kima-transaction-widget': path.resolve(__dirname, '../dist')
-    }
+      '@kimafinance/kima-transaction-widget': path.resolve(
+        __dirname,
+        '../src'
+      ),
+      // Manually resolving paths
+      '@store': path.resolve(__dirname, '../src/store'),
+      '@plugins': path.resolve(__dirname, '../plugins'),
+      '@components': path.resolve(__dirname, '../src/components'),
+      '@primary': path.resolve(__dirname, '../src/components/primary'),
+      '@hooks': path.resolve(__dirname, '../src/hooks'),
+      '@utils': path.resolve(__dirname, '../src/utils'),
+      '@assets': path.resolve(__dirname, '../src/assets'),
+      '@pluginRegistry': path.resolve(__dirname, '../src/pluginRegistry.ts'),
+      '@interface': path.resolve(__dirname, '../src/interface.tsx'),
+      '@css': path.resolve(__dirname, '../src/index.css'),
+    },
+    
   },
   server: {
     fs: {
-      allow: ['..'] // Allow serving files from parent directory (where package is linked)
+      allow: ['.', '../']
+    },
+    watch: {
+      usePolling: true,
+      ignored: ['!**/node_modules/@kimafinance/kima-transaction-widget/**']
     }
-  }
+  },
+  optimizeDeps: {
+    include: ['@kimafinance/kima-transaction-widget']
+  },
+  esbuild: {
+    target: 'esnext', // Match tsup's target
+  },
 })

@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { fetchWrapper } from 'src/helpers/fetch-wrapper'
 import { setTxId, setSubmitted } from '@store/optionSlice'
 import { getTransactionId } from '@utils/functions'
+import { fetchWrapper } from '../helpers/fetch-wrapper'
 
 const useSubmitTransaction = ({
   amount,
