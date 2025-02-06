@@ -1,5 +1,9 @@
-This example was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Kima Transfer Widget Example (React + TypeScript + Vite)
 
-It is linked to the kima-transfer-widget package in the parent directory for development purposes.
+This template provides a minimal setup to get the Kima Transaction Widget working in Vite with HMR and some ESLint rules.
 
-You can run `yarn install` and then `yarn start` to test your package.
+```
+cd example
+npm install
+npm run dev
+```
