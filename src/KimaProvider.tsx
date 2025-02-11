@@ -1,4 +1,5 @@
-import React, { createContext, ReactNode, useContext, useMemo } from 'react'
+import * as React from 'react'
+import { createContext, ReactNode, useContext, useMemo } from 'react'
 import { Provider, useSelector } from 'react-redux'
 import { store } from '@store/index'
 import { selectAllPlugins } from '@store/pluginSlice'
@@ -25,7 +26,7 @@ interface KimaProviderProps {
   networkOption?: NetworkOptions
   walletConnectProjectId: string
   externalProvider?: ExternalProvider
-  children?: ReactNode
+  children: ReactNode
   errorHandler?: (e: any) => void
   closeHandler?: (e: any) => void
   successHandler?: (e: any) => void
@@ -81,50 +82,50 @@ const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
   }
 )
 
-const KimaProvider: React.FC<KimaProviderProps> = React.memo(
-  ({ walletConnectProjectId, children = null, externalProvider }) => {
-    let validExternalProvider
-    let sourceAddress
-    // validation for provider
-    if (externalProvider && isValidExternalProvider(externalProvider)) {
-      validExternalProvider = externalProvider
-      if (
-        externalProvider.type === 'evm' &&
-        externalProvider.signer instanceof JsonRpcSigner
-      )
-        sourceAddress = externalProvider.signer._address
-      if (
-        externalProvider.type === 'solana' &&
-        externalProvider.signer instanceof PublicKey
-      )
-        sourceAddress = externalProvider.signer.toBase58()
-      if (
-        externalProvider.type === 'tron' &&
-        typeof externalProvider.signer === 'string'
-      )
-        sourceAddress = externalProvider.signer
-    }
-
-    // TODO: add appkit modal? (need to address mainnet too)
-    const kimaContext = {
-      externalProvider: validExternalProvider,
-      sourceAddress
-    }
-
-    return (
-      <QueryClientProvider client={queryClient}>
-        <Provider store={store}>
-          <KimaContext.Provider value={kimaContext}>
-            <InternalKimaProvider
-              walletConnectProjectId={walletConnectProjectId}
-            >
-              {children}
-            </InternalKimaProvider>
-          </KimaContext.Provider>
-        </Provider>
-      </QueryClientProvider>
+const KimaProvider = ({
+  walletConnectProjectId,
+  children = <></>,
+  externalProvider
+}: KimaProviderProps) => {
+  let validExternalProvider
+  let sourceAddress
+  // validation for provider
+  if (externalProvider && isValidExternalProvider(externalProvider)) {
+    validExternalProvider = externalProvider
+    if (
+      externalProvider.type === 'evm' &&
+      externalProvider.signer instanceof JsonRpcSigner
     )
+      sourceAddress = externalProvider.signer._address
+    if (
+      externalProvider.type === 'solana' &&
+      externalProvider.signer instanceof PublicKey
+    )
+      sourceAddress = externalProvider.signer.toBase58()
+    if (
+      externalProvider.type === 'tron' &&
+      typeof externalProvider.signer === 'string'
+    )
+      sourceAddress = externalProvider.signer
   }
-)
+
+  // TODO: add appkit modal? (need to address mainnet too)
+  const kimaContext = {
+    externalProvider: validExternalProvider,
+    sourceAddress
+  }
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Provider store={store}>
+        <KimaContext.Provider value={kimaContext}>
+          <InternalKimaProvider walletConnectProjectId={walletConnectProjectId}>
+            {children}
+          </InternalKimaProvider>
+        </KimaContext.Provider>
+      </Provider>
+    </QueryClientProvider>
+  )
+}
 
 export default KimaProvider
