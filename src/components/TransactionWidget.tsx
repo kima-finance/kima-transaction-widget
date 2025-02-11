@@ -12,12 +12,10 @@ import { useSelector } from 'react-redux'
 import {
   selectAmount,
   selectBackendUrl,
-  selectCloseHandler,
   selectDappOption,
   selectFeeDeduct,
   selectMode,
   selectServiceFee,
-  selectSuccessHandler,
   selectTransactionOption,
   selectTxId
 } from '@store/selectors'
@@ -33,6 +31,7 @@ import {
 } from '@store/optionSlice'
 import useGetTxData from '../hooks/useGetTxData'
 import ChainIcon from './reusable/ChainIcon'
+import { useKimaContext } from 'src/KimaProvider'
 
 export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [step, setStep] = useState(0)
@@ -47,17 +46,17 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const amount = useSelector(selectAmount)
   const txId = useSelector(selectTxId)
   const dAppOption = useSelector(selectDappOption)
-  const closeHandler = useSelector(selectCloseHandler)
-  const successHandler = useSelector(selectSuccessHandler)
   const { totalFeeUsd } = useSelector(selectServiceFee)
   const transactionOption = useSelector(selectTransactionOption)
+
+  const { successHandler, closeHandler } = useKimaContext()
 
   const backendUrl = useSelector(selectBackendUrl)
   const { data } = useGetTxData(txId, dAppOption, backendUrl)
 
   useEffect(() => {
     if (!data || data.status !== TransactionStatus.COMPLETED) return
-    successHandler({
+    successHandler && successHandler({
       txId
     })
   }, [data])
@@ -128,7 +127,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
     }
     dispatch(setSubmitted(false))
     // disconnect wallet?
-    closeHandler()
+    closeHandler && closeHandler(0)
   }
 
   return (

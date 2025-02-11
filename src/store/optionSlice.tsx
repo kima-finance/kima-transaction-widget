@@ -67,16 +67,11 @@ export interface OptionState {
   amount: string // amount input
   feeDeduct: boolean // whether deduct fee from amount or not
   transactionOption?: TransactionOption // input option from dApp
-  errorHandler: Function // error callback function from dApp
-  keplrHandler: Function // keplr wallet integration function from dApp
-  closeHandler: Function // callback function for close event
-  successHandler: Function // callback function for success event
-  switchChainHandler: Function // callback function to switch chain request
   initChainFromProvider: boolean // chainId is initialized from provider or not
   serviceFee: ServiceFee // service fee from kima node
   backendUrl: string // URL for kima-transaction-backend component
   kimaExplorerUrl: string // URL for kima explore (testnet, staging or demo)
-  txId: number // transaction id to monitor it's status
+  txId: number | string // transaction id to monitor it's status
   sourceCurrency: string // Currently selected token for source chain
   targetCurrency: string // Currently selected token for target chain
   expireTime: string // Bitcoi HTLC expiration time
@@ -126,11 +121,6 @@ const initialState: OptionState = {
   submitted: false,
   amount: '',
   feeDeduct: false,
-  errorHandler: () => void 0,
-  closeHandler: () => void 0,
-  successHandler: () => void 0,
-  switchChainHandler: () => void 0,
-  keplrHandler: () => void 0,
   initChainFromProvider: false,
   serviceFee: {
     allowanceAmount: '0',
@@ -269,32 +259,11 @@ export const optionSlice = createSlice({
     setAmount: (state: OptionState, action: PayloadAction<string>) => {
       state.amount = action.payload
     },
-    setErrorHandler: (state: OptionState, action: PayloadAction<Function>) => {
-      state.errorHandler = action.payload
-    },
-    setKeplrHandler: (state: OptionState, action: PayloadAction<Function>) => {
-      state.keplrHandler = action.payload
-    },
-    setCloseHandler: (state: OptionState, action: PayloadAction<Function>) => {
-      state.closeHandler = action.payload
-    },
-    setSwitchChainHandler: (
-      state: OptionState,
-      action: PayloadAction<Function>
-    ) => {
-      state.switchChainHandler = action.payload
-    },
     setInitChainFromProvider: (
       state: OptionState,
       action: PayloadAction<boolean>
     ) => {
       state.initChainFromProvider = action.payload
-    },
-    setSuccessHandler: (
-      state: OptionState,
-      action: PayloadAction<Function>
-    ) => {
-      state.successHandler = action.payload
     },
     setServiceFee: (state: OptionState, action: PayloadAction<ServiceFee>) => {
       state.serviceFee = action.payload
@@ -308,7 +277,7 @@ export const optionSlice = createSlice({
     setBackendUrl: (state: OptionState, action: PayloadAction<string>) => {
       state.backendUrl = action.payload
     },
-    setTxId: (state: OptionState, action: PayloadAction<number>) => {
+    setTxId: (state: OptionState, action: PayloadAction<number | string>) => {
       state.txId = action.payload
     },
     setSourceCurrency: (state: OptionState, action: PayloadAction<string>) => {
@@ -404,11 +373,6 @@ export const {
   setSubmitted,
   setTransactionOption,
   setAmount,
-  setErrorHandler,
-  setKeplrHandler,
-  setCloseHandler,
-  setSuccessHandler,
-  setSwitchChainHandler,
   setInitChainFromProvider,
   setServiceFee,
   setMode,

@@ -6,7 +6,7 @@ import { getPluginProvider } from '@pluginRegistry'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ExternalProvider, NetworkOptions } from '@interface'
 
-import '@plugins/index'
+import '../plugins/index'
 import { isValidExternalProvider } from '@utils/functions'
 import { JsonRpcSigner } from '@ethersproject/providers'
 import { PublicKey } from '@solana/web3.js'
@@ -14,6 +14,11 @@ import { PublicKey } from '@solana/web3.js'
 interface KimaContextProps {
   sourceAddress: string | undefined
   externalProvider?: ExternalProvider | undefined
+  errorHandler?: (e: any) => void
+  closeHandler?: (e: any) => void
+  successHandler?: (e: any) => void
+  keplrHandler?: (e: any) => void
+  switchChainHandler?: (e: any) => void
 }
 
 interface KimaProviderProps {
@@ -21,7 +26,15 @@ interface KimaProviderProps {
   walletConnectProjectId: string
   externalProvider?: ExternalProvider
   children?: ReactNode
+  errorHandler?: (e: any) => void
+  closeHandler?: (e: any) => void
+  successHandler?: (e: any) => void
+  keplrHandler?: (e: any) => void
+  switchChainHandler?: (e: any) => void
 }
+
+// Create the QueryClient **only once**, outside the component
+const queryClient = new QueryClient()
 
 const KimaContext = createContext<KimaContextProps | undefined>(undefined)
 
@@ -68,49 +81,50 @@ const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
   }
 )
 
-const KimaProvider: React.FC<KimaProviderProps> = ({
-  walletConnectProjectId,
-  children = null,
-  externalProvider
-}) => {
-  const queryClient = new QueryClient()
+const KimaProvider: React.FC<KimaProviderProps> = React.memo(
+  ({ walletConnectProjectId, children = null, externalProvider }) => {
+    let validExternalProvider
+    let sourceAddress
+    // validation for provider
+    if (externalProvider && isValidExternalProvider(externalProvider)) {
+      validExternalProvider = externalProvider
+      if (
+        externalProvider.type === 'evm' &&
+        externalProvider.signer instanceof JsonRpcSigner
+      )
+        sourceAddress = externalProvider.signer._address
+      if (
+        externalProvider.type === 'solana' &&
+        externalProvider.signer instanceof PublicKey
+      )
+        sourceAddress = externalProvider.signer.toBase58()
+      if (
+        externalProvider.type === 'tron' &&
+        typeof externalProvider.signer === 'string'
+      )
+        sourceAddress = externalProvider.signer
+    }
 
-  let validExternalProvider
-  let sourceAddress
-  // validation for provider
-  if (externalProvider && isValidExternalProvider(externalProvider)) {
-    validExternalProvider = externalProvider
-    if (
-      externalProvider.type === 'evm' &&
-      externalProvider.signer instanceof JsonRpcSigner
+    // TODO: add appkit modal? (need to address mainnet too)
+    const kimaContext = {
+      externalProvider: validExternalProvider,
+      sourceAddress
+    }
+
+    return (
+      <QueryClientProvider client={queryClient}>
+        <Provider store={store}>
+          <KimaContext.Provider value={kimaContext}>
+            <InternalKimaProvider
+              walletConnectProjectId={walletConnectProjectId}
+            >
+              {children}
+            </InternalKimaProvider>
+          </KimaContext.Provider>
+        </Provider>
+      </QueryClientProvider>
     )
-      sourceAddress = externalProvider.signer._address
-    if (
-      externalProvider.type === 'solana' &&
-      externalProvider.signer instanceof PublicKey
-    )
-      sourceAddress = externalProvider.signer.toBase58()
-    if (
-      externalProvider.type === 'tron' &&
-      typeof externalProvider.signer === 'string'
-    )
-      sourceAddress = externalProvider.signer
   }
-
-  // TODO: add appkit modal? (need to address mainnet too)
-  const kimaContext = { externalProvider: validExternalProvider, sourceAddress }
-
-  return (
-    <QueryClientProvider client={queryClient}>
-      <Provider store={store}>
-        <KimaContext.Provider value={kimaContext}>
-          <InternalKimaProvider walletConnectProjectId={walletConnectProjectId}>
-            {children}
-          </InternalKimaProvider>
-        </KimaContext.Provider>
-      </Provider>
-    </QueryClientProvider>
-  )
-}
+)
 
 export default KimaProvider
