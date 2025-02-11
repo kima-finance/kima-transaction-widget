@@ -31,7 +31,7 @@ export default defineConfig({
     },
     watch: {
       usePolling: true,
-      ignored: ['!**/node_modules/@kimafinance/kima-transaction-widget/**']
+      ignored: ['!**/src/**']
     }
   },
   optimizeDeps: {
