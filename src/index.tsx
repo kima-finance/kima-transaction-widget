@@ -81,6 +81,22 @@ const bscTestnet = {
   rpcUrl: 'https://endpoints.omniatech.io/v1/bsc/testnet/public'
 }
 
+const bera = {
+  chainId: 80094,
+  name: 'Bera Mainnet',
+  currency: 'BERA',
+  explorerUrl: 'https://berascan.com',
+  rpcUrl: 'https://rpc.berachain.com'
+}
+
+const beraTestnet = {
+  chainId: 80084,
+  name: 'Bera Testnet',
+  currency: 'BERA',
+  explorerUrl: 'https://bartio.beratrail.io',
+  rpcUrl: 'https://bartio.rpc.berachain.com'
+}
+
 const bsc = {
   chainId: 56,
   name: 'BNB Smart Chain Mainnet',
@@ -153,22 +169,6 @@ const avalanche = {
   rpcUrl: 'https://api.avax.network/ext/bc/C/rpc'
 }
 
-const zkEVMTestnet = {
-  chainId: 2442,
-  name: 'Polygon zkEVM Cardona Testnet',
-  currency: 'ETH',
-  explorerUrl: 'https://cardona-zkevm.polygonscan.com',
-  rpcUrl: 'https://polygon-zkevm-cardona.blockpi.network/v1/rpc/public'
-}
-
-const zkEVM = {
-  chainId: 1101,
-  name: 'Polygon zkEVM',
-  currency: 'ETH',
-  explorerUrl: 'https://zkevm.polygonscan.com',
-  rpcUrl: 'https://zkevm-rpc.com'
-}
-
 // 3. Create modal
 const metadata = {
   name: 'Kima Transaction Widget',
@@ -225,7 +225,7 @@ export const KimaProvider = ({
     ethersConfig: defaultConfig({ metadata }),
     chains:
       networkOption === NetworkOptions.mainnet
-        ? [ethereum, base, bsc, polygon, arbitrum, optimism, avalanche, zkEVM]
+        ? [ethereum, base, bsc, polygon, arbitrum, optimism, avalanche, bera]
         : [
             ethereumSepolia,
             baseTestnet,
@@ -234,7 +234,7 @@ export const KimaProvider = ({
             arbitrumSepolia,
             optimismSepola,
             avalancheFuji,
-            zkEVMTestnet
+            beraTestnet
           ],
     projectId: walletConnectProjectId || 'e579511a495b5c312b572b036e60555a',
     enableAnalytics: false,
