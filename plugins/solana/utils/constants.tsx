@@ -6,8 +6,6 @@ import { SolanaIcon } from '@assets/icons'
 // Choose endpoint based on network option
 export function getHostEndpoint(networkOption: string): String {
   
-  console.log("network option: ", networkOption)
-
   return networkOption === 'mainnet'
     ? 'https://solana-rpc.publicnode.com'
     : clusterApiUrl('devnet')

@@ -1,4 +1,5 @@
-import React, { createContext, ReactNode, useContext, useMemo } from 'react'
+import * as React from 'react'
+import { createContext, ReactNode, useContext, useMemo } from 'react'
 import { Provider, useSelector } from 'react-redux'
 import { store } from '@store/index'
 import { selectAllPlugins } from '@store/pluginSlice'
@@ -6,7 +7,7 @@ import { getPluginProvider } from '@pluginRegistry'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ExternalProvider, NetworkOptions } from '@interface'
 
-import '@plugins/index'
+import '../plugins/index'
 import { isValidExternalProvider } from '@utils/functions'
 import { JsonRpcSigner } from '@ethersproject/providers'
 import { PublicKey } from '@solana/web3.js'
@@ -14,6 +15,11 @@ import { PublicKey } from '@solana/web3.js'
 interface KimaContextProps {
   sourceAddress: string | undefined
   externalProvider?: ExternalProvider | undefined
+  errorHandler?: (e: any) => void
+  closeHandler?: (e: any) => void
+  successHandler?: (e: any) => void
+  keplrHandler?: (e: any) => void
+  switchChainHandler?: (e: any) => void
 }
 
 interface KimaProviderProps {
@@ -21,7 +27,15 @@ interface KimaProviderProps {
   walletConnectProjectId: string
   externalProvider?: ExternalProvider
   children: ReactNode
+  errorHandler?: (e: any) => void
+  closeHandler?: (e: any) => void
+  successHandler?: (e: any) => void
+  keplrHandler?: (e: any) => void
+  switchChainHandler?: (e: any) => void
 }
+
+// Create the QueryClient **only once**, outside the component
+const queryClient = new QueryClient()
 
 const KimaContext = createContext<KimaContextProps | undefined>(undefined)
 
@@ -68,13 +82,11 @@ const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
   }
 )
 
-const KimaProvider: React.FC<KimaProviderProps> = ({
+const KimaProvider = ({
   walletConnectProjectId,
-  children,
+  children = <></>,
   externalProvider
-}) => {
-  const queryClient = new QueryClient()
-
+}: KimaProviderProps) => {
   let validExternalProvider
   let sourceAddress
   // validation for provider
@@ -98,7 +110,10 @@ const KimaProvider: React.FC<KimaProviderProps> = ({
   }
 
   // TODO: add appkit modal? (need to address mainnet too)
-  const kimaContext = { externalProvider: validExternalProvider, sourceAddress }
+  const kimaContext = {
+    externalProvider: validExternalProvider,
+    sourceAddress
+  }
 
   return (
     <QueryClientProvider client={queryClient}>

@@ -2,7 +2,7 @@ import { ModeOptions, ServiceFee } from '@interface'
 import { useQuery } from '@tanstack/react-query'
 import { useSelector } from 'react-redux'
 import { selectMode } from '@store/selectors'
-import { getFees } from 'src/services/feesApi'
+import { getFees } from '../services/feesApi'
 
 const useGetFees = (
   amount: number | null,

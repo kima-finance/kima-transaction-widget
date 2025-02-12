@@ -114,7 +114,7 @@ const isFinished = (data: TransactionData | null) => {
 }
 
 const useGetTxData = (
-  txId: number,
+  txId: number | string,
   dAppOption: DAppOptions,
   backendUrl: string
 ) => {
@@ -147,7 +147,10 @@ const useGetTxData = (
     // only poll for updates while the transaction is in progress
     refetchInterval: refPollForUpdates.current ? POLLING_INTERVAL_MS : false, // 10 sec
     staleTime: POLLING_INTERVAL_MS,
-    enabled: txId > 0 && !!dAppOption && !!backendUrl
+    enabled:
+      (Number(txId) > 0 || txId.toString().length > 0) &&
+      !!dAppOption &&
+      !!backendUrl
   })
 
   return result

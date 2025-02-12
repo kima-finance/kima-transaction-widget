@@ -93,26 +93,6 @@ export const selectTransactionOption = (state: RootState) =>
 export const selectAmount = (state: RootState) => state.option.amount
 
 // Core
-export const selectErrorHandler = (state: RootState) =>
-  state.option.errorHandler
-
-// Core | Wallet
-export const selectKeplrHandler = (state: RootState) =>
-  state.option.keplrHandler
-
-// Core
-export const selectCloseHandler = (state: RootState) =>
-  state.option.closeHandler
-
-// Core
-export const selectSuccessHandler = (state: RootState) =>
-  state.option.successHandler
-
-// Core
-export const selectSwitchChainHandler = (state: RootState) =>
-  state.option.switchChainHandler
-
-// Core
 export const selectInitChainFromProvider = (state: RootState) =>
   state.option.initChainFromProvider
 

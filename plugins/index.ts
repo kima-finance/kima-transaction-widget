@@ -1,7 +1,7 @@
 import { initializePlugins } from '../src/pluginRegistry'
-import evmPlugin from '@plugins/evm'
-import solanaPlugin from '@plugins/solana'
-import tronPlugin from '@plugins/tron'
+import evmPlugin from './evm'
+import solanaPlugin from './solana'
+import tronPlugin from './tron'
 
 export * from './pluginTypes'
 

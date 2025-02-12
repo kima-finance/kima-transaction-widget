@@ -1,4 +1,4 @@
-import { fetchWrapper } from 'src/helpers/fetch-wrapper'
+import { fetchWrapper } from '../helpers/fetch-wrapper'
 
 export const getCompliance = async (
   walletAddress: string,

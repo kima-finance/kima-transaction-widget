@@ -61,7 +61,7 @@ const TronWalletSelect = () => {
       const walk = (x - startX) * 1 //scroll-fast
       sliderRef.current.scrollLeft = scrollLeft - walk
     })
-  })
+  }, [])
 
   useEffect(() => {
     connected && dispatch(setTronConnectModal(false))

@@ -23,8 +23,8 @@ const Solana = ({ width = 30, height = 30, ...rest }) => {
           y2='-0.89642'
           gradientUnits='userSpaceOnUse'
         >
-          <stop stop-color='#CF41E8' />
-          <stop offset='1' stop-color='#10F2B0' />
+          <stop stopColor='#CF41E8' />
+          <stop offset='1' stopColor='#10F2B0' />
         </linearGradient>
       </defs>
     </svg>
