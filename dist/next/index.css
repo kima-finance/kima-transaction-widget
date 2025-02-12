@@ -4,22 +4,22 @@
 /* src/index.css */
 @font-face {
   font-family: "Manrope";
-  src: url("./assets/Manrope-ExtraLight-6KZAMPI7.eot");
+  src: url("../Manrope-ExtraLight-6KZAMPI7.eot");
   src:
-    url("./assets/Manrope-ExtraLight-6KZAMPI7.eot?#iefix") format("embedded-opentype"),
-    url("./assets/Manrope-ExtraLight-6BGXUBPE.woff2") format("woff2"),
-    url("./assets/Manrope-ExtraLight-47OLGDTA.woff") format("woff");
+    url("../Manrope-ExtraLight-6KZAMPI7.eot?#iefix") format("embedded-opentype"),
+    url("../Manrope-ExtraLight-6BGXUBPE.woff2") format("woff2"),
+    url("../Manrope-ExtraLight-47OLGDTA.woff") format("woff");
   font-weight: 200;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Sohne";
-  src: url("./assets/SohneBreit-Buch-VTQ4XGFE.eot");
+  src: url("../SohneBreit-Buch-VTQ4XGFE.eot");
   src:
-    url("./assets/SohneBreit-Buch-VTQ4XGFE.eot?#iefix") format("embedded-opentype"),
-    url("./assets/SohneBreit-Buch-UDQP3HAK.woff2") format("woff2"),
-    url("./assets/SohneBreit-Buch-FPHQDKKW.woff") format("woff");
+    url("../SohneBreit-Buch-VTQ4XGFE.eot?#iefix") format("embedded-opentype"),
+    url("../SohneBreit-Buch-UDQP3HAK.woff2") format("woff2"),
+    url("../SohneBreit-Buch-FPHQDKKW.woff") format("woff");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -2720,22 +2720,22 @@
 }
 @font-face {
   font-family: "Manrope";
-  src: url("./assets/Manrope-ExtraLight-6KZAMPI7.eot");
+  src: url("../Manrope-ExtraLight-6KZAMPI7.eot");
   src:
-    url("./assets/Manrope-ExtraLight-6KZAMPI7.eot?#iefix") format("embedded-opentype"),
-    url("./assets/Manrope-ExtraLight-6BGXUBPE.woff2") format("woff2"),
-    url("./assets/Manrope-ExtraLight-47OLGDTA.woff") format("woff");
+    url("../Manrope-ExtraLight-6KZAMPI7.eot?#iefix") format("embedded-opentype"),
+    url("../Manrope-ExtraLight-6BGXUBPE.woff2") format("woff2"),
+    url("../Manrope-ExtraLight-47OLGDTA.woff") format("woff");
   font-weight: 200;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Sohne";
-  src: url("./assets/SohneBreit-Buch-VTQ4XGFE.eot");
+  src: url("../SohneBreit-Buch-VTQ4XGFE.eot");
   src:
-    url("./assets/SohneBreit-Buch-VTQ4XGFE.eot?#iefix") format("embedded-opentype"),
-    url("./assets/SohneBreit-Buch-UDQP3HAK.woff2") format("woff2"),
-    url("./assets/SohneBreit-Buch-FPHQDKKW.woff") format("woff");
+    url("../SohneBreit-Buch-VTQ4XGFE.eot?#iefix") format("embedded-opentype"),
+    url("../SohneBreit-Buch-UDQP3HAK.woff2") format("woff2"),
+    url("../SohneBreit-Buch-FPHQDKKW.woff") format("woff");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
