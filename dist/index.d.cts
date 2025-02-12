@@ -1,4 +1,5 @@
-import react, { ReactNode } from 'react';
+import * as react from 'react';
+import react__default, { ReactNode } from 'react';
 import { Web3Provider, JsonRpcSigner } from '@ethersproject/providers';
 import { Transaction, Connection, VersionedTransaction, PublicKey } from '@solana/web3.js';
 import { TronWeb } from 'tronweb';
@@ -141,13 +142,18 @@ interface KimaProviderProps {
     walletConnectProjectId: string;
     externalProvider?: ExternalProvider;
     children: ReactNode;
+    errorHandler?: (e: any) => void;
+    closeHandler?: (e: any) => void;
+    successHandler?: (e: any) => void;
+    keplrHandler?: (e: any) => void;
+    switchChainHandler?: (e: any) => void;
 }
-declare const KimaProvider: react.FC<KimaProviderProps>;
+declare const KimaProvider: ({ walletConnectProjectId, children, externalProvider }: KimaProviderProps) => react.JSX.Element;
 
 interface Props {
     theme: ThemeOptions;
     mode: ModeOptions;
-    txId?: number;
+    txId?: number | string;
     dAppOption?: DAppOptions;
     titleOption?: TitleOption;
     compliantOption?: boolean;
@@ -157,14 +163,9 @@ interface Props {
     kimaBackendUrl: string;
     kimaExplorer?: string;
     networkOption?: NetworkOptions;
-    errorHandler?: (e: any) => void;
-    closeHandler?: (e: any) => void;
-    successHandler?: (e: any) => void;
-    switchChainHandler?: (chainId: number) => void;
-    keplrHandler?: (e: any) => void;
     excludedSourceNetworks?: Array<ChainName>;
     excludedTargetNetworks?: Array<ChainName>;
 }
-declare const KimaTransactionWidget: ({ mode, txId, networkOption, dAppOption, theme, titleOption, paymentTitleOption, helpURL, compliantOption, transactionOption, kimaBackendUrl, kimaExplorer, errorHandler, closeHandler, successHandler, switchChainHandler, keplrHandler, excludedSourceNetworks, excludedTargetNetworks }: Props) => react.JSX.Element;
+declare const KimaTransactionWidget: ({ mode, txId, networkOption, dAppOption, theme, titleOption, paymentTitleOption, helpURL, compliantOption, transactionOption, kimaBackendUrl, kimaExplorer, excludedSourceNetworks, excludedTargetNetworks }: Props) => react__default.JSX.Element;
 
 export { CHAIN_NAMES_TO_STRING, CHAIN_STRING_TO_NAME, ColorModeOptions, type CompliantOption, CurrencyOptions, DAppOptions, type ExternalProvider, KimaProvider, KimaTransactionWidget, ModeOptions, type NetworkFee, NetworkOptions, type Option, type PaymentTitleOption, type ServiceFee, type SolProvider, ChainName as SupportNetworks, type ThemeOptions, type TitleOption, type TransactionData, type TransactionOption, type TronProvider, type Web3ModalAccountInfo };

@@ -1,4 +1,5 @@
 "use strict";
+"use client";
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -44,7 +45,8 @@ __export(src_exports, {
 module.exports = __toCommonJS(src_exports);
 
 // src/KimaProvider.tsx
-var import_react90 = __toESM(require("react"), 1);
+var React76 = __toESM(require("react"), 1);
+var import_react90 = require("react");
 var import_react_redux13 = require("react-redux");
 
 // src/store/index.tsx
@@ -339,8 +341,8 @@ var Solana = ({ width = 30, height = 30, ...rest }) => {
         y2: "-0.89642",
         gradientUnits: "userSpaceOnUse"
       },
-      /* @__PURE__ */ import_react10.default.createElement("stop", { "stop-color": "#CF41E8" }),
-      /* @__PURE__ */ import_react10.default.createElement("stop", { offset: "1", "stop-color": "#10F2B0" })
+      /* @__PURE__ */ import_react10.default.createElement("stop", { stopColor: "#CF41E8" }),
+      /* @__PURE__ */ import_react10.default.createElement("stop", { offset: "1", stopColor: "#10F2B0" })
     ))
   );
 };
@@ -522,8 +524,8 @@ var Avalanche = ({ width = 29, height = 29, ...rest }) => {
     /* @__PURE__ */ import_react15.default.createElement(
       "path",
       {
-        "fill-rule": "evenodd",
-        "clip-rule": "evenodd",
+        fillRule: "evenodd",
+        clipRule: "evenodd",
         d: "M29.8779 14.5C29.8779 22.5082 23.3854 29 15.3762 29C7.36707 29 0.874512 22.5082 0.874512 14.5C0.874512 6.49179 7.36707 0 15.3762 0C23.3854 0 29.8779 6.49179 29.8779 14.5ZM11.2669 20.2703H8.45247C7.86101 20.2703 7.56905 20.2703 7.39082 20.1563C7.19849 20.0316 7.08089 19.825 7.0666 19.597C7.05598 19.3869 7.20197 19.1303 7.49412 18.6175L14.4432 6.37035C14.7388 5.8502 14.8884 5.59032 15.0773 5.49397C15.2804 5.39068 15.5226 5.39068 15.7257 5.49397C15.9146 5.59013 16.0642 5.8502 16.3599 6.37035L17.7884 8.86373L17.7957 8.87647C18.1151 9.43446 18.2771 9.71732 18.3478 10.0143C18.4262 10.3384 18.4262 10.6804 18.3478 11.0046C18.2766 11.3038 18.1163 11.5888 17.7921 12.1551L14.1419 18.6067L14.1325 18.6233C13.811 19.186 13.6482 19.4709 13.4223 19.686C13.1764 19.9212 12.8808 20.0921 12.5566 20.1884C12.261 20.2703 11.9296 20.2703 11.2669 20.2703ZM18.3741 20.2703H22.4067C23.0017 20.2703 23.301 20.2703 23.4792 20.1529C23.6715 20.0281 23.7926 19.8179 23.8034 19.5901C23.8137 19.3868 23.6708 19.1402 23.3908 18.6571C23.3811 18.6407 23.3715 18.6239 23.3616 18.6069L21.3416 15.1516L21.3186 15.1126C21.0348 14.6326 20.8915 14.3903 20.7075 14.2967C20.5045 14.1934 20.2657 14.1934 20.0627 14.2967C19.8775 14.3928 19.7279 14.6458 19.4323 15.1551L17.4194 18.6104L17.4124 18.6224C17.1178 19.1309 16.9706 19.385 16.9813 19.5935C16.9955 19.8216 17.1131 20.0316 17.3055 20.1563C17.48 20.2703 17.7793 20.2703 18.3743 20.2703H18.3741Z",
         fill: "#E84142"
       }
@@ -755,8 +757,8 @@ var Copy = ({ width = 20, height = 20, fill = "#86B8CE", ...rest }) => {
     /* @__PURE__ */ import_react24.default.createElement(
       "path",
       {
-        "fill-rule": "evenodd",
-        "clip-rule": "evenodd",
+        fillRule: "evenodd",
+        clipRule: "evenodd",
         d: "M0.373779 0.750078C0.373779 0.362788 0.68774 0.0488281 1.07503 0.0488281H12.2125C12.5998 0.0488281 12.9138 0.362788 12.9138 0.750078C12.9138 1.13737 12.5998 1.45133 12.2125 1.45133H1.77628V12.8157C1.77628 13.203 1.46232 13.517 1.07503 13.517C0.68774 13.517 0.373779 13.203 0.373779 12.8157V0.750078Z",
         fill
       }
@@ -764,8 +766,8 @@ var Copy = ({ width = 20, height = 20, fill = "#86B8CE", ...rest }) => {
     /* @__PURE__ */ import_react24.default.createElement(
       "path",
       {
-        "fill-rule": "evenodd",
-        "clip-rule": "evenodd",
+        fillRule: "evenodd",
+        clipRule: "evenodd",
         d: "M4.0863 4.46297C4.0863 4.07568 4.40026 3.76172 4.78755 3.76172H15.9251C16.3123 3.76172 16.6263 4.07568 16.6263 4.46297V15.6005C16.6263 16.2788 16.3569 16.9293 15.8772 17.4089C15.3976 17.8885 14.7471 18.158 14.0688 18.158H6.6438C5.96551 18.158 5.315 17.8885 4.83538 17.4089C4.35575 16.9293 4.0863 16.2788 4.0863 15.6005V4.46297ZM5.4888 5.16422V15.6005C5.4888 15.9068 5.61049 16.2006 5.8271 16.4172C6.0437 16.6338 6.33748 16.7555 6.6438 16.7555H14.0688C14.3751 16.7555 14.6689 16.6338 14.8855 16.4172C15.1021 16.2006 15.2238 15.9068 15.2238 15.6005V5.16422H5.4888Z",
         fill
       }
@@ -942,8 +944,8 @@ var Wallet = ({ width = 28, height = 23, ...rest }) => {
     /* @__PURE__ */ import_react30.default.createElement(
       "path",
       {
-        "fill-rule": "evenodd",
-        "clip-rule": "evenodd",
+        fillRule: "evenodd",
+        clipRule: "evenodd",
         d: "M11.3022 0H15.3478C17.7372 0 19.63 1.54972e-07 21.1107 0.1989C22.6343 0.4043 23.868 0.8359 24.8417 1.8083C26.0429 3.0108 26.4264 4.6202 26.5655 6.7093C27.3156 7.0382 27.8824 7.7363 27.9435 8.6203C27.95 8.6996 27.95 8.7841 27.95 8.8621V13.8879C27.95 13.9659 27.95 14.0504 27.9448 14.1284C27.8824 15.0124 27.3156 15.7118 26.5655 16.042C26.4264 18.1298 26.0429 19.7392 24.8417 20.9417C23.868 21.9141 22.6343 22.3457 21.1107 22.5511C19.6287 22.75 17.7372 22.75 15.3478 22.75H11.3022C8.9128 22.75 7.02 22.75 5.5393 22.5511C4.0157 22.3457 2.782 21.9141 1.8083 20.9417C0.8359 19.968 0.4043 18.7343 0.1989 17.2107C0 15.7287 0 13.8372 0 11.4478V11.3022C0 8.9128 0 7.02 0.1989 5.5393C0.4043 4.0157 0.8359 2.782 1.8083 1.8083C2.782 0.8359 4.0157 0.4043 5.5393 0.1989C7.0213 1.54972e-07 8.9128 0 11.3022 0ZM24.5934 16.25H22.074C19.2855 16.25 16.8987 14.1336 16.8987 11.375C16.8987 8.6164 19.2855 6.5 22.0727 6.5H24.5921C24.4439 4.7567 24.1098 3.835 23.4611 3.1876C22.9112 2.6377 22.1572 2.3075 20.8494 2.132C19.5143 1.9526 17.7528 1.95 15.2737 1.95H11.3737C8.8946 1.95 7.1344 1.9526 5.7967 2.132C4.4902 2.3075 3.7362 2.6377 3.1863 3.1876C2.6364 3.7375 2.3062 4.4915 2.1307 5.7993C1.9513 7.1357 1.9487 8.8959 1.9487 11.375C1.9487 13.8541 1.9513 15.6156 2.1307 16.952C2.3062 18.2585 2.6364 19.0125 3.1863 19.5624C3.7362 20.1123 4.4902 20.4425 5.798 20.618C7.1344 20.7974 8.8946 20.8 11.3737 20.8H15.2737C17.7528 20.8 19.5143 20.7974 20.8507 20.618C22.1572 20.4425 22.9112 20.1123 23.4611 19.5624C24.1098 18.915 24.4452 17.9946 24.5934 16.25ZM25.5762 8.45H22.074C20.2228 8.45 18.8487 9.8267 18.8487 11.375C18.8487 12.9233 20.2228 14.3 22.0727 14.3H25.6061C25.8739 14.2831 25.9896 14.1024 25.9987 13.9932V8.7568C25.9896 8.6476 25.8739 8.4669 25.6061 8.4513L25.5762 8.45Z",
         fill: "white"
       }
@@ -1000,16 +1002,16 @@ var ExternalUrl = ({ width = 40, height = 40, fill = "black", ...rest }) => {
     /* @__PURE__ */ import_react32.default.createElement("mask", { id: "path-2-inside-1_883_418", fill: "white" }, /* @__PURE__ */ import_react32.default.createElement(
       "path",
       {
-        "fill-rule": "evenodd",
-        "clip-rule": "evenodd",
+        fillRule: "evenodd",
+        clipRule: "evenodd",
         d: "M30.4872 9.53075C30.5107 9.22503 30.2561 8.97036 29.9503 8.99388L22.9271 9.53412C22.5012 9.56689 22.3099 10.0841 22.6119 10.3862L24.616 12.3902C24.8112 12.5855 24.8112 12.9021 24.616 13.0973L18.9543 18.7591C18.4661 19.2472 18.4661 20.0387 18.9543 20.5268C19.4424 21.015 20.2339 21.015 20.722 20.5268L26.3837 14.8651C26.579 14.6698 26.8956 14.6698 27.0908 14.8651L29.0949 16.8692C29.3969 17.1712 29.9142 16.9799 29.947 16.5539L30.4872 9.53075Z"
       }
     )),
     /* @__PURE__ */ import_react32.default.createElement(
       "path",
       {
-        "fill-rule": "evenodd",
-        "clip-rule": "evenodd",
+        fillRule: "evenodd",
+        clipRule: "evenodd",
         d: "M30.4872 9.53075C30.5107 9.22503 30.2561 8.97036 29.9503 8.99388L22.9271 9.53412C22.5012 9.56689 22.3099 10.0841 22.6119 10.3862L24.616 12.3902C24.8112 12.5855 24.8112 12.9021 24.616 13.0973L18.9543 18.7591C18.4661 19.2472 18.4661 20.0387 18.9543 20.5268C19.4424 21.015 20.2339 21.015 20.722 20.5268L26.3837 14.8651C26.579 14.6698 26.8956 14.6698 27.0908 14.8651L29.0949 16.8692C29.3969 17.1712 29.9142 16.9799 29.947 16.5539L30.4872 9.53075Z",
         fill
       }
@@ -1367,11 +1369,6 @@ var initialState = {
   submitted: false,
   amount: "",
   feeDeduct: false,
-  errorHandler: () => void 0,
-  closeHandler: () => void 0,
-  successHandler: () => void 0,
-  switchChainHandler: () => void 0,
-  keplrHandler: () => void 0,
   initChainFromProvider: false,
   serviceFee: {
     allowanceAmount: "0",
@@ -1488,23 +1485,8 @@ var optionSlice = createSlice({
     setAmount: (state, action) => {
       state.amount = action.payload;
     },
-    setErrorHandler: (state, action) => {
-      state.errorHandler = action.payload;
-    },
-    setKeplrHandler: (state, action) => {
-      state.keplrHandler = action.payload;
-    },
-    setCloseHandler: (state, action) => {
-      state.closeHandler = action.payload;
-    },
-    setSwitchChainHandler: (state, action) => {
-      state.switchChainHandler = action.payload;
-    },
     setInitChainFromProvider: (state, action) => {
       state.initChainFromProvider = action.payload;
-    },
-    setSuccessHandler: (state, action) => {
-      state.successHandler = action.payload;
     },
     setServiceFee: (state, action) => {
       state.serviceFee = action.payload;
@@ -1592,11 +1574,6 @@ var {
   setSubmitted,
   setTransactionOption,
   setAmount,
-  setErrorHandler,
-  setKeplrHandler,
-  setCloseHandler,
-  setSuccessHandler,
-  setSwitchChainHandler,
   setInitChainFromProvider,
   setServiceFee,
   setMode,
@@ -1857,10 +1834,6 @@ var selectDappOption = (state) => state.option.dAppOption;
 var selectSubmitted = (state) => state.option.submitted;
 var selectTransactionOption = (state) => state.option.transactionOption;
 var selectAmount = (state) => state.option.amount;
-var selectKeplrHandler = (state) => state.option.keplrHandler;
-var selectCloseHandler = (state) => state.option.closeHandler;
-var selectSuccessHandler = (state) => state.option.successHandler;
-var selectSwitchChainHandler = (state) => state.option.switchChainHandler;
 var selectServiceFee = (state) => state.option.serviceFee;
 var selectMode = (state) => state.option.mode;
 var selectSourceCurrency = (state) => state.option.sourceCurrency;
@@ -2560,7 +2533,6 @@ function useIsWalletReady() {
           }
         );
         try {
-          console.log("will trigger switch network: ", correctEvmNetwork);
           switchNetworkEthers(
             externalProvider.provider,
             correctEvmNetwork.id,
@@ -3169,7 +3141,6 @@ var import_wallet_adapter_wallets = require("@solana/wallet-adapter-wallets");
 // plugins/solana/utils/constants.tsx
 var import_web34 = require("@solana/web3.js");
 function getHostEndpoint(networkOption) {
-  console.log("network option: ", networkOption);
   return networkOption === "mainnet" ? "https://solana-rpc.publicnode.com" : (0, import_web34.clusterApiUrl)("devnet");
 }
 var networkOptions2 = [
@@ -3237,7 +3208,6 @@ function useGetSolBalance() {
     return key instanceof import_web36.PublicKey;
   };
   const publicKey = isSolanaPublicKey(externalProvider?.signer) ? externalProvider.signer : internalPublicKey;
-  console.log("public key: ", publicKey);
   const connection = externalProvider?.provider.connection || internalConnection;
   const result = (0, import_react_query6.useQuery)({
     queryKey: ["getSolBalance", publicKey ? publicKey.toBase58() : null],
@@ -3511,7 +3481,7 @@ var WalletProvider3 = ({ children, networkOption }) => {
   const onChainChanged = (chainData) => {
     if (networkOption === "testnet") {
       if (chainData.chainId === "0xcd8690dc") {
-        import_react_hot_toast.toast.error("Please switch to Tron Shasta Testnet!");
+        import_react_hot_toast.toast.error("Please switch to Tron Nile Testnet!");
         adapters[0].switchChain("0x3e9");
       } else if (chainData.chainId !== "0x3e9") {
         adapters[0].switchChain("0x3e9");
@@ -3799,6 +3769,7 @@ initializePlugins([evm_default, solana_default, tron_default]);
 // src/KimaProvider.tsx
 var import_providers5 = require("@ethersproject/providers");
 var import_web39 = require("@solana/web3.js");
+var queryClient = new import_react_query10.QueryClient();
 var KimaContext = (0, import_react90.createContext)(void 0);
 var useKimaContext = () => {
   const context = (0, import_react90.useContext)(KimaContext);
@@ -3807,7 +3778,7 @@ var useKimaContext = () => {
   }
   return context;
 };
-var InternalKimaProvider = import_react90.default.memo(
+var InternalKimaProvider = React76.memo(
   ({
     networkOption = "testnet" /* testnet */,
     walletConnectProjectId,
@@ -3820,7 +3791,7 @@ var InternalKimaProvider = import_react90.default.memo(
         const plugin = getPluginProvider(pluginData.id);
         if (plugin) {
           const { Provider: Provider3 } = plugin;
-          return /* @__PURE__ */ import_react90.default.createElement(
+          return /* @__PURE__ */ React76.createElement(
             Provider3,
             {
               key: plugin.data.id,
@@ -3833,15 +3804,14 @@ var InternalKimaProvider = import_react90.default.memo(
         return acc;
       }, children);
     }, [plugins, walletConnectProjectId]);
-    return /* @__PURE__ */ import_react90.default.createElement(import_react90.default.Fragment, null, WrappedProviders);
+    return /* @__PURE__ */ React76.createElement(React76.Fragment, null, WrappedProviders);
   }
 );
 var KimaProvider = ({
   walletConnectProjectId,
-  children,
+  children = /* @__PURE__ */ React76.createElement(React76.Fragment, null),
   externalProvider
 }) => {
-  const queryClient = new import_react_query10.QueryClient();
   let validExternalProvider;
   let sourceAddress;
   if (externalProvider && isValidExternalProvider(externalProvider)) {
@@ -3853,8 +3823,11 @@ var KimaProvider = ({
     if (externalProvider.type === "tron" && typeof externalProvider.signer === "string")
       sourceAddress = externalProvider.signer;
   }
-  const kimaContext = { externalProvider: validExternalProvider, sourceAddress };
-  return /* @__PURE__ */ import_react90.default.createElement(import_react_query10.QueryClientProvider, { client: queryClient }, /* @__PURE__ */ import_react90.default.createElement(import_react_redux13.Provider, { store }, /* @__PURE__ */ import_react90.default.createElement(KimaContext.Provider, { value: kimaContext }, /* @__PURE__ */ import_react90.default.createElement(InternalKimaProvider, { walletConnectProjectId }, children))));
+  const kimaContext = {
+    externalProvider: validExternalProvider,
+    sourceAddress
+  };
+  return /* @__PURE__ */ React76.createElement(import_react_query10.QueryClientProvider, { client: queryClient }, /* @__PURE__ */ React76.createElement(import_react_redux13.Provider, { store }, /* @__PURE__ */ React76.createElement(KimaContext.Provider, { value: kimaContext }, /* @__PURE__ */ React76.createElement(InternalKimaProvider, { walletConnectProjectId }, children))));
 };
 var KimaProvider_default = KimaProvider;
 
@@ -4820,7 +4793,7 @@ var useGetTxData = (txId, dAppOption, backendUrl) => {
     refetchInterval: refPollForUpdates.current ? POLLING_INTERVAL_MS : false,
     // 10 sec
     staleTime: POLLING_INTERVAL_MS,
-    enabled: txId > 0 && !!dAppOption && !!backendUrl
+    enabled: (Number(txId) > 0 || txId.toString().length > 0) && !!dAppOption && !!backendUrl
   });
   return result;
 };
@@ -4840,15 +4813,14 @@ var TransactionWidget = ({ theme }) => {
   const amount = (0, import_react_redux34.useSelector)(selectAmount);
   const txId = (0, import_react_redux34.useSelector)(selectTxId);
   const dAppOption = (0, import_react_redux34.useSelector)(selectDappOption);
-  const closeHandler = (0, import_react_redux34.useSelector)(selectCloseHandler);
-  const successHandler = (0, import_react_redux34.useSelector)(selectSuccessHandler);
   const { totalFeeUsd } = (0, import_react_redux34.useSelector)(selectServiceFee);
   const transactionOption = (0, import_react_redux34.useSelector)(selectTransactionOption);
+  const { successHandler, closeHandler } = useKimaContext();
   const backendUrl = (0, import_react_redux34.useSelector)(selectBackendUrl);
   const { data } = useGetTxData_default(txId, dAppOption, backendUrl);
   (0, import_react117.useEffect)(() => {
     if (!data || data.status !== "Completed" /* COMPLETED */) return;
-    successHandler({
+    successHandler && successHandler({
       txId
     });
   }, [data]);
@@ -4910,7 +4882,7 @@ var TransactionWidget = ({ theme }) => {
       dispatch(setAmount(transactionOption?.amount.toString() || ""));
     }
     dispatch(setSubmitted(false));
-    closeHandler();
+    closeHandler && closeHandler(0);
   };
   return /* @__PURE__ */ import_react117.default.createElement(import_react_redux33.Provider, { store }, /* @__PURE__ */ import_react117.default.createElement(
     "div",
@@ -5060,7 +5032,7 @@ var NetworkSelector = ({ type }) => {
   const targetNetwork = (0, import_react_redux37.useSelector)(selectTargetChain);
   const excludedSourceNetworks = (0, import_react_redux37.useSelector)(selectExcludedSourceNetworks);
   const excludedTargetNetworks = (0, import_react_redux37.useSelector)(selectExcludedTargetNetworks);
-  const switchChainHandler = (0, import_react_redux37.useSelector)(selectSwitchChainHandler);
+  const { switchChainHandler } = useKimaContext();
   const isSourceSelector = type === "source";
   const networks = (0, import_react118.useMemo)(() => {
     if (isSourceSelector) {
@@ -5384,7 +5356,7 @@ var SolanaWalletSelect = () => {
       const walk = (x - startX) * 1;
       sliderRef.current.scrollLeft = scrollLeft - walk;
     });
-  });
+  }, []);
   const handleWalletClick = (0, import_react120.useCallback)(
     (walletName) => {
       select(walletName);
@@ -5598,7 +5570,7 @@ var TronWalletSelect = () => {
       const walk = (x - startX) * 1;
       sliderRef.current.scrollLeft = scrollLeft - walk;
     });
-  });
+  }, []);
   (0, import_react124.useEffect)(() => {
     connected && dispatch(setTronConnectModal(false));
   }, [connected]);
@@ -5902,7 +5874,6 @@ var TransferWidget = ({
   const mainRef = (0, import_react128.useRef)(null);
   const [formStep, setFormStep] = (0, import_react128.useState)(0);
   const dAppOption = (0, import_react_redux46.useSelector)(selectDappOption);
-  const keplrHandler = (0, import_react_redux46.useSelector)(selectKeplrHandler);
   const mode = (0, import_react_redux46.useSelector)(selectMode);
   const transactionOption = (0, import_react_redux46.useSelector)(selectTransactionOption);
   const backendUrl = (0, import_react_redux46.useSelector)(selectBackendUrl);
@@ -5923,7 +5894,7 @@ var TransferWidget = ({
   const compliantOption = (0, import_react_redux46.useSelector)(selectCompliantOption);
   const networkOptions3 = (0, import_react_redux46.useSelector)(selectNetworkOption);
   const feeDeduct = (0, import_react_redux46.useSelector)(selectFeeDeduct);
-  const closeHandler = (0, import_react_redux46.useSelector)(selectCloseHandler);
+  const { keplrHandler, closeHandler } = useKimaContext();
   const [isCancellingApprove, setCancellingApprove] = (0, import_react128.useState)(false);
   const [isApproving, setApproving] = (0, import_react128.useState)(false);
   const [isSigning, setSigning] = (0, import_react128.useState)(false);
@@ -6008,7 +5979,7 @@ var TransferWidget = ({
       setFormStep(0);
     }
     if (formStep === 0) {
-      closeHandler();
+      closeHandler && closeHandler(0);
     }
   };
   const getButtonLabel = () => {
@@ -6036,7 +6007,7 @@ var TransferWidget = ({
       dispatch(setAmount(transactionOption?.amount.toString() || ""));
     }
     await disconnectWallet();
-    closeHandler();
+    closeHandler && closeHandler(0);
   };
   (0, import_react128.useEffect)(() => {
     dispatch(setTheme(theme));
@@ -6146,11 +6117,6 @@ var KimaTransactionWidget = ({
   transactionOption,
   kimaBackendUrl,
   kimaExplorer = "https://explorer.kima.network",
-  errorHandler = () => void 0,
-  closeHandler = () => void 0,
-  successHandler = () => void 0,
-  switchChainHandler = () => void 0,
-  keplrHandler = () => void 0,
   excludedSourceNetworks = [],
   excludedTargetNetworks = []
 }) => {
@@ -6170,11 +6136,6 @@ var KimaTransactionWidget = ({
     dispatch(setExcludedTargetNetworks(excludedTargetNetworks));
     dispatch(setKimaExplorer(kimaExplorer));
     dispatch(setCompliantOption(compliantOption));
-    dispatch(setErrorHandler(errorHandler));
-    dispatch(setKeplrHandler(keplrHandler));
-    dispatch(setCloseHandler(closeHandler));
-    dispatch(setSuccessHandler(successHandler));
-    dispatch(setSwitchChainHandler(switchChainHandler));
     dispatch(setBackendUrl(kimaBackendUrl));
     dispatch(setMode(mode));
     dispatch(setDappOption(dAppOption));
@@ -6198,7 +6159,7 @@ var KimaTransactionWidget = ({
       dispatch(setTxId(txId || 1));
       dispatch(setSubmitted(true));
     }
-  }, [theme, transactionOption, errorHandler, closeHandler, mode]);
+  }, [theme, transactionOption, mode]);
   (0, import_react129.useEffect)(() => {
     if (!chainData?.length) return;
     indexPluginsByChain(chainData);

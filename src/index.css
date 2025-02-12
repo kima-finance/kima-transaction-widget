@@ -1576,7 +1576,7 @@
   }
 }
 .kima-card .kima-card-content .wallet-button p {
-  margin: none;
+  margin: 0;
 }
 .kima-card .kima-card-content .wallet-button svg {
   margin-right: 1em;
