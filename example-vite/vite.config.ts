@@ -7,11 +7,7 @@ export default defineConfig({
   assetsInclude: ['**/*.woff', '**/*.woff2', '**/*.ttf'],
   resolve: {
     alias: {
-      '@kimafinance/kima-transaction-widget': path.resolve(
-        __dirname,
-        '../src'
-      ),
-      // Manually resolving paths
+      '@kimafinance/kima-transaction-widget': path.resolve(__dirname, '../dist'),
       '@store': path.resolve(__dirname, '../src/store'),
       '@plugins': path.resolve(__dirname, '../plugins'),
       '@components': path.resolve(__dirname, '../src/components'),
@@ -23,19 +19,18 @@ export default defineConfig({
       '@interface': path.resolve(__dirname, '../src/interface.tsx'),
       '@css': path.resolve(__dirname, '../src/index.css'),
     },
-    
   },
   server: {
     fs: {
-      allow: ['.', '../']
+      allow: ['.', '../'],
     },
     watch: {
       usePolling: true,
-      ignored: ['!**/src/**']
-    }
+      ignored: ['!**/dist/**'], // Make sure it watches the dist folder
+    },
   },
   optimizeDeps: {
-    include: ['@kimafinance/kima-transaction-widget']
+    exclude: ['@kimafinance/kima-transaction-widget'], // Prevents Vite from pre-bundling it
   },
   esbuild: {
     target: 'esnext', // Match tsup's target

@@ -3,7 +3,7 @@
     "baseUrl": ".",
     "paths": {
       "@kimafinance/kima-transaction-widget": [
-        "../src"
+        "../dist"
       ]
     },
     "typeRoots": ["node_modules/@types", "node_modules", "../dist/"],
