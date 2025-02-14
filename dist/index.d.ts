@@ -1,7 +1,7 @@
 import * as react from 'react';
 import react__default, { ReactNode } from 'react';
 import { Web3Provider, JsonRpcSigner } from '@ethersproject/providers';
-import { Transaction, Connection, VersionedTransaction, PublicKey } from '@solana/web3.js';
+import { Connection, Transaction, VersionedTransaction, PublicKey } from '@solana/web3.js';
 import { TronWeb } from 'tronweb';
 import { SignedTransaction } from '@tronweb3/tronwallet-abstract-adapter';
 
