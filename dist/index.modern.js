@@ -1,286 +1,192 @@
-function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import * as toolkitRaw from '@reduxjs/toolkit';
+import { clusterApiUrl, TransactionInstruction, PublicKey, Transaction } from '@solana/web3.js';
+import { useSelector, useDispatch, Provider } from 'react-redux';
+import * as SolanaAdapter from '@solana/wallet-adapter-react';
+import { useWallet, useConnection } from '@solana/wallet-adapter-react';
+import { PhantomWalletAdapter, SolflareWalletAdapter, CloverWalletAdapter, Coin98WalletAdapter, SolongWalletAdapter, TorusWalletAdapter } from '@solana/wallet-adapter-wallets';
+import { LedgerAdapter } from '@tronweb3/tronwallet-adapter-ledger';
+import { TronLinkAdapter } from '@tronweb3/tronwallet-adapter-tronlink';
+import { useWallet as useWallet$1, WalletProvider } from '@tronweb3/tronwallet-adapter-react-hooks';
+import { AdapterState, WalletNotFoundError, WalletDisconnectedError } from '@tronweb3/tronwallet-abstract-adapter';
+import toast, { toast as toast$1, Toaster } from 'react-hot-toast';
+import { useWeb3ModalProvider, useSwitchNetwork, useWeb3ModalAccount, useWeb3ModalEvents, useWeb3Modal, useWeb3ModalTheme, createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react';
+import { WalletReadyState } from '@solana/wallet-adapter-base';
+import { getAddress, AddressPurpose, BitcoinNetworkType, signTransaction, sendBtcTransaction } from 'sats-connect';
+import { Contract } from '@ethersproject/contracts';
+import { formatUnits, parseUnits } from '@ethersproject/units';
+import { TronWeb } from 'tronweb';
+import { ethers, utils as utils$3 } from 'ethers';
+import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import BufferLayout from 'buffer-layout';
+import sha256$1 from 'crypto-js/sha256.js';
+import Base64 from 'crypto-js/enc-base64.js';
+import { Buffer as Buffer$1 } from 'buffer';
+import { address, script, opcodes, payments, crypto as crypto$1, networks } from 'bitcoinjs-lib';
+import { base64 } from '@scure/base';
+import { Transaction as Transaction$1, Script, SigHash } from '@kimafinance/btc-signer';
+import 'hex64';
 
-var React = require('react');
-var React__default = _interopDefault(React);
-var toolkitRaw = require('@reduxjs/toolkit');
-var web3_js = require('@solana/web3.js');
-var reactRedux = require('react-redux');
-var SolanaAdapter = require('@solana/wallet-adapter-react');
-var walletAdapterWallets = require('@solana/wallet-adapter-wallets');
-var tronwalletAdapterLedger = require('@tronweb3/tronwallet-adapter-ledger');
-var tronwalletAdapterTronlink = require('@tronweb3/tronwallet-adapter-tronlink');
-var tronwalletAdapterReactHooks = require('@tronweb3/tronwallet-adapter-react-hooks');
-var tronwalletAbstractAdapter = require('@tronweb3/tronwallet-abstract-adapter');
-var toast = require('react-hot-toast');
-var toast__default = _interopDefault(toast);
-var react = require('@web3modal/ethers5/react');
-var walletAdapterBase = require('@solana/wallet-adapter-base');
-var satsConnect = require('sats-connect');
-var contracts = require('@ethersproject/contracts');
-var units = require('@ethersproject/units');
-var tronweb = require('tronweb');
-var ethers = require('ethers');
-var splToken = require('@solana/spl-token');
-var BufferLayout = _interopDefault(require('buffer-layout'));
-var sha256$1 = _interopDefault(require('crypto-js/sha256.js'));
-var Base64 = _interopDefault(require('crypto-js/enc-base64.js'));
-var buffer = require('buffer');
-var bitcoin = require('bitcoinjs-lib');
-var base$1 = require('@scure/base');
-var btc = require('@kimafinance/btc-signer');
-require('hex64');
-
-function _extends() {
-  _extends = Object.assign ? Object.assign.bind() : function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }
-    return target;
-  };
-  return _extends.apply(this, arguments);
-}
-function _inheritsLoose(subClass, superClass) {
-  subClass.prototype = Object.create(superClass.prototype);
-  subClass.prototype.constructor = subClass;
-  _setPrototypeOf(subClass, superClass);
-}
-function _setPrototypeOf(o, p) {
-  _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) {
-    o.__proto__ = p;
-    return o;
-  };
-  return _setPrototypeOf(o, p);
-}
-function _objectWithoutPropertiesLoose(source, excluded) {
-  if (source == null) return {};
-  var target = {};
-  for (var key in source) {
-    if (Object.prototype.hasOwnProperty.call(source, key)) {
-      if (excluded.indexOf(key) >= 0) continue;
-      target[key] = source[key];
-    }
-  }
-  return target;
-}
-function _unsupportedIterableToArray(o, minLen) {
-  if (!o) return;
-  if (typeof o === "string") return _arrayLikeToArray(o, minLen);
-  var n = Object.prototype.toString.call(o).slice(8, -1);
-  if (n === "Object" && o.constructor) n = o.constructor.name;
-  if (n === "Map" || n === "Set") return Array.from(o);
-  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
-}
-function _arrayLikeToArray(arr, len) {
-  if (len == null || len > arr.length) len = arr.length;
-  for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
-  return arr2;
-}
-function _createForOfIteratorHelperLoose(o, allowArrayLike) {
-  var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"];
-  if (it) return (it = it.call(o)).next.bind(it);
-  if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
-    if (it) o = it;
-    var i = 0;
-    return function () {
-      if (i >= o.length) return {
-        done: true
-      };
-      return {
-        done: false,
-        value: o[i++]
-      };
-    };
-  }
-  throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-}
-
-var _excluded = ["width", "height", "fill"];
-var Cross = function Cross(_ref) {
-  var _ref$width = _ref.width,
-    width = _ref$width === void 0 ? 32 : _ref$width,
-    _ref$height = _ref.height,
-    height = _ref$height === void 0 ? 32 : _ref$height,
-    _ref$fill = _ref.fill,
-    fill = _ref$fill === void 0 ? 'white' : _ref$fill,
-    rest = _objectWithoutPropertiesLoose(_ref, _excluded);
-  return React__default.createElement("svg", Object.assign({
-    width: width,
-    height: height,
+const Cross = ({
+  width: _width = 32,
+  height: _height = 32,
+  fill: _fill = 'white',
+  ...rest
+}) => {
+  return React.createElement("svg", Object.assign({
+    width: _width,
+    height: _height,
     viewBox: '0 0 11 11',
     xmlns: 'http://www.w3.org/2000/svg'
-  }, rest), React__default.createElement("path", {
+  }, rest), React.createElement("path", {
     d: 'M9.656 1.688L5.944 5.4L9.656 9.112L8.712 10.056L5 6.344L1.288 10.056L0.344 9.112L4.056 5.4L0.344 1.688L1.288 0.743999L5 4.456L8.712 0.743999L9.656 1.688Z',
-    fill: fill
+    fill: _fill
   }));
 };
 
-var _excluded$1 = ["width", "height", "fill"];
-var Minimize = function Minimize(_ref) {
-  var _ref$width = _ref.width,
-    width = _ref$width === void 0 ? 16 : _ref$width,
-    _ref$height = _ref.height,
-    height = _ref$height === void 0 ? 1 : _ref$height,
-    _ref$fill = _ref.fill,
-    fill = _ref$fill === void 0 ? 'white' : _ref$fill,
-    rest = _objectWithoutPropertiesLoose(_ref, _excluded$1);
-  return React__default.createElement("svg", Object.assign({
-    width: width,
-    height: height,
+const Minimize = ({
+  width: _width = 16,
+  height: _height = 1,
+  fill: _fill = 'white',
+  ...rest
+}) => {
+  return React.createElement("svg", Object.assign({
+    width: _width,
+    height: _height,
     viewBox: '0 0 11 1',
     xmlns: 'http://www.w3.org/2000/svg'
-  }, rest), React__default.createElement("rect", {
+  }, rest), React.createElement("rect", {
     width: '11',
     height: '1',
-    fill: fill
+    fill: _fill
   }));
 };
 
-var _excluded$2 = ["width", "height", "fill"];
-var FooterLogo = function FooterLogo(_ref) {
-  var _ref$width = _ref.width,
-    width = _ref$width === void 0 ? 32 : _ref$width,
-    _ref$height = _ref.height,
-    height = _ref$height === void 0 ? 32 : _ref$height,
-    _ref$fill = _ref.fill,
-    fill = _ref$fill === void 0 ? '#C5C5C5' : _ref$fill,
-    rest = _objectWithoutPropertiesLoose(_ref, _excluded$2);
-  return React__default.createElement("svg", Object.assign({
-    width: width,
-    height: height,
+const FooterLogo = ({
+  width: _width = 32,
+  height: _height = 32,
+  fill: _fill = '#C5C5C5',
+  ...rest
+}) => {
+  return React.createElement("svg", Object.assign({
+    width: _width,
+    height: _height,
     viewBox: '0 0 103 20',
     xmlns: 'http://www.w3.org/2000/svg'
-  }, rest), React__default.createElement("path", {
+  }, rest), React.createElement("path", {
     d: 'M91.483 10.2491C91.483 9.61748 91.8537 9.0958 92.54 9.0958C93.1091 9.11485 93.5697 9.63311 93.5697 10.2491V14.2164C93.5697 14.24 93.5744 14.2633 93.5834 14.2851C93.5924 14.3069 93.6057 14.3266 93.6224 14.3433C93.6391 14.36 93.6589 14.3731 93.6807 14.3821C93.7025 14.3911 93.7259 14.3957 93.7495 14.3956H95.5465C95.5941 14.3956 95.6397 14.3767 95.6733 14.3431C95.7069 14.3095 95.7258 14.2639 95.7258 14.2164V9.80993C95.7258 8.20338 94.7782 7.15953 93.2678 7.15953C92.224 7.15953 91.5377 7.61282 91.0986 8.10519C91.0971 8.10731 91.0951 8.10904 91.0928 8.11023C91.0905 8.11142 91.088 8.11205 91.0854 8.11205C91.0828 8.11205 91.0802 8.11142 91.0779 8.11023C91.0757 8.10904 91.0737 8.10731 91.0722 8.10519C90.6731 7.57326 90.0415 7.16099 89.1349 7.16099C88.3109 7.16099 87.6109 7.50292 87.2661 8.00848L87.2539 8.00506V7.50389C87.2539 7.48031 87.2493 7.45695 87.2404 7.43514C87.2314 7.41334 87.2182 7.39352 87.2015 7.37682C87.1849 7.36012 87.1651 7.34687 87.1433 7.33783C87.1215 7.32879 87.0982 7.32414 87.0746 7.32414H85.2912C85.244 7.32491 85.199 7.34417 85.1658 7.37778C85.1327 7.4114 85.114 7.45668 85.1139 7.50389V14.2164C85.1139 14.2639 85.1328 14.3095 85.1664 14.3431C85.2 14.3767 85.2456 14.3956 85.2932 14.3956H87.0766C87.1241 14.3956 87.1697 14.3767 87.2033 14.3431C87.2369 14.3095 87.2558 14.2639 87.2558 14.2164V10.2491C87.2558 9.61748 87.6266 9.0958 88.2997 9.0958C88.8756 9.11485 89.343 9.63311 89.343 10.2491V14.2164C89.343 14.2639 89.3619 14.3095 89.3955 14.3431C89.4292 14.3767 89.4748 14.3956 89.5223 14.3956H91.3057C91.3532 14.3956 91.3988 14.3767 91.4324 14.3431C91.4661 14.3095 91.4849 14.2639 91.4849 14.2164L91.483 10.2491ZM100.927 14.2164C100.927 14.2639 100.946 14.3095 100.979 14.3431C101.013 14.3767 101.059 14.3956 101.106 14.3956H102.821C102.868 14.3956 102.914 14.3767 102.947 14.3431C102.981 14.3095 103 14.2639 103 14.2164V10.0156C103 8.20338 101.819 7.15953 99.801 7.15953C99.0649 7.15367 98.0533 7.36712 97.4691 7.64555C97.4394 7.66035 97.4145 7.68324 97.3972 7.71158C97.3799 7.73993 97.371 7.77257 97.3714 7.80577V9.2526C97.3714 9.28314 97.3792 9.31319 97.3941 9.33986C97.409 9.36654 97.4304 9.38895 97.4565 9.40497C97.4825 9.42099 97.5122 9.43008 97.5427 9.43136C97.5732 9.43265 97.6035 9.4261 97.6308 9.41232C98.1364 9.16467 98.7142 8.98589 99.3214 8.98589C100.209 8.96831 100.928 9.46654 100.928 10.0981V10.147C100.928 10.17 100.923 10.1927 100.911 10.2128C100.9 10.2328 100.883 10.2494 100.863 10.261C100.844 10.2725 100.821 10.2784 100.798 10.2782C100.775 10.278 100.752 10.2717 100.733 10.2598C100.402 10.0644 99.8577 9.89053 99.2779 9.89053C97.7812 9.89053 96.5454 10.7966 96.5454 12.1697C96.5454 13.6527 97.7812 14.5593 99.209 14.5593C100.033 14.5593 100.678 14.2296 100.925 13.955L100.927 14.2164ZM100.954 12.1712C100.954 12.7344 100.336 13.0362 99.7463 13.0362C99.1284 13.0362 98.5252 12.7344 98.5252 12.1712C98.5252 11.6221 99.1294 11.3203 99.7463 11.3203C100.336 11.3203 100.954 11.6221 100.954 12.1712Z',
-    fill: fill
-  }), React__default.createElement("path", {
+    fill: _fill
+  }), React.createElement("path", {
     d: 'M81.6947 14.3956H83.478C83.5256 14.3956 83.5712 14.3767 83.6048 14.3431C83.6384 14.3095 83.6573 14.2639 83.6573 14.2164V7.5039C83.6573 7.45635 83.6384 7.41075 83.6048 7.37713C83.5712 7.34352 83.5256 7.32463 83.478 7.32463H81.6947C81.6471 7.32463 81.6015 7.34352 81.5679 7.37713C81.5343 7.41075 81.5154 7.45635 81.5154 7.5039V14.2164C81.5154 14.2639 81.5343 14.3095 81.5679 14.3431C81.6015 14.3767 81.6471 14.3956 81.6947 14.3956Z',
-    fill: fill
-  }), React__default.createElement("path", {
+    fill: _fill
+  }), React.createElement("path", {
     d: 'M82.6003 4.00014H82.5705C82.3972 3.99758 82.2252 4.02978 82.0646 4.09482C81.904 4.15987 81.7581 4.25645 81.6355 4.37885C81.5129 4.50125 81.416 4.647 81.3507 4.80747C81.2853 4.96794 81.2528 5.13988 81.255 5.31313C81.2544 5.4851 81.288 5.65548 81.354 5.81429C81.4199 5.97311 81.5169 6.11718 81.6392 6.23807C81.7615 6.35896 81.9067 6.45425 82.0662 6.51837C82.2258 6.58248 82.3966 6.61413 82.5685 6.61147H82.5983C82.7698 6.61147 82.9396 6.5777 83.098 6.51208C83.2564 6.44647 83.4003 6.35029 83.5216 6.22905C83.6428 6.10781 83.739 5.96387 83.8046 5.80546C83.8702 5.64705 83.904 5.47727 83.904 5.30581C83.904 5.13434 83.8702 4.96456 83.8046 4.80615C83.739 4.64774 83.6428 4.5038 83.5216 4.38256C83.4003 4.26132 83.2564 4.16515 83.098 4.09953C82.9396 4.03391 82.7698 4.00014 82.5983 4.00014',
-    fill: fill
-  }), React__default.createElement("path", {
+    fill: _fill
+  }), React.createElement("path", {
     d: 'M79.7198 12.3895C79.4939 12.1693 79.196 12.0384 78.8811 12.0207C77.7161 11.9836 77.5481 11.016 77.5481 10.7717C77.5481 10.5055 77.7332 9.57205 78.8792 9.53542C79.2181 9.51481 79.5358 9.3633 79.7651 9.11289C79.9944 8.86248 80.1175 8.53275 80.1083 8.19331C80.0991 7.85388 79.9584 7.53129 79.7158 7.29366C79.4733 7.05602 79.1479 6.92193 78.8083 6.91969H78.7995C78.4598 6.92039 78.1336 7.05357 77.8905 7.29092C77.6131 7.56153 77.4963 7.92593 77.4963 8.28397C77.4963 8.59903 77.2877 9.46264 76.3196 9.46264C75.9552 9.46264 75.5727 9.56863 75.2938 9.85341C75.2816 9.86562 75.2723 9.87978 75.2611 9.89297V9.8876C75.1937 9.95745 75.1805 9.90225 75.1815 9.86464V4.59704C75.1815 4.54958 75.1627 4.50406 75.1291 4.47046C75.0956 4.43685 75.0502 4.41791 75.0027 4.41778H73.1793C73.1317 4.41778 73.0861 4.43666 73.0525 4.47028C73.0189 4.5039 73 4.5495 73 4.59704V14.2618C73 14.3093 73.0189 14.3549 73.0525 14.3886C73.0861 14.4222 73.1317 14.4411 73.1793 14.4411H75.0027C75.0502 14.4409 75.0957 14.422 75.1293 14.3884C75.1629 14.3548 75.1818 14.3093 75.182 14.2618V11.691C75.182 11.6534 75.1942 11.5982 75.2616 11.6681V11.6637C75.2723 11.6764 75.2816 11.6895 75.2933 11.7018C75.5723 11.988 75.9493 12.0925 76.3191 12.0925C77.2877 12.0925 77.4963 13.0695 77.4963 13.2712C77.4963 13.5501 77.6131 13.9936 77.8905 14.2642C78.1346 14.5025 78.4623 14.6357 78.8034 14.6355C79.1505 14.6361 79.4836 14.499 79.7296 14.2542C79.9757 14.0093 80.1144 13.6769 80.1155 13.3298V13.3215C80.115 13.1473 80.0798 12.975 80.0118 12.8146C79.9439 12.6542 79.8446 12.5091 79.7198 12.3876',
-    fill: fill
-  }), React__default.createElement("path", {
+    fill: _fill
+  }), React.createElement("path", {
     d: 'M6.516 8.084C6.516 8.78 6.276 9.36 5.796 9.824C5.324 10.28 4.6 10.508 3.624 10.508H2.016V14H0.924V5.636H3.624C4.568 5.636 5.284 5.864 5.772 6.32C6.268 6.776 6.516 7.364 6.516 8.084ZM3.624 9.608C4.232 9.608 4.68 9.476 4.968 9.212C5.256 8.948 5.4 8.572 5.4 8.084C5.4 7.052 4.808 6.536 3.624 6.536H2.016V9.608H3.624ZM10.5412 14.108C9.92522 14.108 9.36522 13.968 8.86122 13.688C8.36522 13.408 7.97322 13.012 7.68522 12.5C7.40522 11.98 7.26522 11.38 7.26522 10.7C7.26522 10.028 7.40922 9.436 7.69722 8.924C7.99322 8.404 8.39322 8.008 8.89722 7.736C9.40122 7.456 9.96522 7.316 10.5892 7.316C11.2132 7.316 11.7772 7.456 12.2812 7.736C12.7852 8.008 13.1812 8.4 13.4692 8.912C13.7652 9.424 13.9132 10.02 13.9132 10.7C13.9132 11.38 13.7612 11.98 13.4572 12.5C13.1612 13.012 12.7572 13.408 12.2452 13.688C11.7332 13.968 11.1652 14.108 10.5412 14.108ZM10.5412 13.148C10.9332 13.148 11.3012 13.056 11.6452 12.872C11.9892 12.688 12.2652 12.412 12.4732 12.044C12.6892 11.676 12.7972 11.228 12.7972 10.7C12.7972 10.172 12.6932 9.724 12.4852 9.356C12.2772 8.988 12.0052 8.716 11.6692 8.54C11.3332 8.356 10.9692 8.264 10.5772 8.264C10.1772 8.264 9.80922 8.356 9.47322 8.54C9.14522 8.716 8.88122 8.988 8.68122 9.356C8.48122 9.724 8.38122 10.172 8.38122 10.7C8.38122 11.236 8.47722 11.688 8.66922 12.056C8.86922 12.424 9.13322 12.7 9.46122 12.884C9.78922 13.06 10.1492 13.148 10.5412 13.148ZM23.909 7.424L21.857 14H20.729L19.145 8.78L17.561 14H16.433L14.369 7.424H15.485L16.997 12.944L18.629 7.424H19.745L21.341 12.956L22.829 7.424H23.909ZM30.7927 10.46C30.7927 10.668 30.7807 10.888 30.7567 11.12H25.5007C25.5407 11.768 25.7607 12.276 26.1607 12.644C26.5687 13.004 27.0607 13.184 27.6367 13.184C28.1087 13.184 28.5007 13.076 28.8127 12.86C29.1327 12.636 29.3567 12.34 29.4847 11.972H30.6608C30.4848 12.604 30.1327 13.12 29.6047 13.52C29.0767 13.912 28.4207 14.108 27.6367 14.108C27.0127 14.108 26.4527 13.968 25.9567 13.688C25.4687 13.408 25.0847 13.012 24.8047 12.5C24.5247 11.98 24.3847 11.38 24.3847 10.7C24.3847 10.02 24.5207 9.424 24.7927 8.912C25.0647 8.4 25.4447 8.008 25.9327 7.736C26.4287 7.456 26.9967 7.316 27.6367 7.316C28.2607 7.316 28.8127 7.452 29.2927 7.724C29.7727 7.996 30.1407 8.372 30.3967 8.852C30.6607 9.324 30.7927 9.86 30.7927 10.46ZM29.6647 10.232C29.6647 9.816 29.5727 9.46 29.3887 9.164C29.2047 8.86 28.9527 8.632 28.6327 8.48C28.3207 8.32 27.9727 8.24 27.5887 8.24C27.0367 8.24 26.5647 8.416 26.1727 8.768C25.7887 9.12 25.5687 9.608 25.5127 10.232H29.6647ZM33.1262 8.492C33.3182 8.116 33.5902 7.824 33.9422 7.616C34.3022 7.408 34.7382 7.304 35.2502 7.304V8.432H34.9622C33.7382 8.432 33.1262 9.096 33.1262 10.424V14H32.0342V7.424H33.1262V8.492ZM42.3107 10.46C42.3107 10.668 42.2987 10.888 42.2747 11.12H37.0187C37.0587 11.768 37.2787 12.276 37.6787 12.644C38.0867 13.004 38.5787 13.184 39.1547 13.184C39.6267 13.184 40.0187 13.076 40.3307 12.86C40.6507 12.636 40.8747 12.34 41.0027 11.972H42.1787C42.0027 12.604 41.6507 13.12 41.1227 13.52C40.5947 13.912 39.9387 14.108 39.1547 14.108C38.5307 14.108 37.9707 13.968 37.4747 13.688C36.9867 13.408 36.6027 13.012 36.3227 12.5C36.0427 11.98 35.9027 11.38 35.9027 10.7C35.9027 10.02 36.0387 9.424 36.3107 8.912C36.5827 8.4 36.9627 8.008 37.4507 7.736C37.9467 7.456 38.5147 7.316 39.1547 7.316C39.7787 7.316 40.3307 7.452 40.8107 7.724C41.2907 7.996 41.6587 8.372 41.9147 8.852C42.1787 9.324 42.3107 9.86 42.3107 10.46ZM41.1827 10.232C41.1827 9.816 41.0907 9.46 40.9067 9.164C40.7227 8.86 40.4707 8.632 40.1507 8.48C39.8387 8.32 39.4907 8.24 39.1067 8.24C38.5547 8.24 38.0827 8.416 37.6907 8.768C37.3067 9.12 37.0867 9.608 37.0307 10.232H41.1827ZM43.1441 10.688C43.1441 10.016 43.2801 9.428 43.5521 8.924C43.8241 8.412 44.1961 8.016 44.6681 7.736C45.1481 7.456 45.6841 7.316 46.2761 7.316C46.7881 7.316 47.2641 7.436 47.7041 7.676C48.1441 7.908 48.4801 8.216 48.7121 8.6V5.12H49.8161V14H48.7121V12.764C48.4961 13.156 48.1761 13.48 47.7521 13.736C47.3281 13.984 46.8321 14.108 46.2641 14.108C45.6801 14.108 45.1481 13.964 44.6681 13.676C44.1961 13.388 43.8241 12.984 43.5521 12.464C43.2801 11.944 43.1441 11.352 43.1441 10.688ZM48.7121 10.7C48.7121 10.204 48.6121 9.772 48.4121 9.404C48.2121 9.036 47.9401 8.756 47.5961 8.564C47.2601 8.364 46.8881 8.264 46.4801 8.264C46.0721 8.264 45.7001 8.36 45.3641 8.552C45.0281 8.744 44.7601 9.024 44.5601 9.392C44.3601 9.76 44.2601 10.192 44.2601 10.688C44.2601 11.192 44.3601 11.632 44.5601 12.008C44.7601 12.376 45.0281 12.66 45.3641 12.86C45.7001 13.052 46.0721 13.148 46.4801 13.148C46.8881 13.148 47.2601 13.052 47.5961 12.86C47.9401 12.66 48.2121 12.376 48.4121 12.008C48.6121 11.632 48.7121 11.196 48.7121 10.7ZM55.5527 8.648C55.7767 8.256 56.1047 7.936 56.5367 7.688C56.9687 7.44 57.4607 7.316 58.0127 7.316C58.6047 7.316 59.1367 7.456 59.6087 7.736C60.0807 8.016 60.4527 8.412 60.7247 8.924C60.9967 9.428 61.1327 10.016 61.1327 10.688C61.1327 11.352 60.9967 11.944 60.7247 12.464C60.4527 12.984 60.0767 13.388 59.5967 13.676C59.1247 13.964 58.5967 14.108 58.0127 14.108C57.4447 14.108 56.9447 13.984 56.5127 13.736C56.0887 13.488 55.7687 13.172 55.5527 12.788V14H54.4607V5.12H55.5527V8.648ZM60.0167 10.688C60.0167 10.192 59.9167 9.76 59.7167 9.392C59.5167 9.024 59.2447 8.744 58.9007 8.552C58.5647 8.36 58.1927 8.264 57.7847 8.264C57.3847 8.264 57.0127 8.364 56.6687 8.564C56.3327 8.756 56.0607 9.04 55.8527 9.416C55.6527 9.784 55.5527 10.212 55.5527 10.7C55.5527 11.196 55.6527 11.632 55.8527 12.008C56.0607 12.376 56.3327 12.66 56.6687 12.86C57.0127 13.052 57.3847 13.148 57.7847 13.148C58.1927 13.148 58.5647 13.052 58.9007 12.86C59.2447 12.66 59.5167 12.376 59.7167 12.008C59.9167 11.632 60.0167 11.192 60.0167 10.688ZM68.0341 7.424L64.0741 17.096H62.9461L64.2421 13.928L61.5901 7.424H62.8021L64.8661 12.752L66.9061 7.424H68.0341Z',
-    fill: fill
+    fill: _fill
   }));
 };
 
-var _excluded$3 = ["width", "height", "fill"];
-var Check = function Check(_ref) {
-  var _ref$width = _ref.width,
-    width = _ref$width === void 0 ? 15 : _ref$width,
-    _ref$height = _ref.height,
-    height = _ref$height === void 0 ? 11 : _ref$height,
-    _ref$fill = _ref.fill,
-    fill = _ref$fill === void 0 ? '#03a932' : _ref$fill,
-    rest = _objectWithoutPropertiesLoose(_ref, _excluded$3);
-  return React__default.createElement("svg", Object.assign({
-    width: width,
-    height: height,
+const Check = ({
+  width: _width = 15,
+  height: _height = 11,
+  fill: _fill = '#03a932',
+  ...rest
+}) => {
+  return React.createElement("svg", Object.assign({
+    width: _width,
+    height: _height,
     viewBox: '0 0 15 11',
     xmlns: 'http://www.w3.org/2000/svg'
-  }, rest), React__default.createElement("path", {
+  }, rest), React.createElement("path", {
     d: 'M13.7319 0.295798C13.639 0.20207 13.5284 0.127675 13.4065 0.0769067C13.2846 0.026138 13.1539 0 13.0219 0C12.8899 0 12.7592 0.026138 12.6373 0.0769067C12.5155 0.127675 12.4049 0.20207 12.3119 0.295798L4.86192 7.7558L1.73192 4.6158C1.6354 4.52256 1.52146 4.44925 1.3966 4.40004C1.27175 4.35084 1.13843 4.32671 1.00424 4.32903C0.870064 4.33135 0.737655 4.36008 0.614576 4.41357C0.491498 4.46706 0.380161 4.54428 0.286922 4.6408C0.193684 4.73732 0.12037 4.85126 0.0711659 4.97612C0.0219619 5.10097 -0.00216855 5.2343 0.000152918 5.36848C0.00247438 5.50266 0.0312022 5.63507 0.0846957 5.75814C0.138189 5.88122 0.215401 5.99256 0.311922 6.0858L4.15192 9.9258C4.24489 10.0195 4.35549 10.0939 4.47735 10.1447C4.59921 10.1955 4.72991 10.2216 4.86192 10.2216C4.99393 10.2216 5.12464 10.1955 5.2465 10.1447C5.36836 10.0939 5.47896 10.0195 5.57192 9.9258L13.7319 1.7658C13.8334 1.67216 13.9144 1.5585 13.9698 1.432C14.0252 1.30551 14.0539 1.1689 14.0539 1.0308C14.0539 0.892697 14.0252 0.756091 13.9698 0.629592C13.9144 0.503092 13.8334 0.389441 13.7319 0.295798Z',
-    fill: fill
+    fill: _fill
   }));
 };
 
-var _excluded$4 = ["width", "height"];
-var Warning = function Warning(_ref) {
-  var _ref$width = _ref.width,
-    width = _ref$width === void 0 ? 14 : _ref$width,
-    _ref$height = _ref.height,
-    height = _ref$height === void 0 ? 13 : _ref$height,
-    rest = _objectWithoutPropertiesLoose(_ref, _excluded$4);
-  return React__default.createElement("svg", Object.assign({
-    width: width,
-    height: height,
+const Warning = ({
+  width: _width = 14,
+  height: _height = 13,
+  ...rest
+}) => {
+  return React.createElement("svg", Object.assign({
+    width: _width,
+    height: _height,
     viewBox: '0 0 14 13',
     xmlns: 'http://www.w3.org/2000/svg'
-  }, rest), React__default.createElement("path", {
+  }, rest), React.createElement("path", {
     d: 'M13.8418 11.0561L8.16007 0.683372C8.04697 0.476647 7.87973 0.304041 7.67598 0.183764C7.47223 0.0634876 7.23954 0 7.00245 0C6.76537 0 6.53267 0.0634876 6.32893 0.183764C6.12518 0.304041 5.95794 0.476647 5.84484 0.683372L0.167185 11.0561C0.05491 11.2556 -0.00270098 11.4807 9.72867e-05 11.7091C0.00289555 11.9376 0.0660053 12.1613 0.183133 12.358C0.300261 12.5546 0.467315 12.7174 0.667636 12.8301C0.867956 12.9427 1.09454 13.0013 1.3248 13H12.6842C12.9121 12.9997 13.1361 12.9408 13.3342 12.829C13.5323 12.7172 13.6977 12.5563 13.8144 12.3621C13.931 12.1678 13.9949 11.9469 13.9997 11.7208C14.0045 11.4947 13.9501 11.2713 13.8418 11.0723V11.0561ZM6.47887 3.26032C6.47887 3.10964 6.5392 2.96513 6.6466 2.85858C6.754 2.75203 6.89966 2.69218 7.05154 2.69218C7.20342 2.69218 7.34908 2.75203 7.45648 2.85858C7.56388 2.96513 7.62421 3.10964 7.62421 3.26032V8.13015C7.62421 8.28083 7.56388 8.42534 7.45648 8.53189C7.34908 8.63844 7.20342 8.6983 7.05154 8.6983C6.89966 8.6983 6.754 8.63844 6.6466 8.53189C6.5392 8.42534 6.47887 8.28083 6.47887 8.13015V3.26032ZM7.05154 11.3158C6.90592 11.3158 6.76356 11.273 6.64248 11.1927C6.52139 11.1125 6.42702 10.9984 6.37129 10.8649C6.31556 10.7314 6.30098 10.5845 6.32939 10.4428C6.3578 10.3011 6.42793 10.171 6.5309 10.0688C6.63387 9.96667 6.76507 9.8971 6.9079 9.86892C7.05072 9.84073 7.19877 9.8552 7.33331 9.91048C7.46785 9.96577 7.58284 10.0594 7.66375 10.1795C7.74465 10.2997 7.78783 10.4409 7.78783 10.5854C7.78783 10.6813 7.76879 10.7763 7.73179 10.8649C7.69479 10.9535 7.64055 11.034 7.57218 11.1019C7.50381 11.1697 7.42264 11.2235 7.33331 11.2602C7.24398 11.2969 7.14823 11.3158 7.05154 11.3158Z',
     fill: '#FFB03A'
   }));
 };
 
-var _excluded$5 = ["width", "height", "fill"];
-var ArrowRight = function ArrowRight(_ref) {
-  var _ref$width = _ref.width,
-    width = _ref$width === void 0 ? 12 : _ref$width,
-    _ref$height = _ref.height,
-    height = _ref$height === void 0 ? 9 : _ref$height,
-    _ref$fill = _ref.fill,
-    fill = _ref$fill === void 0 ? 'white' : _ref$fill,
-    rest = _objectWithoutPropertiesLoose(_ref, _excluded$5);
-  return React__default.createElement("svg", Object.assign({
-    width: width,
-    height: height,
+const ArrowRight = ({
+  width: _width = 12,
+  height: _height = 9,
+  fill: _fill = 'white',
+  ...rest
+}) => {
+  return React.createElement("svg", Object.assign({
+    width: _width,
+    height: _height,
     viewBox: '0 0 12 9',
     xmlns: 'http://www.w3.org/2000/svg'
-  }, rest), React__default.createElement("path", {
+  }, rest), React.createElement("path", {
     d: 'M11.3536 4.85355C11.5488 4.65829 11.5488 4.34171 11.3536 4.14645L8.17157 0.964466C7.97631 0.769204 7.65973 0.769204 7.46447 0.964466C7.2692 1.15973 7.2692 1.47631 7.46447 1.67157L10.2929 4.5L7.46447 7.32843C7.2692 7.52369 7.2692 7.84027 7.46447 8.03553C7.65973 8.2308 7.97631 8.2308 8.17157 8.03553L11.3536 4.85355ZM0.5 5H11V4H0.5V5Z',
-    fill: fill
+    fill: _fill
   }));
 };
 
-var _excluded$6 = ["width", "height", "fill"];
-var Arrow = function Arrow(_ref) {
-  var _ref$width = _ref.width,
-    width = _ref$width === void 0 ? 27 : _ref$width,
-    _ref$height = _ref.height,
-    height = _ref$height === void 0 ? 51 : _ref$height,
-    _ref$fill = _ref.fill,
-    fill = _ref$fill === void 0 ? 'black' : _ref$fill,
-    rest = _objectWithoutPropertiesLoose(_ref, _excluded$6);
-  return React__default.createElement("svg", Object.assign({
-    width: width,
-    height: height,
+const Arrow = ({
+  width: _width = 27,
+  height: _height = 51,
+  fill: _fill = 'black',
+  ...rest
+}) => {
+  return React.createElement("svg", Object.assign({
+    width: _width,
+    height: _height,
     viewBox: '0 0 27 51',
     xmlns: 'http://www.w3.org/2000/svg',
     fill: 'transparent'
-  }, rest), React__default.createElement("path", {
+  }, rest), React.createElement("path", {
     d: 'M25 49L2 25.5L25 2',
-    stroke: fill,
+    stroke: _fill,
     strokeWidth: '4',
     strokeLinecap: 'round',
     strokeLinejoin: 'round'
   }));
 };
 
-var _excluded$7 = ["width", "height"];
-var Ethereum = function Ethereum(_ref) {
-  var _ref$width = _ref.width,
-    width = _ref$width === void 0 ? 37 : _ref$width,
-    _ref$height = _ref.height,
-    height = _ref$height === void 0 ? 37 : _ref$height,
-    rest = _objectWithoutPropertiesLoose(_ref, _excluded$7);
-  return React__default.createElement("svg", Object.assign({
-    width: width,
-    height: height,
+const Ethereum = ({
+  width: _width = 37,
+  height: _height = 37,
+  ...rest
+}) => {
+  return React.createElement("svg", Object.assign({
+    width: _width,
+    height: _height,
     viewBox: '0 0 37 37',
     xmlns: 'http://www.w3.org/2000/svg'
-  }, rest), React__default.createElement("rect", {
+  }, rest), React.createElement("rect", {
     x: '0',
     y: '0',
     width: '37',
     height: '37',
     fill: 'url(#pattern0)'
-  }), React__default.createElement("defs", null, React__default.createElement("pattern", {
+  }), React.createElement("defs", null, React.createElement("pattern", {
     id: 'pattern0',
     patternContentUnits: 'objectBoundingBox',
     width: '1',
     height: '1'
-  }, React__default.createElement("use", {
+  }, React.createElement("use", {
     href: '#image0_184_1295',
     transform: 'scale(0.00520833)'
-  })), React__default.createElement("image", {
+  })), React.createElement("image", {
     id: 'image0_184_1295',
     width: '192',
     height: '192',
@@ -288,49 +194,47 @@ var Ethereum = function Ethereum(_ref) {
   })));
 };
 
-var _excluded$8 = ["width", "height"];
-var Solana = function Solana(_ref) {
-  var _ref$width = _ref.width,
-    width = _ref$width === void 0 ? 14 : _ref$width,
-    _ref$height = _ref.height,
-    height = _ref$height === void 0 ? 14 : _ref$height,
-    rest = _objectWithoutPropertiesLoose(_ref, _excluded$8);
-  return React__default.createElement("svg", Object.assign({
-    width: width,
-    height: height,
+const Solana = ({
+  width: _width = 14,
+  height: _height = 14,
+  ...rest
+}) => {
+  return React.createElement("svg", Object.assign({
+    width: _width,
+    height: _height,
     viewBox: '0 0 14 14',
     xmlns: 'http://www.w3.org/2000/svg'
-  }, rest), React__default.createElement("path", {
+  }, rest), React.createElement("path", {
     d: 'M4.19214 0L4.10059 0.311195V9.34137L4.19214 9.43276L8.38385 6.95506L4.19214 0Z',
     fill: '#343434'
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     d: 'M4.1917 0L0 6.95505L4.1917 9.43279V5.04982V0Z',
     fill: '#8C8C8C'
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     d: 'M4.19222 10.2264L4.14062 10.2893V13.506L4.19222 13.6568L8.38641 7.74994L4.19222 10.2264Z',
     fill: '#3C3C3B'
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     d: 'M4.1917 13.6567V10.2264L0 7.74991L4.1917 13.6567Z',
     fill: '#8C8C8C'
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     d: 'M4.19141 9.43272L8.38305 6.95504L4.19141 5.0498V9.43272Z',
     fill: '#141414'
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     d: 'M0 6.95503L4.19164 9.4327V5.04979L0 6.95503Z',
     fill: '#393939'
-  }), React__default.createElement("rect", {
+  }), React.createElement("rect", {
     width: '14',
     height: '14',
     fill: 'url(#pattern1)'
-  }), React__default.createElement("defs", null, React__default.createElement("pattern", {
+  }), React.createElement("defs", null, React.createElement("pattern", {
     id: 'pattern1',
     patternContentUnits: 'objectBoundingBox',
     width: '1',
     height: '1'
-  }, React__default.createElement("use", {
+  }, React.createElement("use", {
     href: '#image0_4_722',
     transform: 'scale(0.00316456)'
-  })), React__default.createElement("image", {
+  })), React.createElement("image", {
     id: 'image0_4_722',
     width: '316',
     height: '316',
@@ -338,19 +242,17 @@ var Solana = function Solana(_ref) {
   })));
 };
 
-var _excluded$9 = ["width", "height"];
-var Ethereum$1 = function Ethereum(_ref) {
-  var _ref$width = _ref.width,
-    width = _ref$width === void 0 ? 27 : _ref$width,
-    _ref$height = _ref.height,
-    height = _ref$height === void 0 ? 27 : _ref$height,
-    rest = _objectWithoutPropertiesLoose(_ref, _excluded$9);
-  return React__default.createElement("svg", Object.assign({
-    width: width,
-    height: height,
+const Ethereum$1 = ({
+  width: _width = 27,
+  height: _height = 27,
+  ...rest
+}) => {
+  return React.createElement("svg", Object.assign({
+    width: _width,
+    height: _height,
     viewBox: '0 0 27 27',
     xmlns: 'http://www.w3.org/2000/svg'
-  }, rest), React__default.createElement("mask", {
+  }, rest), React.createElement("mask", {
     id: 'mask0_214_508',
     style: {
       maskType: 'alpha'
@@ -360,57 +262,55 @@ var Ethereum$1 = function Ethereum(_ref) {
     y: '0',
     width: '27',
     height: '27'
-  }, React__default.createElement("circle", {
+  }, React.createElement("circle", {
     cx: '13.0357',
     cy: '13.0357',
     r: '13.0357',
     fill: '#D9D9D9'
-  })), React__default.createElement("g", {
+  })), React.createElement("g", {
     mask: 'url(#mask0_214_508)'
-  }), React__default.createElement("g", {
+  }), React.createElement("g", {
     clipPath: 'url(#clip0_214_508)'
-  }, React__default.createElement("path", {
+  }, React.createElement("path", {
     d: 'M13 26C20.1797 26 26 20.1797 26 13C26 5.8203 20.1797 0 13 0C5.8203 0 0 5.8203 0 13C0 20.1797 5.8203 26 13 26Z',
     fill: '#8247E5'
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     d: 'M17.3028 10.2187C16.991 10.0373 16.5856 10.0373 16.2426 10.2187L13.8105 11.6094L12.1579 12.5164L9.72584 13.9071C9.41401 14.0885 9.00868 14.0885 8.66568 13.9071L6.73246 12.8187C6.42066 12.6373 6.2024 12.3048 6.2024 11.9419V9.79545C6.2024 9.43266 6.38948 9.1001 6.73246 8.91871L8.6345 7.86055C8.94629 7.67916 9.35165 7.67916 9.69466 7.86055L11.5967 8.91871C11.9085 9.1001 12.1267 9.43266 12.1267 9.79545V11.1861L13.7793 10.2489V8.85823C13.7793 8.49545 13.5922 8.16288 13.2493 7.98149L9.72584 5.98614C9.41401 5.80475 9.00868 5.80475 8.66568 5.98614L5.07988 7.98149C4.73688 8.16288 4.5498 8.49545 4.5498 8.85823V12.8792C4.5498 13.2419 4.73688 13.5745 5.07988 13.7559L8.66568 15.7512C8.9775 15.9327 9.38283 15.9327 9.72584 15.7512L12.1579 14.3908L13.8105 13.4536L16.2426 12.0931C16.5544 11.9117 16.9598 11.9117 17.3028 12.0931L19.2048 13.1512C19.5166 13.3327 19.7349 13.6652 19.7349 14.028V16.1745C19.7349 16.5373 19.5478 16.8699 19.2048 17.0512L17.3028 18.1396C16.991 18.321 16.5856 18.321 16.2426 18.1396L14.3406 17.0815C14.0288 16.9001 13.8105 16.5675 13.8105 16.2048V14.8141L12.1579 15.7512V17.1419C12.1579 17.5048 12.345 17.8373 12.688 18.0187L16.2738 20.0141C16.5856 20.1954 16.991 20.1954 17.3339 20.0141L20.9197 18.0187C21.2315 17.8373 21.4498 17.5048 21.4498 17.1419V13.121C21.4498 12.7582 21.2627 12.4257 20.9197 12.2443L17.3028 10.2187Z',
     fill: 'white'
-  })), React__default.createElement("defs", null, React__default.createElement("clipPath", {
+  })), React.createElement("defs", null, React.createElement("clipPath", {
     id: 'clip0_214_508'
-  }, React__default.createElement("rect", {
+  }, React.createElement("rect", {
     width: '26',
     height: '26',
     fill: 'white'
   }))));
 };
 
-var _excluded$a = ["width", "height"];
-var Avalanche = function Avalanche(_ref) {
-  var _ref$width = _ref.width,
-    width = _ref$width === void 0 ? 37 : _ref$width,
-    _ref$height = _ref.height,
-    height = _ref$height === void 0 ? 37 : _ref$height,
-    rest = _objectWithoutPropertiesLoose(_ref, _excluded$a);
-  return React__default.createElement("svg", Object.assign({
-    width: width,
-    height: height,
+const Avalanche = ({
+  width: _width = 37,
+  height: _height = 37,
+  ...rest
+}) => {
+  return React.createElement("svg", Object.assign({
+    width: _width,
+    height: _height,
     viewBox: '0 0 37 37',
     xmlns: 'http://www.w3.org/2000/svg'
-  }, rest), React__default.createElement("rect", {
+  }, rest), React.createElement("rect", {
     x: '0',
     y: '0',
     width: '37',
     height: '37',
     fill: 'url(#pattern2)'
-  }), React__default.createElement("defs", null, React__default.createElement("pattern", {
+  }), React.createElement("defs", null, React.createElement("pattern", {
     id: 'pattern2',
     patternContentUnits: 'objectBoundingBox',
     width: '1',
     height: '1'
-  }, React__default.createElement("use", {
+  }, React.createElement("use", {
     href: '#image0_214_494',
     transform: 'scale(0.00390625)'
-  })), React__default.createElement("image", {
+  })), React.createElement("image", {
     id: 'image0_214_494',
     width: '256',
     height: '256',
@@ -418,48 +318,50 @@ var Avalanche = function Avalanche(_ref) {
   })));
 };
 
-var _excluded$b = ["width", "height"];
-var Arbitrum = function Arbitrum(_ref) {
-  var rest = _objectWithoutPropertiesLoose(_ref, _excluded$b);
-  return React__default.createElement("svg", {
+const Arbitrum = ({
+  width: _width = 37,
+  height: _height = 37,
+  ...rest
+}) => {
+  return React.createElement("svg", {
     xmlns: 'http://www.w3.org/2000/svg',
     width: '124.983',
     height: '140.32',
     viewBox: '0 0 124.983 140.32'
-  }, React__default.createElement("g", Object.assign({
+  }, React.createElement("g", Object.assign({
     id: 'symbol',
     transform: 'translate(-177.491 -53.193)'
-  }, rest), React__default.createElement("path", {
+  }, rest), React.createElement("path", {
     id: 'Path_153',
     "data-name": 'Path 153',
     d: 'M266.978,128.665l10.305-17.485,27.776,43.262.013,8.3-.091-57.131a4.3,4.3,0,0,0-1.99-3.428L252.984,73.42a4.408,4.408,0,0,0-3.821.018,4.352,4.352,0,0,0-.448.259l-.174.11L200,101.935l-.189.085a4.417,4.417,0,0,0-.717.418,4.29,4.29,0,0,0-1.729,2.731,4.419,4.419,0,0,0-.062.505l.076,46.556,25.872-40.1c3.257-5.317,10.354-7.03,16.942-6.937l7.732.2-45.56,73.064,5.371,3.092,46.106-76.083,20.379-.074-45.987,78L247.4,194.422l2.29,1.317a4.4,4.4,0,0,0,3.087.061l50.71-29.387-9.7,5.618Zm3.932,56.627-19.356-30.379,11.815-20.049,25.42,40.066Z',
     transform: 'translate(-11.186 -11.178)',
     fill: '#2d374b'
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     id: 'Path_154',
     "data-name": 'Path 154',
     d: 'M321.883,235.122,341.239,265.5l17.88-10.362L333.7,215.073Z',
     transform: 'translate(-81.515 -91.387)',
     fill: '#28a0f0'
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     id: 'Path_155',
     "data-name": 'Path 155',
     d: 'M395.4,212.248l-.013-8.3-27.776-43.262L357.3,178.169l26.814,43.366,9.7-5.618a4.3,4.3,0,0,0,1.587-3.129Z',
     transform: 'translate(-101.511 -60.683)',
     fill: '#28a0f0'
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     id: 'Path_156',
     "data-name": 'Path 156',
     d: 'M177.491,212.312l13.691,7.889,45.56-73.064-7.732-.2c-6.588-.093-13.685,1.619-16.942,6.937l-25.872,40.1-8.7,13.373v4.969Z',
     transform: 'translate(0 -52.917)',
     fill: '#fff'
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     id: 'Path_157',
     "data-name": 'Path 157',
     d: 'M287.75,147.406l-20.378.074-46.106,76.083,16.115,9.279,4.382-7.433Z',
     transform: 'translate(-24.713 -53.187)',
     fill: '#fff'
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     id: 'Path_158',
     "data-name": 'Path 158',
     d: 'M302.474,94.114a12.98,12.98,0,0,0-6.093-10.435L245.719,54.545a13.178,13.178,0,0,0-11.624,0c-.423.213-49.268,28.542-49.268,28.542a13.016,13.016,0,0,0-1.94,1.148,12.881,12.881,0,0,0-5.4,9.854v60.338l8.7-13.373L186.12,94.5a4.325,4.325,0,0,1,1.791-3.236c.23-.165,49.909-28.921,50.067-29a4.408,4.408,0,0,1,3.821-.018l50.007,28.765a4.3,4.3,0,0,1,1.99,3.428v57.672a4.2,4.2,0,0,1-1.495,3.129l-9.7,5.618-5,2.9-17.88,10.362-18.133,10.509a4.395,4.395,0,0,1-3.087-.061l-21.453-12.339-4.382,7.432,19.28,11.1c.638.362,1.206.684,1.672.946.722.4,1.214.675,1.387.759a12.528,12.528,0,0,0,5.118,1.053,12.89,12.89,0,0,0,4.72-.888l52.667-30.5a12.876,12.876,0,0,0,4.962-9.7Z',
@@ -468,54 +370,54 @@ var Arbitrum = function Arbitrum(_ref) {
   })));
 };
 
-var _excluded$c = ["width", "height"];
-var Optimism = function Optimism(_ref) {
-  var rest = _objectWithoutPropertiesLoose(_ref, _excluded$c);
-  return React__default.createElement("svg", Object.assign({
+const Optimism = ({
+  width: _width = 37,
+  height: _height = 37,
+  ...rest
+}) => {
+  return React.createElement("svg", Object.assign({
     version: "1.0",
     xmlns: "http://www.w3.org/2000/svg",
     width: "40.000000pt",
     height: "40.000000pt",
     viewBox: "0 0 40.000000 40.000000",
     preserveAspectRatio: "xMidYMid meet"
-  }, rest), React__default.createElement("g", {
+  }, rest), React.createElement("g", {
     transform: "translate(0.000000,40.000000) scale(0.100000,-0.100000)",
     fill: "#000000",
     stroke: "none"
-  }, React__default.createElement("path", {
+  }, React.createElement("path", {
     d: "M109 372 c-43 -22 -59 -38 -81 -81 -36 -68 -36 -114 0 -182 22 -43\r\n    38 -59 81 -81 68 -36 114 -36 182 0 43 22 59 38 81 81 36 68 36 114 0 182 -22\r\n    43 -38 59 -81 81 -31 16 -69 28 -91 28 -22 0 -60 -12 -91 -28z m79 -124 c16\r\n    -16 15 -60 -1 -82 -9 -12 -23 -17 -42 -14 -26 3 -30 8 -33 36 -5 54 44 92 76\r\n    60z m96 -1 c26 -19 13 -54 -24 -62 -17 -4 -30 -13 -30 -21 0 -8 -6 -14 -14\r\n    -14 -10 0 -12 9 -5 43 4 23 8 48 9 55 0 16 41 16 64 -1z"
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     d: "M140 219 c-14 -24 -7 -49 14 -49 15 0 28 34 19 56 -7 20 -21 17 -33\r\n    -7z"
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     d: "M247 233 c-12 -11 -8 -23 8 -23 8 0 15 7 15 15 0 16 -12 20 -23 8z"
   })));
 };
 
-var _excluded$d = ["width", "height"];
-var USDC = function USDC(_ref) {
-  var _ref$width = _ref.width,
-    width = _ref$width === void 0 ? 37 : _ref$width,
-    _ref$height = _ref.height,
-    height = _ref$height === void 0 ? 37 : _ref$height,
-    rest = _objectWithoutPropertiesLoose(_ref, _excluded$d);
-  return React__default.createElement("svg", Object.assign({
-    width: width,
-    height: height,
+const USDC = ({
+  width: _width = 37,
+  height: _height = 37,
+  ...rest
+}) => {
+  return React.createElement("svg", Object.assign({
+    width: _width,
+    height: _height,
     viewBox: '0 0 37 37',
     xmlns: 'http://www.w3.org/2000/svg'
-  }, rest), React__default.createElement("rect", {
+  }, rest), React.createElement("rect", {
     width: '37',
     height: '37',
     fill: 'url(#pattern4)'
-  }), React__default.createElement("defs", null, React__default.createElement("pattern", {
+  }), React.createElement("defs", null, React.createElement("pattern", {
     id: 'pattern4',
     patternContentUnits: 'objectBoundingBox',
     width: '1',
     height: '1'
-  }, React__default.createElement("use", {
+  }, React.createElement("use", {
     href: '#image0_214_308',
     transform: 'scale(0.00552486)'
-  })), React__default.createElement("image", {
+  })), React.createElement("image", {
     id: 'image0_214_308',
     width: '181',
     height: '181',
@@ -523,31 +425,29 @@ var USDC = function USDC(_ref) {
   })));
 };
 
-var _excluded$e = ["width", "height"];
-var USDT = function USDT(_ref) {
-  var _ref$width = _ref.width,
-    width = _ref$width === void 0 ? 37 : _ref$width,
-    _ref$height = _ref.height,
-    height = _ref$height === void 0 ? 37 : _ref$height,
-    rest = _objectWithoutPropertiesLoose(_ref, _excluded$e);
-  return React__default.createElement("svg", Object.assign({
-    width: width,
-    height: height,
+const USDT = ({
+  width: _width = 37,
+  height: _height = 37,
+  ...rest
+}) => {
+  return React.createElement("svg", Object.assign({
+    width: _width,
+    height: _height,
     viewBox: '0 0 37 37',
     xmlns: 'http://www.w3.org/2000/svg'
-  }, rest), React__default.createElement("rect", {
+  }, rest), React.createElement("rect", {
     width: '37',
     height: '37',
     fill: 'url(#pattern5)'
-  }), React__default.createElement("defs", null, React__default.createElement("pattern", {
+  }), React.createElement("defs", null, React.createElement("pattern", {
     id: 'pattern5',
     patternContentUnits: 'objectBoundingBox',
     width: '1',
     height: '1'
-  }, React__default.createElement("use", {
+  }, React.createElement("use", {
     href: '#image0_214_312',
     transform: 'scale(0.00390625)'
-  })), React__default.createElement("image", {
+  })), React.createElement("image", {
     id: 'image0_214_312',
     width: '256',
     height: '256',
@@ -555,46 +455,41 @@ var USDT = function USDT(_ref) {
   })));
 };
 
-var _excluded$f = ["width", "height", "fill"];
-var Copy = function Copy(_ref) {
-  var _ref$width = _ref.width,
-    width = _ref$width === void 0 ? 20 : _ref$width,
-    _ref$height = _ref.height,
-    height = _ref$height === void 0 ? 20 : _ref$height,
-    _ref$fill = _ref.fill,
-    fill = _ref$fill === void 0 ? '#979797' : _ref$fill,
-    rest = _objectWithoutPropertiesLoose(_ref, _excluded$f);
-  return React__default.createElement("svg", Object.assign({
-    width: width,
-    height: height,
+const Copy = ({
+  width: _width = 20,
+  height: _height = 20,
+  fill: _fill = '#979797',
+  ...rest
+}) => {
+  return React.createElement("svg", Object.assign({
+    width: _width,
+    height: _height,
     viewBox: '0 0 330 330',
     xmlSpace: 'preserve',
     xmlns: 'http://www.w3.org/2000/svg',
-    fill: fill
-  }, rest), React__default.createElement("g", null, React__default.createElement("path", {
+    fill: _fill
+  }, rest), React.createElement("g", null, React.createElement("path", {
     d: 'M35,270h45v45c0,8.284,6.716,15,15,15h200c8.284,0,15-6.716,15-15V75c0-8.284-6.716-15-15-15h-45V15\r\n     c0-8.284-6.716-15-15-15H35c-8.284,0-15,6.716-15,15v240C20,263.284,26.716,270,35,270z M280,300H110V90h170V300z M50,30h170v30H95\r\n     c-8.284,0-15,6.716-15,15v165H50V30z'
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     d: 'M155,120c-8.284,0-15,6.716-15,15s6.716,15,15,15h80c8.284,0,15-6.716,15-15s-6.716-15-15-15H155z'
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     d: 'M235,180h-80c-8.284,0-15,6.716-15,15s6.716,15,15,15h80c8.284,0,15-6.716,15-15S243.284,180,235,180z'
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     d: 'M235,240h-80c-8.284,0-15,6.716-15,15c0,8.284,6.716,15,15,15h80c8.284,0,15-6.716,15-15C250,246.716,243.284,240,235,240z\r\n     '
   })));
 };
 
-var _excluded$g = ["width", "height"];
-var Bank = function Bank(_ref) {
-  var _ref$width = _ref.width,
-    width = _ref$width === void 0 ? 32 : _ref$width,
-    _ref$height = _ref.height,
-    height = _ref$height === void 0 ? 32 : _ref$height,
-    rest = _objectWithoutPropertiesLoose(_ref, _excluded$g);
-  return React__default.createElement("svg", Object.assign({
-    width: width,
-    height: height,
+const Bank = ({
+  width: _width = 32,
+  height: _height = 32,
+  ...rest
+}) => {
+  return React.createElement("svg", Object.assign({
+    width: _width,
+    height: _height,
     viewBox: '0 0 256 256',
     xmlns: 'http://www.w3.org/2000/svg'
-  }, rest), React__default.createElement("defs", null), React__default.createElement("g", {
+  }, rest), React.createElement("defs", null), React.createElement("g", {
     style: {
       stroke: 'none',
       strokeWidth: 0,
@@ -607,7 +502,7 @@ var Bank = function Bank(_ref) {
       opacity: 1
     },
     transform: 'translate(1.4065934065934016 1.4065934065934016) scale(2.81 2.81)'
-  }, React__default.createElement("path", {
+  }, React.createElement("path", {
     d: "M 84.668 38.004 v -6.27 H 90 V 20 L 45 3.034 L 0 20 v 11.734 h 5.332 v 6.27 h 4.818 v 30.892 H 5.332 v 6.271 H 0 v 11.8 h 90 v -11.8 h -5.332 v -6.271 H 79.85 V 38.004 H 84.668 z M 81.668 35.004 H 66.332 v -3.27 h 15.336 V 35.004 z M 63.332 68.896 v 6.271 h -7.664 v -6.271 H 50.85 V 38.004 h 4.818 v -6.27 h 7.664 v 6.27 h 4.818 v 30.892 H 63.332 z M 26.668 38.004 v -6.27 h 7.664 v 6.27 h 4.818 v 30.892 h -4.818 v 6.271 h -7.664 v -6.271 H 21.85 V 38.004 H 26.668 z M 42.15 68.896 V 38.004 h 5.7 v 30.892 H 42.15 z M 37.332 35.004 v -3.27 h 15.336 v 3.27 H 37.332 z M 37.332 71.896 h 15.336 v 3.271 H 37.332 V 71.896 z M 3 22.075 L 45 6.24 l 42 15.835 v 6.659 H 3 V 22.075 z M 8.332 31.734 h 15.336 v 3.27 H 8.332 V 31.734 z M 13.15 38.004 h 5.7 v 30.892 h -5.7 V 38.004 z M 8.332 71.896 h 15.336 v 3.271 H 8.332 V 71.896 z M 87 83.966 H 3 v -5.8 h 84 V 83.966 z M 81.668 75.166 H 66.332 v -3.271 h 15.336 V 75.166 z M 76.85 68.896 H 71.15 V 38.004 h 5.699 V 68.896 z",
     style: {
       stroke: 'none',
@@ -625,98 +520,96 @@ var Bank = function Bank(_ref) {
   })));
 };
 
-var _excluded$h = ["width", "height"];
-var BNB = function BNB(_ref) {
-  var _ref$width = _ref.width,
-    width = _ref$width === void 0 ? 59 : _ref$width,
-    _ref$height = _ref.height,
-    height = _ref$height === void 0 ? 58 : _ref$height,
-    rest = _objectWithoutPropertiesLoose(_ref, _excluded$h);
-  return React__default.createElement("svg", Object.assign({
-    width: width,
-    height: height,
+const BNB = ({
+  width: _width = 59,
+  height: _height = 58,
+  ...rest
+}) => {
+  return React.createElement("svg", Object.assign({
+    width: _width,
+    height: _height,
     viewBox: "0 0 59 58",
     xmlns: 'http://www.w3.org/2000/svg'
-  }, rest), React__default.createElement("defs", null, React__default.createElement("clipPath", {
+  }, rest), React.createElement("defs", null, React.createElement("clipPath", {
     id: "clip-path"
-  }, React__default.createElement("rect", {
+  }, React.createElement("rect", {
     id: "Rectangle_23",
     "data-name": "Rectangle 23",
     width: "59",
     height: "58",
     transform: "translate(3362.627 192.855)",
     fill: "#f0b90b"
-  }))), React__default.createElement("g", {
+  }))), React.createElement("g", {
     id: "bnb",
     transform: "translate(-3602 -272)"
-  }, React__default.createElement("g", {
+  }, React.createElement("g", {
     id: "bnb-2",
     "data-name": "bnb",
     transform: "translate(239.373 79.145)",
     clipPath: "url(#clip-path)"
-  }, React__default.createElement("g", {
+  }, React.createElement("g", {
     id: "chain-smart-h",
     transform: "translate(3362.962 192.954)"
-  }, React__default.createElement("path", {
+  }, React.createElement("path", {
     id: "Path_87",
     "data-name": "Path 87",
     d: "M81.839,29.014H71.154V6.54H81.609c4.605,0,7.415,2.3,7.415,5.8v.046a5.171,5.171,0,0,1-2.947,4.836c2.579,1.013,4.191,2.487,4.191,5.527V22.8C90.267,26.988,86.951,29.014,81.839,29.014ZM84.1,13.172c0-1.474-1.151-2.3-3.224-2.3H75.99v4.744h4.559c2.165,0,3.546-.691,3.546-2.395ZM85.339,22.2c0-1.52-1.105-2.441-3.638-2.441H75.99v4.928h5.895c2.165,0,3.5-.783,3.5-2.441V22.2ZM95.7,29.014V6.54h4.928V29.014Zm27.31,0L112.143,14.737V29.014h-4.882V6.54h4.559L122.367,20.4V6.54h4.882V29.014Zm26.435,0-2.072-5.02h-9.487l-2.072,5.02h-5.02L140.42,6.356h4.559l9.625,22.659Zm-6.816-16.672-2.994,7.277h5.987Zm31.363,16.672L163.125,14.737V29.014h-4.882V6.54H162.8L173.349,20.4V6.54h4.882V29.014Zm20.494.414a11.328,11.328,0,0,1-11.514-11.56v-.046A11.42,11.42,0,0,1,194.719,6.217a11.626,11.626,0,0,1,8.842,3.454L200.43,13.31a8.357,8.357,0,0,0-5.757-2.533c-3.776,0-6.54,3.132-6.54,7v.046c0,3.869,2.671,7.046,6.54,7.046,2.579,0,4.145-1.013,5.895-2.625l3.132,3.178A11.5,11.5,0,0,1,194.488,29.429Zm13.218-.414V6.54h16.948v4.421h-12.02V15.52h10.593v4.421H212.634v4.744h12.2v4.421H207.706ZM6.54,22.475,0,29.014l6.54,6.54,6.54-6.54Zm22.475-9.349L40.252,24.363l6.54-6.54L29.014,0,11.237,17.777l6.54,6.54Zm22.475,9.349-6.54,6.54,6.54,6.54,6.54-6.54ZM29.014,44.949,17.777,33.712l-6.54,6.54L29.014,58.029,46.791,40.252l-6.54-6.54Zm0-9.4,6.54-6.54-6.54-6.54-6.54,6.54Z",
     fill: "#f0b90b"
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     id: "Path_88",
     "data-name": "Path 88",
     d: "M154.609,82.187c0-1.039.928-1.857,2.52-1.857a7.028,7.028,0,0,1,4.2,1.592l1.459-2.056a8.577,8.577,0,0,0-5.615-1.945c-3.073,0-5.283,1.813-5.283,4.51,0,2.874,1.857,3.846,5.151,4.642,2.874.663,3.493,1.26,3.493,2.387,0,1.194-1.061,1.967-2.741,1.967a7.126,7.126,0,0,1-4.885-2.012l-1.636,1.945a9.532,9.532,0,0,0,6.455,2.476c3.25,0,5.527-1.724,5.527-4.642,0-2.586-1.7-3.758-4.974-4.554C155.316,83.933,154.609,83.4,154.609,82.187Z",
     transform: "translate(-81.604 -42.034)",
     fill: "#f0b90b"
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     id: "Path_89",
     "data-name": "Path 89",
     d: "M195.76,82.777v11.1h2.719V78.4h-2.9l-4.709,7.317L186.166,78.4h-2.9V93.874h2.675V82.821l4.841,7.251h.088Z",
     transform: "translate(-98.866 -42.293)",
     fill: "#f0b90b"
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     id: "Path_90",
     "data-name": "Path 90",
     d: "M230.431,78.16h-2.52L221.1,93.745h2.785l1.592-3.736H232.8l1.57,3.736h2.874ZM231.8,87.6h-5.328l2.653-6.19Z",
     transform: "translate(-119.274 -42.164)",
     fill: "#f0b90b"
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     id: "Path_91",
     "data-name": "Path 91",
     d: "M274.074,93.874,269.9,88.016a4.634,4.634,0,0,0,3.692-4.709c0-3.029-2.189-4.908-5.748-4.908h-6.9V93.874h2.719V88.481h3.4l3.8,5.394Zm-3.25-10.412c0,1.592-1.238,2.609-3.183,2.609h-3.979V80.876h3.957C269.631,80.876,270.824,81.76,270.824,83.463Z",
     transform: "translate(-140.767 -42.293)",
     fill: "#f0b90b"
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     id: "Path_92",
     "data-name": "Path 92",
     d: "M299.779,80.92h4.908V78.4H292.13v2.52h4.908V93.874h2.741Z",
     transform: "translate(-157.591 -42.293)",
     fill: "#f0b90b"
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     id: "Path_93",
     "data-name": "Path 93",
     d: "M350.786,91.088l-1.746-1.769a6.066,6.066,0,0,1-4.443,2.012,5.52,5.52,0,0,1,0-11.009,6.154,6.154,0,0,1,4.333,1.923l1.746-2.012a8.066,8.066,0,0,0-6.057-2.41,8,8,0,0,0-.111,16A7.984,7.984,0,0,0,350.786,91.088Z",
     transform: "translate(-181.601 -41.983)",
     fill: "#f0b90b"
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     id: "Path_94",
     "data-name": "Path 94",
     d: "M382.706,87.353v6.521h2.719V78.4h-2.719v6.433h-7.383V78.4H372.6V93.874h2.719V87.353Z",
     transform: "translate(-201.002 -42.293)",
     fill: "#f0b90b"
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     id: "Path_95",
     "data-name": "Path 95",
     d: "M414.561,78.16h-2.52l-6.809,15.585h2.785l1.592-3.736h7.317l1.57,3.736h2.874Zm1.371,9.439H410.6l2.653-6.19Z",
     transform: "translate(-218.604 -42.164)",
     fill: "#f0b90b"
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     id: "Path_96",
     "data-name": "Path 96",
     d: "M445.41,78.4V93.874h2.719V78.4Z",
     transform: "translate(-240.278 -42.293)",
     fill: "#f0b90b"
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     id: "Path_97",
     "data-name": "Path 97",
     d: "M470.158,89.1l-8.29-10.7h-2.52V93.874h2.675V82.866l8.533,11.009h2.277V78.4h-2.675Z",
@@ -725,91 +618,83 @@ var BNB = function BNB(_ref) {
   })))));
 };
 
-var _excluded$i = ["width", "height"];
-var KEUR = function KEUR(_ref) {
-  var _ref$width = _ref.width,
-    width = _ref$width === void 0 ? 32 : _ref$width,
-    _ref$height = _ref.height,
-    height = _ref$height === void 0 ? 32 : _ref$height,
-    rest = _objectWithoutPropertiesLoose(_ref, _excluded$i);
-  return React__default.createElement("svg", Object.assign({
-    width: width,
-    height: height,
+const KEUR = ({
+  width: _width = 32,
+  height: _height = 32,
+  ...rest
+}) => {
+  return React.createElement("svg", Object.assign({
+    width: _width,
+    height: _height,
     viewBox: '0 0 32 32',
     xmlns: 'http://www.w3.org/2000/svg'
-  }, rest), React__default.createElement("g", {
+  }, rest), React.createElement("g", {
     fill: 'none',
     fillRule: 'evenodd'
-  }, React__default.createElement("circle", {
+  }, React.createElement("circle", {
     cx: '16',
     cy: '16',
     fill: '#0f8ff8',
     r: '16'
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     d: 'M8 19.004L8.81 17h.857a16.279 16.279 0 01-.034-1.03c0-.448.019-.864.056-1.25H8l.81-2.003h1.274C11.27 8.906 13.944 7 18.103 7c1.367 0 2.666.177 3.897.532v2.524a8.92 8.92 0 00-3.683-.776c-2.493 0-4.096 1.146-4.81 3.438h7.423l-.81 2.003h-7.097a6.938 6.938 0 00-.056.995c0 .479.015.907.045 1.285h6.183l-.8 2.003H13.44c.533 1.389 1.183 2.355 1.949 2.9.765.544 1.858.816 3.277.816 1.014 0 2.125-.247 3.334-.741v2.373c-1.149.432-2.515.648-4.1.648-4.167 0-6.803-1.999-7.906-5.996z',
     fill: '#ffffff'
   })));
 };
 
-var _excluded$j = ["width", "height"];
-var Celo = function Celo(_ref) {
-  var _ref$width = _ref.width,
-    width = _ref$width === void 0 ? 37 : _ref$width,
-    _ref$height = _ref.height,
-    height = _ref$height === void 0 ? 37 : _ref$height,
-    rest = _objectWithoutPropertiesLoose(_ref, _excluded$j);
-  return React__default.createElement("svg", Object.assign({
-    width: width,
-    height: height,
+const Celo = ({
+  width: _width = 37,
+  height: _height = 37,
+  ...rest
+}) => {
+  return React.createElement("svg", Object.assign({
+    width: _width,
+    height: _height,
     viewBox: '0 0 610 610',
     xmlns: 'http://www.w3.org/2000/svg'
-  }, rest), React__default.createElement("circle", {
+  }, rest), React.createElement("circle", {
     cx: '305',
     cy: '305',
     r: '305',
     fill: '#FF060A'
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     d: 'M505.4 214.7c-17.3-12.1-35.8-25-53.9-37.8-.4-.3-.8-.6-1.3-.9-2-1.5-4.3-3.1-7.1-4l-.2-.1c-48.4-11.7-97.6-23.7-145.2-35.3-43.2-10.5-86.3-21-129.5-31.5-1.1-.3-2.2-.6-3.4-.9-3.9-1.1-8.4-2.3-13.2-1.7-1.4.2-2.6.7-3.7 1.4l-1.2 1c-1.9 1.8-2.9 4.1-3.4 5.4l-.3.8v4.6l.2.7c27.3 76.5 55.3 154.1 82.3 229.2 20.8 57.8 42.4 117.7 63.5 176.5 1.3 4 5 6.6 9.6 7h1c4.3 0 8.1-2.1 10-5.5l79.2-115.5c19.3-28.1 38.6-56.3 57.9-84.4 7.9-11.5 15.8-23.1 23.7-34.6 13-19 26.4-38.6 39.7-57.7l.7-1v-1.2c.3-3.5.4-10.7-5.4-14.5m-92.8 42.1c-18.6 9.7-37.6 19.7-56.7 29.6 11.1-11.9 22.3-23.9 33.4-35.8 13.9-15 28.4-30.5 42.6-45.7l.3-.3c1.2-1.6 2.7-3.1 4.3-4.7 1.1-1.1 2.3-2.2 3.4-3.5 7.4 5.1 14.9 10.3 22.1 15.4 5.2 3.7 10.5 7.4 15.9 11.1-22 11.2-44 22.7-65.3 33.9m-47.8-4.8c-14.3 15.5-29.1 31.4-43.8 47.1-28.5-34.6-57.6-69.7-85.8-103.6-12.8-15.4-25.7-30.9-38.5-46.3l-.1-.1c-2.9-3.3-5.7-6.9-8.5-10.3-1.8-2.3-3.7-4.5-5.6-6.8 11.6 3 23.3 5.8 34.8 8.5 10.1 2.4 20.6 4.9 30.9 7.5 58 14.1 116.1 28.2 174.1 42.3-19.3 20.6-38.7 41.5-57.5 61.7m-50.3 194.9c1.1-10.5 2.3-21.3 3.3-31.9.9-8.5 1.8-17.2 2.7-25.5 1.4-13.3 2.9-27.1 4.1-40.6l.3-2.4c1-8.6 2-17.5 2.6-26.4 1.1-.6 2.3-1.2 3.6-1.7 1.5-.7 3-1.3 4.5-2.2 23.1-12.1 46.2-24.2 69.4-36.2 23.1-12 46.8-24.4 70.3-36.7-21.4 31-42.9 62.3-63.7 92.8-17.9 26.1-36.3 53-54.6 79.5-7.2 10.6-14.7 21.4-21.8 31.8-8 11.6-16.2 23.5-24.2 35.4 1-12 2.2-24.1 3.5-35.9M175.1 155.6c-1.3-3.6-2.7-7.3-3.9-10.8 27 32.6 54.2 65.4 80.7 97.2 13.7 16.5 27.4 32.9 41.1 49.5 2.7 3.1 5.4 6.4 8 9.6 3.4 4.1 6.8 8.4 10.5 12.5-1.2 10.3-2.2 20.7-3.3 30.7-.7 7-1.4 14-2.2 21.1v.1c-.3 4.5-.9 9-1.4 13.4-.7 6.1-2.3 19.9-2.3 19.9l-.1.7c-1.8 20.2-4 40.6-6.1 60.4-.9 8.2-1.7 16.6-2.6 25-.5-1.5-1.1-3-1.6-4.4-1.5-4-3-8.2-4.4-12.3l-10.7-29.7C242.9 344.2 209 250 175.1 155.6',
     fill: '#ffffff'
   }));
 };
 
-var _excluded$k = ["width", "height"];
-var Solana$1 = function Solana(_ref) {
-  var _ref$width = _ref.width,
-    width = _ref$width === void 0 ? 14 : _ref$width,
-    _ref$height = _ref.height,
-    height = _ref$height === void 0 ? 14 : _ref$height,
-    rest = _objectWithoutPropertiesLoose(_ref, _excluded$k);
-  return React__default.createElement("svg", Object.assign({
-    width: width,
-    height: height,
+const Solana$1 = ({
+  width: _width = 14,
+  height: _height = 14,
+  ...rest
+}) => {
+  return React.createElement("svg", Object.assign({
+    width: _width,
+    height: _height,
     viewBox: '0 0 111 111',
     xmlns: 'http://www.w3.org/2000/svg'
-  }, rest), React__default.createElement("path", {
+  }, rest), React.createElement("path", {
     d: 'M54.921 110.034C85.359 110.034 110.034 85.402 110.034 55.017C110.034 24.6319 85.359 0 54.921 0C26.0432 0 2.35281 22.1714 0 50.3923H72.8467V59.6416H3.9565e-07C2.35281 87.8625 26.0432 110.034 54.921 110.034Z',
     fill: '#0052FF'
   }));
 };
 
-var _excluded$l = ["width", "height"];
-var BTC = function BTC(_ref) {
-  var _ref$width = _ref.width,
-    width = _ref$width === void 0 ? 59 : _ref$width,
-    _ref$height = _ref.height,
-    height = _ref$height === void 0 ? 58 : _ref$height,
-    rest = _objectWithoutPropertiesLoose(_ref, _excluded$l);
-  return React__default.createElement("svg", Object.assign({
-    width: width,
-    height: height,
+const BTC = ({
+  width: _width = 59,
+  height: _height = 58,
+  ...rest
+}) => {
+  return React.createElement("svg", Object.assign({
+    width: _width,
+    height: _height,
     viewBox: '0 0 21 20',
     xmlns: 'http://www.w3.org/2000/svg'
-  }, rest), React__default.createElement("circle", {
+  }, rest), React.createElement("circle", {
     cx: '10.5',
     cy: '10',
     r: '10',
     fill: '#F7931A'
-  }), React__default.createElement("mask", {
+  }), React.createElement("mask", {
     id: 'path-2-outside-1_72_686',
     maskUnits: 'userSpaceOnUse',
     x: '3.59804',
@@ -817,22 +702,22 @@ var BTC = function BTC(_ref) {
     width: '13',
     height: '15',
     fill: 'black'
-  }, React__default.createElement("rect", {
+  }, React.createElement("rect", {
     fill: 'white',
     x: '3.59804',
     y: '2.52942',
     width: '13',
     height: '15'
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     fillRule: 'evenodd',
     clipRule: 'evenodd',
     d: 'M10.4059 3.54536C10.4019 3.55333 10.2964 3.96177 10.1749 4.45589L9.94981 5.35248C9.51363 5.25087 9.33638 5.20903 9.27663 5.19309C9.23326 5.18152 9.02514 5.12901 8.76348 5.06299C8.66466 5.03806 8.5582 5.01119 8.45009 4.98388C8.05574 4.88626 7.72513 4.80457 7.71318 4.80457C7.70123 4.80457 7.62754 5.07155 7.54787 5.39631C7.4682 5.72307 7.40447 5.99005 7.40845 5.99205C7.41244 5.99205 7.59766 6.03787 7.82272 6.09366C8.04778 6.14945 8.2808 6.21321 8.34055 6.23512C8.4003 6.25903 8.48992 6.31083 8.53971 6.35467C8.5915 6.3985 8.64726 6.47222 8.67316 6.53C8.69706 6.5838 8.72096 6.67146 8.72693 6.72725C8.73888 6.81292 8.65523 7.16558 8.10752 9.36919C7.52198 11.7222 7.47019 11.9175 7.41244 11.9892C7.37858 12.0331 7.32082 12.0869 7.28298 12.1128C7.2312 12.1466 7.18738 12.1566 7.09576 12.1566C7.02008 12.1566 6.8249 12.1167 6.56399 12.051L6.15172 11.9474L5.59804 13.2225C7.31883 13.6549 7.82471 13.7864 7.83467 13.7963C7.84463 13.8043 7.75102 14.2108 7.62754 14.7029C7.52892 15.0943 7.44174 15.4375 7.40859 15.5679C7.40024 15.6008 7.39531 15.6202 7.39451 15.6234C7.38655 15.6473 7.49409 15.6812 7.93823 15.7888C8.24097 15.8645 8.4959 15.9183 8.50187 15.9083C8.50785 15.9003 8.6154 15.4879 8.73689 14.9958L8.96195 14.0992C9.63513 14.2685 9.83628 14.3223 9.84027 14.3283C9.84624 14.3343 9.75064 14.7467 9.62517 15.2448C9.49969 15.7429 9.40011 16.1534 9.4021 16.1554C9.40385 16.1571 9.59671 16.2063 9.8494 16.2707C9.88512 16.2798 9.92203 16.2892 9.95977 16.2988C10.2625 16.3765 10.5154 16.4343 10.5194 16.4243C10.5227 16.4178 10.5937 16.1334 10.6889 15.7524C10.7091 15.6713 10.7304 15.5859 10.7524 15.4979L10.9795 14.5834C11.031 14.591 11.0999 14.6014 11.1782 14.6132C11.2635 14.626 11.3599 14.6405 11.4575 14.6551C11.6447 14.683 11.9435 14.7168 12.1247 14.7268C12.3637 14.7427 12.529 14.7427 12.7322 14.7268C12.8855 14.7149 13.0827 14.6909 13.1703 14.673C13.2579 14.6571 13.3974 14.6212 13.479 14.5933C13.5607 14.5654 13.6822 14.5176 13.7479 14.4877C13.8136 14.4558 13.9351 14.3861 14.0168 14.3323C14.0984 14.2765 14.2239 14.1749 14.2936 14.1052C14.3633 14.0354 14.4749 13.9079 14.5406 13.8203C14.6063 13.7326 14.7059 13.5612 14.7656 13.4417C14.8234 13.3222 14.907 13.1149 14.9509 12.9834C14.9947 12.8519 15.0445 12.6686 15.0624 12.575C15.0803 12.4814 15.1002 12.306 15.1062 12.1865C15.1142 12.0271 15.1082 11.9155 15.0843 11.778C15.0644 11.6744 15.0226 11.521 14.9907 11.4393C14.9568 11.3576 14.8831 11.2182 14.8234 11.1305C14.7656 11.0428 14.6481 10.9034 14.5625 10.8217C14.4749 10.738 14.3374 10.6264 14.2558 10.5706C14.1741 10.5148 14.0626 10.4451 14.0068 10.4152L13.9072 10.3574C14.2 10.2618 14.3573 10.1941 14.443 10.1442C14.5286 10.0944 14.6621 9.99681 14.7397 9.92508C14.8154 9.85335 14.917 9.74178 14.9628 9.67603C15.0106 9.61028 15.0743 9.50269 15.1082 9.43694C15.1401 9.37119 15.1918 9.24567 15.2197 9.158C15.2496 9.07033 15.2914 8.89102 15.3153 8.75952C15.3472 8.57223 15.3532 8.47261 15.3452 8.30126C15.3392 8.17972 15.3153 8.01037 15.2914 7.9227C15.2695 7.83503 15.2257 7.70951 15.1958 7.64376C15.164 7.57801 15.1002 7.46644 15.0524 7.39471C15.0046 7.32298 14.9031 7.19945 14.8254 7.11776C14.7477 7.03807 14.6123 6.91852 14.5246 6.85277C14.437 6.78702 14.2797 6.68142 14.1761 6.62165C14.0725 6.55989 13.8754 6.46027 13.7379 6.3985C13.6005 6.33674 13.3974 6.25106 13.2838 6.20723C13.1305 6.14945 13.0827 6.12155 13.0887 6.09964C13.0946 6.0837 13.1982 5.67127 13.3197 5.18313C13.4412 4.69498 13.5368 4.2965 13.5348 4.29451C13.5322 4.29324 13.4308 4.26765 13.2802 4.22963C13.1947 4.20804 13.0933 4.18246 12.9851 4.15504C12.6366 4.06737 12.4374 4.02553 12.4274 4.03749C12.4175 4.04745 12.3159 4.44992 12.1984 4.9281C12.0809 5.40827 11.9753 5.80078 11.9654 5.80078C11.9554 5.80078 11.7542 5.75495 11.5232 5.69916C11.2902 5.64537 11.095 5.59556 11.089 5.58958C11.0831 5.58559 11.1807 5.17914 11.3041 4.68901C11.4276 4.19887 11.5252 3.7964 11.5232 3.79441C11.5192 3.79242 11.2822 3.73265 10.9954 3.66092C10.7066 3.58919 10.4577 3.52942 10.4417 3.52942C10.4278 3.52942 10.4099 3.5354 10.4059 3.54337V3.54536ZM10.7824 6.93276C10.7764 6.94073 10.651 7.43286 10.5036 8.0266C10.3542 8.62233 10.2327 9.12044 10.2327 9.13239C10.2327 9.14833 10.3702 9.19216 10.6052 9.25194C10.8123 9.30374 11.0792 9.3655 11.1987 9.38742C11.3182 9.40934 11.5253 9.43524 11.6568 9.4452C11.7962 9.45516 11.9814 9.45516 12.0989 9.4452C12.2124 9.43524 12.3718 9.40535 12.4574 9.37746C12.543 9.35156 12.6526 9.30374 12.7024 9.27186C12.7522 9.24197 12.8259 9.1822 12.8657 9.14235C12.9075 9.10251 12.9633 9.03277 12.9912 8.98894C13.0191 8.9451 13.0649 8.83951 13.0927 8.75383C13.1306 8.63827 13.1445 8.55858 13.1465 8.43106C13.1465 8.30355 13.1346 8.22783 13.1007 8.12224C13.0748 8.04453 13.0151 7.93296 12.9713 7.87318C12.9254 7.81341 12.8518 7.72973 12.8059 7.68789C12.7601 7.64804 12.6566 7.57233 12.5769 7.52053C12.4992 7.46872 12.3479 7.38903 12.2443 7.3432C12.1407 7.29738 11.9436 7.22366 11.8061 7.17982C11.6687 7.13599 11.3959 7.06426 11.1987 7.01844C11.0015 6.97261 10.8282 6.93077 10.8143 6.92679C10.8003 6.9228 10.7864 6.92479 10.7824 6.93276ZM9.63523 11.5133C9.46992 12.1908 9.33648 12.7466 9.34046 12.7486C9.34445 12.7506 9.50378 12.7925 9.69498 12.8423C9.88618 12.8921 10.1511 12.9558 10.2825 12.9817C10.414 13.0096 10.6191 13.0475 10.7406 13.0674C10.9019 13.0933 11.0672 13.1033 11.368 13.1033C11.6986 13.1033 11.8041 13.0953 11.9256 13.0654C12.0073 13.0455 12.1467 12.9957 12.2343 12.9538C12.3399 12.904 12.4295 12.8423 12.5012 12.7725C12.561 12.7128 12.6287 12.6291 12.6546 12.5853C12.6805 12.5414 12.7203 12.4518 12.7422 12.386C12.7661 12.3203 12.79 12.1908 12.796 12.0971C12.802 12.0015 12.798 11.8799 12.784 11.8182C12.7721 11.7584 12.7342 11.6508 12.6984 11.5791C12.6606 11.5014 12.5789 11.3918 12.4933 11.3021C12.4176 11.2224 12.2821 11.1089 12.1945 11.0511C12.1069 10.9913 11.9416 10.8997 11.8261 10.8439C11.7105 10.7901 11.4994 10.7044 11.358 10.6566C11.2166 10.6068 10.9955 10.541 10.8701 10.5072C10.7446 10.4733 10.4837 10.4095 10.2925 10.3637C10.1013 10.3199 9.94195 10.284 9.93995 10.284C9.93796 10.284 9.80054 10.8379 9.63523 11.5133Z'
-  })), React__default.createElement("path", {
+  })), React.createElement("path", {
     fillRule: 'evenodd',
     clipRule: 'evenodd',
     d: 'M10.4059 3.54536C10.4019 3.55333 10.2964 3.96177 10.1749 4.45589L9.94981 5.35248C9.51363 5.25087 9.33638 5.20903 9.27663 5.19309C9.23326 5.18152 9.02514 5.12901 8.76348 5.06299C8.66466 5.03806 8.5582 5.01119 8.45009 4.98388C8.05574 4.88626 7.72513 4.80457 7.71318 4.80457C7.70123 4.80457 7.62754 5.07155 7.54787 5.39631C7.4682 5.72307 7.40447 5.99005 7.40845 5.99205C7.41244 5.99205 7.59766 6.03787 7.82272 6.09366C8.04778 6.14945 8.2808 6.21321 8.34055 6.23512C8.4003 6.25903 8.48992 6.31083 8.53971 6.35467C8.5915 6.3985 8.64726 6.47222 8.67316 6.53C8.69706 6.5838 8.72096 6.67146 8.72693 6.72725C8.73888 6.81292 8.65523 7.16558 8.10752 9.36919C7.52198 11.7222 7.47019 11.9175 7.41244 11.9892C7.37858 12.0331 7.32082 12.0869 7.28298 12.1128C7.2312 12.1466 7.18738 12.1566 7.09576 12.1566C7.02008 12.1566 6.8249 12.1167 6.56399 12.051L6.15172 11.9474L5.59804 13.2225C7.31883 13.6549 7.82471 13.7864 7.83467 13.7963C7.84463 13.8043 7.75102 14.2108 7.62754 14.7029C7.52892 15.0943 7.44174 15.4375 7.40859 15.5679C7.40024 15.6008 7.39531 15.6202 7.39451 15.6234C7.38655 15.6473 7.49409 15.6812 7.93823 15.7888C8.24097 15.8645 8.4959 15.9183 8.50187 15.9083C8.50785 15.9003 8.6154 15.4879 8.73689 14.9958L8.96195 14.0992C9.63513 14.2685 9.83628 14.3223 9.84027 14.3283C9.84624 14.3343 9.75064 14.7467 9.62517 15.2448C9.49969 15.7429 9.40011 16.1534 9.4021 16.1554C9.40385 16.1571 9.59671 16.2063 9.8494 16.2707C9.88512 16.2798 9.92203 16.2892 9.95977 16.2988C10.2625 16.3765 10.5154 16.4343 10.5194 16.4243C10.5227 16.4178 10.5937 16.1334 10.6889 15.7524C10.7091 15.6713 10.7304 15.5859 10.7524 15.4979L10.9795 14.5834C11.031 14.591 11.0999 14.6014 11.1782 14.6132C11.2635 14.626 11.3599 14.6405 11.4575 14.6551C11.6447 14.683 11.9435 14.7168 12.1247 14.7268C12.3637 14.7427 12.529 14.7427 12.7322 14.7268C12.8855 14.7149 13.0827 14.6909 13.1703 14.673C13.2579 14.6571 13.3974 14.6212 13.479 14.5933C13.5607 14.5654 13.6822 14.5176 13.7479 14.4877C13.8136 14.4558 13.9351 14.3861 14.0168 14.3323C14.0984 14.2765 14.2239 14.1749 14.2936 14.1052C14.3633 14.0354 14.4749 13.9079 14.5406 13.8203C14.6063 13.7326 14.7059 13.5612 14.7656 13.4417C14.8234 13.3222 14.907 13.1149 14.9509 12.9834C14.9947 12.8519 15.0445 12.6686 15.0624 12.575C15.0803 12.4814 15.1002 12.306 15.1062 12.1865C15.1142 12.0271 15.1082 11.9155 15.0843 11.778C15.0644 11.6744 15.0226 11.521 14.9907 11.4393C14.9568 11.3576 14.8831 11.2182 14.8234 11.1305C14.7656 11.0428 14.6481 10.9034 14.5625 10.8217C14.4749 10.738 14.3374 10.6264 14.2558 10.5706C14.1741 10.5148 14.0626 10.4451 14.0068 10.4152L13.9072 10.3574C14.2 10.2618 14.3573 10.1941 14.443 10.1442C14.5286 10.0944 14.6621 9.99681 14.7397 9.92508C14.8154 9.85335 14.917 9.74178 14.9628 9.67603C15.0106 9.61028 15.0743 9.50269 15.1082 9.43694C15.1401 9.37119 15.1918 9.24567 15.2197 9.158C15.2496 9.07033 15.2914 8.89102 15.3153 8.75952C15.3472 8.57223 15.3532 8.47261 15.3452 8.30126C15.3392 8.17972 15.3153 8.01037 15.2914 7.9227C15.2695 7.83503 15.2257 7.70951 15.1958 7.64376C15.164 7.57801 15.1002 7.46644 15.0524 7.39471C15.0046 7.32298 14.9031 7.19945 14.8254 7.11776C14.7477 7.03807 14.6123 6.91852 14.5246 6.85277C14.437 6.78702 14.2797 6.68142 14.1761 6.62165C14.0725 6.55989 13.8754 6.46027 13.7379 6.3985C13.6005 6.33674 13.3974 6.25106 13.2838 6.20723C13.1305 6.14945 13.0827 6.12155 13.0887 6.09964C13.0946 6.0837 13.1982 5.67127 13.3197 5.18313C13.4412 4.69498 13.5368 4.2965 13.5348 4.29451C13.5322 4.29324 13.4308 4.26765 13.2802 4.22963C13.1947 4.20804 13.0933 4.18246 12.9851 4.15504C12.6366 4.06737 12.4374 4.02553 12.4274 4.03749C12.4175 4.04745 12.3159 4.44992 12.1984 4.9281C12.0809 5.40827 11.9753 5.80078 11.9654 5.80078C11.9554 5.80078 11.7542 5.75495 11.5232 5.69916C11.2902 5.64537 11.095 5.59556 11.089 5.58958C11.0831 5.58559 11.1807 5.17914 11.3041 4.68901C11.4276 4.19887 11.5252 3.7964 11.5232 3.79441C11.5192 3.79242 11.2822 3.73265 10.9954 3.66092C10.7066 3.58919 10.4577 3.52942 10.4417 3.52942C10.4278 3.52942 10.4099 3.5354 10.4059 3.54337V3.54536ZM10.7824 6.93276C10.7764 6.94073 10.651 7.43286 10.5036 8.0266C10.3542 8.62233 10.2327 9.12044 10.2327 9.13239C10.2327 9.14833 10.3702 9.19216 10.6052 9.25194C10.8123 9.30374 11.0792 9.3655 11.1987 9.38742C11.3182 9.40934 11.5253 9.43524 11.6568 9.4452C11.7962 9.45516 11.9814 9.45516 12.0989 9.4452C12.2124 9.43524 12.3718 9.40535 12.4574 9.37746C12.543 9.35156 12.6526 9.30374 12.7024 9.27186C12.7522 9.24197 12.8259 9.1822 12.8657 9.14235C12.9075 9.10251 12.9633 9.03277 12.9912 8.98894C13.0191 8.9451 13.0649 8.83951 13.0927 8.75383C13.1306 8.63827 13.1445 8.55858 13.1465 8.43106C13.1465 8.30355 13.1346 8.22783 13.1007 8.12224C13.0748 8.04453 13.0151 7.93296 12.9713 7.87318C12.9254 7.81341 12.8518 7.72973 12.8059 7.68789C12.7601 7.64804 12.6566 7.57233 12.5769 7.52053C12.4992 7.46872 12.3479 7.38903 12.2443 7.3432C12.1407 7.29738 11.9436 7.22366 11.8061 7.17982C11.6687 7.13599 11.3959 7.06426 11.1987 7.01844C11.0015 6.97261 10.8282 6.93077 10.8143 6.92679C10.8003 6.9228 10.7864 6.92479 10.7824 6.93276ZM9.63523 11.5133C9.46992 12.1908 9.33648 12.7466 9.34046 12.7486C9.34445 12.7506 9.50378 12.7925 9.69498 12.8423C9.88618 12.8921 10.1511 12.9558 10.2825 12.9817C10.414 13.0096 10.6191 13.0475 10.7406 13.0674C10.9019 13.0933 11.0672 13.1033 11.368 13.1033C11.6986 13.1033 11.8041 13.0953 11.9256 13.0654C12.0073 13.0455 12.1467 12.9957 12.2343 12.9538C12.3399 12.904 12.4295 12.8423 12.5012 12.7725C12.561 12.7128 12.6287 12.6291 12.6546 12.5853C12.6805 12.5414 12.7203 12.4518 12.7422 12.386C12.7661 12.3203 12.79 12.1908 12.796 12.0971C12.802 12.0015 12.798 11.8799 12.784 11.8182C12.7721 11.7584 12.7342 11.6508 12.6984 11.5791C12.6606 11.5014 12.5789 11.3918 12.4933 11.3021C12.4176 11.2224 12.2821 11.1089 12.1945 11.0511C12.1069 10.9913 11.9416 10.8997 11.8261 10.8439C11.7105 10.7901 11.4994 10.7044 11.358 10.6566C11.2166 10.6068 10.9955 10.541 10.8701 10.5072C10.7446 10.4733 10.4837 10.4095 10.2925 10.3637C10.1013 10.3199 9.94195 10.284 9.93995 10.284C9.93796 10.284 9.80054 10.8379 9.63523 11.5133Z',
     fill: '#F7931A'
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     fillRule: 'evenodd',
     clipRule: 'evenodd',
     d: 'M10.4059 3.54536C10.4019 3.55333 10.2964 3.96177 10.1749 4.45589L9.94981 5.35248C9.51363 5.25087 9.33638 5.20903 9.27663 5.19309C9.23326 5.18152 9.02514 5.12901 8.76348 5.06299C8.66466 5.03806 8.5582 5.01119 8.45009 4.98388C8.05574 4.88626 7.72513 4.80457 7.71318 4.80457C7.70123 4.80457 7.62754 5.07155 7.54787 5.39631C7.4682 5.72307 7.40447 5.99005 7.40845 5.99205C7.41244 5.99205 7.59766 6.03787 7.82272 6.09366C8.04778 6.14945 8.2808 6.21321 8.34055 6.23512C8.4003 6.25903 8.48992 6.31083 8.53971 6.35467C8.5915 6.3985 8.64726 6.47222 8.67316 6.53C8.69706 6.5838 8.72096 6.67146 8.72693 6.72725C8.73888 6.81292 8.65523 7.16558 8.10752 9.36919C7.52198 11.7222 7.47019 11.9175 7.41244 11.9892C7.37858 12.0331 7.32082 12.0869 7.28298 12.1128C7.2312 12.1466 7.18738 12.1566 7.09576 12.1566C7.02008 12.1566 6.8249 12.1167 6.56399 12.051L6.15172 11.9474L5.59804 13.2225C7.31883 13.6549 7.82471 13.7864 7.83467 13.7963C7.84463 13.8043 7.75102 14.2108 7.62754 14.7029C7.52892 15.0943 7.44174 15.4375 7.40859 15.5679C7.40024 15.6008 7.39531 15.6202 7.39451 15.6234C7.38655 15.6473 7.49409 15.6812 7.93823 15.7888C8.24097 15.8645 8.4959 15.9183 8.50187 15.9083C8.50785 15.9003 8.6154 15.4879 8.73689 14.9958L8.96195 14.0992C9.63513 14.2685 9.83628 14.3223 9.84027 14.3283C9.84624 14.3343 9.75064 14.7467 9.62517 15.2448C9.49969 15.7429 9.40011 16.1534 9.4021 16.1554C9.40385 16.1571 9.59671 16.2063 9.8494 16.2707C9.88512 16.2798 9.92203 16.2892 9.95977 16.2988C10.2625 16.3765 10.5154 16.4343 10.5194 16.4243C10.5227 16.4178 10.5937 16.1334 10.6889 15.7524C10.7091 15.6713 10.7304 15.5859 10.7524 15.4979L10.9795 14.5834C11.031 14.591 11.0999 14.6014 11.1782 14.6132C11.2635 14.626 11.3599 14.6405 11.4575 14.6551C11.6447 14.683 11.9435 14.7168 12.1247 14.7268C12.3637 14.7427 12.529 14.7427 12.7322 14.7268C12.8855 14.7149 13.0827 14.6909 13.1703 14.673C13.2579 14.6571 13.3974 14.6212 13.479 14.5933C13.5607 14.5654 13.6822 14.5176 13.7479 14.4877C13.8136 14.4558 13.9351 14.3861 14.0168 14.3323C14.0984 14.2765 14.2239 14.1749 14.2936 14.1052C14.3633 14.0354 14.4749 13.9079 14.5406 13.8203C14.6063 13.7326 14.7059 13.5612 14.7656 13.4417C14.8234 13.3222 14.907 13.1149 14.9509 12.9834C14.9947 12.8519 15.0445 12.6686 15.0624 12.575C15.0803 12.4814 15.1002 12.306 15.1062 12.1865C15.1142 12.0271 15.1082 11.9155 15.0843 11.778C15.0644 11.6744 15.0226 11.521 14.9907 11.4393C14.9568 11.3576 14.8831 11.2182 14.8234 11.1305C14.7656 11.0428 14.6481 10.9034 14.5625 10.8217C14.4749 10.738 14.3374 10.6264 14.2558 10.5706C14.1741 10.5148 14.0626 10.4451 14.0068 10.4152L13.9072 10.3574C14.2 10.2618 14.3573 10.1941 14.443 10.1442C14.5286 10.0944 14.6621 9.99681 14.7397 9.92508C14.8154 9.85335 14.917 9.74178 14.9628 9.67603C15.0106 9.61028 15.0743 9.50269 15.1082 9.43694C15.1401 9.37119 15.1918 9.24567 15.2197 9.158C15.2496 9.07033 15.2914 8.89102 15.3153 8.75952C15.3472 8.57223 15.3532 8.47261 15.3452 8.30126C15.3392 8.17972 15.3153 8.01037 15.2914 7.9227C15.2695 7.83503 15.2257 7.70951 15.1958 7.64376C15.164 7.57801 15.1002 7.46644 15.0524 7.39471C15.0046 7.32298 14.9031 7.19945 14.8254 7.11776C14.7477 7.03807 14.6123 6.91852 14.5246 6.85277C14.437 6.78702 14.2797 6.68142 14.1761 6.62165C14.0725 6.55989 13.8754 6.46027 13.7379 6.3985C13.6005 6.33674 13.3974 6.25106 13.2838 6.20723C13.1305 6.14945 13.0827 6.12155 13.0887 6.09964C13.0946 6.0837 13.1982 5.67127 13.3197 5.18313C13.4412 4.69498 13.5368 4.2965 13.5348 4.29451C13.5322 4.29324 13.4308 4.26765 13.2802 4.22963C13.1947 4.20804 13.0933 4.18246 12.9851 4.15504C12.6366 4.06737 12.4374 4.02553 12.4274 4.03749C12.4175 4.04745 12.3159 4.44992 12.1984 4.9281C12.0809 5.40827 11.9753 5.80078 11.9654 5.80078C11.9554 5.80078 11.7542 5.75495 11.5232 5.69916C11.2902 5.64537 11.095 5.59556 11.089 5.58958C11.0831 5.58559 11.1807 5.17914 11.3041 4.68901C11.4276 4.19887 11.5252 3.7964 11.5232 3.79441C11.5192 3.79242 11.2822 3.73265 10.9954 3.66092C10.7066 3.58919 10.4577 3.52942 10.4417 3.52942C10.4278 3.52942 10.4099 3.5354 10.4059 3.54337V3.54536ZM10.7824 6.93276C10.7764 6.94073 10.651 7.43286 10.5036 8.0266C10.3542 8.62233 10.2327 9.12044 10.2327 9.13239C10.2327 9.14833 10.3702 9.19216 10.6052 9.25194C10.8123 9.30374 11.0792 9.3655 11.1987 9.38742C11.3182 9.40934 11.5253 9.43524 11.6568 9.4452C11.7962 9.45516 11.9814 9.45516 12.0989 9.4452C12.2124 9.43524 12.3718 9.40535 12.4574 9.37746C12.543 9.35156 12.6526 9.30374 12.7024 9.27186C12.7522 9.24197 12.8259 9.1822 12.8657 9.14235C12.9075 9.10251 12.9633 9.03277 12.9912 8.98894C13.0191 8.9451 13.0649 8.83951 13.0927 8.75383C13.1306 8.63827 13.1445 8.55858 13.1465 8.43106C13.1465 8.30355 13.1346 8.22783 13.1007 8.12224C13.0748 8.04453 13.0151 7.93296 12.9713 7.87318C12.9254 7.81341 12.8518 7.72973 12.8059 7.68789C12.7601 7.64804 12.6566 7.57233 12.5769 7.52053C12.4992 7.46872 12.3479 7.38903 12.2443 7.3432C12.1407 7.29738 11.9436 7.22366 11.8061 7.17982C11.6687 7.13599 11.3959 7.06426 11.1987 7.01844C11.0015 6.97261 10.8282 6.93077 10.8143 6.92679C10.8003 6.9228 10.7864 6.92479 10.7824 6.93276ZM9.63523 11.5133C9.46992 12.1908 9.33648 12.7466 9.34046 12.7486C9.34445 12.7506 9.50378 12.7925 9.69498 12.8423C9.88618 12.8921 10.1511 12.9558 10.2825 12.9817C10.414 13.0096 10.6191 13.0475 10.7406 13.0674C10.9019 13.0933 11.0672 13.1033 11.368 13.1033C11.6986 13.1033 11.8041 13.0953 11.9256 13.0654C12.0073 13.0455 12.1467 12.9957 12.2343 12.9538C12.3399 12.904 12.4295 12.8423 12.5012 12.7725C12.561 12.7128 12.6287 12.6291 12.6546 12.5853C12.6805 12.5414 12.7203 12.4518 12.7422 12.386C12.7661 12.3203 12.79 12.1908 12.796 12.0971C12.802 12.0015 12.798 11.8799 12.784 11.8182C12.7721 11.7584 12.7342 11.6508 12.6984 11.5791C12.6606 11.5014 12.5789 11.3918 12.4933 11.3021C12.4176 11.2224 12.2821 11.1089 12.1945 11.0511C12.1069 10.9913 11.9416 10.8997 11.8261 10.8439C11.7105 10.7901 11.4994 10.7044 11.358 10.6566C11.2166 10.6068 10.9955 10.541 10.8701 10.5072C10.7446 10.4733 10.4837 10.4095 10.2925 10.3637C10.1013 10.3199 9.94195 10.284 9.93995 10.284C9.93796 10.284 9.80054 10.8379 9.63523 11.5133Z',
@@ -842,87 +727,87 @@ var BTC = function BTC(_ref) {
   }));
 };
 
-var _excluded$m = ["width", "height", "fill"];
-var Explorer = function Explorer(_ref) {
-  var _ref$fill = _ref.fill,
-    fill = _ref$fill === void 0 ? 'black' : _ref$fill,
-    rest = _objectWithoutPropertiesLoose(_ref, _excluded$m);
-  return React__default.createElement("svg", Object.assign({
+const Explorer = ({
+  width: _width = 40,
+  height: _height = 40,
+  fill: _fill = 'black',
+  ...rest
+}) => {
+  return React.createElement("svg", Object.assign({
     width: '21',
     height: '24',
     viewBox: '0 0 21 24',
     fill: 'none',
     xmlns: 'http://www.w3.org/2000/svg'
-  }, rest), React__default.createElement("path", {
+  }, rest), React.createElement("path", {
     d: 'M9.6 0.239388C10.1 -0.0606123 10.6 -0.0606123 11.1 0.139388L11.2 0.239388L20 5.23939C20.5 5.53939 20.8 6.03939 20.8 6.53939V16.6394C20.8 17.1394 20.5 17.7394 20.1 18.0394L20 18.1394L11.2 23.1394C10.7 23.4394 10.2 23.4394 9.7 23.2394L9.6 23.1394L0.8 18.1394C0.3 17.8394 0 17.3394 0 16.8394V6.73939C0 6.23939 0.3 5.63939 0.7 5.33939L0.8 5.23939L9.6 0.239388ZM19 7.83939L11.3 12.9394V20.9394L19 16.5394V7.83939ZM1.8 7.83939V16.6394L9.5 21.0394V13.0394L1.8 7.83939ZM10.4 1.93939L2.8 6.23939L10.4 11.3394L18 6.23939L10.4 1.93939Z',
-    fill: fill
+    fill: _fill
   }));
 };
 
-var _excluded$n = ["width", "height", "fill"];
-var ExternalUrl = function ExternalUrl(_ref) {
-  var _ref$fill = _ref.fill,
-    fill = _ref$fill === void 0 ? 'black' : _ref$fill,
-    rest = _objectWithoutPropertiesLoose(_ref, _excluded$n);
-  return React__default.createElement("svg", Object.assign({
+const ExternalUrl = ({
+  width: _width = 40,
+  height: _height = 40,
+  fill: _fill = 'black',
+  ...rest
+}) => {
+  return React.createElement("svg", Object.assign({
     width: '40',
     height: '40',
     viewBox: '0 0 40 40',
     fill: 'none',
     xmlns: 'http://www.w3.org/2000/svg'
-  }, rest), React__default.createElement("path", {
+  }, rest), React.createElement("path", {
     d: 'M19.1699 11.6226H15.4812C12.7198 11.6226 10.4812 13.8611 10.4812 16.6226V24C10.4812 26.7614 12.7198 29 15.4812 29H22.8586C25.6201 29 27.8586 26.7614 27.8586 24V20.3113',
-    stroke: fill,
+    stroke: _fill,
     "stroke-width": '2'
-  }), React__default.createElement("mask", {
+  }), React.createElement("mask", {
     id: 'path-2-inside-1_883_418',
     fill: 'white'
-  }, React__default.createElement("path", {
+  }, React.createElement("path", {
     "fill-rule": 'evenodd',
     "clip-rule": 'evenodd',
     d: 'M30.4872 9.53075C30.5107 9.22503 30.2561 8.97036 29.9503 8.99388L22.9271 9.53412C22.5012 9.56689 22.3099 10.0841 22.6119 10.3862L24.616 12.3902C24.8112 12.5855 24.8112 12.9021 24.616 13.0973L18.9543 18.7591C18.4661 19.2472 18.4661 20.0387 18.9543 20.5268C19.4424 21.015 20.2339 21.015 20.722 20.5268L26.3837 14.8651C26.579 14.6698 26.8956 14.6698 27.0908 14.8651L29.0949 16.8692C29.3969 17.1712 29.9142 16.9799 29.947 16.5539L30.4872 9.53075Z'
-  })), React__default.createElement("path", {
+  })), React.createElement("path", {
     "fill-rule": 'evenodd',
     "clip-rule": 'evenodd',
     d: 'M30.4872 9.53075C30.5107 9.22503 30.2561 8.97036 29.9503 8.99388L22.9271 9.53412C22.5012 9.56689 22.3099 10.0841 22.6119 10.3862L24.616 12.3902C24.8112 12.5855 24.8112 12.9021 24.616 13.0973L18.9543 18.7591C18.4661 19.2472 18.4661 20.0387 18.9543 20.5268C19.4424 21.015 20.2339 21.015 20.722 20.5268L26.3837 14.8651C26.579 14.6698 26.8956 14.6698 27.0908 14.8651L29.0949 16.8692C29.3969 17.1712 29.9142 16.9799 29.947 16.5539L30.4872 9.53075Z',
-    fill: fill
-  }), React__default.createElement("path", {
+    fill: _fill
+  }), React.createElement("path", {
     d: 'M18.9543 18.7591L18.2471 18.0519L18.9543 18.7591ZM18.9543 20.5268L18.2471 21.2339L18.9543 20.5268ZM20.722 20.5268L20.0149 19.8197L20.722 20.5268ZM29.0949 16.8692L29.802 16.162L29.0949 16.8692ZM24.616 12.3902L23.9089 13.0973L24.616 12.3902ZM26.3837 14.8651L25.6766 14.158L26.3837 14.8651ZM27.0908 14.8651L27.7979 14.158L27.0908 14.8651ZM30.4872 9.53075L29.4902 9.45406L30.4872 9.53075ZM22.6119 10.3862L21.9048 11.0933L22.6119 10.3862ZM23.0038 10.5312L30.027 9.99093L29.8736 7.99682L22.8505 8.53707L23.0038 10.5312ZM25.3231 11.6831L23.319 9.6791L21.9048 11.0933L23.9089 13.0973L25.3231 11.6831ZM19.6614 19.4662L25.3231 13.8044L23.9089 12.3902L18.2471 18.0519L19.6614 19.4662ZM19.6614 19.8197C19.5637 19.7221 19.5637 19.5638 19.6614 19.4662L18.2471 18.0519C17.3685 18.9306 17.3685 20.3552 18.2471 21.2339L19.6614 19.8197ZM20.0149 19.8197C19.9173 19.9173 19.759 19.9173 19.6614 19.8197L18.2471 21.2339C19.1258 22.1126 20.5504 22.1126 21.4291 21.2339L20.0149 19.8197ZM25.6766 14.158L20.0149 19.8197L21.4291 21.2339L27.0908 15.5722L25.6766 14.158ZM29.802 16.162L27.7979 14.158L26.3837 15.5722L28.3878 17.5763L29.802 16.162ZM29.4902 9.45406L28.9499 16.4772L30.944 16.6306L31.4843 9.60745L29.4902 9.45406ZM28.3878 17.5763C29.294 18.4824 30.8457 17.9084 30.944 16.6306L28.9499 16.4772C28.9827 16.0513 29.4999 15.86 29.802 16.162L28.3878 17.5763ZM23.9089 13.0973C23.7136 12.9021 23.7136 12.5855 23.9089 12.3902L25.3231 13.8044C25.9089 13.2187 25.9089 12.2689 25.3231 11.6831L23.9089 13.0973ZM27.0908 15.5722C26.8956 15.7675 26.579 15.7675 26.3837 15.5722L27.7979 14.158C27.2122 13.5722 26.2624 13.5722 25.6766 14.158L27.0908 15.5722ZM30.027 9.99093C29.7213 10.0145 29.4666 9.75978 29.4902 9.45406L31.4843 9.60745C31.5548 8.69029 30.7908 7.92627 29.8736 7.99682L30.027 9.99093ZM22.8505 8.53707C21.5727 8.63536 20.9987 10.1871 21.9048 11.0933L23.319 9.6791C23.6211 9.98116 23.4298 10.4984 23.0038 10.5312L22.8505 8.53707Z',
-    fill: fill,
+    fill: _fill,
     mask: 'url(#path-2-inside-1_883_418)'
   }));
 };
 
-var _excluded$o = ["width", "height"];
-var Solana$2 = function Solana(_ref) {
-  var _ref$width = _ref.width,
-    width = _ref$width === void 0 ? 14 : _ref$width,
-    _ref$height = _ref.height,
-    height = _ref$height === void 0 ? 14 : _ref$height,
-    rest = _objectWithoutPropertiesLoose(_ref, _excluded$o);
-  return React__default.createElement("svg", Object.assign({
-    width: width,
-    height: height,
+const Solana$2 = ({
+  width: _width = 14,
+  height: _height = 14,
+  ...rest
+}) => {
+  return React.createElement("svg", Object.assign({
+    width: _width,
+    height: _height,
     viewBox: '0 0 64 64',
     xmlns: 'http://www.w3.org/2000/svg'
-  }, rest), React__default.createElement("circle", {
+  }, rest), React.createElement("circle", {
     cx: '32',
     cy: '32',
     r: '32',
     fill: '#814625'
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     d: 'M30.8066 30.3796C30.7714 30.2733 30.7468 30.1643 30.7278 30.0542C30.7191 30.0032 30.7089 29.9524 30.6974 29.902C30.6723 29.7925 30.6444 29.6836 30.6143 29.5753V29.575C31.1133 28.8474 33.4988 25.0525 30.7842 22.6167C27.7714 19.9133 24.2512 23.4567 24.2512 23.4567L24.2621 23.4724C22.6799 23.0093 20.9643 22.955 19.2952 23.4565C19.295 23.4565 19.2949 23.4565 19.2949 23.4565C19.2743 23.4358 15.7659 19.9212 12.762 22.6167C9.75706 25.313 13.0019 29.6752 13.0188 29.698C13.0188 29.698 13.0188 29.6981 13.0188 29.6983C12.9843 29.8008 12.9564 29.9054 12.938 30.0117C12.6129 31.8784 10.3999 32.4545 10.3999 35.7061C10.3999 38.9576 12.715 41.6321 17.4404 41.6321H19.3794C19.3794 41.6321 19.3796 41.6321 19.3797 41.6321C19.3884 41.644 20.1867 42.7339 21.826 42.7327C23.3478 42.7316 24.3528 41.6414 24.3615 41.6321C24.3615 41.6321 24.3615 41.6321 24.3618 41.6321H26.2117C30.9371 41.6321 33.2522 39.0204 33.2522 35.7061C33.2522 32.6781 31.3331 31.9702 30.8068 30.3796H30.8066Z',
     fill: 'white'
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     d: 'M53.3886 26.6644C53.3886 26.6644 53.74 23.5305 51.0687 22.8571V21.6002H48.9999V22.8257C46.182 23.4261 46.5451 26.6644 46.5451 26.6644V27.2017C46.5451 27.2017 46.1818 30.4407 49.0009 31.0405H49.0006V33.7308C46.0304 34.252 46.4057 37.5966 46.4057 37.5966V38.1339C46.4057 38.1339 46.0424 41.3722 48.8604 41.9725V43.1981H50.9292V41.9412C53.6007 41.2678 53.2491 38.1339 53.2491 38.1339C53.3659 38.1339 53.4606 38.0427 53.4606 37.9303V37.8003C53.4606 37.6878 53.3659 37.5966 53.2491 37.5966C53.2491 37.5966 53.5977 34.4899 50.9638 33.7984V31.0405H50.9327C53.7518 30.4407 53.3885 27.2017 53.3885 27.2017C53.5052 27.2017 53.5999 27.1105 53.5999 26.998V26.868C53.5999 26.7556 53.5052 26.6644 53.3885 26.6644H53.3886ZM51.7027 37.5966H51.5134C51.3967 37.5966 51.302 37.6878 51.302 37.8003V37.9303C51.302 38.0427 51.3967 38.1339 51.5134 38.1339H51.7027C51.7027 40.0779 51.0324 40.405 50.8069 40.4601C50.7698 40.4691 50.7338 40.4426 50.7338 40.4058V39.7862C50.7338 39.4436 50.5072 39.256 50.2806 39.1539C49.9941 39.0249 49.6605 39.0249 49.3741 39.1539C49.1475 39.256 48.9208 39.4436 48.9208 39.7862V40.4058C48.9208 40.4421 48.8855 40.4692 48.849 40.4603C48.6248 40.4062 47.952 40.0817 47.952 38.1339V37.5966C47.952 35.6526 48.6222 35.3255 48.8478 35.2705C48.8848 35.2615 48.9208 35.2879 48.9208 35.3247V35.9444C48.9208 36.2869 49.1475 36.4746 49.3741 36.5767C49.6605 36.7056 49.9941 36.7056 50.2806 36.5767C50.5072 36.4746 50.7338 36.2869 50.7338 35.9444V35.3247C50.7338 35.2885 50.7691 35.2613 50.8056 35.2702C51.0299 35.3243 51.7027 35.6489 51.7027 37.5966ZM51.6529 27.2017H51.8421C51.8421 29.1494 51.1694 29.4741 50.9451 29.5281C50.9086 29.537 50.8733 29.5098 50.8733 29.4736V28.8539C50.8733 28.5114 50.6467 28.3237 50.42 28.2216C50.1336 28.0927 49.8 28.0927 49.5135 28.2216C49.2869 28.3237 49.0603 28.5114 49.0603 28.8539V29.4736C49.0603 29.5104 49.0243 29.5368 48.9872 29.5278C48.7617 29.4728 48.0915 29.1457 48.0915 27.2017V26.6644C48.0915 24.7166 48.7642 24.3919 48.9885 24.3379C49.025 24.3291 49.0603 24.3564 49.0603 24.3925V25.0121C49.0603 25.3547 49.2869 25.5423 49.5135 25.6444C49.8 25.7734 50.1336 25.7734 50.42 25.6444C50.6467 25.5423 50.8733 25.3547 50.8733 25.0121V24.3925C50.8733 24.3557 50.9093 24.3292 50.9464 24.3382C51.1719 24.3933 51.8421 24.7204 51.8421 26.6644H51.6529C51.5361 26.6644 51.4414 26.7556 51.4414 26.868V26.998C51.4414 27.1105 51.5361 27.2017 51.6529 27.2017Z',
     fill: 'white'
-  }), React__default.createElement("path", {
+  }), React.createElement("path", {
     d: 'M43.036 32.1987C43.036 32.1987 43.4013 28.9416 40.5566 28.355V25.4288C43.3256 24.8038 42.9663 21.6002 42.9663 21.6002C42.9663 21.6002 41.4134 21.6002 41.4198 21.6002C41.4198 23.548 40.7471 23.8726 40.5228 23.9266C40.4863 23.9355 40.451 23.9082 40.451 23.8721V23.2524C40.451 22.9099 40.2244 22.7223 39.9977 22.6202C39.7113 22.4912 39.3777 22.4912 39.0912 22.6202C38.8646 22.7223 38.638 22.9099 38.638 23.2524V23.8721C38.638 23.9089 38.602 23.9354 38.5649 23.9264C38.3394 23.8713 37.6692 23.5442 37.6692 21.6002C37.6757 21.6002 36.1227 21.6002 36.1227 21.6002C36.1227 21.6002 35.7499 24.9246 38.6908 25.4611V28.351C35.8255 28.927 36.1924 32.1985 36.1924 32.1985V32.7358C36.1924 32.7358 35.8255 36.0074 38.6908 36.5834V39.339C35.7499 39.8756 36.1227 43.1998 36.1227 43.1998C36.1227 43.1998 37.6756 43.1998 37.6692 43.1998C37.6692 41.2521 38.3419 40.9274 38.5662 40.8734C38.6027 40.8645 38.638 40.8917 38.638 40.9279V41.5476C38.638 41.8901 38.8646 42.0778 39.0912 42.1799C39.3777 42.3088 39.7113 42.3088 39.9977 42.1799C40.2244 42.0778 40.451 41.8901 40.451 41.5476V40.9279C40.451 40.8911 40.487 40.8647 40.5241 40.8737C40.7496 40.9287 41.4198 41.2558 41.4198 43.1998C41.4133 43.1998 42.9663 43.1998 42.9663 43.1998C42.9663 43.1998 43.3256 39.9962 40.5566 39.3712V36.5794C43.4013 35.9927 43.036 32.7357 43.036 32.7357C43.1528 32.7357 43.2475 32.6445 43.2475 32.5321V32.402C43.2475 32.2896 43.1528 32.1984 43.036 32.1984V32.1987ZM41.3003 32.736H41.4895C41.4895 34.6837 40.8168 35.0084 40.5925 35.0624C40.556 35.0713 40.5207 35.0441 40.5207 35.0079V34.3882C40.5207 34.0457 40.2941 33.858 40.0675 33.7559C39.781 33.627 39.4474 33.627 39.161 33.7559C38.9343 33.858 38.7077 34.0457 38.7077 34.3882V35.0079C38.7077 35.0447 38.6717 35.0711 38.6346 35.0621C38.4091 35.007 37.7389 34.68 37.7389 32.736V32.1987C37.7389 30.2509 38.4116 29.9262 38.6359 29.8722C38.6724 29.8634 38.7077 29.8906 38.7077 29.9268V30.5464C38.7077 30.889 38.9343 31.0766 39.161 31.1787C39.4474 31.3077 39.781 31.3077 40.0675 31.1787C40.2941 31.0766 40.5207 30.889 40.5207 30.5464V29.9268C40.5207 29.89 40.5567 29.8635 40.5938 29.8725C40.8193 29.9276 41.4895 30.2547 41.4895 32.1987H41.3003C41.1836 32.1987 41.0889 32.2899 41.0889 32.4023V32.5323C41.0889 32.6448 41.1836 32.736 41.3003 32.736Z',
     fill: 'white'
   }));
 };
 
-var _CHAIN_NAMES_TO_IDS_T, _CHAIN_NAMES_TO_IDS_M, _CHAIN_NAMES_TO_STRIN, _CHAIN_STRING_TO_NAME, _CHAIN_NAMES_TO_EXPLO, _CHAIN_NAMES_TO_EXPLO2, _CHAIN_IDS_TO_NAMES_T, _CHAIN_IDS_TO_NAMES_M;
+var ChainName;
 (function (ChainName) {
   ChainName["ETHEREUM"] = "ETH";
   ChainName["POLYGON"] = "POL";
@@ -937,7 +822,7 @@ var _CHAIN_NAMES_TO_IDS_T, _CHAIN_NAMES_TO_IDS_M, _CHAIN_NAMES_TO_STRIN, _CHAIN_
   ChainName["BTC"] = "BTC";
   ChainName["BASE"] = "BASE";
   ChainName["BERA"] = "BERA";
-})(exports.SupportNetworks || (exports.SupportNetworks = {}));
+})(ChainName || (ChainName = {}));
 var SupportedChainIdTestnet;
 (function (SupportedChainIdTestnet) {
   SupportedChainIdTestnet[SupportedChainIdTestnet["ETHEREUM"] = 11155111] = "ETHEREUM";
@@ -950,7 +835,17 @@ var SupportedChainIdTestnet;
   SupportedChainIdTestnet[SupportedChainIdTestnet["BASE"] = 84532] = "BASE";
   SupportedChainIdTestnet[SupportedChainIdTestnet["BERA"] = 80084] = "BERA";
 })(SupportedChainIdTestnet || (SupportedChainIdTestnet = {}));
-var CHAIN_NAMES_TO_IDS_TESTNET = (_CHAIN_NAMES_TO_IDS_T = {}, _CHAIN_NAMES_TO_IDS_T[exports.SupportNetworks.ETHEREUM] = SupportedChainIdTestnet.ETHEREUM, _CHAIN_NAMES_TO_IDS_T[exports.SupportNetworks.POLYGON] = SupportedChainIdTestnet.POLYGON, _CHAIN_NAMES_TO_IDS_T[exports.SupportNetworks.AVALANCHE] = SupportedChainIdTestnet.AVALANCHE, _CHAIN_NAMES_TO_IDS_T[exports.SupportNetworks.BSC] = SupportedChainIdTestnet.BSC, _CHAIN_NAMES_TO_IDS_T[exports.SupportNetworks.OPTIMISM] = SupportedChainIdTestnet.OPTIMISM, _CHAIN_NAMES_TO_IDS_T[exports.SupportNetworks.ARBITRUM] = SupportedChainIdTestnet.ARBITRUM, _CHAIN_NAMES_TO_IDS_T[exports.SupportNetworks.POLYGON_ZKEVM] = SupportedChainIdTestnet.POLYGON_ZKEM, _CHAIN_NAMES_TO_IDS_T[exports.SupportNetworks.BASE] = SupportedChainIdTestnet.BASE, _CHAIN_NAMES_TO_IDS_T[exports.SupportNetworks.BERA] = SupportedChainIdTestnet.BERA, _CHAIN_NAMES_TO_IDS_T);
+const CHAIN_NAMES_TO_IDS_TESTNET = {
+  [ChainName.ETHEREUM]: SupportedChainIdTestnet.ETHEREUM,
+  [ChainName.POLYGON]: SupportedChainIdTestnet.POLYGON,
+  [ChainName.AVALANCHE]: SupportedChainIdTestnet.AVALANCHE,
+  [ChainName.BSC]: SupportedChainIdTestnet.BSC,
+  [ChainName.OPTIMISM]: SupportedChainIdTestnet.OPTIMISM,
+  [ChainName.ARBITRUM]: SupportedChainIdTestnet.ARBITRUM,
+  [ChainName.POLYGON_ZKEVM]: SupportedChainIdTestnet.POLYGON_ZKEM,
+  [ChainName.BASE]: SupportedChainIdTestnet.BASE,
+  [ChainName.BERA]: SupportedChainIdTestnet.BERA
+};
 var SupportedChainIdMainnet;
 (function (SupportedChainIdMainnet) {
   SupportedChainIdMainnet[SupportedChainIdMainnet["ETHEREUM"] = 1] = "ETHEREUM";
@@ -963,79 +858,159 @@ var SupportedChainIdMainnet;
   SupportedChainIdMainnet[SupportedChainIdMainnet["BASE"] = 8453] = "BASE";
   SupportedChainIdMainnet[SupportedChainIdMainnet["BERA"] = 80094] = "BERA";
 })(SupportedChainIdMainnet || (SupportedChainIdMainnet = {}));
-var CHAIN_NAMES_TO_IDS_MAINNET = (_CHAIN_NAMES_TO_IDS_M = {}, _CHAIN_NAMES_TO_IDS_M[exports.SupportNetworks.ETHEREUM] = SupportedChainIdMainnet.ETHEREUM, _CHAIN_NAMES_TO_IDS_M[exports.SupportNetworks.POLYGON] = SupportedChainIdMainnet.POLYGON, _CHAIN_NAMES_TO_IDS_M[exports.SupportNetworks.AVALANCHE] = SupportedChainIdMainnet.AVALANCHE, _CHAIN_NAMES_TO_IDS_M[exports.SupportNetworks.BSC] = SupportedChainIdMainnet.BSC, _CHAIN_NAMES_TO_IDS_M[exports.SupportNetworks.OPTIMISM] = SupportedChainIdMainnet.OPTIMISM, _CHAIN_NAMES_TO_IDS_M[exports.SupportNetworks.ARBITRUM] = SupportedChainIdMainnet.ARBITRUM, _CHAIN_NAMES_TO_IDS_M[exports.SupportNetworks.POLYGON_ZKEVM] = SupportedChainIdMainnet.POLYGON_ZKEM, _CHAIN_NAMES_TO_IDS_M[exports.SupportNetworks.BASE] = SupportedChainIdMainnet.BASE, _CHAIN_NAMES_TO_IDS_M[exports.SupportNetworks.BERA] = SupportedChainIdMainnet.BERA, _CHAIN_NAMES_TO_IDS_M);
-var CHAIN_NAMES_TO_STRING = (_CHAIN_NAMES_TO_STRIN = {}, _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.ETHEREUM] = 'Ethereum', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.POLYGON] = 'Polygon', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.AVALANCHE] = 'Avalanche', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.SOLANA] = 'Solana', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.BSC] = 'BNB Smart Chain', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.OPTIMISM] = 'Optimism', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.ARBITRUM] = 'Arbitrum', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.POLYGON_ZKEVM] = 'Polygon zkEVM', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.TRON] = 'Tron', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.FIAT] = 'Pay with FIAT', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.BTC] = 'Bitcoin', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.BASE] = 'Base', _CHAIN_NAMES_TO_STRIN[exports.SupportNetworks.BERA] = 'Bera', _CHAIN_NAMES_TO_STRIN);
-var CHAIN_STRING_TO_NAME = (_CHAIN_STRING_TO_NAME = {}, _CHAIN_STRING_TO_NAME['Ethereum'] = exports.SupportNetworks.ETHEREUM, _CHAIN_STRING_TO_NAME['Polygon'] = exports.SupportNetworks.POLYGON, _CHAIN_STRING_TO_NAME['Avalanche'] = exports.SupportNetworks.AVALANCHE, _CHAIN_STRING_TO_NAME['Solana'] = exports.SupportNetworks.SOLANA, _CHAIN_STRING_TO_NAME['Binance'] = exports.SupportNetworks.BSC, _CHAIN_STRING_TO_NAME['Optimism'] = exports.SupportNetworks.OPTIMISM, _CHAIN_STRING_TO_NAME['Arbitrum'] = exports.SupportNetworks.ARBITRUM, _CHAIN_STRING_TO_NAME['Polygon zkEVM'] = exports.SupportNetworks.POLYGON_ZKEVM, _CHAIN_STRING_TO_NAME['Tron'] = exports.SupportNetworks.TRON, _CHAIN_STRING_TO_NAME['Pay with FIAT'] = exports.SupportNetworks.FIAT, _CHAIN_STRING_TO_NAME['Bitcoin'] = exports.SupportNetworks.BTC, _CHAIN_STRING_TO_NAME['Base'] = exports.SupportNetworks.BASE, _CHAIN_STRING_TO_NAME['Bera'] = exports.SupportNetworks.BERA, _CHAIN_STRING_TO_NAME);
-var CHAIN_NAMES_TO_EXPLORER_TESTNET = (_CHAIN_NAMES_TO_EXPLO = {}, _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.ETHEREUM] = 'sepolia.etherscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.POLYGON] = 'www.oklink.com/amoy', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.AVALANCHE] = 'testnet.snowtrace.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.SOLANA] = 'solscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.BSC] = 'testnet.bscscan.com', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.OPTIMISM] = 'sepolia-optimism.etherscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.ARBITRUM] = 'sepolia.arbiscan.io', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.POLYGON_ZKEVM] = 'cardona-zkevm.polygonscan.com', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.TRON] = 'nile.tronscan.org/#', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.BTC] = 'mempool.space/testnet', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.BASE] = 'sepolia.basescan.org', _CHAIN_NAMES_TO_EXPLO[exports.SupportNetworks.BERA] = 'bartio.beratrail.io', _CHAIN_NAMES_TO_EXPLO);
-var CHAIN_NAMES_TO_EXPLORER_MAINNET = (_CHAIN_NAMES_TO_EXPLO2 = {}, _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.ETHEREUM] = 'etherscan.io', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.POLYGON] = 'polygonscan.com', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.AVALANCHE] = 'snowtrace.io', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.SOLANA] = 'solscan.io', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.BSC] = 'bscscan.com', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.OPTIMISM] = 'optimistic.etherscan.io', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.ARBITRUM] = 'arbiscan.io', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.POLYGON_ZKEVM] = 'zkevm.polygonscan.com', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.TRON] = 'tronscan.org/#', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.BTC] = 'mempool.space', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.BASE] = 'basescan.org', _CHAIN_NAMES_TO_EXPLO2[exports.SupportNetworks.BERA] = 'berascan.com', _CHAIN_NAMES_TO_EXPLO2);
-var CHAIN_IDS_TO_NAMES_TESTNET = (_CHAIN_IDS_TO_NAMES_T = {}, _CHAIN_IDS_TO_NAMES_T[SupportedChainIdTestnet.ETHEREUM] = exports.SupportNetworks.ETHEREUM, _CHAIN_IDS_TO_NAMES_T[SupportedChainIdTestnet.POLYGON] = exports.SupportNetworks.POLYGON, _CHAIN_IDS_TO_NAMES_T[SupportedChainIdTestnet.AVALANCHE] = exports.SupportNetworks.AVALANCHE, _CHAIN_IDS_TO_NAMES_T[SupportedChainIdTestnet.BSC] = exports.SupportNetworks.BSC, _CHAIN_IDS_TO_NAMES_T[SupportedChainIdTestnet.OPTIMISM] = exports.SupportNetworks.OPTIMISM, _CHAIN_IDS_TO_NAMES_T[SupportedChainIdTestnet.ARBITRUM] = exports.SupportNetworks.ARBITRUM, _CHAIN_IDS_TO_NAMES_T[SupportedChainIdTestnet.POLYGON_ZKEM] = exports.SupportNetworks.POLYGON_ZKEVM, _CHAIN_IDS_TO_NAMES_T[SupportedChainIdTestnet.BASE] = exports.SupportNetworks.BASE, _CHAIN_IDS_TO_NAMES_T[SupportedChainIdTestnet.BERA] = exports.SupportNetworks.BERA, _CHAIN_IDS_TO_NAMES_T);
-var CHAIN_IDS_TO_NAMES_MAINNET = (_CHAIN_IDS_TO_NAMES_M = {}, _CHAIN_IDS_TO_NAMES_M[SupportedChainIdMainnet.ETHEREUM] = exports.SupportNetworks.ETHEREUM, _CHAIN_IDS_TO_NAMES_M[SupportedChainIdMainnet.POLYGON] = exports.SupportNetworks.POLYGON, _CHAIN_IDS_TO_NAMES_M[SupportedChainIdMainnet.AVALANCHE] = exports.SupportNetworks.AVALANCHE, _CHAIN_IDS_TO_NAMES_M[SupportedChainIdMainnet.BSC] = exports.SupportNetworks.BSC, _CHAIN_IDS_TO_NAMES_M[SupportedChainIdMainnet.OPTIMISM] = exports.SupportNetworks.OPTIMISM, _CHAIN_IDS_TO_NAMES_M[SupportedChainIdMainnet.ARBITRUM] = exports.SupportNetworks.ARBITRUM, _CHAIN_IDS_TO_NAMES_M[SupportedChainIdMainnet.POLYGON_ZKEM] = exports.SupportNetworks.POLYGON_ZKEVM, _CHAIN_IDS_TO_NAMES_M[SupportedChainIdMainnet.BASE] = exports.SupportNetworks.BASE, _CHAIN_IDS_TO_NAMES_M[SupportedChainIdMainnet.BERA] = exports.SupportNetworks.BERA, _CHAIN_IDS_TO_NAMES_M);
-var networkOptions = [{
-  id: exports.SupportNetworks.ARBITRUM,
+const CHAIN_NAMES_TO_IDS_MAINNET = {
+  [ChainName.ETHEREUM]: SupportedChainIdMainnet.ETHEREUM,
+  [ChainName.POLYGON]: SupportedChainIdMainnet.POLYGON,
+  [ChainName.AVALANCHE]: SupportedChainIdMainnet.AVALANCHE,
+  [ChainName.BSC]: SupportedChainIdMainnet.BSC,
+  [ChainName.OPTIMISM]: SupportedChainIdMainnet.OPTIMISM,
+  [ChainName.ARBITRUM]: SupportedChainIdMainnet.ARBITRUM,
+  [ChainName.POLYGON_ZKEVM]: SupportedChainIdMainnet.POLYGON_ZKEM,
+  [ChainName.BASE]: SupportedChainIdMainnet.BASE,
+  [ChainName.BERA]: SupportedChainIdMainnet.BERA
+};
+const CHAIN_NAMES_TO_STRING = {
+  [ChainName.ETHEREUM]: 'Ethereum',
+  [ChainName.POLYGON]: 'Polygon',
+  [ChainName.AVALANCHE]: 'Avalanche',
+  [ChainName.SOLANA]: 'Solana',
+  [ChainName.BSC]: 'BNB Smart Chain',
+  [ChainName.OPTIMISM]: 'Optimism',
+  [ChainName.ARBITRUM]: 'Arbitrum',
+  [ChainName.POLYGON_ZKEVM]: 'Polygon zkEVM',
+  [ChainName.TRON]: 'Tron',
+  [ChainName.FIAT]: 'Pay with FIAT',
+  [ChainName.BTC]: 'Bitcoin',
+  [ChainName.BASE]: 'Base',
+  [ChainName.BERA]: 'Bera'
+};
+const CHAIN_STRING_TO_NAME = {
+  ['Ethereum']: ChainName.ETHEREUM,
+  ['Polygon']: ChainName.POLYGON,
+  ['Avalanche']: ChainName.AVALANCHE,
+  ['Solana']: ChainName.SOLANA,
+  ['Binance']: ChainName.BSC,
+  ['Optimism']: ChainName.OPTIMISM,
+  ['Arbitrum']: ChainName.ARBITRUM,
+  ['Polygon zkEVM']: ChainName.POLYGON_ZKEVM,
+  ['Tron']: ChainName.TRON,
+  ['Pay with FIAT']: ChainName.FIAT,
+  ['Bitcoin']: ChainName.BTC,
+  ['Base']: ChainName.BASE,
+  ['Bera']: ChainName.BERA
+};
+const CHAIN_NAMES_TO_EXPLORER_TESTNET = {
+  [ChainName.ETHEREUM]: 'sepolia.etherscan.io',
+  [ChainName.POLYGON]: 'www.oklink.com/amoy',
+  [ChainName.AVALANCHE]: 'testnet.snowtrace.io',
+  [ChainName.SOLANA]: 'solscan.io',
+  [ChainName.BSC]: 'testnet.bscscan.com',
+  [ChainName.OPTIMISM]: 'sepolia-optimism.etherscan.io',
+  [ChainName.ARBITRUM]: 'sepolia.arbiscan.io',
+  [ChainName.POLYGON_ZKEVM]: 'cardona-zkevm.polygonscan.com',
+  [ChainName.TRON]: 'nile.tronscan.org/#',
+  [ChainName.BTC]: 'mempool.space/testnet',
+  [ChainName.BASE]: 'sepolia.basescan.org',
+  [ChainName.BERA]: 'bartio.beratrail.io'
+};
+const CHAIN_NAMES_TO_EXPLORER_MAINNET = {
+  [ChainName.ETHEREUM]: 'etherscan.io',
+  [ChainName.POLYGON]: 'polygonscan.com',
+  [ChainName.AVALANCHE]: 'snowtrace.io',
+  [ChainName.SOLANA]: 'solscan.io',
+  [ChainName.BSC]: 'bscscan.com',
+  [ChainName.OPTIMISM]: 'optimistic.etherscan.io',
+  [ChainName.ARBITRUM]: 'arbiscan.io',
+  [ChainName.POLYGON_ZKEVM]: 'zkevm.polygonscan.com',
+  [ChainName.TRON]: 'tronscan.org/#',
+  [ChainName.BTC]: 'mempool.space',
+  [ChainName.BASE]: 'basescan.org',
+  [ChainName.BERA]: 'berascan.com'
+};
+const CHAIN_IDS_TO_NAMES_TESTNET = {
+  [SupportedChainIdTestnet.ETHEREUM]: ChainName.ETHEREUM,
+  [SupportedChainIdTestnet.POLYGON]: ChainName.POLYGON,
+  [SupportedChainIdTestnet.AVALANCHE]: ChainName.AVALANCHE,
+  [SupportedChainIdTestnet.BSC]: ChainName.BSC,
+  [SupportedChainIdTestnet.OPTIMISM]: ChainName.OPTIMISM,
+  [SupportedChainIdTestnet.ARBITRUM]: ChainName.ARBITRUM,
+  [SupportedChainIdTestnet.POLYGON_ZKEM]: ChainName.POLYGON_ZKEVM,
+  [SupportedChainIdTestnet.BASE]: ChainName.BASE,
+  [SupportedChainIdTestnet.BERA]: ChainName.BERA
+};
+const CHAIN_IDS_TO_NAMES_MAINNET = {
+  [SupportedChainIdMainnet.ETHEREUM]: ChainName.ETHEREUM,
+  [SupportedChainIdMainnet.POLYGON]: ChainName.POLYGON,
+  [SupportedChainIdMainnet.AVALANCHE]: ChainName.AVALANCHE,
+  [SupportedChainIdMainnet.BSC]: ChainName.BSC,
+  [SupportedChainIdMainnet.OPTIMISM]: ChainName.OPTIMISM,
+  [SupportedChainIdMainnet.ARBITRUM]: ChainName.ARBITRUM,
+  [SupportedChainIdMainnet.POLYGON_ZKEM]: ChainName.POLYGON_ZKEVM,
+  [SupportedChainIdMainnet.BASE]: ChainName.BASE,
+  [SupportedChainIdMainnet.BERA]: ChainName.BERA
+};
+const networkOptions = [{
+  id: ChainName.ARBITRUM,
   label: 'Arbitrum',
   icon: Arbitrum
 }, {
-  id: exports.SupportNetworks.AVALANCHE,
+  id: ChainName.AVALANCHE,
   label: 'Avalanche',
   icon: Avalanche
 }, {
-  id: exports.SupportNetworks.BASE,
+  id: ChainName.BASE,
   label: 'Base',
   icon: Solana$1
 }, {
-  id: exports.SupportNetworks.BERA,
+  id: ChainName.BERA,
   label: 'Bera',
   icon: Solana$2
 }, {
-  id: exports.SupportNetworks.BSC,
+  id: ChainName.BSC,
   label: 'Binance',
   icon: BNB
 }, {
-  id: exports.SupportNetworks.BTC,
+  id: ChainName.BTC,
   label: 'Bitcoin',
   icon: BTC
 }, {
-  id: exports.SupportNetworks.ETHEREUM,
+  id: ChainName.ETHEREUM,
   label: 'Ethereum',
   icon: Ethereum
 }, {
-  id: exports.SupportNetworks.FIAT,
+  id: ChainName.FIAT,
   label: 'Pay with FIAT',
   icon: Bank
 }, {
-  id: exports.SupportNetworks.OPTIMISM,
+  id: ChainName.OPTIMISM,
   label: 'Optimism',
   icon: Optimism
 }, {
-  id: exports.SupportNetworks.POLYGON,
+  id: ChainName.POLYGON,
   label: 'Polygon',
   icon: Ethereum$1
 }, {
-  id: exports.SupportNetworks.POLYGON_ZKEVM,
+  id: ChainName.POLYGON_ZKEVM,
   label: 'Polygon zkEVM',
   icon: Ethereum$1
 }, {
-  id: exports.SupportNetworks.SOLANA,
+  id: ChainName.SOLANA,
   label: 'Solana',
   icon: Solana
 }, {
-  id: exports.SupportNetworks.TRON,
+  id: ChainName.TRON,
   label: 'Tron',
   icon: Celo
 }];
-var getNetworkOption = function getNetworkOption(id) {
-  var index = networkOptions.findIndex(function (item) {
-    return item.id === id;
-  });
+const getNetworkOption = id => {
+  const index = networkOptions.findIndex(item => item.id === id);
   if (index < 0) return;
   return networkOptions[index];
 };
-var SOLANA_HOST_DEVNET = web3_js.clusterApiUrl('devnet');
-var SOLANA_HOST_MAINNET = web3_js.clusterApiUrl('mainnet-beta');
-var isEVMChain = function isEVMChain(chainId) {
-  return chainId === exports.SupportNetworks.ETHEREUM || chainId === exports.SupportNetworks.POLYGON || chainId === exports.SupportNetworks.AVALANCHE || chainId === exports.SupportNetworks.BSC || chainId === exports.SupportNetworks.OPTIMISM || chainId === exports.SupportNetworks.ARBITRUM || chainId === exports.SupportNetworks.POLYGON_ZKEVM || chainId === exports.SupportNetworks.BASE || chainId === exports.SupportNetworks.BERA;
-};
-var COIN_LIST = {
+const SOLANA_HOST_DEVNET = clusterApiUrl('devnet');
+const SOLANA_HOST_MAINNET = clusterApiUrl('mainnet-beta');
+const isEVMChain = chainId => chainId === ChainName.ETHEREUM || chainId === ChainName.POLYGON || chainId === ChainName.AVALANCHE || chainId === ChainName.BSC || chainId === ChainName.OPTIMISM || chainId === ChainName.ARBITRUM || chainId === ChainName.POLYGON_ZKEVM || chainId === ChainName.BASE || chainId === ChainName.BERA;
+const COIN_LIST = {
   USDK: {
     symbol: 'USDK',
     icon: USDT
@@ -1057,7 +1032,7 @@ var COIN_LIST = {
     icon: BTC
   }
 };
-var ExpireTimeOptions = ['1 hour', '2 hours', '3 hours'];
+const ExpireTimeOptions = ['1 hour', '2 hours', '3 hours'];
 var TransactionStatus;
 (function (TransactionStatus) {
   TransactionStatus["AVAILABLE"] = "Available";
@@ -1070,49 +1045,57 @@ var TransactionStatus;
   TransactionStatus["UNAVAILABLE"] = "UnAvailable";
   TransactionStatus["KEYSIGNED"] = "KeySigned";
 })(TransactionStatus || (TransactionStatus = {}));
-var TRON_USDK_OWNER_ADDRESS = 'TBVn4bsBN4DhtZ7D3vEVpAyqkvdFn7zmpU';
+const TRON_USDK_OWNER_ADDRESS = 'TBVn4bsBN4DhtZ7D3vEVpAyqkvdFn7zmpU';
 
+var NetworkOptions;
 (function (NetworkOptions) {
   NetworkOptions["testnet"] = "testnet";
   NetworkOptions["mainnet"] = "mainnet";
-})(exports.NetworkOptions || (exports.NetworkOptions = {}));
+})(NetworkOptions || (NetworkOptions = {}));
+var FontSizeOptions;
 (function (FontSizeOptions) {
   FontSizeOptions["large"] = "large";
   FontSizeOptions["medium"] = "medium";
   FontSizeOptions["small"] = "small";
-})(exports.FontSizeOptions || (exports.FontSizeOptions = {}));
+})(FontSizeOptions || (FontSizeOptions = {}));
+var ModeOptions;
 (function (ModeOptions) {
   ModeOptions["payment"] = "payment";
   ModeOptions["bridge"] = "bridge";
   ModeOptions["status"] = "status";
-})(exports.ModeOptions || (exports.ModeOptions = {}));
+})(ModeOptions || (ModeOptions = {}));
+var CurrencyOptions;
 (function (CurrencyOptions) {
   CurrencyOptions["USDK"] = "USDK";
   CurrencyOptions["USDC"] = "USDC";
   CurrencyOptions["USDT"] = "USDT";
   CurrencyOptions["WBTC"] = "WBTC";
   CurrencyOptions["G$"] = "GDOLLAR";
-})(exports.CurrencyOptions || (exports.CurrencyOptions = {}));
+})(CurrencyOptions || (CurrencyOptions = {}));
+var ColorModeOptions;
 (function (ColorModeOptions) {
   ColorModeOptions["light"] = "light";
   ColorModeOptions["dark"] = "dark";
-})(exports.ColorModeOptions || (exports.ColorModeOptions = {}));
+})(ColorModeOptions || (ColorModeOptions = {}));
+var DAppOptions;
 (function (DAppOptions) {
   DAppOptions["None"] = "none";
   DAppOptions["LPAdd"] = "LPAdd";
   DAppOptions["LPDrain"] = "LPDrain";
-})(exports.DAppOptions || (exports.DAppOptions = {}));
+})(DAppOptions || (DAppOptions = {}));
 
-var createSlice = toolkitRaw.createSlice;
-var initialState = {
-  networkOption: exports.NetworkOptions.testnet,
+const {
+  createSlice
+} = toolkitRaw;
+const initialState = {
+  networkOption: NetworkOptions.testnet,
   theme: {},
   tokenOptions: {},
   pendingTxs: 0,
   pendingTxData: [],
   kimaExplorerUrl: 'https://explorer.kima.network',
   graphqlProviderQuery: 'https://graphql.kima.network',
-  mode: exports.ModeOptions.bridge,
+  mode: ModeOptions.bridge,
   sourceChain: '',
   targetChain: '',
   targetAddress: '',
@@ -1127,27 +1110,17 @@ var initialState = {
   bankPopup: false,
   walletAutoConnect: true,
   provider: undefined,
-  dAppOption: exports.DAppOptions.None,
+  dAppOption: DAppOptions.None,
   solanaProvider: undefined,
   tronProvider: undefined,
   submitted: false,
   amount: '',
   feeDeduct: false,
-  errorHandler: function errorHandler() {
-    return void 0;
-  },
-  closeHandler: function closeHandler() {
-    return void 0;
-  },
-  successHandler: function successHandler() {
-    return void 0;
-  },
-  switchChainHandler: function switchChainHandler() {
-    return void 0;
-  },
-  keplrHandler: function keplrHandler() {
-    return void 0;
-  },
+  errorHandler: () => void 0,
+  closeHandler: () => void 0,
+  successHandler: () => void 0,
+  switchChainHandler: () => void 0,
+  keplrHandler: () => void 0,
   initChainFromProvider: false,
   serviceFee: -1,
   backendUrl: '',
@@ -1169,11 +1142,11 @@ var initialState = {
   kycStatus: '',
   expireTime: '1 hour'
 };
-var optionSlice = createSlice({
+const optionSlice = createSlice({
   name: 'option',
-  initialState: initialState,
+  initialState,
   reducers: {
-    initialize: function initialize(state) {
+    initialize: state => {
       state.submitted = false;
       state.txId = -1;
       state.serviceFee = -1;
@@ -1191,541 +1164,289 @@ var optionSlice = createSlice({
       state.targetNetworkFetching = false;
       state.signature = '';
     },
-    setNetworkOption: function setNetworkOption(state, action) {
+    setNetworkOption: (state, action) => {
       state.networkOption = action.payload;
     },
-    setPendingTxs: function setPendingTxs(state, action) {
+    setPendingTxs: (state, action) => {
       state.pendingTxs = action.payload;
     },
-    setPendingTxData: function setPendingTxData(state, action) {
+    setPendingTxData: (state, action) => {
       state.pendingTxData = action.payload;
     },
-    setTokenOptions: function setTokenOptions(state, action) {
+    setTokenOptions: (state, action) => {
       state.tokenOptions = action.payload;
     },
-    setTheme: function setTheme(state, action) {
+    setTheme: (state, action) => {
       state.theme = action.payload;
     },
-    setKimaExplorer: function setKimaExplorer(state, action) {
+    setKimaExplorer: (state, action) => {
       state.kimaExplorerUrl = action.payload;
     },
-    setSourceChain: function setSourceChain(state, action) {
+    setSourceChain: (state, action) => {
       state.sourceChain = action.payload;
     },
-    setTargetChain: function setTargetChain(state, action) {
+    setTargetChain: (state, action) => {
       state.targetChain = action.payload;
     },
-    setTargetAddress: function setTargetAddress(state, action) {
+    setTargetAddress: (state, action) => {
       state.targetAddress = action.payload;
     },
-    setBitcoinAddress: function setBitcoinAddress(state, action) {
+    setBitcoinAddress: (state, action) => {
       state.bitcoinAddress = action.payload;
     },
-    setBitcoinPubkey: function setBitcoinPubkey(state, action) {
+    setBitcoinPubkey: (state, action) => {
       state.bitcoinPubkey = action.payload;
     },
-    setSolanaConnectModal: function setSolanaConnectModal(state, action) {
+    setSolanaConnectModal: (state, action) => {
       state.solanaConnectModal = action.payload;
     },
-    setTronConnectModal: function setTronConnectModal(state, action) {
+    setTronConnectModal: (state, action) => {
       state.tronConnectModal = action.payload;
     },
-    setAccountDetailsModal: function setAccountDetailsModal(state, action) {
+    setAccountDetailsModal: (state, action) => {
       state.accountDetailsModal = action.payload;
     },
-    setHelpPopup: function setHelpPopup(state, action) {
+    setHelpPopup: (state, action) => {
       state.helpPopup = action.payload;
     },
-    setHashPopup: function setHashPopup(state, action) {
+    setHashPopup: (state, action) => {
       state.hashPopup = action.payload;
     },
-    setPendingTxPopup: function setPendingTxPopup(state, action) {
+    setPendingTxPopup: (state, action) => {
       state.pendingTxPopup = action.payload;
     },
-    setBankPopup: function setBankPopup(state, action) {
+    setBankPopup: (state, action) => {
       state.bankPopup = action.payload;
     },
-    setProvider: function setProvider(state, action) {
+    setProvider: (state, action) => {
       state.provider = action.payload;
     },
-    setDappOption: function setDappOption(state, action) {
+    setDappOption: (state, action) => {
       state.dAppOption = action.payload;
     },
-    setWalletAutoConnect: function setWalletAutoConnect(state, action) {
+    setWalletAutoConnect: (state, action) => {
       state.walletAutoConnect = action.payload;
     },
-    setSolanaProvider: function setSolanaProvider(state, action) {
+    setSolanaProvider: (state, action) => {
       state.solanaProvider = action.payload;
     },
-    setTronProvider: function setTronProvider(state, action) {
+    setTronProvider: (state, action) => {
       state.tronProvider = action.payload;
     },
-    setSubmitted: function setSubmitted(state, action) {
+    setSubmitted: (state, action) => {
       state.submitted = action.payload;
     },
-    setTransactionOption: function setTransactionOption(state, action) {
+    setTransactionOption: (state, action) => {
       state.transactionOption = action.payload;
     },
-    setAmount: function setAmount(state, action) {
+    setAmount: (state, action) => {
       state.amount = action.payload;
     },
-    setErrorHandler: function setErrorHandler(state, action) {
+    setErrorHandler: (state, action) => {
       state.errorHandler = action.payload;
     },
-    setKeplrHandler: function setKeplrHandler(state, action) {
+    setKeplrHandler: (state, action) => {
       state.keplrHandler = action.payload;
     },
-    setCloseHandler: function setCloseHandler(state, action) {
+    setCloseHandler: (state, action) => {
       state.closeHandler = action.payload;
     },
-    setSwitchChainHandler: function setSwitchChainHandler(state, action) {
+    setSwitchChainHandler: (state, action) => {
       state.switchChainHandler = action.payload;
     },
-    setInitChainFromProvider: function setInitChainFromProvider(state, action) {
+    setInitChainFromProvider: (state, action) => {
       state.initChainFromProvider = action.payload;
     },
-    setSuccessHandler: function setSuccessHandler(state, action) {
+    setSuccessHandler: (state, action) => {
       state.successHandler = action.payload;
     },
-    setServiceFee: function setServiceFee(state, action) {
+    setServiceFee: (state, action) => {
       state.serviceFee = action.payload;
     },
-    setMode: function setMode(state, action) {
+    setMode: (state, action) => {
       state.mode = action.payload;
     },
-    setFeeDeduct: function setFeeDeduct(state, action) {
+    setFeeDeduct: (state, action) => {
       state.feeDeduct = action.payload;
     },
-    setBackendUrl: function setBackendUrl(state, action) {
+    setBackendUrl: (state, action) => {
       state.backendUrl = action.payload;
     },
-    setNodeProviderQuery: function setNodeProviderQuery(state, action) {
+    setNodeProviderQuery: (state, action) => {
       state.nodeProviderQuery = action.payload;
     },
-    setGraphqlProviderQuery: function setGraphqlProviderQuery(state, action) {
+    setGraphqlProviderQuery: (state, action) => {
       state.graphqlProviderQuery = action.payload;
     },
-    setTxId: function setTxId(state, action) {
+    setTxId: (state, action) => {
       state.txId = action.payload;
     },
-    setSourceCurrency: function setSourceCurrency(state, action) {
+    setSourceCurrency: (state, action) => {
       state.sourceCurrency = action.payload;
     },
-    setTargetCurrency: function setTargetCurrency(state, action) {
+    setTargetCurrency: (state, action) => {
       state.targetCurrency = action.payload;
     },
-    setCompliantOption: function setCompliantOption(state, action) {
+    setCompliantOption: (state, action) => {
       state.compliantOption = action.payload;
     },
-    setSourceCompliant: function setSourceCompliant(state, action) {
+    setSourceCompliant: (state, action) => {
       state.sourceCompliant = action.payload;
     },
-    setTargetCompliant: function setTargetCompliant(state, action) {
+    setTargetCompliant: (state, action) => {
       state.targetCompliant = action.payload;
     },
-    setUseFIAT: function setUseFIAT(state, action) {
+    setUseFIAT: (state, action) => {
       state.useFIAT = action.payload;
     },
-    setBankDetails: function setBankDetails(state, action) {
+    setBankDetails: (state, action) => {
       state.bankDetails = action.payload;
     },
-    setTargetChainFetching: function setTargetChainFetching(state, action) {
+    setTargetChainFetching: (state, action) => {
       state.targetNetworkFetching = action.payload;
     },
-    setSignature: function setSignature(state, action) {
+    setSignature: (state, action) => {
       state.signature = action.payload;
     },
-    setUuid: function setUuid(state, action) {
+    setUuid: (state, action) => {
       state.uuid = action.payload;
     },
-    setKYCStatus: function setKYCStatus(state, action) {
+    setKYCStatus: (state, action) => {
       state.kycStatus = action.payload;
     },
-    setExpireTime: function setExpireTime(state, action) {
+    setExpireTime: (state, action) => {
       state.expireTime = action.payload;
     }
   }
 });
-var _optionSlice$actions = optionSlice.actions,
-  initialize = _optionSlice$actions.initialize,
-  setNetworkOption = _optionSlice$actions.setNetworkOption,
-  setTokenOptions = _optionSlice$actions.setTokenOptions,
-  setKimaExplorer = _optionSlice$actions.setKimaExplorer,
-  setTheme = _optionSlice$actions.setTheme,
-  setSourceChain = _optionSlice$actions.setSourceChain,
-  setTargetChain = _optionSlice$actions.setTargetChain,
-  setTargetAddress = _optionSlice$actions.setTargetAddress,
-  setBitcoinAddress = _optionSlice$actions.setBitcoinAddress,
-  setBitcoinPubkey = _optionSlice$actions.setBitcoinPubkey,
-  setSolanaConnectModal = _optionSlice$actions.setSolanaConnectModal,
-  setTronConnectModal = _optionSlice$actions.setTronConnectModal,
-  setAccountDetailsModal = _optionSlice$actions.setAccountDetailsModal,
-  setPendingTxPopup = _optionSlice$actions.setPendingTxPopup,
-  setBankPopup = _optionSlice$actions.setBankPopup,
-  setTronProvider = _optionSlice$actions.setTronProvider,
-  setProvider = _optionSlice$actions.setProvider,
-  setDappOption = _optionSlice$actions.setDappOption,
-  setWalletAutoConnect = _optionSlice$actions.setWalletAutoConnect,
-  setSubmitted = _optionSlice$actions.setSubmitted,
-  setTransactionOption = _optionSlice$actions.setTransactionOption,
-  setAmount = _optionSlice$actions.setAmount,
-  setErrorHandler = _optionSlice$actions.setErrorHandler,
-  setKeplrHandler = _optionSlice$actions.setKeplrHandler,
-  setCloseHandler = _optionSlice$actions.setCloseHandler,
-  setSuccessHandler = _optionSlice$actions.setSuccessHandler,
-  setSwitchChainHandler = _optionSlice$actions.setSwitchChainHandler,
-  setServiceFee = _optionSlice$actions.setServiceFee,
-  setMode = _optionSlice$actions.setMode,
-  setFeeDeduct = _optionSlice$actions.setFeeDeduct,
-  setBackendUrl = _optionSlice$actions.setBackendUrl,
-  setNodeProviderQuery = _optionSlice$actions.setNodeProviderQuery,
-  setGraphqlProviderQuery = _optionSlice$actions.setGraphqlProviderQuery,
-  setTxId = _optionSlice$actions.setTxId,
-  setSourceCurrency = _optionSlice$actions.setSourceCurrency,
-  setTargetCurrency = _optionSlice$actions.setTargetCurrency,
-  setCompliantOption = _optionSlice$actions.setCompliantOption,
-  setSourceCompliant = _optionSlice$actions.setSourceCompliant,
-  setTargetCompliant = _optionSlice$actions.setTargetCompliant,
-  setUseFIAT = _optionSlice$actions.setUseFIAT,
-  setBankDetails = _optionSlice$actions.setBankDetails,
-  setTargetChainFetching = _optionSlice$actions.setTargetChainFetching,
-  setSignature = _optionSlice$actions.setSignature,
-  setUuid = _optionSlice$actions.setUuid,
-  setKYCStatus = _optionSlice$actions.setKYCStatus,
-  setExpireTime = _optionSlice$actions.setExpireTime,
-  setPendingTxData = _optionSlice$actions.setPendingTxData,
-  setPendingTxs = _optionSlice$actions.setPendingTxs;
+const {
+  initialize,
+  setNetworkOption,
+  setTokenOptions,
+  setKimaExplorer,
+  setTheme,
+  setSourceChain,
+  setTargetChain,
+  setTargetAddress,
+  setBitcoinAddress,
+  setBitcoinPubkey,
+  setSolanaConnectModal,
+  setTronConnectModal,
+  setAccountDetailsModal,
+  setHelpPopup,
+  setHashPopup,
+  setPendingTxPopup,
+  setBankPopup,
+  setSolanaProvider,
+  setTronProvider,
+  setProvider,
+  setDappOption,
+  setWalletAutoConnect,
+  setSubmitted,
+  setTransactionOption,
+  setAmount,
+  setErrorHandler,
+  setKeplrHandler,
+  setCloseHandler,
+  setSuccessHandler,
+  setSwitchChainHandler,
+  setInitChainFromProvider,
+  setServiceFee,
+  setMode,
+  setFeeDeduct,
+  setBackendUrl,
+  setNodeProviderQuery,
+  setGraphqlProviderQuery,
+  setTxId,
+  setSourceCurrency,
+  setTargetCurrency,
+  setCompliantOption,
+  setSourceCompliant,
+  setTargetCompliant,
+  setUseFIAT,
+  setBankDetails,
+  setTargetChainFetching,
+  setSignature,
+  setUuid,
+  setKYCStatus,
+  setExpireTime,
+  setPendingTxData,
+  setPendingTxs
+} = optionSlice.actions;
 var optionReducer = optionSlice.reducer;
 
-var configureStore = toolkitRaw.configureStore;
-var store = configureStore({
+const {
+  configureStore
+} = toolkitRaw;
+const store = configureStore({
   reducer: {
     option: optionReducer
   },
-  middleware: function middleware(getDefaultMiddleware) {
-    return getDefaultMiddleware({
-      serializableCheck: false
-    });
-  }
+  middleware: getDefaultMiddleware => getDefaultMiddleware({
+    serializableCheck: false
+  })
 });
 
-// A type of promise-like that resolves synchronously and supports only one observer
-const _Pact = /*#__PURE__*/(function() {
-	function _Pact() {}
-	_Pact.prototype.then = function(onFulfilled, onRejected) {
-		const result = new _Pact();
-		const state = this.s;
-		if (state) {
-			const callback = state & 1 ? onFulfilled : onRejected;
-			if (callback) {
-				try {
-					_settle(result, 1, callback(this.v));
-				} catch (e) {
-					_settle(result, 2, e);
-				}
-				return result;
-			} else {
-				return this;
-			}
-		}
-		this.o = function(_this) {
-			try {
-				const value = _this.v;
-				if (_this.s & 1) {
-					_settle(result, 1, onFulfilled ? onFulfilled(value) : value);
-				} else if (onRejected) {
-					_settle(result, 1, onRejected(value));
-				} else {
-					_settle(result, 2, value);
-				}
-			} catch (e) {
-				_settle(result, 2, e);
-			}
-		};
-		return result;
-	};
-	return _Pact;
-})();
+const selectNetworkOption = state => state.option.networkOption;
+const selectTokenOptions = state => state.option.tokenOptions;
+const selectTheme = state => state.option.theme;
+const selectKimaExplorer = state => state.option.kimaExplorerUrl;
+const selectSourceChain = state => state.option.sourceChain;
+const selectTargetChain = state => state.option.targetChain;
+const selectTargetAddress = state => state.option.targetAddress;
+const selectBitcoinAddress = state => state.option.bitcoinAddress;
+const selectBitcoinPubkey = state => state.option.bitcoinPubkey;
+const selectSolanaConnectModal = state => state.option.solanaConnectModal;
+const selectTronConnectModal = state => state.option.tronConnectModal;
+const selectAccountDetailsModal = state => state.option.accountDetailsModal;
+const selectPendingTxPopup = state => state.option.pendingTxPopup;
+const selectBankPopup = state => state.option.bankPopup;
+const selectTronProvider = state => state.option.tronProvider;
+const selectDappOption = state => state.option.dAppOption;
+const selectWalletAutoConnect = state => state.option.walletAutoConnect;
+const selectSubmitted = state => state.option.submitted;
+const selectTransactionOption = state => state.option.transactionOption;
+const selectAmount = state => state.option.amount;
+const selectErrorHandler = state => state.option.errorHandler;
+const selectKeplrHandler = state => state.option.keplrHandler;
+const selectCloseHandler = state => state.option.closeHandler;
+const selectSuccessHandler = state => state.option.successHandler;
+const selectServiceFee = state => state.option.serviceFee;
+const selectMode = state => state.option.mode;
+const selectFeeDeduct = state => state.option.feeDeduct;
+const selectBackendUrl = state => state.option.backendUrl;
+const selectNodeProviderQuery = state => state.option.nodeProviderQuery;
+const selectGraphqlProviderQuery = state => state.option.graphqlProviderQuery;
+const selectTxId = state => state.option.txId;
+const selectSourceCurrency = state => state.option.sourceCurrency;
+const selectTargetCurrency = state => state.option.targetCurrency;
+const selectCompliantOption = state => state.option.compliantOption;
+const selectSourceCompliant = state => state.option.sourceCompliant;
+const selectTargetCompliant = state => state.option.targetCompliant;
+const selectUseFIAT = state => state.option.useFIAT;
+const selectBankDetails = state => state.option.bankDetails;
+const selectTargetChainFetching = state => state.option.targetNetworkFetching;
+const selectSignature = state => state.option.signature;
+const selectUuid = state => state.option.uuid;
+const selectKycStatus = state => state.option.kycStatus;
+const selectExpireTime = state => state.option.expireTime;
+const selectPendingTxs = state => state.option.pendingTxs;
+const selectPendingTxData = state => state.option.pendingTxData;
 
-// Settles a pact synchronously
-function _settle(pact, state, value) {
-	if (!pact.s) {
-		if (value instanceof _Pact) {
-			if (value.s) {
-				if (state & 1) {
-					state = value.s;
-				}
-				value = value.v;
-			} else {
-				value.o = _settle.bind(null, pact, state);
-				return;
-			}
-		}
-		if (value && value.then) {
-			value.then(_settle.bind(null, pact, state), _settle.bind(null, pact, 2));
-			return;
-		}
-		pact.s = state;
-		pact.v = value;
-		const observer = pact.o;
-		if (observer) {
-			observer(pact);
-		}
-	}
-}
-
-function _isSettledPact(thenable) {
-	return thenable instanceof _Pact && thenable.s & 1;
-}
-
-const _iteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.iterator || (Symbol.iterator = Symbol("Symbol.iterator"))) : "@@iterator";
-
-const _asyncIteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.asyncIterator || (Symbol.asyncIterator = Symbol("Symbol.asyncIterator"))) : "@@asyncIterator";
-
-// Asynchronously implement a do ... while loop
-function _do(body, test) {
-	var awaitBody;
-	do {
-		var result = body();
-		if (result && result.then) {
-			if (_isSettledPact(result)) {
-				result = result.v;
-			} else {
-				awaitBody = true;
-				break;
-			}
-		}
-		var shouldContinue = test();
-		if (_isSettledPact(shouldContinue)) {
-			shouldContinue = shouldContinue.v;
-		}
-		if (!shouldContinue) {
-			return result;
-		}
-	} while (!shouldContinue.then);
-	const pact = new _Pact();
-	const reject = _settle.bind(null, pact, 2);
-	(awaitBody ? result.then(_resumeAfterBody) : shouldContinue.then(_resumeAfterTest)).then(void 0, reject);
-	return pact;
-	function _resumeAfterBody(value) {
-		result = value;
-		for (;;) {
-			shouldContinue = test();
-			if (_isSettledPact(shouldContinue)) {
-				shouldContinue = shouldContinue.v;
-			}
-			if (!shouldContinue) {
-				break;
-			}
-			if (shouldContinue.then) {
-				shouldContinue.then(_resumeAfterTest).then(void 0, reject);
-				return;
-			}
-			result = body();
-			if (result && result.then) {
-				if (_isSettledPact(result)) {
-					result = result.v;
-				} else {
-					result.then(_resumeAfterBody).then(void 0, reject);
-					return;
-				}
-			}
-		}
-		_settle(pact, 1, result);
-	}
-	function _resumeAfterTest(shouldContinue) {
-		if (shouldContinue) {
-			do {
-				result = body();
-				if (result && result.then) {
-					if (_isSettledPact(result)) {
-						result = result.v;
-					} else {
-						result.then(_resumeAfterBody).then(void 0, reject);
-						return;
-					}
-				}
-				shouldContinue = test();
-				if (_isSettledPact(shouldContinue)) {
-					shouldContinue = shouldContinue.v;
-				}
-				if (!shouldContinue) {
-					_settle(pact, 1, result);
-					return;
-				}
-			} while (!shouldContinue.then);
-			shouldContinue.then(_resumeAfterTest).then(void 0, reject);
-		} else {
-			_settle(pact, 1, result);
-		}
-	}
-}
-
-// Asynchronously call a function and send errors to recovery continuation
-function _catch(body, recover) {
-	try {
-		var result = body();
-	} catch(e) {
-		return recover(e);
-	}
-	if (result && result.then) {
-		return result.then(void 0, recover);
-	}
-	return result;
-}
-
-var selectNetworkOption = function selectNetworkOption(state) {
-  return state.option.networkOption;
-};
-var selectTokenOptions = function selectTokenOptions(state) {
-  return state.option.tokenOptions;
-};
-var selectTheme = function selectTheme(state) {
-  return state.option.theme;
-};
-var selectKimaExplorer = function selectKimaExplorer(state) {
-  return state.option.kimaExplorerUrl;
-};
-var selectSourceChain = function selectSourceChain(state) {
-  return state.option.sourceChain;
-};
-var selectTargetChain = function selectTargetChain(state) {
-  return state.option.targetChain;
-};
-var selectTargetAddress = function selectTargetAddress(state) {
-  return state.option.targetAddress;
-};
-var selectBitcoinAddress = function selectBitcoinAddress(state) {
-  return state.option.bitcoinAddress;
-};
-var selectBitcoinPubkey = function selectBitcoinPubkey(state) {
-  return state.option.bitcoinPubkey;
-};
-var selectSolanaConnectModal = function selectSolanaConnectModal(state) {
-  return state.option.solanaConnectModal;
-};
-var selectTronConnectModal = function selectTronConnectModal(state) {
-  return state.option.tronConnectModal;
-};
-var selectAccountDetailsModal = function selectAccountDetailsModal(state) {
-  return state.option.accountDetailsModal;
-};
-var selectPendingTxPopup = function selectPendingTxPopup(state) {
-  return state.option.pendingTxPopup;
-};
-var selectBankPopup = function selectBankPopup(state) {
-  return state.option.bankPopup;
-};
-var selectTronProvider = function selectTronProvider(state) {
-  return state.option.tronProvider;
-};
-var selectDappOption = function selectDappOption(state) {
-  return state.option.dAppOption;
-};
-var selectWalletAutoConnect = function selectWalletAutoConnect(state) {
-  return state.option.walletAutoConnect;
-};
-var selectSubmitted = function selectSubmitted(state) {
-  return state.option.submitted;
-};
-var selectTransactionOption = function selectTransactionOption(state) {
-  return state.option.transactionOption;
-};
-var selectAmount = function selectAmount(state) {
-  return state.option.amount;
-};
-var selectErrorHandler = function selectErrorHandler(state) {
-  return state.option.errorHandler;
-};
-var selectKeplrHandler = function selectKeplrHandler(state) {
-  return state.option.keplrHandler;
-};
-var selectCloseHandler = function selectCloseHandler(state) {
-  return state.option.closeHandler;
-};
-var selectSuccessHandler = function selectSuccessHandler(state) {
-  return state.option.successHandler;
-};
-var selectServiceFee = function selectServiceFee(state) {
-  return state.option.serviceFee;
-};
-var selectMode = function selectMode(state) {
-  return state.option.mode;
-};
-var selectFeeDeduct = function selectFeeDeduct(state) {
-  return state.option.feeDeduct;
-};
-var selectBackendUrl = function selectBackendUrl(state) {
-  return state.option.backendUrl;
-};
-var selectNodeProviderQuery = function selectNodeProviderQuery(state) {
-  return state.option.nodeProviderQuery;
-};
-var selectGraphqlProviderQuery = function selectGraphqlProviderQuery(state) {
-  return state.option.graphqlProviderQuery;
-};
-var selectTxId = function selectTxId(state) {
-  return state.option.txId;
-};
-var selectSourceCurrency = function selectSourceCurrency(state) {
-  return state.option.sourceCurrency;
-};
-var selectTargetCurrency = function selectTargetCurrency(state) {
-  return state.option.targetCurrency;
-};
-var selectCompliantOption = function selectCompliantOption(state) {
-  return state.option.compliantOption;
-};
-var selectSourceCompliant = function selectSourceCompliant(state) {
-  return state.option.sourceCompliant;
-};
-var selectTargetCompliant = function selectTargetCompliant(state) {
-  return state.option.targetCompliant;
-};
-var selectUseFIAT = function selectUseFIAT(state) {
-  return state.option.useFIAT;
-};
-var selectBankDetails = function selectBankDetails(state) {
-  return state.option.bankDetails;
-};
-var selectTargetChainFetching = function selectTargetChainFetching(state) {
-  return state.option.targetNetworkFetching;
-};
-var selectSignature = function selectSignature(state) {
-  return state.option.signature;
-};
-var selectUuid = function selectUuid(state) {
-  return state.option.uuid;
-};
-var selectKycStatus = function selectKycStatus(state) {
-  return state.option.kycStatus;
-};
-var selectExpireTime = function selectExpireTime(state) {
-  return state.option.expireTime;
-};
-var selectPendingTxs = function selectPendingTxs(state) {
-  return state.option.pendingTxs;
-};
-var selectPendingTxData = function selectPendingTxData(state) {
-  return state.option.pendingTxData;
-};
-
-var Loading180Ring = function Loading180Ring(_ref) {
-  var _ref$width = _ref.width,
-    width = _ref$width === void 0 ? 24 : _ref$width,
-    _ref$height = _ref.height,
-    height = _ref$height === void 0 ? 24 : _ref$height,
-    _ref$fill = _ref.fill,
-    fill = _ref$fill === void 0 ? 'white' : _ref$fill;
-  return React__default.createElement("svg", {
-    width: width,
-    height: height,
-    fill: fill,
+const Loading180Ring = ({
+  width: _width = 24,
+  height: _height = 24,
+  fill: _fill = 'white'
+}) => {
+  return React.createElement("svg", {
+    width: _width,
+    height: _height,
+    fill: _fill,
     viewBox: '0 0 24 24',
     xmlns: 'http://www.w3.org/2000/svg'
-  }, React__default.createElement("path", {
+  }, React.createElement("path", {
     d: 'M12,4a8,8,0,0,1,7.89,6.7A1.53,1.53,0,0,0,21.38,12h0a1.5,1.5,0,0,0,1.48-1.75,11,11,0,0,0-21.72,0A1.5,1.5,0,0,0,2.62,12h0a1.53,1.53,0,0,0,1.49-1.3A8,8,0,0,1,12,4Z'
-  }, React__default.createElement("animateTransform", {
+  }, React.createElement("animateTransform", {
     attributeName: 'transform',
     type: 'rotate',
     dur: '0.75s',
@@ -1734,7 +1455,7 @@ var Loading180Ring = function Loading180Ring(_ref) {
   })));
 };
 
-var stepInfo = [{
+const stepInfo = [{
   title: 'Initialize'
 }, {
   title: 'Source Transfer'
@@ -1745,118 +1466,114 @@ var stepInfo = [{
 }, {
   title: 'Finalize'
 }];
-var Progressbar = function Progressbar(_ref) {
-  var step = _ref.step,
-    errorStep = _ref.errorStep,
-    setFocus = _ref.setFocus,
-    loadingStep = _ref.loadingStep;
-  var theme = reactRedux.useSelector(selectTheme);
-  return React__default.createElement("div", {
+const Progressbar = ({
+  step,
+  errorStep,
+  setFocus,
+  loadingStep
+}) => {
+  const theme = useSelector(selectTheme);
+  return React.createElement("div", {
     className: 'kima-progressbar'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'value',
     style: {
-      width: "calc(" + step * 100 / 4 + "% + " + (step > 0 && step < 3 ? 0.5 : 0) + "em)"
+      width: `calc(${step * 100 / 4}% + ${step > 0 && step < 3 ? 0.5 : 0}em)`
     }
-  }), React__default.createElement("div", {
+  }), React.createElement("div", {
     className: 'step-indicators'
-  }, stepInfo.map(function (item, index) {
-    return React__default.createElement("div", {
-      key: item.title,
-      className: "step " + (step >= index ? 'active' : ''),
-      onClick: function onClick() {
-        if (index < 4) setFocus(index);
-      }
-    }, React__default.createElement("div", {
-      className: 'step-info'
-    }, index === loadingStep ? React__default.createElement(Loading180Ring, {
-      fill: theme.colorMode === 'dark' ? 'white' : '#5aa0db'
-    }) : step >= index ? index === errorStep ? React__default.createElement(Warning, null) : React__default.createElement(Check, null) : null, React__default.createElement("span", null, item.title)));
-  })));
+  }, stepInfo.map((item, index) => React.createElement("div", {
+    key: item.title,
+    className: `step ${step >= index ? 'active' : ''}`,
+    onClick: () => {
+      if (index < 4) setFocus(index);
+    }
+  }, React.createElement("div", {
+    className: 'step-info'
+  }, index === loadingStep ? React.createElement(Loading180Ring, {
+    fill: theme.colorMode === 'dark' ? 'white' : '#5aa0db'
+  }) : step >= index ? index === errorStep ? React.createElement(Warning, null) : React.createElement(Check, null) : null, React.createElement("span", null, item.title))))));
 };
 
-var ExternalLink = function ExternalLink(_ref) {
-  var to = _ref.to,
-    children = _ref.children,
-    className = _ref.className,
-    rest = _ref.rest;
-  return React__default.createElement("a", Object.assign({
-    className: className,
-    href: to,
-    target: '_blank',
-    rel: 'noreferrer noopener'
-  }, rest), children);
-};
+const ExternalLink = ({
+  to,
+  children,
+  className,
+  rest
+}) => React.createElement("a", Object.assign({
+  className: className,
+  href: to,
+  target: '_blank',
+  rel: 'noreferrer noopener'
+}, rest), children);
 
-var NetworkLabel = function NetworkLabel(_ref) {
-  var sourceChain = _ref.sourceChain,
-    targetChain = _ref.targetChain,
-    hasError = _ref.hasError;
-  var theme = reactRedux.useSelector(selectTheme);
-  var SourceInfo = getNetworkOption(sourceChain);
-  var TargetInfo = getNetworkOption(targetChain);
-  return React__default.createElement("div", {
+const NetworkLabel = ({
+  sourceChain,
+  targetChain,
+  hasError
+}) => {
+  const theme = useSelector(selectTheme);
+  const SourceInfo = getNetworkOption(sourceChain);
+  const TargetInfo = getNetworkOption(targetChain);
+  return React.createElement("div", {
     className: 'kima-card-network-label'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'label'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'icon-wrapper'
-  }, SourceInfo && React__default.createElement(SourceInfo.icon, null)), SourceInfo === null || SourceInfo === void 0 ? void 0 : SourceInfo.label), React__default.createElement(ArrowRight, {
+  }, SourceInfo && React.createElement(SourceInfo.icon, null)), SourceInfo === null || SourceInfo === void 0 ? void 0 : SourceInfo.label), React.createElement(ArrowRight, {
     fill: theme.colorMode === 'light' ? 'black' : 'white'
-  }), React__default.createElement("div", {
+  }), React.createElement("div", {
     className: 'label'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'icon-wrapper'
-  }, TargetInfo && React__default.createElement(TargetInfo.icon, null)), TargetInfo === null || TargetInfo === void 0 ? void 0 : TargetInfo.label), hasError && React__default.createElement("div", {
+  }, TargetInfo && React.createElement(TargetInfo.icon, null)), TargetInfo === null || TargetInfo === void 0 ? void 0 : TargetInfo.label), hasError && React.createElement("div", {
     className: 'warning-container'
-  }, React__default.createElement(Warning, null), React__default.createElement("span", null, "1 issue")));
+  }, React.createElement(Warning, null), React.createElement("span", null, "1 issue")));
 };
 
-var PrimaryButton = function PrimaryButton(_ref) {
-  var className = _ref.className,
-    clickHandler = _ref.clickHandler,
-    children = _ref.children,
-    _ref$isLoading = _ref.isLoading,
-    isLoading = _ref$isLoading === void 0 ? false : _ref$isLoading,
-    _ref$disabled = _ref.disabled,
-    disabled = _ref$disabled === void 0 ? false : _ref$disabled,
-    ref = _ref.ref;
-  return React__default.createElement("button", {
-    className: "primary-button " + className,
+const PrimaryButton = ({
+  className,
+  clickHandler,
+  children,
+  isLoading: _isLoading = false,
+  disabled: _disabled = false,
+  ref
+}) => {
+  return React.createElement("button", {
+    className: `primary-button ${className}`,
     onClick: clickHandler,
     ref: ref,
-    disabled: disabled
-  }, isLoading && React__default.createElement("div", {
+    disabled: _disabled
+  }, _isLoading && React.createElement("div", {
     className: 'loading-indicator'
-  }, React__default.createElement(Loading180Ring, {
+  }, React.createElement(Loading180Ring, {
     width: 24,
     height: 24,
     fill: 'white'
   })), children);
 };
 
-var SecondaryButton = function SecondaryButton(_ref) {
-  var className = _ref.className,
-    clickHandler = _ref.clickHandler,
-    children = _ref.children,
-    theme = _ref.theme,
-    style = _ref.style,
-    _ref$disabled = _ref.disabled,
-    disabled = _ref$disabled === void 0 ? false : _ref$disabled;
-  return React__default.createElement("button", Object.assign({
-    className: "secondary-button " + className + " " + theme,
-    onClick: clickHandler
-  }, style, {
-    disabled: disabled
-  }), children);
-};
+const SecondaryButton = ({
+  className,
+  clickHandler,
+  children,
+  theme,
+  style,
+  disabled: _disabled = false
+}) => React.createElement("button", Object.assign({
+  className: `secondary-button ${className} ${theme}`,
+  onClick: clickHandler
+}, style, {
+  disabled: _disabled
+}), children);
 
-var fetchWrapper = {
-  get: get,
-  post: post
+const fetchWrapper = {
+  get,
+  post
 };
 function get(url) {
-  var requestOptions = {
+  const requestOptions = {
     method: 'GET'
   };
   requestOptions.headers = {
@@ -1865,7 +1582,7 @@ function get(url) {
   return fetch(url, requestOptions).then(handleResponse);
 }
 function post(url, body) {
-  var requestOptions = {
+  const requestOptions = {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -1876,18 +1593,18 @@ function post(url, body) {
   return fetch(url, requestOptions).then(handleResponse);
 }
 function handleResponse(response) {
-  return response.text().then(function (text) {
-    var data = text;
+  return response.text().then(text => {
+    let data = text;
     try {
       data = JSON.parse(text);
     } catch (error) {
       data = text;
     }
     if (!response.ok) {
-      var error = data || response.statusText;
+      const error = data || response.statusText;
       return Promise.reject({
         status: response.status,
-        error: error
+        error
       });
     }
     return data;
@@ -1895,375 +1612,332 @@ function handleResponse(response) {
 }
 
 function useNetworkOptions() {
-  var dispatch = reactRedux.useDispatch();
-  var useFIAT = reactRedux.useSelector(selectUseFIAT);
-  var nodeProviderQuery = reactRedux.useSelector(selectNodeProviderQuery);
-  var _useState = React.useState(networkOptions),
-    options = _useState[0],
-    setOptions = _useState[1];
-  React.useEffect(function () {
+  const dispatch = useDispatch();
+  const useFIAT = useSelector(selectUseFIAT);
+  const nodeProviderQuery = useSelector(selectNodeProviderQuery);
+  const [options, setOptions] = useState(networkOptions);
+  useEffect(() => {
     if (!nodeProviderQuery) return;
-    (function () {
+    (async function () {
       try {
-        var _temp = _catch(function () {
-          return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/chains/chain")).then(function (networks) {
-            setOptions(networkOptions.filter(function (network) {
-              return networks.Chain.findIndex(function (chain) {
-                return chain.symbol === network.id && !chain.disabled;
-              }) >= 0 || network.id === exports.SupportNetworks.FIAT && useFIAT;
-            }));
-            var tokenOptions = {};
-            for (var _iterator = _createForOfIteratorHelperLoose(networks.Chain), _step; !(_step = _iterator()).done;) {
-              var network = _step.value;
-              for (var _iterator2 = _createForOfIteratorHelperLoose(network.tokens), _step2; !(_step2 = _iterator2()).done;) {
-                var token = _step2.value;
-                if (!tokenOptions[token.symbol]) {
-                  tokenOptions[token.symbol] = {};
-                }
-                tokenOptions[token.symbol][network.symbol] = token.address;
-              }
+        const networks = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/chain`);
+        setOptions(networkOptions.filter(network => networks.Chain.findIndex(chain => chain.symbol === network.id && !chain.disabled) >= 0 || network.id === ChainName.FIAT && useFIAT));
+        let tokenOptions = {};
+        for (const network of networks.Chain) {
+          for (const token of network.tokens) {
+            if (!tokenOptions[token.symbol]) {
+              tokenOptions[token.symbol] = {};
             }
-            dispatch(setTokenOptions(tokenOptions));
-          });
-        }, function (e) {
-          console.log('rpc disconnected', e);
-          toast__default.error('rpc disconnected');
-        });
-        return _temp && _temp.then ? _temp.then(function () {}) : void 0;
+            tokenOptions[token.symbol][network.symbol] = token.address;
+          }
+        }
+        dispatch(setTokenOptions(tokenOptions));
       } catch (e) {
-        Promise.reject(e);
+        console.log('rpc disconnected', e);
+        toast.error('rpc disconnected');
       }
     })();
   }, [nodeProviderQuery]);
-  return React.useMemo(function () {
-    return {
-      options: options
-    };
-  }, [options]);
+  return useMemo(() => ({
+    options
+  }), [options]);
 }
 
-var SolanaWalletSelect = function SolanaWalletSelect() {
-  var theme = reactRedux.useSelector(selectTheme);
-  var sliderRef = React.useRef();
-  var _useWallet = SolanaAdapter.useWallet(),
-    selectedWallet = _useWallet.wallet,
-    select = _useWallet.select;
-  var _useWallet2 = SolanaAdapter.useWallet(),
-    wallets = _useWallet2.wallets;
-  var _useMemo = React.useMemo(function () {
-      var detected = [];
-      var undetected = [];
-      for (var _iterator = _createForOfIteratorHelperLoose(wallets), _step; !(_step = _iterator()).done;) {
-        var wallet = _step.value;
-        if (wallet.readyState === walletAdapterBase.WalletReadyState.Installed || wallet.readyState === walletAdapterBase.WalletReadyState.Loadable) {
-          detected.push(wallet);
-        } else if (wallet.readyState === walletAdapterBase.WalletReadyState.NotDetected) {
-          undetected.push(wallet);
-        }
+const SolanaWalletSelect = () => {
+  const theme = useSelector(selectTheme);
+  const sliderRef = useRef();
+  const {
+    wallet: selectedWallet,
+    select
+  } = useWallet();
+  const {
+    wallets
+  } = useWallet();
+  const [detected, undetected] = useMemo(() => {
+    const detected = [];
+    const undetected = [];
+    for (const wallet of wallets) {
+      if (wallet.readyState === WalletReadyState.Installed || wallet.readyState === WalletReadyState.Loadable) {
+        detected.push(wallet);
+      } else if (wallet.readyState === WalletReadyState.NotDetected) {
+        undetected.push(wallet);
       }
-      return [detected, undetected];
-    }, [wallets]),
-    detected = _useMemo[0],
-    undetected = _useMemo[1];
-  var handleWalletClick = React.useCallback(function (event, walletName) {
+    }
+    return [detected, undetected];
+  }, [wallets]);
+  const handleWalletClick = useCallback((event, walletName) => {
     select(walletName);
     console.log(event);
   }, [select]);
-  React.useEffect(function () {
+  useEffect(() => {
     var _sliderRef$current, _sliderRef$current5, _sliderRef$current6, _sliderRef$current7;
-    var isDown = false;
-    var startX;
-    var scrollLeft;
-    (_sliderRef$current = sliderRef.current) === null || _sliderRef$current === void 0 ? void 0 : _sliderRef$current.addEventListener('mousedown', function (e) {
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+    (_sliderRef$current = sliderRef.current) === null || _sliderRef$current === void 0 ? void 0 : _sliderRef$current.addEventListener('mousedown', e => {
       var _sliderRef$current2, _sliderRef$current3, _sliderRef$current4;
       isDown = true;
       (_sliderRef$current2 = sliderRef.current) === null || _sliderRef$current2 === void 0 ? void 0 : _sliderRef$current2.classList.add('active');
       startX = e.pageX - ((_sliderRef$current3 = sliderRef.current) === null || _sliderRef$current3 === void 0 ? void 0 : _sliderRef$current3.offsetLeft);
       scrollLeft = (_sliderRef$current4 = sliderRef.current) === null || _sliderRef$current4 === void 0 ? void 0 : _sliderRef$current4.scrollLeft;
     });
-    (_sliderRef$current5 = sliderRef.current) === null || _sliderRef$current5 === void 0 ? void 0 : _sliderRef$current5.addEventListener('mouseleave', function () {
+    (_sliderRef$current5 = sliderRef.current) === null || _sliderRef$current5 === void 0 ? void 0 : _sliderRef$current5.addEventListener('mouseleave', () => {
       isDown = false;
       sliderRef.current.classList.remove('active');
     });
-    (_sliderRef$current6 = sliderRef.current) === null || _sliderRef$current6 === void 0 ? void 0 : _sliderRef$current6.addEventListener('mouseup', function () {
+    (_sliderRef$current6 = sliderRef.current) === null || _sliderRef$current6 === void 0 ? void 0 : _sliderRef$current6.addEventListener('mouseup', () => {
       isDown = false;
       sliderRef.current.classList.remove('active');
     });
-    (_sliderRef$current7 = sliderRef.current) === null || _sliderRef$current7 === void 0 ? void 0 : _sliderRef$current7.addEventListener('mousemove', function (e) {
+    (_sliderRef$current7 = sliderRef.current) === null || _sliderRef$current7 === void 0 ? void 0 : _sliderRef$current7.addEventListener('mousemove', e => {
       if (!isDown) return;
       e.preventDefault();
-      var x = e.pageX - sliderRef.current.offsetLeft;
-      var walk = (x - startX) * 1;
+      const x = e.pageX - sliderRef.current.offsetLeft;
+      const walk = (x - startX) * 1;
       sliderRef.current.scrollLeft = scrollLeft - walk;
     });
   });
-  var slideLeft = function slideLeft() {
-    var temp = 0;
-    var timerId = setInterval(function () {
+  const slideLeft = () => {
+    let temp = 0;
+    const timerId = setInterval(() => {
       sliderRef.current.scrollLeft -= 10;
       if (temp++ === 20) clearInterval(timerId);
     }, 10);
   };
-  var slideRight = function slideRight() {
-    var temp = 0;
-    var timerId = setInterval(function () {
+  const slideRight = () => {
+    let temp = 0;
+    const timerId = setInterval(() => {
       sliderRef.current.scrollLeft += 10;
       if (temp++ === 20) clearInterval(timerId);
     }, 10);
   };
-  return React__default.createElement("div", {
-    className: "wallet-select"
-  }, React__default.createElement("p", null, "Please select:"), React__default.createElement("div", {
+  return React.createElement("div", {
+    className: `wallet-select`
+  }, React.createElement("p", null, "Please select:"), React.createElement("div", {
     className: 'scroll-button'
-  }, React__default.createElement(Arrow, {
+  }, React.createElement(Arrow, {
     fill: theme.colorMode === 'light' ? 'black' : 'white',
     onClick: slideLeft
-  }), React__default.createElement(Arrow, {
+  }), React.createElement(Arrow, {
     fill: theme.colorMode === 'light' ? 'black' : 'white',
     onClick: slideRight
-  })), React__default.createElement("div", {
+  })), React.createElement("div", {
     className: 'slide-area hide-scrollbar',
     ref: sliderRef
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'wallet-container'
-  }, detected.map(function (wallet, index) {
-    return React__default.createElement("div", {
-      className: "card-item " + theme.colorMode + " " + (selectedWallet && wallet.adapter.name === selectedWallet.adapter.name ? 'active' : ''),
-      onClick: function onClick(event) {
-        return handleWalletClick(event, wallet.adapter.name);
-      },
-      key: wallet.adapter.name + "-" + index
-    }, React__default.createElement("img", {
-      src: wallet.adapter.icon,
-      alt: wallet.adapter.name
-    }), React__default.createElement("span", null, wallet.adapter.name));
-  }), undetected.map(function (wallet, index) {
-    return React__default.createElement(ExternalLink, {
-      to: wallet.adapter.url,
-      className: "card-item " + theme.colorMode,
-      key: wallet.adapter.name + "-" + index
-    }, React__default.createElement("img", {
-      src: wallet.adapter.icon,
-      alt: wallet.adapter.name
-    }), React__default.createElement("span", null, "Install", React__default.createElement("br", null), wallet.adapter.name));
-  }))));
+  }, detected.map((wallet, index) => React.createElement("div", {
+    className: `card-item ${theme.colorMode} ${selectedWallet && wallet.adapter.name === selectedWallet.adapter.name ? 'active' : ''}`,
+    onClick: event => handleWalletClick(event, wallet.adapter.name),
+    key: `${wallet.adapter.name}-${index}`
+  }, React.createElement("img", {
+    src: wallet.adapter.icon,
+    alt: wallet.adapter.name
+  }), React.createElement("span", null, wallet.adapter.name))), undetected.map((wallet, index) => React.createElement(ExternalLink, {
+    to: wallet.adapter.url,
+    className: `card-item ${theme.colorMode}`,
+    key: `${wallet.adapter.name}-${index}`
+  }, React.createElement("img", {
+    src: wallet.adapter.icon,
+    alt: wallet.adapter.name
+  }), React.createElement("span", null, "Install", React.createElement("br", null), wallet.adapter.name))))));
 };
 
-var WalletSelect = function WalletSelect() {
-  var theme = reactRedux.useSelector(selectTheme);
-  var selectedProvider = reactRedux.useSelector(selectTronProvider);
-  var sliderRef = React.useRef();
-  var dispatch = reactRedux.useDispatch();
-  var _useWallet = tronwalletAdapterReactHooks.useWallet(),
-    wallets = _useWallet.wallets;
-  var _useMemo = React.useMemo(function () {
-      var detected = [];
-      var undetected = [];
-      for (var _iterator = _createForOfIteratorHelperLoose(wallets), _step; !(_step = _iterator()).done;) {
-        var wallet = _step.value;
-        if (wallet.state === tronwalletAbstractAdapter.AdapterState.Connected || wallet.state === tronwalletAbstractAdapter.AdapterState.Disconnect || wallet.state === tronwalletAbstractAdapter.AdapterState.Loading) {
-          detected.push(wallet);
-        } else if (wallet.state === tronwalletAbstractAdapter.AdapterState.NotFound) {
-          undetected.push(wallet);
-        }
+const WalletSelect = () => {
+  const theme = useSelector(selectTheme);
+  const selectedProvider = useSelector(selectTronProvider);
+  const sliderRef = useRef();
+  const dispatch = useDispatch();
+  const {
+    wallets
+  } = useWallet$1();
+  const [detected, undetected] = useMemo(() => {
+    const detected = [];
+    const undetected = [];
+    for (const wallet of wallets) {
+      if (wallet.state === AdapterState.Connected || wallet.state === AdapterState.Disconnect || wallet.state === AdapterState.Loading) {
+        detected.push(wallet);
+      } else if (wallet.state === AdapterState.NotFound) {
+        undetected.push(wallet);
       }
-      return [detected, undetected];
-    }, [wallets]),
-    detected = _useMemo[0],
-    undetected = _useMemo[1];
-  React.useEffect(function () {
+    }
+    return [detected, undetected];
+  }, [wallets]);
+  useEffect(() => {
     var _sliderRef$current, _sliderRef$current5, _sliderRef$current6, _sliderRef$current7;
-    var isDown = false;
-    var startX;
-    var scrollLeft;
-    (_sliderRef$current = sliderRef.current) === null || _sliderRef$current === void 0 ? void 0 : _sliderRef$current.addEventListener('mousedown', function (e) {
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+    (_sliderRef$current = sliderRef.current) === null || _sliderRef$current === void 0 ? void 0 : _sliderRef$current.addEventListener('mousedown', e => {
       var _sliderRef$current2, _sliderRef$current3, _sliderRef$current4;
       isDown = true;
       (_sliderRef$current2 = sliderRef.current) === null || _sliderRef$current2 === void 0 ? void 0 : _sliderRef$current2.classList.add('active');
       startX = e.pageX - ((_sliderRef$current3 = sliderRef.current) === null || _sliderRef$current3 === void 0 ? void 0 : _sliderRef$current3.offsetLeft);
       scrollLeft = (_sliderRef$current4 = sliderRef.current) === null || _sliderRef$current4 === void 0 ? void 0 : _sliderRef$current4.scrollLeft;
     });
-    (_sliderRef$current5 = sliderRef.current) === null || _sliderRef$current5 === void 0 ? void 0 : _sliderRef$current5.addEventListener('mouseleave', function () {
+    (_sliderRef$current5 = sliderRef.current) === null || _sliderRef$current5 === void 0 ? void 0 : _sliderRef$current5.addEventListener('mouseleave', () => {
       isDown = false;
       sliderRef.current.classList.remove('active');
     });
-    (_sliderRef$current6 = sliderRef.current) === null || _sliderRef$current6 === void 0 ? void 0 : _sliderRef$current6.addEventListener('mouseup', function () {
+    (_sliderRef$current6 = sliderRef.current) === null || _sliderRef$current6 === void 0 ? void 0 : _sliderRef$current6.addEventListener('mouseup', () => {
       isDown = false;
       sliderRef.current.classList.remove('active');
     });
-    (_sliderRef$current7 = sliderRef.current) === null || _sliderRef$current7 === void 0 ? void 0 : _sliderRef$current7.addEventListener('mousemove', function (e) {
+    (_sliderRef$current7 = sliderRef.current) === null || _sliderRef$current7 === void 0 ? void 0 : _sliderRef$current7.addEventListener('mousemove', e => {
       if (!isDown) return;
       e.preventDefault();
-      var x = e.pageX - sliderRef.current.offsetLeft;
-      var walk = (x - startX) * 1;
+      const x = e.pageX - sliderRef.current.offsetLeft;
+      const walk = (x - startX) * 1;
       sliderRef.current.scrollLeft = scrollLeft - walk;
     });
   });
-  var slideLeft = function slideLeft() {
-    var temp = 0;
-    var timerId = setInterval(function () {
+  const slideLeft = () => {
+    let temp = 0;
+    const timerId = setInterval(() => {
       sliderRef.current.scrollLeft -= 10;
       if (temp++ === 20) clearInterval(timerId);
     }, 10);
   };
-  var slideRight = function slideRight() {
-    var temp = 0;
-    var timerId = setInterval(function () {
+  const slideRight = () => {
+    let temp = 0;
+    const timerId = setInterval(() => {
       sliderRef.current.scrollLeft += 10;
       if (temp++ === 20) clearInterval(timerId);
     }, 10);
   };
-  return React__default.createElement("div", {
-    className: "wallet-select"
-  }, React__default.createElement("p", null, "Please select:"), React__default.createElement("div", {
+  return React.createElement("div", {
+    className: `wallet-select`
+  }, React.createElement("p", null, "Please select:"), React.createElement("div", {
     className: 'scroll-button'
-  }, React__default.createElement(Arrow, {
+  }, React.createElement(Arrow, {
     fill: theme.colorMode === 'light' ? 'black' : 'white',
     onClick: slideLeft
-  }), React__default.createElement(Arrow, {
+  }), React.createElement(Arrow, {
     fill: theme.colorMode === 'light' ? 'black' : 'white',
     onClick: slideRight
-  })), React__default.createElement("div", {
+  })), React.createElement("div", {
     className: 'slide-area hide-scrollbar',
     ref: sliderRef
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'wallet-container'
-  }, detected.map(function (wallet, index) {
-    return React__default.createElement("div", {
-      className: "card-item " + theme.colorMode + " " + (wallet.adapter.name === selectedProvider ? 'active' : ''),
-      onClick: function onClick() {
-        return dispatch(setTronProvider(wallet.adapter.name));
-      },
-      key: wallet.adapter.name + "-" + index
-    }, React__default.createElement("img", {
-      src: wallet.adapter.icon,
-      alt: wallet.adapter.name
-    }), React__default.createElement("span", null, wallet.adapter.name));
-  }), undetected.map(function (wallet, index) {
-    return React__default.createElement(ExternalLink, {
-      to: wallet.adapter.url,
-      className: "card-item " + theme.colorMode,
-      key: wallet.adapter.name + "-" + index
-    }, React__default.createElement("img", {
-      src: wallet.adapter.icon,
-      alt: wallet.adapter.name
-    }), React__default.createElement("span", null, "Install", React__default.createElement("br", null), wallet.adapter.name));
-  }))));
+  }, detected.map((wallet, index) => React.createElement("div", {
+    className: `card-item ${theme.colorMode} ${wallet.adapter.name === selectedProvider ? 'active' : ''}`,
+    onClick: () => dispatch(setTronProvider(wallet.adapter.name)),
+    key: `${wallet.adapter.name}-${index}`
+  }, React.createElement("img", {
+    src: wallet.adapter.icon,
+    alt: wallet.adapter.name
+  }), React.createElement("span", null, wallet.adapter.name))), undetected.map((wallet, index) => React.createElement(ExternalLink, {
+    to: wallet.adapter.url,
+    className: `card-item ${theme.colorMode}`,
+    key: `${wallet.adapter.name}-${index}`
+  }, React.createElement("img", {
+    src: wallet.adapter.icon,
+    alt: wallet.adapter.name
+  }), React.createElement("span", null, "Install", React.createElement("br", null), wallet.adapter.name))))));
 };
 
-var createWalletStatus = function createWalletStatus(isReady, statusMessage, connectBitcoinWallet, walletAddress) {
-  if (statusMessage === void 0) {
-    statusMessage = '';
-  }
-  return {
-    isReady: isReady,
-    statusMessage: statusMessage,
-    connectBitcoinWallet: connectBitcoinWallet,
-    walletAddress: walletAddress
-  };
-};
+const createWalletStatus = (isReady, statusMessage = '', connectBitcoinWallet, walletAddress) => ({
+  isReady,
+  statusMessage,
+  connectBitcoinWallet,
+  walletAddress
+});
 function useIsWalletReady() {
-  var dispatch = reactRedux.useDispatch();
-  var autoSwitch = reactRedux.useSelector(selectWalletAutoConnect);
-  var _useSolanaWallet = SolanaAdapter.useWallet(),
-    solanaAddress = _useSolanaWallet.publicKey;
-  var _useTronWallet = tronwalletAdapterReactHooks.useWallet(),
-    tronAddress = _useTronWallet.address;
-  var _useWeb3ModalProvider = react.useWeb3ModalProvider(),
-    evmProvider = _useWeb3ModalProvider.walletProvider;
-  var _useSwitchNetwork = react.useSwitchNetwork(),
-    switchNetwork = _useSwitchNetwork.switchNetwork;
-  var bitcoinAddress = reactRedux.useSelector(selectBitcoinAddress);
-  var web3ModalAccountInfo = react.useWeb3ModalAccount();
-  var _ref = web3ModalAccountInfo || {
-      address: null,
-      chainId: null,
-      isConnected: null
-    },
-    evmAddress = _ref.address,
-    evmChainId = _ref.chainId,
-    isConnected = _ref.isConnected;
-  var sourceChain = reactRedux.useSelector(selectSourceChain);
-  var targetChain = reactRedux.useSelector(selectTargetChain);
-  var networkOption = reactRedux.useSelector(selectNetworkOption);
-  var targetNetworkFetching = reactRedux.useSelector(selectTargetChainFetching);
-  var correctChain = React.useMemo(function () {
-    if (sourceChain === exports.SupportNetworks.FIAT && !targetNetworkFetching) return targetChain;
+  const dispatch = useDispatch();
+  const autoSwitch = useSelector(selectWalletAutoConnect);
+  const {
+    publicKey: solanaAddress
+  } = useWallet();
+  const {
+    address: tronAddress
+  } = useWallet$1();
+  const {
+    walletProvider: evmProvider
+  } = useWeb3ModalProvider();
+  const {
+    switchNetwork
+  } = useSwitchNetwork();
+  const bitcoinAddress = useSelector(selectBitcoinAddress);
+  const web3ModalAccountInfo = useWeb3ModalAccount();
+  const {
+    address: evmAddress,
+    chainId: evmChainId,
+    isConnected
+  } = web3ModalAccountInfo || {
+    address: null,
+    chainId: null,
+    isConnected: null
+  };
+  const sourceChain = useSelector(selectSourceChain);
+  const targetChain = useSelector(selectTargetChain);
+  const networkOption = useSelector(selectNetworkOption);
+  const targetNetworkFetching = useSelector(selectTargetChainFetching);
+  const correctChain = useMemo(() => {
+    if (sourceChain === ChainName.FIAT && !targetNetworkFetching) return targetChain;
     return sourceChain;
   }, [sourceChain, targetChain, targetNetworkFetching]);
-  var hasEthInfo = isConnected && !!evmAddress;
-  var errorHandler = reactRedux.useSelector(selectErrorHandler);
-  var correctEvmNetwork = React.useMemo(function () {
-    return networkOption === exports.NetworkOptions.mainnet ? CHAIN_NAMES_TO_IDS_MAINNET[correctChain] : CHAIN_NAMES_TO_IDS_TESTNET[correctChain];
+  const hasEthInfo = isConnected && !!evmAddress;
+  const errorHandler = useSelector(selectErrorHandler);
+  const correctEvmNetwork = useMemo(() => {
+    return networkOption === NetworkOptions.mainnet ? CHAIN_NAMES_TO_IDS_MAINNET[correctChain] : CHAIN_NAMES_TO_IDS_TESTNET[correctChain];
   }, [networkOption, correctChain]);
-  var hasCorrectEvmNetwork = evmChainId === correctEvmNetwork;
-  var events = react.useWeb3ModalEvents();
-  React.useEffect(function () {
+  const hasCorrectEvmNetwork = evmChainId === correctEvmNetwork;
+  const events = useWeb3ModalEvents();
+  useEffect(() => {
     var _events$data, _events$data2;
     if (((_events$data = events.data) === null || _events$data === void 0 ? void 0 : _events$data.event) === 'SELECT_WALLET' || ((_events$data2 = events.data) === null || _events$data2 === void 0 ? void 0 : _events$data2.event) === 'CONNECT_SUCCESS') {
       var _events$data3, _events$data3$propert;
       localStorage.setItem('wallet', (_events$data3 = events.data) === null || _events$data3 === void 0 ? void 0 : (_events$data3$propert = _events$data3.properties) === null || _events$data3$propert === void 0 ? void 0 : _events$data3$propert.name);
     }
   }, [events]);
-  var connectBitcoinWallet = React.useCallback(function () {
-    try {
-      return Promise.resolve(satsConnect.getAddress({
-        payload: {
-          purposes: [satsConnect.AddressPurpose.Payment],
-          message: 'SATS Connect Demo',
-          network: {
-            type: satsConnect.BitcoinNetworkType.Testnet
-          }
-        },
-        onFinish: function onFinish(response) {
-          var paymentAddressItem = response.addresses.find(function (address) {
-            return address.purpose === satsConnect.AddressPurpose.Payment;
-          });
-          dispatch(setBitcoinAddress((paymentAddressItem === null || paymentAddressItem === void 0 ? void 0 : paymentAddressItem.address) || ''));
-          dispatch(setBitcoinPubkey((paymentAddressItem === null || paymentAddressItem === void 0 ? void 0 : paymentAddressItem.publicKey) || ''));
-        },
-        onCancel: function onCancel() {
-          toast__default.error('Request cancelled');
+  const connectBitcoinWallet = useCallback(async () => {
+    await getAddress({
+      payload: {
+        purposes: [AddressPurpose.Payment],
+        message: 'SATS Connect Demo',
+        network: {
+          type: BitcoinNetworkType.Testnet
         }
-      })).then(function () {});
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  }, [satsConnect.getAddress]);
-  var forceNetworkSwitch = React.useCallback(function () {
-    try {
-      return Promise.resolve(function () {
-        if (evmProvider && correctEvmNetwork) {
-          if (!isEVMChain(correctChain)) {
-            return;
-          }
-          return _catch(function () {
-            var wallet = localStorage.getItem('wallet');
-            if (wallet === 'Phantom' && correctEvmNetwork !== 11155111) return;
-            return Promise.resolve(switchNetwork(correctEvmNetwork)).then(function () {});
-          }, function (e) {
-            errorHandler(e);
-          });
-        }
-      }());
-    } catch (e) {
-      return Promise.reject(e);
+      },
+      onFinish: response => {
+        const paymentAddressItem = response.addresses.find(address => address.purpose === AddressPurpose.Payment);
+        dispatch(setBitcoinAddress((paymentAddressItem === null || paymentAddressItem === void 0 ? void 0 : paymentAddressItem.address) || ''));
+        dispatch(setBitcoinPubkey((paymentAddressItem === null || paymentAddressItem === void 0 ? void 0 : paymentAddressItem.publicKey) || ''));
+      },
+      onCancel: () => {
+        toast.error('Request cancelled');
+      }
+    });
+  }, [getAddress]);
+  const forceNetworkSwitch = useCallback(async () => {
+    if (evmProvider && correctEvmNetwork) {
+      if (!isEVMChain(correctChain)) {
+        return;
+      }
+      try {
+        const wallet = localStorage.getItem('wallet');
+        if (wallet === 'Phantom' && correctEvmNetwork !== 11155111) return;
+        await switchNetwork(correctEvmNetwork);
+      } catch (e) {
+        errorHandler(e);
+      }
     }
   }, [evmProvider, correctEvmNetwork, correctChain]);
-  return React.useMemo(function () {
-    var CHAIN_IDS_TO_NAMES = networkOption === exports.NetworkOptions.mainnet ? CHAIN_IDS_TO_NAMES_MAINNET : CHAIN_IDS_TO_NAMES_TESTNET;
-    var SupportedChainId = networkOption === exports.NetworkOptions.mainnet ? SupportedChainIdMainnet : SupportedChainIdTestnet;
-    if (correctChain === exports.SupportNetworks.SOLANA) {
+  return useMemo(() => {
+    const CHAIN_IDS_TO_NAMES = networkOption === NetworkOptions.mainnet ? CHAIN_IDS_TO_NAMES_MAINNET : CHAIN_IDS_TO_NAMES_TESTNET;
+    const SupportedChainId = networkOption === NetworkOptions.mainnet ? SupportedChainIdMainnet : SupportedChainIdTestnet;
+    if (correctChain === ChainName.SOLANA) {
       if (solanaAddress) {
         return createWalletStatus(true, undefined, connectBitcoinWallet, solanaAddress.toBase58());
       }
       return createWalletStatus(false, 'Wallet not connected', connectBitcoinWallet, '');
-    } else if (correctChain === exports.SupportNetworks.TRON) {
+    } else if (correctChain === ChainName.TRON) {
       if (tronAddress) {
         return createWalletStatus(true, undefined, connectBitcoinWallet, tronAddress);
       }
       return createWalletStatus(false, 'Wallet not connected', connectBitcoinWallet, '');
-    } else if (correctChain === exports.SupportNetworks.BTC) {
+    } else if (correctChain === ChainName.BTC) {
       if (bitcoinAddress) {
         return createWalletStatus(true, undefined, connectBitcoinWallet, bitcoinAddress);
       }
@@ -2277,24 +1951,22 @@ function useIsWalletReady() {
             forceNetworkSwitch();
           } else {
             dispatch(setSourceChain(CHAIN_IDS_TO_NAMES[evmChainId || SupportedChainId.ETHEREUM]));
-            toast__default.success("Wallet connected to " + CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[evmChainId || SupportedChainId.ETHEREUM]]);
+            toast.success(`Wallet connected to ${CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[evmChainId || SupportedChainId.ETHEREUM]]}`);
           }
         }
-        if (evmChainId && autoSwitch) return createWalletStatus(false, "Wallet not connected to " + CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[correctEvmNetwork]], connectBitcoinWallet, evmAddress);
+        if (evmChainId && autoSwitch) return createWalletStatus(false, `Wallet not connected to ${CHAIN_NAMES_TO_STRING[CHAIN_IDS_TO_NAMES[correctEvmNetwork]]}`, connectBitcoinWallet, evmAddress);
       }
     }
     return createWalletStatus(false, '', connectBitcoinWallet, undefined);
   }, [correctChain, autoSwitch, forceNetworkSwitch, connectBitcoinWallet, solanaAddress, tronAddress, hasEthInfo, correctEvmNetwork, hasCorrectEvmNetwork, bitcoinAddress, evmProvider, evmAddress, evmChainId, networkOption]);
 }
 
-var getShortenedAddress = function getShortenedAddress(address) {
-  var is0x = function is0x(addr) {
-    return addr === null || addr === void 0 ? void 0 : addr.startsWith('0x');
-  };
-  return (address === null || address === void 0 ? void 0 : address.substring(0, is0x(address) ? 6 : 3)) + "..." + (address === null || address === void 0 ? void 0 : address.substr(address.length - (is0x(address) ? 4 : 3)));
+const getShortenedAddress = address => {
+  const is0x = addr => addr === null || addr === void 0 ? void 0 : addr.startsWith('0x');
+  return `${address === null || address === void 0 ? void 0 : address.substring(0, is0x(address) ? 6 : 3)}...${address === null || address === void 0 ? void 0 : address.substr(address.length - (is0x(address) ? 4 : 3))}`;
 };
 
-var connectWalletBtn = 'connect-wallet-btn';
+const connectWalletBtn = 'connect-wallet-btn';
 
 var abi = [
 	{
@@ -2526,320 +2198,274 @@ var ERC20ABI = {
 	abi: abi
 };
 
-var tronWebTestnet = new tronweb.TronWeb({
+const tronWebTestnet = new TronWeb({
   fullHost: 'https://api.nileex.io'
 });
-var tronWebMainnet = new tronweb.TronWeb({
+const tronWebMainnet = new TronWeb({
   fullHost: 'https://api.trongrid.io'
 });
 tronWebTestnet.setAddress(TRON_USDK_OWNER_ADDRESS);
 tronWebMainnet.setAddress(TRON_USDK_OWNER_ADDRESS);
 
-var formatterFloat = new Intl.NumberFormat('en-US', {
+const formatterFloat = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 9
 });
 function isEmptyObject(arg) {
   return typeof arg === 'object' && Object.keys(arg).length === 0;
 }
-var sleep = function sleep(delay) {
-  return new Promise(function (resolve) {
-    return setTimeout(resolve, delay);
-  });
-};
+const sleep = delay => new Promise(resolve => setTimeout(resolve, delay));
 
 function useBalance() {
-  var _useState = React.useState(0),
-    balance = _useState[0],
-    setBalance = _useState[1];
-  var web3ModalAccountInfo = react.useWeb3ModalAccount();
-  var _ref = web3ModalAccountInfo || {
-      address: null,
-      chainId: null,
-      isConnected: null
-    },
-    signerAddress = _ref.address,
-    evmChainId = _ref.chainId;
-  var _useWeb3ModalProvider = react.useWeb3ModalProvider(),
-    walletProvider = _useWeb3ModalProvider.walletProvider;
-  var selectedNetwork = reactRedux.useSelector(selectSourceChain);
-  var errorHandler = reactRedux.useSelector(selectErrorHandler);
-  var networkOption = reactRedux.useSelector(selectNetworkOption);
-  var sourceChain = React.useMemo(function () {
-    if (selectedNetwork === exports.SupportNetworks.SOLANA || selectedNetwork === exports.SupportNetworks.TRON || selectedNetwork === exports.SupportNetworks.BTC) return selectedNetwork;
-    var CHAIN_NAMES_TO_IDS = networkOption === exports.NetworkOptions.mainnet ? CHAIN_NAMES_TO_IDS_MAINNET : CHAIN_NAMES_TO_IDS_TESTNET;
-    var CHAIN_IDS_TO_NAMES = networkOption === exports.NetworkOptions.mainnet ? CHAIN_IDS_TO_NAMES_MAINNET : CHAIN_IDS_TO_NAMES_TESTNET;
+  const [balance, setBalance] = useState(0);
+  const web3ModalAccountInfo = useWeb3ModalAccount();
+  const {
+    address: signerAddress,
+    chainId: evmChainId
+  } = web3ModalAccountInfo || {
+    address: null,
+    chainId: null,
+    isConnected: null
+  };
+  const {
+    walletProvider
+  } = useWeb3ModalProvider();
+  const selectedNetwork = useSelector(selectSourceChain);
+  const errorHandler = useSelector(selectErrorHandler);
+  const networkOption = useSelector(selectNetworkOption);
+  const sourceChain = useMemo(() => {
+    if (selectedNetwork === ChainName.SOLANA || selectedNetwork === ChainName.TRON || selectedNetwork === ChainName.BTC) return selectedNetwork;
+    const CHAIN_NAMES_TO_IDS = networkOption === NetworkOptions.mainnet ? CHAIN_NAMES_TO_IDS_MAINNET : CHAIN_NAMES_TO_IDS_TESTNET;
+    const CHAIN_IDS_TO_NAMES = networkOption === NetworkOptions.mainnet ? CHAIN_IDS_TO_NAMES_MAINNET : CHAIN_IDS_TO_NAMES_TESTNET;
     if (CHAIN_NAMES_TO_IDS[selectedNetwork] !== evmChainId) {
       return CHAIN_IDS_TO_NAMES[evmChainId];
     }
     return selectedNetwork;
   }, [selectedNetwork, evmChainId, networkOption]);
-  var _useSolanaWallet = SolanaAdapter.useWallet(),
-    solanaAddress = _useSolanaWallet.publicKey;
-  var _useTronWallet = tronwalletAdapterReactHooks.useWallet(),
-    tronAddress = _useTronWallet.address;
-  var btcAddress = reactRedux.useSelector(selectBitcoinAddress);
-  var _useConnection = SolanaAdapter.useConnection(),
-    connection = _useConnection.connection;
-  var kimaBackendUrl = reactRedux.useSelector(selectBackendUrl);
-  var sourceCurrency = reactRedux.useSelector(selectSourceCurrency);
-  var tokenOptions = reactRedux.useSelector(selectTokenOptions);
-  var tokenAddress = React.useMemo(function () {
-    if (isEmptyObject(tokenOptions) || sourceChain === exports.SupportNetworks.FIAT) return '';
+  const {
+    publicKey: solanaAddress
+  } = useWallet();
+  const {
+    address: tronAddress
+  } = useWallet$1();
+  const btcAddress = useSelector(selectBitcoinAddress);
+  const {
+    connection
+  } = useConnection();
+  const kimaBackendUrl = useSelector(selectBackendUrl);
+  const sourceCurrency = useSelector(selectSourceCurrency);
+  const tokenOptions = useSelector(selectTokenOptions);
+  const tokenAddress = useMemo(() => {
+    if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT) return '';
     if (tokenOptions && typeof tokenOptions === 'object') {
-      var coinOptions = tokenOptions[sourceCurrency];
+      const coinOptions = tokenOptions[sourceCurrency];
       if (coinOptions && typeof coinOptions === 'object') {
         return tokenOptions[sourceCurrency][sourceChain];
       }
     }
     return '';
   }, [sourceCurrency, sourceChain, tokenOptions]);
-  React.useEffect(function () {
+  useEffect(() => {
     setBalance(0);
   }, [sourceChain]);
-  React.useEffect(function () {
-    (function () {
+  useEffect(() => {
+    (async () => {
+      if (!tokenAddress) return;
+      const tronWeb = networkOption === NetworkOptions.mainnet ? tronWebMainnet : tronWebTestnet;
       try {
-        var _exit = false;
-        if (!tokenAddress) return;
-        var tronWeb = networkOption === exports.NetworkOptions.mainnet ? tronWebMainnet : tronWebTestnet;
-        return _catch(function () {
-          function _temp6(_result3) {
-            return _exit ? _result3 : function () {
-              if (walletProvider) {
-                var provider = new ethers.ethers.providers.Web3Provider(walletProvider);
-                var signer = provider === null || provider === void 0 ? void 0 : provider.getSigner();
-                if (!tokenAddress || !signer || !signerAddress) return;
-                var erc20Contract = new contracts.Contract(tokenAddress, ERC20ABI.abi, signer);
-                return Promise.resolve(erc20Contract.decimals()).then(function (decimals) {
-                  return Promise.resolve(erc20Contract.balanceOf(signerAddress)).then(function (userBalance) {
-                    setBalance(+units.formatUnits(userBalance, decimals));
-                  });
-                });
-              }
-            }();
+        if (!isEVMChain(sourceChain)) {
+          if (sourceChain === ChainName.SOLANA && solanaAddress && connection) {
+            const balanceInfo = await fetchWrapper.get(`${kimaBackendUrl}/sol/balances/${tokenAddress}/${solanaAddress.toBase58()}`);
+            const {
+              amount,
+              decimals
+            } = balanceInfo;
+            setBalance(+formatUnits(amount, decimals));
           }
-          var _temp5 = function () {
-            if (!isEVMChain(sourceChain)) {
-              var _temp4 = function _temp4() {
-                var _exit2 = false;
-                function _temp2(_result) {
-                  return _exit2 ? _result : function () {
-                    if (sourceChain === exports.SupportNetworks.BTC && btcAddress) {
-                      return Promise.resolve(fetchWrapper.get(kimaBackendUrl + "/btc/balance?address=" + btcAddress)).then(function (btcInfo) {
-                        var balance = parseFloat(btcInfo.balance) / Math.pow(10, 8);
-                        setBalance(balance);
-                        _exit = true;
-                      });
-                    }
-                  }();
-                }
-                var _temp = function () {
-                  if (sourceChain === exports.SupportNetworks.TRON && tronAddress) {
-                    return Promise.resolve(tronWeb.contract(ERC20ABI.abi, tokenAddress)).then(function (trc20Contract) {
-                      return Promise.resolve(trc20Contract.decimals().call()).then(function (decimals) {
-                        return Promise.resolve(trc20Contract.balanceOf(tronAddress).call()).then(function (userBalance) {
-                          setBalance(+units.formatUnits(userBalance.balance, decimals));
-                          _exit = true;
-                        });
-                      });
-                    });
-                  }
-                }();
-                return _temp && _temp.then ? _temp.then(_temp2) : _temp2(_temp);
-              };
-              var _temp3 = function () {
-                if (sourceChain === exports.SupportNetworks.SOLANA && solanaAddress && connection) {
-                  return Promise.resolve(fetchWrapper.get(kimaBackendUrl + "/sol/balances/" + tokenAddress + "/" + solanaAddress.toBase58())).then(function (balanceInfo) {
-                    var amount = balanceInfo.amount,
-                      decimals = balanceInfo.decimals;
-                    setBalance(+units.formatUnits(amount, decimals));
-                  });
-                }
-              }();
-              return _temp3 && _temp3.then ? _temp3.then(_temp4) : _temp4(_temp3);
-            }
-          }();
-          return _temp5 && _temp5.then ? _temp5.then(_temp6) : _temp6(_temp5);
-        }, function (error) {
-          errorHandler(error);
-        });
-      } catch (e) {
-        Promise.reject(e);
+          if (sourceChain === ChainName.TRON && tronAddress) {
+            let trc20Contract = await tronWeb.contract(ERC20ABI.abi, tokenAddress);
+            const decimals = await trc20Contract.decimals().call();
+            const userBalance = await trc20Contract.balanceOf(tronAddress).call();
+            setBalance(+formatUnits(userBalance.balance, decimals));
+            return;
+          }
+          if (sourceChain === ChainName.BTC && btcAddress) {
+            const btcInfo = await fetchWrapper.get(`${kimaBackendUrl}/btc/balance?address=${btcAddress}`);
+            const balance = parseFloat(btcInfo.balance) / Math.pow(10, 8);
+            setBalance(balance);
+            return;
+          }
+        }
+        if (walletProvider) {
+          const provider = new ethers.providers.Web3Provider(walletProvider);
+          const signer = provider === null || provider === void 0 ? void 0 : provider.getSigner();
+          if (!tokenAddress || !signer || !signerAddress) return;
+          const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer);
+          const decimals = await erc20Contract.decimals();
+          const userBalance = await erc20Contract.balanceOf(signerAddress);
+          setBalance(+formatUnits(userBalance, decimals));
+        }
+      } catch (error) {
+        errorHandler(error);
       }
     })();
   }, [signerAddress, tokenAddress, sourceChain, solanaAddress, tronAddress, btcAddress, walletProvider, networkOption]);
-  return React.useMemo(function () {
-    return {
-      balance: balance
-    };
-  }, [balance]);
+  return useMemo(() => ({
+    balance
+  }), [balance]);
 }
 
-var WalletButton = function WalletButton(_ref) {
-  var _ref$errorBelow = _ref.errorBelow,
-    errorBelow = _ref$errorBelow === void 0 ? false : _ref$errorBelow;
-  var dispatch = reactRedux.useDispatch();
-  var theme = reactRedux.useSelector(selectTheme);
-  var selectedCoin = reactRedux.useSelector(selectSourceCurrency);
-  var sourceCompliant = reactRedux.useSelector(selectSourceCompliant);
-  var compliantOption = reactRedux.useSelector(selectCompliantOption);
-  var selectedNetwork = reactRedux.useSelector(selectSourceChain);
-  var _useIsWalletReady = useIsWalletReady(),
-    isReady = _useIsWalletReady.isReady,
-    statusMessage = _useIsWalletReady.statusMessage,
-    walletAddress = _useIsWalletReady.walletAddress,
-    connectBitcoinWallet = _useIsWalletReady.connectBitcoinWallet;
-  var _useBalance = useBalance(),
-    balance = _useBalance.balance;
-  var _useWeb3Modal = react.useWeb3Modal(),
-    open = _useWeb3Modal.open;
-  var _useWallet = SolanaAdapter.useWallet(),
-    isSolanaConnected = _useWallet.connected;
-  var handleClick = function handleClick() {
-    if (selectedNetwork === exports.SupportNetworks.SOLANA) {
+const WalletButton = ({
+  errorBelow: _errorBelow = false
+}) => {
+  const dispatch = useDispatch();
+  const theme = useSelector(selectTheme);
+  const selectedCoin = useSelector(selectSourceCurrency);
+  const sourceCompliant = useSelector(selectSourceCompliant);
+  const compliantOption = useSelector(selectCompliantOption);
+  const selectedNetwork = useSelector(selectSourceChain);
+  const {
+    isReady,
+    statusMessage,
+    walletAddress,
+    connectBitcoinWallet
+  } = useIsWalletReady();
+  const {
+    balance
+  } = useBalance();
+  const {
+    open
+  } = useWeb3Modal();
+  const {
+    connected: isSolanaConnected
+  } = useWallet();
+  const handleClick = () => {
+    if (selectedNetwork === ChainName.SOLANA) {
       isSolanaConnected ? dispatch(setAccountDetailsModal(true)) : dispatch(setSolanaConnectModal(true));
       return;
     }
-    if (selectedNetwork === exports.SupportNetworks.TRON) {
+    if (selectedNetwork === ChainName.TRON) {
       dispatch(setTronConnectModal(true));
       return;
     }
-    if (selectedNetwork === exports.SupportNetworks.BTC) {
+    if (selectedNetwork === ChainName.BTC) {
       connectBitcoinWallet();
       return;
     }
     open();
   };
-  var errorMessage = React.useMemo(function () {
+  const errorMessage = useMemo(() => {
     if (!isReady) return statusMessage;
-    if (sourceCompliant !== 'low' && compliantOption) return "Source address has " + sourceCompliant + " risk";
+    if (sourceCompliant !== 'low' && compliantOption) return `Source address has ${sourceCompliant} risk`;
     return '';
   }, [isReady, statusMessage, sourceCompliant, compliantOption]);
-  React.useEffect(function () {
+  useEffect(() => {
     if (!errorMessage) return;
-    toast.toast.error(errorMessage);
+    toast$1.error(errorMessage);
   }, [errorMessage]);
-  return React__default.createElement("div", {
-    className: "wallet-button " + theme.colorMode + " " + (errorBelow ? 'error-below' : ''),
+  return React.createElement("div", {
+    className: `wallet-button ${theme.colorMode} ${_errorBelow ? 'error-below' : ''}`,
     "data-testid": connectWalletBtn
-  }, React__default.createElement(PrimaryButton, {
+  }, React.createElement(PrimaryButton, {
     clickHandler: handleClick
-  }, isReady ? "" + getShortenedAddress(walletAddress || '') : 'Wallet'), isReady ? React__default.createElement("p", {
+  }, isReady ? `${getShortenedAddress(walletAddress || '')}` : 'Wallet'), isReady ? React.createElement("p", {
     className: 'balance-info'
-  }, balance.toFixed(selectedCoin === 'WBTC' ? 8 : 2), ' ', selectedNetwork === exports.SupportNetworks.BTC ? 'BTC' : selectedCoin, " available") : null);
+  }, balance.toFixed(selectedCoin === 'WBTC' ? 8 : 2), ' ', selectedNetwork === ChainName.BTC ? 'BTC' : selectedCoin, " available") : null);
 };
 
 function useCurrencyOptions() {
-  var dispatch = reactRedux.useDispatch();
-  var _useState = React.useState(['USDK']),
-    tokenList = _useState[0],
-    setTokenList = _useState[1];
-  var mode = reactRedux.useSelector(selectMode);
-  var transactionOption = reactRedux.useSelector(selectTransactionOption);
-  var nodeProviderQuery = reactRedux.useSelector(selectNodeProviderQuery);
-  var originNetwork = reactRedux.useSelector(selectSourceChain);
-  var targetNetwork = reactRedux.useSelector(selectTargetChain);
-  var dAppOption = reactRedux.useSelector(selectDappOption);
-  React.useEffect(function () {
-    if (!nodeProviderQuery || !originNetwork || !targetNetwork || !transactionOption && mode === exports.ModeOptions.payment) return;
-    (function () {
+  const dispatch = useDispatch();
+  const [tokenList, setTokenList] = useState(['USDK']);
+  const mode = useSelector(selectMode);
+  const transactionOption = useSelector(selectTransactionOption);
+  const nodeProviderQuery = useSelector(selectNodeProviderQuery);
+  const originNetwork = useSelector(selectSourceChain);
+  const targetNetwork = useSelector(selectTargetChain);
+  const dAppOption = useSelector(selectDappOption);
+  useEffect(() => {
+    if (!nodeProviderQuery || !originNetwork || !targetNetwork || !transactionOption && mode === ModeOptions.payment) return;
+    (async function () {
       try {
-        return _catch(function () {
-          if (originNetwork === exports.SupportNetworks.FIAT || targetNetwork === exports.SupportNetworks.FIAT) {
-            dispatch(setSourceCurrency('KEUR'));
-            dispatch(setTargetCurrency('KEUR'));
-            return;
-          }
-          return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/chains/get_currencies/" + originNetwork + "/" + targetNetwork)).then(function (coins) {
-            var _tokenList = coins.Currencies.map(function (coin) {
-              return coin.toUpperCase();
-            }) || ['USDK'];
-            if (originNetwork === exports.SupportNetworks.BTC || targetNetwork === exports.SupportNetworks.BTC) {
-              _tokenList = ['WBTC'];
-            }
-            if (transactionOption !== null && transactionOption !== void 0 && transactionOption.currency && _tokenList.findIndex(function (item) {
-              return item === transactionOption.currency;
-            }) >= 0) {
-              dispatch(setSourceCurrency(transactionOption.currency));
-              dispatch(setTargetCurrency(transactionOption.currency));
-            } else {
-              dispatch(setSourceCurrency(_tokenList[0]));
-              dispatch(setTargetCurrency(_tokenList[0]));
-            }
-            if (dAppOption !== exports.DAppOptions.None) {
-              setTokenList([(transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.currency) || 'USDK']);
-            } else {
-              setTokenList(_tokenList);
-            }
-          });
-        }, function (e) {
-          console.log('rpc disconnected', e);
-          toast__default.error('rpc disconnected');
-        });
+        if (originNetwork === ChainName.FIAT || targetNetwork === ChainName.FIAT) {
+          dispatch(setSourceCurrency('KEUR'));
+          dispatch(setTargetCurrency('KEUR'));
+          return;
+        }
+        const coins = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/get_currencies/${originNetwork}/${targetNetwork}`);
+        let _tokenList = coins.Currencies.map(coin => coin.toUpperCase()) || ['USDK'];
+        if (originNetwork === ChainName.BTC || targetNetwork === ChainName.BTC) {
+          _tokenList = ['WBTC'];
+        }
+        if (transactionOption !== null && transactionOption !== void 0 && transactionOption.currency && _tokenList.findIndex(item => item === transactionOption.currency) >= 0) {
+          dispatch(setSourceCurrency(transactionOption.currency));
+          dispatch(setTargetCurrency(transactionOption.currency));
+        } else {
+          dispatch(setSourceCurrency(_tokenList[0]));
+          dispatch(setTargetCurrency(_tokenList[0]));
+        }
+        if (dAppOption !== DAppOptions.None) {
+          setTokenList([(transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.currency) || 'USDK']);
+        } else {
+          setTokenList(_tokenList);
+        }
       } catch (e) {
-        Promise.reject(e);
+        console.log('rpc disconnected', e);
+        toast.error('rpc disconnected');
       }
     })();
   }, [nodeProviderQuery, originNetwork, targetNetwork, transactionOption, mode, dAppOption]);
-  return React.useMemo(function () {
-    return {
-      tokenList: tokenList
-    };
-  }, [tokenList]);
+  return useMemo(() => ({
+    tokenList
+  }), [tokenList]);
 }
 
-var CoinDropdown = function CoinDropdown(_ref) {
-  var _ref$isSourceChain = _ref.isSourceChain,
-    isSourceChain = _ref$isSourceChain === void 0 ? true : _ref$isSourceChain,
-    _ref$disabled = _ref.disabled,
-    disabled = _ref$disabled === void 0 ? false : _ref$disabled;
-  var ref = React.useRef();
-  var dispatch = reactRedux.useDispatch();
-  var _useState = React.useState(true),
-    collapsed = _useState[0],
-    setCollapsed = _useState[1];
-  var sourceCurrency = reactRedux.useSelector(selectSourceCurrency);
-  var targetCurrency = reactRedux.useSelector(selectTargetCurrency);
-  var _useCurrencyOptions = useCurrencyOptions(),
-    tokenList = _useCurrencyOptions.tokenList;
-  var theme = reactRedux.useSelector(selectTheme);
-  var Icon = React.useMemo(function () {
+const CoinDropdown = ({
+  isSourceChain: _isSourceChain = true,
+  disabled: _disabled = false
+}) => {
+  const ref = useRef();
+  const dispatch = useDispatch();
+  const [collapsed, setCollapsed] = useState(true);
+  const sourceCurrency = useSelector(selectSourceCurrency);
+  const targetCurrency = useSelector(selectTargetCurrency);
+  const {
+    tokenList
+  } = useCurrencyOptions();
+  const theme = useSelector(selectTheme);
+  const Icon = useMemo(() => {
     var _COIN_LIST;
-    var selectedCoin = isSourceChain ? sourceCurrency : targetCurrency;
+    const selectedCoin = _isSourceChain ? sourceCurrency : targetCurrency;
     return ((_COIN_LIST = COIN_LIST[selectedCoin || 'USDK']) === null || _COIN_LIST === void 0 ? void 0 : _COIN_LIST.icon) || COIN_LIST['USDK'].icon;
-  }, [sourceCurrency, targetCurrency, isSourceChain]);
-  React.useEffect(function () {
-    var bodyMouseDowntHandler = function bodyMouseDowntHandler(e) {
+  }, [sourceCurrency, targetCurrency, _isSourceChain]);
+  useEffect(() => {
+    const bodyMouseDowntHandler = e => {
       if (ref !== null && ref !== void 0 && ref.current && !ref.current.contains(e.target)) {
         setCollapsed(true);
       }
     };
     document.addEventListener('mousedown', bodyMouseDowntHandler);
-    return function () {
+    return () => {
       document.removeEventListener('mousedown', bodyMouseDowntHandler);
     };
   }, [setCollapsed]);
-  return React__default.createElement("div", {
-    className: "coin-dropdown " + theme.colorMode + " " + (collapsed ? 'collapsed' : '') + " " + (disabled ? 'disabled' : ''),
-    onClick: function onClick() {
-      if (disabled) return;
-      setCollapsed(function (prev) {
-        return !prev;
-      });
+  return React.createElement("div", {
+    className: `coin-dropdown ${theme.colorMode} ${collapsed ? 'collapsed' : ''} ${_disabled ? 'disabled' : ''}`,
+    onClick: () => {
+      if (_disabled) return;
+      setCollapsed(prev => !prev);
     },
     ref: ref
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'coin-wrapper'
-  }, React__default.createElement(Icon, null), isSourceChain ? sourceCurrency : targetCurrency), React__default.createElement("div", {
-    className: "coin-menu " + theme.colorMode + " " + (collapsed ? 'collapsed' : '')
-  }, tokenList.map(function (token) {
+  }, React.createElement(Icon, null), _isSourceChain ? sourceCurrency : targetCurrency), React.createElement("div", {
+    className: `coin-menu ${theme.colorMode} ${collapsed ? 'collapsed' : ''}`
+  }, tokenList.map(token => {
     var _COIN_LIST$token, _COIN_LIST$token4;
-    var CoinIcon = COIN_LIST[token].icon || COIN_LIST['USDK'].icon;
-    return React__default.createElement("div", {
+    const CoinIcon = COIN_LIST[token].icon || COIN_LIST['USDK'].icon;
+    return React.createElement("div", {
       className: 'coin-item',
       key: (_COIN_LIST$token = COIN_LIST[token]) === null || _COIN_LIST$token === void 0 ? void 0 : _COIN_LIST$token.symbol,
-      onClick: function onClick() {
-        if (isSourceChain) {
+      onClick: () => {
+        if (_isSourceChain) {
           var _COIN_LIST$token2;
           dispatch(setSourceCurrency((_COIN_LIST$token2 = COIN_LIST[token]) === null || _COIN_LIST$token2 === void 0 ? void 0 : _COIN_LIST$token2.symbol));
         } else {
@@ -2847,308 +2473,261 @@ var CoinDropdown = function CoinDropdown(_ref) {
           dispatch(setTargetCurrency((_COIN_LIST$token3 = COIN_LIST[token]) === null || _COIN_LIST$token3 === void 0 ? void 0 : _COIN_LIST$token3.symbol));
         }
       }
-    }, React__default.createElement(CoinIcon, null), React__default.createElement("p", null, (_COIN_LIST$token4 = COIN_LIST[token]) === null || _COIN_LIST$token4 === void 0 ? void 0 : _COIN_LIST$token4.symbol));
+    }, React.createElement(CoinIcon, null), React.createElement("p", null, (_COIN_LIST$token4 = COIN_LIST[token]) === null || _COIN_LIST$token4 === void 0 ? void 0 : _COIN_LIST$token4.symbol));
   })));
 };
 
-var NetworkDropdown = React__default.memo(function (_ref) {
-  var _ref$isSourceChain = _ref.isSourceChain,
-    isSourceChain = _ref$isSourceChain === void 0 ? true : _ref$isSourceChain,
-    _ref$disabled = _ref.disabled,
-    disabled = _ref$disabled === void 0 ? false : _ref$disabled;
-  var _useState = React.useState(true),
-    collapsed = _useState[0],
-    setCollapsed = _useState[1];
-  var _useState2 = React.useState([]),
-    availableNetworks = _useState2[0],
-    setAvailableNetworks = _useState2[1];
-  var ref = React.useRef();
-  var sourceChangeRef = React.useRef(false);
-  var mode = reactRedux.useSelector(selectMode);
-  var autoSwitchChain = reactRedux.useSelector(selectWalletAutoConnect);
-  var useFIAT = reactRedux.useSelector(selectUseFIAT);
-  var dAppOption = reactRedux.useSelector(selectDappOption);
-  var originNetwork = reactRedux.useSelector(selectSourceChain);
-  var targetNetwork = reactRedux.useSelector(selectTargetChain);
-  var nodeProviderQuery = reactRedux.useSelector(selectNodeProviderQuery);
-  var _useNetworkOptions = useNetworkOptions(),
-    networkOptions = _useNetworkOptions.options;
-  var selectedNetwork = React.useMemo(function () {
-    var index = networkOptions.findIndex(function (option) {
-      return option.id === (isSourceChain ? originNetwork : targetNetwork);
-    });
+const NetworkDropdown = React.memo(({
+  isSourceChain: _isSourceChain = true,
+  disabled: _disabled = false
+}) => {
+  const [collapsed, setCollapsed] = useState(true);
+  const [availableNetworks, setAvailableNetworks] = useState([]);
+  const ref = useRef();
+  const sourceChangeRef = useRef(false);
+  const mode = useSelector(selectMode);
+  const autoSwitchChain = useSelector(selectWalletAutoConnect);
+  const useFIAT = useSelector(selectUseFIAT);
+  const dAppOption = useSelector(selectDappOption);
+  const originNetwork = useSelector(selectSourceChain);
+  const targetNetwork = useSelector(selectTargetChain);
+  const nodeProviderQuery = useSelector(selectNodeProviderQuery);
+  const {
+    options: networkOptions
+  } = useNetworkOptions();
+  const selectedNetwork = useMemo(() => {
+    const index = networkOptions.findIndex(option => option.id === (_isSourceChain ? originNetwork : targetNetwork));
     if (index >= 0) return networkOptions[index];
     return networkOptions[3];
   }, [originNetwork, targetNetwork, networkOptions]);
-  var networks = React.useMemo(function () {
-    if (isSourceChain && mode === exports.ModeOptions.bridge) {
+  const networks = useMemo(() => {
+    if (_isSourceChain && mode === ModeOptions.bridge) {
       return networkOptions;
     }
-    return networkOptions.filter(function (network) {
-      return availableNetworks.findIndex(function (id) {
-        return id === network.id;
-      }) >= 0;
-    });
-  }, [networkOptions, isSourceChain, availableNetworks, dAppOption, originNetwork]);
-  var theme = reactRedux.useSelector(selectTheme);
-  var dispatch = reactRedux.useDispatch();
-  React.useEffect(function () {
-    if (!nodeProviderQuery || mode !== exports.ModeOptions.bridge) return;
-    (function () {
+    return networkOptions.filter(network => availableNetworks.findIndex(id => id === network.id) >= 0);
+  }, [networkOptions, _isSourceChain, availableNetworks, dAppOption, originNetwork]);
+  const theme = useSelector(selectTheme);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    if (!nodeProviderQuery || mode !== ModeOptions.bridge) return;
+    (async function () {
       try {
-        var _temp3 = _catch(function () {
-          function _temp2() {
-            setAvailableNetworks(chains);
-            if (isSourceChain && !targetNetwork) {
-              dispatch(setTargetChain(chains[0]));
-            }
-            if (sourceChangeRef.current) {
-              sourceChangeRef.current = false;
-              dispatch(setTargetChain(chains.findIndex(function (chain) {
-                return chain === targetNetwork;
-              }) < 0 || targetNetwork === originNetwork ? chains[0] : targetNetwork));
-              dispatch(setTargetChainFetching(false));
-            }
-          }
-          var chains = [];
-          var _temp = function () {
-            if (originNetwork === exports.SupportNetworks.FIAT) {
-              chains = [exports.SupportNetworks.ETHEREUM, exports.SupportNetworks.POLYGON];
-            } else {
-              return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/chains/get_available_chains/" + originNetwork)).then(function (networks) {
-                chains = networks.Chains;
-                if (useFIAT) chains.push(exports.SupportNetworks.FIAT);
-              });
-            }
-          }();
-          return _temp && _temp.then ? _temp.then(_temp2) : _temp2(_temp);
-        }, function (e) {
-          console.log('rpc disconnected', e);
-          toast__default.error('rpc disconnected');
-        });
-        return _temp3 && _temp3.then ? _temp3.then(function () {}) : void 0;
+        let chains = [];
+        if (originNetwork === ChainName.FIAT) {
+          chains = [ChainName.ETHEREUM, ChainName.POLYGON];
+        } else {
+          const networks = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/get_available_chains/${originNetwork}`);
+          chains = networks.Chains;
+          if (useFIAT) chains.push(ChainName.FIAT);
+        }
+        setAvailableNetworks(chains);
+        if (_isSourceChain && !targetNetwork) {
+          dispatch(setTargetChain(chains[0]));
+        }
+        if (sourceChangeRef.current) {
+          sourceChangeRef.current = false;
+          dispatch(setTargetChain(chains.findIndex(chain => chain === targetNetwork) < 0 || targetNetwork === originNetwork ? chains[0] : targetNetwork));
+          dispatch(setTargetChainFetching(false));
+        }
       } catch (e) {
-        Promise.reject(e);
+        console.log('rpc disconnected', e);
+        toast.error('rpc disconnected');
       }
     })();
-  }, [nodeProviderQuery, originNetwork, targetNetwork, mode, isSourceChain, useFIAT]);
-  React.useEffect(function () {
-    if (!nodeProviderQuery || mode !== exports.ModeOptions.payment) return;
-    (function () {
+  }, [nodeProviderQuery, originNetwork, targetNetwork, mode, _isSourceChain, useFIAT]);
+  useEffect(() => {
+    if (!nodeProviderQuery || mode !== ModeOptions.payment) return;
+    (async function () {
       try {
-        return _catch(function () {
-          if (dAppOption === exports.DAppOptions.LPAdd || dAppOption === exports.DAppOptions.LPDrain) {
-            setAvailableNetworks([targetNetwork]);
-          } else {
-            if (targetNetwork === exports.SupportNetworks.FIAT) {
-              setAvailableNetworks([exports.SupportNetworks.ETHEREUM, exports.SupportNetworks.POLYGON]);
-              return;
-            }
-            return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/chains/get_available_chains/" + targetNetwork)).then(function (networks) {
-              setAvailableNetworks(networks.Chains);
-            });
+        if (dAppOption === DAppOptions.LPAdd || dAppOption === DAppOptions.LPDrain) {
+          setAvailableNetworks([targetNetwork]);
+        } else {
+          if (targetNetwork === ChainName.FIAT) {
+            setAvailableNetworks([ChainName.ETHEREUM, ChainName.POLYGON]);
+            return;
           }
-        }, function (e) {
-          console.log('rpc disconnected', e);
-          toast__default.error('rpc disconnected');
-        });
+          const networks = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/get_available_chains/${targetNetwork}`);
+          setAvailableNetworks(networks.Chains);
+        }
       } catch (e) {
-        Promise.reject(e);
+        console.log('rpc disconnected', e);
+        toast.error('rpc disconnected');
       }
     })();
   }, [nodeProviderQuery, mode, targetNetwork, dAppOption]);
-  React.useEffect(function () {
-    var bodyMouseDowntHandler = function bodyMouseDowntHandler(e) {
+  useEffect(() => {
+    const bodyMouseDowntHandler = e => {
       if (ref !== null && ref !== void 0 && ref.current && !ref.current.contains(e.target)) {
         setCollapsed(true);
       }
     };
     document.addEventListener('mousedown', bodyMouseDowntHandler);
-    return function () {
+    return () => {
       document.removeEventListener('mousedown', bodyMouseDowntHandler);
     };
   }, [setCollapsed]);
-  return React__default.createElement("div", {
-    className: "network-dropdown " + theme.colorMode + " " + (collapsed ? 'collapsed' : '') + " " + (disabled ? 'disabled' : ''),
-    onClick: function onClick() {
-      if (disabled) return;
-      if (!autoSwitchChain && isSourceChain) return;
-      setCollapsed(function (prev) {
-        return !prev;
-      });
+  return React.createElement("div", {
+    className: `network-dropdown ${theme.colorMode} ${collapsed ? 'collapsed' : ''} ${_disabled ? 'disabled' : ''}`,
+    onClick: () => {
+      if (_disabled) return;
+      if (!autoSwitchChain && _isSourceChain) return;
+      setCollapsed(prev => !prev);
     },
     ref: ref
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'network-wrapper'
-  }, React__default.createElement(selectedNetwork.icon, null), React__default.createElement("span", null, selectedNetwork.label)), React__default.createElement("div", {
-    className: "network-menu custom-scrollbar " + theme.colorMode + " " + (collapsed ? 'collapsed' : '')
-  }, networks.map(function (network) {
-    return React__default.createElement("div", {
-      className: 'network-menu-item',
-      key: network.label,
-      onClick: function () {
-        try {
-          if (isSourceChain) {
-            dispatch(setTargetChainFetching(true));
-            dispatch(setSourceChain(network.id));
-            sourceChangeRef.current = true;
-          } else {
-            dispatch(setTargetChain(network.id));
-            dispatch(setServiceFee(-1));
-          }
-          return Promise.resolve();
-        } catch (e) {
-          return Promise.reject(e);
-        }
+  }, React.createElement(selectedNetwork.icon, null), React.createElement("span", null, selectedNetwork.label)), React.createElement("div", {
+    className: `network-menu custom-scrollbar ${theme.colorMode} ${collapsed ? 'collapsed' : ''}`
+  }, networks.map(network => React.createElement("div", {
+    className: 'network-menu-item',
+    key: network.label,
+    onClick: async () => {
+      if (_isSourceChain) {
+        dispatch(setTargetChainFetching(true));
+        dispatch(setSourceChain(network.id));
+        sourceChangeRef.current = true;
+      } else {
+        dispatch(setTargetChain(network.id));
+        dispatch(setServiceFee(-1));
       }
-    }, React__default.createElement(network.icon, null), React__default.createElement("p", null, network.label));
-  })));
+    }
+  }, React.createElement(network.icon, null), React.createElement("p", null, network.label)))));
 });
 
-var ConfirmDetails = function ConfirmDetails(_ref) {
-  var isApproved = _ref.isApproved;
-  var feeDeduct = reactRedux.useSelector(selectFeeDeduct);
-  var mode = reactRedux.useSelector(selectMode);
-  var dAppOption = reactRedux.useSelector(selectDappOption);
-  var theme = reactRedux.useSelector(selectTheme);
-  var amount = reactRedux.useSelector(selectAmount);
-  var serviceFee = reactRedux.useSelector(selectServiceFee);
-  var originNetwork = reactRedux.useSelector(selectSourceChain);
-  var targetNetwork = reactRedux.useSelector(selectTargetChain);
-  var targetAddress = reactRedux.useSelector(selectTargetAddress);
-  var bankDetails = reactRedux.useSelector(selectBankDetails);
-  var signature = reactRedux.useSelector(selectSignature);
-  var transactionOption = reactRedux.useSelector(selectTransactionOption);
-  var _useIsWalletReady = useIsWalletReady(),
-    walletAddress = _useIsWalletReady.walletAddress;
-  var originNetworkOption = React.useMemo(function () {
-    return networkOptions.filter(function (network) {
-      return network.id === originNetwork;
-    })[0];
-  }, [networkOptions, originNetwork]);
-  var targetNetworkOption = React.useMemo(function () {
-    return networkOptions.filter(function (network) {
-      return network.id === (mode === exports.ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetChain : targetNetwork);
-    })[0];
-  }, [networkOptions, originNetwork]);
-  var sourceCurrency = reactRedux.useSelector(selectSourceCurrency);
-  var targetCurrency = reactRedux.useSelector(selectTargetCurrency);
-  var sourceWalletAddress = React.useMemo(function () {
+const ConfirmDetails = ({
+  isApproved
+}) => {
+  const feeDeduct = useSelector(selectFeeDeduct);
+  const mode = useSelector(selectMode);
+  const dAppOption = useSelector(selectDappOption);
+  const theme = useSelector(selectTheme);
+  const amount = useSelector(selectAmount);
+  const serviceFee = useSelector(selectServiceFee);
+  const originNetwork = useSelector(selectSourceChain);
+  const targetNetwork = useSelector(selectTargetChain);
+  const targetAddress = useSelector(selectTargetAddress);
+  const bankDetails = useSelector(selectBankDetails);
+  const signature = useSelector(selectSignature);
+  const transactionOption = useSelector(selectTransactionOption);
+  const {
+    walletAddress
+  } = useIsWalletReady();
+  const originNetworkOption = useMemo(() => networkOptions.filter(network => network.id === originNetwork)[0], [networkOptions, originNetwork]);
+  const targetNetworkOption = useMemo(() => networkOptions.filter(network => network.id === (mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetChain : targetNetwork))[0], [networkOptions, originNetwork]);
+  const sourceCurrency = useSelector(selectSourceCurrency);
+  const targetCurrency = useSelector(selectTargetCurrency);
+  const sourceWalletAddress = useMemo(() => {
     return getShortenedAddress(walletAddress || '');
   }, [walletAddress]);
-  var targetWalletAddress = React.useMemo(function () {
-    return getShortenedAddress((mode === exports.ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress) || '');
+  const targetWalletAddress = useMemo(() => {
+    return getShortenedAddress((mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress) || '');
   }, [mode, transactionOption, targetAddress]);
-  var amountToShow = React.useMemo(function () {
-    if (originNetwork === exports.SupportNetworks.BTC || targetNetwork === exports.SupportNetworks.BTC) {
+  const amountToShow = useMemo(() => {
+    if (originNetwork === ChainName.BTC || targetNetwork === ChainName.BTC) {
       return (feeDeduct ? +amount : +amount + serviceFee).toFixed(8);
     }
     return formatterFloat.format(feeDeduct ? +amount : +amount + serviceFee);
   }, [amount, serviceFee, originNetwork, targetNetwork, feeDeduct]);
-  return React__default.createElement("div", {
-    className: "confirm-details " + theme.colorMode
-  }, React__default.createElement("p", null, "Step ", isApproved ? '2' : '1', "\xA0of 2\xA0\xA0\xA0", isApproved ? 'Submit transaction' : originNetwork === exports.SupportNetworks.FIAT ? 'Bank Details' : 'Approval'), originNetwork === exports.SupportNetworks.FIAT ? React__default.createElement("div", null, React__default.createElement("div", {
+  return React.createElement("div", {
+    className: `confirm-details ${theme.colorMode}`
+  }, React.createElement("p", null, "Step ", isApproved ? '2' : '1', "\u00A0of 2\u00A0\u00A0\u00A0", isApproved ? 'Submit transaction' : originNetwork === ChainName.FIAT ? 'Bank Details' : 'Approval'), originNetwork === ChainName.FIAT ? React.createElement("div", null, React.createElement("div", {
     className: 'detail-item'
-  }, React__default.createElement("span", {
+  }, React.createElement("span", {
     className: 'label'
-  }, "IBAN:"), React__default.createElement("p", null, "ES6621000418401234567891"), React__default.createElement("span", {
+  }, "IBAN:"), React.createElement("p", null, "ES6621000418401234567891"), React.createElement("span", {
     className: 'kima-card-network-label'
-  }, React__default.createElement(originNetworkOption.icon, null), "FIAT")), React__default.createElement("div", {
+  }, React.createElement(originNetworkOption.icon, null), "FIAT")), React.createElement("div", {
     className: 'detail-item'
-  }, React__default.createElement("span", {
+  }, React.createElement("span", {
     className: 'label'
-  }, "Recipient:"), React__default.createElement("p", null, "Kima Sandbox")), React__default.createElement("div", {
+  }, "Recipient:"), React.createElement("p", null, "Kima Sandbox")), React.createElement("div", {
     className: 'detail-item'
-  }, React__default.createElement("span", {
+  }, React.createElement("span", {
     className: 'label'
-  }, "BIC:"), React__default.createElement("p", null, "CAIXESBBXXX")), React__default.createElement("div", {
+  }, "BIC:"), React.createElement("p", null, "CAIXESBBXXX")), React.createElement("div", {
     className: 'detail-item'
-  }, React__default.createElement("span", {
+  }, React.createElement("span", {
     className: 'label'
-  }, "Description:"), React__default.createElement("p", {
+  }, "Description:"), React.createElement("p", {
     className: 'signature'
-  }, signature))) : React__default.createElement("div", {
+  }, signature))) : React.createElement("div", {
     className: 'detail-item'
-  }, React__default.createElement("span", {
+  }, React.createElement("span", {
     className: 'label'
-  }, "Source wallet:"), React__default.createElement("p", null, dAppOption === exports.DAppOptions.LPDrain ? targetWalletAddress : sourceWalletAddress), React__default.createElement("span", {
+  }, "Source wallet:"), React.createElement("p", null, dAppOption === DAppOptions.LPDrain ? targetWalletAddress : sourceWalletAddress), React.createElement("span", {
     className: 'kima-card-network-label'
-  }, React__default.createElement(originNetworkOption.icon, null), originNetworkOption.label)), React__default.createElement("div", {
+  }, React.createElement(originNetworkOption.icon, null), originNetworkOption.label)), React.createElement("div", {
     className: 'detail-item'
-  }, React__default.createElement("span", {
+  }, React.createElement("span", {
     className: 'label'
-  }, "Amount:"), React__default.createElement("p", null, amountToShow, " ", sourceCurrency, " \u2192 ", targetCurrency)), targetNetwork === exports.SupportNetworks.FIAT ? React__default.createElement("div", null, React__default.createElement("div", {
+  }, "Amount:"), React.createElement("p", null, amountToShow, " ", sourceCurrency, " \u2192 ", targetCurrency)), targetNetwork === ChainName.FIAT ? React.createElement("div", null, React.createElement("div", {
     className: 'detail-item'
-  }, React__default.createElement("span", {
+  }, React.createElement("span", {
     className: 'label'
-  }, "IBAN:"), React__default.createElement("p", null, bankDetails.iban), React__default.createElement("span", {
+  }, "IBAN:"), React.createElement("p", null, bankDetails.iban), React.createElement("span", {
     className: 'kima-card-network-label'
-  }, React__default.createElement(targetNetworkOption.icon, null), "FIAT")), React__default.createElement("div", {
+  }, React.createElement(targetNetworkOption.icon, null), "FIAT")), React.createElement("div", {
     className: 'detail-item'
-  }, React__default.createElement("span", {
+  }, React.createElement("span", {
     className: 'label'
-  }, "Recipient:"), React__default.createElement("p", null, bankDetails.recipient))) : React__default.createElement("div", {
+  }, "Recipient:"), React.createElement("p", null, bankDetails.recipient))) : React.createElement("div", {
     className: 'detail-item'
-  }, React__default.createElement("span", {
+  }, React.createElement("span", {
     className: 'label'
-  }, "Target wallet:"), React__default.createElement("p", null, dAppOption === exports.DAppOptions.LPDrain ? sourceWalletAddress : targetWalletAddress), React__default.createElement("span", {
+  }, "Target wallet:"), React.createElement("p", null, dAppOption === DAppOptions.LPDrain ? sourceWalletAddress : targetWalletAddress), React.createElement("span", {
     className: 'kima-card-network-label'
-  }, React__default.createElement(targetNetworkOption.icon, null), targetNetworkOption.label)));
+  }, React.createElement(targetNetworkOption.icon, null), targetNetworkOption.label)));
 };
 
-var AddressInput = function AddressInput() {
-  var dispatch = reactRedux.useDispatch();
-  var targetAddress = reactRedux.useSelector(selectTargetAddress);
-  return React__default.createElement("input", {
+const AddressInput = () => {
+  const dispatch = useDispatch();
+  const targetAddress = useSelector(selectTargetAddress);
+  return React.createElement("input", {
     className: 'kima-address-input',
     type: 'text',
     value: targetAddress,
-    onChange: function onChange(e) {
-      return dispatch(setTargetAddress(e.target.value));
-    }
+    onChange: e => dispatch(setTargetAddress(e.target.value))
   });
 };
 
-var CustomCheckbox = function CustomCheckbox(_ref) {
-  var text = _ref.text,
-    checked = _ref.checked,
-    setCheck = _ref.setCheck;
-  var theme = reactRedux.useSelector(selectTheme);
-  return React__default.createElement("div", {
+const CustomCheckbox = ({
+  text,
+  checked,
+  setCheck
+}) => {
+  const theme = useSelector(selectTheme);
+  return React.createElement("div", {
     className: 'kima-custom-checkbox'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'custom-checkbox-content',
-    onClick: function onClick() {
-      return setCheck(!checked);
-    }
-  }, React__default.createElement("div", {
-    className: "custom-checkbox-icon-wrapper " + theme.colorMode
-  }, checked && React__default.createElement(Check, null)), React__default.createElement("span", null, text)));
+    onClick: () => setCheck(!checked)
+  }, React.createElement("div", {
+    className: `custom-checkbox-icon-wrapper ${theme.colorMode}`
+  }, checked && React.createElement(Check, null)), React.createElement("span", null, text)));
 };
 
-var CopyButton = function CopyButton(_ref) {
-  var text = _ref.text;
-  var _useState = React.useState(false),
-    copyClicked = _useState[0],
-    setCopyClicked = _useState[1];
-  React.useEffect(function () {
+const CopyButton = ({
+  text
+}) => {
+  const [copyClicked, setCopyClicked] = useState(false);
+  useEffect(() => {
     if (!copyClicked) return;
-    setTimeout(function () {
+    setTimeout(() => {
       setCopyClicked(false);
     }, 2000);
   }, [copyClicked]);
-  return React__default.createElement("span", {
+  return React.createElement("span", {
     className: 'copy-btn',
-    onClick: function onClick() {
+    onClick: () => {
       setCopyClicked(true);
       navigator.clipboard.writeText(text);
     }
-  }, copyClicked ? React__default.createElement(Check, {
+  }, copyClicked ? React.createElement(Check, {
     fill: '#979797'
-  }) : React__default.createElement(Copy, null));
+  }) : React.createElement(Copy, null));
 };
 
-var stepInfo$1 = [{
+const stepInfo$1 = [{
   title: 'Initialize'
 }, {
   title: 'Source Transfer'
@@ -3159,207 +2738,220 @@ var stepInfo$1 = [{
 }, {
   title: 'Finalize'
 }];
-var StepBox = function StepBox(_ref) {
-  var step = _ref.step,
-    errorStep = _ref.errorStep,
-    loadingStep = _ref.loadingStep,
-    data = _ref.data;
-  var theme = reactRedux.useSelector(selectTheme);
-  var explorerUrl = reactRedux.useSelector(selectKimaExplorer);
-  var networkOption = reactRedux.useSelector(selectNetworkOption);
-  var CHAIN_NAMES_TO_EXPLORER = networkOption === exports.NetworkOptions.mainnet ? CHAIN_NAMES_TO_EXPLORER_MAINNET : CHAIN_NAMES_TO_EXPLORER_TESTNET;
-  return React__default.createElement("div", {
+const StepBox = ({
+  step,
+  errorStep,
+  loadingStep,
+  data
+}) => {
+  const theme = useSelector(selectTheme);
+  const explorerUrl = useSelector(selectKimaExplorer);
+  const networkOption = useSelector(selectNetworkOption);
+  const CHAIN_NAMES_TO_EXPLORER = networkOption === NetworkOptions.mainnet ? CHAIN_NAMES_TO_EXPLORER_MAINNET : CHAIN_NAMES_TO_EXPLORER_TESTNET;
+  return React.createElement("div", {
     className: 'kima-stepbox'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'content-wrapper'
-  }, stepInfo$1.map(function (item, index) {
-    return React__default.createElement("div", {
-      key: item.title,
-      className: 'step-item'
-    }, React__default.createElement("div", {
-      className: 'info-item'
-    }, index === loadingStep ? React__default.createElement(Loading180Ring, {
-      fill: theme.colorMode === 'dark' ? 'white' : '#5aa0db'
-    }) : step >= index ? index === errorStep ? React__default.createElement(Warning, null) : React__default.createElement(Check, null) : null, React__default.createElement("p", null, item.title)), index === 0 && data !== null && data !== void 0 && data.kimaTxHash ? React__default.createElement("div", {
-      className: 'info-item'
-    }, React__default.createElement("p", null, "Kima TX ID:", ' ', React__default.createElement(ExternalLink, {
-      to: explorerUrl + "/transactions/?tx=" + (data === null || data === void 0 ? void 0 : data.kimaTxHash)
-    }, getShortenedAddress((data === null || data === void 0 ? void 0 : data.kimaTxHash) || '')), React__default.createElement(CopyButton, {
-      text: data === null || data === void 0 ? void 0 : data.kimaTxHash
-    }))) : null, index === 1 && data !== null && data !== void 0 && data.tssPullHash ? React__default.createElement("div", {
-      className: 'info-item'
-    }, React__default.createElement("p", null, CHAIN_NAMES_TO_STRING[(data === null || data === void 0 ? void 0 : data.sourceChain) || exports.SupportNetworks.ETHEREUM], ' ', "TX ID:", React__default.createElement(ExternalLink, {
-      to: "https://" + CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.sourceChain) || exports.SupportNetworks.ETHEREUM] + "/" + ((data === null || data === void 0 ? void 0 : data.sourceChain) === exports.SupportNetworks.TRON ? 'transaction' : 'tx') + "/" + (data === null || data === void 0 ? void 0 : data.tssPullHash) + ((data === null || data === void 0 ? void 0 : data.sourceChain) === exports.SupportNetworks.SOLANA && networkOption === exports.NetworkOptions.testnet ? '?cluster=devnet' : '')
-    }, getShortenedAddress((data === null || data === void 0 ? void 0 : data.tssPullHash) || '')), React__default.createElement(CopyButton, {
-      text: (data === null || data === void 0 ? void 0 : data.tssPullHash) || ''
-    }))) : null, index === 3 && data !== null && data !== void 0 && data.tssReleaseHash ? React__default.createElement("div", {
-      className: 'info-item'
-    }, React__default.createElement("p", null, CHAIN_NAMES_TO_STRING[(data === null || data === void 0 ? void 0 : data.targetChain) || exports.SupportNetworks.ETHEREUM], ' ', "TX ID:", React__default.createElement(ExternalLink, {
-      to: "https://" + CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.targetChain) || exports.SupportNetworks.ETHEREUM] + "/" + ((data === null || data === void 0 ? void 0 : data.targetChain) === exports.SupportNetworks.TRON ? 'transaction' : 'tx') + "/" + (data === null || data === void 0 ? void 0 : data.tssReleaseHash) + ((data === null || data === void 0 ? void 0 : data.targetChain) === exports.SupportNetworks.SOLANA && networkOption === exports.NetworkOptions.testnet ? '?cluster=devnet' : '')
-    }, getShortenedAddress((data === null || data === void 0 ? void 0 : data.tssReleaseHash) || '')), React__default.createElement(CopyButton, {
-      text: (data === null || data === void 0 ? void 0 : data.tssReleaseHash) || ''
-    }))) : null);
-  })));
+  }, stepInfo$1.map((item, index) => React.createElement("div", {
+    key: item.title,
+    className: 'step-item'
+  }, React.createElement("div", {
+    className: 'info-item'
+  }, index === loadingStep ? React.createElement(Loading180Ring, {
+    fill: theme.colorMode === 'dark' ? 'white' : '#5aa0db'
+  }) : step >= index ? index === errorStep ? React.createElement(Warning, null) : React.createElement(Check, null) : null, React.createElement("p", null, item.title)), index === 0 && data !== null && data !== void 0 && data.kimaTxHash ? React.createElement("div", {
+    className: 'info-item'
+  }, React.createElement("p", null, "Kima TX ID:", ' ', React.createElement(ExternalLink, {
+    to: `${explorerUrl}/transactions/?tx=${data === null || data === void 0 ? void 0 : data.kimaTxHash}`
+  }, getShortenedAddress((data === null || data === void 0 ? void 0 : data.kimaTxHash) || '')), React.createElement(CopyButton, {
+    text: data === null || data === void 0 ? void 0 : data.kimaTxHash
+  }))) : null, index === 1 && data !== null && data !== void 0 && data.tssPullHash ? React.createElement("div", {
+    className: 'info-item'
+  }, React.createElement("p", null, CHAIN_NAMES_TO_STRING[(data === null || data === void 0 ? void 0 : data.sourceChain) || ChainName.ETHEREUM], ' ', "TX ID:", React.createElement(ExternalLink, {
+    to: `https://${CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.sourceChain) || ChainName.ETHEREUM]}/${(data === null || data === void 0 ? void 0 : data.sourceChain) === ChainName.TRON ? 'transaction' : 'tx'}/${data === null || data === void 0 ? void 0 : data.tssPullHash}${(data === null || data === void 0 ? void 0 : data.sourceChain) === ChainName.SOLANA && networkOption === NetworkOptions.testnet ? '?cluster=devnet' : ''}`
+  }, getShortenedAddress((data === null || data === void 0 ? void 0 : data.tssPullHash) || '')), React.createElement(CopyButton, {
+    text: (data === null || data === void 0 ? void 0 : data.tssPullHash) || ''
+  }))) : null, index === 3 && data !== null && data !== void 0 && data.tssReleaseHash ? React.createElement("div", {
+    className: 'info-item'
+  }, React.createElement("p", null, CHAIN_NAMES_TO_STRING[(data === null || data === void 0 ? void 0 : data.targetChain) || ChainName.ETHEREUM], ' ', "TX ID:", React.createElement(ExternalLink, {
+    to: `https://${CHAIN_NAMES_TO_EXPLORER[(data === null || data === void 0 ? void 0 : data.targetChain) || ChainName.ETHEREUM]}/${(data === null || data === void 0 ? void 0 : data.targetChain) === ChainName.TRON ? 'transaction' : 'tx'}/${data === null || data === void 0 ? void 0 : data.tssReleaseHash}${(data === null || data === void 0 ? void 0 : data.targetChain) === ChainName.SOLANA && networkOption === NetworkOptions.testnet ? '?cluster=devnet' : ''}`
+  }, getShortenedAddress((data === null || data === void 0 ? void 0 : data.tssReleaseHash) || '')), React.createElement(CopyButton, {
+    text: (data === null || data === void 0 ? void 0 : data.tssReleaseHash) || ''
+  }))) : null))));
 };
 
-var BankInput = function BankInput() {
-  var dispatch = reactRedux.useDispatch();
-  var theme = reactRedux.useSelector(selectTheme);
-  var bankDetails = reactRedux.useSelector(selectBankDetails);
-  return React__default.createElement("div", {
+const BankInput = () => {
+  const dispatch = useDispatch();
+  const theme = useSelector(selectTheme);
+  const bankDetails = useSelector(selectBankDetails);
+  return React.createElement("div", {
     className: 'bank-input'
-  }, React__default.createElement("div", {
-    className: "form-item " + theme.colorMode
-  }, React__default.createElement("span", {
+  }, React.createElement("div", {
+    className: `form-item ${theme.colorMode}`
+  }, React.createElement("span", {
     className: 'label'
-  }, "IBAN:"), React__default.createElement("input", {
+  }, "IBAN:"), React.createElement("input", {
     className: 'kima-address-input',
     type: 'text',
     value: bankDetails.iban,
-    onChange: function onChange(e) {
-      return dispatch(setBankDetails(_extends({}, bankDetails, {
-        iban: e.target.value
-      })));
-    }
-  })), React__default.createElement("div", {
-    className: "form-item " + theme.colorMode
-  }, React__default.createElement("span", {
+    onChange: e => dispatch(setBankDetails({
+      ...bankDetails,
+      iban: e.target.value
+    }))
+  })), React.createElement("div", {
+    className: `form-item ${theme.colorMode}`
+  }, React.createElement("span", {
     className: 'label'
-  }, "Recipient:"), React__default.createElement("input", {
+  }, "Recipient:"), React.createElement("input", {
     className: 'kima-address-input',
     type: 'text',
     value: bankDetails.recipient,
-    onChange: function onChange(e) {
-      return dispatch(setBankDetails(_extends({}, bankDetails, {
-        recipient: e.target.value
-      })));
-    }
+    onChange: e => dispatch(setBankDetails({
+      ...bankDetails,
+      recipient: e.target.value
+    }))
   })));
 };
 
-var TxButton = function TxButton(_ref) {
-  var theme = _ref.theme;
-  var dispatch = reactRedux.useDispatch();
-  var handleClick = function handleClick() {
+const TxButton = ({
+  theme
+}) => {
+  const dispatch = useDispatch();
+  const handleClick = () => {
     dispatch(setPendingTxPopup(true));
   };
-  var txCount = reactRedux.useSelector(selectPendingTxs);
-  return React__default.createElement("button", {
-    className: "secondary-button tx-button " + theme.colorMode,
+  const txCount = useSelector(selectPendingTxs);
+  return React.createElement("button", {
+    className: `secondary-button tx-button ${theme.colorMode}`,
     onClick: handleClick
-  }, txCount, React__default.createElement(Loading180Ring, {
+  }, txCount, React.createElement(Loading180Ring, {
     height: 16,
     width: 16,
     fill: theme.colorMode === 'light' ? 'black' : 'white'
   }));
 };
 
-var TransactionWidget = function TransactionWidget(_ref) {
-  var theme = _ref.theme;
-  var _useState = React.useState(0),
-    step = _useState[0],
-    setStep = _useState[1];
-  var _useState2 = React.useState(-1),
-    focus = _useState2[0],
-    setFocus = _useState2[1];
-  var _useState3 = React.useState(-1),
-    errorStep = _useState3[0],
-    setErrorStep = _useState3[1];
-  var _useState4 = React.useState(''),
-    errorMessage = _useState4[0],
-    setErrorMessage = _useState4[1];
-  var _useState5 = React.useState(-1),
-    loadingStep = _useState5[0],
-    setLoadingStep = _useState5[1];
-  var _useState6 = React.useState(false),
-    minimized = _useState6[0],
-    setMinimized = _useState6[1];
-  var _useState7 = React.useState(0),
-    percent = _useState7[0],
-    setPercent = _useState7[1];
-  var _useState8 = React.useState(),
-    data = _useState8[0],
-    setData = _useState8[1];
-  var dispatch = reactRedux.useDispatch();
-  var txId = reactRedux.useSelector(selectTxId);
-  var dAppOption = reactRedux.useSelector(selectDappOption);
-  var closeHandler = reactRedux.useSelector(selectCloseHandler);
-  var successHandler = reactRedux.useSelector(selectSuccessHandler);
-  var graphqlProviderQuery = reactRedux.useSelector(selectGraphqlProviderQuery);
-  React.useEffect(function () {
+const TransactionWidget = ({
+  theme
+}) => {
+  const [step, setStep] = useState(0);
+  const [focus, setFocus] = useState(-1);
+  const [errorStep, setErrorStep] = useState(-1);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [loadingStep, setLoadingStep] = useState(-1);
+  const [minimized, setMinimized] = useState(false);
+  const [percent, setPercent] = useState(0);
+  const [data, setData] = useState();
+  const dispatch = useDispatch();
+  const txId = useSelector(selectTxId);
+  const dAppOption = useSelector(selectDappOption);
+  const closeHandler = useSelector(selectCloseHandler);
+  const successHandler = useSelector(selectSuccessHandler);
+  const graphqlProviderQuery = useSelector(selectGraphqlProviderQuery);
+  useEffect(() => {
     if (!graphqlProviderQuery || txId < 0) return;
-    var updateTxData = function updateTxData() {
+    const updateTxData = async () => {
       try {
-        return Promise.resolve(_catch(function () {
-          var data;
-          var isLP = dAppOption === exports.DAppOptions.LPAdd || dAppOption === exports.DAppOptions.LPDrain;
-          return Promise.resolve(fetchWrapper.post(graphqlProviderQuery, JSON.stringify({
-            query: isLP ? "query TransactionDetailsKima($txId: String) {\n                  liquidity_transaction_data(where: { tx_id: { _eq: " + txId.toString() + " } }, limit: 1) {\n                    failreason\n                    pullfailcount\n                    pullhash\n                    releasefailcount\n                    releasehash\n                    txstatus\n                    amount\n                    creator\n                    chain\n                    providerchainaddress\n                    symbol\n                    tx_id\n                    kimahash\n                  }\n                }" : "query TransactionDetailsKima($txId: String) {\n                  transaction_data(where: { tx_id: { _eq: " + txId.toString() + " } }, limit: 1) {\n                    failreason\n                    pullfailcount\n                    pullhash\n                    releasefailcount\n                    releasehash\n                    txstatus\n                    amount\n                    creator\n                    originaddress\n                    originchain\n                    originsymbol\n                    targetsymbol\n                    targetaddress\n                    targetchain\n                    tx_id\n                    kimahash\n                  }\n                }"
-          }))).then(function (result) {
-            var _result$data, _result$data$liquidit, _result$data2, _result$data2$transac;
-            if (isLP && !(result !== null && result !== void 0 && (_result$data = result.data) !== null && _result$data !== void 0 && (_result$data$liquidit = _result$data.liquidity_transaction_data) !== null && _result$data$liquidit !== void 0 && _result$data$liquidit.length) || !isLP && !(result !== null && result !== void 0 && (_result$data2 = result.data) !== null && _result$data2 !== void 0 && (_result$data2$transac = _result$data2.transaction_data) !== null && _result$data2$transac !== void 0 && _result$data2$transac.length)) {
-              return;
-            }
-            if (isLP) {
-              data = result === null || result === void 0 ? void 0 : result.data.liquidity_transaction_data[0];
-            } else {
-              data = result === null || result === void 0 ? void 0 : result.data.transaction_data[0];
-            }
-            console.log(data);
-            if (!data) return;
-            if (isLP) {
-              setData({
-                status: data.txstatus,
-                sourceChain: data.chain,
-                targetChain: data.chain,
-                tssPullHash: dAppOption === exports.DAppOptions.LPAdd ? data.releasehash : '',
-                tssReleaseHash: dAppOption === exports.DAppOptions.LPDrain ? data.releasehash : '',
-                failReason: data.failreason,
-                amount: +data.amount,
-                sourceSymbol: data.symbol,
-                targetSymbol: data.symbol,
-                kimaTxHash: data.kimahash
-              });
-            } else {
-              setData({
-                status: data.txstatus,
-                sourceChain: data.originchain,
-                targetChain: data.targetchain,
-                tssPullHash: data.pullhash,
-                tssReleaseHash: data.releasehash,
-                failReason: data.failreason,
-                amount: +data.amount,
-                sourceSymbol: data.originsymbol,
-                targetSymbol: data.targetsymbol,
-                kimaTxHash: data.kimahash
-              });
-            }
-            if (data.status === TransactionStatus.COMPLETED) {
-              clearInterval(timerId);
-              setTimeout(function () {
-                successHandler({
-                  txId: txId
-                });
-              }, 3000);
-            }
-          });
-        }, function (e) {
-          toast.toast.error('rpc disconnected');
-          console.log('rpc disconnected', e);
+        var _result$data, _result$data$liquidit, _result$data2, _result$data2$transac;
+        let data;
+        const isLP = dAppOption === DAppOptions.LPAdd || dAppOption === DAppOptions.LPDrain;
+        const result = await fetchWrapper.post(graphqlProviderQuery, JSON.stringify({
+          query: isLP ? `query TransactionDetailsKima($txId: String) {
+                  liquidity_transaction_data(where: { tx_id: { _eq: ${txId.toString()} } }, limit: 1) {
+                    failreason
+                    pullfailcount
+                    pullhash
+                    releasefailcount
+                    releasehash
+                    txstatus
+                    amount
+                    creator
+                    chain
+                    providerchainaddress
+                    symbol
+                    tx_id
+                    kimahash
+                  }
+                }` : `query TransactionDetailsKima($txId: String) {
+                  transaction_data(where: { tx_id: { _eq: ${txId.toString()} } }, limit: 1) {
+                    failreason
+                    pullfailcount
+                    pullhash
+                    releasefailcount
+                    releasehash
+                    txstatus
+                    amount
+                    creator
+                    originaddress
+                    originchain
+                    originsymbol
+                    targetsymbol
+                    targetaddress
+                    targetchain
+                    tx_id
+                    kimahash
+                  }
+                }`
         }));
+        if (isLP && !(result !== null && result !== void 0 && (_result$data = result.data) !== null && _result$data !== void 0 && (_result$data$liquidit = _result$data.liquidity_transaction_data) !== null && _result$data$liquidit !== void 0 && _result$data$liquidit.length) || !isLP && !(result !== null && result !== void 0 && (_result$data2 = result.data) !== null && _result$data2 !== void 0 && (_result$data2$transac = _result$data2.transaction_data) !== null && _result$data2$transac !== void 0 && _result$data2$transac.length)) {
+          return;
+        }
+        if (isLP) {
+          data = result === null || result === void 0 ? void 0 : result.data.liquidity_transaction_data[0];
+        } else {
+          data = result === null || result === void 0 ? void 0 : result.data.transaction_data[0];
+        }
+        console.log(data);
+        if (!data) return;
+        if (isLP) {
+          setData({
+            status: data.txstatus,
+            sourceChain: data.chain,
+            targetChain: data.chain,
+            tssPullHash: dAppOption === DAppOptions.LPAdd ? data.releasehash : '',
+            tssReleaseHash: dAppOption === DAppOptions.LPDrain ? data.releasehash : '',
+            failReason: data.failreason,
+            amount: +data.amount,
+            sourceSymbol: data.symbol,
+            targetSymbol: data.symbol,
+            kimaTxHash: data.kimahash
+          });
+        } else {
+          setData({
+            status: data.txstatus,
+            sourceChain: data.originchain,
+            targetChain: data.targetchain,
+            tssPullHash: data.pullhash,
+            tssReleaseHash: data.releasehash,
+            failReason: data.failreason,
+            amount: +data.amount,
+            sourceSymbol: data.originsymbol,
+            targetSymbol: data.targetsymbol,
+            kimaTxHash: data.kimahash
+          });
+        }
+        if (data.status === TransactionStatus.COMPLETED) {
+          clearInterval(timerId);
+          setTimeout(() => {
+            successHandler({
+              txId
+            });
+          }, 3000);
+        }
       } catch (e) {
-        return Promise.reject(e);
+        toast$1.error('rpc disconnected');
+        console.log('rpc disconnected', e);
       }
     };
-    var timerId = setInterval(function () {
+    const timerId = setInterval(() => {
       updateTxData();
     }, 10000);
     updateTxData();
-    return function () {
+    return () => {
       clearInterval(timerId);
     };
   }, [graphqlProviderQuery, txId, dAppOption]);
-  React.useEffect(function () {
+  useEffect(() => {
     if (!data) {
       setStep(0);
       setLoadingStep(0);
@@ -3367,7 +2959,7 @@ var TransactionWidget = function TransactionWidget(_ref) {
     }
     console.log(data.status, errorMessage);
     setErrorStep(-1);
-    var status = data.status;
+    const status = data.status;
     if (status === TransactionStatus.AVAILABLE || status === TransactionStatus.PULLED) {
       setStep(1);
       setPercent(25);
@@ -3382,7 +2974,7 @@ var TransactionWidget = function TransactionWidget(_ref) {
       setErrorStep(1);
       setLoadingStep(-1);
       console.log(data.failReason);
-      toast.toast.error('Unavailable');
+      toast$1.error('Unavailable');
       setErrorMessage('Unavailable');
     } else if (status === TransactionStatus.KEYSIGNED) {
       setStep(3);
@@ -3398,7 +2990,7 @@ var TransactionWidget = function TransactionWidget(_ref) {
       setErrorStep(3);
       setLoadingStep(-1);
       console.log(data.failReason);
-      toast.toast.error('Failed to release tokens to target!');
+      toast$1.error('Failed to release tokens to target!');
       setErrorMessage('Failed to release tokens to target!');
     } else if (status === TransactionStatus.FAILEDTOPULL) {
       setStep(1);
@@ -3406,7 +2998,7 @@ var TransactionWidget = function TransactionWidget(_ref) {
       setErrorStep(1);
       setLoadingStep(-1);
       console.log(data.failReason);
-      toast.toast.error('Failed to pull tokens from source!');
+      toast$1.error('Failed to pull tokens from source!');
       setErrorMessage('Failed to pull tokens from source!');
     } else if (status === TransactionStatus.COMPLETED) {
       setStep(4);
@@ -3414,68 +3006,66 @@ var TransactionWidget = function TransactionWidget(_ref) {
       setLoadingStep(-1);
     }
   }, [data === null || data === void 0 ? void 0 : data.status]);
-  return React__default.createElement(reactRedux.Provider, {
+  return React.createElement(Provider, {
     store: store
-  }, React__default.createElement("div", {
-    className: "kima-card transaction-card " + theme.colorMode + " font-" + theme.fontSize + " " + (minimized ? 'minimized' : ''),
+  }, React.createElement("div", {
+    className: `kima-card transaction-card ${theme.colorMode} font-${theme.fontSize} ${minimized ? 'minimized' : ''}`,
     style: {
       fontFamily: theme.fontFamily,
-      background: theme.colorMode === exports.ColorModeOptions.light ? theme.backgroundColorLight : theme.backgroundColorDark
+      background: theme.colorMode === ColorModeOptions.light ? theme.backgroundColorLight : theme.backgroundColorDark
     }
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'kima-card-header'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'topbar'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'title'
-  }, React__default.createElement("h3", null, "Transferring ", formatterFloat.format((data === null || data === void 0 ? void 0 : data.amount) || 0), ' ', ((data === null || data === void 0 ? void 0 : data.sourceSymbol) || 'USDK') + " \u2192 " + ((data === null || data === void 0 ? void 0 : data.targetSymbol) || 'USDK'), "\xA0\xA0", "(" + percent + "%)")), !minimized ? React__default.createElement("div", {
+  }, React.createElement("h3", null, "Transferring ", formatterFloat.format((data === null || data === void 0 ? void 0 : data.amount) || 0), ' ', `${(data === null || data === void 0 ? void 0 : data.sourceSymbol) || 'USDK'} → ${(data === null || data === void 0 ? void 0 : data.targetSymbol) || 'USDK'}`, "\u00A0\u00A0", `(${percent}%)`)), !minimized ? React.createElement("div", {
     className: 'control-buttons'
-  }, React__default.createElement("button", {
+  }, React.createElement("button", {
     className: 'icon-button',
-    onClick: function onClick() {
+    onClick: () => {
       setMinimized(true);
     }
-  }, React__default.createElement(Minimize, {
+  }, React.createElement(Minimize, {
     fill: theme.colorMode === 'light' ? 'black' : 'white'
-  })), loadingStep < 0 ? React__default.createElement("button", {
+  })), loadingStep < 0 ? React.createElement("button", {
     className: 'icon-button',
-    onClick: function onClick() {
+    onClick: () => {
       dispatch(initialize());
       closeHandler();
     }
-  }, React__default.createElement(Cross, {
+  }, React.createElement(Cross, {
     fill: theme.colorMode === 'light' ? 'black' : 'white'
-  })) : null) : React__default.createElement("div", {
+  })) : null) : React.createElement("div", {
     className: 'control-buttons'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'maximize',
-    onClick: function onClick() {
-      return setMinimized(false);
-    }
-  }, "View"))), (data === null || data === void 0 ? void 0 : data.sourceChain) && (data === null || data === void 0 ? void 0 : data.targetChain) && React__default.createElement(NetworkLabel, {
+    onClick: () => setMinimized(false)
+  }, "View"))), (data === null || data === void 0 ? void 0 : data.sourceChain) && (data === null || data === void 0 ? void 0 : data.targetChain) && React.createElement(NetworkLabel, {
     sourceChain: data === null || data === void 0 ? void 0 : data.sourceChain,
     targetChain: data === null || data === void 0 ? void 0 : data.targetChain,
     hasError: errorStep >= 0
-  })), React__default.createElement("div", {
+  })), React.createElement("div", {
     className: 'kima-card-content'
-  }, React__default.createElement(Progressbar, {
+  }, React.createElement(Progressbar, {
     step: step,
     focus: focus,
     errorStep: errorStep,
     setFocus: setFocus,
     loadingStep: loadingStep
-  }), React__default.createElement(StepBox, {
+  }), React.createElement(StepBox, {
     step: step,
     errorStep: errorStep,
     loadingStep: loadingStep,
     data: data
-  })), React__default.createElement("div", {
+  })), React.createElement("div", {
     className: 'kima-card-footer'
-  }, React__default.createElement(ExternalLink, {
+  }, React.createElement(ExternalLink, {
     to: 'https://kima.finance'
-  }, React__default.createElement(FooterLogo, {
+  }, React.createElement(FooterLogo, {
     fill: theme.colorMode === 'light' ? 'black' : '#C5C5C5'
-  }))), React__default.createElement(toast.Toaster, {
+  }))), React.createElement(Toaster, {
     position: 'top-right',
     reverseOrder: false,
     containerStyle: {
@@ -3489,7 +3079,7 @@ var TransactionWidget = function TransactionWidget(_ref) {
         right: '1.5rem',
         margin: '5px 0',
         padding: '.7rem 1.5rem',
-        color: theme.colorMode === exports.ColorModeOptions.light ? 'black' : 'white',
+        color: theme.colorMode === ColorModeOptions.light ? 'black' : 'white',
         fontSize: '1em',
         borderRadius: '1em',
         border: '1px solid #66aae5',
@@ -3499,222 +3089,192 @@ var TransactionWidget = function TransactionWidget(_ref) {
   })));
 };
 
-var ExpireTimeDropdown = function ExpireTimeDropdown() {
-  var ref = React.useRef();
-  var dispatch = reactRedux.useDispatch();
-  var _useState = React.useState(true),
-    collapsed = _useState[0],
-    setCollapsed = _useState[1];
-  var expireTime = reactRedux.useSelector(selectExpireTime);
-  var theme = reactRedux.useSelector(selectTheme);
-  React.useEffect(function () {
-    var bodyMouseDowntHandler = function bodyMouseDowntHandler(e) {
+const ExpireTimeDropdown = () => {
+  const ref = useRef();
+  const dispatch = useDispatch();
+  const [collapsed, setCollapsed] = useState(true);
+  const expireTime = useSelector(selectExpireTime);
+  const theme = useSelector(selectTheme);
+  useEffect(() => {
+    const bodyMouseDowntHandler = e => {
       if (ref !== null && ref !== void 0 && ref.current && !ref.current.contains(e.target)) {
         setCollapsed(true);
       }
     };
     document.addEventListener('mousedown', bodyMouseDowntHandler);
-    return function () {
+    return () => {
       document.removeEventListener('mousedown', bodyMouseDowntHandler);
     };
   }, [setCollapsed]);
-  return React__default.createElement("div", {
-    className: "expire-time-dropdown " + theme.colorMode + " " + (collapsed ? 'collapsed' : ''),
-    onClick: function onClick() {
-      return setCollapsed(function (prev) {
-        return !prev;
-      });
-    },
+  return React.createElement("div", {
+    className: `expire-time-dropdown ${theme.colorMode} ${collapsed ? 'collapsed' : ''}`,
+    onClick: () => setCollapsed(prev => !prev),
     ref: ref
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'expire-time-wrapper'
-  }, React__default.createElement("p", null, expireTime)), React__default.createElement("div", {
-    className: "expire-time-menu " + theme.colorMode + " " + (collapsed ? 'collapsed' : '')
-  }, ExpireTimeOptions.map(function (option) {
-    return React__default.createElement("p", {
-      key: option,
-      className: 'expire-time-item',
-      onClick: function onClick() {
-        dispatch(setExpireTime(option));
-      }
-    }, option);
-  })));
+  }, React.createElement("p", null, expireTime)), React.createElement("div", {
+    className: `expire-time-menu ${theme.colorMode} ${collapsed ? 'collapsed' : ''}`
+  }, ExpireTimeOptions.map(option => React.createElement("p", {
+    key: option,
+    className: 'expire-time-item',
+    onClick: () => {
+      dispatch(setExpireTime(option));
+    }
+  }, option))));
 };
 
-var SingleForm = function SingleForm(_ref) {
+const SingleForm = ({
+  paymentTitleOption
+}) => {
   var _COIN_LIST;
-  var paymentTitleOption = _ref.paymentTitleOption;
-  var dispatch = reactRedux.useDispatch();
-  var mode = reactRedux.useSelector(selectMode);
-  var theme = reactRedux.useSelector(selectTheme);
-  var dAppOption = reactRedux.useSelector(selectDappOption);
-  var feeDeduct = reactRedux.useSelector(selectFeeDeduct);
-  var serviceFee = reactRedux.useSelector(selectServiceFee);
-  var compliantOption = reactRedux.useSelector(selectCompliantOption);
-  var targetCompliant = reactRedux.useSelector(selectTargetCompliant);
-  var transactionOption = reactRedux.useSelector(selectTransactionOption);
-  var sourceNetwork = reactRedux.useSelector(selectSourceChain);
-  var targetNetwork = reactRedux.useSelector(selectTargetChain);
-  var _useState = React.useState(''),
-    amountValue = _useState[0],
-    setAmountValue = _useState[1];
-  var amount = reactRedux.useSelector(selectAmount);
-  var targetCurrency = reactRedux.useSelector(selectTargetCurrency);
-  var TargetIcon = ((_COIN_LIST = COIN_LIST[targetCurrency || 'USDK']) === null || _COIN_LIST === void 0 ? void 0 : _COIN_LIST.icon) || COIN_LIST['USDK'].icon;
-  var errorMessage = React.useMemo(function () {
-    return compliantOption && targetCompliant !== 'low' ? "Target address has " + targetCompliant + " risk" : '';
-  }, [compliantOption, targetCompliant]);
-  React.useEffect(function () {
+  const dispatch = useDispatch();
+  const mode = useSelector(selectMode);
+  const theme = useSelector(selectTheme);
+  const dAppOption = useSelector(selectDappOption);
+  const feeDeduct = useSelector(selectFeeDeduct);
+  const serviceFee = useSelector(selectServiceFee);
+  const compliantOption = useSelector(selectCompliantOption);
+  const targetCompliant = useSelector(selectTargetCompliant);
+  const transactionOption = useSelector(selectTransactionOption);
+  const sourceNetwork = useSelector(selectSourceChain);
+  const targetNetwork = useSelector(selectTargetChain);
+  const [amountValue, setAmountValue] = useState('');
+  const amount = useSelector(selectAmount);
+  const targetCurrency = useSelector(selectTargetCurrency);
+  const TargetIcon = ((_COIN_LIST = COIN_LIST[targetCurrency || 'USDK']) === null || _COIN_LIST === void 0 ? void 0 : _COIN_LIST.icon) || COIN_LIST['USDK'].icon;
+  const errorMessage = useMemo(() => compliantOption && targetCompliant !== 'low' ? `Target address has ${targetCompliant} risk` : '', [compliantOption, targetCompliant]);
+  useEffect(() => {
     if (!errorMessage) return;
-    toast.toast.error(errorMessage);
+    toast$1.error(errorMessage);
   }, [errorMessage]);
-  React.useEffect(function () {
+  useEffect(() => {
     if (amountValue) return;
     setAmountValue(amount);
   }, [amount]);
-  return React__default.createElement("div", {
+  return React.createElement("div", {
     className: 'single-form'
-  }, mode === exports.ModeOptions.payment ? React__default.createElement("p", {
+  }, mode === ModeOptions.payment ? React.createElement("p", {
     className: 'payment-title',
     style: paymentTitleOption === null || paymentTitleOption === void 0 ? void 0 : paymentTitleOption.style
-  }, paymentTitleOption === null || paymentTitleOption === void 0 ? void 0 : paymentTitleOption.title) : null, React__default.createElement("div", {
+  }, paymentTitleOption === null || paymentTitleOption === void 0 ? void 0 : paymentTitleOption.title) : null, React.createElement("div", {
     className: 'form-item'
-  }, React__default.createElement("span", {
+  }, React.createElement("span", {
     className: 'label'
-  }, "Source Network:"), React__default.createElement(NetworkDropdown, {
-    disabled: dAppOption === exports.DAppOptions.LPAdd || dAppOption === exports.DAppOptions.LPDrain
-  }), React__default.createElement(CoinDropdown, {
-    disabled: dAppOption === exports.DAppOptions.LPAdd || dAppOption === exports.DAppOptions.LPDrain
-  })), React__default.createElement("div", {
-    className: "dynamic-area " + (sourceNetwork === exports.SupportNetworks.FIAT ? 'reverse' : '')
-  }, React__default.createElement("div", {
+  }, "Source Network:"), React.createElement(NetworkDropdown, {
+    disabled: dAppOption === DAppOptions.LPAdd || dAppOption === DAppOptions.LPDrain
+  }), React.createElement(CoinDropdown, {
+    disabled: dAppOption === DAppOptions.LPAdd || dAppOption === DAppOptions.LPDrain
+  })), React.createElement("div", {
+    className: `dynamic-area ${sourceNetwork === ChainName.FIAT ? 'reverse' : ''}`
+  }, React.createElement("div", {
     className: 'form-item wallet-button-item'
-  }, React__default.createElement("span", {
+  }, React.createElement("span", {
     className: 'label'
-  }, "Connect wallet:"), React__default.createElement(WalletButton, null)), mode === exports.ModeOptions.bridge && React__default.createElement("div", {
+  }, "Connect wallet:"), React.createElement(WalletButton, null)), mode === ModeOptions.bridge && React.createElement("div", {
     className: 'form-item'
-  }, React__default.createElement("span", {
+  }, React.createElement("span", {
     className: 'label'
-  }, "Target Network:"), React__default.createElement(NetworkDropdown, {
+  }, "Target Network:"), React.createElement(NetworkDropdown, {
     isSourceChain: false
-  }), React__default.createElement(CoinDropdown, {
+  }), React.createElement(CoinDropdown, {
     isSourceChain: false
-  }))), mode === exports.ModeOptions.bridge && sourceNetwork !== exports.SupportNetworks.FIAT ? targetNetwork === exports.SupportNetworks.FIAT ? React__default.createElement(BankInput, null) : React__default.createElement("div", {
-    className: "form-item " + theme.colorMode
-  }, React__default.createElement("span", {
+  }))), mode === ModeOptions.bridge && sourceNetwork !== ChainName.FIAT ? targetNetwork === ChainName.FIAT ? React.createElement(BankInput, null) : React.createElement("div", {
+    className: `form-item ${theme.colorMode}`
+  }, React.createElement("span", {
     className: 'label'
-  }, "Target Address:"), React__default.createElement(AddressInput, null)) : null, mode === exports.ModeOptions.bridge ? React__default.createElement("div", {
-    className: "form-item " + theme.colorMode
-  }, React__default.createElement("span", {
+  }, "Target Address:"), React.createElement(AddressInput, null)) : null, mode === ModeOptions.bridge ? React.createElement("div", {
+    className: `form-item ${theme.colorMode}`
+  }, React.createElement("span", {
     className: 'label'
-  }, "Amount:"), React__default.createElement("div", {
+  }, "Amount:"), React.createElement("div", {
     className: 'amount-label-container'
-  }, React__default.createElement("input", {
+  }, React.createElement("input", {
     type: 'number',
     value: amountValue || '',
-    onChange: function onChange(e) {
-      var _amount = +e.target.value;
-      var decimal = sourceNetwork === exports.SupportNetworks.BTC || targetNetwork === exports.SupportNetworks.BTC ? 8 : 2;
+    onChange: e => {
+      let _amount = +e.target.value;
+      const decimal = sourceNetwork === ChainName.BTC || targetNetwork === ChainName.BTC ? 8 : 2;
       setAmountValue(e.target.value);
       dispatch(setAmount(_amount.toFixed(decimal)));
     }
-  }))) : React__default.createElement("div", {
-    className: "form-item " + theme.colorMode
-  }, React__default.createElement("span", {
+  }))) : React.createElement("div", {
+    className: `form-item ${theme.colorMode}`
+  }, React.createElement("span", {
     className: 'label'
-  }, "Amount:"), React__default.createElement("div", {
-    className: "amount-label " + theme.colorMode
-  }, React__default.createElement("span", null, (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount) || ''), React__default.createElement("div", {
+  }, "Amount:"), React.createElement("div", {
+    className: `amount-label ${theme.colorMode}`
+  }, React.createElement("span", null, (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount) || ''), React.createElement("div", {
     className: 'coin-wrapper'
-  }, React__default.createElement(TargetIcon, null), targetCurrency))), mode === exports.ModeOptions.bridge && serviceFee > 0 ? React__default.createElement(CustomCheckbox, {
-    text: sourceNetwork === exports.SupportNetworks.BTC ? "Deduct " + formatterFloat.format(serviceFee) + " BTC fee" : "Deduct $" + formatterFloat.format(serviceFee) + " fee",
+  }, React.createElement(TargetIcon, null), targetCurrency))), mode === ModeOptions.bridge && serviceFee > 0 ? React.createElement(CustomCheckbox, {
+    text: sourceNetwork === ChainName.BTC ? `Deduct ${formatterFloat.format(serviceFee)} BTC fee` : `Deduct $${formatterFloat.format(serviceFee)} fee`,
     checked: feeDeduct,
-    setCheck: function setCheck(value) {
-      return dispatch(setFeeDeduct(value));
-    }
-  }) : null, sourceNetwork === exports.SupportNetworks.BTC || targetNetwork === exports.SupportNetworks.BTC ? React__default.createElement("div", {
-    className: "form-item " + theme.colorMode
-  }, React__default.createElement("span", {
+    setCheck: value => dispatch(setFeeDeduct(value))
+  }) : null, sourceNetwork === ChainName.BTC || targetNetwork === ChainName.BTC ? React.createElement("div", {
+    className: `form-item ${theme.colorMode}`
+  }, React.createElement("span", {
     className: 'label'
-  }, "Expire Time:"), React__default.createElement(ExpireTimeDropdown, null)) : null);
+  }, "Expire Time:"), React.createElement(ExpireTimeDropdown, null)) : null);
 };
 
-function useServiceFee(isConfirming, feeURL) {
-  if (isConfirming === void 0) {
-    isConfirming = false;
-  }
-  var _useIsWalletReady = useIsWalletReady(),
-    walletAddress = _useIsWalletReady.walletAddress,
-    isReady = _useIsWalletReady.isReady;
-  var dispatch = reactRedux.useDispatch();
-  var serviceFee = reactRedux.useSelector(selectServiceFee);
-  var mode = reactRedux.useSelector(selectMode);
-  var amount_ = reactRedux.useSelector(selectAmount);
-  var sourceChain = reactRedux.useSelector(selectSourceChain);
-  var targetNetwork = reactRedux.useSelector(selectTargetChain);
-  var targetAddress_ = reactRedux.useSelector(selectTargetAddress);
-  var transactionOption = reactRedux.useSelector(selectTransactionOption);
-  var targetChain = React.useMemo(function () {
-    return mode === exports.ModeOptions.payment ? (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetChain) || '' : targetNetwork;
-  }, [transactionOption, mode, targetNetwork]);
-  var targetAddress = React.useMemo(function () {
-    return mode === exports.ModeOptions.payment ? (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress) || '' : targetAddress_;
-  }, [transactionOption, mode, targetAddress_]);
-  var amount = React.useMemo(function () {
-    return mode === exports.ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount : amount_;
-  }, [transactionOption, mode, amount_]);
-  var getServiceFee = function getServiceFee() {
+function useServiceFee(isConfirming = false, feeURL) {
+  const {
+    walletAddress,
+    isReady
+  } = useIsWalletReady();
+  const dispatch = useDispatch();
+  const serviceFee = useSelector(selectServiceFee);
+  const mode = useSelector(selectMode);
+  const amount_ = useSelector(selectAmount);
+  const sourceChain = useSelector(selectSourceChain);
+  const targetNetwork = useSelector(selectTargetChain);
+  const targetAddress_ = useSelector(selectTargetAddress);
+  const transactionOption = useSelector(selectTransactionOption);
+  const targetChain = useMemo(() => mode === ModeOptions.payment ? (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetChain) || '' : targetNetwork, [transactionOption, mode, targetNetwork]);
+  const targetAddress = useMemo(() => mode === ModeOptions.payment ? (transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress) || '' : targetAddress_, [transactionOption, mode, targetAddress_]);
+  const amount = useMemo(() => mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount : amount_, [transactionOption, mode, amount_]);
+  const getServiceFee = async () => {
+    if (!sourceChain || !targetChain || !isReady || !walletAddress || !targetAddress || !amount) return;
     try {
-      if (!sourceChain || !targetChain || !isReady || !walletAddress || !targetAddress || !amount) return Promise.resolve();
-      return Promise.resolve(_catch(function () {
-        if (sourceChain === exports.SupportNetworks.FIAT || targetChain === exports.SupportNetworks.FIAT) {
-          dispatch(setServiceFee(0));
-          return;
-        }
-        if (sourceChain === exports.SupportNetworks.BTC) {
-          dispatch(setServiceFee(0.0004));
-          return;
-        }
-        if (targetChain === exports.SupportNetworks.BTC) {
-          dispatch(setServiceFee(0));
-          return;
-        }
-        var sourceFee = 0;
-        var targetFee = 0;
-        return Promise.resolve(fetchWrapper.get(feeURL + "/fee/" + sourceChain)).then(function (sourceChainResult) {
-          var _sourceChainResult$fe;
-          sourceFee = sourceChainResult === null || sourceChainResult === void 0 ? void 0 : (_sourceChainResult$fe = sourceChainResult.fee) === null || _sourceChainResult$fe === void 0 ? void 0 : _sourceChainResult$fe.split('-')[0];
-          return Promise.resolve(fetchWrapper.get(feeURL + "/fee/" + targetChain)).then(function (targetChainResult) {
-            var _targetChainResult$fe;
-            targetFee = targetChainResult === null || targetChainResult === void 0 ? void 0 : (_targetChainResult$fe = targetChainResult.fee) === null || _targetChainResult$fe === void 0 ? void 0 : _targetChainResult$fe.split('-')[0];
-            var fee = +sourceFee + +targetFee;
-            dispatch(setServiceFee(fee));
-          });
-        });
-      }, function (e) {
+      var _sourceChainResult$fe, _targetChainResult$fe;
+      if (sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT) {
         dispatch(setServiceFee(0));
-        console.log('rpc disconnected', e);
-        toast__default.error('rpc disconnected');
-      }));
+        return;
+      }
+      if (sourceChain === ChainName.BTC) {
+        dispatch(setServiceFee(0.0004));
+        return;
+      }
+      if (targetChain === ChainName.BTC) {
+        dispatch(setServiceFee(0));
+        return;
+      }
+      let sourceFee = 0;
+      let targetFee = 0;
+      const sourceChainResult = await fetchWrapper.get(`${feeURL}/fee/${sourceChain}`);
+      sourceFee = sourceChainResult === null || sourceChainResult === void 0 ? void 0 : (_sourceChainResult$fe = sourceChainResult.fee) === null || _sourceChainResult$fe === void 0 ? void 0 : _sourceChainResult$fe.split('-')[0];
+      const targetChainResult = await fetchWrapper.get(`${feeURL}/fee/${targetChain}`);
+      targetFee = targetChainResult === null || targetChainResult === void 0 ? void 0 : (_targetChainResult$fe = targetChainResult.fee) === null || _targetChainResult$fe === void 0 ? void 0 : _targetChainResult$fe.split('-')[0];
+      let fee = +sourceFee + +targetFee;
+      dispatch(setServiceFee(fee));
     } catch (e) {
-      return Promise.reject(e);
+      dispatch(setServiceFee(0));
+      console.log('rpc disconnected', e);
+      toast.error('rpc disconnected');
     }
   };
-  React.useEffect(function () {
+  useEffect(() => {
     if (isConfirming) return;
     getServiceFee();
-    var timerId = setInterval(function () {
+    const timerId = setInterval(() => {
       getServiceFee();
     }, 20 * 1000);
-    return function () {
+    return () => {
       clearInterval(timerId);
     };
   }, [sourceChain, targetChain, isReady, walletAddress, isConfirming, targetAddress, amount]);
-  return React.useMemo(function () {
-    return {
-      serviceFee: serviceFee
-    };
-  }, [serviceFee]);
+  return useMemo(() => ({
+    serviceFee
+  }), [serviceFee]);
 }
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
@@ -7115,15 +6675,9 @@ var TokenInstruction;
   TokenInstruction[TokenInstruction["InitializeMultisig2"] = 19] = "InitializeMultisig2";
   TokenInstruction[TokenInstruction["InitializeMint2"] = 20] = "InitializeMint2";
 })(TokenInstruction || (TokenInstruction = {}));
-function createApproveTransferInstruction(source, destination, owner, amount, multiSigners, programId) {
-  if (multiSigners === void 0) {
-    multiSigners = [];
-  }
-  if (programId === void 0) {
-    programId = splToken.TOKEN_PROGRAM_ID;
-  }
-  var dataLayout = BufferLayout.struct([BufferLayout.u8('instruction'), BufferLayout.blob(8, 'amount')]);
-  var keys = addSigners([{
+function createApproveTransferInstruction(source, destination, owner, amount, multiSigners = [], programId = TOKEN_PROGRAM_ID) {
+  const dataLayout = BufferLayout.struct([BufferLayout.u8('instruction'), BufferLayout.blob(8, 'amount')]);
+  const keys = addSigners([{
     pubkey: source,
     isSigner: false,
     isWritable: true
@@ -7132,15 +6686,15 @@ function createApproveTransferInstruction(source, destination, owner, amount, mu
     isSigner: false,
     isWritable: true
   }], owner, multiSigners);
-  var data = Buffer.alloc(dataLayout.span);
+  const data = Buffer.alloc(dataLayout.span);
   dataLayout.encode({
     instruction: TokenInstruction.Approve,
     amount: new TokenAmount(amount).toBuffer()
   }, data);
-  return new web3_js.TransactionInstruction({
-    keys: keys,
-    programId: programId,
-    data: data
+  return new TransactionInstruction({
+    keys,
+    programId,
+    data
   });
 }
 function addSigners(keys, ownerOrAuthority, multiSigners) {
@@ -7150,8 +6704,7 @@ function addSigners(keys, ownerOrAuthority, multiSigners) {
       isSigner: false,
       isWritable: false
     });
-    for (var _iterator = _createForOfIteratorHelperLoose(multiSigners), _step; !(_step = _iterator()).done;) {
-      var signer = _step.value;
+    for (const signer of multiSigners) {
       keys.push({
         pubkey: signer.publicKey,
         isSigner: true,
@@ -7167,40 +6720,34 @@ function addSigners(keys, ownerOrAuthority, multiSigners) {
   }
   return keys;
 }
-var TokenAmount = /*#__PURE__*/function (_BN) {
-  _inheritsLoose(TokenAmount, _BN);
-  function TokenAmount() {
-    return _BN.apply(this, arguments) || this;
-  }
-  var _proto = TokenAmount.prototype;
-  _proto.toBuffer = function toBuffer() {
-    var a = _BN.prototype.toArray.call(this).reverse();
-    var b = Buffer.from(a);
+class TokenAmount extends bn {
+  toBuffer() {
+    const a = super.toArray().reverse();
+    const b = Buffer.from(a);
     if (b.length === 8) {
       return b;
     }
     if (b.length >= 8) {
       throw new Error('TokenAmount too large');
     }
-    var zeroPad = Buffer.alloc(8);
+    const zeroPad = Buffer.alloc(8);
     b.copy(zeroPad);
     return zeroPad;
-  };
-  return TokenAmount;
-}(bn);
+  }
+}
 
-function byte2hexStr(_byte) {
-  if (typeof _byte !== "number") throw new Error("Input must be a number");
-  if (_byte < 0 || _byte > 255) throw new Error("Input must be a byte");
-  var hexByteMap = "0123456789ABCDEF";
-  var str = "";
-  str += hexByteMap.charAt(_byte >> 4);
-  str += hexByteMap.charAt(_byte & 0x0f);
+function byte2hexStr(byte) {
+  if (typeof byte !== "number") throw new Error("Input must be a number");
+  if (byte < 0 || byte > 255) throw new Error("Input must be a byte");
+  const hexByteMap = "0123456789ABCDEF";
+  let str = "";
+  str += hexByteMap.charAt(byte >> 4);
+  str += hexByteMap.charAt(byte & 0x0f);
   return str;
 }
 function byteArray2hexStr(byteArray) {
-  var str = "";
-  for (var i = 0; i < byteArray.length; i++) str += byte2hexStr(byteArray[i]);
+  let str = "";
+  for (let i = 0; i < byteArray.length; i++) str += byte2hexStr(byteArray[i]);
   return str;
 }
 
@@ -7211,28 +6758,25 @@ function isHexChar(c) {
   return 0;
 }
 function hexChar2byte(c) {
-  var d;
+  let d;
   if (c >= "A" && c <= "F") d = c.charCodeAt(0) - "A".charCodeAt(0) + 10;else if (c >= "a" && c <= "f") d = c.charCodeAt(0) - "a".charCodeAt(0) + 10;else if (c >= "0" && c <= "9") d = c.charCodeAt(0) - "0".charCodeAt(0);
   if (typeof d === "number") return d;else throw new Error("The passed hex char is not a valid hex char");
 }
-function hexStr2byteArray(str, strict) {
-  if (strict === void 0) {
-    strict = false;
-  }
+function hexStr2byteArray(str, strict = false) {
   if (typeof str !== "string") throw new Error("The passed string is not a string");
-  var len = str.length;
+  let len = str.length;
   if (strict) {
     if (len % 2) {
-      str = "0" + str;
+      str = `0${str}`;
       len++;
     }
   }
-  var byteArray = [];
-  var d = 0;
-  var j = 0;
-  var k = 0;
-  for (var i = 0; i < len; i++) {
-    var c = str.charAt(i);
+  const byteArray = [];
+  let d = 0;
+  let j = 0;
+  let k = 0;
+  for (let i = 0; i < len; i++) {
+    const c = str.charAt(i);
     if (isHexChar(c)) {
       d <<= 4;
       d += hexChar2byte(c);
@@ -7246,17 +6790,17 @@ function hexStr2byteArray(str, strict) {
   return byteArray;
 }
 
-var ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
-var BASE = 58;
+const ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+const BASE = 58;
 function encode58(buffer) {
   if (buffer.length === 0) return "";
-  var i;
-  var j;
-  var digits = [0];
+  let i;
+  let j;
+  const digits = [0];
   for (i = 0; i < buffer.length; i++) {
     for (j = 0; j < digits.length; j++) digits[j] <<= 8;
     digits[0] += buffer[i];
-    var carry = 0;
+    let carry = 0;
     for (j = 0; j < digits.length; ++j) {
       digits[j] += carry;
       carry = digits[j] / BASE | 0;
@@ -7268,24 +6812,22 @@ function encode58(buffer) {
     }
   }
   for (i = 0; buffer[i] === 0 && i < buffer.length - 1; i++) digits.push(0);
-  return digits.reverse().map(function (digit) {
-    return ALPHABET[digit];
-  }).join("");
+  return digits.reverse().map(digit => ALPHABET[digit]).join("");
 }
 
-var ADDRESS_PREFIX = "41";
+const ADDRESS_PREFIX = "41";
 function isHex(string) {
   return typeof string === "string" && !isNaN(parseInt(string, 16)) && /^(0x|)[a-fA-F0-9]+$/.test(string);
 }
 function SHA256(msgBytes) {
-  var msgHex = byteArray2hexStr(msgBytes);
-  var hashHex = ethers.utils.sha256("0x" + msgHex).replace(/^0x/, "");
+  const msgHex = byteArray2hexStr(msgBytes);
+  const hashHex = utils$3.sha256("0x" + msgHex).replace(/^0x/, "");
   return hexStr2byteArray(hashHex);
 }
 function getBase58CheckAddress(addressBytes) {
-  var hash0 = SHA256(addressBytes);
-  var hash1 = SHA256(hash0);
-  var checkSum = hash1.slice(0, 4);
+  const hash0 = SHA256(addressBytes);
+  const hash1 = SHA256(hash0);
+  let checkSum = hash1.slice(0, 4);
   checkSum = addressBytes.concat(checkSum);
   return encode58(checkSum);
 }
@@ -7294,611 +6836,496 @@ function fromHex(address) {
   return getBase58CheckAddress(hexStr2byteArray(address.replace(/^0x/, ADDRESS_PREFIX)));
 }
 
-function useAllowance(_ref) {
-  var setApproving = _ref.setApproving,
-    setCancellingApprove = _ref.setCancellingApprove;
-  var _useState = React.useState(0),
-    allowance = _useState[0],
-    setAllowance = _useState[1];
-  var _useState2 = React.useState(null),
-    decimals = _useState2[0],
-    setDecimals = _useState2[1];
-  var web3ModalAccountInfo = react.useWeb3ModalAccount();
-  var _ref2 = web3ModalAccountInfo || {
-      address: null,
-      chainId: null,
-      isConnected: null
-    },
-    signerAddress = _ref2.address,
-    evmChainId = _ref2.chainId;
-  var _useWeb3ModalProvider = react.useWeb3ModalProvider(),
-    walletProvider = _useWeb3ModalProvider.walletProvider;
-  var selectedNetwork = reactRedux.useSelector(selectSourceChain);
-  var errorHandler = reactRedux.useSelector(selectErrorHandler);
-  var kimaBackendUrl = reactRedux.useSelector(selectBackendUrl);
-  var dAppOption = reactRedux.useSelector(selectDappOption);
-  var targetChain = reactRedux.useSelector(selectTargetChain);
-  var feeDeduct = reactRedux.useSelector(selectFeeDeduct);
-  var networkOption = reactRedux.useSelector(selectNetworkOption);
-  var sourceChain = React.useMemo(function () {
-    if (selectedNetwork === exports.SupportNetworks.SOLANA || selectedNetwork === exports.SupportNetworks.TRON || selectedNetwork === exports.SupportNetworks.BTC) return selectedNetwork;
-    var CHAIN_NAMES_TO_IDS = networkOption === exports.NetworkOptions.mainnet ? CHAIN_NAMES_TO_IDS_MAINNET : CHAIN_NAMES_TO_IDS_TESTNET;
-    var CHAIN_IDS_TO_NAMES = networkOption === exports.NetworkOptions.mainnet ? CHAIN_IDS_TO_NAMES_MAINNET : CHAIN_IDS_TO_NAMES_TESTNET;
+function useAllowance({
+  setApproving,
+  setCancellingApprove
+}) {
+  const [allowance, setAllowance] = useState(0);
+  const [decimals, setDecimals] = useState(null);
+  const web3ModalAccountInfo = useWeb3ModalAccount();
+  const {
+    address: signerAddress,
+    chainId: evmChainId
+  } = web3ModalAccountInfo || {
+    address: null,
+    chainId: null,
+    isConnected: null
+  };
+  const {
+    walletProvider
+  } = useWeb3ModalProvider();
+  const selectedNetwork = useSelector(selectSourceChain);
+  const errorHandler = useSelector(selectErrorHandler);
+  const kimaBackendUrl = useSelector(selectBackendUrl);
+  const dAppOption = useSelector(selectDappOption);
+  const targetChain = useSelector(selectTargetChain);
+  const feeDeduct = useSelector(selectFeeDeduct);
+  const networkOption = useSelector(selectNetworkOption);
+  const sourceChain = useMemo(() => {
+    if (selectedNetwork === ChainName.SOLANA || selectedNetwork === ChainName.TRON || selectedNetwork === ChainName.BTC) return selectedNetwork;
+    const CHAIN_NAMES_TO_IDS = networkOption === NetworkOptions.mainnet ? CHAIN_NAMES_TO_IDS_MAINNET : CHAIN_NAMES_TO_IDS_TESTNET;
+    const CHAIN_IDS_TO_NAMES = networkOption === NetworkOptions.mainnet ? CHAIN_IDS_TO_NAMES_MAINNET : CHAIN_IDS_TO_NAMES_TESTNET;
     if (CHAIN_NAMES_TO_IDS[selectedNetwork] !== evmChainId) {
       return CHAIN_IDS_TO_NAMES[evmChainId];
     }
     return selectedNetwork;
   }, [selectedNetwork, evmChainId, networkOption]);
-  var amount = reactRedux.useSelector(selectAmount);
-  var serviceFee = reactRedux.useSelector(selectServiceFee);
-  var nodeProviderQuery = reactRedux.useSelector(selectNodeProviderQuery);
-  var _useConnection = SolanaAdapter.useConnection(),
-    connection = _useConnection.connection;
-  var _useSolanaWallet = SolanaAdapter.useWallet(),
-    solanaAddress = _useSolanaWallet.publicKey,
-    signSolanaTransaction = _useSolanaWallet.signTransaction;
-  var _useTronWallet = tronwalletAdapterReactHooks.useWallet(),
-    tronAddress = _useTronWallet.address,
-    signTronTransaction = _useTronWallet.signTransaction;
-  var selectedCoin = reactRedux.useSelector(selectSourceCurrency);
-  var tokenOptions = reactRedux.useSelector(selectTokenOptions);
-  var tokenAddress = React.useMemo(function () {
-    if (isEmptyObject(tokenOptions) || sourceChain === exports.SupportNetworks.FIAT) return '';
+  const amount = useSelector(selectAmount);
+  const serviceFee = useSelector(selectServiceFee);
+  const nodeProviderQuery = useSelector(selectNodeProviderQuery);
+  const {
+    connection
+  } = useConnection();
+  const {
+    publicKey: solanaAddress,
+    signTransaction: signSolanaTransaction
+  } = useWallet();
+  const {
+    address: tronAddress,
+    signTransaction: signTronTransaction
+  } = useWallet$1();
+  const selectedCoin = useSelector(selectSourceCurrency);
+  const tokenOptions = useSelector(selectTokenOptions);
+  const tokenAddress = useMemo(() => {
+    if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT) return '';
     if (tokenOptions && typeof tokenOptions === 'object') {
-      var coinOptions = tokenOptions[selectedCoin];
+      const coinOptions = tokenOptions[selectedCoin];
       if (coinOptions && typeof coinOptions === 'object') {
         return tokenOptions[selectedCoin][sourceChain];
       }
     }
     return '';
   }, [selectedCoin, sourceChain, tokenOptions]);
-  var _useState3 = React.useState(),
-    targetAddress = _useState3[0],
-    setTargetAddress = _useState3[1];
-  var _useState4 = React.useState(''),
-    poolAddress = _useState4[0],
-    setPoolAddress = _useState4[1];
-  var amountToShow = React.useMemo(function () {
-    if (sourceChain === exports.SupportNetworks.BTC || targetChain === exports.SupportNetworks.BTC) {
+  const [targetAddress, setTargetAddress] = useState();
+  const [poolAddress, setPoolAddress] = useState('');
+  const amountToShow = useMemo(() => {
+    if (sourceChain === ChainName.BTC || targetChain === ChainName.BTC) {
       return (feeDeduct ? +amount : +amount + serviceFee).toFixed(8);
     }
     return (feeDeduct ? +amount : +amount + serviceFee).toFixed(2);
   }, [amount, serviceFee, sourceChain, targetChain, feeDeduct]);
-  var isApproved = React.useMemo(function () {
+  const isApproved = useMemo(() => {
     return allowance >= +amountToShow;
   }, [allowance, amountToShow, dAppOption]);
-  var updatePoolAddress = function updatePoolAddress() {
+  const updatePoolAddress = async () => {
     try {
-      return Promise.resolve(_catch(function () {
-        return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/kima/tss_pubkey")).then(function (result) {
-          var _result$tssPubkey;
-          if ((result === null || result === void 0 ? void 0 : (_result$tssPubkey = result.tssPubkey) === null || _result$tssPubkey === void 0 ? void 0 : _result$tssPubkey.length) < 1) {
-            return;
-          }
-          if (sourceChain === exports.SupportNetworks.SOLANA && !result.tssPubkey[0].eddsa) {
-            console.log('solana pool address is missing');
-            toast__default.error('solana pool address is missing');
-          }
-          setPoolAddress(result.tssPubkey[0].reserved);
-          setTargetAddress(sourceChain === exports.SupportNetworks.SOLANA ? result.tssPubkey[0].eddsa : sourceChain === exports.SupportNetworks.TRON ? fromHex(result.tssPubkey[0].ecdsa) : result.tssPubkey[0].ecdsa);
-        });
-      }, function (e) {
-        console.log('rpc disconnected', e);
-        toast__default.error('rpc disconnected');
-      }));
+      var _result$tssPubkey;
+      const result = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/kima/tss_pubkey`);
+      if ((result === null || result === void 0 ? void 0 : (_result$tssPubkey = result.tssPubkey) === null || _result$tssPubkey === void 0 ? void 0 : _result$tssPubkey.length) < 1) {
+        return;
+      }
+      if (sourceChain === ChainName.SOLANA && !result.tssPubkey[0].eddsa) {
+        console.log('solana pool address is missing');
+        toast.error('solana pool address is missing');
+      }
+      setPoolAddress(result.tssPubkey[0].reserved);
+      setTargetAddress(sourceChain === ChainName.SOLANA ? result.tssPubkey[0].eddsa : sourceChain === ChainName.TRON ? fromHex(result.tssPubkey[0].ecdsa) : result.tssPubkey[0].ecdsa);
     } catch (e) {
-      return Promise.reject(e);
+      console.log('rpc disconnected', e);
+      toast.error('rpc disconnected');
     }
   };
-  React.useEffect(function () {
+  useEffect(() => {
     if (!nodeProviderQuery) return;
     updatePoolAddress();
   }, [nodeProviderQuery, sourceChain]);
-  React.useEffect(function () {
-    (function () {
+  useEffect(() => {
+    (async () => {
       try {
-        var _exit = false;
-        return _catch(function () {
-          function _temp5(_result2) {
-            if (_exit) return _result2;
-            var provider = new ethers.ethers.providers.Web3Provider(walletProvider);
-            var signer = provider === null || provider === void 0 ? void 0 : provider.getSigner();
-            if (!tokenAddress || !targetAddress || !signer || !signerAddress) return;
-            var erc20Contract = new contracts.Contract(tokenAddress, ERC20ABI.abi, signer);
-            return Promise.resolve(erc20Contract.decimals()).then(function (decimals) {
-              return Promise.resolve(erc20Contract.allowance(signerAddress, targetAddress)).then(function (userAllowance) {
-                setDecimals(+decimals);
-                setAllowance(+units.formatUnits(userAllowance, decimals));
-              });
-            });
-          }
-          var tronWeb = networkOption === exports.NetworkOptions.mainnet ? tronWebMainnet : tronWebTestnet;
-          var _temp4 = function () {
-            if (!isEVMChain(sourceChain)) {
-              var _temp3 = function _temp3() {
-                _exit = true;
-              };
-              var _temp2 = function () {
-                if (solanaAddress && tokenAddress && connection) {
-                  return Promise.resolve(fetchWrapper.get(kimaBackendUrl + "/sol/allowance/" + tokenAddress + "/" + solanaAddress.toBase58())).then(function (allowanceInfo) {
-                    var tokenAllowance = allowanceInfo.allowance,
-                      decimals = allowanceInfo.decimals,
-                      spender = allowanceInfo.spender;
-                    setDecimals(decimals || 0);
-                    setAllowance(spender === targetAddress ? tokenAllowance : 0);
-                  });
-                } else {
-                  var _temp6 = function () {
-                    if (tronAddress && tokenAddress) {
-                      return Promise.resolve(tronWeb.contract(ERC20ABI.abi, tokenAddress)).then(function (trc20Contract) {
-                        return Promise.resolve(trc20Contract.decimals().call()).then(function (decimals) {
-                          var parsedDecimals;
-                          if (typeof decimals === 'bigint') {
-                            parsedDecimals = Number(decimals);
-                          } else if (typeof decimals === 'string') {
-                            parsedDecimals = parseFloat(decimals);
-                          } else {
-                            parsedDecimals = decimals;
-                          }
-                          return Promise.resolve(trc20Contract.allowance(tronAddress, targetAddress).call()).then(function (userAllowance) {
-                            setDecimals(parsedDecimals);
-                            setAllowance(+units.formatUnits(userAllowance, decimals));
-                          });
-                        });
-                      });
-                    } else {
-                      setAllowance(0);
-                    }
-                  }();
-                  if (_temp6 && _temp6.then) return _temp6.then(function () {});
-                }
-              }();
-              return _temp2 && _temp2.then ? _temp2.then(_temp3) : _temp3(_temp2);
+        const tronWeb = networkOption === NetworkOptions.mainnet ? tronWebMainnet : tronWebTestnet;
+        if (!isEVMChain(sourceChain)) {
+          if (solanaAddress && tokenAddress && connection) {
+            const allowanceInfo = await fetchWrapper.get(`${kimaBackendUrl}/sol/allowance/${tokenAddress}/${solanaAddress.toBase58()}`);
+            const {
+              allowance: tokenAllowance,
+              decimals: _decimals,
+              spender
+            } = allowanceInfo;
+            setDecimals(_decimals || 0);
+            setAllowance(spender === targetAddress ? tokenAllowance : 0);
+          } else if (tronAddress && tokenAddress) {
+            let trc20Contract = await tronWeb.contract(ERC20ABI.abi, tokenAddress);
+            const _decimals2 = await trc20Contract.decimals().call();
+            let parsedDecimals;
+            if (typeof _decimals2 === 'bigint') {
+              parsedDecimals = Number(_decimals2);
+            } else if (typeof _decimals2 === 'string') {
+              parsedDecimals = parseFloat(_decimals2);
+            } else {
+              parsedDecimals = _decimals2;
             }
-          }();
-          return _temp4 && _temp4.then ? _temp4.then(_temp5) : _temp5(_temp4);
-        }, function (error) {
-          errorHandler(error);
-        });
-      } catch (e) {
-        Promise.reject(e);
+            const _userAllowance = await trc20Contract.allowance(tronAddress, targetAddress).call();
+            setDecimals(parsedDecimals);
+            setAllowance(+formatUnits(_userAllowance, _decimals2));
+          } else {
+            setAllowance(0);
+          }
+          return;
+        }
+        const provider = new ethers.providers.Web3Provider(walletProvider);
+        const signer = provider === null || provider === void 0 ? void 0 : provider.getSigner();
+        if (!tokenAddress || !targetAddress || !signer || !signerAddress) return;
+        const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer);
+        const decimals = await erc20Contract.decimals();
+        const userAllowance = await erc20Contract.allowance(signerAddress, targetAddress);
+        setDecimals(+decimals);
+        setAllowance(+formatUnits(userAllowance, decimals));
+      } catch (error) {
+        errorHandler(error);
       }
     })();
   }, [signerAddress, tokenAddress, targetAddress, sourceChain, solanaAddress, tronAddress, walletProvider, networkOption]);
-  var approve = React.useCallback(function (isCancel) {
-    if (isCancel === void 0) {
-      isCancel = false;
+  const approve = useCallback(async (isCancel = false) => {
+    if (isEVMChain(sourceChain)) {
+      const provider = new ethers.providers.Web3Provider(walletProvider);
+      const signer = provider.getSigner();
+      if (!decimals || !tokenAddress || !signer || !targetAddress) return;
+      try {
+        const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer);
+        isCancel ? setCancellingApprove(true) : setApproving(true);
+        const approve = await erc20Contract.approve(targetAddress, parseUnits(isCancel ? '0' : amountToShow, decimals), networkOption === NetworkOptions.mainnet && sourceChain === ChainName.ETHEREUM ? {
+          gasLimit: 60000
+        } : {});
+        await approve.wait();
+        isCancel ? setCancellingApprove(false) : setApproving(false);
+        setAllowance(+amountToShow);
+      } catch (error) {
+        errorHandler(error);
+        isCancel ? setCancellingApprove(false) : setApproving(false);
+      }
+      return;
     }
+    if (sourceChain === ChainName.TRON) {
+      if (!decimals || !tokenAddress || !targetAddress || !signTronTransaction) return;
+      try {
+        isCancel ? setCancellingApprove(true) : setApproving(true);
+        const functionSelector = 'approve(address,uint256)';
+        const parameter = [{
+          type: 'address',
+          value: targetAddress
+        }, {
+          type: 'uint256',
+          value: parseUnits(isCancel ? '0' : amountToShow, decimals).toString()
+        }];
+        const tronWeb = networkOption === NetworkOptions.mainnet ? tronWebMainnet : tronWebTestnet;
+        const tx = await tronWeb.transactionBuilder.triggerSmartContract(tronWeb.address.toHex(tokenAddress), functionSelector, {}, parameter, tronWeb.address.toHex(tronAddress));
+        const signedTx = await signTronTransaction(tx.transaction);
+        await tronWeb.trx.sendRawTransaction(signedTx);
+        isCancel ? setCancellingApprove(false) : setApproving(false);
+        setAllowance(+amountToShow);
+      } catch (error) {
+        errorHandler(error);
+        isCancel ? setCancellingApprove(false) : setApproving(false);
+      }
+      return;
+    }
+    if (!signSolanaTransaction || !solanaAddress) return;
     try {
-      var _temp19 = function _temp19(_result4) {
-        var _exit3 = false;
-        if (_exit2) return _result4;
-        function _temp17(_result5) {
-          if (_exit3) return _result5;
-          if (!signSolanaTransaction || !solanaAddress) return;
-          var _temp15 = _catch(function () {
-            isCancel ? setCancellingApprove(true) : setApproving(true);
-            return Promise.resolve(fetchWrapper.get(kimaBackendUrl + "/sol/info/" + tokenAddress + "/" + solanaAddress.toBase58())).then(function (tokenInfo) {
-              var tokenAccount = tokenInfo.tokenAccount,
-                blockHash = tokenInfo.blockHash;
-              var toPublicKey = new web3_js.PublicKey(targetAddress);
-              var tokenAccountPublicKey = new web3_js.PublicKey(tokenAccount);
-              var transaction = new web3_js.Transaction().add(createApproveTransferInstruction(tokenAccountPublicKey, toPublicKey, solanaAddress, isCancel ? 0 : +amountToShow * Math.pow(10, decimals != null ? decimals : 6), [], splToken.TOKEN_PROGRAM_ID));
-              transaction.feePayer = solanaAddress;
-              transaction.recentBlockhash = blockHash;
-              return Promise.resolve(signSolanaTransaction(transaction)).then(function (signed) {
-                return Promise.resolve(fetchWrapper.post(kimaBackendUrl + "/sol/send", JSON.stringify({
-                  transaction: signed.serialize()
-                }))).then(function () {
-                  function _temp14() {
-                    isCancel ? setCancellingApprove(false) : setApproving(false);
-                  }
-                  var allowAmount = 0;
-                  var retryCount = 0;
-                  var _temp13 = function () {
-                    if (!isCancel) {
-                      var _temp12 = function _temp12() {
-                        setAllowance(allowAmount);
-                      };
-                      var _temp11 = _do(function () {
-                        return Promise.resolve(fetchWrapper.get(kimaBackendUrl + "/sol/allowance/" + tokenAddress + "/" + solanaAddress.toBase58())).then(function (allowanceInfo) {
-                          allowAmount = allowanceInfo.allowance;
-                          return Promise.resolve(sleep(2000)).then(function () {});
-                        });
-                      }, function () {
-                        return allowAmount < +amountToShow && retryCount++ < 20;
-                      });
-                      return _temp11 && _temp11.then ? _temp11.then(_temp12) : _temp12(_temp11);
-                    } else {
-                      setAllowance(0);
-                    }
-                  }();
-                  return _temp13 && _temp13.then ? _temp13.then(_temp14) : _temp14(_temp13);
-                });
-              });
-            });
-          }, function (e) {
-            errorHandler(e);
-            isCancel ? setCancellingApprove(false) : setApproving(false);
-          });
-          if (_temp15 && _temp15.then) return _temp15.then(function () {});
-        }
-        var _temp16 = function () {
-          if (sourceChain === exports.SupportNetworks.TRON) {
-            var _temp10 = function _temp10() {
-              _exit3 = true;
-            };
-            if (!decimals || !tokenAddress || !targetAddress || !signTronTransaction) {
-              _exit3 = true;
-              return;
-            }
-            var _temp9 = _catch(function () {
-              isCancel ? setCancellingApprove(true) : setApproving(true);
-              var functionSelector = 'approve(address,uint256)';
-              var parameter = [{
-                type: 'address',
-                value: targetAddress
-              }, {
-                type: 'uint256',
-                value: units.parseUnits(isCancel ? '0' : amountToShow, decimals).toString()
-              }];
-              var tronWeb = networkOption === exports.NetworkOptions.mainnet ? tronWebMainnet : tronWebTestnet;
-              return Promise.resolve(tronWeb.transactionBuilder.triggerSmartContract(tronWeb.address.toHex(tokenAddress), functionSelector, {}, parameter, tronWeb.address.toHex(tronAddress))).then(function (tx) {
-                return Promise.resolve(signTronTransaction(tx.transaction)).then(function (signedTx) {
-                  return Promise.resolve(tronWeb.trx.sendRawTransaction(signedTx)).then(function () {
-                    isCancel ? setCancellingApprove(false) : setApproving(false);
-                    setAllowance(+amountToShow);
-                  });
-                });
-              });
-            }, function (error) {
-              errorHandler(error);
-              isCancel ? setCancellingApprove(false) : setApproving(false);
-            });
-            return _temp9 && _temp9.then ? _temp9.then(_temp10) : _temp10(_temp9);
-          }
-        }();
-        return _temp16 && _temp16.then ? _temp16.then(_temp17) : _temp17(_temp16);
-      };
-      var _exit2 = false;
-      var _temp18 = function () {
-        if (isEVMChain(sourceChain)) {
-          var _temp8 = function _temp8() {
-            _exit2 = true;
-          };
-          var provider = new ethers.ethers.providers.Web3Provider(walletProvider);
-          var signer = provider.getSigner();
-          if (!decimals || !tokenAddress || !signer || !targetAddress) {
-            _exit2 = true;
-            return;
-          }
-          var _temp7 = _catch(function () {
-            var erc20Contract = new contracts.Contract(tokenAddress, ERC20ABI.abi, signer);
-            isCancel ? setCancellingApprove(true) : setApproving(true);
-            return Promise.resolve(erc20Contract.approve(targetAddress, units.parseUnits(isCancel ? '0' : amountToShow, decimals), networkOption === exports.NetworkOptions.mainnet && sourceChain === exports.SupportNetworks.ETHEREUM ? {
-              gasLimit: 60000
-            } : {})).then(function (approve) {
-              return Promise.resolve(approve.wait()).then(function () {
-                isCancel ? setCancellingApprove(false) : setApproving(false);
-                setAllowance(+amountToShow);
-              });
-            });
-          }, function (error) {
-            errorHandler(error);
-            isCancel ? setCancellingApprove(false) : setApproving(false);
-          });
-          return _temp7 && _temp7.then ? _temp7.then(_temp8) : _temp8(_temp7);
-        }
-      }();
-      return Promise.resolve(_temp18 && _temp18.then ? _temp18.then(_temp19) : _temp19(_temp18));
+      isCancel ? setCancellingApprove(true) : setApproving(true);
+      const tokenInfo = await fetchWrapper.get(`${kimaBackendUrl}/sol/info/${tokenAddress}/${solanaAddress.toBase58()}`);
+      const {
+        tokenAccount,
+        blockHash
+      } = tokenInfo;
+      const toPublicKey = new PublicKey(targetAddress);
+      const tokenAccountPublicKey = new PublicKey(tokenAccount);
+      const transaction = new Transaction().add(createApproveTransferInstruction(tokenAccountPublicKey, toPublicKey, solanaAddress, isCancel ? 0 : +amountToShow * Math.pow(10, decimals ?? 6), [], TOKEN_PROGRAM_ID));
+      transaction.feePayer = solanaAddress;
+      transaction.recentBlockhash = blockHash;
+      const signed = await signSolanaTransaction(transaction);
+      await fetchWrapper.post(`${kimaBackendUrl}/sol/send`, JSON.stringify({
+        transaction: signed.serialize()
+      }));
+      let allowAmount = 0;
+      let retryCount = 0;
+      if (!isCancel) {
+        do {
+          const allowanceInfo = await fetchWrapper.get(`${kimaBackendUrl}/sol/allowance/${tokenAddress}/${solanaAddress.toBase58()}`);
+          allowAmount = allowanceInfo.allowance;
+          await sleep(2000);
+        } while (allowAmount < +amountToShow && retryCount++ < 20);
+        setAllowance(allowAmount);
+      } else {
+        setAllowance(0);
+      }
+      isCancel ? setCancellingApprove(false) : setApproving(false);
     } catch (e) {
-      return Promise.reject(e);
+      errorHandler(e);
+      isCancel ? setCancellingApprove(false) : setApproving(false);
     }
   }, [decimals, tokenAddress, walletProvider, targetAddress, tronAddress, signSolanaTransaction, signTronTransaction, amountToShow, networkOption]);
-  return React.useMemo(function () {
-    return {
-      isApproved: isApproved,
-      poolAddress: poolAddress,
-      approve: approve,
-      allowance: allowance
-    };
-  }, [isApproved, poolAddress, approve, allowance]);
+  return useMemo(() => ({
+    isApproved,
+    poolAddress,
+    approve,
+    allowance
+  }), [isApproved, poolAddress, approve, allowance]);
 }
 
 function useGetSolBalance() {
-  var _useState = React.useState(0),
-    solBalance = _useState[0],
-    setSolBalance = _useState[1];
-  var _useWallet = SolanaAdapter.useWallet(),
-    publicKey = _useWallet.publicKey;
-  var _useConnection = SolanaAdapter.useConnection(),
-    connection = _useConnection.connection;
-  var kimaBackendUrl = reactRedux.useSelector(selectBackendUrl);
-  React.useEffect(function () {
-    var fetchBalance = function fetchBalance() {
-      try {
-        var _temp2 = function () {
-          if (publicKey) {
-            var _temp = _catch(function () {
-              return Promise.resolve(fetchWrapper.get(kimaBackendUrl + "/sol/" + (publicKey === null || publicKey === void 0 ? void 0 : publicKey.toBase58()))).then(function (solBalanceInfo) {
-                var solBalance = solBalanceInfo.solBalance;
-                setSolBalance(solBalance);
-              });
-            }, function (error) {
-              console.error('Error fetching SOL balance from backend: ', error);
-            });
-            if (_temp && _temp.then) return _temp.then(function () {});
-          }
-        }();
-        return Promise.resolve(_temp2 && _temp2.then ? _temp2.then(function () {}) : void 0);
-      } catch (e) {
-        return Promise.reject(e);
+  const [solBalance, setSolBalance] = useState(0);
+  const {
+    publicKey
+  } = useWallet();
+  const {
+    connection
+  } = useConnection();
+  const kimaBackendUrl = useSelector(selectBackendUrl);
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (publicKey) {
+        try {
+          const solBalanceInfo = await fetchWrapper.get(`${kimaBackendUrl}/sol/${publicKey === null || publicKey === void 0 ? void 0 : publicKey.toBase58()}`);
+          const {
+            solBalance
+          } = solBalanceInfo;
+          setSolBalance(solBalance);
+        } catch (error) {
+          console.error('Error fetching SOL balance from backend: ', error);
+        }
       }
     };
     fetchBalance();
-    var intervalId = setInterval(fetchBalance, 10000);
-    return function () {
-      return clearInterval(intervalId);
-    };
+    const intervalId = setInterval(fetchBalance, 10000);
+    return () => clearInterval(intervalId);
   }, [publicKey, connection]);
   return solBalance;
 }
 
-var AccountDetailsModal = function AccountDetailsModal(_ref) {
-  var chain = _ref.chain;
-  var dispatch = reactRedux.useDispatch();
-  var theme = reactRedux.useSelector(selectTheme);
-  var networkOption = reactRedux.useSelector(selectNetworkOption);
-  var accountDetailsModal = reactRedux.useSelector(selectAccountDetailsModal);
-  var _useIsWalletReady = useIsWalletReady(),
-    walletAddress = _useIsWalletReady.walletAddress;
-  var _useWallet = SolanaAdapter.useWallet(),
-    solanaWalletDisconnect = _useWallet.disconnect;
-  var solBalance = useGetSolBalance();
-  var networkDetails = React.useMemo(function () {
-    return networkOptions.find(function (_ref2) {
-      var id = _ref2.id;
-      return id === chain;
-    });
-  }, [chain]);
-  var explorerUrl = React.useMemo(function () {
-    var baseUrl = networkOption === 'testnet' ? CHAIN_NAMES_TO_EXPLORER_TESTNET[chain] : CHAIN_NAMES_TO_EXPLORER_MAINNET[chain];
-    var mainUrlParams = (chain === 'SOL' ? 'account' : '#/address') + "/" + walletAddress;
-    var urlSufix = "" + (chain === 'SOL' ? "?cluster=" + (networkOption === 'testnet' ? 'devnet' : 'mainnet') : '');
-    return "https://" + baseUrl + "/" + mainUrlParams + urlSufix;
+const AccountDetailsModal = ({
+  chain
+}) => {
+  const dispatch = useDispatch();
+  const theme = useSelector(selectTheme);
+  const networkOption = useSelector(selectNetworkOption);
+  const accountDetailsModal = useSelector(selectAccountDetailsModal);
+  const {
+    walletAddress
+  } = useIsWalletReady();
+  const {
+    disconnect: solanaWalletDisconnect
+  } = useWallet();
+  const solBalance = useGetSolBalance();
+  const networkDetails = useMemo(() => networkOptions.find(({
+    id
+  }) => id === chain), [chain]);
+  const explorerUrl = useMemo(() => {
+    const baseUrl = networkOption === 'testnet' ? CHAIN_NAMES_TO_EXPLORER_TESTNET[chain] : CHAIN_NAMES_TO_EXPLORER_MAINNET[chain];
+    const mainUrlParams = `${chain === 'SOL' ? 'account' : '#/address'}/${walletAddress}`;
+    const urlSufix = `${chain === 'SOL' ? `?cluster=${networkOption === 'testnet' ? 'devnet' : 'mainnet'}` : ''}`;
+    return `https://${baseUrl}/${mainUrlParams}${urlSufix}`;
   }, [walletAddress, networkOption, chain]);
-  var handleDisconnect = function handleDisconnect() {
+  const handleDisconnect = () => {
     chain === 'SOL' ? solanaWalletDisconnect() : console.log('tron disconnect...');
     dispatch(setAccountDetailsModal(false));
   };
-  return React__default.createElement("div", {
-    className: "kima-modal " + theme.colorMode + " " + (accountDetailsModal && 'open')
-  }, React__default.createElement("div", {
+  return React.createElement("div", {
+    className: `kima-modal ${theme.colorMode} ${accountDetailsModal && 'open'}`
+  }, React.createElement("div", {
     className: 'modal-overlay'
-  }), React__default.createElement("div", {
+  }), React.createElement("div", {
     className: 'modal-content-container account-details'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'kima-card-header'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'topbar'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'title'
-  }, React__default.createElement("h3", null, "Account Details")), React__default.createElement("div", {
+  }, React.createElement("h3", null, "Account Details")), React.createElement("div", {
     className: 'control-buttons'
-  }, React__default.createElement("button", {
+  }, React.createElement("button", {
     className: 'icon-button',
-    onClick: function onClick() {
-      return dispatch(setAccountDetailsModal(false));
-    }
-  }, React__default.createElement(Cross, {
+    onClick: () => dispatch(setAccountDetailsModal(false))
+  }, React.createElement(Cross, {
     fill: theme.colorMode === 'light' ? 'black' : 'white'
-  }))))), React__default.createElement("div", {
+  }))))), React.createElement("div", {
     className: 'modal-content account'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'summary'
-  }, networkDetails && React__default.createElement(networkDetails.icon, {
+  }, networkDetails && React.createElement(networkDetails.icon, {
     width: 60,
     height: 60
-  }), React__default.createElement("div", {
+  }), React.createElement("div", {
     className: 'address'
-  }, React__default.createElement("h2", null, getShortenedAddress(walletAddress || '')), React__default.createElement(CopyButton, {
+  }, React.createElement("h2", null, getShortenedAddress(walletAddress || '')), React.createElement(CopyButton, {
     text: walletAddress
-  })), React__default.createElement("h3", null, chain === 'SOL' ? solBalance : 0, " ", chain)), React__default.createElement(SecondaryButton, {
+  })), React.createElement("h3", null, chain === 'SOL' ? solBalance : 0, " ", chain)), React.createElement(SecondaryButton, {
     className: 'block-explorer'
-  }, React__default.createElement(ExternalLink, {
+  }, React.createElement(ExternalLink, {
     className: 'link',
     to: explorerUrl
-  }, React__default.createElement(Explorer, null), React__default.createElement("p", null, "Block explorer"), React__default.createElement(ExternalUrl, null))), React__default.createElement(PrimaryButton, {
+  }, React.createElement(Explorer, null), React.createElement("p", null, "Block explorer"), React.createElement(ExternalUrl, null))), React.createElement(PrimaryButton, {
     clickHandler: handleDisconnect
   }, "Discconect"))));
 };
 
-var SolanaWalletConnectModal = function SolanaWalletConnectModal() {
-  var dispatch = reactRedux.useDispatch();
-  var theme = reactRedux.useSelector(selectTheme);
-  var connectModal = reactRedux.useSelector(selectSolanaConnectModal);
-  var _useWallet = SolanaAdapter.useWallet(),
-    connect = _useWallet.connect,
-    connected = _useWallet.connected;
-  var handleConnectButtonClick = React.useCallback(function () {
+const SolanaWalletConnectModal = () => {
+  const dispatch = useDispatch();
+  const theme = useSelector(selectTheme);
+  const connectModal = useSelector(selectSolanaConnectModal);
+  const {
+    connect,
+    connected
+  } = useWallet();
+  const handleConnectButtonClick = useCallback(() => {
     if (connected) return;
-    connect()["catch"](function (e) {
+    connect().catch(e => {
       console.error('error on connecting: ', e);
       dispatch(setSolanaConnectModal(false));
     });
     dispatch(setSolanaConnectModal(false));
   }, [connect]);
-  return React__default.createElement("div", null, React__default.createElement(AccountDetailsModal, {
+  return React.createElement("div", null, React.createElement(AccountDetailsModal, {
     chain: 'SOL'
-  }), React__default.createElement("div", {
-    className: "kima-modal wallet-connect " + theme.colorMode + " " + (connectModal ? 'open' : '')
-  }, React__default.createElement("div", {
+  }), React.createElement("div", {
+    className: `kima-modal wallet-connect ${theme.colorMode} ${connectModal ? 'open' : ''}`
+  }, React.createElement("div", {
     className: 'modal-overlay'
-  }), React__default.createElement("div", {
+  }), React.createElement("div", {
     className: 'modal-content-container'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'kima-card-header'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'topbar'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'title'
-  }, React__default.createElement("h3", null, "Connect Wallet")), React__default.createElement("div", {
+  }, React.createElement("h3", null, "Connect Wallet")), React.createElement("div", {
     className: 'control-buttons'
-  }, React__default.createElement("button", {
+  }, React.createElement("button", {
     className: 'icon-button',
-    onClick: function onClick() {
-      return dispatch(setSolanaConnectModal(false));
-    }
-  }, React__default.createElement(Cross, {
+    onClick: () => dispatch(setSolanaConnectModal(false))
+  }, React.createElement(Cross, {
     fill: theme.colorMode === 'light' ? 'black' : 'white'
-  }))))), React__default.createElement("div", {
+  }))))), React.createElement("div", {
     className: 'modal-content'
-  }, React__default.createElement(SolanaWalletSelect, null)), React__default.createElement("div", {
+  }, React.createElement(SolanaWalletSelect, null)), React.createElement("div", {
     className: 'kima-card-footer',
     style: {
       justifyContent: 'flex-end',
       marginTop: '2em'
     }
-  }, React__default.createElement(SecondaryButton, {
-    clickHandler: function clickHandler() {
-      return dispatch(setSolanaConnectModal(false));
-    },
+  }, React.createElement(SecondaryButton, {
+    clickHandler: () => dispatch(setSolanaConnectModal(false)),
     theme: theme.colorMode
-  }, "Cancel"), React__default.createElement(PrimaryButton, {
+  }, "Cancel"), React.createElement(PrimaryButton, {
     clickHandler: handleConnectButtonClick
   }, "Connect")))));
 };
 
-var TronWalletConnectModal = function TronWalletConnectModal() {
-  var dispatch = reactRedux.useDispatch();
-  var theme = reactRedux.useSelector(selectTheme);
-  var connectModal = reactRedux.useSelector(selectTronConnectModal);
-  var selectedProvider = reactRedux.useSelector(selectTronProvider);
-  var _useWallet = tronwalletAdapterReactHooks.useWallet(),
-    select = _useWallet.select,
-    connect = _useWallet.connect;
-  var handleConnect = function handleConnect() {
+const TronWalletConnectModal = () => {
+  const dispatch = useDispatch();
+  const theme = useSelector(selectTheme);
+  const connectModal = useSelector(selectTronConnectModal);
+  const selectedProvider = useSelector(selectTronProvider);
+  const {
+    select,
+    connect
+  } = useWallet$1();
+  const handleConnect = async () => {
     try {
-      var _temp = _catch(function () {
-        select(selectedProvider);
-        return Promise.resolve(connect()).then(function () {
-          dispatch(setTronConnectModal(false));
-        });
-      }, function (e) {
-        console.log(e);
-      });
-      return Promise.resolve(_temp && _temp.then ? _temp.then(function () {}) : void 0);
+      select(selectedProvider);
+      await connect();
+      dispatch(setTronConnectModal(false));
     } catch (e) {
-      return Promise.reject(e);
+      console.log(e);
     }
   };
-  return React__default.createElement("div", {
-    className: "kima-modal wallet-connect " + theme.colorMode + " " + (connectModal ? 'open' : '')
-  }, React__default.createElement("div", {
+  return React.createElement("div", {
+    className: `kima-modal wallet-connect ${theme.colorMode} ${connectModal ? 'open' : ''}`
+  }, React.createElement("div", {
     className: 'modal-overlay'
-  }), React__default.createElement("div", {
+  }), React.createElement("div", {
     className: 'modal-content-container'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'kima-card-header'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'topbar'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'title'
-  }, React__default.createElement("h3", null, "Connect Wallet")), React__default.createElement("div", {
+  }, React.createElement("h3", null, "Connect Wallet")), React.createElement("div", {
     className: 'control-buttons'
-  }, React__default.createElement("button", {
+  }, React.createElement("button", {
     className: 'icon-button',
-    onClick: function onClick() {
-      return dispatch(setTronConnectModal(false));
-    }
-  }, React__default.createElement(Cross, {
+    onClick: () => dispatch(setTronConnectModal(false))
+  }, React.createElement(Cross, {
     fill: theme.colorMode === 'light' ? 'black' : 'white'
-  }))))), React__default.createElement("div", {
+  }))))), React.createElement("div", {
     className: 'modal-content'
-  }, React__default.createElement(WalletSelect, null)), React__default.createElement("div", {
+  }, React.createElement(WalletSelect, null)), React.createElement("div", {
     className: 'kima-card-footer',
     style: {
       justifyContent: 'flex-end',
       marginTop: '2em'
     }
-  }, React__default.createElement(SecondaryButton, {
-    clickHandler: function clickHandler() {
-      return dispatch(setTronConnectModal(false));
-    },
+  }, React.createElement(SecondaryButton, {
+    clickHandler: () => dispatch(setTronConnectModal(false)),
     theme: theme.colorMode
-  }, "Cancel"), React__default.createElement(PrimaryButton, {
+  }, "Cancel"), React.createElement(PrimaryButton, {
     clickHandler: handleConnect
   }, "Connect"))));
 };
 
-var BankPopup = function BankPopup(_ref) {
-  var setVerifying = _ref.setVerifying,
-    isVerifying = _ref.isVerifying;
-  var dispatch = reactRedux.useDispatch();
-  var uuid = reactRedux.useSelector(selectUuid);
-  var theme = reactRedux.useSelector(selectTheme);
-  var bankPopup = reactRedux.useSelector(selectBankPopup);
-  var kimaBackendUrl = reactRedux.useSelector(selectBackendUrl);
-  React.useEffect(function () {
+const BankPopup = ({
+  setVerifying,
+  isVerifying
+}) => {
+  const dispatch = useDispatch();
+  const uuid = useSelector(selectUuid);
+  const theme = useSelector(selectTheme);
+  const bankPopup = useSelector(selectBankPopup);
+  const kimaBackendUrl = useSelector(selectBackendUrl);
+  useEffect(() => {
     if (!kimaBackendUrl || !uuid || !isVerifying) return;
-    var timerId = setInterval(function () {
+    const timerId = setInterval(async () => {
       try {
-        var _temp = _catch(function () {
-          return Promise.resolve(fetchWrapper.post(kimaBackendUrl + "/kyc", JSON.stringify({
-            uuid: uuid
-          }))).then(function (res) {
-            var kycResult = res.data;
-            console.log(kycResult);
-            if (!kycResult.length) {
-              console.log('failed to check kyc status');
-              toast.toast.error('failed to check kyc status');
-            } else if (kycResult[0].status === 'approved') {
-              setVerifying(false);
-              dispatch(setKYCStatus('approved'));
-              toast.toast.success('KYC is verified');
-            }
-          });
-        }, function () {
+        const res = await fetchWrapper.post(`${kimaBackendUrl}/kyc`, JSON.stringify({
+          uuid
+        }));
+        const kycResult = res.data;
+        console.log(kycResult);
+        if (!kycResult.length) {
           console.log('failed to check kyc status');
-          toast.toast.error('failed to check kyc status');
-        });
-        return Promise.resolve(_temp && _temp.then ? _temp.then(function () {}) : void 0);
+          toast$1.error('failed to check kyc status');
+        } else if (kycResult[0].status === 'approved') {
+          setVerifying(false);
+          dispatch(setKYCStatus('approved'));
+          toast$1.success('KYC is verified');
+        }
       } catch (e) {
-        return Promise.reject(e);
+        console.log('failed to check kyc status');
+        toast$1.error('failed to check kyc status');
       }
     }, 3000);
-    return function () {
+    return () => {
       clearInterval(timerId);
     };
   }, [kimaBackendUrl, uuid, isVerifying]);
-  return React__default.createElement("div", {
-    className: "kima-modal bank-popup " + theme.colorMode + " " + (bankPopup ? 'open' : '')
-  }, React__default.createElement("div", {
+  return React.createElement("div", {
+    className: `kima-modal bank-popup ${theme.colorMode} ${bankPopup ? 'open' : ''}`
+  }, React.createElement("div", {
     className: 'modal-overlay',
-    onClick: function onClick() {
+    onClick: () => {
       dispatch(setBankPopup(false));
     }
-  }), React__default.createElement("div", {
+  }), React.createElement("div", {
     className: 'modal-content-container'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'kima-card-header'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'topbar'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'title'
-  }), React__default.createElement("div", {
+  }), React.createElement("div", {
     className: 'control-buttons'
-  }, React__default.createElement("button", {
+  }, React.createElement("button", {
     className: 'icon-button',
-    onClick: function onClick() {
-      return dispatch(setBankPopup(false));
-    }
-  }, React__default.createElement(Cross, {
+    onClick: () => dispatch(setBankPopup(false))
+  }, React.createElement(Cross, {
     fill: theme.colorMode === 'light' ? 'black' : 'white'
-  }))))), React__default.createElement("div", {
+  }))))), React.createElement("div", {
     className: 'modal-content'
-  }, React__default.createElement("iframe", {
-    src: "https://sandbox.depasify.com/widgets/kyc?partner=kimastage&user_uuid=" + uuid,
+  }, React.createElement("iframe", {
+    src: `https://sandbox.depasify.com/widgets/kyc?partner=kimastage&user_uuid=${uuid}`,
     width: '100%',
     height: '100%',
     frameBorder: '0',
@@ -7906,72 +7333,61 @@ var BankPopup = function BankPopup(_ref) {
   }))));
 };
 
-var useWidth = function useWidth() {
-  var _useState = React.useState(window.innerWidth),
-    width = _useState[0],
-    setWidth = _useState[1];
-  React.useEffect(function () {
-    var handleResize = function handleResize() {
+const useWidth = () => {
+  const [width, setWidth] = useState(window.innerWidth);
+  useEffect(() => {
+    const handleResize = () => {
       setWidth(window.innerWidth);
     };
     window.addEventListener('resize', handleResize);
-    return function () {
-      return window.removeEventListener('resize', handleResize);
-    };
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
   return width;
 };
 
-function useSign(_ref) {
-  var setSigning = _ref.setSigning;
-  var dispatch = reactRedux.useDispatch();
-  var _useState = React.useState(false),
-    isSigned = _useState[0],
-    setIsSigned = _useState[1];
-  var web3ModalAccountInfo = react.useWeb3ModalAccount();
-  var _ref2 = web3ModalAccountInfo || {
-      address: null,
-      chainId: null,
-      isConnected: null
-    },
-    signerAddress = _ref2.address;
-  var _useWeb3ModalProvider = react.useWeb3ModalProvider(),
-    walletProvider = _useWeb3ModalProvider.walletProvider;
-  var sourceNetwork = reactRedux.useSelector(selectSourceChain);
-  var errorHandler = reactRedux.useSelector(selectErrorHandler);
-  var amount = reactRedux.useSelector(selectAmount);
-  var sign = React.useCallback(function () {
+function useSign({
+  setSigning
+}) {
+  const dispatch = useDispatch();
+  const [isSigned, setIsSigned] = useState(false);
+  const web3ModalAccountInfo = useWeb3ModalAccount();
+  const {
+    address: signerAddress
+  } = web3ModalAccountInfo || {
+    address: null,
+    chainId: null,
+    isConnected: null
+  };
+  const {
+    walletProvider
+  } = useWeb3ModalProvider();
+  const sourceNetwork = useSelector(selectSourceChain);
+  const errorHandler = useSelector(selectErrorHandler);
+  const amount = useSelector(selectAmount);
+  const sign = useCallback(async () => {
+    if (sourceNetwork !== ChainName.FIAT) {
+      errorHandler('Failed to sign');
+      return;
+    }
     try {
-      if (sourceNetwork !== exports.SupportNetworks.FIAT) {
-        errorHandler('Failed to sign');
-        return Promise.resolve();
-      }
-      var _temp = _catch(function () {
-        setSigning(true);
-        var provider = new ethers.ethers.providers.Web3Provider(walletProvider);
-        var signer = provider === null || provider === void 0 ? void 0 : provider.getSigner();
-        var message = amount + " | " + signerAddress;
-        return Promise.resolve(signer === null || signer === void 0 ? void 0 : signer.signMessage(message)).then(function (signature) {
-          var hash = Base64.stringify(sha256$1(signature || ''));
-          setIsSigned(true);
-          dispatch(setSignature(hash));
-          setSigning(false);
-        });
-      }, function (error) {
-        errorHandler(error);
-        setSigning(false);
-      });
-      return Promise.resolve(_temp && _temp.then ? _temp.then(function () {}) : void 0);
-    } catch (e) {
-      return Promise.reject(e);
+      setSigning(true);
+      const provider = new ethers.providers.Web3Provider(walletProvider);
+      const signer = provider === null || provider === void 0 ? void 0 : provider.getSigner();
+      const message = `${amount} | ${signerAddress}`;
+      const signature = await (signer === null || signer === void 0 ? void 0 : signer.signMessage(message));
+      const hash = Base64.stringify(sha256$1(signature || ''));
+      setIsSigned(true);
+      dispatch(setSignature(hash));
+      setSigning(false);
+    } catch (error) {
+      errorHandler(error);
+      setSigning(false);
     }
   }, [walletProvider, amount, sourceNetwork, signerAddress]);
-  return React.useMemo(function () {
-    return {
-      isSigned: isSigned,
-      sign: sign
-    };
-  }, [isSigned, sign]);
+  return useMemo(() => ({
+    isSigned,
+    sign
+  }), [isSigned, sign]);
 }
 
 var _assert = createCommonjsModule(function (module, exports) {
@@ -8496,8 +7912,8 @@ unwrapExports(sha256);
 var sha256_2 = sha256.sha256;
 
 function hash160(publicKey) {
-  var publicKeyBuffer = buffer.Buffer.from(publicKey, 'hex');
-  var hash160Buffer = bitcoin.crypto.hash160(publicKeyBuffer);
+  const publicKeyBuffer = Buffer$1.from(publicKey, 'hex');
+  const hash160Buffer = crypto$1.hash160(publicKeyBuffer);
   return hash160Buffer;
 }
 function createHTLCScript(senderAddress, senderPublicKey, recipientAddress, timeout, network) {
@@ -8506,51 +7922,51 @@ function createHTLCScript(senderAddress, senderPublicKey, recipientAddress, time
   console.log('recipientAddress = ' + recipientAddress);
   console.log('timeout = ' + timeout);
   console.log('network = ' + network);
-  var recipientAddressCheck;
+  let recipientAddressCheck;
   try {
-    recipientAddressCheck = bitcoin.address.fromBech32(recipientAddress);
+    recipientAddressCheck = address.fromBech32(recipientAddress);
   } catch (error) {
-    throw new Error("Failed to decode recipient address: " + error.message);
+    throw new Error(`Failed to decode recipient address: ${error.message}`);
   }
   if (!recipientAddressCheck) {
     throw new Error('Failed to decode recipient address');
   }
-  var senderPKH = hash160(senderPublicKey);
+  const senderPKH = hash160(senderPublicKey);
   console.log('senderPKH:', senderPKH.toString('hex'));
-  var recipientPKH = recipientAddressCheck.data;
+  const recipientPKH = recipientAddressCheck.data;
   console.log('recipientPKH:', recipientPKH.toString('hex'));
-  var script = bitcoin.script.compile([bitcoin.opcodes.OP_DUP, bitcoin.opcodes.OP_HASH160, recipientAddressCheck.data, bitcoin.opcodes.OP_EQUAL, bitcoin.opcodes.OP_IF, bitcoin.opcodes.OP_DUP, bitcoin.opcodes.OP_HASH160, recipientPKH, bitcoin.opcodes.OP_EQUALVERIFY, bitcoin.opcodes.OP_CHECKSIG, bitcoin.opcodes.OP_ELSE, bitcoin.script.number.encode(timeout), bitcoin.opcodes.OP_CHECKLOCKTIMEVERIFY, bitcoin.opcodes.OP_DROP, bitcoin.opcodes.OP_DUP, bitcoin.opcodes.OP_HASH160, senderPKH, bitcoin.opcodes.OP_EQUALVERIFY, bitcoin.opcodes.OP_CHECKSIG, bitcoin.opcodes.OP_ENDIF, buffer.Buffer.from(senderPublicKey, 'hex'), bitcoin.opcodes.OP_DROP]);
-  return script;
+  const script$1 = script.compile([opcodes.OP_DUP, opcodes.OP_HASH160, recipientAddressCheck.data, opcodes.OP_EQUAL, opcodes.OP_IF, opcodes.OP_DUP, opcodes.OP_HASH160, recipientPKH, opcodes.OP_EQUALVERIFY, opcodes.OP_CHECKSIG, opcodes.OP_ELSE, script.number.encode(timeout), opcodes.OP_CHECKLOCKTIMEVERIFY, opcodes.OP_DROP, opcodes.OP_DUP, opcodes.OP_HASH160, senderPKH, opcodes.OP_EQUALVERIFY, opcodes.OP_CHECKSIG, opcodes.OP_ENDIF, Buffer$1.from(senderPublicKey, 'hex'), opcodes.OP_DROP]);
+  return script$1;
 }
 function htlcP2WSHAddress(htlcScript, network) {
-  var p2wsh = bitcoin.payments.p2wsh({
+  const p2wsh = payments.p2wsh({
     redeem: {
       output: htlcScript,
-      network: network
+      network
     },
-    network: network
+    network
   });
   return p2wsh.address;
 }
 function decodeBase64PSBT(base64Psbt) {
-  var psbtBuffer = buffer.Buffer.from(base64Psbt, 'base64');
-  var psbt = btc.Transaction.fromPSBT(psbtBuffer, {
+  const psbtBuffer = Buffer$1.from(base64Psbt, 'base64');
+  const psbt = Transaction$1.fromPSBT(psbtBuffer, {
     allowUnknownInputs: true
   });
   return psbt;
 }
 function createReclaimPsbt(reclaimerAddress, htlcAmount, htlcTimeout, htlcScript, htlcOutput, network, fee) {
-  var htlcScriptHash = sha256_2(htlcScript);
-  var htlcScriptHex = buffer.Buffer.from(htlcScript).toString('hex');
+  const htlcScriptHash = sha256_2(htlcScript);
+  const htlcScriptHex = Buffer$1.from(htlcScript).toString('hex');
   console.log('htlcScriptHex = ' + htlcScriptHex);
-  var scriptPubKey = btc.Script.encode(['OP_0', htlcScriptHash]);
-  var lockTimeBigEndian = Number(htlcTimeout) + 1;
-  var tx = new btc.Transaction({
+  const scriptPubKey = Script.encode(['OP_0', htlcScriptHash]);
+  const lockTimeBigEndian = Number(htlcTimeout) + 1;
+  const tx = new Transaction$1({
     allowUnknownOutputs: true,
     lockTime: lockTimeBigEndian,
     version: 0
   });
-  var reclaimedAmount = BigInt(htlcAmount) - BigInt(fee);
+  const reclaimedAmount = BigInt(htlcAmount) - BigInt(fee);
   tx.addOutputAddress(reclaimerAddress, reclaimedAmount, network);
   tx.addInput({
     txid: htlcOutput.txid,
@@ -8561,97 +7977,96 @@ function createReclaimPsbt(reclaimerAddress, htlcAmount, htlcTimeout, htlcScript
     },
     witnessScript: htlcScript,
     sequence: 0xfffffffe,
-    sighashType: btc.SigHash.ALL
+    sighashType: SigHash.ALL
   });
-  var psbt = tx.toPSBT(0);
+  const psbt = tx.toPSBT(0);
   console.log('txHex = ' + tx.hex);
-  var psbtB64 = base$1.base64.encode(psbt);
+  const psbtB64 = base64.encode(psbt);
   return psbtB64;
 }
 
-var PendingTxPopup = function PendingTxPopup(_ref) {
-  var handleHtlcContinue = _ref.handleHtlcContinue,
-    handleHtlcReclaim = _ref.handleHtlcReclaim;
-  var dispatch = reactRedux.useDispatch();
-  var theme = reactRedux.useSelector(selectTheme);
-  var pendingTxPopup = reactRedux.useSelector(selectPendingTxPopup);
-  var txData = reactRedux.useSelector(selectPendingTxData);
-  var networkOption = reactRedux.useSelector(selectNetworkOption);
-  var CHAIN_NAMES_TO_EXPLORER = networkOption === exports.NetworkOptions.mainnet ? CHAIN_NAMES_TO_EXPLORER_MAINNET : CHAIN_NAMES_TO_EXPLORER_TESTNET;
-  return React__default.createElement("div", {
-    className: "kima-modal pending-tx-popup " + theme.colorMode + " " + (pendingTxPopup ? 'open' : '')
-  }, React__default.createElement("div", {
+const PendingTxPopup = ({
+  handleHtlcContinue,
+  handleHtlcReclaim
+}) => {
+  const dispatch = useDispatch();
+  const theme = useSelector(selectTheme);
+  const pendingTxPopup = useSelector(selectPendingTxPopup);
+  const txData = useSelector(selectPendingTxData);
+  const networkOption = useSelector(selectNetworkOption);
+  const CHAIN_NAMES_TO_EXPLORER = networkOption === NetworkOptions.mainnet ? CHAIN_NAMES_TO_EXPLORER_MAINNET : CHAIN_NAMES_TO_EXPLORER_TESTNET;
+  return React.createElement("div", {
+    className: `kima-modal pending-tx-popup ${theme.colorMode} ${pendingTxPopup ? 'open' : ''}`
+  }, React.createElement("div", {
     className: 'modal-overlay',
-    onClick: function onClick() {
+    onClick: () => {
       dispatch(setPendingTxPopup(false));
     }
-  }), React__default.createElement("div", {
+  }), React.createElement("div", {
     className: 'modal-content-container'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'kima-card-header'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'topbar'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'title'
-  }, React__default.createElement("h3", null, "Bitcoin Transaction List")), React__default.createElement("div", {
+  }, React.createElement("h3", null, "Bitcoin Transaction List")), React.createElement("div", {
     className: 'control-buttons'
-  }, React__default.createElement("button", {
+  }, React.createElement("button", {
     className: 'icon-button',
-    onClick: function onClick() {
-      return dispatch(setPendingTxPopup(false));
-    }
-  }, React__default.createElement(Cross, {
+    onClick: () => dispatch(setPendingTxPopup(false))
+  }, React.createElement(Cross, {
     fill: theme.colorMode === 'light' ? 'black' : 'white'
-  }))))), React__default.createElement("div", {
+  }))))), React.createElement("div", {
     className: 'modal-content'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'scroll-area custom-scrollbar'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'header-container'
-  }, React__default.createElement("span", null, "Amount"), React__default.createElement("span", null, "Expire Time"), React__default.createElement("span", null, "Status"), React__default.createElement("span", null, "Hash"), React__default.createElement("span", null, "Action")), React__default.createElement("div", {
+  }, React.createElement("span", null, "Amount"), React.createElement("span", null, "Expire Time"), React.createElement("span", null, "Status"), React.createElement("span", null, "Hash"), React.createElement("span", null, "Action")), React.createElement("div", {
     className: 'tx-container'
-  }, txData.map(function (tx, index) {
-    var date = new Date(+tx.expireTime * 1000);
-    var year = date.getFullYear();
-    var month = date.getMonth() + 1;
-    var day = date.getDate();
-    var hours = date.getHours();
-    var minutes = date.getMinutes();
-    var seconds = date.getSeconds();
-    var formattedDate = year + "-" + month.toString().padStart(2, '0') + "-" + day.toString().padStart(2, '0') + " " + hours.toString().padStart(2, '0') + ":" + minutes.toString().padStart(2, '0') + ":" + seconds.toString().padStart(2, '0');
-    return React__default.createElement("div", {
+  }, txData.map((tx, index) => {
+    let date = new Date(+tx.expireTime * 1000);
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let seconds = date.getSeconds();
+    let formattedDate = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    return React.createElement("div", {
       className: 'tx-item',
       key: index
-    }, React__default.createElement("div", {
+    }, React.createElement("div", {
       className: 'label'
-    }, React__default.createElement("div", {
+    }, React.createElement("div", {
       className: 'icon-wrapper'
-    }, (+tx.amount).toFixed(8), React__default.createElement(BTC, null))), React__default.createElement("span", {
+    }, (+tx.amount).toFixed(8), React.createElement(BTC, null))), React.createElement("span", {
       className: 'label'
-    }, "" + formattedDate), React__default.createElement("span", {
+    }, `${formattedDate}`), React.createElement("span", {
       className: 'label'
-    }, tx.status), React__default.createElement("div", {
+    }, tx.status), React.createElement("div", {
       className: 'label'
-    }, React__default.createElement(ExternalLink, {
-      to: "https://" + CHAIN_NAMES_TO_EXPLORER[exports.SupportNetworks.BTC] + "/tx/" + tx.hash
-    }, getShortenedAddress(tx.hash))), React__default.createElement("div", {
-      className: "action-button-container " + (tx.status === 'Pending' || tx.status === 'Failed' ? '' : 'disabled')
-    }, React__default.createElement("div", {
+    }, React.createElement(ExternalLink, {
+      to: `https://${CHAIN_NAMES_TO_EXPLORER[ChainName.BTC]}/tx/${tx.hash}`
+    }, getShortenedAddress(tx.hash))), React.createElement("div", {
+      className: `action-button-container ${tx.status === 'Pending' || tx.status === 'Failed' ? '' : 'disabled'}`
+    }, React.createElement("div", {
       className: 'action-button',
-      onClick: function onClick() {
+      onClick: () => {
         if (tx.status !== 'Pending' && tx.status !== 'Failed') return;
-        var now = new Date();
-        var currentTimestamp = Math.floor(now.getTime() / 1000);
+        const now = new Date();
+        const currentTimestamp = Math.floor(now.getTime() / 1000);
         console.log(currentTimestamp, tx.expireTime);
         if (currentTimestamp < +tx.expireTime) {
-          toast__default.error('Please wait for until htlc is expired!');
+          toast.error('Please wait for until htlc is expired!');
           return;
         }
         handleHtlcReclaim(tx.expireTime, tx.hash, tx.amount);
       }
-    }, "Reclaim"), React__default.createElement("div", {
+    }, "Reclaim"), React.createElement("div", {
       className: 'action-button',
-      onClick: function onClick() {
+      onClick: () => {
         handleHtlcContinue(tx.expireTime, tx.hash, tx.amount);
         dispatch(setPendingTxPopup(false));
       }
@@ -12393,570 +11808,462 @@ axios.HttpStatusCode = HttpStatusCode;
 
 axios.default = axios;
 
-var broadcastTransaction = function broadcastTransaction(rawHex, networkSubpath) {
-  if (networkSubpath === void 0) {
-    networkSubpath = '';
-  }
-  try {
-    var url = "https://mempool.space" + networkSubpath + "/api/tx";
-    return Promise.resolve(_catch(function () {
-      return Promise.resolve(axios.post(url, rawHex)).then(function (response) {
-        return response.data;
-      });
-    }, function (error) {
-      throw error;
-    }));
-  } catch (e) {
-    return Promise.reject(e);
-  }
+const getUTXOs = async (network, address) => {
+  const networkSubpath = network === BitcoinNetworkType.Testnet ? '/testnet' : '';
+  const url = `https://mempool.space${networkSubpath}/api/address/${address}/utxo`;
+  const response = await fetch(url);
+  return response.json();
 };
-var getUTXOs = function getUTXOs(network, address) {
+async function broadcastTransaction(rawHex, networkSubpath = '') {
+  const url = `https://mempool.space${networkSubpath}/api/tx`;
   try {
-    var networkSubpath = network === satsConnect.BitcoinNetworkType.Testnet ? '/testnet' : '';
-    var url = "https://mempool.space" + networkSubpath + "/api/address/" + address + "/utxo";
-    return Promise.resolve(fetch(url)).then(function (response) {
-      return response.json();
-    });
-  } catch (e) {
-    return Promise.reject(e);
+    const response = await axios.post(url, rawHex);
+    return response.data;
+  } catch (error) {
+    throw error;
   }
-};
+}
 
-var TransferWidget = function TransferWidget(_ref) {
-  var _theme$backgroundColo;
-  var theme = _ref.theme,
-    feeURL = _ref.feeURL,
-    helpURL = _ref.helpURL,
-    titleOption = _ref.titleOption,
-    paymentTitleOption = _ref.paymentTitleOption;
-  var dispatch = reactRedux.useDispatch();
-  var mainRef = React.useRef(null);
-  var _useState = React.useState(0),
-    formStep = _useState[0],
-    setFormStep = _useState[1];
-  var _useState2 = React.useState(0),
-    wizardStep = _useState2[0],
-    setWizardStep = _useState2[1];
-  var mode = reactRedux.useSelector(selectMode);
-  var dAppOption = reactRedux.useSelector(selectDappOption);
-  var amount = reactRedux.useSelector(selectAmount);
-  var feeDeduct = reactRedux.useSelector(selectFeeDeduct);
-  var sourceChain = reactRedux.useSelector(selectSourceChain);
-  var targetAddress = reactRedux.useSelector(selectTargetAddress);
-  var targetChain = reactRedux.useSelector(selectTargetChain);
-  var compliantOption = reactRedux.useSelector(selectCompliantOption);
-  var sourceCompliant = reactRedux.useSelector(selectSourceCompliant);
-  var targetCompliant = reactRedux.useSelector(selectTargetCompliant);
-  var errorHandler = reactRedux.useSelector(selectErrorHandler);
-  var keplrHandler = reactRedux.useSelector(selectKeplrHandler);
-  var closeHandler = reactRedux.useSelector(selectCloseHandler);
-  var sourceCurrency = reactRedux.useSelector(selectSourceCurrency);
-  var targetCurrency = reactRedux.useSelector(selectTargetCurrency);
-  var backendUrl = reactRedux.useSelector(selectBackendUrl);
-  var nodeProviderQuery = reactRedux.useSelector(selectNodeProviderQuery);
-  var bankDetails = reactRedux.useSelector(selectBankDetails);
-  var kycStatus = reactRedux.useSelector(selectKycStatus);
-  var expireTime = reactRedux.useSelector(selectExpireTime);
-  var bitcoinAddress = reactRedux.useSelector(selectBitcoinAddress);
-  var bitcoinPubkey = reactRedux.useSelector(selectBitcoinPubkey);
-  var transactionOption = reactRedux.useSelector(selectTransactionOption);
-  var _useState3 = React.useState(false),
-    isCancellingApprove = _useState3[0],
-    setCancellingApprove = _useState3[1];
-  var _useState4 = React.useState(false),
-    isApproving = _useState4[0],
-    setApproving = _useState4[1];
-  var _useState5 = React.useState(false),
-    isSubmitting = _useState5[0],
-    setSubmitting = _useState5[1];
-  var _useState6 = React.useState(false),
-    isSigning = _useState6[0],
-    setSigning = _useState6[1];
-  var _useState7 = React.useState(false),
-    isBTCSigning = _useState7[0],
-    setBTCSigning = _useState7[1];
-  var _useState8 = React.useState(false),
-    isBTCSigned = _useState8[0],
-    setBTCSigned = _useState8[1];
-  var _useState9 = React.useState(''),
-    btcHash = _useState9[0],
-    setBTCHash = _useState9[1];
-  var _useState10 = React.useState(0),
-    btcTimestamp = _useState10[0],
-    setBTCTimestamp = _useState10[1];
-  var _useState11 = React.useState(false),
-    isConfirming = _useState11[0],
-    setConfirming = _useState11[1];
-  var _useState12 = React.useState(false),
-    isVerifying = _useState12[0],
-    setVerifying = _useState12[1];
-  var _useIsWalletReady = useIsWalletReady(),
-    isReady = _useIsWalletReady.isReady,
-    walletAddress = _useIsWalletReady.walletAddress;
-  var pendingTxs = reactRedux.useSelector(selectPendingTxs);
-  var _useAllowance = useAllowance({
-      setApproving: setApproving,
-      setCancellingApprove: setCancellingApprove
-    }),
-    allowance = _useAllowance.allowance,
-    approved = _useAllowance.isApproved,
-    approve = _useAllowance.approve,
-    poolAddress = _useAllowance.poolAddress;
-  var _useSign = useSign({
-      setSigning: setSigning
-    }),
-    isSigned = _useSign.isSigned,
-    sign = _useSign.sign;
-  var _useServiceFee = useServiceFee(isConfirming, feeURL),
-    fee = _useServiceFee.serviceFee;
-  var _useBalance = useBalance(),
-    balance = _useBalance.balance;
-  var windowWidth = useWidth();
-  var isApproved = React.useMemo(function () {
-    if (sourceChain === exports.SupportNetworks.BTC) return isBTCSigned;
+const TransferWidget = ({
+  theme,
+  feeURL,
+  helpURL,
+  titleOption,
+  paymentTitleOption
+}) => {
+  const dispatch = useDispatch();
+  const mainRef = useRef(null);
+  const [formStep, setFormStep] = useState(0);
+  const [wizardStep, setWizardStep] = useState(0);
+  const mode = useSelector(selectMode);
+  const dAppOption = useSelector(selectDappOption);
+  const amount = useSelector(selectAmount);
+  const feeDeduct = useSelector(selectFeeDeduct);
+  const sourceChain = useSelector(selectSourceChain);
+  const targetAddress = useSelector(selectTargetAddress);
+  const targetChain = useSelector(selectTargetChain);
+  const compliantOption = useSelector(selectCompliantOption);
+  const sourceCompliant = useSelector(selectSourceCompliant);
+  const targetCompliant = useSelector(selectTargetCompliant);
+  const errorHandler = useSelector(selectErrorHandler);
+  const keplrHandler = useSelector(selectKeplrHandler);
+  const closeHandler = useSelector(selectCloseHandler);
+  const sourceCurrency = useSelector(selectSourceCurrency);
+  const targetCurrency = useSelector(selectTargetCurrency);
+  const backendUrl = useSelector(selectBackendUrl);
+  const nodeProviderQuery = useSelector(selectNodeProviderQuery);
+  const bankDetails = useSelector(selectBankDetails);
+  const kycStatus = useSelector(selectKycStatus);
+  const expireTime = useSelector(selectExpireTime);
+  const bitcoinAddress = useSelector(selectBitcoinAddress);
+  const bitcoinPubkey = useSelector(selectBitcoinPubkey);
+  const transactionOption = useSelector(selectTransactionOption);
+  const [isCancellingApprove, setCancellingApprove] = useState(false);
+  const [isApproving, setApproving] = useState(false);
+  const [isSubmitting, setSubmitting] = useState(false);
+  const [isSigning, setSigning] = useState(false);
+  const [isBTCSigning, setBTCSigning] = useState(false);
+  const [isBTCSigned, setBTCSigned] = useState(false);
+  const [btcHash, setBTCHash] = useState('');
+  const [btcTimestamp, setBTCTimestamp] = useState(0);
+  const [isConfirming, setConfirming] = useState(false);
+  const [isVerifying, setVerifying] = useState(false);
+  const {
+    isReady,
+    walletAddress
+  } = useIsWalletReady();
+  const pendingTxs = useSelector(selectPendingTxs);
+  const {
+    allowance,
+    isApproved: approved,
+    approve,
+    poolAddress
+  } = useAllowance({
+    setApproving,
+    setCancellingApprove
+  });
+  const {
+    isSigned,
+    sign
+  } = useSign({
+    setSigning
+  });
+  const {
+    serviceFee: fee
+  } = useServiceFee(isConfirming, feeURL);
+  const {
+    balance
+  } = useBalance();
+  const windowWidth = useWidth();
+  const isApproved = useMemo(() => {
+    if (sourceChain === ChainName.BTC) return isBTCSigned;
     return approved;
   }, [approved, isBTCSigned, sourceChain]);
-  React.useEffect(function () {
+  useEffect(() => {
     if (!walletAddress) return;
     dispatch(setTargetAddress(walletAddress));
     if (!compliantOption) return;
-    (function () {
+    (async function () {
       try {
-        var _temp = _catch(function () {
-          return Promise.resolve(fetchWrapper.post(backendUrl + "/compliant", JSON.stringify({
-            address: walletAddress
-          }))).then(function (res) {
-            dispatch(setSourceCompliant(res));
-          });
-        }, function (e) {
-          toast.toast.error('xplorisk check failed');
-          console.log('xplorisk check failed', e);
-        });
-        return _temp && _temp.then ? _temp.then(function () {}) : void 0;
+        const res = await fetchWrapper.post(`${backendUrl}/compliant`, JSON.stringify({
+          address: walletAddress
+        }));
+        dispatch(setSourceCompliant(res));
       } catch (e) {
-        Promise.reject(e);
+        toast$1.error('xplorisk check failed');
+        console.log('xplorisk check failed', e);
       }
     })();
   }, [walletAddress, compliantOption]);
-  React.useEffect(function () {
+  useEffect(() => {
     if (!targetAddress || !compliantOption) return;
-    (function () {
+    (async function () {
       try {
-        var _temp2 = _catch(function () {
-          return Promise.resolve(fetchWrapper.post(backendUrl + "/compliant", JSON.stringify({
-            address: targetAddress
-          }))).then(function (res) {
-            dispatch(setTargetCompliant(res));
-          });
-        }, function (e) {
-          toast.toast.error('xplorisk check failed');
-          console.log('xplorisk check failed', e);
-        });
-        return _temp2 && _temp2.then ? _temp2.then(function () {}) : void 0;
+        const res = await fetchWrapper.post(`${backendUrl}/compliant`, JSON.stringify({
+          address: targetAddress
+        }));
+        dispatch(setTargetCompliant(res));
       } catch (e) {
-        Promise.reject(e);
+        toast$1.error('xplorisk check failed');
+        console.log('xplorisk check failed', e);
       }
     })();
   }, [targetAddress, compliantOption]);
-  React.useEffect(function () {
+  useEffect(() => {
     if (!nodeProviderQuery) return;
-    try {
-      return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/chains/pool_balance")).then(function (res) {
-        var poolsTable = [];
-        for (var _iterator = _createForOfIteratorHelperLoose(res.poolBalance), _step; !(_step = _iterator()).done;) {
-          var pool = _step.value;
-          for (var _iterator2 = _createForOfIteratorHelperLoose(pool.balance), _step2; !(_step2 = _iterator2()).done;) {
-            var token = _step2.value;
-            poolsTable.push({
-              chain: CHAIN_NAMES_TO_STRING[pool.chainName],
-              symbol: token.tokenSymbol,
-              balance: +token.amount
-            });
-          }
+    (async function () {
+      const res = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/pool_balance`);
+      let poolsTable = [];
+      for (const pool of res.poolBalance) {
+        for (const token of pool.balance) {
+          poolsTable.push({
+            chain: CHAIN_NAMES_TO_STRING[pool.chainName],
+            symbol: token.tokenSymbol,
+            balance: +token.amount
+          });
         }
-        console.table(poolsTable);
-      });
-    } catch (e) {
-      Promise.reject(e);
-    }
+      }
+      console.table(poolsTable);
+    })();
   }, [nodeProviderQuery]);
-  React.useEffect(function () {
+  useEffect(() => {
     if (!isReady) {
       if (formStep > 0) setFormStep(0);
       if (wizardStep > 0) setWizardStep(1);
     }
   }, [isReady, wizardStep, formStep, dAppOption]);
-  var checkPoolBalance = function checkPoolBalance() {
-    try {
-      return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/chains/pool_balance")).then(function (res) {
-        var poolBalance = res.poolBalance;
-        for (var i = 0; i < poolBalance.length; i++) {
-          if (poolBalance[i].chainName === targetChain) {
-            for (var j = 0; j < poolBalance[i].balance.length; j++) {
-              if (poolBalance[i].balance[j].tokenSymbol !== targetCurrency) continue;
-              if (+poolBalance[i].balance[j].amount >= +amount + fee) {
-                return true;
-              }
-              var symbol = targetCurrency;
-              var errorString = "Tried to transfer " + amount + " " + symbol + ", but " + CHAIN_NAMES_TO_STRING[targetChain] + " pool has only " + +poolBalance[i].balance[j].amount + " " + symbol;
-              console.log(errorString);
-              toast.toast.error(errorString);
-              toast.toast.error(CHAIN_NAMES_TO_STRING[targetChain] + " pool has insufficient balance!");
-              errorHandler(errorString);
-              return false;
-            }
-            return false;
+  const checkPoolBalance = async () => {
+    const res = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/chains/pool_balance`);
+    const poolBalance = res.poolBalance;
+    for (let i = 0; i < poolBalance.length; i++) {
+      if (poolBalance[i].chainName === targetChain) {
+        for (let j = 0; j < poolBalance[i].balance.length; j++) {
+          if (poolBalance[i].balance[j].tokenSymbol !== targetCurrency) continue;
+          if (+poolBalance[i].balance[j].amount >= +amount + fee) {
+            return true;
           }
+          const symbol = targetCurrency;
+          const errorString = `Tried to transfer ${amount} ${symbol}, but ${CHAIN_NAMES_TO_STRING[targetChain]} pool has only ${+poolBalance[i].balance[j].amount} ${symbol}`;
+          console.log(errorString);
+          toast$1.error(errorString);
+          toast$1.error(`${CHAIN_NAMES_TO_STRING[targetChain]} pool has insufficient balance!`);
+          errorHandler(errorString);
+          return false;
         }
-        console.log(CHAIN_NAMES_TO_STRING[targetChain] + " pool error");
         return false;
-      });
-    } catch (e) {
-      return Promise.reject(e);
+      }
     }
+    console.log(`${CHAIN_NAMES_TO_STRING[targetChain]} pool error`);
+    return false;
   };
-  var handleBTCFinish = function handleBTCFinish(hash, htlcAddress, timestamp) {
-    try {
-      var params = JSON.stringify({
-        fromAddress: walletAddress,
-        senderPubkey: bitcoinPubkey,
-        amount: feeDeduct ? amount : (+amount + fee).toFixed(8),
-        txHash: hash,
-        htlcTimeout: timestamp.toString(),
-        htlcAddress: htlcAddress
-      });
-      console.log(params);
-      return Promise.resolve(fetchWrapper.post(backendUrl + "/auth", params)).then(function () {
-        return Promise.resolve(fetchWrapper.post(backendUrl + "/htlc", params)).then(function (result) {
-          var _interrupt = false;
+  const handleBTCFinish = async (hash, htlcAddress, timestamp) => {
+    const params = JSON.stringify({
+      fromAddress: walletAddress,
+      senderPubkey: bitcoinPubkey,
+      amount: feeDeduct ? amount : (+amount + fee).toFixed(8),
+      txHash: hash,
+      htlcTimeout: timestamp.toString(),
+      htlcAddress
+    });
+    console.log(params);
+    await fetchWrapper.post(`${backendUrl}/auth`, params);
+    const result = await fetchWrapper.post(`${backendUrl}/htlc`, params);
+    console.log(result);
+    if ((result === null || result === void 0 ? void 0 : result.code) !== 0) {
+      errorHandler(result);
+      toast$1.error('Failed to submit htlc request!');
+      return;
+    }
+    do {
+      await sleep(10000);
+      try {
+        var _txInfo$status;
+        const txInfo = await fetchWrapper.get(`${backendUrl}/btc/transaction?hash=${hash}`);
+        if (txInfo !== null && txInfo !== void 0 && (_txInfo$status = txInfo.status) !== null && _txInfo$status !== void 0 && _txInfo$status.confirmed) {
+          setBTCSigning(false);
+          setBTCSigned(true);
+          setBTCHash(hash);
+          break;
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    } while (1);
+  };
+  const handleHtlcContinue = async (expireTime, hash, amount) => {
+    setBTCTimestamp(expireTime);
+    setBTCSigning(false);
+    setBTCSigned(true);
+    setBTCHash(hash);
+    dispatch(setFeeDeduct(true));
+    dispatch(setAmount(amount));
+  };
+  const handleHtlcReclaim = async (expireTime, hash, amount) => {
+    const htlcScript = createHTLCScript(bitcoinAddress, bitcoinPubkey, poolAddress, expireTime, networks.testnet);
+    console.log('HTLC Script : ' + htlcScript.toString('hex'));
+    const htlcAddress = htlcP2WSHAddress(htlcScript, networks.testnet);
+    console.log('HTLC address : ' + htlcAddress);
+    const [htlcUnspentOutputs] = await Promise.all([getUTXOs(BitcoinNetworkType.Testnet, htlcAddress)]);
+    if (htlcUnspentOutputs.length === 0) {
+      alert('No unspent outputs found for HTLC address');
+      return;
+    }
+    const htlcUtxo = htlcUnspentOutputs[htlcUnspentOutputs.length - 1];
+    const fee = '5000';
+    const reclaimPsbtBase64 = createReclaimPsbt(bitcoinAddress, Math.round(+amount * 1e8).toString(), expireTime, htlcScript, htlcUtxo, networks.testnet, fee);
+    await signTransaction({
+      payload: {
+        network: {
+          type: BitcoinNetworkType.Testnet
+        },
+        message: 'Sign Reclaim Transaction',
+        psbtBase64: reclaimPsbtBase64,
+        broadcast: false,
+        inputsToSign: [{
+          address: bitcoinAddress,
+          signingIndexes: [0],
+          sigHash: SigHash.ALL
+        }]
+      },
+      onFinish: async response => {
+        console.log('response = ', response);
+        console.log('reponse.txId = ', response.txId);
+        const tx = decodeBase64PSBT(response.psbtBase64);
+        tx.finalize();
+        const rawTxHex = tx.hex;
+        console.log('rawTxHex = ' + rawTxHex);
+        try {
+          const broadcastResponse = await broadcastTransaction(rawTxHex, '/testnet');
+          console.log('broadcastResponse = ' + broadcastResponse);
+          console.log(broadcastResponse);
+          const params = JSON.stringify({
+            senderAddress: walletAddress,
+            txHash: hash
+          });
+          await fetchWrapper.post(`${backendUrl}/auth`, params);
+          const result = await fetchWrapper.post(`${backendUrl}/reclaim`, params);
           console.log(result);
           if ((result === null || result === void 0 ? void 0 : result.code) !== 0) {
             errorHandler(result);
-            toast.toast.error('Failed to submit htlc request!');
+            toast$1.error('Failed to submit htlc reclaim!');
             return;
           }
-          var _temp4 = _do(function () {
-            return Promise.resolve(sleep(10000)).then(function () {
-              var _temp3 = _catch(function () {
-                return Promise.resolve(fetchWrapper.get(backendUrl + "/btc/transaction?hash=" + hash)).then(function (txInfo) {
-                  var _txInfo$status;
-                  if (txInfo !== null && txInfo !== void 0 && (_txInfo$status = txInfo.status) !== null && _txInfo$status !== void 0 && _txInfo$status.confirmed) {
-                    setBTCSigning(false);
-                    setBTCSigned(true);
-                    setBTCHash(hash);
-                    _interrupt = true;
-                  }
-                });
-              }, function (e) {
-                console.log(e);
-              });
-              if (_temp3 && _temp3.then) return _temp3.then(function () {});
-            });
-          }, function () {
-            return !_interrupt && 1;
-          });
-          if (_temp4 && _temp4.then) return _temp4.then(function () {});
-        });
-      });
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  };
-  var handleHtlcContinue = function handleHtlcContinue(expireTime, hash, amount) {
-    try {
-      setBTCTimestamp(expireTime);
-      setBTCSigning(false);
-      setBTCSigned(true);
-      setBTCHash(hash);
-      dispatch(setFeeDeduct(true));
-      dispatch(setAmount(amount));
-      return Promise.resolve();
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  };
-  var handleHtlcReclaim = function handleHtlcReclaim(expireTime, hash, amount) {
-    try {
-      var htlcScript = createHTLCScript(bitcoinAddress, bitcoinPubkey, poolAddress, expireTime, bitcoin.networks.testnet);
-      console.log('HTLC Script : ' + htlcScript.toString('hex'));
-      var htlcAddress = htlcP2WSHAddress(htlcScript, bitcoin.networks.testnet);
-      console.log('HTLC address : ' + htlcAddress);
-      return Promise.resolve(Promise.all([getUTXOs(satsConnect.BitcoinNetworkType.Testnet, htlcAddress)])).then(function (_ref2) {
-        var htlcUnspentOutputs = _ref2[0];
-        if (htlcUnspentOutputs.length === 0) {
-          alert('No unspent outputs found for HTLC address');
-          return;
+        } catch (error) {
+          toast$1.error('Error broadcasting the transaction!');
+          console.error('Error broadcasting the transaction!', error);
         }
-        var htlcUtxo = htlcUnspentOutputs[htlcUnspentOutputs.length - 1];
-        var fee = '5000';
-        var reclaimPsbtBase64 = createReclaimPsbt(bitcoinAddress, Math.round(+amount * 1e8).toString(), expireTime, htlcScript, htlcUtxo, bitcoin.networks.testnet, fee);
-        return Promise.resolve(satsConnect.signTransaction({
+      },
+      onCancel: () => {
+        toast$1.error('Transaction cancelled!');
+      }
+    });
+  };
+  const handleSubmit = async () => {
+    if (fee < 0) {
+      toast$1.error('Fee is not calculated!');
+      errorHandler('Fee is not calculated!');
+      return;
+    }
+    if (dAppOption !== DAppOptions.LPDrain && balance < (feeDeduct ? +amount : +amount + fee)) {
+      toast$1.error('Insufficient balance!');
+      errorHandler('Insufficient balance!');
+      return;
+    }
+    if (sourceChain === ChainName.BTC && +amount < 0.00015) {
+      toast$1.error('Minimum BTC amount is 0.00015!');
+      errorHandler('Minimum BTC amount is 0.00015!');
+      return;
+    }
+    if (sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT) {
+      if (kycStatus !== 'approved') {
+        setVerifying(true);
+        dispatch(setBankPopup(true));
+        return;
+      }
+    }
+    if (sourceChain === ChainName.FIAT) {
+      if (!isSigned) {
+        sign();
+        return;
+      }
+    } else if (!isApproved && dAppOption !== DAppOptions.LPDrain && sourceChain !== ChainName.BTC) {
+      approve();
+      return;
+    }
+    if (sourceChain === ChainName.BTC && !isApproved) {
+      setBTCSigning(true);
+      const unixTimestamp = Math.floor(Date.now() / 1000) + (expireTime === '1 hour' ? 3600 : expireTime === '2 hours' ? 7200 : 10800);
+      setBTCTimestamp(unixTimestamp);
+      const htlcScript = createHTLCScript(bitcoinAddress, bitcoinPubkey, poolAddress, unixTimestamp, networks.testnet);
+      const htlcAddress = htlcP2WSHAddress(htlcScript, networks.testnet);
+      try {
+        await sendBtcTransaction({
           payload: {
             network: {
-              type: satsConnect.BitcoinNetworkType.Testnet
+              type: BitcoinNetworkType.Testnet
             },
-            message: 'Sign Reclaim Transaction',
-            psbtBase64: reclaimPsbtBase64,
-            broadcast: false,
-            inputsToSign: [{
-              address: bitcoinAddress,
-              signingIndexes: [0],
-              sigHash: btc.SigHash.ALL
-            }]
+            recipients: [{
+              address: htlcAddress,
+              amountSats: BigInt(Math.round((feeDeduct ? +amount : +amount + fee) * 100000000))
+            }],
+            senderAddress: bitcoinAddress
           },
-          onFinish: function (response) {
-            try {
-              console.log('response = ', response);
-              console.log('reponse.txId = ', response.txId);
-              var tx = decodeBase64PSBT(response.psbtBase64);
-              tx.finalize();
-              var rawTxHex = tx.hex;
-              console.log('rawTxHex = ' + rawTxHex);
-              return Promise.resolve(_catch(function () {
-                return Promise.resolve(broadcastTransaction(rawTxHex, '/testnet')).then(function (broadcastResponse) {
-                  console.log('broadcastResponse = ' + broadcastResponse);
-                  console.log(broadcastResponse);
-                  var params = JSON.stringify({
-                    senderAddress: walletAddress,
-                    txHash: hash
-                  });
-                  return Promise.resolve(fetchWrapper.post(backendUrl + "/auth", params)).then(function () {
-                    return Promise.resolve(fetchWrapper.post(backendUrl + "/reclaim", params)).then(function (result) {
-                      console.log(result);
-                      if ((result === null || result === void 0 ? void 0 : result.code) !== 0) {
-                        errorHandler(result);
-                        toast.toast.error('Failed to submit htlc reclaim!');
-                      }
-                    });
-                  });
-                });
-              }, function (error) {
-                toast.toast.error('Error broadcasting the transaction!');
-                console.error('Error broadcasting the transaction!', error);
-              }));
-            } catch (e) {
-              return Promise.reject(e);
-            }
+          onFinish: async hash => {
+            handleBTCFinish(hash, htlcAddress, unixTimestamp);
           },
-          onCancel: function onCancel() {
-            toast.toast.error('Transaction cancelled!');
-          }
-        })).then(function () {});
-      });
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  };
-  var handleSubmit = function handleSubmit() {
-    try {
-      var _temp8 = function _temp8(_result2) {
-        var _exit2 = false;
-        if (_exit) return _result2;
-        return _catch(function () {
-          var _exit3 = false;
-          if (sourceChain === exports.SupportNetworks.FIAT || targetChain === exports.SupportNetworks.FIAT) return;
-          setSubmitting(true);
-          if (dAppOption === exports.DAppOptions.LPDrain || dAppOption === exports.DAppOptions.LPAdd) {
-            keplrHandler(walletAddress);
-            return;
-          }
-          return Promise.resolve(checkPoolBalance()).then(function (_checkPoolBalance) {
-            if (!_checkPoolBalance) {
-              setSubmitting(false);
-              _exit2 = true;
-              return;
-            }
-            var params;
-            var feeParam;
-            if (sourceChain === exports.SupportNetworks.BTC || targetChain === exports.SupportNetworks.BTC) {
-              feeParam = fee.toFixed(8);
-            } else {
-              feeParam = fee.toFixed(2);
-            }
-            if (sourceChain === exports.SupportNetworks.BTC) {
-              params = JSON.stringify({
-                originAddress: walletAddress,
-                originChain: sourceChain,
-                targetAddress: mode === exports.ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
-                targetChain: targetChain,
-                originSymbol: sourceCurrency,
-                targetSymbol: targetCurrency,
-                amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
-                fee: feeParam,
-                htlcCreationHash: btcHash,
-                htlcCreationVout: 0,
-                htlcExpirationTimestamp: btcTimestamp.toString(),
-                htlcVersion: 'v1',
-                senderPubKey: bitcoinPubkey
-              });
-            } else {
-              params = JSON.stringify({
-                originAddress: walletAddress,
-                originChain: sourceChain,
-                targetAddress: mode === exports.ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
-                targetChain: targetChain,
-                originSymbol: sourceCurrency,
-                targetSymbol: targetCurrency,
-                amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
-                fee: feeParam,
-                htlcCreationHash: '',
-                htlcCreationVout: 0,
-                htlcExpirationTimestamp: '0',
-                htlcVersion: '',
-                senderPubKey: ''
-              });
-            }
-            console.log(params);
-            return Promise.resolve(fetchWrapper.post(backendUrl + "/auth", params)).then(function () {
-              return Promise.resolve(fetchWrapper.post(backendUrl + "/submit", params)).then(function (result) {
-                console.log(result);
-                if ((result === null || result === void 0 ? void 0 : result.code) !== 0) {
-                  errorHandler(result);
-                  toast.toast.error('Failed to submit transaction!');
-                  setSubmitting(false);
-                  return;
-                }
-                var txId = -1;
-                for (var _iterator3 = _createForOfIteratorHelperLoose(result.events), _step3; !(_step3 = _iterator3()).done;) {
-                  var event = _step3.value;
-                  if (event.type === 'transaction_requested') {
-                    for (var _iterator4 = _createForOfIteratorHelperLoose(event.attributes), _step4; !(_step4 = _iterator4()).done;) {
-                      var attr = _step4.value;
-                      if (attr.key === 'txId') {
-                        txId = attr.value;
-                      }
-                    }
-                  }
-                }
-                console.log(txId);
-                setSubmitting(false);
-                dispatch(setTxId(txId));
-                dispatch(setSubmitted(true));
-              });
-            });
-          });
-        }, function (e) {
-          errorHandler(e);
-          setSubmitting(false);
-          console.log((e === null || e === void 0 ? void 0 : e.status) !== 500 ? 'rpc disconnected' : '', e);
-          toast.toast.error('rpc disconnected');
-          toast.toast.error('Failed to submit transaction');
-        });
-      };
-      var _exit = false;
-      if (fee < 0) {
-        toast.toast.error('Fee is not calculated!');
-        errorHandler('Fee is not calculated!');
-        return Promise.resolve();
-      }
-      if (dAppOption !== exports.DAppOptions.LPDrain && balance < (feeDeduct ? +amount : +amount + fee)) {
-        toast.toast.error('Insufficient balance!');
-        errorHandler('Insufficient balance!');
-        return Promise.resolve();
-      }
-      if (sourceChain === exports.SupportNetworks.BTC && +amount < 0.00015) {
-        toast.toast.error('Minimum BTC amount is 0.00015!');
-        errorHandler('Minimum BTC amount is 0.00015!');
-        return Promise.resolve();
-      }
-      if (sourceChain === exports.SupportNetworks.FIAT || targetChain === exports.SupportNetworks.FIAT) {
-        if (kycStatus !== 'approved') {
-          setVerifying(true);
-          dispatch(setBankPopup(true));
-          return Promise.resolve();
-        }
-      }
-      if (sourceChain === exports.SupportNetworks.FIAT) {
-        if (!isSigned) {
-          sign();
-          return Promise.resolve();
-        }
-      } else if (!isApproved && dAppOption !== exports.DAppOptions.LPDrain && sourceChain !== exports.SupportNetworks.BTC) {
-        approve();
-        return Promise.resolve();
-      }
-      var _temp7 = function () {
-        if (sourceChain === exports.SupportNetworks.BTC && !isApproved) {
-          var _temp6 = function _temp6() {
-            _exit = true;
-          };
-          setBTCSigning(true);
-          var unixTimestamp = Math.floor(Date.now() / 1000) + (expireTime === '1 hour' ? 3600 : expireTime === '2 hours' ? 7200 : 10800);
-          setBTCTimestamp(unixTimestamp);
-          var htlcScript = createHTLCScript(bitcoinAddress, bitcoinPubkey, poolAddress, unixTimestamp, bitcoin.networks.testnet);
-          var htlcAddress = htlcP2WSHAddress(htlcScript, bitcoin.networks.testnet);
-          var _temp5 = _catch(function () {
-            return Promise.resolve(satsConnect.sendBtcTransaction({
-              payload: {
-                network: {
-                  type: satsConnect.BitcoinNetworkType.Testnet
-                },
-                recipients: [{
-                  address: htlcAddress,
-                  amountSats: BigInt(Math.round((feeDeduct ? +amount : +amount + fee) * 100000000))
-                }],
-                senderAddress: bitcoinAddress
-              },
-              onFinish: function (hash) {
-                handleBTCFinish(hash, htlcAddress, unixTimestamp);
-                return Promise.resolve();
-              },
-              onCancel: function onCancel() {
-                toast.toast.error('Transaction cancelled.');
-                setBTCSigning(false);
-              }
-            })).then(function () {});
-          }, function (e) {
+          onCancel: () => {
+            toast$1.error('Transaction cancelled.');
             setBTCSigning(false);
-            console.log(e);
-          });
-          return _temp5 && _temp5.then ? _temp5.then(_temp6) : _temp6(_temp5);
+          }
+        });
+      } catch (e) {
+        setBTCSigning(false);
+        console.log(e);
+      }
+      return;
+    }
+    try {
+      if (sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT) return;
+      setSubmitting(true);
+      if (dAppOption === DAppOptions.LPDrain || dAppOption === DAppOptions.LPAdd) {
+        keplrHandler(walletAddress);
+        return;
+      }
+      if (!(await checkPoolBalance())) {
+        setSubmitting(false);
+        return;
+      }
+      let params;
+      let feeParam;
+      if (sourceChain === ChainName.BTC || targetChain === ChainName.BTC) {
+        feeParam = fee.toFixed(8);
+      } else {
+        feeParam = fee.toFixed(2);
+      }
+      if (sourceChain === ChainName.BTC) {
+        params = JSON.stringify({
+          originAddress: walletAddress,
+          originChain: sourceChain,
+          targetAddress: mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
+          targetChain: targetChain,
+          originSymbol: sourceCurrency,
+          targetSymbol: targetCurrency,
+          amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
+          fee: feeParam,
+          htlcCreationHash: btcHash,
+          htlcCreationVout: 0,
+          htlcExpirationTimestamp: btcTimestamp.toString(),
+          htlcVersion: 'v1',
+          senderPubKey: bitcoinPubkey
+        });
+      } else {
+        params = JSON.stringify({
+          originAddress: walletAddress,
+          originChain: sourceChain,
+          targetAddress: mode === ModeOptions.payment ? transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress : targetAddress,
+          targetChain: targetChain,
+          originSymbol: sourceCurrency,
+          targetSymbol: targetCurrency,
+          amount: feeDeduct ? (+amount - fee).toFixed(8) : amount,
+          fee: feeParam,
+          htlcCreationHash: '',
+          htlcCreationVout: 0,
+          htlcExpirationTimestamp: '0',
+          htlcVersion: '',
+          senderPubKey: ''
+        });
+      }
+      console.log(params);
+      await fetchWrapper.post(`${backendUrl}/auth`, params);
+      const result = await fetchWrapper.post(`${backendUrl}/submit`, params);
+      console.log(result);
+      if ((result === null || result === void 0 ? void 0 : result.code) !== 0) {
+        errorHandler(result);
+        toast$1.error('Failed to submit transaction!');
+        setSubmitting(false);
+        return;
+      }
+      let txId = -1;
+      for (const event of result.events) {
+        if (event.type === 'transaction_requested') {
+          for (const attr of event.attributes) {
+            if (attr.key === 'txId') {
+              txId = attr.value;
+            }
+          }
         }
-      }();
-      return Promise.resolve(_temp7 && _temp7.then ? _temp7.then(_temp8) : _temp8(_temp7));
+      }
+      console.log(txId);
+      setSubmitting(false);
+      dispatch(setTxId(txId));
+      dispatch(setSubmitted(true));
     } catch (e) {
-      return Promise.reject(e);
+      errorHandler(e);
+      setSubmitting(false);
+      console.log((e === null || e === void 0 ? void 0 : e.status) !== 500 ? 'rpc disconnected' : '', e);
+      toast$1.error('rpc disconnected');
+      toast$1.error('Failed to submit transaction');
     }
   };
-  var onNext = function onNext() {
+  const onNext = () => {
     var _mainRef$current;
     if ( !formStep) {
       if (isReady) {
-        if (targetChain === exports.SupportNetworks.FIAT) {
+        if (targetChain === ChainName.FIAT) {
           if (!bankDetails.iban) {
-            toast.toast.error('Invalid IBAN!');
+            toast$1.error('Invalid IBAN!');
             errorHandler('Invalid IBAN!');
             return;
           }
           if (!bankDetails.recipient) {
-            toast.toast.error('Invalid Recipient Address!');
+            toast$1.error('Invalid Recipient Address!');
             errorHandler('Invalid Recipient Address!');
             return;
           }
         }
         if (+amount <= 0) {
-          toast.toast.error('Invalid amount!');
+          toast$1.error('Invalid amount!');
           errorHandler('Invalid amount!');
           return;
         }
         if (fee < 0) {
-          toast.toast.error('Fee is not calculated!');
+          toast$1.error('Fee is not calculated!');
           errorHandler('Fee is not calculated!');
           return;
         }
         if (compliantOption && (sourceCompliant !== 'low' || targetCompliant !== 'low')) return;
         if (fee > 0 && fee > +amount && feeDeduct) {
-          toast.toast.error('Fee is greater than amount to transfer!');
+          toast$1.error('Fee is greater than amount to transfer!');
           errorHandler('Fee is greater than amount to transfer!');
           return;
         }
-        if (mode === exports.ModeOptions.payment || targetAddress && +amount > 0) {
+        if (mode === ModeOptions.payment || targetAddress && +amount > 0) {
           setConfirming(true);
           setFormStep(1);
         }
         return;
       } else {
-        toast.toast.error('Wallet is not connected!');
+        toast$1.error('Wallet is not connected!');
         errorHandler('Wallet is not connected!');
       }
     }
@@ -12965,7 +12272,7 @@ var TransferWidget = function TransferWidget(_ref) {
     }
     (_mainRef$current = mainRef.current) === null || _mainRef$current === void 0 ? void 0 : _mainRef$current.click();
   };
-  var onBack = function onBack() {
+  const onBack = () => {
     if (isApproving || isSubmitting || isSigning) return;
     if ( formStep > 0) {
       setFormStep(0);
@@ -12975,20 +12282,20 @@ var TransferWidget = function TransferWidget(_ref) {
       closeHandler();
     }
   };
-  var getButtonLabel = function getButtonLabel() {
+  const getButtonLabel = () => {
     if (  formStep === 1) {
-      if (sourceChain === exports.SupportNetworks.FIAT || targetChain === exports.SupportNetworks.FIAT) {
+      if (sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT) {
         if (isVerifying) return 'KYC Verifying...';
         if (kycStatus !== 'approved') {
           return 'KYC Verify';
         }
       }
-      if (sourceChain === exports.SupportNetworks.BTC && !isApproved) {
+      if (sourceChain === ChainName.BTC && !isApproved) {
         return isBTCSigning ? 'Signing...' : 'Sign';
       }
-      if (sourceChain !== exports.SupportNetworks.FIAT && isApproved || dAppOption === exports.DAppOptions.LPDrain || sourceChain === exports.SupportNetworks.FIAT && isSigned) {
+      if (sourceChain !== ChainName.FIAT && isApproved || dAppOption === DAppOptions.LPDrain || sourceChain === ChainName.FIAT && isSigned) {
         return isSubmitting ? 'Submitting...' : 'Submit';
-      } else if (sourceChain === exports.SupportNetworks.FIAT) {
+      } else if (sourceChain === ChainName.FIAT) {
         return isSigning ? 'Signing...' : 'Sign';
       } else {
         return isApproving ? 'Approving...' : 'Approve';
@@ -12996,121 +12303,113 @@ var TransferWidget = function TransferWidget(_ref) {
     }
     return 'Next';
   };
-  var onCancelApprove = function onCancelApprove() {
+  const onCancelApprove = () => {
     if (isCancellingApprove) return;
     approve(true);
   };
-  React.useEffect(function () {
+  useEffect(() => {
     dispatch(setTheme(theme));
   }, [theme]);
-  React.useEffect(function () {
-    if (!nodeProviderQuery || sourceChain !== exports.SupportNetworks.BTC || !walletAddress) return;
-    var updatePendingTxs = function updatePendingTxs() {
-      try {
-        return Promise.resolve(fetchWrapper.get(nodeProviderQuery + "/kima-finance/kima-blockchain/transaction/get_htlc_transaction/" + walletAddress)).then(function (result) {
-          var data = result === null || result === void 0 ? void 0 : result.htlcLockingTransaction;
-          var txData = [];
-          if (data.length > 0) {
-            for (var _iterator5 = _createForOfIteratorHelperLoose(data), _step5; !(_step5 = _iterator5()).done;) {
-              var tx = _step5.value;
-              var status = '';
-              if (tx.status !== 'Completed') {
-                status = 'Confirming';
-              } else if (tx.pull_status === 'htlc_pull_available') {
-                status = 'Pending';
-              } else if (tx.pull_status === 'htlc_pull_in_progress') {
-                status = 'In Progress';
-              } else if (tx.pull_status === 'htlc_pull_succeed') {
-                status = 'Completed';
-              } else if (tx.pull_status === 'htlc_pull_failed') {
-                status = 'Failed';
-              }
-              txData.push({
-                hash: tx.txHash,
-                amount: tx.amount,
-                expireTime: tx.htlcTimestamp,
-                status: status
-              });
-            }
-            dispatch(setPendingTxData(txData));
-            dispatch(setPendingTxs(txData.filter(function (tx) {
-              return tx.status === 'Pending' || tx.status === 'Confirming';
-            }).length));
+  useEffect(() => {
+    if (!nodeProviderQuery || sourceChain !== ChainName.BTC || !walletAddress) return;
+    const updatePendingTxs = async () => {
+      const result = await fetchWrapper.get(`${nodeProviderQuery}/kima-finance/kima-blockchain/transaction/get_htlc_transaction/${walletAddress}`);
+      const data = result === null || result === void 0 ? void 0 : result.htlcLockingTransaction;
+      const txData = [];
+      if (data.length > 0) {
+        for (const tx of data) {
+          let status = '';
+          if (tx.status !== 'Completed') {
+            status = 'Confirming';
+          } else if (tx.pull_status === 'htlc_pull_available') {
+            status = 'Pending';
+          } else if (tx.pull_status === 'htlc_pull_in_progress') {
+            status = 'In Progress';
+          } else if (tx.pull_status === 'htlc_pull_succeed') {
+            status = 'Completed';
+          } else if (tx.pull_status === 'htlc_pull_failed') {
+            status = 'Failed';
           }
-        });
-      } catch (e) {
-        return Promise.reject(e);
+          txData.push({
+            hash: tx.txHash,
+            amount: tx.amount,
+            expireTime: tx.htlcTimestamp,
+            status
+          });
+        }
+        dispatch(setPendingTxData(txData));
+        dispatch(setPendingTxs(txData.filter(tx => tx.status === 'Pending' || tx.status === 'Confirming').length));
       }
     };
-    var timerId = setInterval(function () {
+    const timerId = setInterval(() => {
       updatePendingTxs();
     }, 10000);
     updatePendingTxs();
-    return function () {
+    return () => {
       clearInterval(timerId);
     };
   }, [sourceChain, nodeProviderQuery, walletAddress]);
-  return React__default.createElement("div", {
-    className: "kima-card " + theme.colorMode + " font-" + theme.fontSize,
+  return React.createElement("div", {
+    className: `kima-card ${theme.colorMode} font-${theme.fontSize}`,
     style: {
       fontFamily: theme.fontFamily,
-      background: theme.colorMode === exports.ColorModeOptions.light ? theme.backgroundColorLight : theme.backgroundColorDark
+      background: theme.colorMode === ColorModeOptions.light ? theme.backgroundColorLight : theme.backgroundColorDark
     }
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'kima-card-header'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'topbar'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'title'
-  }, React__default.createElement("h3", null,   formStep > 0 ? titleOption !== null && titleOption !== void 0 && titleOption.confirmTitle ? titleOption === null || titleOption === void 0 ? void 0 : titleOption.confirmTitle : 'Transfer Details' : titleOption !== null && titleOption !== void 0 && titleOption.initialTitle ? titleOption === null || titleOption === void 0 ? void 0 : titleOption.initialTitle : 'New Transfer')), React__default.createElement("div", {
+  }, React.createElement("h3", null,   formStep > 0 ? titleOption !== null && titleOption !== void 0 && titleOption.confirmTitle ? titleOption === null || titleOption === void 0 ? void 0 : titleOption.confirmTitle : 'Transfer Details' : titleOption !== null && titleOption !== void 0 && titleOption.initialTitle ? titleOption === null || titleOption === void 0 ? void 0 : titleOption.initialTitle : 'New Transfer')), React.createElement("div", {
     className: 'control-buttons'
-  }, pendingTxs > 0 ? React__default.createElement(TxButton, {
+  }, pendingTxs > 0 ? React.createElement(TxButton, {
     theme: theme
-  }) : null, React__default.createElement(ExternalLink, {
+  }) : null, React.createElement(ExternalLink, {
     to: helpURL ? helpURL : 'https://docs.kima.finance/demo'
-  }, React__default.createElement("div", {
+  }, React.createElement("div", {
     className: 'menu-button'
-  }, "I need help")), React__default.createElement("button", {
+  }, "I need help")), React.createElement("button", {
     className: 'icon-button',
-    onClick: function onClick() {
+    onClick: () => {
       if (isApproving || isSubmitting || isSigning) return;
       dispatch(initialize());
       closeHandler();
     },
     disabled: isApproving || isSubmitting || isSigning
-  }, React__default.createElement(Cross, {
+  }, React.createElement(Cross, {
     fill: theme.colorMode === 'light' ? 'black' : 'white'
-  }))))), React__default.createElement("div", {
+  }))))), React.createElement("div", {
     className: 'kima-card-content',
     ref: mainRef
-  },  formStep === 0 ? React__default.createElement(SingleForm, {
+  },  formStep === 0 ? React.createElement(SingleForm, {
     paymentTitleOption: paymentTitleOption
-  }) : React__default.createElement(ConfirmDetails, {
-    isApproved: sourceChain === exports.SupportNetworks.FIAT ? isSigned : isApproved
-  })), React__default.createElement("div", {
+  }) : React.createElement(ConfirmDetails, {
+    isApproved: sourceChain === ChainName.FIAT ? isSigned : isApproved
+  })), React.createElement("div", {
     className: 'kima-card-footer'
-  }, React__default.createElement(ExternalLink, {
+  }, React.createElement(ExternalLink, {
     to: 'https://kima.finance'
-  }, React__default.createElement(FooterLogo, {
+  }, React.createElement(FooterLogo, {
     fill: theme.colorMode === 'light' ? 'black' : '#C5C5C5'
-  })), React__default.createElement("div", {
+  })), React.createElement("div", {
     className: 'button-group'
-  }, React__default.createElement(SecondaryButton, {
+  }, React.createElement(SecondaryButton, {
     clickHandler: onBack,
     theme: theme.colorMode,
     disabled: isApproving || isSubmitting || isSigning || isBTCSigning
-  },   formStep > 0 ? 'Back' : 'Cancel'), allowance > 0 && (  formStep === 1) ? React__default.createElement(PrimaryButton, {
+  },   formStep > 0 ? 'Back' : 'Cancel'), allowance > 0 && (  formStep === 1) ? React.createElement(PrimaryButton, {
     clickHandler: onCancelApprove,
     isLoading: isCancellingApprove,
     disabled: isCancellingApprove || isApproving || isSubmitting || isSigning || isBTCSigning
-  }, isCancellingApprove ? 'Cancelling Approval' : 'Cancel Approve') : null, React__default.createElement(PrimaryButton, {
+  }, isCancellingApprove ? 'Cancelling Approval' : 'Cancel Approve') : null, React.createElement(PrimaryButton, {
     clickHandler: onNext,
     isLoading: isApproving || isSubmitting || isSigning || isBTCSigning,
     disabled: isApproving || isSubmitting || isSigning || isBTCSigning
-  }, getButtonLabel()))), React__default.createElement(SolanaWalletConnectModal, null), React__default.createElement(TronWalletConnectModal, null), sourceChain === exports.SupportNetworks.FIAT || targetChain === exports.SupportNetworks.FIAT ? React__default.createElement(BankPopup, {
+  }, getButtonLabel()))), React.createElement(SolanaWalletConnectModal, null), React.createElement(TronWalletConnectModal, null), sourceChain === ChainName.FIAT || targetChain === ChainName.FIAT ? React.createElement(BankPopup, {
     setVerifying: setVerifying,
     isVerifying: isVerifying
-  }) : null, React__default.createElement(toast.Toaster, {
+  }) : null, React.createElement(Toaster, {
     position: 'top-right',
     reverseOrder: false,
     containerStyle: {
@@ -13124,334 +12423,296 @@ var TransferWidget = function TransferWidget(_ref) {
         right: windowWidth > 768 ? '1.5rem' : '0rem',
         margin: '5px 0',
         padding: '.7rem 1.5rem',
-        color: theme.colorMode === exports.ColorModeOptions.light ? 'black' : 'white',
+        color: theme.colorMode === ColorModeOptions.light ? 'black' : 'white',
         fontSize: '1em',
         borderRadius: '1em',
         border: '1px solid #66aae5',
-        background: theme.colorMode === exports.ColorModeOptions.light ? 'white' : (_theme$backgroundColo = theme.backgroundColorDark) != null ? _theme$backgroundColo : '#1b1e25'
+        background: theme.colorMode === ColorModeOptions.light ? 'white' : theme.backgroundColorDark ?? '#1b1e25'
       }
     }
-  }), React__default.createElement(PendingTxPopup, {
+  }), React.createElement(PendingTxPopup, {
     handleHtlcContinue: handleHtlcContinue,
     handleHtlcReclaim: handleHtlcReclaim
   }));
 };
 
-var KimaTransactionWidget = function KimaTransactionWidget(_ref) {
-  var mode = _ref.mode,
-    txId = _ref.txId,
-    _ref$autoSwitchChain = _ref.autoSwitchChain,
-    autoSwitchChain = _ref$autoSwitchChain === void 0 ? true : _ref$autoSwitchChain,
-    _ref$networkOption = _ref.networkOption,
-    networkOption = _ref$networkOption === void 0 ? exports.NetworkOptions.testnet : _ref$networkOption,
-    provider = _ref.provider,
-    _ref$dAppOption = _ref.dAppOption,
-    dAppOption = _ref$dAppOption === void 0 ? exports.DAppOptions.None : _ref$dAppOption,
-    theme = _ref.theme,
-    titleOption = _ref.titleOption,
-    paymentTitleOption = _ref.paymentTitleOption,
-    _ref$useFIAT = _ref.useFIAT,
-    useFIAT = _ref$useFIAT === void 0 ? false : _ref$useFIAT,
-    _ref$helpURL = _ref.helpURL,
-    helpURL = _ref$helpURL === void 0 ? '' : _ref$helpURL,
-    _ref$compliantOption = _ref.compliantOption,
-    compliantOption = _ref$compliantOption === void 0 ? true : _ref$compliantOption,
-    transactionOption = _ref.transactionOption,
-    kimaBackendUrl = _ref.kimaBackendUrl,
-    kimaNodeProviderQuery = _ref.kimaNodeProviderQuery,
-    _ref$kimaExplorer = _ref.kimaExplorer,
-    kimaExplorer = _ref$kimaExplorer === void 0 ? 'https://explorer.kima.network' : _ref$kimaExplorer,
-    _ref$feeURL = _ref.feeURL,
-    feeURL = _ref$feeURL === void 0 ? 'https://fee.kima.network' : _ref$feeURL,
-    _ref$kimaGraphqlProvi = _ref.kimaGraphqlProviderQuery,
-    kimaGraphqlProviderQuery = _ref$kimaGraphqlProvi === void 0 ? 'https://graphql.kima.network/v1/graphql' : _ref$kimaGraphqlProvi,
-    _ref$errorHandler = _ref.errorHandler,
-    errorHandler = _ref$errorHandler === void 0 ? function () {
-      return void 0;
-    } : _ref$errorHandler,
-    _ref$closeHandler = _ref.closeHandler,
-    closeHandler = _ref$closeHandler === void 0 ? function () {
-      return void 0;
-    } : _ref$closeHandler,
-    _ref$successHandler = _ref.successHandler,
-    successHandler = _ref$successHandler === void 0 ? function () {
-      return void 0;
-    } : _ref$successHandler,
-    _ref$switchChainHandl = _ref.switchChainHandler,
-    switchChainHandler = _ref$switchChainHandl === void 0 ? function () {
-      return void 0;
-    } : _ref$switchChainHandl,
-    _ref$keplrHandler = _ref.keplrHandler,
-    keplrHandler = _ref$keplrHandler === void 0 ? function () {
-      return void 0;
-    } : _ref$keplrHandler;
-  var submitted = reactRedux.useSelector(selectSubmitted);
-  var dispatch = reactRedux.useDispatch();
-  var _useWeb3ModalTheme = react.useWeb3ModalTheme(),
-    setThemeMode = _useWeb3ModalTheme.setThemeMode;
-  React.useEffect(function () {
+const KimaTransactionWidget = ({
+  mode,
+  txId,
+  autoSwitchChain: _autoSwitchChain = true,
+  networkOption: _networkOption = NetworkOptions.testnet,
+  provider,
+  dAppOption: _dAppOption = DAppOptions.None,
+  theme,
+  titleOption,
+  paymentTitleOption,
+  useFIAT: _useFIAT = false,
+  helpURL: _helpURL = '',
+  compliantOption: _compliantOption = true,
+  transactionOption,
+  kimaBackendUrl,
+  kimaNodeProviderQuery,
+  kimaExplorer: _kimaExplorer = 'https://explorer.kima.network',
+  feeURL: _feeURL = 'https://fee.kima.network',
+  kimaGraphqlProviderQuery: _kimaGraphqlProviderQuery = 'https://graphql.kima.network/v1/graphql',
+  errorHandler: _errorHandler = () => void 0,
+  closeHandler: _closeHandler = () => void 0,
+  successHandler: _successHandler = () => void 0,
+  switchChainHandler: _switchChainHandler = () => void 0,
+  keplrHandler: _keplrHandler = () => void 0
+}) => {
+  const submitted = useSelector(selectSubmitted);
+  const dispatch = useDispatch();
+  const {
+    setThemeMode
+  } = useWeb3ModalTheme();
+  useEffect(() => {
     dispatch(setTheme(theme));
-    setThemeMode(theme.colorMode === exports.ColorModeOptions.light ? 'light' : 'dark');
+    setThemeMode(theme.colorMode === ColorModeOptions.light ? 'light' : 'dark');
     if (transactionOption) dispatch(setTransactionOption(transactionOption));
-    dispatch(setKimaExplorer(kimaExplorer));
-    dispatch(setCompliantOption(compliantOption));
-    dispatch(setErrorHandler(errorHandler));
-    dispatch(setKeplrHandler(keplrHandler));
-    dispatch(setCloseHandler(closeHandler));
-    dispatch(setSuccessHandler(successHandler));
-    dispatch(setSwitchChainHandler(switchChainHandler));
+    dispatch(setKimaExplorer(_kimaExplorer));
+    dispatch(setCompliantOption(_compliantOption));
+    dispatch(setErrorHandler(_errorHandler));
+    dispatch(setKeplrHandler(_keplrHandler));
+    dispatch(setCloseHandler(_closeHandler));
+    dispatch(setSuccessHandler(_successHandler));
+    dispatch(setSwitchChainHandler(_switchChainHandler));
     dispatch(setBackendUrl(kimaBackendUrl));
     dispatch(setNodeProviderQuery(kimaNodeProviderQuery));
-    dispatch(setGraphqlProviderQuery(kimaGraphqlProviderQuery));
+    dispatch(setGraphqlProviderQuery(_kimaGraphqlProviderQuery));
     dispatch(setMode(mode));
     dispatch(setProvider(provider));
-    dispatch(setDappOption(dAppOption));
-    dispatch(setWalletAutoConnect(autoSwitchChain));
-    dispatch(setUseFIAT(useFIAT));
-    dispatch(setNetworkOption(networkOption));
-    if (useFIAT) {
+    dispatch(setDappOption(_dAppOption));
+    dispatch(setWalletAutoConnect(_autoSwitchChain));
+    dispatch(setUseFIAT(_useFIAT));
+    dispatch(setNetworkOption(_networkOption));
+    if (_useFIAT) {
       dispatch(setTxId(txId || -1));
-      (function () {
+      (async function () {
         try {
-          var _temp = _catch(function () {
-            return Promise.resolve(fetchWrapper.get(kimaBackendUrl + "/uuid")).then(function (uuid) {
-              dispatch(setUuid(uuid));
-              console.log('depasify uuid: ', uuid);
-            });
-          }, function (e) {
-            console.log('uuid generate failed', e);
-          });
-          return _temp && _temp.then ? _temp.then(function () {}) : void 0;
+          const uuid = await fetchWrapper.get(`${kimaBackendUrl}/uuid`);
+          dispatch(setUuid(uuid));
+          console.log('depasify uuid: ', uuid);
         } catch (e) {
-          Promise.reject(e);
+          console.log('uuid generate failed', e);
         }
       })();
     }
-    if (mode === exports.ModeOptions.payment) {
-      dispatch(setTargetChain((transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetChain) || exports.SupportNetworks.ETHEREUM));
-      if (dAppOption === exports.DAppOptions.LPAdd || dAppOption === exports.DAppOptions.LPDrain) {
-        dispatch(setSourceChain((transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetChain) || exports.SupportNetworks.ETHEREUM));
+    if (mode === ModeOptions.payment) {
+      dispatch(setTargetChain((transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetChain) || ChainName.ETHEREUM));
+      if (_dAppOption === DAppOptions.LPAdd || _dAppOption === DAppOptions.LPDrain) {
+        dispatch(setSourceChain((transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetChain) || ChainName.ETHEREUM));
         dispatch(setTargetCurrency((transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.currency) || 'USDK'));
       } else {
-        (function () {
+        (async function () {
           try {
-            var _temp4 = function _temp4() {
-              return _catch(function () {
-                var _temp2 = function () {
-                  if (transactionOption !== null && transactionOption !== void 0 && transactionOption.targetAddress) {
-                    return Promise.resolve(fetchWrapper.post(kimaBackendUrl + "/compliant", JSON.stringify({
-                      address: transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress
-                    }))).then(function (compliantRes) {
-                      dispatch(setTargetCompliant(compliantRes));
-                    });
-                  }
-                }();
-                if (_temp2 && _temp2.then) return _temp2.then(function () {});
-              }, function (e) {
-                toast__default.error('xplorisk check failed');
-                console.log('xplorisk check failed', e);
-              });
-            };
-            var _temp3 = _catch(function () {
-              return Promise.resolve(fetchWrapper.get(kimaNodeProviderQuery + "/kima-finance/kima-blockchain/chains/get_available_chains/" + ((transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetChain) || exports.SupportNetworks.ETHEREUM))).then(function (networks) {
-                dispatch(setSourceChain(networks.Chains[0]));
-              });
-            }, function (e) {
-              toast__default.error('rpc disconnected!');
-              console.log('rpc disconnected', e);
-            });
-            return _temp3 && _temp3.then ? _temp3.then(_temp4) : _temp4(_temp3);
+            const networks = await fetchWrapper.get(`${kimaNodeProviderQuery}/kima-finance/kima-blockchain/chains/get_available_chains/${(transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetChain) || ChainName.ETHEREUM}`);
+            dispatch(setSourceChain(networks.Chains[0]));
           } catch (e) {
-            Promise.reject(e);
+            toast.error('rpc disconnected!');
+            console.log('rpc disconnected', e);
+          }
+          try {
+            if (transactionOption !== null && transactionOption !== void 0 && transactionOption.targetAddress) {
+              const compliantRes = await fetchWrapper.post(`${kimaBackendUrl}/compliant`, JSON.stringify({
+                address: transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress
+              }));
+              dispatch(setTargetCompliant(compliantRes));
+            }
+          } catch (e) {
+            toast.error('xplorisk check failed');
+            console.log('xplorisk check failed', e);
           }
         })();
       }
       dispatch(setTargetAddress((transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.targetAddress) || ''));
       dispatch(setAmount((transactionOption === null || transactionOption === void 0 ? void 0 : transactionOption.amount.toString()) || ''));
-    } else if (mode === exports.ModeOptions.status) {
+    } else if (mode === ModeOptions.status) {
       dispatch(setTxId(txId || 1));
       dispatch(setSubmitted(true));
     }
-  }, [provider, theme, transactionOption, errorHandler, closeHandler, mode, networkOption]);
-  React.useEffect(function () {
-    if (dAppOption === exports.DAppOptions.None && mode === exports.ModeOptions.bridge) {
+  }, [provider, theme, transactionOption, _errorHandler, _closeHandler, mode, _networkOption]);
+  useEffect(() => {
+    if (_dAppOption === DAppOptions.None && mode === ModeOptions.bridge) {
       dispatch(setTargetChain(''));
       dispatch(setSourceChain('ETH'));
     }
-  }, [dAppOption, mode]);
-  return submitted ? React__default.createElement(TransactionWidget, {
+  }, [_dAppOption, mode]);
+  return submitted ? React.createElement(TransactionWidget, {
     theme: theme
-  }) : React__default.createElement(TransferWidget, {
+  }) : React.createElement(TransferWidget, {
     theme: theme,
-    feeURL: feeURL,
-    helpURL: helpURL,
+    feeURL: _feeURL,
+    helpURL: _helpURL,
     titleOption: titleOption,
     paymentTitleOption: paymentTitleOption
   });
 };
 
-var ConnectionProvider = SolanaAdapter.ConnectionProvider,
-  SolanaWalletProvider = SolanaAdapter.WalletProvider;
-var ethereumSepolia = {
+const {
+  ConnectionProvider,
+  WalletProvider: SolanaWalletProvider
+} = SolanaAdapter;
+const ethereumSepolia = {
   chainId: 11155111,
   name: 'Ethereum Sepolia',
   currency: 'ETH',
   explorerUrl: 'https://sepolia.etherscan.io',
   rpcUrl: 'https://ethereum-sepolia-rpc.publicnode.com'
 };
-var ethereum = {
+const ethereum = {
   chainId: 1,
   name: 'Ethereum Mainnet',
   currency: 'ETH',
   explorerUrl: 'https://etherscan.io',
   rpcUrl: 'https://endpoints.omniatech.io/v1/eth/mainnet/public'
 };
-var baseTestnet = {
+const baseTestnet = {
   chainId: 84532,
   name: 'Base Sepolia',
   currency: 'ETH',
   explorerUrl: 'https://sepolia.basescan.org',
   rpcUrl: 'https://sepolia.base.org'
 };
-var base = {
+const base = {
   chainId: 8453,
   name: 'Base Mainnet',
   currency: 'ETH',
   explorerUrl: 'https://basescan.org',
   rpcUrl: 'https://mainnet.base.org'
 };
-var bscTestnet = {
+const bscTestnet = {
   chainId: 97,
   name: 'BNB Smart Chain Testnet',
   currency: 'tBNB',
   explorerUrl: 'https://testnet.bscscan.com',
   rpcUrl: 'https://endpoints.omniatech.io/v1/bsc/testnet/public'
 };
-var bera = {
+const bera = {
   chainId: 80094,
   name: 'Bera Mainnet',
   currency: 'BERA',
   explorerUrl: 'https://berascan.com',
   rpcUrl: 'https://rpc.berachain.com'
 };
-var beraTestnet = {
+const beraTestnet = {
   chainId: 80084,
   name: 'Bera Testnet',
   currency: 'BERA',
   explorerUrl: 'https://bartio.beratrail.io',
   rpcUrl: 'https://bartio.rpc.berachain.com'
 };
-var bsc = {
+const bsc = {
   chainId: 56,
   name: 'BNB Smart Chain Mainnet',
   currency: 'BNB',
   explorerUrl: 'https://bscscan.com',
   rpcUrl: 'https://bsc-dataseed.binance.org/'
 };
-var polygonAmoy = {
+const polygonAmoy = {
   chainId: 80002,
   name: 'Amoy',
   currency: 'MATIC',
   explorerUrl: 'https://www.oklink.com/amoy',
   rpcUrl: 'https://rpc-amoy.polygon.technology'
 };
-var polygon = {
+const polygon = {
   chainId: 137,
   name: 'Polygon Mainnet',
   currency: 'MATIC',
   explorerUrl: 'https://polygonscan.com',
   rpcUrl: 'https://polygon-rpc.com/'
 };
-var arbitrumSepolia = {
+const arbitrumSepolia = {
   chainId: 421614,
   name: 'Arbitrum Sepolia Testnet',
   currency: 'ETH',
   explorerUrl: 'https://sepolia.arbiscan.io/',
   rpcUrl: 'https://sepolia-rollup.arbitrum.io/rpc'
 };
-var arbitrum = {
+const arbitrum = {
   chainId: 42161,
   name: 'Arbitrum Mainnet',
   currency: 'ETH',
   explorerUrl: 'https://arbiscan.io',
   rpcUrl: 'https://arb1.arbitrum.io/rpc'
 };
-var optimismSepola = {
+const optimismSepola = {
   chainId: 11155420,
   name: 'OP Sepolia',
   currency: 'ETH',
   explorerUrl: 'https://sepolia-optimism.etherscan.io',
   rpcUrl: 'https://sepolia.optimism.io'
 };
-var optimism = {
+const optimism = {
   chainId: 10,
   name: 'OP Mainnet',
   currency: 'ETH',
   explorerUrl: 'https://optimistic.etherscan.io',
   rpcUrl: 'https://mainnet.optimism.io'
 };
-var avalancheFuji = {
+const avalancheFuji = {
   chainId: 43113,
   name: 'Avalanche Fuji Testnet',
   currency: 'AVAX',
   explorerUrl: 'https://testnet.snowtrace.io',
   rpcUrl: 'https://api.avax-test.network/ext/bc/C/rpc'
 };
-var avalanche = {
+const avalanche = {
   chainId: 43114,
   name: 'Avalanche Mainnet',
   currency: 'AVAX',
   explorerUrl: 'https://snowtrace.io',
   rpcUrl: 'https://api.avax.network/ext/bc/C/rpc'
 };
-var metadata = {
+const metadata = {
   name: 'Kima Transaction Widget',
   description: 'Frontend widget for Kima integration for dApps',
   url: 'https://kima.network',
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 };
-var KimaProvider = function KimaProvider(_ref) {
-  var walletConnectProjectId = _ref.walletConnectProjectId,
-    _ref$networkOption = _ref.networkOption,
-    networkOption = _ref$networkOption === void 0 ? exports.NetworkOptions.testnet : _ref$networkOption,
-    children = _ref.children;
-  var wallets = [new walletAdapterWallets.PhantomWalletAdapter(), new walletAdapterWallets.SolflareWalletAdapter(), new walletAdapterWallets.CloverWalletAdapter(), new walletAdapterWallets.Coin98WalletAdapter(), new walletAdapterWallets.SolongWalletAdapter(), new walletAdapterWallets.TorusWalletAdapter()];
-  var adapters = React.useMemo(function () {
-    var tronLinkAdapter = new tronwalletAdapterTronlink.TronLinkAdapter();
-    var ledger = new tronwalletAdapterLedger.LedgerAdapter({
+const KimaProvider = ({
+  walletConnectProjectId,
+  networkOption: _networkOption = NetworkOptions.testnet,
+  children
+}) => {
+  const wallets = [new PhantomWalletAdapter(), new SolflareWalletAdapter(), new CloverWalletAdapter(), new Coin98WalletAdapter(), new SolongWalletAdapter(), new TorusWalletAdapter()];
+  const adapters = useMemo(function () {
+    const tronLinkAdapter = new TronLinkAdapter();
+    const ledger = new LedgerAdapter({
       accountNumber: 2
     });
     return [tronLinkAdapter, ledger];
   }, []);
   function onError(e) {
-    if (e instanceof tronwalletAbstractAdapter.WalletNotFoundError) {
-      toast.toast.error(e.message);
-    } else if (e instanceof tronwalletAbstractAdapter.WalletDisconnectedError) {
-      toast.toast.error(e.message);
-    } else toast.toast.error(e.message);
+    if (e instanceof WalletNotFoundError) {
+      toast$1.error(e.message);
+    } else if (e instanceof WalletDisconnectedError) {
+      toast$1.error(e.message);
+    } else toast$1.error(e.message);
   }
-  var onChainChanged = function onChainChanged(chainData) {
-    toast.toast.error('Please switch to Tron Nile Testnet!');
+  const onChainChanged = chainData => {
+    toast$1.error('Please switch to Tron Nile Testnet!');
     if (chainData.chainId !== '0xcd8690dc') {
       adapters[0].switchChain('0xcd8690dc');
     }
   };
-  react.createWeb3Modal({
-    ethersConfig: react.defaultConfig({
-      metadata: metadata
+  createWeb3Modal({
+    ethersConfig: defaultConfig({
+      metadata
     }),
-    chains: networkOption === exports.NetworkOptions.mainnet ? [ethereum, base, bsc, polygon, arbitrum, optimism, avalanche, bera] : [ethereumSepolia, baseTestnet, bscTestnet, polygonAmoy, arbitrumSepolia, optimismSepola, avalancheFuji, beraTestnet],
+    chains: _networkOption === NetworkOptions.mainnet ? [ethereum, base, bsc, polygon, arbitrum, optimism, avalanche, bera] : [ethereumSepolia, baseTestnet, bscTestnet, polygonAmoy, arbitrumSepolia, optimismSepola, avalancheFuji, beraTestnet],
     projectId: walletConnectProjectId || 'e579511a495b5c312b572b036e60555a',
     enableAnalytics: false,
     featuredWalletIds: ['c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96', 'a797aa35c0fadbfc1a53e7f675162ed5226968b44a19ee3d24385c64d1d3c393', '4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0']
   });
-  return React__default.createElement(reactRedux.Provider, {
+  return React.createElement(Provider, {
     store: store
-  }, React__default.createElement(ConnectionProvider, {
-    endpoint: networkOption === exports.NetworkOptions.mainnet ? SOLANA_HOST_MAINNET : SOLANA_HOST_DEVNET
-  }, React__default.createElement(SolanaWalletProvider, {
+  }, React.createElement(ConnectionProvider, {
+    endpoint: _networkOption === NetworkOptions.mainnet ? SOLANA_HOST_MAINNET : SOLANA_HOST_DEVNET
+  }, React.createElement(SolanaWalletProvider, {
     wallets: wallets
-  }, React__default.createElement(tronwalletAdapterReactHooks.WalletProvider, {
+  }, React.createElement(WalletProvider, {
     onError: onError,
     autoConnect: false,
     disableAutoConnectOnLoad: true,
@@ -13460,8 +12721,5 @@ var KimaProvider = function KimaProvider(_ref) {
   }, children))));
 };
 
-exports.CHAIN_NAMES_TO_STRING = CHAIN_NAMES_TO_STRING;
-exports.CHAIN_STRING_TO_NAME = CHAIN_STRING_TO_NAME;
-exports.KimaProvider = KimaProvider;
-exports.KimaTransactionWidget = KimaTransactionWidget;
-//# sourceMappingURL=index.js.map
+export { CHAIN_NAMES_TO_STRING, CHAIN_STRING_TO_NAME, ColorModeOptions, CurrencyOptions, DAppOptions, FontSizeOptions, KimaProvider, KimaTransactionWidget, ModeOptions, NetworkOptions, ChainName as SupportNetworks };
+//# sourceMappingURL=index.modern.js.map
