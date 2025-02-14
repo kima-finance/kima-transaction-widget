@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import {
   setAccountDetailsModal,
   setSolanaConnectModal,
+  setSourceAddress,
   setTronConnectModal
 } from '../../store/optionSlice'
 import {
@@ -13,14 +14,19 @@ import {
   selectSourceCompliant,
   selectTheme
 } from '../../store/selectors'
-import PrimaryButton from './PrimaryButton'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
 import { ChainName } from '../../utils/constants'
-import { getShortenedAddress } from '../../utils/functions'
-import { connectWalletBtn } from '../../utils/testId'
 import useBalance from '../../hooks/useBalance'
-import { useWeb3Modal } from '@web3modal/ethers5/react'
-import { useWallet } from '@solana/wallet-adapter-react'
+import { WalletIcon } from '../../assets/icons'
+import useWidth from '../../hooks/useWidth'
+import { getShortenedAddress } from '../../utils/functions'
+import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
+import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
+import { useAppKit, useAppKitState } from '@reown/appkit/react'
+import CopyButton from './CopyButton'
+import { formatUSD } from '../../helpers/functions'
+import useHideWuiListItem from '../../hooks/useHideActivityTab'
+import { useKimaContext } from '../../KimaProvider'
 
 const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const dispatch = useDispatch()
@@ -29,14 +35,45 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const sourceCompliant = useSelector(selectSourceCompliant)
   const compliantOption = useSelector(selectCompliantOption)
   const selectedNetwork = useSelector(selectSourceChain)
-  const { isReady, statusMessage, walletAddress, connectBitcoinWallet } =
+  const { externalProvider } = useKimaContext()
+  const { connected: isSolanaConnected } = useSolanaWallet()
+  const { connected: isTronConnected } = useTronWallet()
+  const { isReady, statusMessage, walletAddress /*, connectBitcoinWallet*/ } =
     useIsWalletReady()
   const { balance } = useBalance()
-  const { open } = useWeb3Modal()
-  const { connected: isSolanaConnected } = useWallet()
+  const { open } = useAppKit()
+  const { width, updateWidth } = useWidth()
+  const { open: isModalOpen } = useAppKitState()
+  useHideWuiListItem(isModalOpen)
 
-  const handleClick = () => {
+  useEffect(() => {
+    console.info('WalletBalance:', {
+      balance,
+      walletAddress,
+      isReady,
+      statusMessage,
+      externalProvider
+    })
+  }, [balance, walletAddress, isReady, externalProvider])
+
+  useEffect(() => {
+    if (walletAddress) dispatch(setSourceAddress(walletAddress))
+  }, [walletAddress])
+
+  useEffect(() => {
+    if (width === 0) {
+      updateWidth(window.innerWidth)
+    }
+  }, [])
+  // TODO: refactor to use plugins
+  const handleClick = async () => {
+    console.info('Handling click')
+
+    // TODO: Refactor to use evm account details modal
+    if (externalProvider) return
+
     if (selectedNetwork === ChainName.SOLANA) {
+      console.info('Handling click: Case SOL', 1)
       isSolanaConnected
         ? dispatch(setAccountDetailsModal(true))
         : dispatch(setSolanaConnectModal(true))
@@ -44,45 +81,72 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
     }
 
     if (selectedNetwork === ChainName.TRON) {
-      dispatch(setTronConnectModal(true))
+      console.info('Handling click: Case TRX', 2)
+      isTronConnected
+        ? dispatch(setAccountDetailsModal(true))
+        : dispatch(setTronConnectModal(true))
       return
     }
 
-    if (selectedNetwork === ChainName.BTC) {
-      connectBitcoinWallet()
-      return
-    }
+    // if (selectedNetwork === ChainName.BTC) {
+    //   console.info('Handling click: Case BTC', 3)
+    //   connectBitcoinWallet()
+    //   return
+    // }
 
-    open()
+    console.info('Handling click: Case EVM', 4)
+    try {
+      console.info('Attempting to open AppKitModal')
+      await open() // Ensure await usage
+      console.info('AppKitModal opened successfully')
+    } catch (error) {
+      console.error('Failed to open AppKitModal', error)
+    }
   }
 
   const errorMessage = useMemo(() => {
     if (!isReady) return statusMessage
-    if (sourceCompliant !== 'low' && compliantOption)
-      return `Source address has ${sourceCompliant} risk`
+    if (
+      compliantOption &&
+      sourceCompliant !== null &&
+      !sourceCompliant?.isCompliant
+    )
+      return `Source address has ${sourceCompliant?.results?.[0].result?.risk_score} risk`
     return ''
   }, [isReady, statusMessage, sourceCompliant, compliantOption])
 
-  useEffect(() => {
-    if (!errorMessage) return
-    toast.error(errorMessage)
-  }, [errorMessage])
+  // useEffect(() => {
+  //   if (!errorMessage) return
+  //   toast.error(errorMessage)
+  // }, [errorMessage])
 
   return (
     <div
-      className={`wallet-button ${theme.colorMode} ${
+      className={`wallet-button ${isReady ? 'connected' : 'disconnected'} ${theme.colorMode} ${
         errorBelow ? 'error-below' : ''
       }`}
-      data-testid={connectWalletBtn}
+      data-testid='connect-wallet-btn'
     >
-      <PrimaryButton clickHandler={handleClick}>
-        {isReady ? `${getShortenedAddress(walletAddress || '')}` : 'Wallet'}
-      </PrimaryButton>
+      <div className='info-wrapper'>
+        <button
+          className={`${isReady ? 'connected' : 'disconnected'} ${width < 640 && 'shortened'} ${theme.colorMode}`}
+          onClick={handleClick}
+        >
+          {isReady
+            ? width >= 640
+              ? `${walletAddress || ''}`
+              : getShortenedAddress(walletAddress || '')
+            : ''}
+          {!isReady && <WalletIcon />}
+          {!isReady && 'Connect Wallet'}
+        </button>
 
-      {isReady ? (
+        {isReady && <CopyButton text={walletAddress as string} />}
+      </div>
+
+      {isReady && balance !== undefined ? (
         <p className='balance-info'>
-          {balance.toFixed(selectedCoin === 'WBTC' ? 8 : 2)}{' '}
-          {selectedNetwork === ChainName.BTC ? 'BTC' : selectedCoin} available
+          {formatUSD(balance)} {selectedCoin} available
         </p>
       ) : null}
     </div>

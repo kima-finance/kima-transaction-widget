@@ -1,15 +1,17 @@
 import * as toolkitRaw from '@reduxjs/toolkit'
 import { PayloadAction } from '@reduxjs/toolkit'
 const { createSlice } = toolkitRaw
-// import { WalletName } from '@solana/wallet-adapter-base'
 import {
   DAppOptions,
   ModeOptions,
   NetworkOptions,
+  Option,
+  ServiceFee,
   ThemeOptions,
-  TransactionOption
+  TransactionOption,
+  ColorModeOptions
 } from '../interface'
-import { PendingTxData } from '../utils/constants'
+import { ChainName, PendingTxData } from '../utils/constants'
 
 type BankDetails = {
   iban: string
@@ -24,11 +26,28 @@ export type TokenOptions = {
   [key: string]: AddressOption
 }
 
+export interface ComplianceResult {
+  isCompliant: boolean
+  isError: boolean
+  results: {
+    isCompliant: boolean
+    result: {
+      address: string
+      name: string
+      classification: string[]
+      contract: string
+      risk_factors: string[]
+      risk_score: string
+    }
+  }[]
+}
+
 export interface OptionState {
   theme: ThemeOptions // light or dark
   mode: ModeOptions // payment or bridge
   sourceChain: string // origin network on UI
   targetChain: string // target network on UI
+  sourceAddress: string // source address on UI
   targetAddress: string // target address on UI
   bitcoinAddress: string // bitcoin address from xverse wallet
   bitcoinPubkey: string // bitcoin pubkey from xverse wallet
@@ -40,7 +59,6 @@ export interface OptionState {
   hashPopup: boolean // shows popup to show hashes of transactions (kima tx, pull & release hashes)
   bankPopup: boolean // shows popup to simulate bank transfer
   pendingTxPopup: boolean // shows popup to show pending transactions
-  walletAutoConnect: boolean // propmpt metamask connect automatically
   provider: any // Ethereum wallet provider
   dAppOption: DAppOptions // specify which dApp is using this widget
   solanaProvider: any // selected solana wallet provider - phantom, solflare or ...
@@ -49,24 +67,17 @@ export interface OptionState {
   amount: string // amount input
   feeDeduct: boolean // whether deduct fee from amount or not
   transactionOption?: TransactionOption // input option from dApp
-  errorHandler: Function // error callback function from dApp
-  keplrHandler: Function // keplr wallet integration function from dApp
-  closeHandler: Function // callback function for close event
-  successHandler: Function // callback function for success event
-  switchChainHandler: Function // callback function to switch chain request
   initChainFromProvider: boolean // chainId is initialized from provider or not
-  serviceFee: number // service fee from kima node
+  serviceFee: ServiceFee // service fee from kima node
   backendUrl: string // URL for kima-transaction-backend component
-  nodeProviderQuery: string // REST API endpoint to query kima node
-  graphqlProviderQuery: string // Graphql endpoint to query kima transaction data
   kimaExplorerUrl: string // URL for kima explore (testnet, staging or demo)
-  txId: number // transaction id to monitor it's status
+  txId: number | string // transaction id to monitor it's status
   sourceCurrency: string // Currently selected token for source chain
   targetCurrency: string // Currently selected token for target chain
   expireTime: string // Bitcoi HTLC expiration time
   compliantOption: boolean // option to check compliant addresses
-  sourceCompliant: string // source address is compliant or not
-  targetCompliant: string // target address is compliant or not
+  sourceCompliant: ComplianceResult | null
+  targetCompliant: ComplianceResult | null
   useFIAT: boolean // use FIAT Payment mockup or not?
   bankDetails: BankDetails
   targetNetworkFetching: boolean // is fetching available chains according to current source network or not
@@ -76,19 +87,23 @@ export interface OptionState {
   pendingTxs: number // number of pending bitcoin transactions
   pendingTxData: Array<PendingTxData> // pending bitcoin transaction data
   networkOption: NetworkOptions // specify testnet or mainnet
+  networks: Option[]
+  excludedSourceNetworks: Array<ChainName> // array of allowed strings or empty
+  excludedTargetNetworks: Array<ChainName> // array of allowed strings or empty
 }
 
 const initialState: OptionState = {
   networkOption: NetworkOptions.testnet,
-  theme: {},
+  networks: [],
+  theme: { colorMode: ColorModeOptions.light },
   tokenOptions: {},
   pendingTxs: 0,
   pendingTxData: [],
   kimaExplorerUrl: 'https://explorer.kima.network',
-  graphqlProviderQuery: 'https://graphql.kima.network',
   mode: ModeOptions.bridge,
   sourceChain: '',
   targetChain: '',
+  sourceAddress: '',
   targetAddress: '',
   bitcoinAddress: '',
   bitcoinPubkey: '',
@@ -99,7 +114,6 @@ const initialState: OptionState = {
   hashPopup: false,
   pendingTxPopup: false,
   bankPopup: false,
-  walletAutoConnect: true,
   provider: undefined,
   dAppOption: DAppOptions.None,
   solanaProvider: undefined,
@@ -107,21 +121,21 @@ const initialState: OptionState = {
   submitted: false,
   amount: '',
   feeDeduct: false,
-  errorHandler: () => void 0,
-  closeHandler: () => void 0,
-  successHandler: () => void 0,
-  switchChainHandler: () => void 0,
-  keplrHandler: () => void 0,
   initChainFromProvider: false,
-  serviceFee: -1,
+  serviceFee: {
+    allowanceAmount: '0',
+    decimals: 18,
+    submitAmount: '0',
+    totalFee: '0',
+    totalFeeUsd: -1
+  },
   backendUrl: '',
-  nodeProviderQuery: '',
   txId: -1,
   sourceCurrency: 'USDK',
   targetCurrency: 'USDK',
   compliantOption: true,
-  sourceCompliant: 'low',
-  targetCompliant: 'low',
+  sourceCompliant: null,
+  targetCompliant: null,
   useFIAT: false,
   bankDetails: {
     iban: '',
@@ -131,184 +145,203 @@ const initialState: OptionState = {
   signature: '',
   uuid: '',
   kycStatus: '',
-  expireTime: '1 hour'
+  expireTime: '1 hour',
+  excludedSourceNetworks: [],
+  excludedTargetNetworks: []
 }
 
 export const optionSlice = createSlice({
   name: 'option',
   initialState,
   reducers: {
-    initialize: (state) => {
-      state.submitted = false
-      state.txId = -1
-      state.serviceFee = -1
-      state.amount = ''
-      state.targetAddress = ''
-      state.compliantOption = true
-      state.sourceCompliant = 'low'
-      state.targetCompliant = 'low'
-      ;(state.bitcoinAddress = ''), (state.useFIAT = false)
-      ;(state.tokenOptions = {}),
-        (state.bankDetails = {
-          iban: '',
-          recipient: ''
-        })
-      state.initChainFromProvider = false
-      state.targetNetworkFetching = false
-      state.signature = ''
+    initialize: (state: OptionState) => {
+      Object.assign(state, initialState) // Reset the state to initial
     },
-    setNetworkOption: (state, action: PayloadAction<NetworkOptions>) => {
+    setNetworkOption: (
+      state: OptionState,
+      action: PayloadAction<NetworkOptions>
+    ) => {
       state.networkOption = action.payload
     },
-    setPendingTxs: (state, action: PayloadAction<number>) => {
+    setNetworks: (state: OptionState, action: PayloadAction<Option[]>) => {
+      state.networks = action.payload
+    },
+    setPendingTxs: (state: OptionState, action: PayloadAction<number>) => {
       state.pendingTxs = action.payload
     },
-    setPendingTxData: (state, action: PayloadAction<Array<PendingTxData>>) => {
+    setPendingTxData: (
+      state: OptionState,
+      action: PayloadAction<Array<PendingTxData>>
+    ) => {
       state.pendingTxData = action.payload
     },
-    setTokenOptions: (state, action: PayloadAction<TokenOptions>) => {
+    setTokenOptions: (
+      state: OptionState,
+      action: PayloadAction<TokenOptions>
+    ) => {
       state.tokenOptions = action.payload
     },
-    setTheme: (state, action: PayloadAction<ThemeOptions>) => {
+    setTheme: (state: OptionState, action: PayloadAction<ThemeOptions>) => {
       state.theme = action.payload
     },
-    setKimaExplorer: (state, action: PayloadAction<string>) => {
+    setKimaExplorer: (state: OptionState, action: PayloadAction<string>) => {
       state.kimaExplorerUrl = action.payload
     },
-    setSourceChain: (state, action: PayloadAction<string>) => {
+    setSourceChain: (state: OptionState, action: PayloadAction<string>) => {
       state.sourceChain = action.payload
     },
-    setTargetChain: (state, action: PayloadAction<string>) => {
+    setTargetChain: (state: OptionState, action: PayloadAction<string>) => {
       state.targetChain = action.payload
     },
-    setTargetAddress: (state, action: PayloadAction<string>) => {
+    setSourceAddress: (state: OptionState, action: PayloadAction<string>) => {
+      state.sourceAddress = action.payload
+    },
+    setTargetAddress: (state: OptionState, action: PayloadAction<string>) => {
       state.targetAddress = action.payload
     },
-    setBitcoinAddress: (state, action: PayloadAction<string>) => {
+    setBitcoinAddress: (state: OptionState, action: PayloadAction<string>) => {
       state.bitcoinAddress = action.payload
     },
-    setBitcoinPubkey: (state, action: PayloadAction<string>) => {
+    setBitcoinPubkey: (state: OptionState, action: PayloadAction<string>) => {
       state.bitcoinPubkey = action.payload
     },
-    setSolanaConnectModal: (state, action: PayloadAction<boolean>) => {
+    setSolanaConnectModal: (
+      state: OptionState,
+      action: PayloadAction<boolean>
+    ) => {
       state.solanaConnectModal = action.payload
     },
-    setTronConnectModal: (state, action: PayloadAction<boolean>) => {
+    setTronConnectModal: (
+      state: OptionState,
+      action: PayloadAction<boolean>
+    ) => {
       state.tronConnectModal = action.payload
     },
-    setAccountDetailsModal: (state, action: PayloadAction<boolean>) => {
+    setAccountDetailsModal: (
+      state: OptionState,
+      action: PayloadAction<boolean>
+    ) => {
       state.accountDetailsModal = action.payload
     },
-    setHelpPopup: (state, action: PayloadAction<boolean>) => {
+    setHelpPopup: (state: OptionState, action: PayloadAction<boolean>) => {
       state.helpPopup = action.payload
     },
-    setHashPopup: (state, action: PayloadAction<boolean>) => {
+    setHashPopup: (state: OptionState, action: PayloadAction<boolean>) => {
       state.hashPopup = action.payload
     },
-    setPendingTxPopup: (state, action: PayloadAction<boolean>) => {
+    setPendingTxPopup: (state: OptionState, action: PayloadAction<boolean>) => {
       state.pendingTxPopup = action.payload
     },
-    setBankPopup: (state, action: PayloadAction<boolean>) => {
+    setBankPopup: (state: OptionState, action: PayloadAction<boolean>) => {
       state.bankPopup = action.payload
     },
-    setProvider: (state, action: PayloadAction<any>) => {
+    setProvider: (state: OptionState, action: PayloadAction<any>) => {
       state.provider = action.payload
     },
-    setDappOption: (state, action: PayloadAction<DAppOptions>) => {
+    setDappOption: (state: OptionState, action: PayloadAction<DAppOptions>) => {
       state.dAppOption = action.payload
     },
-    setWalletAutoConnect: (state, action: PayloadAction<boolean>) => {
-      state.walletAutoConnect = action.payload
-    },
-    setSolanaProvider: (state, action: PayloadAction<any>) => {
+    setSolanaProvider: (state: OptionState, action: PayloadAction<any>) => {
       state.solanaProvider = action.payload
     },
-    setTronProvider: (state, action: PayloadAction<any>) => {
+    setTronProvider: (state: OptionState, action: PayloadAction<any>) => {
       state.tronProvider = action.payload
     },
-    setSubmitted: (state, action: PayloadAction<boolean>) => {
+    setSubmitted: (state: OptionState, action: PayloadAction<boolean>) => {
       state.submitted = action.payload
     },
-    setTransactionOption: (state, action: PayloadAction<TransactionOption>) => {
+    setTransactionOption: (
+      state: OptionState,
+      action: PayloadAction<TransactionOption>
+    ) => {
       state.transactionOption = action.payload
     },
-    setAmount: (state, action: PayloadAction<string>) => {
+    setAmount: (state: OptionState, action: PayloadAction<string>) => {
       state.amount = action.payload
     },
-    setErrorHandler: (state, action: PayloadAction<Function>) => {
-      state.errorHandler = action.payload
-    },
-    setKeplrHandler: (state, action: PayloadAction<Function>) => {
-      state.keplrHandler = action.payload
-    },
-    setCloseHandler: (state, action: PayloadAction<Function>) => {
-      state.closeHandler = action.payload
-    },
-    setSwitchChainHandler: (state, action: PayloadAction<Function>) => {
-      state.switchChainHandler = action.payload
-    },
-    setInitChainFromProvider: (state, action: PayloadAction<boolean>) => {
+    setInitChainFromProvider: (
+      state: OptionState,
+      action: PayloadAction<boolean>
+    ) => {
       state.initChainFromProvider = action.payload
     },
-    setSuccessHandler: (state, action: PayloadAction<Function>) => {
-      state.successHandler = action.payload
-    },
-    setServiceFee: (state, action: PayloadAction<number>) => {
+    setServiceFee: (state: OptionState, action: PayloadAction<ServiceFee>) => {
       state.serviceFee = action.payload
     },
-    setMode: (state, action: PayloadAction<ModeOptions>) => {
+    setMode: (state: OptionState, action: PayloadAction<ModeOptions>) => {
       state.mode = action.payload
     },
-    setFeeDeduct: (state, action: PayloadAction<boolean>) => {
+    setFeeDeduct: (state: OptionState, action: PayloadAction<boolean>) => {
       state.feeDeduct = action.payload
     },
-    setBackendUrl: (state, action: PayloadAction<string>) => {
+    setBackendUrl: (state: OptionState, action: PayloadAction<string>) => {
       state.backendUrl = action.payload
     },
-    setNodeProviderQuery: (state, action: PayloadAction<string>) => {
-      state.nodeProviderQuery = action.payload
-    },
-    setGraphqlProviderQuery: (state, action: PayloadAction<string>) => {
-      state.graphqlProviderQuery = action.payload
-    },
-    setTxId: (state, action: PayloadAction<number>) => {
+    setTxId: (state: OptionState, action: PayloadAction<number | string>) => {
       state.txId = action.payload
     },
-    setSourceCurrency: (state, action: PayloadAction<string>) => {
+    setSourceCurrency: (state: OptionState, action: PayloadAction<string>) => {
       state.sourceCurrency = action.payload
     },
-    setTargetCurrency: (state, action: PayloadAction<string>) => {
+    setTargetCurrency: (state: OptionState, action: PayloadAction<string>) => {
       state.targetCurrency = action.payload
     },
-    setCompliantOption: (state, action: PayloadAction<boolean>) => {
+    setCompliantOption: (
+      state: OptionState,
+      action: PayloadAction<boolean>
+    ) => {
       state.compliantOption = action.payload
     },
-    setSourceCompliant: (state, action: PayloadAction<string>) => {
+    setSourceCompliant: (
+      state: OptionState,
+      action: PayloadAction<ComplianceResult>
+    ) => {
       state.sourceCompliant = action.payload
     },
-    setTargetCompliant: (state, action: PayloadAction<string>) => {
+    setTargetCompliant: (
+      state: OptionState,
+      action: PayloadAction<ComplianceResult>
+    ) => {
       state.targetCompliant = action.payload
     },
-    setUseFIAT: (state, action: PayloadAction<boolean>) => {
+    setUseFIAT: (state: OptionState, action: PayloadAction<boolean>) => {
       state.useFIAT = action.payload
     },
-    setBankDetails: (state, action: PayloadAction<BankDetails>) => {
+    setBankDetails: (
+      state: OptionState,
+      action: PayloadAction<BankDetails>
+    ) => {
       state.bankDetails = action.payload
     },
-    setTargetChainFetching: (state, action: PayloadAction<boolean>) => {
+    setTargetChainFetching: (
+      state: OptionState,
+      action: PayloadAction<boolean>
+    ) => {
       state.targetNetworkFetching = action.payload
     },
-    setSignature: (state, action: PayloadAction<string>) => {
+    setSignature: (state: OptionState, action: PayloadAction<string>) => {
       state.signature = action.payload
     },
-    setUuid: (state, action: PayloadAction<string>) => {
+    setUuid: (state: OptionState, action: PayloadAction<string>) => {
       state.uuid = action.payload
     },
-    setKYCStatus: (state, action: PayloadAction<string>) => {
+    setKYCStatus: (state: OptionState, action: PayloadAction<string>) => {
       state.kycStatus = action.payload
     },
-    setExpireTime: (state, action: PayloadAction<string>) => {
+    setExpireTime: (state: OptionState, action: PayloadAction<string>) => {
       state.expireTime = action.payload
+    },
+    setExcludedSourceNetworks: (
+      state: OptionState,
+      action: PayloadAction<Array<ChainName>>
+    ) => {
+      state.excludedSourceNetworks = action.payload
+    },
+    setExcludedTargetNetworks: (
+      state: OptionState,
+      action: PayloadAction<Array<ChainName>>
+    ) => {
+      state.excludedTargetNetworks = action.payload
     }
   }
 })
@@ -316,11 +349,13 @@ export const optionSlice = createSlice({
 export const {
   initialize,
   setNetworkOption,
+  setNetworks,
   setTokenOptions,
   setKimaExplorer,
   setTheme,
   setSourceChain,
   setTargetChain,
+  setSourceAddress,
   setTargetAddress,
   setBitcoinAddress,
   setBitcoinPubkey,
@@ -335,22 +370,14 @@ export const {
   setTronProvider,
   setProvider,
   setDappOption,
-  setWalletAutoConnect,
   setSubmitted,
   setTransactionOption,
   setAmount,
-  setErrorHandler,
-  setKeplrHandler,
-  setCloseHandler,
-  setSuccessHandler,
-  setSwitchChainHandler,
   setInitChainFromProvider,
   setServiceFee,
   setMode,
   setFeeDeduct,
   setBackendUrl,
-  setNodeProviderQuery,
-  setGraphqlProviderQuery,
   setTxId,
   setSourceCurrency,
   setTargetCurrency,
@@ -365,7 +392,9 @@ export const {
   setKYCStatus,
   setExpireTime,
   setPendingTxData,
-  setPendingTxs
+  setPendingTxs,
+  setExcludedSourceNetworks,
+  setExcludedTargetNetworks
 } = optionSlice.actions
 
 export default optionSlice.reducer

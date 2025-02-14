@@ -4,7 +4,6 @@ import { CheckIcon, CopyIcon, WarningIcon } from '../../assets/icons'
 import { Loading180Ring } from '../../assets/loading'
 import { TransactionData } from '../../interface'
 import { selectTheme } from '../../store/selectors'
-import { useWidth } from '../../styles/hooks'
 import {
   ChainName,
   CHAIN_NAMES_TO_EXPLORER,
@@ -13,6 +12,7 @@ import {
 } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 import ExternalLink from './ExternalLink'
+import useWidth from '../../hooks/useWidth'
 
 interface Props {
   step: number
@@ -23,7 +23,7 @@ interface Props {
 }
 
 const Tooltip = ({ step, focus, errorStep, loadingStep, data }: Props) => {
-  const windowWidth = useWidth()
+  const { width: windowWidth } = useWidth()
   const theme = useSelector(selectTheme)
   const [copyClicked, setCopyClicked] = useState(false)
 
@@ -64,7 +64,7 @@ const Tooltip = ({ step, focus, errorStep, loadingStep, data }: Props) => {
             <div className='info-item'>
               <p>
                 Kima TX ID:{' '}
-                <ExternalLink to='https://explorer.kima.finance/transactions/718ABEE14755C1ACA617607F9353A55013EF855B0EA6E92EFD31A2F50A362524'>
+                <ExternalLink to='https://explorer.kima.network/transactions/718ABEE14755C1ACA617607F9353A55013EF855B0EA6E92EFD31A2F50A362524'>
                   718A...2524
                 </ExternalLink>
                 <div
@@ -149,8 +149,8 @@ const Tooltip = ({ step, focus, errorStep, loadingStep, data }: Props) => {
                   focus === 0
                     ? '1em'
                     : focus === 4
-                    ? 'calc(100% - 3em)'
-                    : `calc(${focus * 25}% - 1em)`
+                      ? 'calc(100% - 3em)'
+                      : `calc(${focus * 25}% - 1em)`
               }}
             />
           )}

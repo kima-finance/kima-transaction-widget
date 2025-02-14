@@ -1,37 +1,51 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
-import { ArrowRightIcon, WarningIcon } from '../../assets/icons'
 import { selectTheme } from '../../store/selectors'
 import { getNetworkOption } from '../../utils/constants'
+import Arrow from '../../assets/icons/Arrow'
 
 interface Props {
-  hasError: boolean
   sourceChain: string
   targetChain: string
 }
 
-const NetworkLabel = ({ sourceChain, targetChain, hasError }: Props) => {
+const NetworkLabel = ({ sourceChain, targetChain }: Props) => {
   const theme = useSelector(selectTheme)
   const SourceInfo = getNetworkOption(sourceChain)
   const TargetInfo = getNetworkOption(targetChain)
 
   return (
-    <div className='kima-card-network-label'>
-      <div className='label'>
-        <div className='icon-wrapper'>{SourceInfo && <SourceInfo.icon />}</div>
-        {SourceInfo?.label}
-      </div>
-      <ArrowRightIcon fill={theme.colorMode === 'light' ? 'black' : 'white'} />
-      <div className='label'>
-        <div className='icon-wrapper'>{TargetInfo && <TargetInfo.icon />}</div>
-        {TargetInfo?.label}
-      </div>
-      {hasError && (
+    <div className='header-network-labels'>
+      {SourceInfo?.label && (
+        <span className={`kima-card-network-label ${theme.colorMode}`}>
+          <div className='icon'>
+            <SourceInfo.icon />
+          </div>
+          <p>{SourceInfo.label}</p>
+        </span>
+      )}
+
+      {SourceInfo?.label && TargetInfo?.label && (
+        <div className='arrow'>
+          <Arrow />
+        </div>
+      )}
+
+      {TargetInfo?.label && (
+        <span className={`kima-card-network-label ${theme.colorMode}`}>
+          <div className='icon'>
+            <TargetInfo.icon />
+          </div>
+          <p>{TargetInfo.label}</p>
+        </span>
+      )}
+
+      {/* {hasError && (
         <div className='warning-container'>
           <WarningIcon />
           <span>1 issue</span>
         </div>
-      )}
+      )} */}
     </div>
   )
 }

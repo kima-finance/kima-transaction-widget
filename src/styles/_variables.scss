@@ -1,8 +1,16 @@
-$fontLarge: 18px;
-$fontMedium: 14px;
-$fontSmall: 10px;
+$fontLarge: 32px;
+$fontMedium: 16px;
+$fontSmall: 12px;
 
 // colors
+$finance: #778da3;
+$financeGrey: #778da34d;
+$financeLight: #f7f8f9;
+$financeLighter: #edf2f5;
+$financeDark: #4a5068;
+$financeDarker: #2c303e;
+$financeDarkest: #242732;
+$financeIcon: #86b8ce;
 $backgroundDark: #1b1e25;
 $backgroundDarker: #0c0f17;
 $border: #66aae5;
@@ -13,10 +21,14 @@ $progressbarLight: #e3e3e3;
 $progressbarDark: #4f5156;
 $primary: #66aae5;
 $secondary: #e3e3e3;
-$hover: #5aa0db80;
+$hover: #d6e4ea;
 
 @mixin transition() {
-  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transition:
+    all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1),
+    color 0ms,
+    background-color 0ms,
+    border-color 0ms;
 }
 
 @mixin breakpoint($point) {

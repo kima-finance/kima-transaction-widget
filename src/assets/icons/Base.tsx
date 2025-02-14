@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Solana = ({ width = 14, height = 14, ...rest }) => {
+const Base = ({ width = 27, height = 27, ...rest }) => {
   return (
     <svg
       width={width}
@@ -17,4 +17,4 @@ const Solana = ({ width = 14, height = 14, ...rest }) => {
   )
 }
 
-export default Solana
+export default Base

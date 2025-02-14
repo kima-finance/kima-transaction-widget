@@ -1,18 +1,28 @@
-import * as toolkitRaw from '@reduxjs/toolkit'
-const { configureStore } = toolkitRaw
+import { configureStore, EnhancedStore } from '@reduxjs/toolkit'
 import optionReducer from './optionSlice'
+import pluginReducer from './pluginSlice'
 
-export const store = configureStore({
+// Define RootState as a combination of reducers
+export type RootState = {
+  option: ReturnType<typeof optionReducer>
+  plugins: ReturnType<typeof pluginReducer>
+}
+
+// Configure the store with an explicit type
+export const store: EnhancedStore<RootState> = configureStore({
   reducer: {
-    option: optionReducer
+    option: optionReducer,
+    plugins: pluginReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: false
+      serializableCheck: {
+        ignoredPaths: ['option'] // Ignore serialization check for `option`
+      }
     })
 })
 
-// Infer the `RootState` and `AppDispatch` types from the store itself
-export type RootState = ReturnType<typeof store.getState>
-// Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
+// Explicitly define AppDispatch
 export type AppDispatch = typeof store.dispatch
+
+export default store

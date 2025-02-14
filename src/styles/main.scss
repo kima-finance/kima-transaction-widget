@@ -2,22 +2,28 @@
 @import 'layout';
 @import 'reusable';
 @import 'modal';
+@import 'fonts';
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 @import 'react-tooltip/dist/react-tooltip.css';
 
 .kima-card {
-  border-radius: 1em;
+  border: 2px solid $financeGrey;
+  border-radius: 42px;
   width: 100%;
-  padding: 2em;
-  box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
-  font-family: 'Poppins', sans-serif;
   @include transition;
-  transition-delay: 0.2s;
+  max-width: 900px;
+
+  .transfer-card{
+    padding: 30px 40px;
+
+    @include breakpoint(phablet) {
+      padding: 30px 10px;
+    }
+  }
 
   &.light {
-    background: white;
+    background: $financeLight;
     color: black;
-    border: 1px solid $border;
 
     .kima-card-header .kima-card-network-label .label {
       background: $progressbarLight;
@@ -35,9 +41,8 @@
   }
 
   &.dark {
-    background: $backgroundDark;
+    background: $financeDarker;
     color: white;
-    border: 1px solid $borderDark;
 
     .kima-card-header .kima-card-network-label .label {
       background: $progressbarDark;
@@ -53,53 +58,40 @@
     }
   }
 
-  &.font {
-    &-large {
-      font-size: $fontLarge;
-      max-width: 1100px;
-    }
-
-    &-medium {
-      font-size: $fontMedium;
-      max-width: 900px;
-    }
-
-    &-small {
-      font-size: $fontSmall;
-      max-width: 700px;
-    }
-  }
-
   @include breakpoint(phablet) {
     max-width: 100vh !important;
-    font-size: 12px !important;
     padding: 1.5em;
-    border-radius: 0;
   }
 
   @include breakpoint(mobile) {
-    padding: 1em;
+    padding: 20px;
   }
+
 
   &-content {
     width: 100%;
-    margin: 2em 0;
     opacity: 1;
-    max-height: 40em;
-    min-height: 25em;
     position: relative;
     z-index: 10;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     @include transition;
   }
 
   &.transaction-card {
+    padding: 30px 40px;
+
+
     .kima-card-content {
-      display: block;
-      min-height: 17em;
-      margin: 2em 0 2em;
+      display: flex;
+      flex-direction: column;
+      margin: 32px 0 32px;
+
+      @include breakpoint(mobile) {
+        flex-direction: row;
+        height: 100%;
+        justify-content: space-between;
+      }
     }
   }
 
@@ -119,6 +111,50 @@
       max-height: 0;
       pointer-events: none;
     }
+  }
+
+  a:link {
+    color: inherit;
+    background-color: transparent;
+    text-decoration: none;
+  }
+
+  a:visited {
+    color: $financeIcon;
+    background-color: transparent;
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: $financeIcon;
+    background-color: transparent;
+    text-decoration: underline;
+  }
+
+  a:active {
+    color: $financeDark;
+    background-color: transparent;
+    text-decoration: underline;
+  }
+
+  .loader {
+    transform-origin: center;
+    animation: spin 2s linear infinite;
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  }
+
+  .icon-wrapper {
+    display: flex;
+    justify-content: center;
+    padding: 8px;
+    background-color: white;
+    margin-right: 6px;
+    border-radius: 9999px;
   }
 
   input::-webkit-outer-spin-button,
@@ -142,37 +178,33 @@
 
   .custom-scrollbar {
     &::-webkit-scrollbar {
-        width: 6px;
+      width: 6px;
     }
 
     &::-webkit-scrollbar-track {
-        background: white;
-        border-radius: 3px;
+      border-radius: 3px;
+      margin-top: 0.5em;
+      margin-bottom: 1.5em;
+    }
+
+    &::-webkit-scrollbar-button {
+      height: 20px;
     }
 
     &::-webkit-scrollbar-thumb {
-        background: #a19f9f;
-        border-radius: 3px;
+      border-radius: 3px;
     }
   }
 
-  .slide-area {
-    width: 40em;
-    padding: 2em;
-    margin: 0 auto;
-    overflow: hidden;
-    overflow-x: scroll;
-    mask-image: linear-gradient(
-      90deg,
-      #00000020 0%,
-      black 5%,
-      black 95%,
-      #00000020 100%
-    );
-    position: relative;
+  .custom-scrollbar.light {
+    &::-webkit-scrollbar-thumb {
+      background: $financeIcon;
+    }
+  }
 
-    @include breakpoint(phablet) {
-      width: calc(100% - 4em);
+  .custom-scrollbar.dark {
+    &::-webkit-scrollbar-thumb {
+      background: $finance;
     }
   }
 

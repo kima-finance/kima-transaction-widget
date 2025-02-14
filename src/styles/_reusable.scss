@@ -1,109 +1,292 @@
 .kima-card {
   .kima-card-content {
     .kima-progressbar {
-      height: 1em;
-      width: 100%;
+      height: 7px;
+      width: 95%;
+      max-width: 930px;
       position: relative;
-      border-radius: 1em;
-      margin-bottom: 4em;
+      border-radius: 16px;
+      margin-bottom: 64px;
+      margin-left: 16px;
 
-      @include breakpoint(phablet) {
-        font-size: 1.5em;
+      @include breakpoint(mobile) {
+        width: 7px;
+        height: 320px;
+        max-height: 560px;
       }
 
       .value {
         position: absolute;
         z-index: 10;
-        height: 100%;
-        width: 100%;
-        border-radius: 1em;
-        background: linear-gradient(90deg, #85d2dd 8.08%, #579dda 96.15%);
-        @include transition;
-        transition-duration: 1000ms;
+        height: 7px;
+        border-radius: 16px;
+        background: linear-gradient(90deg, #adf4a6, #80d7f5, #9990d5);
+        transition: width 0.8s ease-in-out;
+
+        &.step-25 {
+          width: calc(25% + 0.5em);
+        }
+
+        &.step-50 {
+          width: calc(50% + 0.5em);
+        }
+
+        &.step-75 {
+          width: calc(75% + 0.5em);
+        }
+
+        &.step-100 {
+          width: calc(100%);
+        }
+
+        @include breakpoint(mobile) {
+          background: linear-gradient(180deg, #adf4a6, #80d7f5, #9990d5);
+          width: 7px !important;
+          transition: height 0.8s ease-in-out;
+
+          &.step-25 {
+            height: calc(25% + 0.5em);
+          }
+
+          &.step-50 {
+            height: calc(50% + 0.5em);
+          }
+
+          &.step-75 {
+            height: calc(75% + 0.5em);
+          }
+
+          &.step-100 {
+            height: calc(100%);
+          }
+        }
       }
 
       .step-indicators {
         position: relative;
         z-index: 20;
         display: flex;
+        flex-direction: row;
         justify-content: space-between;
-        margin: 0 -0.2em;
-        padding-bottom: 4em;
+        margin: 0 -3.2px;
+        padding-bottom: 64px;
+
+        @include breakpoint(mobile) {
+          flex-direction: column;
+          gap: 40px;
+        }
 
         .step {
-          width: 1.4em;
-          height: 1.4em;
-          margin-top: -0.2em;
+          width: 48px;
+          height: 48px;
+          margin-top: -21px;
           position: relative;
+          border-radius: 40px;
 
-          &:before {
-            content: '';
-            border-radius: 100%;
-            position: absolute;
-            left: 0.3em;
-            top: 0.3em;
-            width: 0.8em;
-            height: 0.8em;
-            background: white;
-            box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.15);
-            box-sizing: content-box;
+          @include breakpoint(phablet) {
+            width: 32px;
+            height: 32px;
+            margin-top: -12px;
           }
 
-          &.active:before {
-            width: 1em;
-            height: 1em;
-            left: 0;
-            top: 0;
-            background: $textSecondary;
-            border: 0.2em solid white;
+          @include breakpoint(mobile) {
+            width: 48px;
+            height: 48px;
+            margin-top: -10px;
+            margin-left: -17px;
+          }
+
+          svg {
+            position: absolute;
+          }
+
+          &.completed,
+          &.active {
+            border: 1px solid $financeIcon;
+
+            svg {
+              top: -53px;
+              left: 67px;
+              width: 41px;
+              height: 41px;
+
+              @include breakpoint(phablet) {
+                width: 32px;
+                height: 32px;
+                top: -45px;
+                left: 40px;
+              }
+
+              @include breakpoint(mobile) {
+                width: 41px;
+                height: 41px;
+                top: -42px;
+                left: 43px;
+              }
+            }
+
+            &:first-of-type {
+              svg {
+                left: -41px;
+
+                @include breakpoint(phablet) {
+                  left: 13px;
+                }
+
+                @include breakpoint(mobile) {
+                  left: 16px;
+                }
+              }
+            }
+
+            &:last-of-type {
+              svg {
+                right: 20px;
+
+                @include breakpoint(phablet) {
+                  right: -5px;
+                }
+              }
+            }
+          }
+
+          &.locked {
+            svg {
+              top: -48px;
+              left: 72px;
+              width: 32px;
+              height: 32px;
+
+              @include breakpoint(phablet) {
+                top: -40px;
+                left: 46px;
+                width: 20px;
+                height: 20px;
+              }
+
+              @include breakpoint(mobile) {
+                width: 32px;
+                height: 32px;
+                left: 48px;
+                top: -38px;
+              }
+            }
+
+            &:first-of-type {
+              svg {
+                left: 40px;
+
+                @include breakpoint(phablet) {
+                  left: 19px;
+                }
+
+                @include breakpoint(mobile) {
+                  left: 21px;
+                }
+              }
+            }
+
+            &:last-of-type {
+              svg {
+                right: 24px;
+
+                @include breakpoint(phablet) {
+                  right: 3px;
+                }
+              }
+            }
+          }
+
+          &.error {
+            border: 1px solid $financeIcon;
+
+            svg {
+              top: -45px;
+              left: 75px;
+              width: 24px;
+              height: 24px;
+
+              @include breakpoint(phablet) {
+                top: -38px;
+                left: 47px;
+                width: 16px;
+                height: 16px;
+              }
+
+              @include breakpoint(mobile) {
+                top: -35px;
+                left: 52px;
+                width: 24px;
+                height: 24px;
+              }
+            }
+
+            &:first-of-type {
+              svg {
+                left: -32px;
+
+                @include breakpoint(phablet) {
+                  left: 20px;
+                }
+
+                @include breakpoint(mobile) {
+                  left: 25px;
+                }
+              }
+            }
+
+            &:last-of-type {
+              svg {
+                right: 60px;
+
+                @include breakpoint(phablet) {
+                  right: 3px;
+                }
+              }
+            }
+          }
+
+          &.light {
+            background-color: white;
+          }
+
+          &.dark {
+            background-color: $financeDark;
           }
 
           .step-info {
             position: absolute;
-            width: 10em;
-            left: -4em;
-            top: 2em;
+            width: 160px;
+            left: -64px;
+            top: 56px;
             display: flex;
             justify-content: center;
             align-items: center;
             @include transition;
-
-            // &:hover {
-            //   color: $textSecondary;
-            // }
-
-            > svg {
-              width: 1em;
-              height: 1em;
-            }
+            font-weight: 300;
 
             span {
               text-align: center;
-              margin-left: 0.5em;
+              margin-left: 24px;
+              font-size: 14px;
+
+              @include breakpoint(mobile) {
+                position: absolute;
+                top: -30px;
+              }
             }
 
             @include breakpoint(phablet) {
-              width: 3em;
-              left: -0.5em;
+              width: 110px;
+              left: -35px;
               flex-direction: column;
               position: relative;
-              margin-left: -0.3em;
+              margin-left: -5px;
+              top: 45px;
 
               span {
-                font-size: 0.66em;
-                text-overflow: ellipsis;
-                overflow: hidden;
-                white-space: nowrap;
                 margin-left: 0;
-                margin-top: 1em;
                 width: 100%;
-              }
-
-              svg {
-                position: absolute;
-                top: 0;
-                width: 0.8em;
-                height: 0.8em;
               }
 
               &:hover {
@@ -121,17 +304,49 @@
           }
 
           &:first-of-type .step-info {
-            left: 0;
+            left: 45px;
             justify-content: flex-start;
+
+            @include breakpoint(phablet) {
+              left: -8px;
+            }
+
+            > span {
+              margin-left: -45px;
+              left: 91px;
+            }
+          }
+
+          &:nth-of-type(even) .step-info {
+            > span {
+              @include breakpoint(mobile) {
+                left: 100px;
+              }
+            }
+          }
+
+          &:nth-of-type(3) .step-info {
+            > span {
+              @include breakpoint(mobile) {
+                left: 83px;
+              }
+            }
           }
 
           &:last-of-type .step-info {
-            left: unset;
-            right: 0;
             justify-content: flex-end;
 
             @include breakpoint(phablet) {
-              right: 1em;
+              right: 77px;
+
+              > span {
+                margin: 0 !important;
+                left: 75px;
+              }
+            }
+
+            > span {
+              margin-right: 45px;
             }
           }
         }
@@ -259,6 +474,29 @@
       }
     }
 
+    .dropdown-icon {
+      margin-left: auto;
+      box-sizing: content-box;
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      @include transition;
+
+      &.collapsed {
+        right: 10px;
+        top: 24px;
+        transform: rotate(-180deg);
+      }
+
+      &.toggled {
+        box-sizing: content-box;
+        position: absolute;
+        right: 20px;
+        top: 14px;
+        transform: rotate(0deg);
+      }
+    }
+
     .network-select {
       position: relative;
 
@@ -280,10 +518,18 @@
     }
 
     .single-form {
-      padding-left: 5em;
+      font-family: 'Manrope';
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      margin-top: 20px;
 
       @include breakpoint(phablet) {
         padding-left: 0;
+      }
+
+      @include breakpoint(mobile) {
+        font-size: 12px;
       }
 
       .bank-input {
@@ -294,13 +540,51 @@
         display: flex;
         align-items: center;
 
+        @include breakpoint(mobile) {
+          flex-direction: column;
+          justify-content: center;
+          width: 100%;
+          padding-bottom: 20px;
+        }
+
         &:not(:first-of-type) {
-          margin-top: 2em;
+          margin-top: 16px;
+        }
+
+        &:last-of-type{
+          border-bottom: none;
         }
 
         > span {
-          font-size: 1.16em;
-          width: 10em;
+          width: 140px;
+          margin-right: 100px;
+
+          @include breakpoint(phablet) {
+            margin-right: 20px;
+          }
+
+          @include breakpoint(mobile) {
+            width: 100%;
+            margin-bottom: 10px;
+            margin-right: 0;
+            text-align: start;
+            font-weight: bolder;
+          }
+        }
+
+        .items {
+          display: flex;
+          flex-direction: row;
+          justify-content: start;
+          gap: 10px;
+          flex-grow: 1;
+          align-items: center;
+
+          @include breakpoint(mobile) {
+            flex-direction: column;
+            justify-content: center;
+            width: 100%;
+          }
         }
 
         .network-item {
@@ -353,13 +637,63 @@
 
         .amount-label-container {
           display: flex;
-          align-items: center;
 
-          @include breakpoint(mobile) {
-            width: 13.7em;
+          @include breakpoint(mobile){
+            flex-direction: row;
+          }
 
-            input {
-              width: 100%;
+          .max-button {
+            font-family: 'Manrope';
+            font-size: 14px;
+            font-weight: 500;
+            padding: 4px 16px;
+            border: 1px solid $financeGrey;
+            border-radius: 50px;
+            background-color: $hover;
+            color: $finance;
+            cursor: pointer;
+  
+            &:hover {
+              opacity: 75%;
+            }
+  
+            @include breakpoint(mobile) {
+              font-size: $fontSmall;
+            }
+          }
+
+          .coin-wrapper {
+            display: flex;
+            align-items: center;
+            border: 0.5px solid;
+            border-radius: 50px;
+            height: 50px;
+            padding: 0 14px;
+            width: 155px;
+
+            @include breakpoint('max-width: 639px') {
+              width: fit-content;
+            }
+
+            .icon-wrapper {
+              display: flex;
+              justify-content: center;
+              padding: 8px;
+              background-color: white;
+              margin-right: 6px;
+              border-radius: 9999px;
+            }
+
+            &.light {
+              background-color: $financeLighter;
+              border-color: $financeIcon;
+              color: black;
+            }
+
+            &.dark {
+              background-color: $financeDark;
+              border-color: $finance;
+              color: white;
             }
           }
         }
@@ -373,11 +707,6 @@
 
           &.dark {
             background-color: $progressbarDark;
-
-            .coin-wrapper {
-              background: $borderSecondary;
-              color: white;
-            }
           }
 
           span {
@@ -389,46 +718,63 @@
             display: flex;
             align-items: center;
             border-radius: 1em;
-            font-size: 1em;
             font-weight: 500;
             padding: 0.2em;
             padding-right: 0.5em;
             background: white;
             color: black;
             margin-left: 1em;
-
-            svg {
-              width: 1.5em;
-              height: 1.5em;
-              margin-right: 0.5em;
-            }
           }
         }
 
         input {
-          border: 1px solid $borderSecondary;
-          border-radius: 0.8em;
-          height: 3em;
+          border-radius: 50px;
+          // height: 3em;
           background: transparent;
-          color: white;
           outline: none;
           font: unset;
-          width: 10em;
-          padding: 0.3em 0.5em 0.3em 1em;
+          width: 100px;
+          padding: 15px 20px;
           box-sizing: content-box;
+          font-size: 14px;
+
+          @include breakpoint(mobile) {
+            padding: 15px 10px;
+            width: 100%;
+          }
+
+          ::placeholder {
+            color: $finance;
+          }
 
           &.kima-address-input {
-            width: 20em;
+            width: 325px;
+
+            @include breakpoint('min-width: 640px') {
+              padding: 15px;
+              width: 390px;
+            }
+
+            @include breakpoint('max-width: 585px') {
+              width: 280px;
+            }
 
             @include breakpoint(mobile) {
-              width: 12em;
+              width: 100%;
+              font-size: 12px;
             }
           }
-        }
 
-        &.light {
-          input {
+          &.light {
+            border: 1px solid $financeIcon;
             color: black;
+            background-color: white;
+          }
+
+          &.dark {
+            border: 1px solid $finance;
+            color: white;
+            background-color: $financeDark;
           }
         }
 
@@ -439,17 +785,34 @@
         }
 
         &.wallet-button-item {
-          @include breakpoint(phablet) {
+          &.connected {
             align-items: flex-start;
+
+            @include breakpoint(mobile){
+              width: 100%;
+            }
+
+            button {
+              @include breakpoint('min-width: 585xp') {
+                width: 220px;
+              }
+
+              @include breakpoint('min-width: 640px') {
+                width: 425px;
+              }
+
+              @include breakpoint('max-width: 585px') {
+                width: 265px;
+              }
+
+              @include breakpoint(mobile) {
+                width: 100%;
+              }
+            }
           }
 
           @include breakpoint(mobile) {
             .wallet-button {
-              align-items: flex-end;
-
-              button {
-                width: 12em;
-              }
             }
           }
         }
@@ -461,35 +824,52 @@
 
       .coin-dropdown {
         position: relative;
-        border-radius: 1em;
-        padding: 0.5em;
-        padding-right: 3em;
-        height: 2.8em;
+        width: 125px;
+        border-radius: 50px;
+        border: 0.5px solid $financeIcon;
+        padding-left: 4px;
+        padding-right: 24px;
+        height: 50px;
         display: flex;
         align-items: center;
-        margin-left: 0.5em;
         cursor: pointer;
         box-sizing: content-box;
+        @include transition();
+
+        @include breakpoint('max-width: 639px') {
+          width: 105px;
+        }
+
+        @include breakpoint(mobile){
+          width: 100%;
+        }
 
         .coin-wrapper {
           display: flex;
           align-items: center;
-          border-radius: 1em;
-          font-size: 1em;
-          font-weight: 500;
-          padding: 0.2em;
-          padding-right: 0.5em;
-          // background: white;
-          color: black;
+          border-radius: 12px;
+          padding: 2.5px;
+          padding-right: 6px;
 
-          svg {
-            width: 1.5em;
-            height: 1.5em;
-            margin-right: 0.5em;
+          .icon-wrapper {
+            display: flex;
+            justify-content: center;
+            padding: 8px;
+            background-color: white;
+            margin-right: 6px;
+            border-radius: 9999px;
           }
         }
 
+        &.light {
+          color: black;
+          background: $financeLighter;
+        }
+
         &.dark {
+          color: white;
+          background: $financeDark !important;
+
           .coin-wrapper {
             // background: $borderSecondary;
             color: white;
@@ -497,8 +877,8 @@
         }
 
         &:before {
+          box-sizing: content-box;
           position: absolute;
-          content: '';
           width: 0.8em;
           height: 0.8em;
           right: 1.1em;
@@ -510,35 +890,30 @@
           @include transition;
         }
 
-        &.disabled {
-          padding-right: 1em;
-          &:before {
-            display: none;
-          }
-        }
-
         .coin-menu {
-          box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+          border: 0.5px solid $financeIcon;
+          border-top: none;
+          border-radius: 0 0 30px 30px;
           position: absolute;
           z-index: 100;
           max-height: 10em;
-          width: 100%;
-          top: calc(100% - 0.5em);
-          left: 0;
+          width: 100.5%;
+          top: 100%;
+          left: -0.5px;
           overflow: hidden;
           @include transition;
           padding: 0.5em 0;
 
           .coin-item {
-            padding: 0em 1em;
+            margin: 2.5px 12px;
+            padding: 2.5px 12px;
+            border-radius: 20px;
+            max-width: 240px;
             @include transition;
             display: flex;
+            justify-content: start;
+            flex-direction: row;
             align-items: center;
-
-            svg {
-              width: 2.5em;
-              height: 2.5em;
-            }
 
             p {
               width: 100%;
@@ -546,17 +921,23 @@
               margin: 0;
             }
 
-            &:hover {
+            &.light:hover {
               background: $hover;
+            }
+
+            &.dark:hover {
+              background: $financeDarker;
             }
           }
 
           &.light {
-            background: white;
+            color: black;
+            background: $financeLighter;
           }
 
           &.dark {
-            background: $progressbarDark;
+            color: white;
+            background: $financeDark;
           }
 
           &.collapsed {
@@ -566,11 +947,16 @@
         }
 
         &.light {
-          background: $progressbarLight;
+          background: $financeLighter !important;
+        }
 
-          &:before {
-            border-color: black;
-          }
+        &.dark {
+          background: $financeDark !important;
+        }
+
+        &.toggled {
+          border-bottom: none;
+          border-radius: 30px 30px 0 0;
         }
 
         &.collapsed {
@@ -695,37 +1081,50 @@
 
       .network-dropdown {
         position: relative;
-        border-radius: 1em;
-        padding-left: 1em;
-        padding-right: 3em;
-        height: 4em;
+        width: 230px;
+        min-width: 150px;
+        max-width: 300px;
+        border-radius: 50px;
+        border: 0.5px solid $financeIcon;
+        padding-left: 4px;
+        padding-right: 24px;
+        height: 50px;
         display: flex;
         align-items: center;
         cursor: pointer;
         box-sizing: content-box;
         @include transition();
 
+        @include breakpoint('max-width: 586px') {
+          width: 185px;
+        }
+
+        @include breakpoint(mobile) {
+          width: 100%;
+          max-width: none;
+        }
+
         .network-wrapper {
           display: flex;
+          justify-content: start;
           align-items: center;
-          border-radius: 1em;
-          font-size: 1.2em;
-          font-weight: 500;
-          padding: 0.2em;
-          padding-right: 0.5em;
+          border-radius: 15px;
+          padding: 3px;
+          padding-right: 7px;
           color: black;
           z-index: inherit;
-          width: 9.5em;
+
+          .icon {
+            display: flex;
+            justify-content: center;
+            padding: 4px 4px;
+            border-radius: 40px;
+            background-color: white;
+            margin-right: 5px;
+          }
 
           span {
             text-align: center;
-            width: 100%;
-          }
-
-          svg {
-            width: 1.8em;
-            height: 1.8em;
-            margin-right: 0.5em;
           }
         }
 
@@ -738,7 +1137,6 @@
         &:before {
           box-sizing: content-box;
           position: absolute;
-          content: '';
           width: 0.8em;
           height: 0.8em;
           right: 1.1em;
@@ -750,69 +1148,79 @@
           @include transition;
         }
 
-        &.disabled {
-          padding-right: 1em;
-          &::before {
-            display: none;
-          }
-        }
-
         .network-menu {
-          box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+          border: 0.5px solid $financeIcon;
+          border-top: none;
+          border-radius: 0 0 30px 30px;
           position: absolute;
-          z-index: 100;
-          max-height: 12em;
+          z-index: 1000;
+          max-height: 200px;
           width: 100%;
-          top: calc(100% - 0.5em);
-          left: 0;
-          padding: 0.5em 0;
+          top: 100%;
+          left: -0.5px;
           overflow-x: clip;
           overflow-y: scroll;
           @include transition;
 
           &-item {
-            padding: 0.5em 1em;
+            margin: 7px 14px;
+            padding: 11px 7px;
+            border-radius: 20px;
+            width: 220x;
             @include transition;
             display: flex;
+            justify-content: start;
+            flex-direction: row;
             align-items: center;
 
-            svg {
-              width: 2em;
-              height: 2em;
+            .icon {
+              display: flex;
+              justify-content: center;
+              padding: 4px 4px;
+              border-radius: 40px;
+              background-color: white;
             }
 
             p {
-              width: 100%;
-              text-align: center;
-              margin: 0;
-              font-size: 1.2em;
+              margin-left: 20px;
+              margin-top: 0;
+              margin-bottom: 0;
             }
 
-            &:hover {
+            &.light:hover {
               background: $hover;
             }
-          }
 
-          &.light {
-            background: white;
-          }
-
-          &.dark {
-            background: $progressbarDark;
+            &.dark:hover {
+              background: $financeDarker;
+            }
           }
 
           &.collapsed {
             max-height: 0;
             opacity: 0;
           }
+
+          &.light {
+            background-color: $financeLighter;
+          }
+
+          &.dark {
+            background: $financeDark;
+          }
         }
 
         &.light {
-          background: $progressbarLight;
+          background: $financeLighter !important;
+        }
 
-          &:before {
-            border-color: black;
-          }
+        &.dark {
+          background: $financeDark !important;
+        }
+
+        &.toggled {
+          border-bottom: none;
+          border-radius: 30px 30px 0 0;
         }
 
         &.collapsed {
@@ -825,10 +1233,6 @@
         &.dark {
           background: $progressbarDark;
         }
-
-        @include breakpoint(mobile) {
-          width: 10em;
-        }
       }
 
       .dynamic-area {
@@ -836,30 +1240,121 @@
         flex-direction: column;
         @include transition;
 
+        @include breakpoint(mobile){
+          padding-bottom: 10px;
+          width: 100%;
+        }
+
         &.reverse {
           flex-direction: column-reverse;
         }
 
         .form-item {
-          margin-top: 2em;
+          margin-top: 16px;
         }
       }
     }
 
     .wallet-button {
-      font-size: 1.16em;
       display: flex;
-      align-items: center;
+      flex-direction: column;
+      
+      @include breakpoint(phablet) {
+        width: 430px;
+        align-items: flex-start;
+        flex-direction: column;
+
+        .balance-info {
+          margin-left: auto;
+        }
+      }
+
+      @include breakpoint(mobile){
+        width: 100%;
+      }
+
+      .info-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        @include breakpoint('max-width: 639px') {
+          flex-direction: row-reverse;
+          gap: 3px;
+        }
+
+        @include breakpoint(mobile) {
+          gap: 5px;
+          width: 100%;
+        }
+
+        svg {
+          width: 20px;
+          height: 20px;
+        }
+
+        .check-icon {
+          width: 30px;
+          height: 30px;
+        }
+      }
 
       button {
-        width: 14em;
-        height: 3.5em;
+        cursor: pointer;
+        display: flex;
+        width: 270px;
+        align-items: center;
+        height: 50px;
+        border: none;
+        border-radius: 50px;
+        padding: 0 24px;
+        color: white;
+        background-color: $finance;
+        font-size: 14px;
+
+        @include breakpoint('max-width: 586px') {
+          width: 220px;
+        }
+
+        @include breakpoint(mobile) {
+          font-size: 12px;
+          width: 235x;
+        }
+
+        &.shortened {
+          justify-content: center;
+          font-size: 14px;
+
+          @include breakpoint(mobile) {
+            font-size: 12px;
+          }
+        }
+      }
+
+      p {
+        margin: 0;
+      }
+
+      svg {
+        margin-right: 1em;
       }
 
       .provider-error {
         color: red;
         font-size: 0.8em;
         margin-left: 1em;
+      }
+
+      .connected {
+        &.light {
+          color: black;
+          background-color: $hover;
+        }
+
+        &.dark {
+          color: $financeLight;
+          background-color: $financeDark;
+        }
       }
 
       &.error-below {
@@ -872,16 +1367,7 @@
       }
 
       .balance-info {
-        margin-left: 1em;
-      }
-
-      @include breakpoint(phablet) {
-        flex-direction: column;
-        align-items: flex-start;
-
-        .balance-info {
-          margin-left: 0;
-        }
+        color: $finance;
       }
     }
 
@@ -992,7 +1478,7 @@
           box-sizing: content-box;
 
           &.kima-address-input {
-            width: 20em;
+            width: 330px;
           }
         }
 
@@ -1015,81 +1501,216 @@
     }
 
     .confirm-details {
-      padding: 0 8em;
-      font-size: 1.2em;
+      font-size: 16px;
+      font-family: 'Manrope';
+
+      @include breakpoint(mobile) {
+        font-size: 12px;
+      }
 
       > p {
         text-align: center;
-        font-weight: bold;
-        font-size: 1.3em;
+        font-size: 14px;
       }
 
       .detail-item {
-        padding: 1em 2em;
+        padding: 16px 20px;
         display: flex;
+        flex-direction: row;
         align-items: center;
         border-top: 1px solid $secondary;
 
+        @include breakpoint(mobile) {
+          flex-direction: column;
+          width: 100%;
+        }
+
+        @include breakpoint(phablet) {
+          padding: 16px 0;
+        }
+
+        &:first-of-type {
+          border-top: none;
+        }
+
+        &.amount {
+          align-items: start;
+        }
+
         p {
           margin: 0;
+          border-radius: 50px;
+          padding: 16px;
+          text-align: center;
+          flex-grow: 2;
+          font-size: 14px;
+
+          @include breakpoint(mobile) {
+            width: 100%;
+            font-size: 12px;
+          }
+
+          &.light {
+            background-color: $financeLighter;
+            color: black;
+          }
+
+          &.dark {
+            background-color: $finance;
+            color: white;
+          }
         }
 
         .label {
-          font-weight: bold;
+          font-weight: bolder;
           width: 10em;
+
+          @include breakpoint(mobile) {
+            width: 100%;
+            margin-bottom: 10px;
+          }
+        }
+
+        .network-details {
+          display: flex;
+          flex-direction: row;
+          gap: 14px;
+          flex-grow: 2;
+
+          @include breakpoint(mobile) {
+            flex-direction: column;
+            width: 100%;
+          }
+        }
+
+        .kima-card-network-container {
+          width: 210px;
+
+          @include breakpoint(mobile) {
+            width: 100%;
+          }
         }
 
         .kima-card-network-label {
           display: flex;
-          padding: 0.3em 0.5em 0.3em 0.5em;
-          border-radius: 1em;
-          margin-left: 1em;
+          flex-direction: row;
+          padding: 4px 18px;
+          border-radius: 50px;
+          height: 50px;
+
+          .icon {
+            display: flex;
+            justify-content: center;
+            border-radius: 9999px;
+            background-color: white;
+            padding: 4px;
+          }
+
+          &.light {
+            background-color: $hover;
+            color: black;
+          }
+
+          &.dark {
+            background-color: $financeDark;
+            color: white;
+          }
         }
 
-        &:last-of-type {
-          border-bottom: 1px solid $secondary;
+        .amount-container {
+          display: flex;
+          flex-direction: column;
+          justify-content: start;
+
+          @include breakpoint(mobile) {
+            width: 100%;
+          }
+
+          svg {
+            margin-right: 6px;
+          }
+
+          .coin-details {
+            display: flex;
+            flex-direction: row;
+
+            @include breakpoint(mobile) {
+              width: 100%;
+              justify-content: end;
+              padding-right: 6px;
+              font-size: 12px;
+            }
+
+            p {
+              padding: 0;
+              margin: 0;
+              flex-grow: 0;
+              width: fit-content;
+            }
+          }
+
+          .amount-details {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            width: 250px;
+            padding: 8px 6px;
+            font-size: 14px;
+            border-top: 1px solid $financeIcon;
+
+            &:first-of-type {
+              border-top: none;
+              padding-top: 0;
+            }
+
+            @include breakpoint(mobile) {
+              width: 100%;
+              font-size: 12px;
+            }
+
+            &.fee {
+              color: red;
+            }
+
+            &:last-of-type {
+              padding-top: 15px;
+            }
+          }
         }
 
         .signature {
           max-width: 65%;
           word-wrap: break-word;
         }
-      }
 
-      &.light {
-        .kima-card-network-label {
-          background: $progressbarLight;
-        }
-      }
-
-      &.dark {
-        .kima-card-network-label {
-          background: $progressbarDark;
+        @include breakpoint(mobile) {
+          align-items: start;
         }
       }
 
       @include breakpoint(phablet) {
-        padding: 0 2em;
+        padding: 0 20px;
       }
 
       @include breakpoint(mobile) {
         padding: 0;
-
-        .detail-item {
-          padding: 1em 1em 1em 0;
-
-          .label {
-            width: 8em;
-          }
-        }
       }
     }
 
     .kima-custom-checkbox {
-      margin-left: 11.5em;
-      margin-top: 1em;
+      margin-left: 245px;
+      margin-top: 16px;
       display: flex;
       align-items: center;
+
+      @include breakpoint(phablet) {
+        margin-left: 110px;
+      }
+
+      @include breakpoint(mobile) {
+        margin-left: 0;
+        justify-content: center;
+      }
 
       .custom-checkbox-content {
         display: flex;
@@ -1099,20 +1720,20 @@
 
         .custom-checkbox-icon-wrapper {
           border: 1px solid #ffffff;
-          height: 1em;
-          width: 1em;
           border-radius: 0.2em;
           display: flex;
           justify-content: center;
           align-items: center;
+          width: 20px;
+          height: 20px;
 
           &.light {
             border-color: $progressbarDark;
           }
 
-          svg {
-            margin-top: 0.2em;
-            margin-left: 1px;
+          .check-icon {
+            width: 20px;
+            height: 20px;
           }
         }
       }
@@ -1125,21 +1746,70 @@
     .kima-stepbox {
       display: flex;
       justify-content: center;
+      font-family: 'Manrope';
+      font-size: 14px;
 
       .content-wrapper {
         display: flex;
         flex-direction: column;
-        border: 1px solid $border;
-        border-radius: 1em;
-        padding: 1.5em 2em;
+        border: 1px solid $financeIcon;
+        border-radius: 30px;
+        padding: 12px 24px;
+
+        &.light {
+          background-color: $financeLighter;
+        }
+
+        &.dark {
+          background-color: $financeDark;
+          color: white;
+        }
+
+        @include breakpoint('min-width: 500px') {
+          min-width: 420px;
+        }
+
+        @include breakpoint(mobile) {
+          padding: 12px 24px;
+          gap: 5px;
+          justify-content: space-between;
+          border: none;
+          background-color: transparent !important;
+        }
 
         .step-item {
           display: flex;
+          flex-direction: row;
           align-items: center;
-          margin: 0.3em 0;
+          margin: 5px 0;
+          justify-content: space-between;
+          gap: 20px;
+
+          @include breakpoint(mobile) {
+            flex-direction: column;
+            align-items: end;
+          }
 
           .info-item {
             position: relative;
+            align-items: center;
+
+            @include breakpoint(mobile){
+              width: 195px;
+              height: 40px;
+            }
+
+            .icon {
+              border-radius: 9999px;
+              background-color: white;
+              padding: 4px;
+              display: flex;
+              justify-content: center;
+
+              @include breakpoint('min-width: 501px') {
+                display: none;
+              }
+            }
 
             a {
               text-decoration: underline;
@@ -1148,29 +1818,43 @@
             p {
               display: flex;
               align-items: center;
+
+              @include breakpoint(mobile) {
+                
+                &.chain-name {
+                  display: none;
+                }
+              }
             }
 
             &:first-of-type {
-              width: 11em;
+              width: 155px;
 
               p {
-                margin: 0 0 0 1.5em;
+                margin: 0 0 0 21px;
               }
 
               svg {
                 position: absolute;
-                margin-top: 0.3em;
-                width: 1em;
-                height: 1em;
+                margin-top: -4.2px;
+                width: 28px;
+                height: 28px;
+                left: -4.5px;
+
+                @include breakpoint(mobile) {
+                  top: 0;
+                }
               }
             }
 
             &:not(:first-of-type) {
+              display: flex;
+              flex-direction: row;
               p {
                 margin: 0;
 
                 a {
-                  margin-left: 0.5em;
+                  margin-left: 7px;
                 }
 
                 .copy-btn {
@@ -1183,27 +1867,89 @@
                   }
 
                   svg {
-                    width: 1em;
-                    height: 1em;
-                    margin-left: 0.5em;
+                    width: 21px;
+                    height: 21px;
+                    margin-left: 7px;
                   }
                 }
+              }
+            }
+
+            &.locked {
+              svg {
+                margin-top: 0.5px;
+                width: 17px;
+                height: 17px;
+                left: 0;
+              }
+            }
+
+            &.active {
+              svg {
+                margin-top: -8.5px;
+                width: 35px;
+                height: 35px;
+                left: -8.5px;
+              }
+            }
+
+            &.error {
+              svg {
+                margin-top: -4.5px;
+                width: 17px;
+                height: 28px;
+                left: 0;
               }
             }
           }
 
           @include breakpoint(phablet) {
-            flex-direction: column;
-            align-items: flex-start;
-
             .info-item {
               &:first-of-type {
                 padding-left: 0;
               }
 
               &:not(:first-of-type) {
-                padding-left: 1.5em;
-                padding-top: 0.2em;
+                padding-left: 21px;
+                padding-top: 3px;
+                margin-top: 10px;
+              }
+            }
+          }
+
+          @include breakpoint(mobile) {
+            .info-item {
+              gap: 5px;
+              justify-content: end;
+
+              &:first-of-type {
+                display: none;
+              }
+
+              &:not(:first-of-type) {
+                padding: 6px 12px;
+                border-radius: 30px;
+
+                &.light {
+                  background-color: $hover;
+                }
+
+                &.dark {
+                  background-color: $financeDark;
+                  color: white;
+                }
+              }
+
+              &.source-chain {
+                margin-top: -30px;
+              }
+
+              &.paid {
+                margin-top: 10px;
+              }
+
+              &.target-chain {
+                margin-top: 60px;
               }
             }
           }
@@ -1213,45 +1959,53 @@
   }
 
   .card-item {
-    width: 10em;
-    height: 9em;
-    border-radius: 1em;
+    width: 100%;
+    height: 80px;
+    border-radius: 24px;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
     align-items: center;
     cursor: pointer;
     text-decoration: none;
     color: inherit;
     @include transition;
+    border: 1px solid $financeGrey;
 
-    svg,
-    img {
-      width: 3em;
-      height: 3em;
-      border-radius: 100%;
+    .wallet-item {
+      padding: 0 25px;
+      gap: 20px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+
+    img,
+    svg {
+      width: 60px;
+      height: 60px;
+
+      @include breakpoint(mobile) {
+        width: 40px;
+        height: 40px;
+      }
     }
 
     span {
-      font-weight: bold;
-      margin-top: 1em;
+      font-weight: 500;
+      font-family: 'Manrope';
       text-align: center;
+      font-size: 18px;
+
+      @include breakpoint(mobile) {
+        font-size: 14px;
+      }
     }
 
     &.light {
-      background: $progressbarLight;
+      background: $financeLighter;
     }
 
     &.dark {
-      background: $progressbarDark;
-    }
-
-    &.active {
-      background: $border;
-
-      span {
-        color: white;
-      }
+      background: $financeDarkest;
     }
 
     &:hover {
@@ -1262,13 +2016,7 @@
   .kima-card-network-label {
     display: flex;
     align-items: center;
-    column-gap: 0.5em;
-    padding-top: 1em;
-
-    > svg {
-      width: 1em;
-      height: 1em;
-    }
+    gap: 10px;
 
     .label {
       display: flex;
@@ -1301,14 +2049,25 @@
     }
   }
 
+  .primary-button-wrapper {
+    background: linear-gradient(to right, #8d77cc, #7bd5fb, #b2f79c);
+    padding: 2px;
+    border-radius: 30px;
+    max-height: 48px;
+
+    @include breakpoint(mobile){
+      width: 100%;
+    }
+  }
+
   .primary-button {
-    background: $primary;
-    border-radius: 0.8em;
-    width: 10em;
-    height: 3em;
+    background: black;
+    border-radius: 30px;
+    width: fit-content;
+    height: 45px;
+    padding: 13px 27px;
     cursor: pointer;
     color: white;
-    font-size: 1em;
     font-weight: bold;
     font-family: inherit;
     border: none;
@@ -1317,6 +2076,11 @@
     align-items: center;
     justify-content: center;
     letter-spacing: 0;
+    font-size: 16px;
+
+    &.light {
+      background-color: black;
+    }
 
     &:hover,
     &:disabled {
@@ -1328,19 +2092,17 @@
     }
 
     .loading-indicator {
-      margin-right: 0.5em;
+      margin-right: 7px;
 
       svg {
-        width: 1.5em;
-        height: 1.5em;
-        margin-top: 0.3em;
+        width: 20px;
+        height: 20px;
+        margin-top: 4px;
         fill: white !important;
       }
     }
 
     @include breakpoint(mobile) {
-      width: 8em;
-
       &:hover {
         opacity: 1;
       }
@@ -1352,25 +2114,32 @@
   }
 
   .secondary-button {
-    border-radius: 0.8em;
-    width: 10em;
-    height: 3em;
+    border-radius: 30px;
+    width: fit-content;
+    padding: 7px 27px;
+    height: 50px;
+    background-color: transparent;
     cursor: pointer;
-    font-size: 1em;
     font-weight: bold;
     font-family: inherit;
-    border: none;
+    border-radius: 30px;
+    border: 1px solid;
     letter-spacing: 0;
+    font-size: 16px;
     @include transition;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
 
     &.dark {
       color: white;
-      background: $progressbarDark;
+      border-color: white;
     }
 
     &.light {
       color: black;
-      background: $secondary;
+      border-color: black;
     }
 
     &:hover,
