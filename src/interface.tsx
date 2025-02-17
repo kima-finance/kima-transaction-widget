@@ -88,7 +88,7 @@ export interface TransactionData {
   tssReleaseHash: string
   sourceSymbol: string
   targetSymbol: string
-  amount: number
+  amount: number | string
   kimaTxHash: string
   failReason: string
 }

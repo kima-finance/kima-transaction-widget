@@ -300,8 +300,6 @@ const SingleForm = ({
         </div>
       </div>
 
-      <OptionDivider text='or' />
-      <TransactionSearch />
     </div>
   )
 }

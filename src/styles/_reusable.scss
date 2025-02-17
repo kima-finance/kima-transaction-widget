@@ -1,5 +1,17 @@
 .kima-card {
   .kima-card-content {
+    font-family: 'Manrope';
+
+    .error-message{
+      color: red;
+      font-weight: bold;
+    }
+
+    .subtitle {
+      margin: 0;
+      font-weight: bolder;
+    }
+
     .kima-progressbar {
       height: 7px;
       width: 95%;
@@ -269,6 +281,7 @@
               text-align: center;
               margin-left: 24px;
               font-size: 14px;
+              font-family: 'Manrope';
 
               @include breakpoint(mobile) {
                 position: absolute;
@@ -551,7 +564,7 @@
           margin-top: 16px;
         }
 
-        &:last-of-type{
+        &:last-of-type {
           border-bottom: none;
         }
 
@@ -638,7 +651,7 @@
         .amount-label-container {
           display: flex;
 
-          @include breakpoint(mobile){
+          @include breakpoint(mobile) {
             flex-direction: row;
           }
 
@@ -652,11 +665,11 @@
             background-color: $hover;
             color: $finance;
             cursor: pointer;
-  
+
             &:hover {
               opacity: 75%;
             }
-  
+
             @include breakpoint(mobile) {
               font-size: $fontSmall;
             }
@@ -727,7 +740,7 @@
           }
         }
 
-        &.transaction-search{
+        &.transaction-search {
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -739,7 +752,7 @@
           span {
             margin-right: 85px;
 
-            @include breakpoint(mobile){
+            @include breakpoint(mobile) {
               text-align: start;
               margin-right: auto;
               margin-bottom: 10px;
@@ -759,7 +772,7 @@
             }
           }
 
-          @include breakpoint(phablet){
+          @include breakpoint(phablet) {
             flex-direction: column;
             align-items: start;
           }
@@ -778,7 +791,7 @@
             input {
               width: 390px;
 
-              @include breakpoint(mobile){
+              @include breakpoint(mobile) {
                 width: 100%;
               }
             }
@@ -846,7 +859,7 @@
           &.connected {
             align-items: flex-start;
 
-            @include breakpoint(mobile){
+            @include breakpoint(mobile) {
               width: 100%;
             }
 
@@ -898,7 +911,7 @@
           width: 105px;
         }
 
-        @include breakpoint(mobile){
+        @include breakpoint(mobile) {
           width: 100%;
         }
 
@@ -1298,7 +1311,7 @@
         flex-direction: column;
         @include transition;
 
-        @include breakpoint(mobile){
+        @include breakpoint(mobile) {
           padding-bottom: 10px;
           width: 100%;
         }
@@ -1316,7 +1329,7 @@
     .wallet-button {
       display: flex;
       flex-direction: column;
-      
+
       @include breakpoint(phablet) {
         width: 430px;
         align-items: flex-start;
@@ -1327,7 +1340,7 @@
         }
       }
 
-      @include breakpoint(mobile){
+      @include breakpoint(mobile) {
         width: 100%;
       }
 
@@ -1852,7 +1865,7 @@
             position: relative;
             align-items: center;
 
-            @include breakpoint(mobile){
+            @include breakpoint(mobile) {
               width: 210px;
               height: 40px;
             }
@@ -1878,7 +1891,6 @@
               align-items: center;
 
               @include breakpoint(mobile) {
-                
                 &.chain-name {
                   display: none;
                 }
@@ -1999,11 +2011,11 @@
               }
 
               &.source-chain {
-                margin-top: 25px;
+                margin-top: -35px;
               }
 
               &.paid {
-                margin-top: 45px;
+                margin-top: -10px;
               }
 
               &.target-chain {
@@ -2024,6 +2036,10 @@
       font-size: 14px;
       text-align: justify;
 
+      h2 {
+        font-size: 14px;
+      }
+
       .transaction-copy {
         display: flex;
         flex-direction: row;
@@ -2033,6 +2049,10 @@
         margin-top: 10px;
         align-items: center;
         gap: 10px;
+
+        h3 {
+          margin: 0;
+        }
       }
     }
   }
@@ -2134,7 +2154,7 @@
     border-radius: 30px;
     max-height: 48px;
 
-    @include breakpoint(mobile){
+    @include breakpoint(mobile) {
       width: 100%;
     }
   }

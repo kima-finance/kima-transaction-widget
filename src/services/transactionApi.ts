@@ -53,7 +53,7 @@ const emptyStatus = {
   tssReleaseHash: '',
   sourceSymbol: '',
   targetSymbol: '',
-  amount: 0,
+  amount: '',
   kimaTxHash: '',
   failReason: ''
 } satisfies TransactionData
@@ -136,6 +136,8 @@ export const getTxData = async ({
     return data
   } catch (error) {
     console.error(`Error fetching transaction ${txId} data:`, error)
-    return null
+    throw new Error(
+      `Error fetching transaction ${txId} data: ${JSON.stringify(error)}`
+    )
   }
 }
