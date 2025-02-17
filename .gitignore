@@ -29,3 +29,6 @@ yarn-error.log*
 
 .env
 .package-lock.json
+example-vite/node_modules
+example-next/.next
+example-next/node_modules
