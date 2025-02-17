@@ -1,6 +1,6 @@
-import { formatUnits } from '@ethersproject/units'
 import { TokenOptions } from '@store/optionSlice'
 import { getTokenAddress, getPoolAddress } from '@utils/functions'
+import { formatUnits } from 'ethers'
 
 export const getTokenAllowance = async ({
   tokenOptions,

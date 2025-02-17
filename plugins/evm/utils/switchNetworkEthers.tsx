@@ -1,52 +1,50 @@
-import { Web3Provider } from '@ethersproject/providers'
-import { ethers } from 'ethers'
+import { BrowserProvider, toBeHex } from 'ethers'
+import { toHex } from 'viem'
 
 /**
  * Requests a network change or adds the network if it doesn't exist.
- * @param provider - The Web3Provider instance.
+ * @param provider - The BrowserProvider instance.
  * @param chainId - The chain ID to switch to.
+ * @param chains - List of available chains.
  */
 export async function switchNetworkEthers(
-  provider: Web3Provider,
+  provider: BrowserProvider,
   chainId: number,
-  chains: any
+  chains: any[]
 ): Promise<void> {
   try {
-    console.log('attempting to switch...')
+    console.log('Attempting to switch...')
+    console.log("chainId: ", chainId, toHex(chainId) )
     // Attempt to switch to the specified network
-    await provider.send('wallet_switchEthereumChain', [
-      { chainId: ethers.utils.hexValue(chainId) }
-    ])
+    await provider.send('wallet_switchEthereumChain', [{ chainId: toHex(chainId) }])
     console.log(`Switched to network: ${chainId}`)
   } catch (error: any) {
     if (error.code === 4902) {
-      console.log('error switching network: ', error)
+      console.log('Error switching network: ', error)
       // If the network is not added, attempt to add it
       try {
-        console.log('chains: ', chains)
+        console.log('Chains: ', chains)
 
-        const network = chains.find(
-          (ethersNetwork: any) => ethersNetwork.id === chainId
-        )
+        const network = chains.find((ethersNetwork: any) => ethersNetwork.id === chainId)
 
-        console.log('network found: ', network)
+        console.log('Network found: ', network)
 
         if (!network) {
           throw new Error(`Network with chainId ${chainId} not found in chains`)
         }
 
         const chainConfig = {
-          chainId: ethers.utils.hexValue(network?.id),
-          chainName: network?.name,
-          blockExplorerUrls: Object.values(network.blockExplorers).flatMap(
+          chainId: toBeHex(network.id),
+          chainName: network.name,
+          blockExplorerUrls: Object.values(network.blockExplorers || {}).flatMap(
             (explorer: any) => Object.values(explorer)
           ),
-          rpcUrls: Object.values(network.rpcUrls).flatMap(
-            (item: any) => item.http
-          ),
-          nativeCurrency: network?.nativeCurrency
+          rpcUrls: Object.values(network.rpcUrls || {}).flatMap((item: any) => item.http),
+          nativeCurrency: network.nativeCurrency
         }
-        console.log('chainConfig: ', chainConfig)
+
+        console.log('Chain Config: ', chainConfig)
+
         await provider.send('wallet_addEthereumChain', [chainConfig])
         console.log(`Added and switched to network: ${chainId}`)
       } catch (addError) {

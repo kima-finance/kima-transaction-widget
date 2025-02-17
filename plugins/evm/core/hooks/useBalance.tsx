@@ -1,27 +1,19 @@
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
-// import { Contract } from '@ethersproject/contracts'
-// import { formatUnits } from '@ethersproject/units'
-// import { ethers } from 'ethers'
-import {
-  ExternalProvider,
-  JsonRpcFetchFunc,
-  Web3Provider
-} from '@ethersproject/providers'
-
 import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
+import { useQuery } from '@tanstack/react-query'
+import { useKimaContext } from '../../../../src/KimaProvider'
+
 import {
-  // selectErrorHandler,
   selectSourceChain,
   selectTokenOptions,
   selectSourceCurrency,
+  selectNetworkOption
 } from '@store/selectors'
 import { ChainName, isEVMChain } from '../../utils/constants'
-// import ERC20ABI from '../../utils/ethereum/erc20ABI.json'
 import { isEmptyObject } from '../../helpers/functions'
+import { NetworkOptions } from '@interface'
 import { getEvmTokenBalance } from '../../utils/getTokenBalance'
-import { useQuery } from '@tanstack/react-query'
-import { useKimaContext } from '../../../../src/KimaProvider'
 
 const zeroBalance = { balance: 0, decimals: 6 }
 
@@ -29,55 +21,56 @@ export default function useBalance() {
   const appkitAccountInfo = useAppKitAccount()
   const { address: signerAddress } = appkitAccountInfo || {}
   const { walletProvider } = useAppKitProvider('eip155')
-  const {externalProvider} = useKimaContext()
+  const { externalProvider } = useKimaContext()
 
   const sourceChain = useSelector(selectSourceChain)
   const sourceCurrency = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
+  const networkOption = useSelector(selectNetworkOption)
 
+  // Get token address
   const tokenAddress = useMemo(() => {
     if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT) return ''
-    const coinOptions = tokenOptions[sourceCurrency]
-    if (coinOptions && typeof coinOptions === 'object') {
-      return coinOptions[sourceChain]
-    }
-    return ''
+    return tokenOptions?.[sourceCurrency]?.[sourceChain] || ''
   }, [sourceCurrency, sourceChain, tokenOptions])
 
-  // define wallet address
-  const walletAddress = externalProvider?.signer?._address || signerAddress
+  // Get wallet address from externalProvider or AppKit
+  const walletAddress = externalProvider?.signer?.address || signerAddress
 
-  // define query key
+  // Define query key
   const queryKey = ['evmBalance', sourceChain, tokenAddress, walletAddress]
 
-  // enable query
+  // Enable query when required conditions are met
   const enabled =
     !!tokenAddress &&
-    (!!walletProvider || !!externalProvider) &&
-    !!walletAddress
+    !!walletAddress &&
+    isEVMChain(sourceChain) &&
+    (!!walletProvider || !!externalProvider)
 
   const result = useQuery({
     queryKey,
-    queryFn: () => {
+    queryFn: async () => {
+      if (!isEVMChain(sourceChain)) return zeroBalance
+      if (!walletAddress || !tokenAddress) return zeroBalance
+
       try {
-        if (!isEVMChain(sourceChain)) return zeroBalance
-        return getEvmTokenBalance({
-          address: walletAddress as string,
+        return await getEvmTokenBalance({
+          address: walletAddress,
           tokenAddress,
-          walletProvider: externalProvider
-            ? (externalProvider.provider as Web3Provider)
-            : (walletProvider as ExternalProvider | JsonRpcFetchFunc)
+          chain: sourceChain,
+          isTestnet: networkOption === NetworkOptions.testnet
         })
-      } catch (e) {
-        const msg = `Error getting ${sourceChain} ${sourceCurrency} balance for wallet ${walletAddress}`
-        console.error(msg, e)
-        throw new Error(msg)
+      } catch (error) {
+        console.error(
+          `Error getting ${sourceChain} ${sourceCurrency} balance for wallet ${walletAddress}:`,
+          error
+        )
+        return zeroBalance
       }
     },
     enabled,
     staleTime: 1000 * 60 // 1 min
   })
-  const { data } = result
 
-  return data
+  return result.data
 }

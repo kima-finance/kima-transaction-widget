@@ -20,8 +20,8 @@ import {
   polygonZkEvmCardona,
   sepolia
 } from '@reown/appkit/networks' // Adjust this import based on real networks you need to support
-import { Ethers5Adapter } from '@reown/appkit-adapter-ethers5'
 import { NetworkOptions } from '@interface'
+import { EthersAdapter } from '@reown/appkit-adapter-ethers'
 
 const appkitMainnetChains = [
   mainnet,
@@ -73,7 +73,7 @@ export const setupAppKit = (
       : appkitTestnetChains // Adjust networks per environment
 
   appKitModel = createAppKit({
-    adapters: [new Ethers5Adapter()],
+    adapters: [new EthersAdapter()],
     metadata,
     networks,
     projectId, // Use the provided or default project ID
@@ -87,6 +87,7 @@ export const setupAppKit = (
     },
   })
   console.debug('setupAppKit:networkOption:', networkOption)
+  console.log("setupAppKit: appkitModel: ", appKitModel)
 
   return appKitModel
 }

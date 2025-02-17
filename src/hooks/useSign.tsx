@@ -3,59 +3,63 @@ import { useDispatch, useSelector } from 'react-redux'
 import sha256 from 'crypto-js/sha256.js'
 import Base64 from 'crypto-js/enc-base64.js'
 import { ChainName } from '../utils/constants'
-import {
-  selectAmount,
-  selectErrorHandler,
-  selectSourceChain
-} from '../store/selectors'
+import { selectAmount, selectSourceChain } from '../store/selectors'
 import { setSignature } from '../store/optionSlice'
-import { ethers } from 'ethers'
-import { ExternalProvider, JsonRpcFetchFunc } from '@ethersproject/providers'
 import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
+import { useKimaContext } from '../KimaProvider'
+import { BrowserProvider, JsonRpcSigner } from 'ethers'
 
-export default function useSign({ setSigning }: { setSigning: any }) {
+export default function useSign({
+  setSigning
+}: {
+  setSigning: (val: boolean) => void
+}) {
   const dispatch = useDispatch()
   const [isSigned, setIsSigned] = useState<boolean>(false)
-  const appkitAccountInfo = useAppKitAccount()
-  const { address: signerAddress } = appkitAccountInfo || {
-    address: null,
-    chainId: null,
-    isConnected: null
-  }
 
-  const { walletProvider } = useAppKitProvider('eip155')
+  const { externalProvider } = useKimaContext()
+  const appkitAccountInfo = useAppKitAccount()
+  const { address: appkitAddress } = appkitAccountInfo || {}
+
+  const { walletProvider: appkitProvider } =
+    useAppKitProvider<BrowserProvider>('eip155')
+
   const sourceNetwork = useSelector(selectSourceChain)
-  const errorHandler = useSelector(selectErrorHandler)
   const amount = useSelector(selectAmount)
 
+  // Determine the correct signer address (external provider first, then AppKit)
+  const walletAddress = externalProvider?.signer?.address || appkitAddress
+
   const sign = useCallback(async () => {
-    if (sourceNetwork !== ChainName.FIAT) {
-      errorHandler('Failed to sign')
-      return
-    }
+    if (sourceNetwork !== ChainName.FIAT || !walletAddress) return
+
     try {
       setSigning(true)
-      const provider = new ethers.providers.Web3Provider(
-        walletProvider as ExternalProvider | JsonRpcFetchFunc
-      )
-      const signer = provider?.getSigner()
-      const message = `${amount} | ${signerAddress}`
-      const signature = await signer?.signMessage(message)
-      const hash = Base64.stringify(sha256(signature || ''))
+
+      // Determine correct signer
+      const signer = (externalProvider?.signer ||
+        (await appkitProvider.getSigner())) as JsonRpcSigner
+
+      const message = `${amount} | ${walletAddress}`
+      const signature = await signer.signMessage(message)
+      const hash = Base64.stringify(sha256(signature))
+
       setIsSigned(true)
       dispatch(setSignature(hash))
-      setSigning(false)
     } catch (error) {
-      errorHandler(error)
+      console.error('Signing failed:', error)
+    } finally {
       setSigning(false)
     }
-  }, [walletProvider, amount, sourceNetwork, signerAddress])
+  }, [
+    walletAddress,
+    amount,
+    sourceNetwork,
+    externalProvider,
+    appkitProvider,
+    dispatch,
+    setSigning
+  ])
 
-  return useMemo(
-    () => ({
-      isSigned,
-      sign
-    }),
-    [isSigned, sign]
-  )
+  return useMemo(() => ({ isSigned, sign }), [isSigned, sign])
 }

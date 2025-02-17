@@ -1,6 +1,5 @@
 // Return shortened address for EVM, Solana wallet address
-import { ethers } from 'ethers'
-import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
+import { BrowserProvider, formatUnits, JsonRpcSigner, parseUnits } from 'ethers'
 import {
   CHAIN_NAMES_TO_STRING,
   ExternalProvider,
@@ -104,20 +103,16 @@ export const getTransactionId = (transactionEvents: any) => {
   }
 }
 
+/* Subtract two numbers precisely with a given number of decimals */
 export const preciseSubtraction = (
   a: number | string,
   b: number | string,
-  decimals: number = 18 // Default to 18 decimals for precision
+  decimals: number = 18
 ): number => {
-  // Parse inputs into BigNumbers using ethers' parseUnits
-  const numA = ethers.utils.parseUnits(a.toString(), decimals)
-  const numB = ethers.utils.parseUnits(b.toString(), decimals)
-
-  // Perform the subtraction using BigNumber
-  const result = numA.sub(numB)
-
-  // Format the result back to a decimal string
-  return parseFloat(ethers.utils.formatUnits(result, decimals))
+  const numA = parseUnits(a.toString(), decimals)
+  const numB = parseUnits(b.toString(), decimals)
+  const result = numA - numB // ethers v6 uses `BigInt`, so we use `-` instead of `.sub()`
+  return parseFloat(formatUnits(result, decimals))
 }
 
 export const isValidExternalProvider = (externalProvider: ExternalProvider) => {
@@ -126,7 +121,7 @@ export const isValidExternalProvider = (externalProvider: ExternalProvider) => {
   // evm provider type check
   if (type === 'evm') {
     if (
-      !(provider instanceof Web3Provider) ||
+      !(provider instanceof BrowserProvider) ||
       !(signer instanceof JsonRpcSigner)
     )
       return false

@@ -104,6 +104,8 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
     }
   }
 
+  // console.log("wallet button is ready: ", isReady)
+
   const errorMessage = useMemo(() => {
     if (!isReady) return statusMessage
     if (
