@@ -5,7 +5,6 @@ import {
   selectExcludedTargetNetworks,
   selectNetworks,
   selectSourceChain,
-  selectSwitchChainHandler,
   selectTargetChain,
   selectTheme
 } from '@store/selectors'
@@ -13,6 +12,7 @@ import { setSourceChain, setTargetChain } from '@store/optionSlice'
 import Arrow from '@assets/icons/Arrow'
 import ChainIcon from '../reusable/ChainIcon'
 import { ChainName } from '@utils/constants'
+import { useKimaContext } from 'src/KimaProvider'
 
 interface NetworkSelectorProps {
   type: 'source' | 'target' // Determines if this is a source or target selector
@@ -29,7 +29,7 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({ type }) => {
   const targetNetwork = useSelector(selectTargetChain)
   const excludedSourceNetworks = useSelector(selectExcludedSourceNetworks)
   const excludedTargetNetworks = useSelector(selectExcludedTargetNetworks)
-  const switchChainHandler = useSelector(selectSwitchChainHandler)
+  const {switchChainHandler} = useKimaContext()
 
   const isSourceSelector = type === 'source'
 

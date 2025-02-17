@@ -1,5 +1,5 @@
 import { NetworkFee, ServiceFee } from '@interface'
-import { fetchWrapper } from 'src/helpers/fetch-wrapper'
+import { fetchWrapper } from '../helpers/fetch-wrapper'
 
 export interface FeeResult
   extends Omit<ServiceFee, 'sourceNetworkFee' | 'targetNetworkFee'> {

@@ -31,11 +31,9 @@ import {
 import {
   selectAmount,
   selectBackendUrl,
-  selectCloseHandler,
   selectCompliantOption,
   selectDappOption,
   selectFeeDeduct,
-  selectKeplrHandler,
   selectMode,
   selectNetworkOption,
   selectPendingTxs,
@@ -62,6 +60,7 @@ import useBalance from '../hooks/useBalance'
 import useGetPools from '../hooks/useGetPools'
 import useDisconnectWallet from '../hooks/useDisconnectWallet'
 import TransactionSearch from './reusable/TransactionSearch'
+import { useKimaContext } from 'src/KimaProvider'
 
 interface Props {
   theme: ThemeOptions
@@ -84,7 +83,6 @@ export const TransferWidget = ({
 
   // Redux variables
   const dAppOption = useSelector(selectDappOption)
-  const keplrHandler = useSelector(selectKeplrHandler)
   const mode = useSelector(selectMode)
   const transactionOption = useSelector(selectTransactionOption)
   const backendUrl = useSelector(selectBackendUrl)
@@ -105,7 +103,7 @@ export const TransferWidget = ({
   const compliantOption = useSelector(selectCompliantOption)
   const networkOptions = useSelector(selectNetworkOption)
   const feeDeduct = useSelector(selectFeeDeduct)
-  const closeHandler = useSelector(selectCloseHandler)
+  const {keplrHandler, closeHandler} = useKimaContext()
 
   // Hooks for wallet connection, allowance
   const [isCancellingApprove, setCancellingApprove] = useState(false)
@@ -224,7 +222,7 @@ export const TransferWidget = ({
     }
 
     if (formStep === 0) {
-      closeHandler()
+      closeHandler && closeHandler(0)
     }
   }
 
@@ -260,7 +258,7 @@ export const TransferWidget = ({
       setMode(transactionOption ? ModeOptions.payment : ModeOptions.bridge)
     )
     await disconnectWallet()
-    closeHandler()
+    closeHandler && closeHandler(0)
   }
 
   useEffect(() => {

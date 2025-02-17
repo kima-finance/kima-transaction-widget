@@ -43,7 +43,7 @@ const WalletProvider = ({ children, networkOption }: WalletProviderProps) => {
     if (networkOption === 'testnet') {
       if (chainData.chainId === '0xcd8690dc') {
         // Nile Testnet Chain ID
-        toast.error('Please switch to Tron Shasta Testnet!')
+        toast.error('Please switch to Tron Nile Testnet!')
         adapters[0].switchChain('0x3e9') // Shasta Testnet Chain ID
       } else if (chainData.chainId !== '0x3e9') {
         adapters[0].switchChain('0x3e9') // Ensure Shasta if not already

@@ -22,8 +22,6 @@ function useGetSolBalance() {
     ? externalProvider.signer
     : internalPublicKey
 
-  console.log('public key: ', publicKey)
-
   // set the proper connection
   const connection = externalProvider?.provider.connection || internalConnection
 

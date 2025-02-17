@@ -54,7 +54,7 @@ const SolanaWalletSelect = () => {
       const walk = (x - startX) * 1 //scroll-fast
       sliderRef.current.scrollLeft = scrollLeft - walk
     })
-  })
+  }, [])
 
   const handleWalletClick = useCallback(
     (walletName: any) => {

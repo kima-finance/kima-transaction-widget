@@ -13,19 +13,14 @@ import {
 
 // store
 import {
-  setCloseHandler,
-  setErrorHandler,
   setMode,
   setTheme,
   setTxId,
   setSubmitted,
   setCompliantOption,
   setTransactionOption,
-  setSuccessHandler,
   setBackendUrl,
   setTargetChain,
-  setSwitchChainHandler,
-  setKeplrHandler,
   setKimaExplorer,
   setNetworkOption,
   setTargetAddress,
@@ -58,11 +53,6 @@ interface Props {
   kimaBackendUrl: string
   kimaExplorer?: string
   networkOption?: NetworkOptions
-  errorHandler?: (e: any) => void
-  closeHandler?: (e: any) => void
-  successHandler?: (e: any) => void
-  switchChainHandler?: (chainId: number) => void
-  keplrHandler?: (e: any) => void
   excludedSourceNetworks?: Array<ChainName>
   excludedTargetNetworks?: Array<ChainName>
 }
@@ -80,11 +70,6 @@ const KimaTransactionWidget = ({
   transactionOption,
   kimaBackendUrl,
   kimaExplorer = 'https://explorer.kima.network',
-  errorHandler = () => void 0,
-  closeHandler = () => void 0,
-  successHandler = () => void 0,
-  switchChainHandler = () => void 0,
-  keplrHandler = () => void 0,
   excludedSourceNetworks = [],
   excludedTargetNetworks = []
 }: Props) => {
@@ -109,11 +94,6 @@ const KimaTransactionWidget = ({
 
     dispatch(setKimaExplorer(kimaExplorer))
     dispatch(setCompliantOption(compliantOption))
-    dispatch(setErrorHandler(errorHandler))
-    dispatch(setKeplrHandler(keplrHandler))
-    dispatch(setCloseHandler(closeHandler))
-    dispatch(setSuccessHandler(successHandler))
-    dispatch(setSwitchChainHandler(switchChainHandler))
     dispatch(setBackendUrl(kimaBackendUrl))
     dispatch(setMode(mode))
     dispatch(setDappOption(dAppOption))
@@ -140,7 +120,7 @@ const KimaTransactionWidget = ({
       dispatch(setTxId(txId || 1))
       dispatch(setSubmitted(true))
     }
-  }, [theme, transactionOption, errorHandler, closeHandler, mode])
+  }, [theme, transactionOption, mode])
 
   useEffect(() => {
     if (!chainData?.length) return

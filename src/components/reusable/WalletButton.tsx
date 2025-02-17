@@ -24,9 +24,9 @@ import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import { useAppKit, useAppKitState } from '@reown/appkit/react'
 import CopyButton from './CopyButton'
-import { formatUSD } from 'src/helpers/functions'
+import { formatUSD } from '../../helpers/functions'
 import useHideWuiListItem from '../../hooks/useHideActivityTab'
-import { useKimaContext } from 'src/KimaProvider'
+import { useKimaContext } from '../../KimaProvider'
 
 const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const dispatch = useDispatch()

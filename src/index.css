@@ -391,7 +391,7 @@
 .kima-card .floating-footer .items strong {
   margin-left: 7px;
   font-size: 14px;
-  font-family: "Poppins";
+  font-family: "Manrope";
   margin-top: 4px;
 }
 
@@ -1640,7 +1640,7 @@
   }
 }
 .kima-card .kima-card-content .wallet-button p {
-  margin: none;
+  margin: 0;
 }
 .kima-card .kima-card-content .wallet-button svg {
   margin-right: 1em;
