@@ -239,6 +239,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
           toastOptions={{
             duration: 10 * 1000,
             style: {
+              fontFamily: 'Manrope',
               position: 'relative',
               top: '3rem',
               right: '1.5rem',

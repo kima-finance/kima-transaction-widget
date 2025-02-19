@@ -387,6 +387,7 @@ export const TransferWidget = ({
           toastOptions={{
             duration: 3 * 1000,
             style: {
+              fontFamily: 'Manrope',
               position: 'relative',
               top: windowWidth > 768 ? '3rem' : '1.5rem',
               right: windowWidth > 768 ? '1.5rem' : '0rem',

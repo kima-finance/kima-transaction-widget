@@ -24,14 +24,18 @@ import { ChainName } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 import useWidth from '../../hooks/useWidth'
 import ChainIcon from './ChainIcon'
+import { useDispatch } from 'react-redux'
+import FeeDeductionRadioButtons from './FeeDeductionRadioButtons'
 
 const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
+  const dispatch = useDispatch()
   const feeDeduct = useSelector(selectFeeDeduct)
   const mode = useSelector(selectMode)
   const dAppOption = useSelector(selectDappOption)
   const theme = useSelector(selectTheme)
   const amount = useSelector(selectAmount)
-  const { totalFeeUsd } = useSelector(selectServiceFee)
+  const { totalFeeUsd, targetNetworkFee, sourceNetworkFee } =
+    useSelector(selectServiceFee)
   const originNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
   const targetAddress = useSelector(selectTargetAddress)
@@ -152,10 +156,12 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
         </span>
         <span className='amount-container'>
           <div className='amount-details'>
-            <span>Transfer amount</span>
+            <span>Source Transfer amount</span>
             <div className='coin-details'>
               <p>
-                {formatterFloat.format(parseFloat(amountToShow) - totalFeeUsd)}{' '}
+                {feeDeduct
+                  ? formatterFloat.format(Number(amount))
+                  : formatterFloat.format(Number(amount) + totalFeeUsd)}{' '}
                 {sourceCurrency}
               </p>
             </div>
@@ -164,15 +170,33 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
             )}
           </div>
           <div className='amount-details'>
-            <span>Network costs</span>
+            <span>Source Network Fee ({originNetwork})</span>
             <span className='service-fee'>
-              {formatterFloat.format(totalFeeUsd)} {sourceCurrency}
+              {formatterFloat.format(sourceNetworkFee?.amount || 0)}{' '}
+              {sourceCurrency}
             </span>
           </div>
           <div className='amount-details'>
-            <span>Total</span>
+            <span>Target Network Fee ({targetNetwork})</span>
             <span className='service-fee'>
-              {formatterFloat.format(parseFloat(amountToShow))} {targetCurrency}
+              {formatterFloat.format(targetNetworkFee?.amount || 0)}{' '}
+              {sourceCurrency}
+            </span>
+          </div>
+          {/* TODO: Implement when the new service fee comes in
+          <div className='amount-details'>
+            <span>Business Fee ({originNetwork})</span>
+            <span className='service-fee'>
+              {formatterFloat.format(totalFeeUsd)} {sourceCurrency}
+            </span>
+          </div> */}
+          <div className='amount-details'>
+            <span>Target Transfer Amount</span>
+            <span className='service-fee'>
+              {!feeDeduct
+                ? formatterFloat.format(Number(amount))
+                : formatterFloat.format(Number(amount) - totalFeeUsd)}{' '}
+              {targetCurrency}
             </span>
           </div>
         </span>
@@ -217,6 +241,20 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
           </div>
         </div>
       )}
+      
+        {/* checkbox shall only be displayed in transfer scenario */}
+        {mode === ModeOptions.bridge && totalFeeUsd > 0 ? (
+          // <FeeDeductionSlider />
+          <FeeDeductionRadioButtons />
+        ) : null}
+
+      {/* {mode === ModeOptions.bridge && totalFeeUsd > 0 && (
+        <span className='transfer-notice'>
+          {feeDeduct
+            ? `You will transfer exactly $${amount} ${sourceCurrency} from ${originNetwork}, and the fee of $${totalFeeUsd} will be deducted on the target network (${targetNetwork}) receiving $${Number(amount) - totalFeeUsd} ${targetCurrency}.`
+            : `You will send $${Number(amount) + totalFeeUsd} ${sourceCurrency} from ${originNetwork}, ensuring ${amount} ${targetCurrency} arrives in the target network (${targetNetwork}).`}
+        </span>
+      )} */}
     </div>
   )
 }
