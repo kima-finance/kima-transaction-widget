@@ -54,7 +54,7 @@ const FeeDeductionRadioButtons = () => {
             onChange={() => handleChange(true)}
           />
           <span className={`radio-label ${theme.colorMode}`}>
-            {`Deduct fee from source network, paying $${formatterFloat.format(
+            {`Pay $${formatterFloat.format(
               Number(amount)
             )} ${sourceCurrency} in ${sourceNetwork.label} to receive $${formatterFloat.format(
               Number(amount) - totalFeeUsd
@@ -70,7 +70,7 @@ const FeeDeductionRadioButtons = () => {
             onChange={() => handleChange(false)}
           />
           <span className={`radio-label ${theme.colorMode}`}>
-            {`Pay fees in source network, paying $${formatterFloat.format(
+            {`Pay $${formatterFloat.format(
               Number(amount) + totalFeeUsd
             )} ${sourceCurrency} in ${sourceNetwork.label} to receive $${formatterFloat.format(
               Number(amount)
