@@ -39,6 +39,8 @@ import { useAppKitTheme } from '@reown/appkit/react'
 import { ChainName } from '@utils/constants'
 import { useChainData } from '../hooks/useChainData'
 import { indexPluginsByChain } from '../pluginRegistry'
+import { useKimaContext } from 'src/KimaProvider'
+import { useGetEnvOptions } from '../hooks/useGetEnvOptions'
 
 interface Props {
   theme: ThemeOptions
@@ -51,8 +53,6 @@ interface Props {
   transactionOption?: TransactionOption
   paymentTitleOption?: PaymentTitleOption
   kimaBackendUrl: string
-  kimaExplorer?: string
-  networkOption?: NetworkOptions
   excludedSourceNetworks?: Array<ChainName>
   excludedTargetNetworks?: Array<ChainName>
 }
@@ -60,7 +60,6 @@ interface Props {
 const KimaTransactionWidget = ({
   mode,
   txId,
-  networkOption = NetworkOptions.testnet,
   dAppOption = DAppOptions.None,
   theme,
   titleOption,
@@ -68,15 +67,19 @@ const KimaTransactionWidget = ({
   helpURL = '',
   compliantOption = true,
   transactionOption,
-  kimaBackendUrl,
-  kimaExplorer = 'https://explorer.kima.network',
   excludedSourceNetworks = [],
   excludedTargetNetworks = []
 }: Props) => {
+  const { kimaBackendUrl } = useKimaContext()
   const submitted = useSelector(selectSubmitted)
   const dispatch = useDispatch()
   const { setThemeMode, setThemeVariables } = useAppKitTheme()
   const { data: chainData } = useChainData(kimaBackendUrl)
+  const { data: envOptions } = useGetEnvOptions({ kimaBackendUrl })
+
+  const networkOption = envOptions?.env || NetworkOptions.testnet
+  const kimaExplorer =
+    envOptions?.kimaExplorer || 'https://explorer.sardis.kima.network'
 
   useEffect(() => {
     // reset state to ensure props are loaded from scratch
@@ -92,12 +95,12 @@ const KimaTransactionWidget = ({
     dispatch(setExcludedSourceNetworks(excludedSourceNetworks))
     dispatch(setExcludedTargetNetworks(excludedTargetNetworks))
 
-    dispatch(setKimaExplorer(kimaExplorer))
     dispatch(setCompliantOption(compliantOption))
     dispatch(setBackendUrl(kimaBackendUrl))
     dispatch(setMode(mode))
     dispatch(setDappOption(dAppOption))
-    dispatch(setNetworkOption(networkOption))
+    dispatch(setNetworkOption(networkOption as NetworkOptions))
+    dispatch(setKimaExplorer(kimaExplorer))
 
     if (transactionOption) {
       // set default transaction values
@@ -120,7 +123,7 @@ const KimaTransactionWidget = ({
       dispatch(setTxId(txId || 1))
       dispatch(setSubmitted(true))
     }
-  }, [theme, transactionOption, mode])
+  }, [theme, transactionOption, mode, networkOption])
 
   useEffect(() => {
     if (!chainData?.length) return

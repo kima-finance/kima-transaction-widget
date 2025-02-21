@@ -6,6 +6,7 @@ import { selectAllPlugins } from '@store/pluginSlice'
 import { getPluginProvider } from '@pluginRegistry'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ExternalProvider, NetworkOptions } from '@interface'
+import { useGetEnvOptions } from './hooks/useGetEnvOptions'
 
 import '../plugins/index'
 import { isValidExternalProvider } from '@utils/functions'
@@ -14,7 +15,8 @@ import { PublicKey } from '@solana/web3.js'
 
 interface KimaContextProps {
   sourceAddress: string | undefined
-  externalProvider?: ExternalProvider | undefined
+  externalProvider?: ExternalProvider
+  kimaBackendUrl: string
   errorHandler?: (e: any) => void
   closeHandler?: (e: any) => void
   successHandler?: (e: any) => void
@@ -23,9 +25,9 @@ interface KimaContextProps {
 }
 
 interface KimaProviderProps {
-  networkOption?: NetworkOptions
   walletConnectProjectId: string
   externalProvider?: ExternalProvider
+  kimaBackendUrl: string
   children: ReactNode
   errorHandler?: (e: any) => void
   closeHandler?: (e: any) => void
@@ -49,11 +51,15 @@ export const useKimaContext = () => {
 }
 
 const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
-  ({
-    networkOption = NetworkOptions.testnet,
-    walletConnectProjectId,
-    children
-  }) => {
+  ({ kimaBackendUrl, walletConnectProjectId, children }) => {
+    const { data: envOptions, isLoading } = useGetEnvOptions({
+      kimaBackendUrl
+    })
+
+    const networkOption = envOptions?.env || NetworkOptions.testnet;
+
+    console.log('internalkimaprovider: networkoption: ', envOptions?.env)
+
     // Use a stable selector to avoid unnecessary re-renders
     const plugins = useSelector(selectAllPlugins, (prev, next) => prev === next)
     console.info('Registered Plugins:', plugins)
@@ -67,7 +73,11 @@ const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
           return (
             <Provider
               key={plugin.data.id}
-              networkOption={networkOption}
+              networkOption={
+                isLoading
+                  ? NetworkOptions.testnet
+                  : networkOption || NetworkOptions.testnet
+              }
               walletConnectProjectId={walletConnectProjectId}
             >
               {acc}
@@ -76,7 +86,7 @@ const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
         }
         return acc
       }, children)
-    }, [plugins, walletConnectProjectId])
+    }, [plugins, walletConnectProjectId, networkOption, isLoading])
 
     return <>{WrappedProviders}</>
   }
@@ -85,7 +95,8 @@ const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
 const KimaProvider = ({
   walletConnectProjectId,
   children = <></>,
-  externalProvider
+  externalProvider,
+  kimaBackendUrl = 'http://localhost:3001'
 }: KimaProviderProps) => {
   let validExternalProvider
   let sourceAddress
@@ -112,14 +123,18 @@ const KimaProvider = ({
   // TODO: add appkit modal? (need to address mainnet too)
   const kimaContext = {
     externalProvider: validExternalProvider,
-    sourceAddress
+    sourceAddress,
+    kimaBackendUrl
   }
 
   return (
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
         <KimaContext.Provider value={kimaContext}>
-          <InternalKimaProvider walletConnectProjectId={walletConnectProjectId}>
+          <InternalKimaProvider
+            kimaBackendUrl={kimaBackendUrl}
+            walletConnectProjectId={walletConnectProjectId}
+          >
             {children}
           </InternalKimaProvider>
         </KimaContext.Provider>
