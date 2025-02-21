@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   useAppKitAccount,
@@ -18,10 +18,10 @@ import { NetworkOptions } from '@interface'
 import { setSourceAddress } from '@store/optionSlice'
 import { appKitModel } from '@plugins/evm/config/modalConfig'
 import { switchNetworkEthers } from '../../utils/switchNetworkEthers'
-import { Web3Provider } from '@ethersproject/providers'
 import { useKimaContext } from '../../../../src/KimaProvider'
 import { useChainData } from '../../../../src/hooks/useChainData'
 import { ChainData } from '@plugins/pluginTypes'
+import { BrowserProvider } from 'ethers'
 
 function useIsWalletReady(): {
   isReady: boolean
@@ -31,9 +31,9 @@ function useIsWalletReady(): {
   const dispatch = useDispatch()
   const { externalProvider } = useKimaContext()
   const backendUrl = useSelector(selectBackendUrl)
-  const {data: chains} = useChainData(backendUrl)
+  const { data: chains } = useChainData(backendUrl)
 
-  const { walletProvider: evmProvider } = useAppKitProvider('eip155')
+  const { walletProvider: appkitProvider } = useAppKitProvider('eip155')
   const appkitAccountInfo = useAppKitAccount()
   const { chainId: walletChainId } = useAppKitNetwork()
 
@@ -43,6 +43,9 @@ function useIsWalletReady(): {
 
   const sourceChain = useSelector(selectSourceChain)
   const networkOption = useSelector(selectNetworkOption)
+
+  const [isReady, setIsReady] = useState(false)
+  const [statusMessage, setStatusMessage] = useState('Wallet not connected')
 
   const correctEvmNetwork = useMemo(() => {
     const network =
@@ -55,12 +58,12 @@ function useIsWalletReady(): {
 
   const switchNetwork = useCallback(async () => {
     console.debug('useIsWalletReady:EVM:Attempting to switch network...', {
-      hasProvider: !!evmProvider,
+      hasProvider: !!appkitProvider,
       correctEvmNetwork,
       modalExists: appKitModel !== null,
       modal: appKitModel
     })
-    if (evmProvider && correctEvmNetwork && appKitModel !== null) {
+    if (appkitProvider && correctEvmNetwork && appKitModel !== null) {
       try {
         await appKitModel.switchNetwork(correctEvmNetwork)
         console.debug(
@@ -71,129 +74,76 @@ function useIsWalletReady(): {
         console.error('useIsWalletReady:EVM:Network switch failed:', e)
       }
     }
-  }, [evmProvider, correctEvmNetwork])
+  }, [appkitProvider, correctEvmNetwork])
 
   useEffect(() => {
-    console.debug('useIsWalletReady:EVM:Checking connection and chain:', {
-      isConnected,
-      walletChainId,
-      correctEvmNetwork,
-      externalProviderChainId:
-        externalProvider?.type === 'evm'
-          ? externalProvider?.provider?.network?.chainId
-          : undefined
-    })
-
-    // Ensure external provider is for 'evm' type and chain IDs are valid
-    if (externalProvider?.type === 'evm') {
-      const externalProviderChainId =
-        externalProvider.provider?.network?.chainId
-      const expectedChainId = correctEvmNetwork?.id
-
-      if (externalProviderChainId !== expectedChainId) {
-        console.warn(
-          'useIsWalletReady:EVM:External wallet connected but chain mismatch:',
-          {
-            currentChainId: externalProviderChainId,
-            expectedId: expectedChainId
-          }
-        )
-
+    async function checkChainId() {
+      if (externalProvider?.type === 'evm' && externalProvider?.provider) {
         try {
-          switchNetworkEthers(
-            externalProvider.provider as Web3Provider,
-            correctEvmNetwork.id,
-            chains as ChainData[]
-          )
-        } catch (error) {
-          console.warn(
-            'useIsWalletReady:EVM:Could not connect switch ethers chains:',
-            {
-              currentChainId: externalProviderChainId,
-              expectedId: expectedChainId
-            }
-          )
-        }
+          const network = await externalProvider.provider.getNetwork()
+          const externalProviderChainId = Number(network.chainId)
 
-        return
+          console.log('Fetched external provider chain id: ', externalProviderChainId)
+
+          const expectedChainId = correctEvmNetwork?.id
+          console.log('Expected chain id: ', expectedChainId)
+
+          if (externalProviderChainId !== expectedChainId) {
+            console.warn(
+              'useIsWalletReady:EVM:External wallet connected but chain mismatch:',
+              {
+                currentChainId: externalProviderChainId,
+                expectedId: expectedChainId
+              }
+            )
+
+            try {
+              await switchNetworkEthers(
+                externalProvider.provider as BrowserProvider,
+                correctEvmNetwork.id,
+                chains as ChainData[]
+              )
+            } catch (error) {
+              console.warn('useIsWalletReady:EVM:Could not switch networks:', error)
+            }
+            return
+          }
+
+          setIsReady(true)
+          setStatusMessage('Connected with external provider')
+          return
+        } catch (error) {
+          console.error('Failed to fetch chainId from provider:', error)
+        }
+      }
+
+      if (!externalProvider) {
+        console.debug('useIsWalletReady:EVM: Checking AppKit connection')
+
+        if (isConnected && walletChainId === correctEvmNetwork?.id) {
+          console.debug('useIsWalletReady:EVM: AppKit wallet connected and chain is correct')
+          setIsReady(true)
+          setStatusMessage('Connected with AppKit provider')
+        } else {
+          console.warn('useIsWalletReady:EVM: AppKit wallet connected but chain mismatch')
+          setIsReady(false)
+          setStatusMessage('Switching to correct network...')
+          switchNetwork()
+        }
       }
     }
 
-    if (!externalProvider && !isConnected) {
-      console.warn('useIsWalletReady:EVM:Wallet not connected - cannot proceed')
-    } else if (walletChainId !== correctEvmNetwork?.id) {
-      console.warn(
-        'useIsWalletReady:EVM:Wallet connected but chain mismatch:',
-        {
-          currentChainId: walletChainId,
-          expectedId: correctEvmNetwork?.id
-        }
-      )
+    checkChainId()
+  }, [externalProvider, correctEvmNetwork, switchNetwork, walletChainId, isConnected])
 
-      switchNetwork()
-    }
-  }, [
-    isConnected,
-    walletChainId,
-    correctEvmNetwork,
-    switchNetwork,
-    externalProvider
-  ])
-
-  // Dispatch target address upon connection
   useEffect(() => {
     if (isConnected) {
-      console.debug(
-        'useIsWalletReady:EVM:Dispatching source address:',
-        walletAddress
-      )
+      console.debug('useIsWalletReady:EVM: Dispatching source address:', walletAddress)
       dispatch(setSourceAddress(walletAddress ?? ''))
     }
   }, [walletAddress, isConnected, dispatch])
 
-  const returnValue = useMemo(() => {
-    const ready =
-      externalProvider?.type === 'evm'
-        ? externalProvider.provider?.network?.chainId === correctEvmNetwork?.id
-        : isConnected && walletChainId === correctEvmNetwork?.id
-
-    const msg =
-      externalProvider?.type === 'evm'
-        ? externalProvider.provider?.network?.chainId === correctEvmNetwork?.id
-          ? `Connected with external provider`
-          : `Switching external provider to ${correctEvmNetwork?.name}...`
-        : isConnected
-          ? walletChainId === correctEvmNetwork?.id
-            ? ''
-            : `Switching to ${correctEvmNetwork?.name}...`
-          : 'Wallet not connected'
-
-    console.debug('useIsWalletReady:EVM:Final return values:', {
-      isReady: ready,
-      statusMessage: msg,
-      walletAddress:
-        externalProvider?.type === 'evm'
-          ? externalProvider?.signer?._address || walletAddress
-          : walletAddress
-    })
-
-    return {
-      isReady: ready,
-      statusMessage: msg,
-      walletAddress:
-        externalProvider?.type === 'evm'
-          ? externalProvider?.signer?._address || walletAddress
-          : walletAddress
-    }
-  }, [
-    isConnected,
-    walletChainId,
-    correctEvmNetwork,
-    walletAddress,
-    externalProvider
-  ])
-
-  return returnValue
+  return { isReady, statusMessage, walletAddress }
 }
 
 export default useIsWalletReady

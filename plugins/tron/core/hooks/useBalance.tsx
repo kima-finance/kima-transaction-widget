@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { formatUnits } from '@ethersproject/units'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 
 import {
@@ -14,6 +13,7 @@ import { NetworkOptions } from '@interface'
 import { isEmptyObject } from '../../helpers/functions'
 import { tronWebTestnet, tronWebMainnet } from '../../tronweb'
 import ERC20ABI from '../../utils/ethereum/erc20ABI.json'
+import { formatUnits } from 'ethers'
 
 export default function useBalance() {
   const [balance, setBalance] = useState<number>(0)

@@ -2,7 +2,6 @@
 
 # dependencies
 /node_modules
-/example/node_modules
 /.pnp
 .pnp.js
 
@@ -29,6 +28,5 @@ yarn-error.log*
 
 .env
 .package-lock.json
-example-vite/node_modules
 example-next/.next
-example-next/node_modules
+**/node-modules

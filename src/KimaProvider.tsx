@@ -9,8 +9,8 @@ import { ExternalProvider, NetworkOptions } from '@interface'
 
 import '../plugins/index'
 import { isValidExternalProvider } from '@utils/functions'
-import { JsonRpcSigner } from '@ethersproject/providers'
 import { PublicKey } from '@solana/web3.js'
+import { JsonRpcSigner } from 'ethers'
 
 interface KimaContextProps {
   sourceAddress: string | undefined
@@ -96,7 +96,7 @@ const KimaProvider = ({
       externalProvider.type === 'evm' &&
       externalProvider.signer instanceof JsonRpcSigner
     )
-      sourceAddress = externalProvider.signer._address
+      sourceAddress = externalProvider.signer.address
     if (
       externalProvider.type === 'solana' &&
       externalProvider.signer instanceof PublicKey

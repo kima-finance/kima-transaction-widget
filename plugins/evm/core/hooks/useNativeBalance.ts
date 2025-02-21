@@ -1,34 +1,48 @@
-import { ExternalProvider, JsonRpcFetchFunc } from '@ethersproject/providers'
 import { useQuery } from '@tanstack/react-query'
 import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
 import { getEvmBalance } from '../../utils/getBalance'
+import { useKimaContext } from '../../../../src/KimaProvider'
+import { selectNetworkOption, selectSourceChain } from '@store/selectors'
+import { useSelector } from 'react-redux'
+import { NetworkOptions } from '@interface'
 
 const useNativeEvmBalance = () => {
+  const { externalProvider } = useKimaContext()
   const appkitAccountInfo = useAppKitAccount()
-  const { address: signerAddress } = appkitAccountInfo || {}
+  const { address: appkitAddress } = appkitAccountInfo || {}
   const { walletProvider } = useAppKitProvider('eip155')
 
+  // Get the current chain and network option
+  const sourceChain = useSelector(selectSourceChain)
+  const networkOption = useSelector(selectNetworkOption)
+
+  // Use external provider's signer address if available; otherwise, use AppKit's address
+  const walletAddress = externalProvider?.signer?.address || appkitAddress
+
   const result = useQuery({
-    queryKey: ['evmNativeBalance', signerAddress],
+    queryKey: ['evmNativeBalance', walletAddress, sourceChain],
     queryFn: async () => {
+      if (!walletAddress || !sourceChain) return { balance: 0, decimals: 18 }
+
       try {
-        const response = await getEvmBalance({
-          address: signerAddress!,
-          walletProvider: walletProvider as ExternalProvider | JsonRpcFetchFunc
+        return await getEvmBalance({
+          walletAddress,
+          chain: sourceChain,
+          isTestnet: networkOption === NetworkOptions.testnet
         })
-        return response
-      } catch (e) {
-        const msg = `Error getting native balance for wallet ${signerAddress}`
-        console.error(msg, e)
-        throw new Error(msg)
+      } catch (error) {
+        console.error(
+          `Error getting native balance for wallet ${walletAddress}`,
+          error
+        )
+        throw new Error(`Failed to fetch native balance`)
       }
     },
-    enabled: !!signerAddress && !!walletProvider,
-    staleTime: 1000 * 60 // 1 min
+    enabled: !!walletAddress && !!sourceChain,
+    staleTime: 1000 * 60 // 1 min cache time
   })
-  const { data } = result
 
-  return data
+  return result.data
 }
 
 export default useNativeEvmBalance

@@ -5,7 +5,6 @@ import {
   useWallet as useSolanaWallet
 } from '@solana/wallet-adapter-react'
 import { PublicKey } from '@solana/web3.js'
-import { formatUnits } from '@ethersproject/units'
 
 import {
   selectErrorHandler,
@@ -16,6 +15,7 @@ import {
 import { isEmptyObject } from '../../helpers/functions'
 import { getOrCreateAssociatedTokenAccount } from '../../utils/solana/getOrCreateAssociatedTokenAccount'
 import { useKimaContext } from '../../../../src/KimaProvider'
+import { formatUnits } from 'ethers'
 
 export default function useBalance() {
   const [balance, setBalance] = useState<number>(0)

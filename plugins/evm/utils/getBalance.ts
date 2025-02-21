@@ -1,16 +1,46 @@
-import { ExternalProvider, JsonRpcFetchFunc } from '@ethersproject/providers'
-import { ethers } from 'ethers'
+import { formatEther } from 'ethers'
+import {
+  createPublicClient,
+  http,
+} from 'viem'
+import {
+  CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET,
+  CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET
+} from '@utils/constants'
 
 export const getEvmBalance = async (input: {
-  address: string
-  walletProvider: ExternalProvider | JsonRpcFetchFunc
+  walletAddress: string
+  chain: string
+  isTestnet: boolean
 }) => {
-  const { walletProvider, address } = input
-  const provider = new ethers.providers.Web3Provider(walletProvider)
-  const walletBalance = await provider.getBalance(address)
+  const { walletAddress, chain, isTestnet } = input
 
-  return {
-    balance: Number(ethers.utils.formatEther(walletBalance)),
-    decimals: 18
+  // Determine the correct network
+  const network = isTestnet
+    ? CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET[chain]
+    : CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET[chain]
+
+  if (!network) {
+    throw new Error(`Unsupported network: ${chain}`)
+  }
+
+  try {
+    // **Viem Public Client for querying balances**
+    const viemClient = createPublicClient({
+      chain: network,
+      transport: http()
+    })
+
+    const balance = await viemClient.getBalance({
+      address: walletAddress as `0x${string}`
+    })
+
+    return {
+      balance: Number(formatEther(balance)), // Convert BigInt to a readable number
+      decimals: 18
+    }
+  } catch (error) {
+    console.error('Failed to fetch EVM balance:', error)
+    throw new Error('Failed to retrieve balance from Viem')
   }
 }

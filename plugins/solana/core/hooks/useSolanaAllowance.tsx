@@ -21,8 +21,8 @@ import {
 import { getPoolAddress, getTokenAddress } from '@utils/functions'
 import { PublicKey, Transaction } from '@solana/web3.js'
 import { PluginUseAllowanceResult } from '@plugins/pluginTypes'
-import { formatUnits } from '@ethersproject/units'
 import { useKimaContext } from '../../../../src/KimaProvider'
+import { formatUnits } from 'ethers'
 
 export default function useSolanaAllowance(): PluginUseAllowanceResult {
   const sourceChain = useSelector(selectSourceChain)
