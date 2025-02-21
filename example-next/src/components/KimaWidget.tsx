@@ -18,7 +18,7 @@ const Widget = () => {
       <div className='container'>
         <KimaTransactionWidget
           theme={{
-            colorMode: ColorModeOptions.light
+            colorMode: ColorModeOptions.dark
           }}
           networkOption={NetworkOptions.testnet}
           mode={ModeOptions.bridge}

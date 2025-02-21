@@ -408,6 +408,11 @@
   font-family: "Manrope";
   margin-top: 4px;
 }
+.kima-card {
+  font-family: "Manrope";
+}
+.kima-card .kima-card-content {
+}
 .kima-card .kima-card-content .kima-progressbar {
   height: 7px;
   width: 95%;
@@ -1879,7 +1884,6 @@
 }
 @media (max-width: 500px) {
   .kima-card .kima-card-content .confirm-details .detail-item p {
-    width: 100%;
     font-size: 12px;
   }
 }
@@ -1978,7 +1982,7 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  width: 250px;
+  width: 300px;
   padding: 8px 6px;
   font-size: 14px;
   border-top: 1px solid #86b8ce;
@@ -2243,6 +2247,126 @@
   .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item.target-chain {
     margin-top: 60px;
   }
+}
+.kima-card .kima-card-content .fee-deduction-slider-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 10px;
+  padding: 16px 20px;
+}
+.kima-card .kima-card-content .fee-label {
+  min-width: 50%;
+  font-size: 14px;
+  color: #aaa;
+  transition: color 0.3s ease;
+}
+.kima-card .kima-card-content .fee-label.selected {
+  font-weight: bolder;
+  color: #4a5068;
+}
+.kima-card .kima-card-content .slider-container {
+  min-width: 50px;
+  height: 25px;
+  border-radius: 50px;
+  background: #d6e4ea;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.3s ease;
+}
+.kima-card .kima-card-content .slider {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #86b8ce;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 4px;
+  transition: left 0.3s ease;
+}
+.kima-card .kima-card-content .slider.active {
+  left: 26px;
+}
+.kima-card .kima-card-content .transfer-notice {
+  font-weight: bolder;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  width: 100%;
+  font-size: 14px;
+  text-align: justify;
+}
+.kima-card .kima-card-content .fee-deduction-radio-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 14px;
+  border-top: 1px solid #e3e3e3;
+  padding: 16px 20px;
+}
+.kima-card .kima-card-content .fee-deduction-radio-container.dark {
+  color: white;
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-content .fee-deduction-radio-container {
+    padding: 16px 0;
+    margin-bottom: 20px;
+  }
+}
+.kima-card .kima-card-content .fee-instruction {
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+.kima-card .kima-card-content .fee-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.kima-card .kima-card-content .fee-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+.kima-card .kima-card-content .fee-option input[type=radio] {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 1px solid #86b8ce;
+  border-radius: 50%;
+  outline: none;
+  cursor: pointer;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  aspect-ratio: 1;
+  position: relative;
+}
+.kima-card .kima-card-content .fee-option input[type=radio]:checked::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  background-color: #86b8ce;
+  border-radius: 50%;
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.kima-card .kima-card-content .radio-label {
+  line-height: 1.2;
+  font-size: 14px;
+  color: #333;
+  flex-grow: 1;
+  word-break: break-word;
+}
+.kima-card .kima-card-content .radio-label.dark {
+  color: white;
 }
 .kima-card .card-item {
   width: 100%;

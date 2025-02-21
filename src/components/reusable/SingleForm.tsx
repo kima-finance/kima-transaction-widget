@@ -224,19 +224,6 @@ const SingleForm = ({
           </div>
         </div>
       )}
-
-      {/* checkbox shall only be displayed in transfer scenario */}
-      {mode === ModeOptions.bridge && totalFeeUsd > 0 ? (
-        <CustomCheckbox
-          text={
-            sourceNetwork === ChainName.BTC
-              ? `Deduct ${formatterFloat.format(totalFeeUsd)} BTC fee`
-              : `Deduct $${formatterFloat.format(totalFeeUsd)} fee from source network`
-          }
-          checked={feeDeduct}
-          setCheck={(value: boolean) => dispatch(setFeeDeduct(value))}
-        />
-      ) : null}
     </div>
   )
 }
