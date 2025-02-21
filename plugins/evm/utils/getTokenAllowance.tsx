@@ -1,51 +1,67 @@
-import {
-  ExternalProvider,
-  JsonRpcFetchFunc,
-  Web3Provider
-} from '@ethersproject/providers'
-import { Contract, ethers } from 'ethers'
 import { TokenOptions } from '@store/optionSlice'
+import { formatUnits } from 'ethers'
+import { createPublicClient, http, getContract, erc20Abi } from 'viem'
 import { getTokenAddress, getPoolAddress } from '@utils/functions'
-import { formatUnits } from '@ethersproject/units'
+import {
+  CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET,
+  CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET
+} from '@utils/constants'
 
 export const getTokenAllowance = async ({
   tokenOptions,
   selectedCoin,
-  walletProvider,
   userAddress,
   pools,
-  abi,
-  chain
+  chain,
+  isTestnet = true
 }: {
   tokenOptions: TokenOptions
   selectedCoin: string
-  walletProvider: ExternalProvider | JsonRpcFetchFunc | Web3Provider
   userAddress: string
   chain: string
   pools: Array<any>
-  abi: any
+  isTestnet: boolean
 }) => {
   try {
     const tokenAddress = getTokenAddress(tokenOptions, selectedCoin, chain)
     const poolAddress = getPoolAddress(pools, chain)
 
-    const provider =
-      walletProvider instanceof Web3Provider // check for external provider
-        ? walletProvider
-        : new ethers.providers.Web3Provider(
-            walletProvider as ExternalProvider | JsonRpcFetchFunc
-          )
-    const signer = provider.getSigner()
-    if (!tokenAddress || !poolAddress || !signer || !userAddress) return
+    if (!tokenAddress || !poolAddress || !userAddress) return
 
-    const erc20Contract = new Contract(tokenAddress, abi.abi, signer)
+    // determine network based on mainnet/testnet
+    const network = isTestnet
+      ? CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET[chain]
+      : CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET[chain]
 
-    const allowance = await erc20Contract.allowance(userAddress, poolAddress)
-    console.log('allowance: ', allowance)
-    const balance = await erc20Contract.balanceOf(userAddress)
-    console.log('usdk balance: ', balance)
-    const decimals = await erc20Contract.decimals()
-    console.log('usdk decimals: ', decimals)
+    if (!network) {
+      throw new Error(`Unsupported network: ${chain}`)
+    }
+
+    // initialize Viem Public Client
+    const viemClient = createPublicClient({
+      chain: network,
+      transport: http()
+    })
+
+    // read allowance, balance, and decimals
+    const erc20Contract = getContract({
+      address: tokenAddress as `0x${string}`,
+      abi: erc20Abi,
+      client: viemClient
+    })
+
+    const [allowance, balance, decimals] = await Promise.all([
+      erc20Contract.read.allowance([
+        userAddress as `0x${string}`,
+        poolAddress as `0x${string}`
+      ]) as Promise<bigint>,
+      erc20Contract.read.balanceOf([
+        userAddress as `0x${string}`
+      ]) as Promise<bigint>,
+      erc20Contract.read.decimals() as Promise<number>
+    ])
+
+    console.log("allowance data: ", allowance, balance, decimals)
 
     return {
       allowance: Number(formatUnits(allowance, decimals)),

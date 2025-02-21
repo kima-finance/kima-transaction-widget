@@ -1,29 +1,48 @@
-import { Contract, ethers } from 'ethers'
+import { BrowserProvider, formatUnits } from 'ethers'
 import {
-  ExternalProvider,
-  JsonRpcFetchFunc,
-  Web3Provider
-} from '@ethersproject/providers'
-import { abi } from './ethereum/erc20ABI.json'
-import { formatUnits } from '@ethersproject/units'
+  CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET,
+  CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET
+} from '@utils/constants'
+import { createPublicClient, erc20Abi, getContract, http } from 'viem'
 
 export const getEvmTokenBalance = async (input: {
   address: string
   tokenAddress: string
-  walletProvider: ExternalProvider | JsonRpcFetchFunc | Web3Provider
+  chain: string
+  isTestnet: boolean
 }) => {
-  console.log("getting evm token balance...")
-  const { walletProvider, tokenAddress, address } = input
-  const provider =
-    walletProvider instanceof Web3Provider // check for external provider
-      ? walletProvider
-      : new ethers.providers.Web3Provider(walletProvider)
+  const {
+    tokenAddress,
+    chain,
+    address,
+    isTestnet = true
+  } = input
 
-  const erc20Contract = new Contract(tokenAddress, abi, provider)
+  // determine network based on testnet/mainnet
+  const network = isTestnet
+    ? CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET[chain]
+    : CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET[chain]
+
+  if (!network) {
+    throw new Error(`Unsupported network: ${chain}`)
+  }
+
+  // Create viem public client for read operations
+  const viemClient = createPublicClient({
+    chain: network,
+    transport: http()
+  })
+
+  // Fetch token balance using viem
+  const erc20Contract = getContract({
+    address: tokenAddress as `0x${string}`,
+    abi: erc20Abi,
+    client: viemClient
+  })
 
   const [decimals, userBalance] = await Promise.all([
-    erc20Contract.decimals(),
-    erc20Contract.balanceOf(address)
+    erc20Contract.read.decimals() as Promise<number>,
+    erc20Contract.read.balanceOf([address as `0x${string}`]) as Promise<bigint>
   ])
 
   return {

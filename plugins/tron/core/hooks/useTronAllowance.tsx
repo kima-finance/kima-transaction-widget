@@ -25,10 +25,10 @@ import { getTokenAllowance } from '../../utils/getTokenAllowance'
 import useGetPools from '../../../../src/hooks/useGetPools'
 import { getPoolAddress, getTokenAddress } from '@utils/functions'
 import { PluginUseAllowanceResult } from '@plugins/pluginTypes'
-import { formatUnits } from '@ethersproject/units'
 import { TronWeb } from 'tronweb'
 import { TronProvider } from '@interface'
 import { useKimaContext } from '../../../../src/KimaProvider'
+import { formatUnits } from 'ethers'
 
 export default function useTronAllowance(): PluginUseAllowanceResult {
   const { externalProvider } = useKimaContext()
