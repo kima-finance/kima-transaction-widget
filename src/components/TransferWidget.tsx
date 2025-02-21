@@ -35,6 +35,7 @@ import {
   selectFeeDeduct,
   selectMode,
   selectNetworkOption,
+  selectNetworks,
   selectPendingTxs,
   selectServiceFee,
   selectSourceAddress,
@@ -59,6 +60,9 @@ import useBalance from '../hooks/useBalance'
 import useGetPools from '../hooks/useGetPools'
 import useDisconnectWallet from '../hooks/useDisconnectWallet'
 import { useKimaContext } from 'src/KimaProvider'
+import { useChainData } from '../hooks/useChainData'
+import { arbitrumSepolia } from 'viem/chains'
+import { ChainData } from '@plugins/pluginTypes'
 
 interface Props {
   theme: ThemeOptions
@@ -101,13 +105,14 @@ export const TransferWidget = ({
   const compliantOption = useSelector(selectCompliantOption)
   const networkOptions = useSelector(selectNetworkOption)
   const feeDeduct = useSelector(selectFeeDeduct)
-  const {keplrHandler, closeHandler} = useKimaContext()
+  const { keplrHandler, closeHandler } = useKimaContext()
 
   // Hooks for wallet connection, allowance
   const [isCancellingApprove, setCancellingApprove] = useState(false)
   const [isApproving, setApproving] = useState(false)
   const [isSigning, setSigning] = useState(false)
   const pendingTxs = useSelector(selectPendingTxs)
+  const networks = useSelector(selectNetworks)
 
   const { width: windowWidth } = useWidth()
 
@@ -139,7 +144,7 @@ export const TransferWidget = ({
     isApproved,
     sourceAddress,
     targetAddress,
-    targetChain,
+    targetChain: targetChain.shortName,
     balance,
     amount,
     totalFeeUsd,
@@ -158,8 +163,8 @@ export const TransferWidget = ({
     totalFee: BigInt(totalFee ?? '0'),
     originAddress: sourceAddress,
     targetAddress,
-    originChain: sourceChain,
-    targetChain,
+    originChain: sourceChain.shortName,
+    targetChain: targetChain.shortName,
     originSymbol: sourceCurrency,
     targetSymbol: targetCurrency,
     backendUrl,
@@ -246,9 +251,25 @@ export const TransferWidget = ({
 
     setFormStep(0)
     if (mode !== ModeOptions.payment) {
-      // reset to default values
-      dispatch(setSourceChain(transactionOption?.sourceChain || ''))
-      dispatch(setTargetChain(transactionOption?.targetChain || ''))
+      if (transactionOption?.sourceChain) {
+        const sourceChain = networks.find(
+          (currentChain: ChainData) =>
+            currentChain.shortName === transactionOption.sourceChain
+        )
+        dispatch(setSourceChain(sourceChain as ChainData))
+      } else {
+        dispatch(setSourceChain(networks[0]))
+      }
+
+      if (transactionOption?.sourceChain) {
+        const targetChain = networks.find(
+          (currentChain: ChainData) =>
+            currentChain.shortName === transactionOption.targetChain
+        )
+        dispatch(setTargetChain(targetChain as ChainData))
+      } else {
+        dispatch(setTargetChain(networks[1]))
+      }
       dispatch(setTargetAddress(transactionOption?.targetAddress || ''))
       dispatch(setTargetCurrency(transactionOption?.currency || ''))
       dispatch(setAmount(transactionOption?.amount.toString() || ''))
@@ -335,9 +356,7 @@ export const TransferWidget = ({
         <div
           className={`kima-card-footer ${mode === ModeOptions.bridge && formStep !== 0 && 'confirm'}`}
         >
-          <div
-            className={`button-group`}
-          >
+          <div className={`button-group`}>
             {formStep !== 0 && (
               <SecondaryButton
                 clickHandler={onBack}

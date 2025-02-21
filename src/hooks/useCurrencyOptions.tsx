@@ -17,11 +17,11 @@ export default function useCurrencyOptions(isSourceChain: boolean) {
   const mode = useSelector(selectMode)
   const sourceChain = useSelector(selectSourceChain)
   const targetChain = useSelector(selectTargetChain)
-  const chainName = isSourceChain ? sourceChain : targetChain
+  const chain = isSourceChain ? sourceChain : targetChain
   const transactionOption = useSelector(selectTransactionOption)
 
   const backendUrl = useSelector(selectBackendUrl)
-  const { data: chains } = useChainData(backendUrl, chainName)
+  const { data: chains } = useChainData(backendUrl, chain.shortName)
 
   const output = useMemo(() => {
     return !!chains

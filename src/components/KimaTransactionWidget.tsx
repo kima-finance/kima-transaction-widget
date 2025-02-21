@@ -41,6 +41,7 @@ import { useChainData } from '../hooks/useChainData'
 import { indexPluginsByChain } from '../pluginRegistry'
 import { useKimaContext } from 'src/KimaProvider'
 import { useGetEnvOptions } from '../hooks/useGetEnvOptions'
+import { ChainData } from '@plugins/pluginTypes'
 
 interface Props {
   theme: ThemeOptions
@@ -52,7 +53,6 @@ interface Props {
   helpURL?: string
   transactionOption?: TransactionOption
   paymentTitleOption?: PaymentTitleOption
-  kimaBackendUrl: string
   excludedSourceNetworks?: Array<ChainName>
   excludedTargetNetworks?: Array<ChainName>
 }
@@ -105,11 +105,17 @@ const KimaTransactionWidget = ({
     if (transactionOption) {
       // set default transaction values
       if (transactionOption.sourceChain) {
-        dispatch(setSourceChain(transactionOption.sourceChain))
+        const sourceChain = chainData?.find(
+          (currentChain: ChainData) =>
+            currentChain.shortName === transactionOption.sourceChain
+        )
+        dispatch(setSourceChain(sourceChain as ChainData))
       }
-      dispatch(
-        setTargetChain(transactionOption.targetChain || ChainName.ETHEREUM)
+      const targetChain = chainData?.find(
+        (currentChain: ChainData) =>
+          currentChain.shortName === transactionOption.targetChain
       )
+      dispatch(setTargetChain(targetChain as ChainData))
       dispatch(setTargetAddress(transactionOption.targetAddress || ''))
       dispatch(setTargetCurrency(transactionOption.currency || ''))
       dispatch(setAmount(transactionOption.amount.toString() || ''))

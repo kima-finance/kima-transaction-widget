@@ -72,7 +72,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
     // TODO: Refactor to use evm account details modal
     if (externalProvider) return
 
-    if (selectedNetwork === ChainName.SOLANA) {
+    if (selectedNetwork.shortName === ChainName.SOLANA) {
       console.info('Handling click: Case SOL', 1)
       isSolanaConnected
         ? dispatch(setAccountDetailsModal(true))
@@ -80,7 +80,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
       return
     }
 
-    if (selectedNetwork === ChainName.TRON) {
+    if (selectedNetwork.shortName === ChainName.TRON) {
       console.info('Handling click: Case TRX', 2)
       isTronConnected
         ? dispatch(setAccountDetailsModal(true))

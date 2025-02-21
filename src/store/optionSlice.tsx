@@ -5,13 +5,15 @@ import {
   DAppOptions,
   ModeOptions,
   NetworkOptions,
-  Option,
   ServiceFee,
   ThemeOptions,
   TransactionOption,
   ColorModeOptions
 } from '../interface'
 import { ChainName, PendingTxData } from '../utils/constants'
+import { Chain } from 'viem'
+import { arbitrumSepolia, sepolia } from 'viem/chains'
+import { ChainCompatibility, ChainData } from '@plugins/pluginTypes'
 
 type BankDetails = {
   iban: string
@@ -45,8 +47,8 @@ export interface ComplianceResult {
 export interface OptionState {
   theme: ThemeOptions // light or dark
   mode: ModeOptions // payment or bridge
-  sourceChain: string // origin network on UI
-  targetChain: string // target network on UI
+  sourceChain: ChainData // origin network on UI
+  targetChain: ChainData // target network on UI
   sourceAddress: string // source address on UI
   targetAddress: string // target address on UI
   bitcoinAddress: string // bitcoin address from xverse wallet
@@ -87,7 +89,7 @@ export interface OptionState {
   pendingTxs: number // number of pending bitcoin transactions
   pendingTxData: Array<PendingTxData> // pending bitcoin transaction data
   networkOption: NetworkOptions // specify testnet or mainnet
-  networks: Option[]
+  networks: ChainData[]
   excludedSourceNetworks: Array<ChainName> // array of allowed strings or empty
   excludedTargetNetworks: Array<ChainName> // array of allowed strings or empty
 }
@@ -101,8 +103,18 @@ const initialState: OptionState = {
   pendingTxData: [],
   kimaExplorerUrl: 'https://explorer.kima.network',
   mode: ModeOptions.bridge,
-  sourceChain: '',
-  targetChain: '',
+  sourceChain: {
+    ...arbitrumSepolia,
+    shortName: 'ARB',
+    supportedTokens: [],
+    compatibility: ChainCompatibility.EVM
+  },
+  targetChain: {
+    ...sepolia,
+    shortName: 'SEP',
+    supportedTokens: [],
+    compatibility: ChainCompatibility.EVM
+  },
   sourceAddress: '',
   targetAddress: '',
   bitcoinAddress: '',
@@ -163,7 +175,7 @@ export const optionSlice = createSlice({
     ) => {
       state.networkOption = action.payload
     },
-    setNetworks: (state: OptionState, action: PayloadAction<Option[]>) => {
+    setNetworks: (state: OptionState, action: PayloadAction<ChainData[]>) => {
       state.networks = action.payload
     },
     setPendingTxs: (state: OptionState, action: PayloadAction<number>) => {
@@ -187,10 +199,10 @@ export const optionSlice = createSlice({
     setKimaExplorer: (state: OptionState, action: PayloadAction<string>) => {
       state.kimaExplorerUrl = action.payload
     },
-    setSourceChain: (state: OptionState, action: PayloadAction<string>) => {
+    setSourceChain: (state: OptionState, action: PayloadAction<ChainData>) => {
       state.sourceChain = action.payload
     },
-    setTargetChain: (state: OptionState, action: PayloadAction<string>) => {
+    setTargetChain: (state: OptionState, action: PayloadAction<ChainData>) => {
       state.targetChain = action.payload
     },
     setSourceAddress: (state: OptionState, action: PayloadAction<string>) => {

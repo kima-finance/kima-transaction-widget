@@ -25,7 +25,7 @@ export const useChainData = (
 
         // update the store
         const { networks, tokens } = getChainAndTokensOptions(chains)
-        dispatch(setNetworks(networks))
+        dispatch(setNetworks(chains))
         dispatch(setTokenOptions(tokens))
 
         console.log('useChainData::Chain data:', { networks, tokens, chains })

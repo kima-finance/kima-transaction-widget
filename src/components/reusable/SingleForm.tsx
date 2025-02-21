@@ -16,12 +16,11 @@ import {
   selectAmount,
   selectTargetCurrency
 } from '../../store/selectors'
-import { BankInput, CoinDropdown, CustomCheckbox, WalletButton } from './'
-import { setAmount, setFeeDeduct } from '../../store/optionSlice'
+import { BankInput, CoinDropdown, WalletButton } from './'
+import { setAmount } from '../../store/optionSlice'
 import { ModeOptions } from '../../interface'
 import AddressInput from './AddressInput'
 import { COIN_LIST, ChainName } from '../../utils/constants'
-import { formatterFloat } from '../../helpers/functions'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
 import useGetFees from '../../hooks/useGetFees'
 import { setServiceFee } from '@store/optionSlice'
@@ -59,9 +58,9 @@ const SingleForm = ({
   } = useGetFees(
     parseFloat(amount),
     feeDeduct,
-    sourceNetwork,
+    sourceNetwork.shortName,
     sourceCurrency,
-    targetNetwork,
+    targetNetwork.shortName,
     backendUrl
   )
 
@@ -121,7 +120,7 @@ const SingleForm = ({
 
       <div
         className={`dynamic-area ${
-          sourceNetwork === ChainName.FIAT ? 'reverse' : '1'
+          sourceNetwork.shortName === ChainName.FIAT ? 'reverse' : '1'
         }`}
       >
         <div
@@ -142,8 +141,8 @@ const SingleForm = ({
         )}
       </div>
 
-      {mode === ModeOptions.bridge && sourceNetwork !== ChainName.FIAT ? (
-        targetNetwork === ChainName.FIAT ? (
+      {mode === ModeOptions.bridge && sourceNetwork.shortName !== ChainName.FIAT ? (
+        targetNetwork.shortName === ChainName.FIAT ? (
           <BankInput />
         ) : (
           <div className={`form-item ${theme.colorMode}`}>
@@ -208,8 +207,8 @@ const SingleForm = ({
               onChange={(e) => {
                 let _amount = +e.target.value
                 const decimal =
-                  sourceNetwork === ChainName.BTC ||
-                  targetNetwork === ChainName.BTC
+                  sourceNetwork.shortName === ChainName.BTC ||
+                  targetNetwork.shortName === ChainName.BTC
                     ? 8
                     : 2
                 setAmountValue(e.target.value)
