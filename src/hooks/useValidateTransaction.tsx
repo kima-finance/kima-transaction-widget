@@ -46,7 +46,7 @@ const useValidateTransaction = ({
   const maxValue = useMemo(() => {
     if (!balance) return 0
 
-    if (feeDeduct || totalFeeUsd < 0) return balance
+    if (totalFeeUsd < 0) return balance
 
     const amountMinusFees = preciseSubtraction(balance as number, totalFeeUsd)
     const maxVal = amountMinusFees > 0 ? amountMinusFees : 0
@@ -101,17 +101,10 @@ const useValidateTransaction = ({
       }
     }
 
-    const amountToShow =
-      mode === ModeOptions.payment
-        ? +amount + totalFeeUsd
-        : feeDeduct
-          ? +amount
-          : +amount + totalFeeUsd
-
-    console.log('useValidate:amountToshow: ', amountToShow)
+    console.log('useValidate:amount: ', amount)
     console.log('useValidate:maxValue ', maxValue)
 
-    if (amountToShow < totalFeeUsd) {
+    if (+amount < totalFeeUsd) {
       return {
         error: ValidationError.Error,
         message: 'Fees are greater than the amount to transfer'
@@ -119,14 +112,14 @@ const useValidateTransaction = ({
     }
 
     // Check if the amount exceeds the max value
-    if (amountToShow > maxValue) {
+    if (+amount > maxValue) {
       return {
         error: ValidationError.Error,
         message: `Amount exceeds the maximum allowed value [$${maxValue}]`
       }
     }
 
-    if (balance < amountToShow) {
+    if (balance < +amount) {
       return {
         error: ValidationError.Error,
         message: 'Insufficient balance for the transaction'
