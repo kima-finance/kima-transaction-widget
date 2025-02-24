@@ -46,17 +46,18 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
   const transactionOption = useSelector(selectTransactionOption)
   const { walletAddress } = useIsWalletReady()
   const originNetworkOption = useMemo(
-    () => networkOptions.filter((network) => network.id === originNetwork)[0],
+    () =>
+      networkOptions.filter((network) => network.id === originNetwork.id)[0],
     [networkOptions, originNetwork]
   )
   const targetNetworkOption = useMemo(
     () =>
       networkOptions.filter(
         (network) =>
-          network.id ===
+          network.shortName ===
           (mode === ModeOptions.payment
             ? transactionOption?.targetChain
-            : targetNetwork)
+            : targetNetwork.shortName)
       )[0],
     [networkOptions, originNetwork]
   )
@@ -83,7 +84,10 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
   }, [mode, transactionOption, targetAddress])
 
   const amountToShow = useMemo(() => {
-    if (originNetwork === ChainName.BTC || targetNetwork === ChainName.BTC) {
+    if (
+      originNetwork.shortName === ChainName.BTC ||
+      targetNetwork.shortName === ChainName.BTC
+    ) {
       return (feeDeduct ? +amount : +amount + totalFeeUsd).toFixed(8)
     }
 
@@ -96,16 +100,16 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
         Step {isApproved ? '2' : '1'}&nbsp;of 2&nbsp;&nbsp;&nbsp;
         {isApproved
           ? 'Submit transaction'
-          : originNetwork === ChainName.FIAT
+          : originNetwork.shortName === ChainName.FIAT
             ? 'Bank Details'
             : 'Approval'}
       </p>
-      {originNetwork === ChainName.FIAT ? (
+      {originNetwork.shortName === ChainName.FIAT ? (
         <div>
           <div className='detail-item'>
             <span className='label'>IBAN:</span>
             <span className={`kima-card-network-label ${theme.colorMode}`}>
-              <ChainIcon symbol={originNetworkOption?.id} />
+              <ChainIcon symbol={originNetworkOption?.shortName} />
               {/* <div className='icon'>
                 <originNetworkOption.icon />
               </div> */}
@@ -132,8 +136,8 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
           <div className='network-details'>
             <div className='kima-card-network-container'>
               <span className={`kima-card-network-label ${theme.colorMode}`}>
-                <ChainIcon symbol={originNetworkOption?.id} />
-                {originNetworkOption.label}
+                <ChainIcon symbol={originNetworkOption?.shortName} />
+                {originNetworkOption.name}
               </span>
             </div>
             <p className={theme.colorMode}>
@@ -170,14 +174,14 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
             )}
           </div>
           <div className='amount-details'>
-            <span>Source Network Fee ({originNetwork})</span>
+            <span>Source Network Fee ({originNetwork.shortName})</span>
             <span className='service-fee'>
               {formatterFloat.format(sourceNetworkFee?.amount || 0)}{' '}
               {sourceCurrency}
             </span>
           </div>
           <div className='amount-details'>
-            <span>Target Network Fee ({targetNetwork})</span>
+            <span>Target Network Fee ({targetNetwork.shortName})</span>
             <span className='service-fee'>
               {formatterFloat.format(targetNetworkFee?.amount || 0)}{' '}
               {sourceCurrency}
@@ -201,13 +205,13 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
           </div>
         </span>
       </div>
-      {targetNetwork === ChainName.FIAT ? (
+      {targetNetwork.shortName === ChainName.FIAT ? (
         <div>
           <div className='detail-item'>
             <span className='label'>IBAN:</span>
             <p>{bankDetails.iban}</p>
             <span className={`kima-card-network-label ${theme.colorMode}`}>
-              <ChainIcon symbol={targetNetworkOption?.id} />
+              <ChainIcon symbol={targetNetworkOption?.shortName} />
               {/* <div className='icon'>
                 <targetNetworkOption.icon />
               </div> */}
@@ -225,8 +229,8 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
           <div className='network-details'>
             <div className='kima-card-network-container'>
               <span className={`kima-card-network-label ${theme.colorMode}`}>
-                <ChainIcon symbol={targetNetworkOption?.id} />
-                {targetNetworkOption?.label}
+                <ChainIcon symbol={targetNetworkOption?.shortName} />
+                {targetNetworkOption?.name}
               </span>
             </div>
             <p className={theme.colorMode}>
@@ -241,12 +245,12 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
           </div>
         </div>
       )}
-      
-        {/* checkbox shall only be displayed in transfer scenario */}
-        {mode === ModeOptions.bridge && totalFeeUsd > 0 ? (
-          // <FeeDeductionSlider />
-          <FeeDeductionRadioButtons />
-        ) : null}
+
+      {/* checkbox shall only be displayed in transfer scenario */}
+      {mode === ModeOptions.bridge && totalFeeUsd > 0 ? (
+        // <FeeDeductionSlider />
+        <FeeDeductionRadioButtons />
+      ) : null}
 
       {/* {mode === ModeOptions.bridge && totalFeeUsd > 0 && (
         <span className='transfer-notice'>

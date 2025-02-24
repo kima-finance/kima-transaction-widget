@@ -55,18 +55,25 @@ const metadata = {
 
 // use the this AppKit model instance directly, storing in context not necessary
 export let appKitModel: AppKit | null = null
-let appKitNetworkOption = NetworkOptions.testnet
+let appkitNetworkOption: NetworkOptions | null = null
 
 export const setupAppKit = (
   projectId: string,
   networkOption: NetworkOptions
 ) => {
+    console.log('setupAppkit: network option: ', networkOption)
+
   // prevent calling createAppKit multiple times
-  if (networkOption === appKitNetworkOption && appKitModel) {
+  if (appKitModel && !appkitNetworkOption) {
+    console.log(
+      'appkitModel Already exists... - ',
+      appKitModel,
+      appkitNetworkOption
+    )
     return appKitModel
   }
 
-  appKitNetworkOption = networkOption
+  appkitNetworkOption = networkOption
   const networks: any =
     networkOption === NetworkOptions.mainnet
       ? appkitMainnetChains
@@ -83,11 +90,11 @@ export const setupAppKit = (
       onramp: false,
       email: false,
       socials: false,
-      history: false,
-    },
+      history: false
+    }
   })
-  console.debug('setupAppKit:networkOption:', networkOption)
-  console.log("setupAppKit: appkitModel: ", appKitModel)
+  // console.debug('setupAppKit:networkOption:', networkOption)
+  // console.log('setupAppKit: appkitModel: ', appKitModel)
 
   return appKitModel
 }

@@ -5,10 +5,7 @@ import {
   useAppKitNetwork,
   useAppKitProvider
 } from '@reown/appkit/react'
-import {
-  selectBackendUrl,
-  selectSourceChain
-} from '@store/selectors'
+import { selectBackendUrl, selectSourceChain } from '@store/selectors'
 import { setSourceAddress } from '@store/optionSlice'
 import { appKitModel } from '@plugins/evm/config/modalConfig'
 import { switchNetworkEthers } from '../../utils/switchNetworkEthers'
@@ -48,9 +45,9 @@ function useIsWalletReady(): {
       modal: appKitModel
     })
     if (sourceChain && appKitModel !== null) {
-      console.log("useIsWalletReady:EVM:switching network...")
+      console.log('useIsWalletReady:EVM:switching network...')
       try {
-        await appKitModel.switchNetwork(sourceChain)
+        appKitModel.switchNetwork(sourceChain)
         console.debug(
           'useIsWalletReady:EVM:Network switch successful to:',
           sourceChain.name
@@ -66,10 +63,15 @@ function useIsWalletReady(): {
       // case external provider
       if (externalProvider?.type === 'evm' && externalProvider?.provider) {
         try {
-          const network = await (externalProvider.provider as BrowserProvider).getNetwork()
+          const network = await (
+            externalProvider.provider as BrowserProvider
+          ).getNetwork()
           const externalProviderChainId = Number(network.chainId)
 
-          console.log('Fetched external provider chain id: ', externalProviderChainId)
+          console.log(
+            'Fetched external provider chain id: ',
+            externalProviderChainId
+          )
 
           const expectedChainId = sourceChain?.id
           console.log('Expected chain id: ', expectedChainId)
@@ -92,7 +94,10 @@ function useIsWalletReady(): {
                 chains as ChainData[]
               )
             } catch (error) {
-              console.warn('useIsWalletReady:EVM:Could not switch networks:', error)
+              console.warn(
+                'useIsWalletReady:EVM:Could not switch networks:',
+                error
+              )
             }
             return
           }
@@ -111,11 +116,20 @@ function useIsWalletReady(): {
 
         // wallet id is the same as the current source chain
         if (isConnected && walletChainId === sourceChain?.id) {
-          console.debug('useIsWalletReady:EVM: AppKit wallet connected and chain is correct')
+          console.debug(
+            'useIsWalletReady:EVM: AppKit wallet connected and chain is correct'
+          )
           setIsReady(true)
           setStatusMessage('Connected with AppKit provider')
+          console.log(
+            'useIsWalletReady:EVM: is ready + status message: ',
+            isReady,
+            statusMessage
+          )
         } else {
-          console.warn('useIsWalletReady:EVM: AppKit wallet connected but chain mismatch')
+          console.warn(
+            'useIsWalletReady:EVM: AppKit wallet connected but chain mismatch'
+          )
           setIsReady(false)
           setStatusMessage('Switching to correct network...')
           switchNetwork()
@@ -128,7 +142,10 @@ function useIsWalletReady(): {
 
   useEffect(() => {
     if (isConnected) {
-      console.debug('useIsWalletReady:EVM: Dispatching source address:', walletAddress)
+      console.debug(
+        'useIsWalletReady:EVM: Dispatching source address:',
+        walletAddress
+      )
       dispatch(setSourceAddress(walletAddress ?? ''))
     }
   }, [walletAddress, isConnected, dispatch])

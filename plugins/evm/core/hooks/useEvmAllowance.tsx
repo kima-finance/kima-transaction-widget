@@ -17,16 +17,11 @@ import { getPoolAddress, getTokenAddress } from '@utils/functions'
 import { isEVMChain } from '@plugins/evm/utils/constants'
 import { useKimaContext } from '../../../../src/KimaProvider'
 import { NetworkOptions } from '@interface'
-import { BrowserProvider, formatUnits, JsonRpcProvider } from 'ethers'
-import {
-  CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET,
-  CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET
-} from '@utils/constants'
+import { BrowserProvider, formatUnits } from 'ethers'
 import {
   createPublicClient,
   createWalletClient,
   custom,
-  EIP1193Provider,
   erc20Abi,
   http,
   parseUnits
@@ -61,7 +56,6 @@ export default function useEvmAllowance() {
       ? externalProvider.provider
       : appkitProvider
 
-
   const [approvalsCount, setApprovalsCount] = useState(0)
 
   const queryKey = ['evmAllowance', walletAddress, sourceChain, approvalsCount]
@@ -71,7 +65,7 @@ export default function useEvmAllowance() {
     !!tokenOptions &&
     !!selectedCoin &&
     pools.length > 0 &&
-    isEVMChain(sourceChain) &&
+    isEVMChain(sourceChain.shortName) &&
     (!!externalProvider?.provider || !!appkitProvider)
 
   // console.log("enabled: ", enabled, )
@@ -88,7 +82,7 @@ export default function useEvmAllowance() {
         selectedCoin,
         userAddress: walletAddress!,
         pools,
-        chain: sourceChain,
+        chain: sourceChain.shortName,
         isTestnet: networkOption === NetworkOptions.testnet
       }),
     staleTime: 60 * 1000,
@@ -105,10 +99,10 @@ export default function useEvmAllowance() {
     const tokenAddress = getTokenAddress(
       tokenOptions,
       selectedCoin,
-      sourceChain
+      sourceChain.shortName
     )
 
-    const poolAddress = getPoolAddress(pools, sourceChain)
+    const poolAddress = getPoolAddress(pools, sourceChain.shortName)
 
     if (
       !allowanceData?.decimals ||
@@ -127,27 +121,16 @@ export default function useEvmAllowance() {
     }
 
     try {
-      // determine network based on mainnet/testnet
-      const network =
-        networkOption === NetworkOptions.testnet
-          ? CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET[sourceChain]
-          : CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET[sourceChain]
-
-      if (!network) {
-        throw new Error(`Unsupported network: ${sourceChain}`)
-      }
-
       // initialize Viem Public Client
       const viemClient = createPublicClient({
-        chain: network,
+        chain: sourceChain,
         transport: http()
       })
 
-      
       // create a viem wallet client for writing transactions
       const walletClient = createWalletClient({
         account: walletAddress as `0x${string}`,
-        chain: network,
+        chain: sourceChain,
         transport: custom(window.ethereum) // WARNING: NEED TO MAKE SURE THIS USING THE ETHEREUM OBJECT IS STABLE ENOUGH
       })
 
@@ -157,7 +140,7 @@ export default function useEvmAllowance() {
 
       // write transaction using viem
       const hash = await walletClient.writeContract({
-        chain: network,
+        chain: sourceChain,
         address: tokenAddress as `0x${string}`,
         abi: erc20Abi,
         functionName: 'approve',

@@ -5,7 +5,7 @@ import { store } from '@store/index'
 import { selectAllPlugins } from '@store/pluginSlice'
 import { getPluginProvider } from '@pluginRegistry'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ExternalProvider, NetworkOptions } from '@interface'
+import { ExternalProvider } from '@interface'
 import { useGetEnvOptions } from './hooks/useGetEnvOptions'
 
 import '../plugins/index'
@@ -52,12 +52,10 @@ export const useKimaContext = () => {
 
 const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
   ({ kimaBackendUrl, walletConnectProjectId, children }) => {
+    // get env variables from backend
     const { data: envOptions, isLoading } = useGetEnvOptions({
       kimaBackendUrl
     })
-
-    const networkOption = envOptions?.env || NetworkOptions.testnet;
-
     console.log('internalkimaprovider: networkoption: ', envOptions?.env)
 
     // Use a stable selector to avoid unnecessary re-renders
@@ -66,6 +64,7 @@ const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
 
     // Create providers dynamically but flatten their structure
     const WrappedProviders = useMemo(() => {
+
       return plugins.reduce<ReactNode>((acc, pluginData) => {
         const plugin = getPluginProvider(pluginData.id)
         if (plugin) {
@@ -73,11 +72,7 @@ const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
           return (
             <Provider
               key={plugin.data.id}
-              networkOption={
-                isLoading
-                  ? NetworkOptions.testnet
-                  : networkOption || NetworkOptions.testnet
-              }
+              networkOption={envOptions?.env}
               walletConnectProjectId={walletConnectProjectId}
             >
               {acc}
@@ -86,7 +81,7 @@ const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
         }
         return acc
       }, children)
-    }, [plugins, walletConnectProjectId, networkOption, isLoading])
+    }, [plugins, walletConnectProjectId, isLoading])
 
     return <>{WrappedProviders}</>
   }

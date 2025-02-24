@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux'
 import {
   selectBackendUrl,
   selectMode,
+  selectNetworks,
   selectSourceChain,
   selectTargetChain,
   selectTransactionOption
@@ -10,7 +11,7 @@ import {
 import { useDispatch } from 'react-redux'
 import { ModeOptions } from '../interface'
 import { setSourceCurrency, setTargetCurrency } from '../store/optionSlice'
-import { useChainData } from './useChainData'
+import { ChainToken } from '@plugins/pluginTypes'
 
 export default function useCurrencyOptions(isSourceChain: boolean) {
   const dispatch = useDispatch()
@@ -19,15 +20,22 @@ export default function useCurrencyOptions(isSourceChain: boolean) {
   const targetChain = useSelector(selectTargetChain)
   const chain = isSourceChain ? sourceChain : targetChain
   const transactionOption = useSelector(selectTransactionOption)
-
-  const backendUrl = useSelector(selectBackendUrl)
-  const { data: chains } = useChainData(backendUrl, chain.shortName)
+  const networks = useSelector(selectNetworks)
 
   const output = useMemo(() => {
-    return !!chains
-      ? { tokenList: chains[0].supportedTokens }
+    console.log('useCurrencyOptions: networks: ', networks)
+    const networkTokenList = networks.find((network) => network.id === chain.id)
+
+    console.log(
+      'useCurrencyOptions: networkTokenList: ',
+      networkTokenList,
+      chain
+    )
+
+    return !!networks
+      ? { tokenList: networkTokenList?.supportedTokens as ChainToken[] }
       : { tokenList: [] }
-  }, [chains])
+  }, [networks])
   const { tokenList } = output
 
   useEffect(() => {

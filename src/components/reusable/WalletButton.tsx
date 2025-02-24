@@ -27,6 +27,9 @@ import CopyButton from './CopyButton'
 import { formatUSD } from '../../helpers/functions'
 import useHideWuiListItem from '../../hooks/useHideActivityTab'
 import { useKimaContext } from '../../KimaProvider'
+import { selectBackendUrl } from '@store/core/selectors'
+import { useGetEnvOptions } from '../../hooks/useGetEnvOptions'
+import { NetworkOptions } from '@interface'
 
 const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const dispatch = useDispatch()
@@ -46,6 +49,10 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const { open: isModalOpen } = useAppKitState()
   useHideWuiListItem(isModalOpen)
 
+  const { kimaBackendUrl } = useKimaContext()
+  const { data: envOptions } = useGetEnvOptions({ kimaBackendUrl })
+  const networkOption = envOptions?.env || NetworkOptions.testnet
+
   useEffect(() => {
     console.info('WalletBalance:', {
       balance,
@@ -54,7 +61,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
       statusMessage,
       externalProvider
     })
-  }, [balance, walletAddress, isReady, externalProvider])
+  }, [balance, walletAddress, isReady, externalProvider, networkOption])
 
   useEffect(() => {
     if (walletAddress) dispatch(setSourceAddress(walletAddress))

@@ -11,7 +11,6 @@ import {
   ColorModeOptions
 } from '../interface'
 import { ChainName, PendingTxData } from '../utils/constants'
-import { Chain } from 'viem'
 import { arbitrumSepolia, sepolia } from 'viem/chains'
 import { ChainCompatibility, ChainData } from '@plugins/pluginTypes'
 
