@@ -8,7 +8,9 @@ import {
   selectServiceFee,
   selectTokenOptions,
   selectNetworkOption,
-  selectBackendUrl
+  selectBackendUrl,
+  selectFeeDeduct,
+  selectAmount
 } from '@store/selectors'
 import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
 import useGetPools from '../../../../src/hooks/useGetPools'
@@ -35,11 +37,14 @@ export default function useEvmAllowance() {
 
   const sourceChain = useSelector(selectSourceChain)
   const networkOption = useSelector(selectNetworkOption)
-  const { allowanceAmount, decimals } = useSelector(selectServiceFee)
+  const { totalFeeUsd, allowanceAmount, decimals } =
+    useSelector(selectServiceFee)
   const selectedCoin = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
   const backendUrl = useSelector(selectBackendUrl)
+  const feeDeduct = useSelector(selectFeeDeduct)
   const allowanceNumber = Number(formatUnits(allowanceAmount ?? '0', decimals))
+  const amount = useSelector(selectAmount)
 
   const { pools } = useGetPools(backendUrl, networkOption)
   // console.log("appkit provider:", appkitProvider)
@@ -134,9 +139,14 @@ export default function useEvmAllowance() {
         transport: custom(window.ethereum) // WARNING: NEED TO MAKE SURE THIS USING THE ETHEREUM OBJECT IS STABLE ENOUGH
       })
 
-      const amount = isCancel
+      const finalAmount = isCancel
         ? BigInt(0)
-        : parseUnits(allowanceAmount, allowanceData.decimals)
+        : feeDeduct
+          ? parseUnits(amount, allowanceData.decimals)
+          : parseUnits(
+              (+amount + totalFeeUsd).toString(),
+              allowanceData.decimals
+            )
 
       // write transaction using viem
       const hash = await walletClient.writeContract({
@@ -144,7 +154,7 @@ export default function useEvmAllowance() {
         address: tokenAddress as `0x${string}`,
         abi: erc20Abi,
         functionName: 'approve',
-        args: [poolAddress as `0x${string}`, amount]
+        args: [poolAddress as `0x${string}`, finalAmount]
       })
 
       console.log(
