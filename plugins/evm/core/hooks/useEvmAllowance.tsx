@@ -1,14 +1,7 @@
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useQuery } from '@tanstack/react-query'
-import { Contract, ethers } from 'ethers'
-import {
-  Web3Provider,
-  ExternalProvider,
-} from '@ethersproject/providers'
-import { formatUnits } from '@ethersproject/units'
 
-import ERC20ABI from '@utils/ethereum/erc20ABI.json'
 import {
   selectSourceCurrency,
   selectSourceChain,
@@ -16,6 +9,8 @@ import {
   selectTokenOptions,
   selectNetworkOption,
   selectBackendUrl,
+  selectFeeDeduct,
+  selectAmount
 } from '@store/selectors'
 import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
 import useGetPools from '../../../../src/hooks/useGetPools'
@@ -23,30 +18,48 @@ import { getTokenAllowance } from '../../utils/getTokenAllowance'
 import { getPoolAddress, getTokenAddress } from '@utils/functions'
 import { isEVMChain } from '@plugins/evm/utils/constants'
 import { useKimaContext } from '../../../../src/KimaProvider'
+import { NetworkOptions } from '@interface'
+import { BrowserProvider, formatUnits } from 'ethers'
+import {
+  createPublicClient,
+  createWalletClient,
+  custom,
+  erc20Abi,
+  http,
+  parseUnits
+} from 'viem'
 
 export default function useEvmAllowance() {
   const { externalProvider } = useKimaContext()
   const { walletProvider: appkitProvider } =
-    useAppKitProvider<ExternalProvider>('eip155')
+    useAppKitProvider<BrowserProvider>('eip155')
   const appkitAccountInfo = useAppKitAccount()
 
   const sourceChain = useSelector(selectSourceChain)
   const networkOption = useSelector(selectNetworkOption)
-  const { allowanceAmount, decimals } = useSelector(selectServiceFee)
+  const { totalFeeUsd, allowanceAmount, decimals } =
+    useSelector(selectServiceFee)
   const selectedCoin = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
   const backendUrl = useSelector(selectBackendUrl)
+  const feeDeduct = useSelector(selectFeeDeduct)
   const allowanceNumber = Number(formatUnits(allowanceAmount ?? '0', decimals))
+  const amount = useSelector(selectAmount)
 
   const { pools } = useGetPools(backendUrl, networkOption)
+  // console.log("appkit provider:", appkitProvider)
 
   // get the proper address
   const walletAddress =
-    externalProvider?.signer?._address || appkitAccountInfo?.address
+    externalProvider?.signer?.address || appkitAccountInfo?.address
+
+  // console.log("appkit account: ", appkitAccountInfo)
 
   // get the proper provider
-  const walletProvider: Web3Provider | ExternalProvider =
-    externalProvider?.provider || appkitProvider
+  const walletProvider =
+    externalProvider?.provider instanceof BrowserProvider
+      ? externalProvider.provider
+      : appkitProvider
 
   const [approvalsCount, setApprovalsCount] = useState(0)
 
@@ -56,10 +69,11 @@ export default function useEvmAllowance() {
     !!walletAddress &&
     !!tokenOptions &&
     !!selectedCoin &&
-    !!ERC20ABI &&
     pools.length > 0 &&
-    isEVMChain(sourceChain) &&
+    isEVMChain(sourceChain.shortName) &&
     (!!externalProvider?.provider || !!appkitProvider)
+
+  // console.log("enabled: ", enabled, )
 
   const {
     data: allowanceData,
@@ -71,11 +85,10 @@ export default function useEvmAllowance() {
       getTokenAllowance({
         tokenOptions,
         selectedCoin,
-        walletProvider,
         userAddress: walletAddress!,
         pools,
-        abi: ERC20ABI,
-        chain: sourceChain
+        chain: sourceChain.shortName,
+        isTestnet: networkOption === NetworkOptions.testnet
       }),
     staleTime: 60 * 1000,
     refetchInterval: 60 * 1000,
@@ -83,25 +96,22 @@ export default function useEvmAllowance() {
   })
 
   const approveErc20TokenTransfer = async (isCancel = false) => {
+    if (!walletProvider) {
+      console.error('No available provider')
+      return
+    }
+
     const tokenAddress = getTokenAddress(
       tokenOptions,
       selectedCoin,
-      sourceChain
+      sourceChain.shortName
     )
-    const poolAddress = getPoolAddress(pools, sourceChain)
 
-    // set the proper provider
-    const provider =
-      walletProvider instanceof Web3Provider
-        ? walletProvider
-        : new ethers.providers.Web3Provider(walletProvider)
+    const poolAddress = getPoolAddress(pools, sourceChain.shortName)
 
-    // get the proper signer from the provider
-    const signer = provider.getSigner()
     if (
       !allowanceData?.decimals ||
       !tokenAddress ||
-      !signer ||
       !poolAddress ||
       !allowanceAmount
     ) {
@@ -109,25 +119,53 @@ export default function useEvmAllowance() {
         allowanceAmount,
         allowanceData,
         tokenAddress,
-        signer,
+        signer: externalProvider?.signer || appkitProvider.getSigner(),
         poolAddress
       })
       return
     }
 
     try {
-      const erc20Contract = new Contract(tokenAddress, ERC20ABI.abi, signer)
-      const amount = isCancel ? '0' : allowanceAmount
-      const approveTx = await erc20Contract.approve(poolAddress, amount)
+      // initialize Viem Public Client
+      const viemClient = createPublicClient({
+        chain: sourceChain,
+        transport: http()
+      })
+
+      // create a viem wallet client for writing transactions
+      const walletClient = createWalletClient({
+        account: walletAddress as `0x${string}`,
+        chain: sourceChain,
+        transport: custom(window.ethereum) // WARNING: NEED TO MAKE SURE THIS USING THE ETHEREUM OBJECT IS STABLE ENOUGH
+      })
+
+      const finalAmount = isCancel
+        ? BigInt(0)
+        : feeDeduct
+          ? parseUnits(amount, allowanceData.decimals)
+          : parseUnits(
+              (+amount + totalFeeUsd).toString(),
+              allowanceData.decimals
+            )
+
+      // write transaction using viem
+      const hash = await walletClient.writeContract({
+        chain: sourceChain,
+        address: tokenAddress as `0x${string}`,
+        abi: erc20Abi,
+        functionName: 'approve',
+        args: [poolAddress as `0x${string}`, finalAmount]
+      })
 
       console.log(
         'useEvmAllowance: Transaction sent, waiting for confirmation:',
-        approveTx.hash
+        hash
       )
 
-      const receipt = await approveTx.wait()
+      // Wait for transaction receipt
+      const receipt = await viemClient.waitForTransactionReceipt({ hash })
 
-      if (receipt.status === 1) {
+      if (receipt.status === 'success') {
         console.log('useEvmAllowance: Transaction successful:', receipt)
         setApprovalsCount((prev: number) => prev + 1)
       } else {

@@ -20,8 +20,8 @@ import {
   polygonZkEvmCardona,
   sepolia
 } from '@reown/appkit/networks' // Adjust this import based on real networks you need to support
-import { Ethers5Adapter } from '@reown/appkit-adapter-ethers5'
 import { NetworkOptions } from '@interface'
+import { EthersAdapter } from '@reown/appkit-adapter-ethers'
 
 const appkitMainnetChains = [
   mainnet,
@@ -55,25 +55,32 @@ const metadata = {
 
 // use the this AppKit model instance directly, storing in context not necessary
 export let appKitModel: AppKit | null = null
-let appKitNetworkOption = NetworkOptions.testnet
+let appkitNetworkOption: NetworkOptions | null = null
 
 export const setupAppKit = (
   projectId: string,
   networkOption: NetworkOptions
 ) => {
+    console.log('setupAppkit: network option: ', networkOption)
+
   // prevent calling createAppKit multiple times
-  if (networkOption === appKitNetworkOption && appKitModel) {
+  if (appKitModel && !appkitNetworkOption) {
+    console.log(
+      'appkitModel Already exists... - ',
+      appKitModel,
+      appkitNetworkOption
+    )
     return appKitModel
   }
 
-  appKitNetworkOption = networkOption
+  appkitNetworkOption = networkOption
   const networks: any =
     networkOption === NetworkOptions.mainnet
       ? appkitMainnetChains
       : appkitTestnetChains // Adjust networks per environment
 
   appKitModel = createAppKit({
-    adapters: [new Ethers5Adapter()],
+    adapters: [new EthersAdapter()],
     metadata,
     networks,
     projectId, // Use the provided or default project ID
@@ -83,10 +90,11 @@ export const setupAppKit = (
       onramp: false,
       email: false,
       socials: false,
-      history: false,
-    },
+      history: false
+    }
   })
-  console.debug('setupAppKit:networkOption:', networkOption)
+  // console.debug('setupAppKit:networkOption:', networkOption)
+  // console.log('setupAppKit: appkitModel: ', appKitModel)
 
   return appKitModel
 }

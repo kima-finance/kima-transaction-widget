@@ -1,6 +1,5 @@
 export { ChainName as SupportNetworks } from './utils/constants'
 export { CHAIN_STRING_TO_NAME, CHAIN_NAMES_TO_STRING } from './utils/constants'
-import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import {
   ChainName,
   ChainName as SupportNetworks,
@@ -14,6 +13,7 @@ import {
 } from '@solana/web3.js'
 import { TronWeb } from 'tronweb'
 import { SignedTransaction } from '@tronweb3/tronwallet-abstract-adapter'
+import { BrowserProvider, JsonRpcSigner } from 'ethers'
 
 export enum NetworkOptions {
   testnet = 'testnet',
@@ -133,6 +133,6 @@ export interface SolProvider {
 
 export interface ExternalProvider {
   type: 'evm' | 'solana' | 'tron'
-  provider: Web3Provider | SolProvider | TronProvider
+  provider: BrowserProvider | SolProvider | TronProvider
   signer: JsonRpcSigner | PublicKey | string
 }

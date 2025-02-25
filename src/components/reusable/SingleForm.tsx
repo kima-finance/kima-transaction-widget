@@ -16,12 +16,11 @@ import {
   selectAmount,
   selectTargetCurrency
 } from '../../store/selectors'
-import { BankInput, CoinDropdown, CustomCheckbox, PrimaryButton, SecondaryButton, WalletButton } from './'
-import { setAmount, setFeeDeduct } from '../../store/optionSlice'
+import { BankInput, CoinDropdown, WalletButton } from './'
+import { setAmount } from '../../store/optionSlice'
 import { ModeOptions } from '../../interface'
 import AddressInput from './AddressInput'
 import { COIN_LIST, ChainName } from '../../utils/constants'
-import { formatterFloat } from '../../helpers/functions'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
 import useGetFees from '../../hooks/useGetFees'
 import { setServiceFee } from '@store/optionSlice'
@@ -81,9 +80,9 @@ const SingleForm = ({
   } = useGetFees(
     parseFloat(amount),
     feeDeduct,
-    sourceNetwork,
+    sourceNetwork.shortName,
     sourceCurrency,
-    targetNetwork,
+    targetNetwork.shortName,
     backendUrl
   )
 
@@ -108,7 +107,7 @@ const SingleForm = ({
 
   const maxValue = useMemo(() => {
     if (!balance) return 0
-    if (feeDeduct || totalFeeUsd < 0) return balance
+    if (totalFeeUsd < 0) return balance
 
     const amountMinusFees = preciseSubtraction(balance as number, totalFeeUsd)
     return amountMinusFees > 0 ? amountMinusFees : 0
@@ -143,7 +142,7 @@ const SingleForm = ({
 
       <div
         className={`dynamic-area ${
-          sourceNetwork === ChainName.FIAT ? 'reverse' : '1'
+          sourceNetwork.shortName === ChainName.FIAT ? 'reverse' : '1'
         }`}
       >
         <div
@@ -164,8 +163,8 @@ const SingleForm = ({
         )}
       </div>
 
-      {mode === ModeOptions.bridge && sourceNetwork !== ChainName.FIAT ? (
-        targetNetwork === ChainName.FIAT ? (
+      {mode === ModeOptions.bridge && sourceNetwork.shortName !== ChainName.FIAT ? (
+        targetNetwork.shortName === ChainName.FIAT ? (
           <BankInput />
         ) : (
           <div className={`form-item ${theme.colorMode}`}>
@@ -230,8 +229,8 @@ const SingleForm = ({
               onChange={(e) => {
                 let _amount = +e.target.value
                 const decimal =
-                  sourceNetwork === ChainName.BTC ||
-                  targetNetwork === ChainName.BTC
+                  sourceNetwork.shortName === ChainName.BTC ||
+                  targetNetwork.shortName === ChainName.BTC
                     ? 8
                     : 2
                 setAmountValue(e.target.value)
@@ -246,60 +245,6 @@ const SingleForm = ({
           </div>
         </div>
       )}
-
-      {/* checkbox shall only be displayed in transfer scenario */}
-      {mode === ModeOptions.bridge && totalFeeUsd > 0 ? (
-        <CustomCheckbox
-          text={
-            sourceNetwork === ChainName.BTC
-              ? `Deduct ${formatterFloat.format(totalFeeUsd)} BTC fee`
-              : `Deduct $${formatterFloat.format(totalFeeUsd)} fee from source network`
-          }
-          checked={feeDeduct}
-          setCheck={(value: boolean) => dispatch(setFeeDeduct(value))}
-        />
-      ) : null}
-
-      <div
-        className={`kima-card-footer ${mode === ModeOptions.bridge && formStep !== 0 && 'confirm'}`}
-      >
-        <div className={`button-group`}>
-          {formStep !== 0 && (
-            <SecondaryButton
-              clickHandler={onBack}
-              theme={theme.colorMode}
-              disabled={isApproving || isSubmitting || isSigning}
-            >
-              {formStep > 0 ? 'Back' : 'Cancel'}
-            </SecondaryButton>
-          )}
-          {allowance > 0 && formStep !== 0 ? (
-            <SecondaryButton
-              clickHandler={onCancelApprove}
-              isLoading={isCancellingApprove}
-              theme={theme.colorMode}
-              disabled={
-                isCancellingApprove || isApproving || isSubmitting || isSigning
-              }
-            >
-              {isCancellingApprove ? 'Cancelling Approval' : 'Cancel Approve'}
-            </SecondaryButton>
-          ) : null}
-          <PrimaryButton
-            clickHandler={onNext}
-            isLoading={isApproving || isSubmitting || isSigning}
-            disabled={
-              isApproving ||
-              isSubmitting ||
-              isSigning ||
-              (mode === ModeOptions.payment && !transactionOption)
-            }
-          >
-            {getButtonLabel()}
-          </PrimaryButton>
-        </div>
-      </div>
-
     </div>
   )
 }

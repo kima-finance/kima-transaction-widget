@@ -36,6 +36,7 @@ import {
   selectFeeDeduct,
   selectMode,
   selectNetworkOption,
+  selectNetworks,
   selectPendingTxs,
   selectServiceFee,
   selectSourceAddress,
@@ -61,6 +62,9 @@ import useGetPools from '../hooks/useGetPools'
 import useDisconnectWallet from '../hooks/useDisconnectWallet'
 import TransactionSearch from './reusable/TransactionSearch'
 import { useKimaContext } from 'src/KimaProvider'
+import { useChainData } from '../hooks/useChainData'
+import { arbitrumSepolia } from 'viem/chains'
+import { ChainData } from '@plugins/pluginTypes'
 
 interface Props {
   theme: ThemeOptions
@@ -103,13 +107,14 @@ export const TransferWidget = ({
   const compliantOption = useSelector(selectCompliantOption)
   const networkOptions = useSelector(selectNetworkOption)
   const feeDeduct = useSelector(selectFeeDeduct)
-  const {keplrHandler, closeHandler} = useKimaContext()
+  const { keplrHandler, closeHandler } = useKimaContext()
 
   // Hooks for wallet connection, allowance
   const [isCancellingApprove, setCancellingApprove] = useState(false)
   const [isApproving, setApproving] = useState(false)
   const [isSigning, setSigning] = useState(false)
   const pendingTxs = useSelector(selectPendingTxs)
+  const networks = useSelector(selectNetworks)
 
   const { width: windowWidth } = useWidth()
 
@@ -141,7 +146,7 @@ export const TransferWidget = ({
     isApproved,
     sourceAddress,
     targetAddress,
-    targetChain,
+    targetChain: targetChain.shortName,
     balance,
     amount,
     totalFeeUsd,
@@ -160,8 +165,8 @@ export const TransferWidget = ({
     totalFee: BigInt(totalFee ?? '0'),
     originAddress: sourceAddress,
     targetAddress,
-    originChain: sourceChain,
-    targetChain,
+    originChain: sourceChain.shortName,
+    targetChain: targetChain.shortName,
     originSymbol: sourceCurrency,
     targetSymbol: targetCurrency,
     backendUrl,
@@ -247,16 +252,30 @@ export const TransferWidget = ({
     if (isApproving || isSubmitting || isSigning) return
 
     setFormStep(0)
-    // reset to default values
-    dispatch(setSourceChain(transactionOption?.sourceChain || ''))
-    dispatch(setTargetChain(transactionOption?.targetChain || ''))
-    dispatch(setTargetAddress(transactionOption?.targetAddress || ''))
-    dispatch(setTargetCurrency(transactionOption?.currency || ''))
-    dispatch(setAmount(transactionOption?.amount.toString() || ''))
+    if (mode !== ModeOptions.payment) {
+      if (transactionOption?.sourceChain) {
+        const sourceChain = networks.find(
+          (currentChain: ChainData) =>
+            currentChain.shortName === transactionOption.sourceChain
+        )
+        dispatch(setSourceChain(sourceChain as ChainData))
+      } else {
+        dispatch(setSourceChain(networks[0]))
+      }
 
-    dispatch(
-      setMode(transactionOption ? ModeOptions.payment : ModeOptions.bridge)
-    )
+      if (transactionOption?.sourceChain) {
+        const targetChain = networks.find(
+          (currentChain: ChainData) =>
+            currentChain.shortName === transactionOption.targetChain
+        )
+        dispatch(setTargetChain(targetChain as ChainData))
+      } else {
+        dispatch(setTargetChain(networks[1]))
+      }
+      dispatch(setTargetAddress(transactionOption?.targetAddress || ''))
+      dispatch(setTargetCurrency(transactionOption?.currency || ''))
+      dispatch(setAmount(transactionOption?.amount.toString() || ''))
+    }
     await disconnectWallet()
     closeHandler && closeHandler(0)
   }
@@ -367,6 +386,48 @@ export const TransferWidget = ({
           )}
         </div>
 
+        <div
+          className={`kima-card-footer ${mode === ModeOptions.bridge && formStep !== 0 && 'confirm'}`}
+        >
+          <div className={`button-group`}>
+            {formStep !== 0 && (
+              <SecondaryButton
+                clickHandler={onBack}
+                theme={theme.colorMode}
+                disabled={isApproving || isSubmitting || isSigning}
+              >
+                {formStep > 0 ? 'Back' : 'Cancel'}
+              </SecondaryButton>
+            )}
+            {allowance > 0 && formStep !== 0 ? (
+              <SecondaryButton
+                clickHandler={onCancelApprove}
+                isLoading={isCancellingApprove}
+                theme={theme.colorMode}
+                disabled={
+                  isCancellingApprove ||
+                  isApproving ||
+                  isSubmitting ||
+                  isSigning
+                }
+              >
+                {isCancellingApprove ? 'Cancelling Approval' : 'Cancel Approve'}
+              </SecondaryButton>
+            ) : null}
+            <PrimaryButton
+              clickHandler={onNext}
+              isLoading={isApproving || isSubmitting || isSigning}
+              disabled={
+                isApproving ||
+                isSubmitting ||
+                isSigning ||
+                (mode === ModeOptions.payment && !transactionOption)
+              }
+            >
+              {getButtonLabel()}
+            </PrimaryButton>
+          </div>
+        </div>
         <SolanaWalletConnectModal />
         <TronWalletConnectModal />
         <Toaster
@@ -378,6 +439,7 @@ export const TransferWidget = ({
           toastOptions={{
             duration: 3 * 1000,
             style: {
+              fontFamily: 'Manrope',
               position: 'relative',
               top: windowWidth > 768 ? '3rem' : '1.5rem',
               right: windowWidth > 768 ? '1.5rem' : '0rem',

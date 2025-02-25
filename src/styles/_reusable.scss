@@ -1,4 +1,5 @@
 .kima-card {
+  font-family: 'Manrope';
   .kima-card-content {
     font-family: 'Manrope';
 
@@ -20,6 +21,7 @@
       border-radius: 16px;
       margin-bottom: 64px;
       margin-left: 16px;
+      
 
       @include breakpoint(mobile) {
         width: 7px;
@@ -1617,7 +1619,6 @@
           font-size: 14px;
 
           @include breakpoint(mobile) {
-            width: 100%;
             font-size: 12px;
           }
 
@@ -1724,7 +1725,7 @@
             display: flex;
             flex-direction: row;
             justify-content: space-between;
-            width: 250px;
+            width: 300px;
             padding: 8px 6px;
             font-size: 14px;
             border-top: 1px solid $financeIcon;
@@ -2026,6 +2027,144 @@
         }
       }
     }
+
+    .fee-deduction-slider-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      gap: 10px;
+      padding: 16px 20px;
+    }
+
+    .fee-label {
+      min-width: 50%;
+      font-size: 14px;
+      color: #aaa;
+      transition: color 0.3s ease;
+    }
+
+    .fee-label.selected {
+      font-weight: bolder;
+      color: $financeDark;
+    }
+
+    .slider-container {
+      min-width: 50px;
+      height: 25px;
+      border-radius: 50px;
+      background: $hover;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.3s ease;
+    }
+
+    .slider {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: $financeIcon;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      left: 4px;
+      transition: left 0.3s ease;
+
+      &.active {
+        left: 26px;
+      }
+    }
+
+    .transfer-notice {
+      font-weight: bolder;
+      display: flex;
+      justify-content: start;
+      align-items: center;
+      width: 100%;
+      font-size: 14px;
+      text-align: justify;
+    }
+
+    .fee-deduction-radio-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 14px;
+      border-top: 1px solid $secondary;
+      padding: 16px 20px;
+
+      &.dark {
+        color: white;
+      }
+
+      @include breakpoint(phablet) {
+        padding: 16px 0;
+        margin-bottom: 20px;
+      }
+    }
+
+    .fee-instruction {
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .fee-options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .fee-option {
+      display: flex;
+      align-items: center; /* Ensures both text and radio button align */
+      gap: 10px;
+      cursor: pointer;
+    }
+    
+    .fee-option input[type='radio'] {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 1px solid $financeIcon;
+      border-radius: 50%;
+      outline: none;
+      cursor: pointer;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-shrink: 0;
+      aspect-ratio: 1;
+      position: relative;
+    }
+    
+    /* Adds the inner dot and perfectly centers it */
+    .fee-option input[type='radio']:checked::before {
+      content: '';
+      width: 10px;
+      height: 10px;
+      background-color: $financeIcon;
+      border-radius: 50%;
+      display: block;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    
+    /* Prevents text from pushing the radio button */
+    .radio-label {
+      line-height: 1.2;
+      font-size: 14px;
+      color: #333;
+      flex-grow: 1;
+      word-break: break-word;
+
+      &.dark {
+        color: white;
+      }
+    }
+    
 
     .transaction-status-message {
       display: flex;

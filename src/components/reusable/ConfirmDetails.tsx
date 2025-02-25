@@ -24,44 +24,18 @@ import { ChainName } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 import useWidth from '../../hooks/useWidth'
 import ChainIcon from './ChainIcon'
-import SecondaryButton from './SecondaryButton'
-import PrimaryButton from './PrimaryButton'
+import { useDispatch } from 'react-redux'
+import FeeDeductionRadioButtons from './FeeDeductionRadioButtons'
 
-const ConfirmDetails = ({
-  allowance,
-  balance,
-  decimals,
-  formStep,
-  onBack,
-  onCancelApprove,
-  onNext,
-  getButtonLabel,
-  isApproving,
-  isSigning,
-  isSubmitting,
-  isCancellingApprove,
-  isApproved
-}: {
-  allowance: number | undefined
-  balance: number | undefined
-  decimals: number | undefined
-  formStep: number
-  onBack: () => void
-  onCancelApprove: () => void
-  onNext: () => void
-  getButtonLabel: () => string
-  isApproving: boolean
-  isSigning: boolean
-  isSubmitting: boolean
-  isCancellingApprove: boolean
-  isApproved: boolean
-}) => {
+const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
+  const dispatch = useDispatch()
   const feeDeduct = useSelector(selectFeeDeduct)
   const mode = useSelector(selectMode)
   const dAppOption = useSelector(selectDappOption)
   const theme = useSelector(selectTheme)
   const amount = useSelector(selectAmount)
-  const { totalFeeUsd } = useSelector(selectServiceFee)
+  const { totalFeeUsd, targetNetworkFee, sourceNetworkFee } =
+    useSelector(selectServiceFee)
   const originNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
   const targetAddress = useSelector(selectTargetAddress)
@@ -72,17 +46,18 @@ const ConfirmDetails = ({
   const transactionOption = useSelector(selectTransactionOption)
   const { walletAddress } = useIsWalletReady()
   const originNetworkOption = useMemo(
-    () => networkOptions.filter((network) => network.id === originNetwork)[0],
+    () =>
+      networkOptions.filter((network) => network.id === originNetwork.id)[0],
     [networkOptions, originNetwork]
   )
   const targetNetworkOption = useMemo(
     () =>
       networkOptions.filter(
         (network) =>
-          network.id ===
+          network.shortName ===
           (mode === ModeOptions.payment
             ? transactionOption?.targetChain
-            : targetNetwork)
+            : targetNetwork.shortName)
       )[0],
     [networkOptions, originNetwork]
   )
@@ -109,7 +84,10 @@ const ConfirmDetails = ({
   }, [mode, transactionOption, targetAddress])
 
   const amountToShow = useMemo(() => {
-    if (originNetwork === ChainName.BTC || targetNetwork === ChainName.BTC) {
+    if (
+      originNetwork.shortName === ChainName.BTC ||
+      targetNetwork.shortName === ChainName.BTC
+    ) {
       return (feeDeduct ? +amount : +amount + totalFeeUsd).toFixed(8)
     }
 
@@ -122,16 +100,16 @@ const ConfirmDetails = ({
         Step {isApproved ? '2' : '1'}&nbsp;of 2&nbsp;&nbsp;&nbsp;
         {isApproved
           ? 'Submit transaction'
-          : originNetwork === ChainName.FIAT
+          : originNetwork.shortName === ChainName.FIAT
             ? 'Bank Details'
             : 'Approval'}
       </p>
-      {originNetwork === ChainName.FIAT ? (
+      {originNetwork.shortName === ChainName.FIAT ? (
         <div>
           <div className='detail-item'>
             <span className='label'>IBAN:</span>
             <span className={`kima-card-network-label ${theme.colorMode}`}>
-              <ChainIcon symbol={originNetworkOption?.id} />
+              <ChainIcon symbol={originNetworkOption?.shortName} />
               {/* <div className='icon'>
                 <originNetworkOption.icon />
               </div> */}
@@ -158,8 +136,8 @@ const ConfirmDetails = ({
           <div className='network-details'>
             <div className='kima-card-network-container'>
               <span className={`kima-card-network-label ${theme.colorMode}`}>
-                <ChainIcon symbol={originNetworkOption?.id} />
-                {originNetworkOption.label}
+                <ChainIcon symbol={originNetworkOption?.shortName} />
+                {originNetworkOption.name}
               </span>
             </div>
             <p className={theme.colorMode}>
@@ -182,10 +160,12 @@ const ConfirmDetails = ({
         </span>
         <span className='amount-container'>
           <div className='amount-details'>
-            <span>Transfer amount</span>
+            <span>Source Transfer amount</span>
             <div className='coin-details'>
               <p>
-                {formatterFloat.format(parseFloat(amountToShow) - totalFeeUsd)}{' '}
+                {feeDeduct
+                  ? formatterFloat.format(Number(amount))
+                  : formatterFloat.format(Number(amount) + totalFeeUsd)}{' '}
                 {sourceCurrency}
               </p>
             </div>
@@ -194,26 +174,44 @@ const ConfirmDetails = ({
             )}
           </div>
           <div className='amount-details'>
-            <span>Network costs</span>
+            <span>Source Network Fee ({originNetwork.shortName})</span>
             <span className='service-fee'>
-              {formatterFloat.format(totalFeeUsd)} {sourceCurrency}
+              {formatterFloat.format(sourceNetworkFee?.amount || 0)}{' '}
+              {sourceCurrency}
             </span>
           </div>
           <div className='amount-details'>
-            <span>Total</span>
+            <span>Target Network Fee ({targetNetwork.shortName})</span>
             <span className='service-fee'>
-              {formatterFloat.format(parseFloat(amountToShow))} {targetCurrency}
+              {formatterFloat.format(targetNetworkFee?.amount || 0)}{' '}
+              {sourceCurrency}
+            </span>
+          </div>
+          {/* TODO: Implement when the new service fee comes in
+          <div className='amount-details'>
+            <span>Business Fee ({originNetwork})</span>
+            <span className='service-fee'>
+              {formatterFloat.format(totalFeeUsd)} {sourceCurrency}
+            </span>
+          </div> */}
+          <div className='amount-details'>
+            <span>Target Transfer Amount</span>
+            <span className='service-fee'>
+              {!feeDeduct
+                ? formatterFloat.format(Number(amount))
+                : formatterFloat.format(Number(amount) - totalFeeUsd)}{' '}
+              {targetCurrency}
             </span>
           </div>
         </span>
       </div>
-      {targetNetwork === ChainName.FIAT ? (
+      {targetNetwork.shortName === ChainName.FIAT ? (
         <div>
           <div className='detail-item'>
             <span className='label'>IBAN:</span>
             <p>{bankDetails.iban}</p>
             <span className={`kima-card-network-label ${theme.colorMode}`}>
-              <ChainIcon symbol={targetNetworkOption?.id} />
+              <ChainIcon symbol={targetNetworkOption?.shortName} />
               {/* <div className='icon'>
                 <targetNetworkOption.icon />
               </div> */}
@@ -231,8 +229,8 @@ const ConfirmDetails = ({
           <div className='network-details'>
             <div className='kima-card-network-container'>
               <span className={`kima-card-network-label ${theme.colorMode}`}>
-                <ChainIcon symbol={targetNetworkOption?.id} />
-                {targetNetworkOption?.label}
+                <ChainIcon symbol={targetNetworkOption?.shortName} />
+                {targetNetworkOption?.name}
               </span>
             </div>
             <p className={theme.colorMode}>
@@ -248,45 +246,19 @@ const ConfirmDetails = ({
         </div>
       )}
 
-      <div
-        className={`kima-card-footer ${mode === ModeOptions.bridge && formStep !== 0 && 'confirm'}`}
-      >
-        <div className={`button-group`}>
-          {formStep !== 0 && (
-            <SecondaryButton
-              clickHandler={onBack}
-              theme={theme.colorMode}
-              disabled={isApproving || isSubmitting || isSigning}
-            >
-              {formStep > 0 ? 'Back' : 'Cancel'}
-            </SecondaryButton>
-          )}
-          {allowance > 0 && formStep !== 0 ? (
-            <SecondaryButton
-              clickHandler={onCancelApprove}
-              isLoading={isCancellingApprove}
-              theme={theme.colorMode}
-              disabled={
-                isCancellingApprove || isApproving || isSubmitting || isSigning
-              }
-            >
-              {isCancellingApprove ? 'Cancelling Approval' : 'Cancel Approve'}
-            </SecondaryButton>
-          ) : null}
-          <PrimaryButton
-            clickHandler={onNext}
-            isLoading={isApproving || isSubmitting || isSigning}
-            disabled={
-              isApproving ||
-              isSubmitting ||
-              isSigning ||
-              (mode === ModeOptions.payment && !transactionOption)
-            }
-          >
-            {getButtonLabel()}
-          </PrimaryButton>
-        </div>
-      </div>
+      {/* checkbox shall only be displayed in transfer scenario */}
+      {mode === ModeOptions.bridge && totalFeeUsd > 0 ? (
+        // <FeeDeductionSlider />
+        <FeeDeductionRadioButtons />
+      ) : null}
+
+      {/* {mode === ModeOptions.bridge && totalFeeUsd > 0 && (
+        <span className='transfer-notice'>
+          {feeDeduct
+            ? `You will transfer exactly $${amount} ${sourceCurrency} from ${originNetwork}, and the fee of $${totalFeeUsd} will be deducted on the target network (${targetNetwork}) receiving $${Number(amount) - totalFeeUsd} ${targetCurrency}.`
+            : `You will send $${Number(amount) + totalFeeUsd} ${sourceCurrency} from ${originNetwork}, ensuring ${amount} ${targetCurrency} arrives in the target network (${targetNetwork}).`}
+        </span>
+      )} */}
     </div>
   )
 }

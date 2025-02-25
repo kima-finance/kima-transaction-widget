@@ -27,6 +27,9 @@ import CopyButton from './CopyButton'
 import { formatUSD } from '../../helpers/functions'
 import useHideWuiListItem from '../../hooks/useHideActivityTab'
 import { useKimaContext } from '../../KimaProvider'
+import { selectBackendUrl } from '@store/core/selectors'
+import { useGetEnvOptions } from '../../hooks/useGetEnvOptions'
+import { NetworkOptions } from '@interface'
 
 const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const dispatch = useDispatch()
@@ -46,6 +49,10 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const { open: isModalOpen } = useAppKitState()
   useHideWuiListItem(isModalOpen)
 
+  const { kimaBackendUrl } = useKimaContext()
+  const { data: envOptions } = useGetEnvOptions({ kimaBackendUrl })
+  const networkOption = envOptions?.env || NetworkOptions.testnet
+
   useEffect(() => {
     console.info('WalletBalance:', {
       balance,
@@ -54,7 +61,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
       statusMessage,
       externalProvider
     })
-  }, [balance, walletAddress, isReady, externalProvider])
+  }, [balance, walletAddress, isReady, externalProvider, networkOption])
 
   useEffect(() => {
     if (walletAddress) dispatch(setSourceAddress(walletAddress))
@@ -72,7 +79,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
     // TODO: Refactor to use evm account details modal
     if (externalProvider) return
 
-    if (selectedNetwork === ChainName.SOLANA) {
+    if (selectedNetwork.shortName === ChainName.SOLANA) {
       console.info('Handling click: Case SOL', 1)
       isSolanaConnected
         ? dispatch(setAccountDetailsModal(true))
@@ -80,7 +87,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
       return
     }
 
-    if (selectedNetwork === ChainName.TRON) {
+    if (selectedNetwork.shortName === ChainName.TRON) {
       console.info('Handling click: Case TRX', 2)
       isTronConnected
         ? dispatch(setAccountDetailsModal(true))
@@ -103,6 +110,8 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
       console.error('Failed to open AppKitModal', error)
     }
   }
+
+  // console.log("wallet button is ready: ", isReady)
 
   const errorMessage = useMemo(() => {
     if (!isReady) return statusMessage

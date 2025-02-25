@@ -8,14 +8,17 @@ export interface WalletProviderProps {
   children: ReactNode
   walletConnectProjectId: string
   networkOption: NetworkOptions
+  isLoadingEnvs: boolean
 }
 
 const WalletProvider = ({
   children,
   networkOption,
-  walletConnectProjectId
+  walletConnectProjectId,
+  isLoadingEnvs
 }: WalletProviderProps) => {
-  setupAppKit(walletConnectProjectId, networkOption)
+  if (networkOption && !isLoadingEnvs)
+    setupAppKit(walletConnectProjectId, networkOption)
   return <>{children}</>
 }
 
