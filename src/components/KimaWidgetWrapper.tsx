@@ -126,7 +126,7 @@ const KimaWidgetWrapper = ({
         'Config error: KimaTransactionWidget.transactionOption is required in payment mode'
       )
     } else if (mode === ModeOptions.status) {
-      dispatch(setTxId(txId || 1))
+      dispatch(setTxId(txId || -1))
       dispatch(setSubmitted(true))
     }
   }, [theme, transactionOption, mode, networkOption, chainData])

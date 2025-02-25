@@ -266,14 +266,17 @@
   align-items: center;
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1), color 0ms, background-color 0ms, border-color 0ms;
   max-height: 50px;
-  padding-top: 32px;
   margin-top: 20px;
-  padding-bottom: 30px;
   opacity: 1;
   box-sizing: content-box;
   font-family: "Manrope";
   font-size: 14px;
   font-weight: 700;
+}
+@media (min-width: 768px) {
+  .kima-card .kima-card-footer {
+    margin-bottom: 20px;
+  }
 }
 @media (max-width: 768px) {
   .kima-card .kima-card-footer {
@@ -304,7 +307,7 @@
   margin-left: auto;
   flex-direction: row;
   gap: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 @media (max-width: 500px) {
   .kima-card .kima-card-footer .button-group {
@@ -353,9 +356,15 @@
   font-family: "Manrope";
   right: 0;
 }
+.kima-card .floating-footer.status {
+  margin-top: 10px;
+}
 @media (max-width: 768px) {
   .kima-card .floating-footer {
     margin-top: 25px;
+  }
+  .kima-card .floating-footer.status {
+    margin-top: 10px;
   }
 }
 @media (max-width: 500px) {
@@ -385,19 +394,28 @@
   font-weight: 400;
 }
 .kima-card .floating-footer .items strong {
-  margin-left: 7px;
+  margin-left: 5px;
   font-size: 14px;
   font-family: "Manrope";
-  margin-top: 4px;
+  font-weight: bolder;
+}
+
+.kima-card .kima-card-content {
+  font-family: "Manrope";
+}
+.kima-card .kima-card-content .error-message {
+  color: red;
+  font-weight: bold;
+}
+.kima-card .kima-card-content .subtitle {
+  margin: 0;
+  font-weight: bolder;
 }
 
 .kima-card {
   font-family: "Manrope";
 }
-.kima-card .kima-card-content {
-  /* Adds the inner dot and perfectly centers it */
-  /* Prevents text from pushing the radio button */
-}
+
 .kima-card .kima-card-content .kima-progressbar {
   height: 7px;
   width: 95%;
@@ -649,6 +667,7 @@
   text-align: center;
   margin-left: 24px;
   font-size: 14px;
+  font-family: "Manrope";
 }
 @media (max-width: 500px) {
   .kima-card .kima-card-content .kima-progressbar .step-indicators .step .step-info span {
@@ -1051,6 +1070,66 @@
   background: white;
   color: black;
   margin-left: 1em;
+}
+.kima-card .kima-card-content .single-form .form-item.transaction-search {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+.kima-card .kima-card-content .single-form .form-item.transaction-search span {
+  margin-right: 85px;
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .single-form .form-item.transaction-search span {
+    text-align: start;
+    margin-right: auto;
+    margin-bottom: 10px;
+    font-weight: bolder;
+  }
+}
+.kima-card .kima-card-content .single-form .form-item.transaction-search button {
+  margin-left: auto;
+  margin-top: 20px;
+}
+@media (min-width: 565px) {
+  .kima-card .kima-card-content .single-form .form-item.transaction-search button {
+    width: 140px;
+  }
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .single-form .form-item.transaction-search button {
+    width: 100%;
+  }
+}
+@media (max-width: 768px) {
+  .kima-card .kima-card-content .single-form .form-item.transaction-search {
+    flex-direction: column;
+    align-items: start;
+  }
+}
+.kima-card .kima-card-content .single-form .form-item.transaction-search .transaction-input {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  align-items: center;
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .single-form .form-item.transaction-search .transaction-input {
+    width: 100%;
+    flex-direction: column;
+  }
+}
+.kima-card .kima-card-content .single-form .form-item.transaction-search .transaction-input input {
+  width: 390px;
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .single-form .form-item.transaction-search .transaction-input input {
+    width: 100%;
+  }
 }
 .kima-card .kima-card-content .single-form .form-item input {
   border-radius: 50px;
@@ -2008,7 +2087,7 @@
 }
 @media (max-width: 500px) {
   .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item {
-    width: 195px;
+    width: 210px;
     height: 40px;
   }
 }
@@ -2125,14 +2204,39 @@
     color: white;
   }
   .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item.source-chain {
-    margin-top: -30px;
+    margin-top: -35px;
   }
   .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item.paid {
-    margin-top: 10px;
+    margin-top: -10px;
   }
   .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item.target-chain {
     margin-top: 60px;
   }
+}
+.kima-card .kima-card-content .transaction-status-message {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+  font-family: "Manrope";
+  font-weight: 600;
+  font-size: 14px;
+  text-align: justify;
+}
+.kima-card .kima-card-content .transaction-status-message h2 {
+  font-size: 14px;
+}
+.kima-card .kima-card-content .transaction-status-message .transaction-copy {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  font-weight: bolder;
+  font-size: 24px;
+  margin-top: 10px;
+  align-items: center;
+  gap: 10px;
+}
+.kima-card .kima-card-content .transaction-status-message .transaction-copy h3 {
+  margin: 0;
 }
 .kima-card .kima-card-content .fee-deduction-slider-container {
   display: flex;
@@ -2853,13 +2957,22 @@
 .kima-card.transaction-card {
   padding: 30px 40px;
 }
+@media (max-width: 500px) {
+  .kima-card.transaction-card {
+    padding: 30px 20px;
+  }
+}
 .kima-card.transaction-card .kima-card-content {
   display: flex;
   flex-direction: column;
   margin: 32px 0 32px;
 }
+.kima-card.transaction-card .kima-card-content .transaction-content {
+  display: flex;
+  flex-direction: column;
+}
 @media (max-width: 500px) {
-  .kima-card.transaction-card .kima-card-content {
+  .kima-card.transaction-card .kima-card-content .transaction-content {
     flex-direction: row;
     height: 100%;
     justify-content: space-between;
@@ -2974,6 +3087,27 @@
   .kima-card .scroll-button {
     display: none;
   }
+}
+.kima-card .option-divider {
+  display: flex;
+  width: 75%;
+  justify-content: center;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  gap: 15px;
+  align-items: center;
+}
+@media (max-width: 500px) {
+  .kima-card .option-divider {
+    width: 100%;
+  }
+}
+.kima-card .option-divider .line {
+  height: 1px;
+  width: 100%;
+  background-color: #86b8ce;
 }
 
 /*# sourceMappingURL=index.css.map */
