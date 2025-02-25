@@ -9,13 +9,13 @@ import { Plugin } from '@plugins/pluginTypes'
 const useGetCurrentPlugin = () => {
   const [currentPlugin, setCurrentPlugin] = useState<Plugin>(defaultPlugin)
   const isIndexed = useSelector(selectPluginIsIndexed)
-  const sourceChainID = useSelector(selectSourceChain)
+  const sourceChain = useSelector(selectSourceChain)
 
   useEffect(() => {
     if (!isIndexed) return
-    const plugin = getPlugin(sourceChainID)
+    const plugin = getPlugin(sourceChain.shortName)
     if (plugin) setCurrentPlugin(plugin)
-  }, [sourceChainID, isIndexed])
+  }, [sourceChain, isIndexed])
 
   return { currentPlugin }
 }

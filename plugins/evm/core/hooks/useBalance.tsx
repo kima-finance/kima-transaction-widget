@@ -30,8 +30,8 @@ export default function useBalance() {
 
   // Get token address
   const tokenAddress = useMemo(() => {
-    if (isEmptyObject(tokenOptions) || sourceChain === ChainName.FIAT) return ''
-    return tokenOptions?.[sourceCurrency]?.[sourceChain] || ''
+    if (isEmptyObject(tokenOptions) || sourceChain.shortName === ChainName.FIAT) return ''
+    return tokenOptions?.[sourceCurrency]?.[sourceChain.shortName] || ''
   }, [sourceCurrency, sourceChain, tokenOptions])
 
   // Get wallet address from externalProvider or AppKit
@@ -44,20 +44,20 @@ export default function useBalance() {
   const enabled =
     !!tokenAddress &&
     !!walletAddress &&
-    isEVMChain(sourceChain) &&
+    isEVMChain(sourceChain.shortName) &&
     (!!walletProvider || !!externalProvider)
 
   const result = useQuery({
     queryKey,
     queryFn: async () => {
-      if (!isEVMChain(sourceChain)) return zeroBalance
+      if (!isEVMChain(sourceChain.shortName)) return zeroBalance
       if (!walletAddress || !tokenAddress) return zeroBalance
 
       try {
         return await getEvmTokenBalance({
           address: walletAddress,
           tokenAddress,
-          chain: sourceChain,
+          chain: sourceChain.shortName,
           isTestnet: networkOption === NetworkOptions.testnet
         })
       } catch (error) {

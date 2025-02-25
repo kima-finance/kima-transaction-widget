@@ -1,4 +1,5 @@
 import { NetworkOptions } from '@interface'
+import { Chain } from 'viem'
 
 export interface Plugin {
   compatibility: ChainCompatibility
@@ -48,7 +49,7 @@ export interface PluginInit {
 export interface PluginProviderProps {
   children: React.ReactNode
   walletConnectProjectId: string
-  networkOption: NetworkOptions
+  networkOption: NetworkOptions | undefined
 }
 
 export interface PluginData {
@@ -56,7 +57,7 @@ export interface PluginData {
   pluginData: { [key: string]: any } // currently empty
 }
 
-export interface ChainData {
+export interface ChainData extends Chain{
   compatibility: ChainCompatibility
   name: string
   shortName: string

@@ -39,6 +39,7 @@ export class EvmPlugin extends PluginBase {
   }: PluginProviderProps) => {
     return (
       <WalletProvider
+        children={children}
         networkOption={networkOption}
         walletConnectProjectId={walletConnectProjectId}
       >

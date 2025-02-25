@@ -8,7 +8,9 @@ import {
   selectServiceFee,
   selectTokenOptions,
   selectNetworkOption,
-  selectBackendUrl
+  selectBackendUrl,
+  selectFeeDeduct,
+  selectAmount
 } from '@store/selectors'
 import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
 import useGetPools from '../../../../src/hooks/useGetPools'
@@ -17,16 +19,11 @@ import { getPoolAddress, getTokenAddress } from '@utils/functions'
 import { isEVMChain } from '@plugins/evm/utils/constants'
 import { useKimaContext } from '../../../../src/KimaProvider'
 import { NetworkOptions } from '@interface'
-import { BrowserProvider, formatUnits, JsonRpcProvider } from 'ethers'
-import {
-  CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET,
-  CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET
-} from '@utils/constants'
+import { BrowserProvider, formatUnits } from 'ethers'
 import {
   createPublicClient,
   createWalletClient,
   custom,
-  EIP1193Provider,
   erc20Abi,
   http,
   parseUnits
@@ -40,11 +37,14 @@ export default function useEvmAllowance() {
 
   const sourceChain = useSelector(selectSourceChain)
   const networkOption = useSelector(selectNetworkOption)
-  const { allowanceAmount, decimals } = useSelector(selectServiceFee)
+  const { totalFeeUsd, allowanceAmount, decimals } =
+    useSelector(selectServiceFee)
   const selectedCoin = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
   const backendUrl = useSelector(selectBackendUrl)
+  const feeDeduct = useSelector(selectFeeDeduct)
   const allowanceNumber = Number(formatUnits(allowanceAmount ?? '0', decimals))
+  const amount = useSelector(selectAmount)
 
   const { pools } = useGetPools(backendUrl, networkOption)
   // console.log("appkit provider:", appkitProvider)
@@ -61,7 +61,6 @@ export default function useEvmAllowance() {
       ? externalProvider.provider
       : appkitProvider
 
-
   const [approvalsCount, setApprovalsCount] = useState(0)
 
   const queryKey = ['evmAllowance', walletAddress, sourceChain, approvalsCount]
@@ -71,7 +70,7 @@ export default function useEvmAllowance() {
     !!tokenOptions &&
     !!selectedCoin &&
     pools.length > 0 &&
-    isEVMChain(sourceChain) &&
+    isEVMChain(sourceChain.shortName) &&
     (!!externalProvider?.provider || !!appkitProvider)
 
   // console.log("enabled: ", enabled, )
@@ -88,7 +87,7 @@ export default function useEvmAllowance() {
         selectedCoin,
         userAddress: walletAddress!,
         pools,
-        chain: sourceChain,
+        chain: sourceChain.shortName,
         isTestnet: networkOption === NetworkOptions.testnet
       }),
     staleTime: 60 * 1000,
@@ -105,10 +104,10 @@ export default function useEvmAllowance() {
     const tokenAddress = getTokenAddress(
       tokenOptions,
       selectedCoin,
-      sourceChain
+      sourceChain.shortName
     )
 
-    const poolAddress = getPoolAddress(pools, sourceChain)
+    const poolAddress = getPoolAddress(pools, sourceChain.shortName)
 
     if (
       !allowanceData?.decimals ||
@@ -127,41 +126,35 @@ export default function useEvmAllowance() {
     }
 
     try {
-      // determine network based on mainnet/testnet
-      const network =
-        networkOption === NetworkOptions.testnet
-          ? CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET[sourceChain]
-          : CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET[sourceChain]
-
-      if (!network) {
-        throw new Error(`Unsupported network: ${sourceChain}`)
-      }
-
       // initialize Viem Public Client
       const viemClient = createPublicClient({
-        chain: network,
+        chain: sourceChain,
         transport: http()
       })
 
-      
       // create a viem wallet client for writing transactions
       const walletClient = createWalletClient({
         account: walletAddress as `0x${string}`,
-        chain: network,
+        chain: sourceChain,
         transport: custom(window.ethereum) // WARNING: NEED TO MAKE SURE THIS USING THE ETHEREUM OBJECT IS STABLE ENOUGH
       })
 
-      const amount = isCancel
+      const finalAmount = isCancel
         ? BigInt(0)
-        : parseUnits(allowanceAmount, allowanceData.decimals)
+        : feeDeduct
+          ? parseUnits(amount, allowanceData.decimals)
+          : parseUnits(
+              (+amount + totalFeeUsd).toString(),
+              allowanceData.decimals
+            )
 
       // write transaction using viem
       const hash = await walletClient.writeContract({
-        chain: network,
+        chain: sourceChain,
         address: tokenAddress as `0x${string}`,
         abi: erc20Abi,
         functionName: 'approve',
-        args: [poolAddress as `0x${string}`, amount]
+        args: [poolAddress as `0x${string}`, finalAmount]
       })
 
       console.log(

@@ -15,6 +15,7 @@ import {
   selectDappOption,
   selectFeeDeduct,
   selectMode,
+  selectNetworks,
   selectServiceFee,
   selectTransactionOption,
   selectTxId
@@ -32,6 +33,8 @@ import {
 import useGetTxData from '../hooks/useGetTxData'
 import ChainIcon from './reusable/ChainIcon'
 import { useKimaContext } from 'src/KimaProvider'
+import { useChainData } from '../hooks/useChainData'
+import { arbitrumSepolia, sepolia } from 'viem/chains'
 
 export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [step, setStep] = useState(0)
@@ -53,12 +56,14 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
 
   const backendUrl = useSelector(selectBackendUrl)
   const { data } = useGetTxData(txId, dAppOption, backendUrl)
+  const { data: chainData } = useChainData(backendUrl)
 
   useEffect(() => {
     if (!data || data.status !== TransactionStatus.COMPLETED) return
-    successHandler && successHandler({
-      txId
-    })
+    successHandler &&
+      successHandler({
+        txId
+      })
   }, [data])
 
   useEffect(() => {
@@ -119,8 +124,26 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const resetForm = () => {
     if (mode !== ModeOptions.payment) {
       // reset to default values
-      dispatch(setSourceChain(transactionOption?.sourceChain || ''))
-      dispatch(setTargetChain(transactionOption?.targetChain || ''))
+      if (transactionOption?.sourceChain) {
+        const sourceChain = chainData?.find(
+          (currentChain) =>
+            currentChain.shortName === transactionOption.sourceChain
+        )
+        dispatch(setSourceChain(sourceChain || arbitrumSepolia))
+      } else {
+        dispatch(setSourceChain(arbitrumSepolia))
+      }
+
+      if (transactionOption?.sourceChain) {
+        const targetChain = chainData?.find(
+          (currentChain) =>
+            currentChain.shortName === transactionOption.targetChain
+        )
+        dispatch(setTargetChain(targetChain || arbitrumSepolia))
+      } else {
+        dispatch(setTargetChain(arbitrumSepolia))
+      }
+
       dispatch(setTargetAddress(transactionOption?.targetAddress || ''))
       dispatch(setTargetCurrency(transactionOption?.currency || ''))
       dispatch(setAmount(transactionOption?.amount.toString() || ''))
