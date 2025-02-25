@@ -3,7 +3,7 @@
   .kima-card-content {
     font-family: 'Manrope';
 
-    .error-message{
+    .error-message {
       color: red;
       font-weight: bold;
     }
@@ -21,7 +21,6 @@
       border-radius: 16px;
       margin-bottom: 64px;
       margin-left: 16px;
-      
 
       @include breakpoint(mobile) {
         width: 7px;
@@ -1983,7 +1982,7 @@
               &:not(:first-of-type) {
                 padding-left: 21px;
                 padding-top: 3px;
-                margin-top: 10px;
+                margin-top: 15px;
               }
             }
           }
@@ -2012,15 +2011,15 @@
               }
 
               &.source-chain {
-                margin-top: -35px;
+                margin-top: -55px;
               }
 
               &.paid {
-                margin-top: -10px;
+                margin-top: -15px;
               }
 
               &.target-chain {
-                margin-top: 20px;
+                margin-top: 0;
               }
             }
           }
@@ -2113,14 +2112,14 @@
       flex-direction: column;
       gap: 12px;
     }
-    
+
     .fee-option {
       display: flex;
       align-items: center; /* Ensures both text and radio button align */
       gap: 10px;
       cursor: pointer;
     }
-    
+
     .fee-option input[type='radio'] {
       appearance: none;
       width: 18px;
@@ -2137,7 +2136,7 @@
       aspect-ratio: 1;
       position: relative;
     }
-    
+
     /* Adds the inner dot and perfectly centers it */
     .fee-option input[type='radio']:checked::before {
       content: '';
@@ -2151,7 +2150,7 @@
       left: 50%;
       transform: translate(-50%, -50%);
     }
-    
+
     /* Prevents text from pushing the radio button */
     .radio-label {
       line-height: 1.2;
@@ -2164,7 +2163,6 @@
         color: white;
       }
     }
-    
 
     .transaction-status-message {
       display: flex;

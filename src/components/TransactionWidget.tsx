@@ -42,6 +42,7 @@ import TransactionStatusMessage from './reusable/TransactionStatusMessage'
 import TransactionSearch from './reusable/TransactionSearch'
 import { useChainData } from '../hooks/useChainData'
 import { arbitrumSepolia, sepolia } from 'viem/chains'
+import { ChainData } from '@plugins/pluginTypes'
 
 export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [step, setStep] = useState(0)
@@ -62,11 +63,32 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const targetChain = useSelector(selectTargetChain)
   const sourceSymbol = useSelector(selectSourceCurrency)
   const targetSymbol = useSelector(selectTargetCurrency)
+  const networks = useSelector(selectNetworks)
 
   const { successHandler, closeHandler } = useKimaContext()
 
   const backendUrl = useSelector(selectBackendUrl)
   const { data, error } = useGetTxData(txId, dAppOption, backendUrl)
+
+  const transactionSourceChain = useMemo(
+    () =>
+      networks.find((network) =>
+        mode === ModeOptions.status
+          ? network.shortName === data?.sourceChain
+          : sourceChain
+      ),
+    [data, mode]
+  )
+
+  const transactionTargetChain = useMemo(
+    () =>
+      networks.find((network) =>
+        mode === ModeOptions.status
+          ? network.shortName === data?.targetChain
+          : targetChain
+      ),
+    [data, mode]
+  )
 
   const isValidTxId = useMemo(() => {
     return !(
@@ -164,9 +186,9 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
           (currentChain) =>
             currentChain.shortName === transactionOption.sourceChain
         )
-        dispatch(setSourceChain(sourceChain || arbitrumSepolia))
+        dispatch(setSourceChain(sourceChain as ChainData))
       } else {
-        dispatch(setSourceChain(arbitrumSepolia))
+        dispatch(setSourceChain(networks[0]))
       }
 
       if (transactionOption?.sourceChain) {
@@ -174,9 +196,9 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
           (currentChain) =>
             currentChain.shortName === transactionOption.targetChain
         )
-        dispatch(setTargetChain(targetChain || arbitrumSepolia))
+        dispatch(setTargetChain(targetChain as ChainData))
       } else {
-        dispatch(setTargetChain(arbitrumSepolia))
+        dispatch(setTargetChain(networks[0]))
       }
 
       dispatch(setTargetAddress(transactionOption?.targetAddress || ''))
@@ -210,13 +232,13 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                 <h3 className='transaction'>
                   {mode !== ModeOptions.status
                     ? data?.status === TransactionStatus.COMPLETED
-                      ? 'Transferred'
-                      : 'Transfering'
+                      ? 'TRANSFERRED'
+                      : 'TRANSFERING'
                     : isEmptyStatus
-                      ? 'Getting Transaction Status'
+                      ? 'GETTING TRANSACTION STATUS'
                       : data?.status === TransactionStatus.COMPLETED
-                        ? 'Transferred'
-                        : 'Transfering'}
+                        ? 'TRANSFERRED'
+                        : 'TRANSFERING'}
                   <div>
                     {/* if not in status mode, display the whole picture for better understanding */}
                     {mode !== ModeOptions.status
@@ -234,10 +256,12 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                         ? ''
                         : `(${data?.sourceSymbol})`}
                     <div className='title-icon'>
-                      <ChainIcon symbol={data?.sourceChain || sourceChain} />
+                      <ChainIcon
+                        symbol={transactionSourceChain?.shortName as string}
+                      />
                     </div>{' '}
                     {mode !== ModeOptions.status
-                      ? `(${sourceChain})`
+                      ? `(${transactionSourceChain?.shortName})`
                       : isEmptyStatus
                         ? ''
                         : `(${data?.sourceChain})`}{' '}
@@ -257,18 +281,20 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                         : ''
                       : data?.amount || ''}{' '}
                     {mode !== ModeOptions.status
-                      ? `(${targetSymbol})`
+                      ? `(${targetSymbol})${' '}`
                       : isEmptyStatus
                         ? ''
-                        : `(${data?.targetSymbol})`}
+                        : `(${data?.targetSymbol})${' '}`}
                     <div className='title-icon'>
-                      <ChainIcon symbol={data?.targetChain || targetChain} />
+                      <ChainIcon
+                        symbol={transactionTargetChain?.shortName as string}
+                      />
                     </div>{' '}
                     {mode !== ModeOptions.status
-                      ? `(${targetChain})`
+                      ? `(${transactionTargetChain?.shortName})${' '}`
                       : isEmptyStatus
                         ? ''
-                        : `(${data?.targetChain})`}
+                        : `(${data?.targetChain}) ${' '}`}
                   </div>
                 </h3>
               ) : (
