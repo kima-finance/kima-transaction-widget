@@ -30,7 +30,7 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({ type }) => {
   const targetNetwork = useSelector(selectTargetChain)
   const excludedSourceNetworks = useSelector(selectExcludedSourceNetworks)
   const excludedTargetNetworks = useSelector(selectExcludedTargetNetworks)
-  const {switchChainHandler} = useKimaContext()
+  const { switchChainHandler } = useKimaContext()
 
   const isSourceSelector = type === 'source'
 
@@ -38,7 +38,9 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({ type }) => {
   const networks = useMemo(() => {
     if (isSourceSelector) {
       return networkOptions.filter(
-        (network: ChainData) => !excludedSourceNetworks.includes(network.shortName as ChainName)
+        (network: ChainData) =>
+          !excludedSourceNetworks.includes(network.shortName as ChainName) &&
+          network.shortName !== 'BERA' // temporary disabled as source chain
       )
     }
     return networkOptions.filter(
