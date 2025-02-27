@@ -72,7 +72,7 @@ export interface OptionState {
   serviceFee: ServiceFee // service fee from kima node
   backendUrl: string // URL for kima-transaction-backend component
   kimaExplorerUrl: string // URL for kima explore (testnet, staging or demo)
-  txId: number | string // transaction id to monitor it's status
+  txId?: number | string // transaction id to monitor it's status
   sourceCurrency: string // Currently selected token for source chain
   targetCurrency: string // Currently selected token for target chain
   expireTime: string // Bitcoi HTLC expiration time

@@ -26,13 +26,35 @@ import useGetFees from '../../hooks/useGetFees'
 import { setServiceFee } from '@store/optionSlice'
 import { preciseSubtraction } from '@utils/functions'
 import NetworkSelector from '@components/primary/NetworkSelector'
+import TransactionSearch from './TransactionSearch'
+import OptionDivider from './OptionDivider'
 
 const SingleForm = ({
+  allowance,
   balance,
-  decimals
+  decimals,
+  formStep,
+  onBack,
+  onCancelApprove,
+  onNext,
+  getButtonLabel,
+  isApproving,
+  isSigning,
+  isSubmitting,
+  isCancellingApprove
 }: {
+  allowance: number | undefined
   balance: number | undefined
   decimals: number | undefined
+  formStep: number
+  onBack: () => void
+  onCancelApprove: () => void
+  onNext: () => void
+  getButtonLabel: () => string
+  isApproving: boolean
+  isSigning: boolean
+  isSubmitting: boolean
+  isCancellingApprove: boolean
 }) => {
   const dispatch = useDispatch()
   const mode = useSelector(selectMode)

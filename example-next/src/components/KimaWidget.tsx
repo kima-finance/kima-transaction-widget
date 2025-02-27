@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import dynamic from 'next/dynamic'
 import React from 'react'
@@ -14,17 +14,17 @@ import '@kimafinance/kima-transaction-widget/index.css'
 
 const Widget = () => {
   return (
-    <KimaProvider walletConnectProjectId='e579511a495b5c312b572b036e60555a'>
+    <KimaProvider
+      walletConnectProjectId='e579511a495b5c312b572b036e60555a'
+      kimaBackendUrl='http://localhost:3001'
+    >
       <div className='container'>
         <KimaTransactionWidget
           theme={{
             colorMode: ColorModeOptions.dark
           }}
-          networkOption={NetworkOptions.testnet}
           mode={ModeOptions.bridge}
           txId={'0x0910692f33ad'}
-          kimaBackendUrl='http://localhost:3001'
-          kimaExplorer='https://explorer.sardis.kima.network'
           // autoSwitchChain={false}
           // useFIAT={true}
           // titleOption={{

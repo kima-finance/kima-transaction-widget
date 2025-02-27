@@ -17,7 +17,7 @@ function App() {
           }}
           networkOption={NetworkOptions.testnet}
           mode={ModeOptions.bridge}
-          txId={'0x0910692f33ad'}
+          // txId={'26903'}
           kimaBackendUrl='http://localhost:3001'
           kimaExplorer='https://explorer.sardis.kima.network'
           // autoSwitchChain={false}
@@ -39,15 +39,6 @@ function App() {
           //   amount: 3,
           //   currency: "USDK",
           // }}
-          errorHandler={(e: any) => {
-            console.log('error:', e)
-          }}
-          successHandler={() => {
-            console.log('success')
-          }}
-          closeHandler={() => {
-            console.log('closed')
-          }}
         />
       </div>
     </KimaProvider>

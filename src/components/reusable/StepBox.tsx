@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import {
   CheckIcon,
@@ -14,12 +14,7 @@ import {
   selectNetworks,
   selectTheme
 } from '../../store/selectors'
-import {
-  ChainName,
-  CHAIN_NAMES_TO_EXPLORER_MAINNET,
-  CHAIN_NAMES_TO_EXPLORER_TESTNET,
-  CHAIN_NAMES_TO_STRING,
-} from '../../utils/constants'
+import { ChainName } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 import CopyButton from './CopyButton'
 import ExternalLink from './ExternalLink'
@@ -54,19 +49,17 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
   const theme = useSelector(selectTheme)
   const explorerUrl = useSelector(selectKimaExplorer)
   const networkOption = useSelector(selectNetworkOption)
-  const networkOptions = useSelector(selectNetworks)
+  const networks = useSelector(selectNetworks)
 
-  const originNetworkOption = networkOptions.find(
-    (network) => network.id === data?.sourceChain
-  )
-  const targetnNetworkOption = networkOptions.find(
-    (network) => network.id === data?.targetChain
+  const sourceChain = useMemo(
+    () => networks.find((network) => network.shortName === data?.sourceChain),
+    [data, networks]
   )
 
-  const CHAIN_NAMES_TO_EXPLORER =
-    networkOption === NetworkOptions.mainnet
-      ? CHAIN_NAMES_TO_EXPLORER_MAINNET
-      : CHAIN_NAMES_TO_EXPLORER_TESTNET
+  const targetChain = useMemo(
+    () => networks.find((network) => network.shortName === data?.targetChain),
+    [data, networks]
+  )
 
   return (
     <div className='kima-stepbox'>
@@ -111,21 +104,12 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
               <div
                 className={`info-item ${theme.colorMode} source-chain ${step >= 3 ? 'paid' : ''}`}
               >
-                <ChainIcon symbol={originNetworkOption?.id as string} />
-                <p className='chain-name'>
-                  {
-                    CHAIN_NAMES_TO_STRING[
-                      data?.sourceChain || ChainName.ETHEREUM
-                    ]
-                  }{' '}
-                  TX ID:
-                </p>
+                <ChainIcon symbol={data.sourceChain as string} />
+                <p className='chain-name'>{sourceChain?.name} TX ID:</p>
                 <p>
                   <ExternalLink
-                    to={`https://${
-                      CHAIN_NAMES_TO_EXPLORER[
-                        data?.sourceChain || ChainName.ETHEREUM
-                      ]
+                    to={`${
+                      sourceChain?.blockExplorers?.default.url
                     }/${data?.sourceChain === ChainName.TRON ? 'transaction' : 'tx'}/${data?.tssPullHash}${
                       data?.sourceChain === ChainName.SOLANA &&
                       networkOption === NetworkOptions.testnet
@@ -141,21 +125,12 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
             ) : null}
             {index === 3 && data?.tssReleaseHash ? (
               <div className={`info-item ${theme.colorMode} target-chain`}>
-                <ChainIcon symbol={targetnNetworkOption?.id as string} />
-                <p className='chain-name'>
-                  {
-                    CHAIN_NAMES_TO_STRING[
-                      data?.targetChain || ChainName.ETHEREUM
-                    ]
-                  }{' '}
-                  TX ID:
-                </p>
+                <ChainIcon symbol={data.targetChain as string} />
+                <p className='chain-name'>{targetChain?.name} TX ID:</p>
                 <p>
                   <ExternalLink
-                    to={`https://${
-                      CHAIN_NAMES_TO_EXPLORER[
-                        data?.targetChain || ChainName.ETHEREUM
-                      ]
+                    to={`${
+                      targetChain?.blockExplorers?.default.url
                     }/${data?.targetChain === ChainName.TRON ? 'transaction' : 'tx'}/${data?.tssReleaseHash}${
                       data?.targetChain === ChainName.SOLANA &&
                       networkOption === NetworkOptions.testnet

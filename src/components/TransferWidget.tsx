@@ -21,6 +21,7 @@ import SingleForm from './reusable/SingleForm'
 // store
 import {
   setAmount,
+  setMode,
   setSourceChain,
   setTargetAddress,
   setTargetChain,
@@ -59,6 +60,7 @@ import useComplianceCheck from '../hooks/useComplianceCheck'
 import useBalance from '../hooks/useBalance'
 import useGetPools from '../hooks/useGetPools'
 import useDisconnectWallet from '../hooks/useDisconnectWallet'
+import TransactionSearch from './reusable/TransactionSearch'
 import { useKimaContext } from 'src/KimaProvider'
 import { useChainData } from '../hooks/useChainData'
 import { arbitrumSepolia } from 'viem/chains'
@@ -347,9 +349,40 @@ export const TransferWidget = ({
 
         <div className='kima-card-content' ref={mainRef}>
           {formStep === 0 ? (
-            <SingleForm {...{ balance, decimals }} />
+            <SingleForm
+              {...{
+                allowance,
+                balance,
+                decimals,
+                formStep,
+                onBack,
+                onCancelApprove,
+                onNext,
+                getButtonLabel,
+                isApproving,
+                isSigning,
+                isSubmitting,
+                isCancellingApprove
+              }}
+            />
           ) : (
-            <ConfirmDetails isApproved={isApproved} />
+            <ConfirmDetails
+              {...{
+                allowance,
+                balance,
+                decimals,
+                formStep,
+                onBack,
+                onCancelApprove,
+                onNext,
+                getButtonLabel,
+                isApproving,
+                isSigning,
+                isSubmitting,
+                isCancellingApprove,
+                isApproved
+              }}
+            />
           )}
         </div>
 

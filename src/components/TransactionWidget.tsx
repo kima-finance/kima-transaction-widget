@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { ErrorIcon, FooterLogo, MinimizeIcon } from '@assets/icons'
 import Progressbar from './reusable/Progressbar'
-import { NetworkLabel, StepBox } from './reusable'
+import { StepBox } from './reusable'
 import '../index.css'
 import { ColorModeOptions, ModeOptions, ThemeOptions } from '@interface'
 import { Provider } from 'react-redux'
@@ -17,6 +17,10 @@ import {
   selectMode,
   selectNetworks,
   selectServiceFee,
+  selectSourceChain,
+  selectSourceCurrency,
+  selectTargetChain,
+  selectTargetCurrency,
   selectTransactionOption,
   selectTxId
 } from '@store/selectors'
@@ -24,6 +28,7 @@ import { useDispatch } from 'react-redux'
 import { toast, Toaster } from 'react-hot-toast'
 import {
   setAmount,
+  setMode,
   setSourceChain,
   setSubmitted,
   setTargetAddress,
@@ -33,8 +38,11 @@ import {
 import useGetTxData from '../hooks/useGetTxData'
 import ChainIcon from './reusable/ChainIcon'
 import { useKimaContext } from 'src/KimaProvider'
+import TransactionStatusMessage from './reusable/TransactionStatusMessage'
+import TransactionSearch from './reusable/TransactionSearch'
 import { useChainData } from '../hooks/useChainData'
 import { arbitrumSepolia, sepolia } from 'viem/chains'
+import { ChainData } from '@plugins/pluginTypes'
 
 export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [step, setStep] = useState(0)
@@ -51,11 +59,50 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const dAppOption = useSelector(selectDappOption)
   const { totalFeeUsd } = useSelector(selectServiceFee)
   const transactionOption = useSelector(selectTransactionOption)
+  const sourceChain = useSelector(selectSourceChain)
+  const targetChain = useSelector(selectTargetChain)
+  const sourceSymbol = useSelector(selectSourceCurrency)
+  const targetSymbol = useSelector(selectTargetCurrency)
+  const networks = useSelector(selectNetworks)
 
   const { successHandler, closeHandler } = useKimaContext()
 
   const backendUrl = useSelector(selectBackendUrl)
-  const { data } = useGetTxData(txId, dAppOption, backendUrl)
+  const { data, error } = useGetTxData(txId, dAppOption, backendUrl)
+
+  const transactionSourceChain = useMemo(
+    () =>
+      networks.find((network) =>
+        mode === ModeOptions.status
+          ? network.shortName === data?.sourceChain
+          : sourceChain
+      ),
+    [data, mode]
+  )
+
+  const transactionTargetChain = useMemo(
+    () =>
+      networks.find((network) =>
+        mode === ModeOptions.status
+          ? network.shortName === data?.targetChain
+          : targetChain
+      ),
+    [data, mode]
+  )
+
+  const isValidTxId = useMemo(() => {
+    return !(
+      !txId ||
+      (typeof txId === 'string' && txId.length === 0) ||
+      (typeof txId === 'number' && txId < 0)
+    )
+  }, [txId])
+
+  const isEmptyStatus = useMemo(() => {
+    if (!data) return true
+
+    return data?.amount === ''
+  }, [data])
   const { data: chainData } = useChainData(backendUrl)
 
   useEffect(() => {
@@ -65,6 +112,16 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
         txId
       })
   }, [data])
+
+  useEffect(() => {
+    if (error)
+      toast.error(
+        'The provided transaction id is not valid, please use a different one or contact support for further assistance',
+        {
+          icon: <ErrorIcon />
+        }
+      )
+  }, [error])
 
   useEffect(() => {
     if (!data) {
@@ -129,9 +186,9 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
           (currentChain) =>
             currentChain.shortName === transactionOption.sourceChain
         )
-        dispatch(setSourceChain(sourceChain || arbitrumSepolia))
+        dispatch(setSourceChain(sourceChain as ChainData))
       } else {
-        dispatch(setSourceChain(arbitrumSepolia))
+        dispatch(setSourceChain(networks[0]))
       }
 
       if (transactionOption?.sourceChain) {
@@ -139,9 +196,9 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
           (currentChain) =>
             currentChain.shortName === transactionOption.targetChain
         )
-        dispatch(setTargetChain(targetChain || arbitrumSepolia))
+        dispatch(setTargetChain(targetChain as ChainData))
       } else {
-        dispatch(setTargetChain(arbitrumSepolia))
+        dispatch(setTargetChain(networks[0]))
       }
 
       dispatch(setTargetAddress(transactionOption?.targetAddress || ''))
@@ -149,6 +206,10 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       dispatch(setAmount(transactionOption?.amount.toString() || ''))
     }
     dispatch(setSubmitted(false))
+
+    dispatch(
+      setMode(transactionOption ? ModeOptions.payment : ModeOptions.bridge)
+    )
     // disconnect wallet?
     closeHandler && closeHandler(0)
   }
@@ -167,41 +228,80 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
         <div className='kima-card-header'>
           <div className='topbar'>
             <div className='title'>
-              <h3 className='transaction'>
-                Transferring{' '}
-                {data?.amount &&
-                  data.sourceChain &&
-                  data.sourceSymbol &&
-                  data.targetChain &&
-                  data.targetSymbol && (
-                    <div>
-                      {formatterFloat.format(
-                        mode === ModeOptions.status
-                          ? data.amount
-                          : feeDeduct
-                            ? +amount || 0 + totalFeeUsd
-                            : +amount || 0 - totalFeeUsd
-                      )}{' '}
-                      {data?.sourceSymbol}{' '}
-                      <div className='title-icon'>
-                        <ChainIcon symbol={data.sourceChain} />
-                      </div>{' '}
-                      ({data?.sourceChain}) →{' '}
-                      {formatterFloat.format(
-                        mode === ModeOptions.status
-                          ? data.amount
-                          : feeDeduct
-                            ? +amount - totalFeeUsd || 0
-                            : +amount || 0
-                      )}{' '}
-                      {data?.targetSymbol}{' '}
-                      <div className='title-icon'>
-                        <ChainIcon symbol={data.targetChain} />
-                      </div>{' '}
-                      ({data?.targetChain})
-                    </div>
-                  )}
-              </h3>
+              {isValidTxId && !error ? (
+                <h3 className='transaction'>
+                  {mode !== ModeOptions.status
+                    ? data?.status === TransactionStatus.COMPLETED
+                      ? 'TRANSFERRED'
+                      : 'TRANSFERING'
+                    : isEmptyStatus
+                      ? 'GETTING TRANSACTION STATUS'
+                      : data?.status === TransactionStatus.COMPLETED
+                        ? 'TRANSFERRED'
+                        : 'TRANSFERING'}
+                  <div>
+                    {/* if not in status mode, display the whole picture for better understanding */}
+                    {mode !== ModeOptions.status
+                      ? Number(amount) !== 0
+                        ? formatterFloat.format(
+                            feeDeduct
+                              ? Number(amount)
+                              : Number(amount) + totalFeeUsd
+                          )
+                        : ''
+                      : data?.amount || ''}{' '}
+                    {mode !== ModeOptions.status
+                      ? `(${sourceSymbol})`
+                      : isEmptyStatus
+                        ? ''
+                        : `(${data?.sourceSymbol})`}
+                    <div className='title-icon'>
+                      <ChainIcon
+                        symbol={transactionSourceChain?.shortName as string}
+                      />
+                    </div>{' '}
+                    {mode !== ModeOptions.status
+                      ? `(${transactionSourceChain?.shortName})`
+                      : isEmptyStatus
+                        ? ''
+                        : `(${data?.sourceChain})`}{' '}
+                    {mode !== ModeOptions.status
+                      ? `→ `
+                      : isEmptyStatus
+                        ? ''
+                        : `→ `}
+                    {/* if not in status mode, display the whole picture for better understanding */}
+                    {mode !== ModeOptions.status
+                      ? Number(amount) !== 0
+                        ? formatterFloat.format(
+                            feeDeduct
+                              ? Number(amount) - totalFeeUsd
+                              : Number(amount)
+                          )
+                        : ''
+                      : data?.amount || ''}{' '}
+                    {mode !== ModeOptions.status
+                      ? `(${targetSymbol})${' '}`
+                      : isEmptyStatus
+                        ? ''
+                        : `(${data?.targetSymbol})${' '}`}
+                    <div className='title-icon'>
+                      <ChainIcon
+                        symbol={transactionTargetChain?.shortName as string}
+                      />
+                    </div>{' '}
+                    {mode !== ModeOptions.status
+                      ? `(${transactionTargetChain?.shortName})${' '}`
+                      : isEmptyStatus
+                        ? ''
+                        : `(${data?.targetChain}) ${' '}`}
+                  </div>
+                </h3>
+              ) : (
+                <div>
+                  <h3 className='transaction'>Transaction Status</h3>
+                </div>
+              )}
             </div>
 
             {!minimized ? (
@@ -214,7 +314,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                 >
                   <MinimizeIcon />
                 </button>
-                {loadingStep < 0 ? (
+                {!isValidTxId || loadingStep < 0 || error ? (
                   <button className='reset-button' onClick={resetForm}>
                     Reset
                   </button>
@@ -230,28 +330,48 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
           </div>
         </div>
 
-        <div className='kima-card-content'>
-          <Progressbar
-            step={step}
-            focus={focus}
-            errorStep={errorStep}
-            setFocus={setFocus}
-            loadingStep={loadingStep}
-          />
-          {/* <Tooltip
+        {isValidTxId && !error ? (
+          <div className='kima-card-content'>
+            <div className='transaction-content'>
+              <Progressbar
+                step={step}
+                focus={focus}
+                errorStep={errorStep}
+                setFocus={setFocus}
+                loadingStep={loadingStep}
+              />
+              {/* <Tooltip
             step={step}
             focus={focus}
             errorStep={errorStep}
             loadingStep={loadingStep}
             data={data}
           /> */}
-          <StepBox
-            step={step}
-            errorStep={errorStep}
-            loadingStep={loadingStep}
-            data={data}
-          />
-        </div>
+              <StepBox
+                step={step}
+                errorStep={errorStep}
+                loadingStep={loadingStep}
+                data={data}
+              />
+            </div>
+            {!error && !isEmptyStatus && (
+              <TransactionStatusMessage
+                isCompleted={data?.status as TransactionStatus}
+                transactionId={txId.toString()}
+              />
+            )}
+          </div>
+        ) : (
+          <div className='kima-card-content'>
+            <h4 className='subtitle'>
+              You can follow the status of a previous submitted transaction by
+              entering the provided transaction id
+            </h4>
+            <div className='single-form'>
+              <TransactionSearch />
+            </div>
+          </div>
+        )}
 
         <Toaster
           position='top-right'
@@ -260,7 +380,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
             position: 'absolute'
           }}
           toastOptions={{
-            duration: 10 * 1000,
+            duration: 5 * 1000,
             style: {
               fontFamily: 'Manrope',
               position: 'relative',
@@ -276,11 +396,12 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
               background:
                 theme.colorMode === ColorModeOptions.light
                   ? '#F7F8F9'
-                  : '#242732'
+                  : '#242732',
+              fontWeight: 'bolder'
             }
           }}
         />
-        <div className='floating-footer'>
+        <div className='floating-footer status'>
           <div className={`items ${theme.colorMode}`}>
             <span>Powered by</span>
             <FooterLogo fill='black' />

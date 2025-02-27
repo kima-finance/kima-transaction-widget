@@ -1,6 +1,18 @@
 .kima-card {
   font-family: 'Manrope';
   .kima-card-content {
+    font-family: 'Manrope';
+
+    .error-message {
+      color: red;
+      font-weight: bold;
+    }
+
+    .subtitle {
+      margin: 0;
+      font-weight: bolder;
+    }
+
     .kima-progressbar {
       height: 7px;
       width: 95%;
@@ -9,7 +21,6 @@
       border-radius: 16px;
       margin-bottom: 64px;
       margin-left: 16px;
-      
 
       @include breakpoint(mobile) {
         width: 7px;
@@ -271,6 +282,7 @@
               text-align: center;
               margin-left: 24px;
               font-size: 14px;
+              font-family: 'Manrope';
 
               @include breakpoint(mobile) {
                 position: absolute;
@@ -726,6 +738,64 @@
             background: white;
             color: black;
             margin-left: 1em;
+          }
+        }
+
+        &.transaction-search {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+          margin-bottom: 20px;
+          width: 100%;
+
+          span {
+            margin-right: 85px;
+
+            @include breakpoint(mobile) {
+              text-align: start;
+              margin-right: auto;
+              margin-bottom: 10px;
+              font-weight: bolder;
+            }
+          }
+
+          button {
+            margin-left: auto;
+            margin-top: 20px;
+            @include breakpoint('min-width: 565px') {
+              width: 140px;
+            }
+
+            @include breakpoint(mobile) {
+              width: 100%;
+            }
+          }
+
+          @include breakpoint(phablet) {
+            flex-direction: column;
+            align-items: start;
+          }
+
+          .transaction-input {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            align-items: center;
+
+            @include breakpoint(mobile) {
+              width: 100%;
+              flex-direction: column;
+            }
+
+            input {
+              width: 390px;
+
+              @include breakpoint(mobile) {
+                width: 100%;
+              }
+            }
           }
         }
 
@@ -1796,7 +1866,7 @@
             align-items: center;
 
             @include breakpoint(mobile) {
-              width: 195px;
+              width: 210px;
               height: 40px;
             }
 
@@ -1912,7 +1982,7 @@
               &:not(:first-of-type) {
                 padding-left: 21px;
                 padding-top: 3px;
-                margin-top: 10px;
+                margin-top: 15px;
               }
             }
           }
@@ -1941,15 +2011,15 @@
               }
 
               &.source-chain {
-                margin-top: -30px;
+                margin-top: -55px;
               }
 
               &.paid {
-                margin-top: 10px;
+                margin-top: -15px;
               }
 
               &.target-chain {
-                margin-top: 60px;
+                margin-top: 0;
               }
             }
           }
@@ -2042,14 +2112,14 @@
       flex-direction: column;
       gap: 12px;
     }
-    
+
     .fee-option {
       display: flex;
       align-items: center; /* Ensures both text and radio button align */
       gap: 10px;
       cursor: pointer;
     }
-    
+
     .fee-option input[type='radio'] {
       appearance: none;
       width: 18px;
@@ -2066,7 +2136,7 @@
       aspect-ratio: 1;
       position: relative;
     }
-    
+
     /* Adds the inner dot and perfectly centers it */
     .fee-option input[type='radio']:checked::before {
       content: '';
@@ -2080,7 +2150,7 @@
       left: 50%;
       transform: translate(-50%, -50%);
     }
-    
+
     /* Prevents text from pushing the radio button */
     .radio-label {
       line-height: 1.2;
@@ -2093,7 +2163,35 @@
         color: white;
       }
     }
-    
+
+    .transaction-status-message {
+      display: flex;
+      flex-direction: column;
+      margin-top: 20px;
+      font-family: 'Manrope';
+      font-weight: 600;
+      font-size: 14px;
+      text-align: justify;
+
+      h2 {
+        font-size: 14px;
+      }
+
+      .transaction-copy {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        font-weight: bolder;
+        font-size: 24px;
+        margin-top: 10px;
+        align-items: center;
+        gap: 10px;
+
+        h3 {
+          margin: 0;
+        }
+      }
+    }
   }
 
   .card-item {
