@@ -72,22 +72,26 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
 
   const transactionSourceChain = useMemo(
     () =>
-      networks.find((network) =>
-        mode === ModeOptions.status
-          ? network.shortName === data?.sourceChain
-          : sourceChain
+      networks.find(
+        (network) =>
+          network.shortName ===
+          (mode === ModeOptions.status
+            ? data?.sourceChain
+            : sourceChain.shortName)
       ),
-    [data, mode]
+    [data, mode, sourceChain]
   )
 
   const transactionTargetChain = useMemo(
     () =>
-      networks.find((network) =>
-        mode === ModeOptions.status
-          ? network.shortName === data?.targetChain
-          : targetChain
+      networks.find(
+        (network) =>
+          network.shortName ===
+          (mode === ModeOptions.status
+            ? data?.targetChain
+            : targetChain.shortName)
       ),
-    [data, mode]
+    [data, mode, targetChain]
   )
 
   const isValidTxId = useMemo(() => {

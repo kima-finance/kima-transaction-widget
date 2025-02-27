@@ -4327,7 +4327,7 @@ function useCurrencyOptions(isSourceChain) {
   const transactionOption = (0, import_react_redux21.useSelector)(selectTransactionOption);
   const networks = (0, import_react_redux21.useSelector)(selectNetworks);
   const output = (0, import_react107.useMemo)(() => {
-    console.log("useCurrencyOptions: networks:", networks, isSourceChain);
+    console.log("useCurrencyOptions: networks: ", networks);
     const networkTokenList = networks.find((network) => network.id === chain.id) || networks[0];
     console.log(
       "useCurrencyOptions: networkTokenList: ",
@@ -4942,15 +4942,22 @@ var TransactionWidget = ({ theme }) => {
   const { data, error } = useGetTxData_default(txId, dAppOption, backendUrl);
   const transactionSourceChain = (0, import_react121.useMemo)(
     () => networks.find(
-      (network) => mode === "status" /* status */ ? network.shortName === data?.sourceChain : sourceChain
+      (network) => network.shortName === (mode === "status" /* status */ ? data?.sourceChain : sourceChain.shortName)
     ),
-    [data, mode]
+    [data, mode, sourceChain]
   );
   const transactionTargetChain = (0, import_react121.useMemo)(
     () => networks.find(
-      (network) => mode === "status" /* status */ ? network.shortName === data?.targetChain : targetChain
+      (network) => network.shortName === (mode === "status" /* status */ ? data?.targetChain : targetChain.shortName)
     ),
-    [data, mode]
+    [data, mode, targetChain]
+  );
+  console.log(
+    "tx details: ",
+    networks,
+    transactionSourceChain,
+    transactionTargetChain,
+    data
   );
   const isValidTxId = (0, import_react121.useMemo)(() => {
     return !(!txId || typeof txId === "string" && txId.length === 0 || typeof txId === "number" && txId < 0);
