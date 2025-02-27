@@ -4371,7 +4371,7 @@ function useCurrencyOptions(isSourceChain) {
   const transactionOption = useSelector17(selectTransactionOption);
   const networks = useSelector17(selectNetworks);
   const output = useMemo10(() => {
-    console.log("useCurrencyOptions: networks:", networks, isSourceChain);
+    console.log("useCurrencyOptions: networks: ", networks);
     const networkTokenList = networks.find((network) => network.id === chain.id) || networks[0];
     console.log(
       "useCurrencyOptions: networkTokenList: ",

@@ -4327,7 +4327,7 @@ function useCurrencyOptions(isSourceChain) {
   const transactionOption = (0, import_react_redux21.useSelector)(selectTransactionOption);
   const networks = (0, import_react_redux21.useSelector)(selectNetworks);
   const output = (0, import_react107.useMemo)(() => {
-    console.log("useCurrencyOptions: networks:", networks, isSourceChain);
+    console.log("useCurrencyOptions: networks: ", networks);
     const networkTokenList = networks.find((network) => network.id === chain.id) || networks[0];
     console.log(
       "useCurrencyOptions: networkTokenList: ",
