@@ -64,7 +64,6 @@ const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
 
     // Create providers dynamically but flatten their structure
     const WrappedProviders = useMemo(() => {
-
       return plugins.reduce<ReactNode>((acc, pluginData) => {
         const plugin = getPluginProvider(pluginData.id)
         if (plugin) {
@@ -91,7 +90,12 @@ const KimaProvider = ({
   walletConnectProjectId,
   children = <></>,
   externalProvider,
-  kimaBackendUrl = 'http://localhost:3001'
+  kimaBackendUrl = 'http://localhost:3001',
+  keplrHandler,
+  successHandler,
+  closeHandler,
+  errorHandler,
+  switchChainHandler
 }: KimaProviderProps) => {
   let validExternalProvider
   let sourceAddress
@@ -119,7 +123,12 @@ const KimaProvider = ({
   const kimaContext = {
     externalProvider: validExternalProvider,
     sourceAddress,
-    kimaBackendUrl
+    kimaBackendUrl,
+    keplrHandler,
+    successHandler,
+    closeHandler,
+    errorHandler,
+    switchChainHandler
   }
 
   return (
