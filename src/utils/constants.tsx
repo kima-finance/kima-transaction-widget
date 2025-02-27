@@ -16,7 +16,8 @@ import {
   PolygonzkEVMIcon,
   USDKIcon,
   BaseIcon,
-  BeraIcon
+  BeraIcon,
+  HoneyIcon
 } from '../assets/icons'
 
 import {
@@ -77,7 +78,7 @@ export const CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET: {
   [ChainName.BSC]: bsc,
   [ChainName.OPTIMISM]: optimism,
   [ChainName.ARBITRUM]: arbitrum,
-  [ChainName.POLYGON_ZKEVM]: polygonZkEvm,
+  [ChainName.POLYGON_ZKEVM]: polygonZkEvm
 }
 
 export const CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET: {
@@ -297,7 +298,7 @@ export const isEVMChain = (chainId: string) =>
   chainId === ChainName.OPTIMISM ||
   chainId === ChainName.ARBITRUM ||
   chainId === ChainName.POLYGON_ZKEVM ||
-  chainId === ChainName.BASE || 
+  chainId === ChainName.BASE ||
   chainId === ChainName.BERA
 
 type CoinOptions = {
@@ -324,6 +325,10 @@ export const COIN_LIST: CoinOptions = {
   WBTC: {
     symbol: 'WBTC',
     icon: BTCIcon
+  },
+  HONEY: {
+    symbol: 'HONEY',
+    icon: HoneyIcon
   }
 }
 

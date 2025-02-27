@@ -24,7 +24,8 @@ export default function useCurrencyOptions(isSourceChain: boolean) {
 
   const output = useMemo(() => {
     console.log('useCurrencyOptions: networks: ', networks)
-    const networkTokenList = networks.find((network) => network.id === chain.id) || networks[0]
+    const networkTokenList =
+      networks.find((network) => network.id === chain.id) || networks[0]
 
     console.log(
       'useCurrencyOptions: networkTokenList: ',
@@ -35,7 +36,7 @@ export default function useCurrencyOptions(isSourceChain: boolean) {
     return !!networks
       ? { tokenList: networkTokenList?.supportedTokens as ChainToken[] }
       : { tokenList: [] }
-  }, [networks])
+  }, [networks, chain])
   const { tokenList } = output
 
   useEffect(() => {
