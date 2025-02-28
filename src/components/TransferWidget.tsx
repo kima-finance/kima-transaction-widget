@@ -21,7 +21,6 @@ import SingleForm from './reusable/SingleForm'
 // store
 import {
   setAmount,
-  setMode,
   setSourceChain,
   setTargetAddress,
   setTargetChain,
@@ -247,6 +246,7 @@ export const TransferWidget = ({
 
   const resetForm = async () => {
     if (isApproving || isSubmitting || isSigning) return
+    closeHandler && closeHandler(0)
 
     setFormStep(0)
     if (mode !== ModeOptions.payment) {
@@ -278,7 +278,6 @@ export const TransferWidget = ({
       dispatch(setAmount(transactionOption?.amount.toString() || ''))
     }
     await disconnectWallet()
-    closeHandler && closeHandler(0)
   }
 
   useEffect(() => {

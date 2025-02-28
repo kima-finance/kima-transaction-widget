@@ -41,7 +41,6 @@ import { useKimaContext } from 'src/KimaProvider'
 import TransactionStatusMessage from './reusable/TransactionStatusMessage'
 import TransactionSearch from './reusable/TransactionSearch'
 import { useChainData } from '../hooks/useChainData'
-import { arbitrumSepolia, sepolia } from 'viem/chains'
 import { ChainData } from '@plugins/pluginTypes'
 
 export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
@@ -183,6 +182,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   }, [data?.status])
 
   const resetForm = () => {
+    closeHandler && closeHandler()
     if (mode !== ModeOptions.payment) {
       // reset to default values
       if (transactionOption?.sourceChain) {
@@ -212,13 +212,11 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       )
       dispatch(setAmount(transactionOption?.amount.toString() || ''))
     }
-    dispatch(setSubmitted(false))
-
     dispatch(
       setMode(transactionOption ? ModeOptions.payment : ModeOptions.bridge)
     )
     // disconnect wallet?
-    closeHandler && closeHandler(0)
+    dispatch(setSubmitted(false)) // leave it at last since this will unmount the transaction component
   }
 
   return (
