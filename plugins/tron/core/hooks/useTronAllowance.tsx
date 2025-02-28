@@ -51,7 +51,7 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
 
   // Ensure only Tron-specific logic is executed when sourceChain is Tron
   const isTronProvider =
-    sourceChain === 'TRX' &&
+    sourceChain.shortName === 'TRX' &&
     externalProvider?.type === 'tron' &&
     (externalProvider.provider as TronProvider).tronWeb instanceof TronWeb &&
     typeof externalProvider.signer === 'string'
@@ -101,7 +101,7 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
       !!userAddress &&
       !!tronWeb &&
       pools.length > 0 &&
-      sourceChain === 'TRX',
+      sourceChain.shortName === 'TRX',
     staleTime: 1000 * 60 // 1 min
   })
 
