@@ -400,8 +400,13 @@
   font-weight: bolder;
 }
 
+.kima-card {
+  font-family: "Manrope";
+}
 .kima-card .kima-card-content {
   font-family: "Manrope";
+  /* Adds the inner dot and perfectly centers it */
+  /* Prevents text from pushing the radio button */
 }
 .kima-card .kima-card-content .error-message {
   color: red;
@@ -411,11 +416,6 @@
   margin: 0;
   font-weight: bolder;
 }
-
-.kima-card {
-  font-family: "Manrope";
-}
-
 .kima-card .kima-card-content .kima-progressbar {
   height: 7px;
   width: 95%;
@@ -2181,7 +2181,7 @@
   .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item:not(:first-of-type) {
     padding-left: 21px;
     padding-top: 3px;
-    margin-top: 10px;
+    margin-top: 15px;
   }
 }
 @media (max-width: 500px) {
@@ -2204,39 +2204,14 @@
     color: white;
   }
   .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item.source-chain {
-    margin-top: -35px;
+    margin-top: -55px;
   }
   .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item.paid {
-    margin-top: -10px;
+    margin-top: -15px;
   }
   .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item.target-chain {
-    margin-top: 60px;
+    margin-top: 0;
   }
-}
-.kima-card .kima-card-content .transaction-status-message {
-  display: flex;
-  flex-direction: column;
-  margin-top: 20px;
-  font-family: "Manrope";
-  font-weight: 600;
-  font-size: 14px;
-  text-align: justify;
-}
-.kima-card .kima-card-content .transaction-status-message h2 {
-  font-size: 14px;
-}
-.kima-card .kima-card-content .transaction-status-message .transaction-copy {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  font-weight: bolder;
-  font-size: 24px;
-  margin-top: 10px;
-  align-items: center;
-  gap: 10px;
-}
-.kima-card .kima-card-content .transaction-status-message .transaction-copy h3 {
-  margin: 0;
 }
 .kima-card .kima-card-content .fee-deduction-slider-container {
   display: flex;
@@ -2357,6 +2332,31 @@
 }
 .kima-card .kima-card-content .radio-label.dark {
   color: white;
+}
+.kima-card .kima-card-content .transaction-status-message {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+  font-family: "Manrope";
+  font-weight: 600;
+  font-size: 14px;
+  text-align: justify;
+}
+.kima-card .kima-card-content .transaction-status-message h2 {
+  font-size: 14px;
+}
+.kima-card .kima-card-content .transaction-status-message .transaction-copy {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  font-weight: bolder;
+  font-size: 24px;
+  margin-top: 10px;
+  align-items: center;
+  gap: 10px;
+}
+.kima-card .kima-card-content .transaction-status-message .transaction-copy h3 {
+  margin: 0;
 }
 .kima-card .card-item {
   width: 100%;

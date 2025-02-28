@@ -1027,7 +1027,7 @@ var USD = ({ width = 24, height = 24, ...rest }) => {
       /* @__PURE__ */ React34.createElement("g", null, /* @__PURE__ */ React34.createElement(
         "path",
         {
-          d: "M24.26,20.34c0,3.42-2.423,6.342-6.845,7.111v3.92h-3.768v-3.648c-2.578-0.117-5.076-0.811-6.537-1.654l1.154-4.5\r\n		c1.615,0.886,3.883,1.693,6.383,1.693c2.191,0,3.691-0.848,3.691-2.385c0-1.461-1.23-2.389-4.077-3.348\r\n		c-4.112-1.385-6.921-3.306-6.921-7.033c0-3.386,2.385-6.035,6.499-6.845V0h3.767v3.383c2.576,0.115,4.309,0.652,5.576,1.268\r\n		l-1.115,4.348C21.07,8.575,19.3,7.688,16.531,7.688c-2.5,0-3.307,1.076-3.307,2.154c0,1.268,1.346,2.074,4.613,3.307\r\n		C22.416,14.762,24.26,16.877,24.26,20.34z"
+          d: "M24.26,20.34c0,3.42-2.423,6.342-6.845,7.111v3.92h-3.768v-3.648c-2.578-0.117-5.076-0.811-6.537-1.654l1.154-4.5\n		c1.615,0.886,3.883,1.693,6.383,1.693c2.191,0,3.691-0.848,3.691-2.385c0-1.461-1.23-2.389-4.077-3.348\n		c-4.112-1.385-6.921-3.306-6.921-7.033c0-3.386,2.385-6.035,6.499-6.845V0h3.767v3.383c2.576,0.115,4.309,0.652,5.576,1.268\n		l-1.115,4.348C21.07,8.575,19.3,7.688,16.531,7.688c-2.5,0-3.307,1.076-3.307,2.154c0,1.268,1.346,2.074,4.613,3.307\n		C22.416,14.762,24.26,16.877,24.26,20.34z"
         }
       ))
     )
@@ -1462,7 +1462,7 @@ var initialState = {
   tokenOptions: {},
   pendingTxs: 0,
   pendingTxData: [],
-  kimaExplorerUrl: "https://explorer.kima.network",
+  kimaExplorerUrl: "https://explorer.sardis.kima.network",
   mode: "bridge" /* bridge */,
   sourceChain: {
     ...arbitrumSepolia2,
@@ -3075,10 +3075,10 @@ function useSolanaAllowance() {
   const tokenOptions = useSelector6(selectTokenOptions);
   const { pools } = useGetPools_default(backendUrl, networkOption);
   const [approvalsCount, setApprovalsCount] = useState3(0);
-  const isSolanaProvider = sourceChain === "SOL" && externalProvider?.type === "solana" && externalProvider.provider && externalProvider.signer instanceof PublicKey5;
-  const userPublicKey = isSolanaProvider ? externalProvider.signer : sourceChain === "SOL" ? internalPublicKey : void 0;
-  const signTransaction = isSolanaProvider && externalProvider.provider.signTransaction ? externalProvider.provider.signTransaction : sourceChain === "SOL" ? internalSignTransaction : void 0;
-  const connection = isSolanaProvider && externalProvider.provider.connection ? externalProvider.provider.connection : sourceChain === "SOL" ? internalConnection : void 0;
+  const isSolanaProvider = sourceChain.shortName === "SOL" && externalProvider?.type === "solana" && externalProvider.provider && externalProvider.signer instanceof PublicKey5;
+  const userPublicKey = isSolanaProvider ? externalProvider.signer : sourceChain.shortName === "SOL" ? internalPublicKey : void 0;
+  const signTransaction = isSolanaProvider && externalProvider.provider.signTransaction ? externalProvider.provider.signTransaction : sourceChain.shortName === "SOL" ? internalSignTransaction : void 0;
+  const connection = isSolanaProvider && externalProvider.provider.connection ? externalProvider.provider.connection : sourceChain.shortName === "SOL" ? internalConnection : void 0;
   const {
     data: allowanceData,
     isLoading,
@@ -3100,7 +3100,7 @@ function useSolanaAllowance() {
       connection,
       pools
     }),
-    enabled: !!userPublicKey && !!selectedCoin && !!tokenOptions && pools.length > 0 && sourceChain === "SOL",
+    enabled: !!userPublicKey && !!selectedCoin && !!tokenOptions && pools.length > 0 && sourceChain.shortName === "SOL",
     refetchInterval: 1e3 * 60,
     // 1 min
     staleTime: 1e3 * 60
@@ -3646,7 +3646,7 @@ function useTronAllowance() {
     signTransaction: internalSignTronTransaction
   } = useWallet5();
   const [approvalsCount, setApprovalsCount] = useState4(0);
-  const isTronProvider2 = sourceChain === "TRX" && externalProvider?.type === "tron" && externalProvider.provider.tronWeb instanceof TronWeb3 && typeof externalProvider.signer === "string";
+  const isTronProvider2 = sourceChain.shortName === "TRX" && externalProvider?.type === "tron" && externalProvider.provider.tronWeb instanceof TronWeb3 && typeof externalProvider.signer === "string";
   const tronWeb = useMemo6(() => {
     if (isTronProvider2)
       return externalProvider.provider.tronWeb;
@@ -3671,7 +3671,7 @@ function useTronAllowance() {
     }),
     refetchInterval: 1e3 * 60,
     // 1 min
-    enabled: !!tokenOptions && !!selectedCoin && !!userAddress && !!tronWeb && pools.length > 0 && sourceChain === "TRX",
+    enabled: !!tokenOptions && !!selectedCoin && !!userAddress && !!tronWeb && pools.length > 0 && sourceChain.shortName === "TRX",
     staleTime: 1e3 * 60
     // 1 min
   });
@@ -3840,7 +3840,12 @@ var KimaProvider = ({
   walletConnectProjectId,
   children = /* @__PURE__ */ React77.createElement(React77.Fragment, null),
   externalProvider,
-  kimaBackendUrl = "http://localhost:3001"
+  kimaBackendUrl = "http://localhost:3001",
+  keplrHandler,
+  successHandler,
+  closeHandler,
+  errorHandler,
+  switchChainHandler
 }) => {
   let validExternalProvider;
   let sourceAddress;
@@ -3856,7 +3861,12 @@ var KimaProvider = ({
   const kimaContext = {
     externalProvider: validExternalProvider,
     sourceAddress,
-    kimaBackendUrl
+    kimaBackendUrl,
+    keplrHandler,
+    successHandler,
+    closeHandler,
+    errorHandler,
+    switchChainHandler
   };
   return /* @__PURE__ */ React77.createElement(QueryClientProvider, { client: queryClient }, /* @__PURE__ */ React77.createElement(Provider, { store }, /* @__PURE__ */ React77.createElement(KimaContext.Provider, { value: kimaContext }, /* @__PURE__ */ React77.createElement(
     InternalKimaProvider,
@@ -4996,13 +5006,6 @@ var TransactionWidget = ({ theme }) => {
     ),
     [data, mode, targetChain]
   );
-  console.log(
-    "tx details: ",
-    networks,
-    transactionSourceChain,
-    transactionTargetChain,
-    data
-  );
   const isValidTxId = useMemo13(() => {
     return !(!txId || typeof txId === "string" && txId.length === 0 || typeof txId === "number" && txId < 0);
   }, [txId]);
@@ -5094,7 +5097,11 @@ var TransactionWidget = ({ theme }) => {
         dispatch(setTargetChain(networks[0]));
       }
       dispatch(setTargetAddress(transactionOption?.targetAddress || ""));
-      dispatch(setTargetCurrency(transactionOption?.currency || ""));
+      dispatch(
+        setTargetCurrency(
+          transactionOption?.currency || networks[1].supportedTokens[0].symbol
+        )
+      );
       dispatch(setAmount(transactionOption?.amount.toString() || ""));
     }
     dispatch(setSubmitted(false));
@@ -6258,7 +6265,11 @@ var TransferWidget = ({
         dispatch(setTargetChain(networks[1]));
       }
       dispatch(setTargetAddress(transactionOption?.targetAddress || ""));
-      dispatch(setTargetCurrency(transactionOption?.currency || ""));
+      dispatch(
+        setTargetCurrency(
+          transactionOption?.currency || networks[1].supportedTokens[0].symbol
+        )
+      );
       dispatch(setAmount(transactionOption?.amount.toString() || ""));
     }
     await disconnectWallet();

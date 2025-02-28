@@ -1390,7 +1390,7 @@
 
         @include breakpoint(mobile) {
           font-size: 12px;
-          width: 235x;
+          width: 100%;
         }
 
         &.shortened {
