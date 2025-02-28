@@ -60,10 +60,7 @@ import useComplianceCheck from '../hooks/useComplianceCheck'
 import useBalance from '../hooks/useBalance'
 import useGetPools from '../hooks/useGetPools'
 import useDisconnectWallet from '../hooks/useDisconnectWallet'
-import TransactionSearch from './reusable/TransactionSearch'
 import { useKimaContext } from 'src/KimaProvider'
-import { useChainData } from '../hooks/useChainData'
-import { arbitrumSepolia } from 'viem/chains'
 import { ChainData } from '@plugins/pluginTypes'
 
 interface Props {

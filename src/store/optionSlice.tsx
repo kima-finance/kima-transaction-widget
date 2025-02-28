@@ -100,7 +100,7 @@ const initialState: OptionState = {
   tokenOptions: {},
   pendingTxs: 0,
   pendingTxData: [],
-  kimaExplorerUrl: 'https://explorer.kima.network',
+  kimaExplorerUrl: 'https://explorer.sardis.kima.network',
   mode: ModeOptions.bridge,
   sourceChain: {
     ...arbitrumSepolia,
