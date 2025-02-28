@@ -45,7 +45,7 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
 
   // Ensure only Solana-specific logic is executed when sourceChain is SOL
   const isSolanaProvider =
-    sourceChain === 'SOL' &&
+    sourceChain.shortName === 'SOL' &&
     externalProvider?.type === 'solana' &&
     externalProvider.provider &&
     externalProvider.signer instanceof PublicKey
@@ -53,7 +53,7 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
   // Set the proper publicKey only for Solana
   const userPublicKey = isSolanaProvider
     ? externalProvider.signer
-    : sourceChain === 'SOL'
+    : sourceChain.shortName === 'SOL'
       ? internalPublicKey
       : undefined
 
@@ -61,7 +61,7 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
   const signTransaction =
     isSolanaProvider && externalProvider.provider.signTransaction
       ? externalProvider.provider.signTransaction
-      : sourceChain === 'SOL'
+      : sourceChain.shortName === 'SOL'
         ? internalSignTransaction
         : undefined
 
@@ -69,7 +69,7 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
   const connection =
     isSolanaProvider && externalProvider.provider.connection
       ? externalProvider.provider.connection
-      : sourceChain === 'SOL'
+      : sourceChain.shortName === 'SOL'
         ? internalConnection
         : undefined
 
@@ -97,7 +97,7 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
       !!selectedCoin &&
       !!tokenOptions &&
       pools.length > 0 &&
-      sourceChain === 'SOL',
+      sourceChain.shortName === 'SOL',
     refetchInterval: 1000 * 60, // 1 min
     staleTime: 1000 * 60 // 1 min
   })

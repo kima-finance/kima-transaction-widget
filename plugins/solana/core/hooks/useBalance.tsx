@@ -7,7 +7,6 @@ import {
 import { PublicKey } from '@solana/web3.js'
 
 import {
-  selectErrorHandler,
   selectSourceChain,
   selectTokenOptions,
   selectSourceCurrency
@@ -32,7 +31,7 @@ export default function useBalance() {
     externalProvider?.provider.signTransaction || internalSignTransaction
   const connection = externalProvider?.provider.connection || internalConnection
 
-  const errorHandler = useSelector(selectErrorHandler)
+  const { errorHandler } = useKimaContext()
   const sourceChain = useSelector(selectSourceChain)
   const sourceCurrency = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
@@ -52,8 +51,15 @@ export default function useBalance() {
 
   useEffect(() => {
     ;(async () => {
-      if (!tokenAddress || sourceChain !== 'SOL' || !publicKey || !connection)
+      if (
+        !tokenAddress ||
+        sourceChain.shortName !== 'SOL' ||
+        !publicKey ||
+        !connection
+      ){
+        console.log("missing parameters: ", {tokenAddress, sourceChain, publicKey, connection})
         return
+      }
       try {
         console.log('solana use balance effect...')
         const mint = new PublicKey(tokenAddress)
