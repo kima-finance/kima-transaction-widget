@@ -169,9 +169,6 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
                 {sourceCurrency}
               </p>
             </div>
-            {sourceCurrency !== targetCurrency && (
-              <div className='coin-details'>→ {targetCurrency}</div>
-            )}
           </div>
           <div className='amount-details'>
             <span>Source Network Fee ({originNetwork.shortName})</span>
