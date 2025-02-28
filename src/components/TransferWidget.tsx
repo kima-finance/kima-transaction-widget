@@ -273,7 +273,11 @@ export const TransferWidget = ({
         dispatch(setTargetChain(networks[1]))
       }
       dispatch(setTargetAddress(transactionOption?.targetAddress || ''))
-      dispatch(setTargetCurrency(transactionOption?.currency || ''))
+      dispatch(
+        setTargetCurrency(
+          transactionOption?.currency || networks[1].supportedTokens[0].symbol
+        )
+      )
       dispatch(setAmount(transactionOption?.amount.toString() || ''))
     }
     await disconnectWallet()
