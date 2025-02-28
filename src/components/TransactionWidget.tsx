@@ -204,9 +204,12 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       } else {
         dispatch(setTargetChain(networks[0]))
       }
-
       dispatch(setTargetAddress(transactionOption?.targetAddress || ''))
-      dispatch(setTargetCurrency(transactionOption?.currency || ''))
+      dispatch(
+        setTargetCurrency(
+          transactionOption?.currency || networks[1].supportedTokens[0].symbol
+        )
+      )
       dispatch(setAmount(transactionOption?.amount.toString() || ''))
     }
     dispatch(setSubmitted(false))
