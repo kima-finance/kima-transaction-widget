@@ -5035,6 +5035,7 @@ var TransactionWidget = ({ theme }) => {
     }
   }, [data?.status]);
   const resetForm = () => {
+    closeHandler && closeHandler();
     if (mode !== "payment" /* payment */) {
       if (transactionOption?.sourceChain) {
         const sourceChain2 = chainData?.find(
@@ -5060,11 +5061,10 @@ var TransactionWidget = ({ theme }) => {
       );
       dispatch(setAmount(transactionOption?.amount.toString() || ""));
     }
-    dispatch(setSubmitted(false));
     dispatch(
       setMode(transactionOption ? "payment" /* payment */ : "bridge" /* bridge */)
     );
-    closeHandler && closeHandler(0);
+    dispatch(setSubmitted(false));
   };
   return /* @__PURE__ */ import_react121.default.createElement(import_react_redux38.Provider, { store }, /* @__PURE__ */ import_react121.default.createElement(
     "div",
@@ -6202,6 +6202,7 @@ var TransferWidget = ({
   };
   const resetForm = async () => {
     if (isApproving || isSubmitting || isSigning) return;
+    closeHandler && closeHandler(0);
     setFormStep(0);
     if (mode !== "payment" /* payment */) {
       if (transactionOption?.sourceChain) {
@@ -6229,7 +6230,6 @@ var TransferWidget = ({
       dispatch(setAmount(transactionOption?.amount.toString() || ""));
     }
     await disconnectWallet();
-    closeHandler && closeHandler(0);
   };
   (0, import_react132.useEffect)(() => {
     dispatch(setTheme(theme));
@@ -6415,6 +6415,9 @@ var KimaWidgetWrapper = ({
     } else if (mode === "status" /* status */) {
       dispatch(setTxId(txId || -1));
       dispatch(setSubmitted(true));
+    } else if (mode === "bridge" /* bridge */) {
+      dispatch(setTxId(-1));
+      dispatch(setSubmitted(false));
     }
   }, [theme, transactionOption, mode, networkOption, chainData]);
   (0, import_react133.useEffect)(() => {
