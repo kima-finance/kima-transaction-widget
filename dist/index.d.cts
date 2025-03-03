@@ -148,7 +148,7 @@ interface KimaProviderProps {
     keplrHandler?: (e: any) => void;
     switchChainHandler?: (e: any) => void;
 }
-declare const KimaProvider: ({ walletConnectProjectId, children, externalProvider, kimaBackendUrl }: KimaProviderProps) => react.JSX.Element;
+declare const KimaProvider: ({ walletConnectProjectId, children, externalProvider, kimaBackendUrl, keplrHandler, successHandler, closeHandler, errorHandler, switchChainHandler }: KimaProviderProps) => react.JSX.Element;
 
 interface Props {
     theme: ThemeOptions;
