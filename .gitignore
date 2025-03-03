@@ -7,7 +7,7 @@
 
 # build
 */build
-*/dist
+**/dist
 
 # testing
 /coverage
