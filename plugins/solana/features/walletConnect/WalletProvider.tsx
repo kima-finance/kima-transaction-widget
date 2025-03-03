@@ -34,6 +34,7 @@ const WalletProvider = ({
   return (
     <ConnectionProvider endpoint={endpoint}>
       <SolanaWalletProvider
+        autoConnect={false}
         wallets={[
           new PhantomWalletAdapter(),
           new SolflareWalletAdapter(),
