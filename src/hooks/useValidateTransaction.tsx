@@ -101,6 +101,15 @@ const useValidateTransaction = ({
         }
       }
     }
+    
+    // Check if the amount exceeds the max value
+    if (+amount > balance) {
+      return {
+        error: ValidationError.Warning,
+        message:
+          'The entered amount exceeds your available balance. This transaction is likely to fail. Proceed with caution.'
+      }
+    }
 
     if (+amount > maxValue) {
       return {
@@ -118,14 +127,6 @@ const useValidateTransaction = ({
       }
     }
 
-    // Check if the amount exceeds the max value
-    if (+amount > balance) {
-      return {
-        error: ValidationError.Warning,
-        message:
-          'The entered amount exceeds your available balance. This transaction is likely to fail. Proceed with caution.'
-      }
-    }
 
     if (!isApproved && isSubmitting) {
       return {
