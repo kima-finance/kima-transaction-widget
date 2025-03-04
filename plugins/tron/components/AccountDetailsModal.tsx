@@ -19,7 +19,6 @@ import { getShortenedAddress } from '@utils/functions'
 import { networkOptions } from '@utils/constants'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import useGetTronBalance from '../core/hooks/useGetTrxBalance'
-import { sourceMapsEnabled } from 'process'
 
 const AccountDetailsModal = () => {
   const dispatch = useDispatch()
@@ -34,7 +33,7 @@ const AccountDetailsModal = () => {
 
   // get the network details
   const networkDetails = useMemo(
-    () => networkOptions.find(({ id }) => id === selectedNetwork),
+    () => networkOptions.find(({ id }) => id === selectedNetwork.shortName),
     [selectedNetwork]
   )
 
@@ -50,7 +49,7 @@ const AccountDetailsModal = () => {
     dispatch(setAccountDetailsModal(false))
   }
 
-  if (sourcheChain !== 'TRX') return
+  if (sourcheChain.shortName !== 'TRX') return
 
   return (
     <div
@@ -83,7 +82,7 @@ const AccountDetailsModal = () => {
               <CopyButton text={walletAddress as string} />
             </div>
             <h3>
-              {tronBalance} {selectedNetwork}
+              {tronBalance} {selectedNetwork.shortName}
             </h3>
           </div>
           <SecondaryButton className='block-explorer'>
