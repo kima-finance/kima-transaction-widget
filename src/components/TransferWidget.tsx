@@ -118,10 +118,11 @@ export const TransferWidget = ({
 
   const { balance } = useBalance()
 
-  const { allowance, isApproved, approve, decimals } = useAllowance({
-    setApproving,
-    setCancellingApprove
-  })
+  const { allowance, isApproved, approve, decimals, signMessage } =
+    useAllowance({
+      setApproving,
+      setCancellingApprove
+    })
 
   const { complianceData: sourceCompliant } = useComplianceCheck(
     sourceAddress,
@@ -171,6 +172,13 @@ export const TransferWidget = ({
 
   const handleSubmit = async () => {
     const { error, message: validationMessage } = validate(true)
+    const signature = await signMessage?.({
+      targetAddress,
+      targetChain: targetChain.shortName,
+      targetSymbol: targetCurrency
+    })
+    console.log('signMessage', signature)
+    return
 
     // check for validation errors
     if (error === ValidationError.Error) {

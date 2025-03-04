@@ -20,7 +20,7 @@ import {
 } from '@solana/spl-token'
 import { getPoolAddress, getTokenAddress } from '@utils/functions'
 import { PublicKey, Transaction } from '@solana/web3.js'
-import { PluginUseAllowanceResult } from '@plugins/pluginTypes'
+import { PluginUseAllowanceResult, SignDataType } from '@plugins/pluginTypes'
 import { useKimaContext } from '../../../../src/KimaProvider'
 import { formatUnits } from 'ethers'
 
@@ -35,7 +35,8 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
   const { connection: internalConnection } = useConnection()
   const {
     publicKey: internalPublicKey,
-    signTransaction: internalSignTransaction
+    signTransaction: internalSignTransaction,
+    signMessage: internalSignMessage
   } = useWallet()
   const selectedCoin = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
@@ -63,6 +64,14 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
       ? externalProvider.provider.signTransaction
       : sourceChain.shortName === 'SOL'
         ? internalSignTransaction
+        : undefined
+
+  // Set the proper signMessage object only for Solana
+  const signMessage =
+    isSolanaProvider && externalProvider.provider.signMessage
+      ? externalProvider.provider.signMessage
+      : sourceChain.shortName === 'SOL'
+        ? internalSignMessage
         : undefined
 
   // Set the proper connection object only for Solana
@@ -101,6 +110,23 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
     refetchInterval: 1000 * 60, // 1 min
     staleTime: 1000 * 60 // 1 min
   })
+
+  const signSolanaMessage = async (data: SignDataType) => {
+    if (!signMessage) {
+      console.warn('useSolanaAllowance: Missing Solana provider setup')
+      return
+    }
+
+    try {
+      const message = `Amount: ${allowanceNumber}\nTarget Address: ${data.targetAddress}\nTarget Chain: ${data.targetChain}\nTarget Symbol: ${data.targetSymbol}`
+      const encodedMessage = new TextEncoder().encode(message)
+      const signature = await signMessage(encodedMessage)
+      return signature
+    } catch (error) {
+      console.error('Error signing message:', error)
+      throw error
+    }
+  }
 
   const approveSPLTokenTransfer = async (isCancel: boolean = false) => {
     if (!allowanceAmount) {
@@ -175,6 +201,7 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
     isApproved: allowanceData?.allowance
       ? allowanceData.allowance >= allowanceNumber
       : false,
-    approve: approveSPLTokenTransfer
+    approve: approveSPLTokenTransfer,
+    signMessage: signSolanaMessage
   }
 }
