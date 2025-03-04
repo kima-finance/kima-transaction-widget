@@ -2627,6 +2627,12 @@ var checkPoolBalance = ({
   const targetToken = poolTokens.find(
     (token) => token.tokenSymbol === finalTargetCurrency
   );
+  if (!targetToken) {
+    return {
+      isPoolAvailable: false,
+      error: `${CHAIN_NAMES_TO_STRING[targetChain]} has no ${targetCurrency} pool!`
+    };
+  }
   const { amount: targetTokenBalance } = targetToken;
   if (parseFloat(amount) > parseFloat(targetTokenBalance))
     return {
@@ -5523,6 +5529,7 @@ var import_wallet_adapter_react7 = require("@solana/wallet-adapter-react");
 var import_wallet_adapter_base = require("@solana/wallet-adapter-base");
 var SolanaWalletSelect = () => {
   const theme = (0, import_react_redux44.useSelector)(selectTheme);
+  const sourceChain = (0, import_react_redux44.useSelector)(selectSourceChain);
   const dispatch = (0, import_react_redux44.useDispatch)();
   const sliderRef = (0, import_react124.useRef)();
   const { wallet, wallets, select, connect, connected } = (0, import_wallet_adapter_react7.useWallet)();
@@ -5566,17 +5573,27 @@ var SolanaWalletSelect = () => {
   }, []);
   const handleWalletClick = (0, import_react124.useCallback)(
     (walletName) => {
+      console.log(
+        "SolanaWalletSelect: handleWalletClick: walletName: ",
+        walletName
+      );
       select(walletName);
     },
     [select]
   );
   (0, import_react124.useEffect)(() => {
-    if (connected) return;
-    if (wallet) {
-      connect();
-      dispatch(setSolanaConnectModal(false));
+    console.log("SolanaWalletSelect: useEffect: wallet: ", wallet);
+    if (!wallet) return;
+    if (sourceChain.shortName !== "SOL") return;
+    if (!connected) {
+      console.log(
+        "SolanaWalletSelect: Wallet exists but not connected, connecting wallet:",
+        wallet
+      );
+      connect().catch((err) => console.error("Solana connect error:", err));
     }
-  }, [wallet]);
+    dispatch(setSolanaConnectModal(false));
+  }, [wallet, sourceChain]);
   return /* @__PURE__ */ import_react124.default.createElement("div", { className: `wallet-select` }, /* @__PURE__ */ import_react124.default.createElement("div", { className: "slide-area hide-scrollbar", ref: sliderRef }, /* @__PURE__ */ import_react124.default.createElement("div", { className: "wallet-container" }, detected.map((wallet2, index) => /* @__PURE__ */ import_react124.default.createElement(
     "div",
     {

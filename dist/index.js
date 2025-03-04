@@ -2644,6 +2644,12 @@ var checkPoolBalance = ({
   const targetToken = poolTokens.find(
     (token) => token.tokenSymbol === finalTargetCurrency
   );
+  if (!targetToken) {
+    return {
+      isPoolAvailable: false,
+      error: `${CHAIN_NAMES_TO_STRING[targetChain]} has no ${targetCurrency} pool!`
+    };
+  }
   const { amount: targetTokenBalance } = targetToken;
   if (parseFloat(amount) > parseFloat(targetTokenBalance))
     return {
@@ -5567,6 +5573,7 @@ import { useWallet as useWallet7 } from "@solana/wallet-adapter-react";
 import { WalletReadyState } from "@solana/wallet-adapter-base";
 var SolanaWalletSelect = () => {
   const theme = useSelector31(selectTheme);
+  const sourceChain = useSelector31(selectSourceChain);
   const dispatch = useDispatch18();
   const sliderRef = useRef5();
   const { wallet, wallets, select, connect, connected } = useWallet7();
@@ -5610,17 +5617,27 @@ var SolanaWalletSelect = () => {
   }, []);
   const handleWalletClick = useCallback2(
     (walletName) => {
+      console.log(
+        "SolanaWalletSelect: handleWalletClick: walletName: ",
+        walletName
+      );
       select(walletName);
     },
     [select]
   );
   useEffect16(() => {
-    if (connected) return;
-    if (wallet) {
-      connect();
-      dispatch(setSolanaConnectModal(false));
+    console.log("SolanaWalletSelect: useEffect: wallet: ", wallet);
+    if (!wallet) return;
+    if (sourceChain.shortName !== "SOL") return;
+    if (!connected) {
+      console.log(
+        "SolanaWalletSelect: Wallet exists but not connected, connecting wallet:",
+        wallet
+      );
+      connect().catch((err) => console.error("Solana connect error:", err));
     }
-  }, [wallet]);
+    dispatch(setSolanaConnectModal(false));
+  }, [wallet, sourceChain]);
   return /* @__PURE__ */ React104.createElement("div", { className: `wallet-select` }, /* @__PURE__ */ React104.createElement("div", { className: "slide-area hide-scrollbar", ref: sliderRef }, /* @__PURE__ */ React104.createElement("div", { className: "wallet-container" }, detected.map((wallet2, index) => /* @__PURE__ */ React104.createElement(
     "div",
     {
