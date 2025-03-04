@@ -109,8 +109,7 @@ const SingleForm = ({
     if (!balance) return 0
     if (totalFeeUsd < 0) return balance
 
-    const amountMinusFees = preciseSubtraction(balance as number, totalFeeUsd)
-    return amountMinusFees > 0 ? amountMinusFees : 0
+    return preciseSubtraction(balance as number, totalFeeUsd)
   }, [balance, totalFeeUsd, feeDeduct])
 
   useEffect(() => {
@@ -119,16 +118,9 @@ const SingleForm = ({
   }, [errorMessage])
 
   useEffect(() => {
-    if (amountValue && amount != '') return
+    if (amountValue && amount !== '') return
     setAmountValue(amount)
   }, [amount])
-
-  useEffect(() => {
-    if (!feeDeduct && maxValue < +amountValue) {
-      setAmountValue(maxValue.toString()) // Cap at maxValue
-      dispatch(setAmount(maxValue.toString()))
-    }
-  }, [feeDeduct])
 
   return (
     <div className='single-form'>
@@ -163,7 +155,8 @@ const SingleForm = ({
         )}
       </div>
 
-      {mode === ModeOptions.bridge && sourceNetwork.shortName !== ChainName.FIAT ? (
+      {mode === ModeOptions.bridge &&
+      sourceNetwork.shortName !== ChainName.FIAT ? (
         targetNetwork.shortName === ChainName.FIAT ? (
           <BankInput />
         ) : (
@@ -177,74 +170,38 @@ const SingleForm = ({
         )
       ) : null}
 
-      {mode === ModeOptions.bridge ? (
-        <div className={`form-item ${theme.colorMode}`}>
-          <span className='label'>Amount:</span>
-          <div className={`amount-label-container items ${theme.colorMode}`}>
-            <input
-              className={`${theme.colorMode}`}
-              type='text' // Use 'text' to avoid browser validation conflicts
-              placeholder='Amount'
-              value={amountValue || ''}
-              onChange={(e) => {
-                const value = e.target.value
+      <div className={`form-item ${theme.colorMode}`}>
+        <span className='label'>Amount:</span>
+        <div className={`amount-label-container items ${theme.colorMode}`}>
+          <input
+            className={`${theme.colorMode}`}
+            type='text'
+            placeholder='Enter amount'
+            value={amountValue || ''}
+            onChange={(e) => {
+              const value = e.target.value
 
-                // Mask the input
-                const maskedValue = value
-                  .replace(/[^0-9.]/g, '') // Remove non-numeric and non-dot characters
-                  .replace(/(\..*?)\..*/g, '$1') // Allow only one dot
-                  .replace(new RegExp(`(\\.\\d{${decimals}})\\d+`), '$1') // Limit to 'decimal' places
+              // Allow numbers and a single dot for decimals
+              const maskedValue = value
+                .replace(/[^0-9.]/g, '') // Remove non-numeric and non-dot characters
+                .replace(/(\..*?)\..*/g, '$1') // Allow only one dot
+                .replace(new RegExp(`(\\.\\d{${decimals}})\\d+`), '$1') // Limit decimal places
 
-                // Parse to a float and compare to balance
-                const numericValue = parseFloat(maskedValue)
-                if (!isNaN(numericValue) && numericValue > maxValue) {
-                  setAmountValue(maxValue.toString()) // Cap at maxValue
-                  dispatch(setAmount(maxValue.toString()))
-                } else {
-                  setAmountValue(maskedValue)
-                  dispatch(setAmount(maskedValue))
-                }
-              }}
-            />
-            <span
-              className='max-button'
-              onClick={() => {
-                setAmountValue(maxValue.toString())
-                dispatch(setAmount(maxValue.toString()))
-              }}
-            >
-              Max
-            </span>
-          </div>
+              setAmountValue(maskedValue)
+              dispatch(setAmount(maskedValue))
+            }}
+          />
+          <span
+            className='max-button'
+            onClick={() => {
+              setAmountValue(maxValue.toString())
+              dispatch(setAmount(maxValue.toString()))
+            }}
+          >
+            Max
+          </span>
         </div>
-      ) : (
-        <div className={`form-item ${theme.colorMode}`}>
-          <span className='label'>Amount:</span>
-          <div className={`amount-label-container items ${theme.colorMode}`}>
-            <input
-              className={`${theme.colorMode}`}
-              type='number'
-              placeholder='Amount'
-              value={transactionOption?.amount || amountValue || ''}
-              onChange={(e) => {
-                let _amount = +e.target.value
-                const decimal =
-                  sourceNetwork.shortName === ChainName.BTC ||
-                  targetNetwork.shortName === ChainName.BTC
-                    ? 8
-                    : 2
-                setAmountValue(e.target.value)
-                dispatch(setAmount(_amount.toFixed(decimal)))
-              }}
-              disabled={transactionOption?.amount !== undefined}
-            />
-            <div className={`coin-wrapper ${theme.colorMode}`}>
-              <div className='icon-wrapper'>{<TargetIcon />}</div>
-              {targetCurrency}
-            </div>
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   )
 }
