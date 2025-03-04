@@ -5934,6 +5934,12 @@ var useValidateTransaction = ({
         };
       }
     }
+    if (+amount > balance) {
+      return {
+        error: "Warning" /* Warning */,
+        message: "The entered amount exceeds your available balance. This transaction is likely to fail. Proceed with caution."
+      };
+    }
     if (+amount > maxValue) {
       return {
         error: "Warning" /* Warning */,
@@ -5944,12 +5950,6 @@ var useValidateTransaction = ({
       return {
         error: "Warning" /* Warning */,
         message: "Transaction fees exceed the transfer amount. This may result in an ineffective transaction. Proceed with caution."
-      };
-    }
-    if (+amount > balance) {
-      return {
-        error: "Warning" /* Warning */,
-        message: "The entered amount exceeds your available balance. This transaction is likely to fail. Proceed with caution."
       };
     }
     if (!isApproved && isSubmitting) {
