@@ -74,7 +74,10 @@ const SolanaWalletSelect = () => {
     if (!wallet) return // Ensure a wallet is selected before attempting connection
 
     // Prevent auto-connection unless Solana is explicitly selected
-    if (sourceChain.shortName !== 'SOL') return
+    if (sourceChain.shortName !== 'SOL') {
+      console.log('SolanaWalletSelect: source chain is not sol...')
+      return
+    }
 
     if (!connected) {
       console.log(
