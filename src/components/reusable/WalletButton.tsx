@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo } from 'react'
-import { toast } from 'react-hot-toast'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   setAccountDetailsModal,
@@ -27,7 +26,6 @@ import CopyButton from './CopyButton'
 import { formatUSD } from '../../helpers/functions'
 import useHideWuiListItem from '../../hooks/useHideActivityTab'
 import { useKimaContext } from '../../KimaProvider'
-import { selectBackendUrl } from '@store/core/selectors'
 import { useGetEnvOptions } from '../../hooks/useGetEnvOptions'
 import { NetworkOptions } from '@interface'
 
