@@ -27,7 +27,7 @@ export interface SignDataType {
 export interface PluginUseAllowanceResult {
   isApproved: boolean
   approve: (isCancel?: boolean) => Promise<void>
-  signMessage?: (data: SignDataType) => Promise<void>
+  signMessage?: (data: SignDataType) => Promise<any>
   allowance?: number | undefined
   balance?: number | undefined
   decimals?: number | undefined

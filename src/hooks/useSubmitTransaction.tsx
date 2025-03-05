@@ -14,7 +14,8 @@ const useSubmitTransaction = ({
   originSymbol,
   targetSymbol,
   backendUrl,
-  decimals
+  decimals,
+  signature
 }: {
   amount: bigint
   totalFee: bigint
@@ -26,6 +27,7 @@ const useSubmitTransaction = ({
   targetSymbol: string
   backendUrl: string
   decimals: number
+  signature: string
 }) => {
   const dispatch = useDispatch()
 
