@@ -45,7 +45,7 @@ const AccountDetailsModal = () => {
     dispatch(setAccountDetailsModal(false))
   }
 
-  if (sourceChain !== 'SOL') return
+  if (sourceChain.shortName !== 'SOL') return
 
   return (
     <div

@@ -10,6 +10,7 @@ import {
 } from '../../store/selectors'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
 import { ModeOptions } from '../../interface'
+import { ChainCompatibility, ChainData } from '@plugins/pluginTypes'
 
 /**
  * Component for target address input
@@ -32,9 +33,11 @@ const AddressInput = ({
   const { walletAddress: sourceAddress, isReady } = useIsWalletReady()
   const targetAddress = useSelector(selectTargetAddress)
 
-  // TODO: fix. This will break if another non-EVM chain is added
-  const isEvm = (chain: string): boolean => {
-    return chain !== 'SOL' && chain !== 'TRX' && chain !== 'BTC'
+  const isCompatible = (
+    sourceChain: ChainData,
+    targetChain: ChainData
+  ): boolean => {
+    return sourceChain.compatibility === targetChain.compatibility
   }
 
   useEffect(() => {
@@ -42,8 +45,11 @@ const AddressInput = ({
     // by the dApp and never changed
     if (mode === ModeOptions.payment) return
 
-    // when both source and target addresses are EVM addresses are compatible
-    if (isEvm(sourceChain) && isEvm(targetChain)) {
+    // when both source and target addresses are compatible
+    if (isCompatible(sourceChain, targetChain)) {
+      // previous manual input
+      if (targetAddress !== '') return
+
       dispatch(setTargetAddress(isReady && sourceAddress ? sourceAddress : ''))
       return
     }

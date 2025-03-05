@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 
 export enum ValidationError {
   Error = 'ValidationError',
+  Warning = 'Warning',
   ApprovalNeeded = 'ApprovalNeeded',
   None = 'None'
 }
@@ -100,31 +101,32 @@ const useValidateTransaction = ({
         }
       }
     }
+    
+    // Check if the amount exceeds the max value
+    if (+amount > balance) {
+      return {
+        error: ValidationError.Warning,
+        message:
+          'The entered amount exceeds your available balance. This transaction is likely to fail. Proceed with caution.'
+      }
+    }
 
-    console.log('useValidate:amount: ', amount)
-    console.log('useValidate:maxValue ', maxValue)
+    if (+amount > maxValue) {
+      return {
+        error: ValidationError.Warning,
+        message:
+          'The entered amount exceeds the max possible amount to transfer (amount plus fees). Proceed with caution.'
+      }
+    }
 
     if (+amount < totalFeeUsd) {
       return {
-        error: ValidationError.Error,
-        message: 'Fees are greater than the amount to transfer'
+        error: ValidationError.Warning,
+        message:
+          'Transaction fees exceed the transfer amount. This may result in an ineffective transaction. Proceed with caution.'
       }
     }
 
-    // Check if the amount exceeds the max value
-    if (+amount > maxValue) {
-      return {
-        error: ValidationError.Error,
-        message: `Amount exceeds the maximum allowed value [$${maxValue}]`
-      }
-    }
-
-    if (balance < +amount) {
-      return {
-        error: ValidationError.Error,
-        message: 'Insufficient balance for the transaction'
-      }
-    }
 
     if (!isApproved && isSubmitting) {
       return {
