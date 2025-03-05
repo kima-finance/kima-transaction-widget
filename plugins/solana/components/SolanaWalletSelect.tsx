@@ -2,12 +2,13 @@ import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { WalletReadyState } from '@solana/wallet-adapter-base'
-import { selectTheme } from '@store/selectors'
+import { selectTheme, selectSourceChain } from '@store/selectors'
 import ExternalLink from '@components/reusable/ExternalLink'
 import { setSolanaConnectModal } from '@store/optionSlice'
 
 const SolanaWalletSelect = () => {
   const theme = useSelector(selectTheme)
+  const sourceChain = useSelector(selectSourceChain)
   const dispatch = useDispatch()
   const sliderRef = useRef<any>()
 
@@ -58,20 +59,36 @@ const SolanaWalletSelect = () => {
 
   const handleWalletClick = useCallback(
     (walletName: any) => {
+      console.log(
+        'SolanaWalletSelect: handleWalletClick: walletName: ',
+        walletName
+      )
       select(walletName)
     },
     [select]
   )
 
   useEffect(() => {
-    if (connected) return
+    console.log('SolanaWalletSelect: useEffect: wallet: ', wallet)
 
-    if (wallet) {
-      connect()
-      dispatch(setSolanaConnectModal(false))
+    if (!wallet) return // Ensure a wallet is selected before attempting connection
+
+    // Prevent auto-connection unless Solana is explicitly selected
+    if (sourceChain.shortName !== 'SOL') {
+      console.log('SolanaWalletSelect: source chain is not sol...')
+      return
     }
-  }, [wallet])
 
+    if (!connected) {
+      console.log(
+        'SolanaWalletSelect: Wallet exists but not connected, connecting wallet:',
+        wallet
+      )
+      connect().catch((err) => console.error('Solana connect error:', err))
+    }
+
+    dispatch(setSolanaConnectModal(false))
+  }, [wallet, sourceChain])
   return (
     <div className={`wallet-select`}>
       <div className='slide-area hide-scrollbar' ref={sliderRef}>

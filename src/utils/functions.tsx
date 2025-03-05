@@ -57,6 +57,13 @@ export const checkPoolBalance = ({
   const targetToken = poolTokens.find(
     (token: any) => token.tokenSymbol === finalTargetCurrency
   )
+  
+  if (!targetToken) {
+    return {
+      isPoolAvailable: false,
+      error: `${CHAIN_NAMES_TO_STRING[targetChain]} has no ${targetCurrency} pool!`
+    }
+  }
   const { amount: targetTokenBalance } = targetToken
 
   // check if pool has enough balance

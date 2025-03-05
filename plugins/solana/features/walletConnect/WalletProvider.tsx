@@ -13,10 +13,11 @@ import {
   TorusWalletAdapter
 } from '@solana/wallet-adapter-wallets'
 import { getHostEndpoint } from '@plugins/solana/utils/constants'
+import { NetworkOptions } from '@interface'
 
 interface WalletProviderProps {
   children: ReactNode
-  networkOption: string
+  networkOption: NetworkOptions
   walletConnectProjectId: string // Add this property
 }
 
@@ -34,6 +35,7 @@ const WalletProvider = ({
   return (
     <ConnectionProvider endpoint={endpoint}>
       <SolanaWalletProvider
+        autoConnect={false}
         wallets={[
           new PhantomWalletAdapter(),
           new SolflareWalletAdapter(),

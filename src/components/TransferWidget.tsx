@@ -61,6 +61,7 @@ import useGetPools from '../hooks/useGetPools'
 import useDisconnectWallet from '../hooks/useDisconnectWallet'
 import { useKimaContext } from 'src/KimaProvider'
 import { ChainData } from '@plugins/pluginTypes'
+import WarningModal from './reusable/WarningModal'
 
 interface Props {
   theme: ThemeOptions
@@ -80,6 +81,9 @@ export const TransferWidget = ({
 
   // State variables for UI
   const [formStep, setFormStep] = useState(0)
+  const [warningModalOpen, setWarningModalOpen] = useState<{
+    message: string
+  } | null>(null) // State for warning modal
 
   // Redux variables
   const dAppOption = useSelector(selectDappOption)
@@ -200,7 +204,13 @@ export const TransferWidget = ({
   }
 
   const onNext = () => {
-    const { error, message } = validate()
+    const { error, message: validationMessage } = validate()
+
+    if (error === ValidationError.Warning) {
+      console.log('validationError: Warning: ', validationMessage)
+      setWarningModalOpen({ message: validationMessage })
+      return
+    }
 
     // check if no errors and is in confirming step
     if (error !== ValidationError.Error && !formStep) {
@@ -211,7 +221,7 @@ export const TransferWidget = ({
       return handleSubmit()
     }
 
-    toast.error(message, { icon: <ErrorIcon /> })
+    toast.error(validationMessage, { icon: <ErrorIcon /> })
     mainRef.current?.click()
   }
 
@@ -294,6 +304,19 @@ export const TransferWidget = ({
             : theme.backgroundColorDark
       }}
     >
+      {warningModalOpen && (
+        <WarningModal
+          message={warningModalOpen.message}
+          onAcknowledge={() => {
+            setWarningModalOpen(null)
+            setFormStep(1)
+          }}
+          onCancel={() => {
+            setWarningModalOpen(null)
+            setFormStep(0)
+          }}
+        />
+      )}
       {mode === ModeOptions.payment && !transactionOption && (
         <h2 className='invalid-option-banner'>
           We're unable to process your payment. Please ensure the necessary

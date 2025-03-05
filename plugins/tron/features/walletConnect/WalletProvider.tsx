@@ -18,7 +18,7 @@ interface PluginProviderProps {
   networkOption: 'testnet' | 'mainnet'
 }
 
-const WalletProvider = ({ children, networkOption }: WalletProviderProps) => {
+const WalletProvider = ({ children, networkOption }: PluginProviderProps) => {
   const adapters = useMemo(
     () => [
       new TronLinkAdapter(),
@@ -61,6 +61,7 @@ const WalletProvider = ({ children, networkOption }: WalletProviderProps) => {
       adapters={adapters}
       onError={onError}
       onChainChanged={onChainChanged}
+      autoConnect={false}
     >
       {children}
     </TronWalletProviderBase>
