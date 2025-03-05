@@ -157,7 +157,8 @@ export const TransferWidget = ({
     compliantOption,
     mode,
     pools,
-    feeDeduct
+    feeDeduct,
+    formStep
   })
 
   const { submitTransaction, isSubmitting } = useSubmitTransaction({
@@ -206,7 +207,7 @@ export const TransferWidget = ({
   const onNext = () => {
     const { error, message: validationMessage } = validate()
 
-    if (error === ValidationError.Warning) {
+    if (error === ValidationError.Warning && formStep === 0) {
       console.log('validationError: Warning: ', validationMessage)
       setWarningModalOpen({ message: validationMessage })
       return
