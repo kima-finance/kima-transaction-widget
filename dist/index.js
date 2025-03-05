@@ -5378,18 +5378,8 @@ var NetworkSelector_default = React102.memo(NetworkSelector);
 
 // src/components/reusable/SingleForm.tsx
 var SingleForm = ({
-  allowance,
   balance,
-  decimals,
-  formStep,
-  onBack,
-  onCancelApprove,
-  onNext,
-  getButtonLabel,
-  isApproving,
-  isSigning,
-  isSubmitting,
-  isCancellingApprove
+  decimals
 }) => {
   const dispatch = useDispatch17();
   const mode = useSelector30(selectMode);
@@ -5398,7 +5388,6 @@ var SingleForm = ({
   const { totalFeeUsd } = useSelector30(selectServiceFee);
   const compliantOption = useSelector30(selectCompliantOption);
   const targetCompliant = useSelector30(selectTargetCompliant);
-  const transactionOption = useSelector30(selectTransactionOption);
   const sourceNetwork = useSelector30(selectSourceChain);
   const targetNetwork = useSelector30(selectTargetChain);
   const { isReady } = useIsWalletReady4();
@@ -5476,7 +5465,7 @@ var SingleForm = ({
         dispatch(setAmount(maskedValue));
       }
     }
-  ), /* @__PURE__ */ React103.createElement(
+  ), /* @__PURE__ */ React103.createElement("div", { className: "max-disclaimer" }, /* @__PURE__ */ React103.createElement(
     "span",
     {
       className: "max-button",
@@ -5486,7 +5475,7 @@ var SingleForm = ({
       }
     },
     "Max"
-  ))));
+  ), totalFeeUsd !== -1 && /* @__PURE__ */ React103.createElement("p", null, "Est fees: $ ", totalFeeUsd, " USD")))));
 };
 var SingleForm_default = SingleForm;
 
@@ -5886,7 +5875,8 @@ var useValidateTransaction = ({
   sourceCompliant,
   targetCompliant,
   mode,
-  pools
+  pools,
+  formStep
 }) => {
   const maxValue = useMemo20(() => {
     if (!balance) return 0;
@@ -5934,19 +5924,19 @@ var useValidateTransaction = ({
         };
       }
     }
-    if (+amount > balance) {
+    if (+amount > balance && formStep === 0) {
       return {
         error: "Warning" /* Warning */,
         message: "The entered amount exceeds your available balance. This transaction is likely to fail. Proceed with caution."
       };
     }
-    if (+amount > maxValue) {
+    if (+amount > maxValue && formStep === 0) {
       return {
         error: "Warning" /* Warning */,
-        message: "The entered amount exceeds the max possible amount to transfer (amount plus fees). Proceed with caution."
+        message: "The entered amount exceeds the maximum transferable amount (available balance minus transaction fees). Reduce the amount or allow fees to be deducted from the transferred amount. Otherwise, your transaction may fail. Proceed with caution."
       };
     }
-    if (+amount < totalFeeUsd) {
+    if (+amount < totalFeeUsd && formStep === 0) {
       return {
         error: "Warning" /* Warning */,
         message: "Transaction fees exceed the transfer amount. This may result in an ineffective transaction. Proceed with caution."
@@ -6200,7 +6190,8 @@ var TransferWidget = ({
     compliantOption,
     mode,
     pools,
-    feeDeduct
+    feeDeduct,
+    formStep
   });
   const { submitTransaction, isSubmitting } = useSubmitTransaction_default({
     amount: BigInt(submitAmount ?? "0"),
@@ -6231,7 +6222,7 @@ var TransferWidget = ({
   };
   const onNext = () => {
     const { error, message: validationMessage } = validate();
-    if (error === "Warning" /* Warning */) {
+    if (error === "Warning" /* Warning */ && formStep === 0) {
       console.log("validationError: Warning: ", validationMessage);
       setWarningModalOpen({ message: validationMessage });
       return;
