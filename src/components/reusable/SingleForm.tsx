@@ -26,22 +26,10 @@ import useGetFees from '../../hooks/useGetFees'
 import { setServiceFee } from '@store/optionSlice'
 import { preciseSubtraction } from '@utils/functions'
 import NetworkSelector from '@components/primary/NetworkSelector'
-import TransactionSearch from './TransactionSearch'
-import OptionDivider from './OptionDivider'
 
 const SingleForm = ({
-  allowance,
   balance,
-  decimals,
-  formStep,
-  onBack,
-  onCancelApprove,
-  onNext,
-  getButtonLabel,
-  isApproving,
-  isSigning,
-  isSubmitting,
-  isCancellingApprove
+  decimals
 }: {
   allowance: number | undefined
   balance: number | undefined
@@ -63,7 +51,6 @@ const SingleForm = ({
   const { totalFeeUsd } = useSelector(selectServiceFee)
   const compliantOption = useSelector(selectCompliantOption)
   const targetCompliant = useSelector(selectTargetCompliant)
-  const transactionOption = useSelector(selectTransactionOption)
   const sourceNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
   const { isReady } = useIsWalletReady()
@@ -191,15 +178,18 @@ const SingleForm = ({
               dispatch(setAmount(maskedValue))
             }}
           />
-          <span
-            className='max-button'
-            onClick={() => {
-              setAmountValue(maxValue.toString())
-              dispatch(setAmount(maxValue.toString()))
-            }}
-          >
-            Max
-          </span>
+          <div className='max-disclaimer'>
+            <span
+              className='max-button'
+              onClick={() => {
+                setAmountValue(maxValue.toString())
+                dispatch(setAmount(maxValue.toString()))
+              }}
+            >
+              Max
+            </span>
+            {totalFeeUsd !== -1 && <p>Est fees: $ {totalFeeUsd} USD</p>}
+          </div>
         </div>
       </div>
     </div>
