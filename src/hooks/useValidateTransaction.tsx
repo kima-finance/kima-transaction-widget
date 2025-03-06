@@ -25,7 +25,8 @@ const useValidateTransaction = ({
   sourceCompliant,
   targetCompliant,
   mode,
-  pools
+  pools,
+  formStep
 }: {
   allowance: number
   isApproved: boolean
@@ -43,6 +44,7 @@ const useValidateTransaction = ({
   targetCompliant: any
   mode: ModeOptions
   pools: any[]
+  formStep: number
 }) => {
   const maxValue = useMemo(() => {
     if (!balance) return 0
@@ -101,9 +103,9 @@ const useValidateTransaction = ({
         }
       }
     }
-    
+
     // Check if the amount exceeds the max value
-    if (+amount > balance) {
+    if (+amount > balance && formStep === 0) {
       return {
         error: ValidationError.Warning,
         message:
@@ -111,22 +113,21 @@ const useValidateTransaction = ({
       }
     }
 
-    if (+amount > maxValue) {
+    if (+amount > maxValue && formStep === 0) {
       return {
         error: ValidationError.Warning,
         message:
-          'The entered amount exceeds the max possible amount to transfer (amount plus fees). Proceed with caution.'
+          'The entered amount exceeds the maximum transferable amount (available balance minus transaction fees). Reduce the amount or allow fees to be deducted from the transferred amount. Otherwise, your transaction may fail. Proceed with caution.'
       }
     }
 
-    if (+amount < totalFeeUsd) {
+    if (+amount < totalFeeUsd && formStep === 0) {
       return {
         error: ValidationError.Warning,
         message:
           'Transaction fees exceed the transfer amount. This may result in an ineffective transaction. Proceed with caution.'
       }
     }
-
 
     if (!isApproved && isSubmitting) {
       return {

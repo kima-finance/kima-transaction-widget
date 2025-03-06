@@ -122,10 +122,11 @@ export const TransferWidget = ({
 
   const { balance } = useBalance()
 
-  const { allowance, isApproved, approve, decimals } = useAllowance({
-    setApproving,
-    setCancellingApprove
-  })
+  const { allowance, isApproved, approve, decimals, signMessage } =
+    useAllowance({
+      setApproving,
+      setCancellingApprove
+    })
 
   const { complianceData: sourceCompliant } = useComplianceCheck(
     sourceAddress,
@@ -157,7 +158,8 @@ export const TransferWidget = ({
     compliantOption,
     mode,
     pools,
-    feeDeduct
+    feeDeduct,
+    formStep
   })
 
   const { submitTransaction, isSubmitting } = useSubmitTransaction({
@@ -197,8 +199,15 @@ export const TransferWidget = ({
       return
     }
 
+    const signature = await signMessage?.({
+      targetAddress,
+      targetChain: targetChain.shortName,
+      targetSymbol: targetCurrency
+    })
     // submit the kima transaction
-    const { success, message: submitMessage } = await submitTransaction()
+    const { success, message: submitMessage } = await submitTransaction(
+      JSON.stringify({ signature })
+    )
 
     if (!success) return toast.error(submitMessage, { icon: <ErrorIcon /> })
   }
@@ -206,7 +215,7 @@ export const TransferWidget = ({
   const onNext = () => {
     const { error, message: validationMessage } = validate()
 
-    if (error === ValidationError.Warning) {
+    if (error === ValidationError.Warning && formStep === 0) {
       console.log('validationError: Warning: ', validationMessage)
       setWarningModalOpen({ message: validationMessage })
       return

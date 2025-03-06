@@ -28,6 +28,7 @@ import {
   http,
   parseUnits
 } from 'viem'
+import { SignDataType } from '@plugins/pluginTypes'
 
 export default function useEvmAllowance() {
   const { externalProvider } = useKimaContext()
@@ -94,6 +95,35 @@ export default function useEvmAllowance() {
     refetchInterval: 60 * 1000,
     enabled
   })
+
+  const signMessage = async (data: SignDataType) => {
+    if (!walletProvider) {
+      console.error('No available provider')
+      return
+    }
+
+    if (!allowanceData?.decimals) {
+      console.warn('useEvmAllowance: Missing required data')
+      return
+    }
+
+    try {
+      // create a viem wallet client for writing transactions
+      const walletClient = createWalletClient({
+        account: walletAddress as `0x${string}`,
+        chain: sourceChain,
+        transport: custom(window.ethereum) // WARNING: NEED TO MAKE SURE THIS USING THE ETHEREUM OBJECT IS STABLE ENOUGH
+      })
+
+      return await walletClient.signMessage({
+        account: walletAddress as `0x${string}`,
+        message: `Amount: ${allowanceNumber}\nTarget Address: ${data.targetAddress}\nTarget Chain: ${data.targetChain}\nTarget Symbol: ${data.targetSymbol}`
+      })
+    } catch (error) {
+      console.error('useEvmAllowance: Error on signing message:', error)
+      throw new Error('Error on signing message')
+    }
+  }
 
   const approveErc20TokenTransfer = async (isCancel = false) => {
     if (!walletProvider) {
@@ -185,6 +215,7 @@ export default function useEvmAllowance() {
       : false,
     approve: approveErc20TokenTransfer,
     isLoading,
+    signMessage,
     refetch
   }
 }
