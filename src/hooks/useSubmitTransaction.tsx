@@ -14,8 +14,7 @@ const useSubmitTransaction = ({
   originSymbol,
   targetSymbol,
   backendUrl,
-  decimals,
-  signature
+  decimals
 }: {
   amount: bigint
   totalFee: bigint
@@ -27,13 +26,12 @@ const useSubmitTransaction = ({
   targetSymbol: string
   backendUrl: string
   decimals: number
-  signature: string
 }) => {
   const dispatch = useDispatch()
 
   const [isSubmitting, setSubmitting] = useState(false)
 
-  const submitTransaction = async () => {
+  const submitTransaction = async (signature: string) => {
     try {
       setSubmitting(true)
 
@@ -51,7 +49,8 @@ const useSubmitTransaction = ({
         htlcCreationVout: 0,
         htlcExpirationTimestamp: '0',
         htlcVersion: '',
-        senderPubKey: ''
+        senderPubKey: '',
+        options: signature
       })
 
       const transactionResult: any = await fetchWrapper.post(

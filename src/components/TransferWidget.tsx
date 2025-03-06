@@ -80,7 +80,6 @@ export const TransferWidget = ({
 
   // State variables for UI
   const [formStep, setFormStep] = useState(0)
-  const [signature, setSignature] = useState('')
 
   // Redux variables
   const dAppOption = useSelector(selectDappOption)
@@ -168,8 +167,7 @@ export const TransferWidget = ({
     originSymbol: sourceCurrency,
     targetSymbol: targetCurrency,
     backendUrl,
-    decimals: feeDecimals,
-    signature
+    decimals: feeDecimals
   })
 
   const handleSubmit = async () => {
@@ -196,14 +194,15 @@ export const TransferWidget = ({
       return
     }
 
-    const sig = await signMessage?.({
+    const signature = await signMessage?.({
       targetAddress,
       targetChain: targetChain.shortName,
       targetSymbol: targetCurrency
     })
-    setSignature(sig)
     // submit the kima transaction
-    const { success, message: submitMessage } = await submitTransaction()
+    const { success, message: submitMessage } = await submitTransaction(
+      JSON.stringify({ signature })
+    )
 
     if (!success) return toast.error(submitMessage, { icon: <ErrorIcon /> })
   }
