@@ -61,7 +61,7 @@ export const getTokenAllowance = async ({
       erc20Contract.read.decimals() as Promise<number>
     ])
 
-    console.log("allowance data: ", allowance, balance, decimals)
+    console.log('allowance data: ', allowance, balance, decimals)
 
     return {
       allowance: Number(formatUnits(allowance, decimals)),

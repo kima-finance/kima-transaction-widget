@@ -122,10 +122,11 @@ export const TransferWidget = ({
 
   const { balance } = useBalance()
 
-  const { allowance, isApproved, approve, decimals } = useAllowance({
-    setApproving,
-    setCancellingApprove
-  })
+  const { allowance, isApproved, approve, decimals, signMessage } =
+    useAllowance({
+      setApproving,
+      setCancellingApprove
+    })
 
   const { complianceData: sourceCompliant } = useComplianceCheck(
     sourceAddress,
@@ -197,8 +198,15 @@ export const TransferWidget = ({
       return
     }
 
+    const signature = await signMessage?.({
+      targetAddress,
+      targetChain: targetChain.shortName,
+      targetSymbol: targetCurrency
+    })
     // submit the kima transaction
-    const { success, message: submitMessage } = await submitTransaction()
+    const { success, message: submitMessage } = await submitTransaction(
+      JSON.stringify({ signature })
+    )
 
     if (!success) return toast.error(submitMessage, { icon: <ErrorIcon /> })
   }

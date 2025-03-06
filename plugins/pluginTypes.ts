@@ -18,9 +18,16 @@ export interface Plugin {
   useDisconnectWallet: () => PluginUseDisconnectWalletResult
 }
 
+export interface SignDataType {
+  targetAddress: string
+  targetChain: string
+  targetSymbol: string
+}
+
 export interface PluginUseAllowanceResult {
   isApproved: boolean
   approve: (isCancel?: boolean) => Promise<void>
+  signMessage?: (data: SignDataType) => Promise<any>
   allowance?: number | undefined
   balance?: number | undefined
   decimals?: number | undefined
@@ -57,7 +64,7 @@ export interface PluginData {
   pluginData: { [key: string]: any } // currently empty
 }
 
-export interface ChainData extends Chain{
+export interface ChainData extends Chain {
   compatibility: ChainCompatibility
   name: string
   shortName: string
