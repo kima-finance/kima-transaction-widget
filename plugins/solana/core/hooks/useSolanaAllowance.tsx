@@ -118,10 +118,10 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
     }
 
     try {
-      const message = `Amount: ${allowanceNumber}\nTarget Address: ${data.targetAddress}\nTarget Chain: ${data.targetChain}\nTarget Symbol: ${data.targetSymbol}`
+      const message = `Target Address: ${data.targetAddress}\nTarget Chain: ${data.targetChain}\nTarget Symbol: ${data.targetSymbol}`
       const encodedMessage = new TextEncoder().encode(message)
       const signature = await signMessage(encodedMessage)
-      return signature
+      return `0x${Buffer.from(signature.signature).toString('hex')}`
     } catch (error) {
       console.error('Error signing message:', error)
       throw error
