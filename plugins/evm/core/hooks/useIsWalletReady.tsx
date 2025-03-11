@@ -11,7 +11,7 @@ import { appKitModel } from '@plugins/evm/config/modalConfig'
 import { switchNetworkEthers } from '../../utils/switchNetworkEthers'
 import { useKimaContext } from '../../../../src/KimaProvider'
 import { useChainData } from '../../../../src/hooks/useChainData'
-import { ChainData } from '@plugins/pluginTypes'
+import { ChainCompatibility, ChainData } from '@plugins/pluginTypes'
 import { BrowserProvider } from 'ethers'
 
 function useIsWalletReady(): {
@@ -141,11 +141,12 @@ function useIsWalletReady(): {
   }, [externalProvider, sourceChain, switchNetwork, walletChainId, isConnected])
 
   useEffect(() => {
-    if (isConnected) {
+    if (isConnected && sourceChain.compatibility === ChainCompatibility.EVM) {
       console.debug(
         'useIsWalletReady:EVM: Dispatching source address:',
         walletAddress
       )
+      console.log("dispatching evm address: ", walletAddress)
       dispatch(setSourceAddress(walletAddress ?? ''))
     }
   }, [walletAddress, isConnected, dispatch])
