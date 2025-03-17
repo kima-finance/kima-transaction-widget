@@ -41,7 +41,7 @@ const KimaTransactionWidget = ({
   titleOption,
   paymentTitleOption,
   helpURL = '',
-  compliantOption = true,
+  compliantOption = false,
   transactionOption,
   excludedSourceNetworks = [],
   excludedTargetNetworks = []

@@ -3,6 +3,8 @@ import { useDispatch } from 'react-redux'
 import { setTxId, setSubmitted } from '@store/optionSlice'
 import { getTransactionId } from '@utils/functions'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
+import { useSelector } from 'react-redux'
+import { selectSignature } from '@store/selectors'
 
 const useSubmitTransaction = ({
   amount,
@@ -30,8 +32,9 @@ const useSubmitTransaction = ({
   const dispatch = useDispatch()
 
   const [isSubmitting, setSubmitting] = useState(false)
+  const signature = useSelector(selectSignature)
 
-  const submitTransaction = async (signature: string) => {
+  const submitTransaction = async () => {
     try {
       setSubmitting(true)
 

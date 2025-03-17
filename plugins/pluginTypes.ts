@@ -21,7 +21,8 @@ export interface Plugin {
 export interface SignDataType {
   targetAddress: string
   targetChain: string
-  targetSymbol: string
+  originChain: string
+  originSymbol: string
 }
 
 export interface PluginUseAllowanceResult {
