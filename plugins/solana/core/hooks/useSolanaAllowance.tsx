@@ -118,7 +118,7 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
     }
 
     try {
-      const message = `Target Address: ${data.targetAddress}\nTarget Chain: ${data.targetChain}\nTarget Symbol: ${data.targetSymbol}`
+      const message = `I approve moving ${allowanceNumber} ${data.originSymbol} from ${data.originChain} to ${data.targetAddress} on ${data.targetChain}`
       const encodedMessage = new TextEncoder().encode(message)
       const signature = await signMessage(encodedMessage)
       return `0x${Buffer.from(signature).toString('hex')}`

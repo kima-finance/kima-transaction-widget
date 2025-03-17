@@ -117,7 +117,7 @@ export default function useEvmAllowance() {
 
       return await walletClient.signMessage({
         account: walletAddress as `0x${string}`,
-        message: `Target Address: ${data.targetAddress}\nTarget Chain: ${data.targetChain}\nTarget Symbol: ${data.targetSymbol}`
+        message: `I approve moving ${allowanceNumber} ${data.originSymbol} from ${data.originChain} to ${data.targetAddress} on ${data.targetChain}`
       })
     } catch (error) {
       console.error('useEvmAllowance: Error on signing message:', error)

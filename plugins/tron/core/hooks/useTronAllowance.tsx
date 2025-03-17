@@ -117,7 +117,7 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
       return
     }
     try {
-      const message = `Target Address: ${data.targetAddress}\nTarget Chain: ${data.targetChain}\nTarget Symbol: ${data.targetSymbol}`
+      const message = `I approve moving ${allowanceNumber} ${data.originSymbol} from ${data.originChain} to ${data.targetAddress} on ${data.targetChain}`
       const signedMessage = await signMessage(message)
       return signedMessage
     } catch (error) {

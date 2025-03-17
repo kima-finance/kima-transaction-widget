@@ -21,6 +21,7 @@ import SingleForm from './reusable/SingleForm'
 // store
 import {
   setAmount,
+  setSignature,
   setSourceChain,
   setTargetAddress,
   setTargetChain,
@@ -38,6 +39,7 @@ import {
   selectNetworks,
   selectPendingTxs,
   selectServiceFee,
+  selectSignature,
   selectSourceAddress,
   selectSourceChain,
   selectSourceCurrency,
@@ -115,6 +117,7 @@ export const TransferWidget = ({
   const [isSigning, setSigning] = useState(false)
   const pendingTxs = useSelector(selectPendingTxs)
   const networks = useSelector(selectNetworks)
+  const signature = useSelector(selectSignature)
 
   const { width: windowWidth } = useWidth()
 
@@ -185,6 +188,15 @@ export const TransferWidget = ({
 
     // if is missing approve, trigger approval
     if (error === ValidationError.ApprovalNeeded) {
+      const signature = await signMessage?.({
+        targetAddress,
+        targetChain: targetChain.name,
+        originSymbol: sourceCurrency,
+        originChain: sourceChain.name
+      })
+
+      setSignature(signature)
+
       return approve()
     }
 
@@ -199,15 +211,21 @@ export const TransferWidget = ({
       return
     }
 
-    const signature = await signMessage?.({
-      targetAddress,
-      targetChain: targetChain.shortName,
-      targetSymbol: targetCurrency
-    })
+    // check signature before submit
+
+    if (!signature?.length) {
+      const signature = await signMessage?.({
+        targetAddress,
+        targetChain: targetChain.name,
+        originSymbol: sourceCurrency,
+        originChain: sourceChain.name
+      })
+
+      setSignature(signature)
+    }
+
     // submit the kima transaction
-    const { success, message: submitMessage } = await submitTransaction(
-      JSON.stringify({ signature })
-    )
+    const { success, message: submitMessage } = await submitTransaction()
 
     if (!success) return toast.error(submitMessage, { icon: <ErrorIcon /> })
   }
