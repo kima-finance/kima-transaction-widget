@@ -32,9 +32,8 @@ const useSubmitTransaction = ({
   const dispatch = useDispatch()
 
   const [isSubmitting, setSubmitting] = useState(false)
-  const signature = useSelector(selectSignature)
 
-  const submitTransaction = async () => {
+  const submitTransaction = async (signature: string) => {
     try {
       setSubmitting(true)
 
@@ -53,7 +52,7 @@ const useSubmitTransaction = ({
         htlcExpirationTimestamp: '0',
         htlcVersion: '',
         senderPubKey: '',
-        options: signature
+        options: JSON.stringify({ signature })
       })
 
       const transactionResult: any = await fetchWrapper.post(

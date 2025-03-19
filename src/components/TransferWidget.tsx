@@ -21,7 +21,6 @@ import SingleForm from './reusable/SingleForm'
 // store
 import {
   setAmount,
-  setSignature,
   setSourceChain,
   setTargetAddress,
   setTargetChain,
@@ -39,7 +38,6 @@ import {
   selectNetworks,
   selectPendingTxs,
   selectServiceFee,
-  selectSignature,
   selectSourceAddress,
   selectSourceChain,
   selectSourceCurrency,
@@ -82,6 +80,7 @@ export const TransferWidget = ({
   const mainRef = useRef<HTMLDivElement>(null)
 
   // State variables for UI
+  const [signature, setSignature] = useState('')
   const [formStep, setFormStep] = useState(0)
   const [warningModalOpen, setWarningModalOpen] = useState<{
     message: string
@@ -117,7 +116,6 @@ export const TransferWidget = ({
   const [isSigning, setSigning] = useState(false)
   const pendingTxs = useSelector(selectPendingTxs)
   const networks = useSelector(selectNetworks)
-  const signature = useSelector(selectSignature)
 
   const { width: windowWidth } = useWidth()
 
@@ -188,14 +186,14 @@ export const TransferWidget = ({
 
     // if is missing approve, trigger approval
     if (error === ValidationError.ApprovalNeeded) {
-      const signature = await signMessage?.({
+      const sig = await signMessage?.({
         targetAddress,
         targetChain: targetChain.name,
         originSymbol: sourceCurrency,
         originChain: sourceChain.name
       })
 
-      setSignature(signature)
+      setSignature(sig)
 
       return approve()
     }
@@ -213,19 +211,18 @@ export const TransferWidget = ({
 
     // check signature before submit
 
-    if (!signature?.length) {
-      const signature = await signMessage?.({
+    let sig = signature
+    if (!sig) {
+      sig = await signMessage?.({
         targetAddress,
         targetChain: targetChain.name,
         originSymbol: sourceCurrency,
         originChain: sourceChain.name
       })
-
-      setSignature(signature)
     }
 
     // submit the kima transaction
-    const { success, message: submitMessage } = await submitTransaction()
+    const { success, message: submitMessage } = await submitTransaction(sig)
 
     if (!success) return toast.error(submitMessage, { icon: <ErrorIcon /> })
   }
