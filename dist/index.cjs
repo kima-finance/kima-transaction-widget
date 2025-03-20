@@ -2544,11 +2544,12 @@ function useIsWalletReady() {
     checkChainId();
   }, [externalProvider, sourceChain, switchNetwork, walletChainId, isConnected]);
   (0, import_react76.useEffect)(() => {
-    if (isConnected) {
+    if (isConnected && sourceChain.compatibility === "EVM" /* EVM */) {
       console.debug(
         "useIsWalletReady:EVM: Dispatching source address:",
         walletAddress
       );
+      console.log("dispatching evm address: ", walletAddress);
       dispatch(setSourceAddress(walletAddress ?? ""));
     }
   }, [walletAddress, isConnected, dispatch]);
@@ -2749,12 +2750,14 @@ function useEvmAllowance() {
   const appkitAccountInfo = (0, import_react79.useAppKitAccount)();
   const sourceChain = (0, import_react_redux5.useSelector)(selectSourceChain);
   const networkOption = (0, import_react_redux5.useSelector)(selectNetworkOption);
-  const { totalFeeUsd, allowanceAmount, decimals } = (0, import_react_redux5.useSelector)(selectServiceFee);
+  const { totalFeeUsd, allowanceAmount, submitAmount, decimals } = (0, import_react_redux5.useSelector)(selectServiceFee);
   const selectedCoin = (0, import_react_redux5.useSelector)(selectSourceCurrency);
   const tokenOptions = (0, import_react_redux5.useSelector)(selectTokenOptions);
   const backendUrl = (0, import_react_redux5.useSelector)(selectBackendUrl);
   const feeDeduct = (0, import_react_redux5.useSelector)(selectFeeDeduct);
-  const allowanceNumber = Number((0, import_ethers6.formatUnits)(allowanceAmount ?? "0", decimals));
+  const allowanceNumber = Number(
+    (0, import_ethers6.formatUnits)(feeDeduct ? submitAmount : allowanceAmount ?? "0", decimals)
+  );
   const amount = (0, import_react_redux5.useSelector)(selectAmount);
   const { pools } = useGetPools_default(backendUrl, networkOption);
   const walletAddress = externalProvider?.signer?.address || appkitAccountInfo?.address;
@@ -2780,6 +2783,31 @@ function useEvmAllowance() {
     refetchInterval: 60 * 1e3,
     enabled
   });
+  const signMessage = async (data) => {
+    if (!walletProvider) {
+      console.error("No available provider");
+      return;
+    }
+    if (!allowanceData?.decimals) {
+      console.warn("useEvmAllowance: Missing required data");
+      return;
+    }
+    try {
+      const walletClient = (0, import_viem5.createWalletClient)({
+        account: walletAddress,
+        chain: sourceChain,
+        transport: (0, import_viem5.custom)(window.ethereum)
+        // WARNING: NEED TO MAKE SURE THIS USING THE ETHEREUM OBJECT IS STABLE ENOUGH
+      });
+      return await walletClient.signMessage({
+        account: walletAddress,
+        message: `I approve the transfer of ${allowanceNumber} ${data.originSymbol} from ${data.originChain} to ${data.targetAddress} on ${data.targetChain}.`
+      });
+    } catch (error) {
+      console.error("useEvmAllowance: Error on signing message:", error);
+      throw new Error("Error on signing message");
+    }
+  };
   const approveErc20TokenTransfer = async (isCancel = false) => {
     if (!walletProvider) {
       console.error("No available provider");
@@ -2845,6 +2873,7 @@ function useEvmAllowance() {
     isApproved: allowanceData?.allowance ? allowanceData.allowance >= allowanceNumber : false,
     approve: approveErc20TokenTransfer,
     isLoading,
+    signMessage,
     refetch
   };
 }
@@ -3030,15 +3059,19 @@ var import_web38 = require("@solana/web3.js");
 var import_ethers7 = require("ethers");
 function useSolanaAllowance() {
   const sourceChain = (0, import_react_redux7.useSelector)(selectSourceChain);
-  const { allowanceAmount, decimals } = (0, import_react_redux7.useSelector)(selectServiceFee);
+  const { allowanceAmount, submitAmount, decimals } = (0, import_react_redux7.useSelector)(selectServiceFee);
+  const feeDeduct = (0, import_react_redux7.useSelector)(selectFeeDeduct);
   const backendUrl = (0, import_react_redux7.useSelector)(selectBackendUrl);
   const networkOption = (0, import_react_redux7.useSelector)(selectNetworkOption);
-  const allowanceNumber = Number((0, import_ethers7.formatUnits)(allowanceAmount ?? "0", decimals));
+  const allowanceNumber = Number(
+    (0, import_ethers7.formatUnits)(feeDeduct ? submitAmount : allowanceAmount ?? "0", decimals)
+  );
   const { externalProvider } = useKimaContext();
   const { connection: internalConnection } = (0, import_wallet_adapter_react3.useConnection)();
   const {
     publicKey: internalPublicKey,
-    signTransaction: internalSignTransaction
+    signTransaction: internalSignTransaction,
+    signMessage: internalSignMessage
   } = (0, import_wallet_adapter_react3.useWallet)();
   const selectedCoin = (0, import_react_redux7.useSelector)(selectSourceCurrency);
   const tokenOptions = (0, import_react_redux7.useSelector)(selectTokenOptions);
@@ -3047,6 +3080,7 @@ function useSolanaAllowance() {
   const isSolanaProvider = sourceChain.shortName === "SOL" && externalProvider?.type === "solana" && externalProvider.provider && externalProvider.signer instanceof import_web38.PublicKey;
   const userPublicKey = isSolanaProvider ? externalProvider.signer : sourceChain.shortName === "SOL" ? internalPublicKey : void 0;
   const signTransaction = isSolanaProvider && externalProvider.provider.signTransaction ? externalProvider.provider.signTransaction : sourceChain.shortName === "SOL" ? internalSignTransaction : void 0;
+  const signMessage = isSolanaProvider && externalProvider.provider.signMessage ? externalProvider.provider.signMessage : sourceChain.shortName === "SOL" ? internalSignMessage : void 0;
   const connection = isSolanaProvider && externalProvider.provider.connection ? externalProvider.provider.connection : sourceChain.shortName === "SOL" ? internalConnection : void 0;
   const {
     data: allowanceData,
@@ -3075,6 +3109,21 @@ function useSolanaAllowance() {
     staleTime: 1e3 * 60
     // 1 min
   });
+  const signSolanaMessage = async (data) => {
+    if (!signMessage) {
+      console.warn("useSolanaAllowance: Missing Solana provider setup");
+      return;
+    }
+    try {
+      const message = `I approve the transfer of ${allowanceNumber} ${data.originSymbol} from ${data.originChain} to ${data.targetAddress} on ${data.targetChain}.`;
+      const encodedMessage = new TextEncoder().encode(message);
+      const signature = await signMessage(encodedMessage);
+      return `0x${Buffer.from(signature).toString("hex")}`;
+    } catch (error2) {
+      console.error("Error signing message:", error2);
+      throw error2;
+    }
+  };
   const approveSPLTokenTransfer = async (isCancel = false) => {
     if (!allowanceAmount) {
       console.warn("useSolanaAllowance: Missing allowance amount");
@@ -3132,7 +3181,8 @@ function useSolanaAllowance() {
   return {
     ...allowanceData,
     isApproved: allowanceData?.allowance ? allowanceData.allowance >= allowanceNumber : false,
-    approve: approveSPLTokenTransfer
+    approve: approveSPLTokenTransfer,
+    signMessage: signSolanaMessage
   };
 }
 
@@ -3599,15 +3649,19 @@ function useTronAllowance() {
   const sourceChain = (0, import_react_redux11.useSelector)(selectSourceChain);
   const networkOption = (0, import_react_redux11.useSelector)(selectNetworkOption);
   const backendUrl = (0, import_react_redux11.useSelector)(selectBackendUrl);
-  const { allowanceAmount, decimals } = (0, import_react_redux11.useSelector)(selectServiceFee);
+  const { allowanceAmount, submitAmount, decimals } = (0, import_react_redux11.useSelector)(selectServiceFee);
   (0, import_tronwallet_adapter_react_hooks3.useWallet)();
   const selectedCoin = (0, import_react_redux11.useSelector)(selectSourceCurrency);
   const tokenOptions = (0, import_react_redux11.useSelector)(selectTokenOptions);
-  const allowanceNumber = Number((0, import_ethers9.formatUnits)(allowanceAmount ?? "0", decimals));
+  const feeDeduct = (0, import_react_redux11.useSelector)(selectFeeDeduct);
+  const allowanceNumber = Number(
+    (0, import_ethers9.formatUnits)(feeDeduct ? submitAmount : allowanceAmount ?? "0", decimals)
+  );
   const { pools } = useGetPools_default(backendUrl, networkOption);
   const {
     address: internalUserAddress,
-    signTransaction: internalSignTronTransaction
+    signTransaction: internalSignTronTransaction,
+    signMessage: internalSignMessage
   } = (0, import_tronwallet_adapter_react_hooks3.useWallet)();
   const [approvalsCount, setApprovalsCount] = (0, import_react88.useState)(0);
   const isTronProvider2 = sourceChain.shortName === "TRX" && externalProvider?.type === "tron" && externalProvider.provider.tronWeb instanceof import_tronweb5.TronWeb && typeof externalProvider.signer === "string";
@@ -3619,6 +3673,7 @@ function useTronAllowance() {
   isTronProvider2 && tronWeb.setAddress(TRON_USDK_OWNER_ADDRESS);
   const userAddress = isTronProvider2 ? externalProvider.signer : internalUserAddress;
   const signTronTransaction = isTronProvider2 ? externalProvider.provider.signTransaction : internalSignTronTransaction;
+  const signMessage = isTronProvider2 ? externalProvider.provider.signMessage : internalSignMessage;
   const {
     data: allowanceData,
     isLoading,
@@ -3639,6 +3694,20 @@ function useTronAllowance() {
     staleTime: 1e3 * 60
     // 1 min
   });
+  const signTronMessage = async (data) => {
+    if (!tronWeb) {
+      console.warn("TronWeb not initialized");
+      return;
+    }
+    try {
+      const message = `I approve the transfer of ${allowanceNumber} ${data.originSymbol} from ${data.originChain} to ${data.targetAddress} on ${data.targetChain}.`;
+      const signedMessage = await signMessage(message);
+      return signedMessage;
+    } catch (error2) {
+      console.error("Error signing message:", error2);
+      throw error2;
+    }
+  };
   const approveTrc20TokenTransfer = async (isCancel = false) => {
     if (!userAddress || !pools || !tronWeb || !tokenOptions || !selectedCoin || !allowanceAmount) {
       console.warn("Missing required data for approveTrc20TokenTransfer");
@@ -3677,7 +3746,8 @@ function useTronAllowance() {
   return {
     ...allowanceData,
     isApproved: allowanceData?.allowance ? allowanceData.allowance >= allowanceNumber : false,
-    approve: approveTrc20TokenTransfer
+    approve: approveTrc20TokenTransfer,
+    signMessage: signTronMessage
   };
 }
 
@@ -5940,7 +6010,7 @@ var useSubmitTransaction = ({
 }) => {
   const dispatch = (0, import_react_redux50.useDispatch)();
   const [isSubmitting, setSubmitting] = (0, import_react131.useState)(false);
-  const submitTransaction = async () => {
+  const submitTransaction = async (signature) => {
     try {
       setSubmitting(true);
       const params = JSON.stringify({
@@ -5957,7 +6027,8 @@ var useSubmitTransaction = ({
         htlcCreationVout: 0,
         htlcExpirationTimestamp: "0",
         htlcVersion: "",
-        senderPubKey: ""
+        senderPubKey: "",
+        options: JSON.stringify({ signature })
       });
       const transactionResult = await fetchWrapper.post(
         `${backendUrl}/submit`,
@@ -6083,6 +6154,7 @@ var TransferWidget = ({
 }) => {
   const dispatch = (0, import_react_redux51.useDispatch)();
   const mainRef = (0, import_react133.useRef)(null);
+  const [signature, setSignature2] = (0, import_react133.useState)("");
   const [formStep, setFormStep] = (0, import_react133.useState)(0);
   const [warningModalOpen, setWarningModalOpen] = (0, import_react133.useState)(null);
   const dAppOption = (0, import_react_redux51.useSelector)(selectDappOption);
@@ -6115,7 +6187,7 @@ var TransferWidget = ({
   const { width: windowWidth } = useWidth_default();
   const { disconnectWallet } = useDisconnectWallet4();
   const { balance } = useBalance2();
-  const { allowance, isApproved, approve, decimals } = useAllowance({
+  const { allowance, isApproved, approve, decimals, signMessage } = useAllowance({
     setApproving,
     setCancellingApprove
   });
@@ -6167,13 +6239,29 @@ var TransferWidget = ({
       return import_react_hot_toast5.toast.error(validationMessage, { icon: /* @__PURE__ */ import_react133.default.createElement(Error_default, null) });
     }
     if (error === "ApprovalNeeded" /* ApprovalNeeded */) {
+      const sig2 = await signMessage?.({
+        targetAddress,
+        targetChain: targetChain.shortName,
+        originSymbol: sourceCurrency,
+        originChain: sourceChain.shortName
+      });
+      setSignature2(sig2);
       return approve();
     }
     if (dAppOption === "LPDrain" /* LPDrain */ || dAppOption === "LPAdd" /* LPAdd */) {
       keplrHandler && keplrHandler(sourceAddress);
       return;
     }
-    const { success, message: submitMessage } = await submitTransaction();
+    let sig = signature;
+    if (!sig) {
+      sig = await signMessage?.({
+        targetAddress,
+        targetChain: targetChain.shortName,
+        originSymbol: sourceCurrency,
+        originChain: sourceChain.shortName
+      });
+    }
+    const { success, message: submitMessage } = await submitTransaction(sig);
     if (!success) return import_react_hot_toast5.toast.error(submitMessage, { icon: /* @__PURE__ */ import_react133.default.createElement(Error_default, null) });
   };
   const onNext = () => {
@@ -6475,7 +6563,7 @@ var KimaTransactionWidget = ({
   titleOption,
   paymentTitleOption,
   helpURL = "",
-  compliantOption = true,
+  compliantOption = false,
   transactionOption,
   excludedSourceNetworks = [],
   excludedTargetNetworks = []
