@@ -38,13 +38,15 @@ export default function useEvmAllowance() {
 
   const sourceChain = useSelector(selectSourceChain)
   const networkOption = useSelector(selectNetworkOption)
-  const { totalFeeUsd, allowanceAmount, decimals } =
+  const { totalFeeUsd, allowanceAmount, submitAmount, decimals } =
     useSelector(selectServiceFee)
   const selectedCoin = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
   const backendUrl = useSelector(selectBackendUrl)
   const feeDeduct = useSelector(selectFeeDeduct)
-  const allowanceNumber = Number(formatUnits(allowanceAmount ?? '0', decimals))
+  const allowanceNumber = Number(
+    formatUnits(feeDeduct ? submitAmount : (allowanceAmount ?? '0'), decimals)
+  )
   const amount = useSelector(selectAmount)
 
   const { pools } = useGetPools(backendUrl, networkOption)
