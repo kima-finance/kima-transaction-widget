@@ -8,7 +8,8 @@ import {
   selectServiceFee,
   selectTokenOptions,
   selectNetworkOption,
-  selectBackendUrl
+  selectBackendUrl,
+  selectFeeDeduct
 } from '@store/selectors'
 import {
   useWallet as useTronWallet,
@@ -24,7 +25,7 @@ import { useQuery } from '@tanstack/react-query'
 import { getTokenAllowance } from '../../utils/getTokenAllowance'
 import useGetPools from '../../../../src/hooks/useGetPools'
 import { getPoolAddress, getTokenAddress } from '@utils/functions'
-import { PluginUseAllowanceResult } from '@plugins/pluginTypes'
+import { PluginUseAllowanceResult, SignDataType } from '@plugins/pluginTypes'
 import { TronWeb } from 'tronweb'
 import { TronProvider } from '@interface'
 import { useKimaContext } from '../../../../src/KimaProvider'
@@ -35,16 +36,21 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
   const sourceChain = useSelector(selectSourceChain)
   const networkOption = useSelector(selectNetworkOption)
   const backendUrl = useSelector(selectBackendUrl)
-  const { allowanceAmount, decimals } = useSelector(selectServiceFee)
+  const { allowanceAmount, submitAmount, decimals } =
+    useSelector(selectServiceFee)
   useTronWallet()
   const selectedCoin = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
-  const allowanceNumber = Number(formatUnits(allowanceAmount ?? '0', decimals))
+  const feeDeduct = useSelector(selectFeeDeduct)
+  const allowanceNumber = Number(
+    formatUnits(feeDeduct ? submitAmount : (allowanceAmount ?? '0'), decimals)
+  )
 
   const { pools } = useGetPools(backendUrl, networkOption)
   const {
     address: internalUserAddress,
-    signTransaction: internalSignTronTransaction
+    signTransaction: internalSignTronTransaction,
+    signMessage: internalSignMessage
   } = useWallet()
 
   const [approvalsCount, setApprovalsCount] = useState(0) // for refetch purposes after approving
@@ -75,6 +81,11 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
     ? (externalProvider.provider as TronProvider).signTransaction
     : internalSignTronTransaction
 
+  // Set the proper signMessage function
+  const signMessage = isTronProvider
+    ? (externalProvider.provider as TronProvider).signMessage
+    : internalSignMessage
+
   // console.log('tronWeb: ', tronWeb)
   // console.log('userAddress: ', userAddress)
   // console.log('signTronTransaction: ', signTronTransaction)
@@ -104,6 +115,21 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
       sourceChain.shortName === 'TRX',
     staleTime: 1000 * 60 // 1 min
   })
+
+  const signTronMessage = async (data: SignDataType) => {
+    if (!tronWeb) {
+      console.warn('TronWeb not initialized')
+      return
+    }
+    try {
+      const message = `I approve the transfer of ${allowanceNumber} ${data.originSymbol} from ${data.originChain} to ${data.targetAddress} on ${data.targetChain}.`
+      const signedMessage = await signMessage(message)
+      return signedMessage
+    } catch (error) {
+      console.error('Error signing message:', error)
+      throw error
+    }
+  }
 
   // TODO: refactor to use use Tanstack useMutaion hook
   const approveTrc20TokenTransfer = async (isCancel: boolean = false) => {
@@ -161,6 +187,7 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
     isApproved: allowanceData?.allowance
       ? allowanceData.allowance >= allowanceNumber
       : false,
-    approve: approveTrc20TokenTransfer
+    approve: approveTrc20TokenTransfer,
+    signMessage: signTronMessage
   }
 }

@@ -8,7 +8,8 @@ import {
   selectServiceFee,
   selectTokenOptions,
   selectBackendUrl,
-  selectNetworkOption
+  selectNetworkOption,
+  selectFeeDeduct
 } from '@store/selectors'
 import { useQuery } from '@tanstack/react-query'
 import { getTokenAllowance } from '../../utils/getTokenAllowance'
@@ -20,22 +21,27 @@ import {
 } from '@solana/spl-token'
 import { getPoolAddress, getTokenAddress } from '@utils/functions'
 import { PublicKey, Transaction } from '@solana/web3.js'
-import { PluginUseAllowanceResult } from '@plugins/pluginTypes'
+import { PluginUseAllowanceResult, SignDataType } from '@plugins/pluginTypes'
 import { useKimaContext } from '../../../../src/KimaProvider'
 import { formatUnits } from 'ethers'
 
 export default function useSolanaAllowance(): PluginUseAllowanceResult {
   const sourceChain = useSelector(selectSourceChain)
-  const { allowanceAmount, decimals } = useSelector(selectServiceFee)
+  const { allowanceAmount, submitAmount, decimals } =
+    useSelector(selectServiceFee)
+  const feeDeduct = useSelector(selectFeeDeduct)
   const backendUrl = useSelector(selectBackendUrl)
   const networkOption = useSelector(selectNetworkOption)
-  const allowanceNumber = Number(formatUnits(allowanceAmount ?? '0', decimals))
+  const allowanceNumber = Number(
+    formatUnits(feeDeduct ? submitAmount : (allowanceAmount ?? '0'), decimals)
+  )
   const { externalProvider } = useKimaContext()
 
   const { connection: internalConnection } = useConnection()
   const {
     publicKey: internalPublicKey,
-    signTransaction: internalSignTransaction
+    signTransaction: internalSignTransaction,
+    signMessage: internalSignMessage
   } = useWallet()
   const selectedCoin = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
@@ -63,6 +69,14 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
       ? externalProvider.provider.signTransaction
       : sourceChain.shortName === 'SOL'
         ? internalSignTransaction
+        : undefined
+
+  // Set the proper signMessage object only for Solana
+  const signMessage =
+    isSolanaProvider && externalProvider.provider.signMessage
+      ? externalProvider.provider.signMessage
+      : sourceChain.shortName === 'SOL'
+        ? internalSignMessage
         : undefined
 
   // Set the proper connection object only for Solana
@@ -101,6 +115,23 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
     refetchInterval: 1000 * 60, // 1 min
     staleTime: 1000 * 60 // 1 min
   })
+
+  const signSolanaMessage = async (data: SignDataType) => {
+    if (!signMessage) {
+      console.warn('useSolanaAllowance: Missing Solana provider setup')
+      return
+    }
+
+    try {
+      const message = `I approve the transfer of ${allowanceNumber} ${data.originSymbol} from ${data.originChain} to ${data.targetAddress} on ${data.targetChain}.`
+      const encodedMessage = new TextEncoder().encode(message)
+      const signature = await signMessage(encodedMessage)
+      return `0x${Buffer.from(signature).toString('hex')}`
+    } catch (error) {
+      console.error('Error signing message:', error)
+      throw error
+    }
+  }
 
   const approveSPLTokenTransfer = async (isCancel: boolean = false) => {
     if (!allowanceAmount) {
@@ -175,6 +206,7 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
     isApproved: allowanceData?.allowance
       ? allowanceData.allowance >= allowanceNumber
       : false,
-    approve: approveSPLTokenTransfer
+    approve: approveSPLTokenTransfer,
+    signMessage: signSolanaMessage
   }
 }

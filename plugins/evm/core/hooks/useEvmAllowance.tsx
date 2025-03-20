@@ -28,6 +28,7 @@ import {
   http,
   parseUnits
 } from 'viem'
+import { SignDataType } from '@plugins/pluginTypes'
 
 export default function useEvmAllowance() {
   const { externalProvider } = useKimaContext()
@@ -37,13 +38,15 @@ export default function useEvmAllowance() {
 
   const sourceChain = useSelector(selectSourceChain)
   const networkOption = useSelector(selectNetworkOption)
-  const { totalFeeUsd, allowanceAmount, decimals } =
+  const { totalFeeUsd, allowanceAmount, submitAmount, decimals } =
     useSelector(selectServiceFee)
   const selectedCoin = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
   const backendUrl = useSelector(selectBackendUrl)
   const feeDeduct = useSelector(selectFeeDeduct)
-  const allowanceNumber = Number(formatUnits(allowanceAmount ?? '0', decimals))
+  const allowanceNumber = Number(
+    formatUnits(feeDeduct ? submitAmount : (allowanceAmount ?? '0'), decimals)
+  )
   const amount = useSelector(selectAmount)
 
   const { pools } = useGetPools(backendUrl, networkOption)
@@ -94,6 +97,35 @@ export default function useEvmAllowance() {
     refetchInterval: 60 * 1000,
     enabled
   })
+
+  const signMessage = async (data: SignDataType) => {
+    if (!walletProvider) {
+      console.error('No available provider')
+      return
+    }
+
+    if (!allowanceData?.decimals) {
+      console.warn('useEvmAllowance: Missing required data')
+      return
+    }
+
+    try {
+      // create a viem wallet client for writing transactions
+      const walletClient = createWalletClient({
+        account: walletAddress as `0x${string}`,
+        chain: sourceChain,
+        transport: custom(window.ethereum) // WARNING: NEED TO MAKE SURE THIS USING THE ETHEREUM OBJECT IS STABLE ENOUGH
+      })
+
+      return await walletClient.signMessage({
+        account: walletAddress as `0x${string}`,
+        message: `I approve the transfer of ${allowanceNumber} ${data.originSymbol} from ${data.originChain} to ${data.targetAddress} on ${data.targetChain}.`
+      })
+    } catch (error) {
+      console.error('useEvmAllowance: Error on signing message:', error)
+      throw new Error('Error on signing message')
+    }
+  }
 
   const approveErc20TokenTransfer = async (isCancel = false) => {
     if (!walletProvider) {
@@ -185,6 +217,7 @@ export default function useEvmAllowance() {
       : false,
     approve: approveErc20TokenTransfer,
     isLoading,
+    signMessage,
     refetch
   }
 }

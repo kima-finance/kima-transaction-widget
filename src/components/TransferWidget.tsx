@@ -80,6 +80,7 @@ export const TransferWidget = ({
   const mainRef = useRef<HTMLDivElement>(null)
 
   // State variables for UI
+  const [signature, setSignature] = useState('')
   const [formStep, setFormStep] = useState(0)
   const [warningModalOpen, setWarningModalOpen] = useState<{
     message: string
@@ -122,10 +123,11 @@ export const TransferWidget = ({
 
   const { balance } = useBalance()
 
-  const { allowance, isApproved, approve, decimals } = useAllowance({
-    setApproving,
-    setCancellingApprove
-  })
+  const { allowance, isApproved, approve, decimals, signMessage } =
+    useAllowance({
+      setApproving,
+      setCancellingApprove
+    })
 
   const { complianceData: sourceCompliant } = useComplianceCheck(
     sourceAddress,
@@ -184,6 +186,15 @@ export const TransferWidget = ({
 
     // if is missing approve, trigger approval
     if (error === ValidationError.ApprovalNeeded) {
+      const sig = await signMessage?.({
+        targetAddress,
+        targetChain: targetChain.shortName,
+        originSymbol: sourceCurrency,
+        originChain: sourceChain.shortName
+      })
+
+      setSignature(sig)
+
       return approve()
     }
 
@@ -198,8 +209,20 @@ export const TransferWidget = ({
       return
     }
 
+    // check signature before submit
+
+    let sig = signature
+    if (!sig) {
+      sig = await signMessage?.({
+        targetAddress,
+        targetChain: targetChain.shortName,
+        originSymbol: sourceCurrency,
+        originChain: sourceChain.shortName
+      })
+    }
+
     // submit the kima transaction
-    const { success, message: submitMessage } = await submitTransaction()
+    const { success, message: submitMessage } = await submitTransaction(sig)
 
     if (!success) return toast.error(submitMessage, { icon: <ErrorIcon /> })
   }
