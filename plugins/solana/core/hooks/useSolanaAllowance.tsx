@@ -8,7 +8,8 @@ import {
   selectServiceFee,
   selectTokenOptions,
   selectBackendUrl,
-  selectNetworkOption
+  selectNetworkOption,
+  selectFeeDeduct
 } from '@store/selectors'
 import { useQuery } from '@tanstack/react-query'
 import { getTokenAllowance } from '../../utils/getTokenAllowance'
@@ -26,10 +27,14 @@ import { formatUnits } from 'ethers'
 
 export default function useSolanaAllowance(): PluginUseAllowanceResult {
   const sourceChain = useSelector(selectSourceChain)
-  const { allowanceAmount, decimals } = useSelector(selectServiceFee)
+  const { allowanceAmount, submitAmount, decimals } =
+    useSelector(selectServiceFee)
+  const feeDeduct = useSelector(selectFeeDeduct)
   const backendUrl = useSelector(selectBackendUrl)
   const networkOption = useSelector(selectNetworkOption)
-  const allowanceNumber = Number(formatUnits(allowanceAmount ?? '0', decimals))
+  const allowanceNumber = Number(
+    formatUnits(feeDeduct ? submitAmount : (allowanceAmount ?? '0'), decimals)
+  )
   const { externalProvider } = useKimaContext()
 
   const { connection: internalConnection } = useConnection()

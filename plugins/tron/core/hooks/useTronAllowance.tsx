@@ -8,7 +8,8 @@ import {
   selectServiceFee,
   selectTokenOptions,
   selectNetworkOption,
-  selectBackendUrl
+  selectBackendUrl,
+  selectFeeDeduct
 } from '@store/selectors'
 import {
   useWallet as useTronWallet,
@@ -35,11 +36,15 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
   const sourceChain = useSelector(selectSourceChain)
   const networkOption = useSelector(selectNetworkOption)
   const backendUrl = useSelector(selectBackendUrl)
-  const { allowanceAmount, decimals } = useSelector(selectServiceFee)
+  const { allowanceAmount, submitAmount, decimals } =
+    useSelector(selectServiceFee)
   useTronWallet()
   const selectedCoin = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
-  const allowanceNumber = Number(formatUnits(allowanceAmount ?? '0', decimals))
+  const feeDeduct = useSelector(selectFeeDeduct)
+  const allowanceNumber = Number(
+    formatUnits(feeDeduct ? submitAmount : (allowanceAmount ?? '0'), decimals)
+  )
 
   const { pools } = useGetPools(backendUrl, networkOption)
   const {
