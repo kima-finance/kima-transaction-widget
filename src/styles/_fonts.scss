@@ -1,25 +1,25 @@
-$font-path: "./fonts" !default;
+$font-path: './fonts' !default;
 
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap');
 
 @font-face {
-    font-family: 'Violet';
-    src: url('#{$font-path}/VioletSans-Regular.eot');
-    src: url('#{$font-path}/VioletSans-Regular.eot?#iefix') format('embedded-opentype'),
-        url('#{$font-path}/VioletSans-Regular.woff2') format('woff2'),
-        url('#{$font-path}/VioletSans-Regular.woff') format('woff');
-    font-weight: 200;
-    font-style: normal;
-    font-display: swap;
+  font-family: 'Violet';
+  src:
+    url('#{$font-path}/VioletSans-Regular.woff2') format('woff2'),
+    url('#{$font-path}/VioletSans-Regular.woff') format('woff');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-    font-family: 'Sohne';
-    src: url('#{$font-path}/SohneBreit-Buch.eot');
-    src: url('#{$font-path}/SohneBreit-Buch.eot?#iefix') format('embedded-opentype'),
-        url('#{$font-path}/SohneBreit-Buch.woff2') format('woff2'),
-        url('#{$font-path}/SohneBreit-Buch.woff') format('woff');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
+  font-family: 'Sohne';
+  src: url('#{$font-path}/SohneBreit-Buch.eot');
+  src:
+    url('#{$font-path}/SohneBreit-Buch.eot?#iefix') format('embedded-opentype'),
+    url('#{$font-path}/SohneBreit-Buch.woff2') format('woff2'),
+    url('#{$font-path}/SohneBreit-Buch.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }

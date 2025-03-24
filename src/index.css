@@ -4,8 +4,7 @@
 @import 'react-tooltip/dist/react-tooltip.css';
 @font-face {
   font-family: "Violet";
-  src: url("./fonts/VioletSans-Regular.eot");
-  src: url("./fonts/VioletSans-Regular.eot?#iefix") format("embedded-opentype"), url("./fonts/VioletSans-Regular.woff2") format("woff2"), url("./fonts/VioletSans-Regular.woff") format("woff");
+  src: url("./fonts/VioletSans-Regular.woff2") format("woff2"), url("./fonts/VioletSans-Regular.woff") format("woff");
   font-weight: 200;
   font-style: normal;
   font-display: swap;
@@ -1697,6 +1696,7 @@
 }
 .kima-card .kima-card-content .wallet-button button.connected {
   border: 1px solid #353539;
+  font-family: "Violet";
 }
 .kima-card .kima-card-content .wallet-button button.disconnected {
   color: var(--text-100, #fff);
@@ -2957,8 +2957,7 @@
 
 @font-face {
   font-family: "Violet";
-  src: url("./fonts/VioletSans-Regular.eot");
-  src: url("./fonts/VioletSans-Regular.eot?#iefix") format("embedded-opentype"), url("./fonts/VioletSans-Regular.woff2") format("woff2"), url("./fonts/VioletSans-Regular.woff") format("woff");
+  src: url("./fonts/VioletSans-Regular.woff2") format("woff2"), url("./fonts/VioletSans-Regular.woff") format("woff");
   font-weight: 200;
   font-style: normal;
   font-display: swap;
