@@ -503,16 +503,12 @@ export const TransferWidget = ({
               top: windowWidth > 768 ? '3rem' : '1.5rem',
               right: windowWidth > 768 ? '1.5rem' : '0rem',
               margin: '5px 0',
-              padding: '.7rem 1.5rem',
-              color:
-                theme.colorMode === ColorModeOptions.light ? 'black' : 'white',
-              fontSize: '1em',
-              borderRadius: '50px',
-              border: '1px solid #B900004D',
-              background:
-                theme.colorMode === ColorModeOptions.light
-                  ? '#F7F8F9'
-                  : '#242732'
+              padding: '8px',
+              color: "white",
+              fontSize: '16px',
+              borderRadius: '2px',
+              border: '1px solid #353539',
+              background: "#111115"
             }
           }}
         />
