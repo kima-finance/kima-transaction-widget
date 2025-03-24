@@ -1294,6 +1294,8 @@
   align-items: center;
   cursor: pointer;
   box-sizing: content-box;
+  color: var(--text-60, rgba(255, 255, 255, 0.6));
+  background: #212126;
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1), color 0ms, background-color 0ms, border-color 0ms;
 }
 @media (max-width: 570px) {
@@ -1320,17 +1322,6 @@
   background-color: white;
   margin-right: 12px;
   border-radius: 9999px;
-}
-.kima-card .kima-card-content .single-form .coin-dropdown.light {
-  color: var(--text-60, rgba(255, 255, 255, 0.6));
-  background: #111115;
-}
-.kima-card .kima-card-content .single-form .coin-dropdown.dark {
-  color: var(--text-60, rgba(255, 255, 255, 0.6));
-  background: #111115;
-}
-.kima-card .kima-card-content .single-form .coin-dropdown.dark .coin-wrapper {
-  color: white;
 }
 .kima-card .kima-card-content .single-form .coin-dropdown:before {
   box-sizing: content-box;
@@ -1395,9 +1386,6 @@
 .kima-card .kima-card-content .single-form .coin-dropdown.collapsed:before {
   transform: rotate(135deg);
   top: 1.2em;
-}
-.kima-card .kima-card-content .single-form .coin-dropdown.dark {
-  background: #4f5156;
 }
 .kima-card .kima-card-content .single-form .expire-time-dropdown {
   position: relative;
@@ -1533,9 +1521,6 @@
 .kima-card .kima-card-content .single-form .network-dropdown .network-wrapper span {
   text-align: center;
 }
-.kima-card .kima-card-content .single-form .network-dropdown.dark .network-wrapper {
-  color: var(--text-60, rgba(255, 255, 255, 0.6));
-}
 .kima-card .kima-card-content .single-form .network-dropdown:before {
   box-sizing: content-box;
   position: absolute;
@@ -1561,6 +1546,7 @@
   overflow-x: clip;
   overflow-y: scroll;
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1), color 0ms, background-color 0ms, border-color 0ms;
+  background: #212126;
 }
 .kima-card .kima-card-content .single-form .network-dropdown .network-menu-item {
   padding: 12px;
@@ -1594,18 +1580,6 @@
   max-height: 0;
   opacity: 0;
 }
-.kima-card .kima-card-content .single-form .network-dropdown .network-menu.light {
-  background-color: #212126;
-}
-.kima-card .kima-card-content .single-form .network-dropdown .network-menu.dark {
-  background: #212126;
-}
-.kima-card .kima-card-content .single-form .network-dropdown.light {
-  background: #111115;
-}
-.kima-card .kima-card-content .single-form .network-dropdown.dark {
-  background: #111115;
-}
 .kima-card .kima-card-content .single-form .network-dropdown.toggled {
   border-bottom: none;
   background: #212126;
@@ -1613,9 +1587,6 @@
 .kima-card .kima-card-content .single-form .network-dropdown.collapsed:before {
   transform: rotate(135deg);
   top: 1.2em;
-}
-.kima-card .kima-card-content .single-form .network-dropdown.dark {
-  background: #4f5156;
 }
 .kima-card .kima-card-content .single-form .dynamic-area {
   display: flex;
