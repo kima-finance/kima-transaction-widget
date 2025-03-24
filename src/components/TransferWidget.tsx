@@ -260,6 +260,8 @@ export const TransferWidget = ({
     }
 
     if (formStep === 0) {
+      dispatch(setTargetAddress(''))
+      dispatch(setAmount(''))
       closeHandler && closeHandler(0)
     }
   }
@@ -444,7 +446,7 @@ export const TransferWidget = ({
           <div className='kima-powered'>
             <span>POWERED BY</span>
             <span className='kima-logo'>
-              <FooterLogo fill='#666666'/>
+              <FooterLogo fill='#666666' />
               <span>Network</span>
             </span>
           </div>
