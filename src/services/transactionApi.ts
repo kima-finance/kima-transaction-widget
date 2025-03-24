@@ -21,7 +21,7 @@ interface KimaTransactionDataResponse {
       targetchain: string
       tx_id: string
       kimahash: string
-    }[]
+    }
   }
 }
 
@@ -41,7 +41,7 @@ interface KimaLiquidityTransactionDataResponse {
       symbol: string
       tx_id: string
       kimahash: string
-    }[]
+    }
   }
 }
 
@@ -62,7 +62,7 @@ const selectStatus = (
   response: KimaTransactionDataResponse | KimaLiquidityTransactionDataResponse
 ): TransactionData | null => {
   if ('liquidity_transaction_data' in response.data) {
-    const data = response.data.liquidity_transaction_data[0]
+    const data = response.data.liquidity_transaction_data
     // the response could be empty if the transaction hasn't been processed yet
     if (!data) return emptyStatus
     return {
@@ -79,7 +79,7 @@ const selectStatus = (
     }
   }
 
-  const data = response.data.transaction_data[0]
+  const data = response.data.transaction_data
   // the response could be empty if the transaction hasn't been processed yet
   if (!data) return emptyStatus
   return {
