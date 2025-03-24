@@ -932,6 +932,8 @@
         align-items: center;
         cursor: pointer;
         box-sizing: content-box;
+        color: var(--text-60, rgba(255, 255, 255, 0.6));
+        background: $backgroundTertiary;
         @include transition();
 
         @include breakpoint('max-width: 570px') {
@@ -956,21 +958,6 @@
             background-color: white;
             margin-right: 12px;
             border-radius: 9999px;
-          }
-        }
-
-        &.light {
-          color: var(--text-60, rgba(255, 255, 255, 0.6));
-          background: $backgroundSecondary;
-        }
-
-        &.dark {
-          color: var(--text-60, rgba(255, 255, 255, 0.6));
-          background: $backgroundSecondary;
-
-          .coin-wrapper {
-            // background: $borderSecondary;
-            color: white;
           }
         }
 
@@ -1051,10 +1038,6 @@
             transform: rotate(135deg);
             top: 1.2em;
           }
-        }
-
-        &.dark {
-          background: $progressbarDark;
         }
       }
 
@@ -1214,12 +1197,6 @@
           }
         }
 
-        &.dark {
-          .network-wrapper {
-            color: var(--text-60, rgba(255, 255, 255, 0.6));
-          }
-        }
-
         &:before {
           box-sizing: content-box;
           position: absolute;
@@ -1247,6 +1224,7 @@
           overflow-x: clip;
           overflow-y: scroll;
           @include transition;
+          background: $backgroundTertiary;
 
           &-item {
             // margin: 7px 14px;
@@ -1289,21 +1267,6 @@
             opacity: 0;
           }
 
-          &.light {
-            background-color: $backgroundTertiary;
-          }
-
-          &.dark {
-            background: $backgroundTertiary;
-          }
-        }
-
-        &.light {
-          background: $backgroundSecondary;
-        }
-
-        &.dark {
-          background: $backgroundSecondary;
         }
 
         &.toggled {
@@ -1317,10 +1280,6 @@
             transform: rotate(135deg);
             top: 1.2em;
           }
-        }
-
-        &.dark {
-          background: $progressbarDark;
         }
       }
 
@@ -1404,7 +1363,7 @@
 
         &.connected {
           border: 1px solid $dividerPrimary;
-          font-family: "Violet";
+          font-family: 'Violet';
         }
 
         &.disconnected {
