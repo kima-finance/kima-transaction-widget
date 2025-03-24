@@ -26,7 +26,8 @@ const useValidateTransaction = ({
   targetCompliant,
   mode,
   pools,
-  formStep
+  formStep,
+  isWalletReady
 }: {
   allowance: number
   isApproved: boolean
@@ -45,6 +46,7 @@ const useValidateTransaction = ({
   mode: ModeOptions
   pools: any[]
   formStep: number
+  isWalletReady: boolean
 }) => {
   const maxValue = useMemo(() => {
     if (!balance) return 0
@@ -63,7 +65,7 @@ const useValidateTransaction = ({
     console.log('isApproved: ', isApproved)
 
     // Validation logic
-    if (!sourceAddress) {
+    if (!sourceAddress || !isWalletReady) {
       return {
         error: ValidationError.Error,
         message: 'Wallet is not connected'

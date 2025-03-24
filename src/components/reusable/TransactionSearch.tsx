@@ -11,6 +11,7 @@ import toast from 'react-hot-toast'
 import { getTxData } from 'src/services/transactionApi'
 import { ErrorIcon } from '@assets/icons'
 import { ModeOptions } from '@interface'
+import PrimaryButton from './PrimaryButton'
 
 const TransactionSearch = () => {
   const theme = useSelector(selectTheme)
@@ -50,7 +51,7 @@ const TransactionSearch = () => {
   return (
     <div className='form-item transaction-search'>
       <div className='transaction-input'>
-        <span className='label'>Search Transaction:</span>
+        <span className='label'>Search Transaction</span>
         <input
           className={`${theme.colorMode}`}
           type='text'
@@ -60,7 +61,7 @@ const TransactionSearch = () => {
           spellCheck={false}
         />
       </div>
-      <SecondaryButton clickHandler={handleSearch}>Search</SecondaryButton>
+      <PrimaryButton clickHandler={handleSearch}>Search</PrimaryButton>
     </div>
   )
 }

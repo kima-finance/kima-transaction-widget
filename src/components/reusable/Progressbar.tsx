@@ -57,15 +57,15 @@ const Progressbar = ({ step, errorStep, setFocus, loadingStep }: Props) => {
             }}
           >
             <div className='step-info'>
-              {step < index && <Lock />}
+              {step < index && <Lock stroke='#353539'/>}
 
               {step >= index ? (
                 index === loadingStep ? (
-                  <Loader className='loader' />
+                  <Loader stroke='white' className='loader' />
                 ) : index === errorStep ? (
-                  <WarningIcon />
+                  <WarningIcon fill='white'/>
                 ) : (
-                  <CheckIcon />
+                  <CheckIcon fill='white'/>
                 )
               ) : null}
 

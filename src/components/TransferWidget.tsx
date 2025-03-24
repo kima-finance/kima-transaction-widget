@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { ErrorIcon, FooterLogo } from '../assets/icons'
+import { ErrorIcon, FooterLogo, HelpIcon } from '../assets/icons'
 import {
   ConfirmDetails,
   ExternalLink,
@@ -62,6 +62,7 @@ import useDisconnectWallet from '../hooks/useDisconnectWallet'
 import { useKimaContext } from 'src/KimaProvider'
 import { ChainData } from '@plugins/pluginTypes'
 import WarningModal from './reusable/WarningModal'
+import useIsWalletReady from '../hooks/useIsWalletReady'
 
 interface Props {
   theme: ThemeOptions
@@ -97,6 +98,7 @@ export const TransferWidget = ({
   const targetChain = useSelector(selectTargetChain)
   const sourceCurrency = useSelector(selectSourceCurrency)
   const targetCurrency = useSelector(selectTargetCurrency)
+  const { isReady } = useIsWalletReady()
   const amount = useSelector(selectAmount)
   const {
     totalFeeUsd,
@@ -160,7 +162,8 @@ export const TransferWidget = ({
     mode,
     pools,
     feeDeduct,
-    formStep
+    formStep,
+    isWalletReady: isReady
   })
 
   const { submitTransaction, isSubmitting } = useSubmitTransaction({
@@ -264,13 +267,13 @@ export const TransferWidget = ({
   const getButtonLabel = () => {
     if (formStep === 1) {
       if (isApproved) {
-        return isSubmitting ? 'Submitting...' : 'Submit'
+        return isSubmitting ? 'SUBMITTING' : 'SUBMIT'
       } else {
-        return isApproving ? 'Approving...' : 'Approve'
+        return isApproving ? 'APPROVING...' : 'APPROVE'
       }
     }
 
-    return 'Next'
+    return 'NEXT'
   }
 
   const onCancelApprove = () => {
@@ -375,10 +378,12 @@ export const TransferWidget = ({
                     : 'https://docs.kima.network/kima-network/try-kima-with-the-demo-app'
                 }
               >
-                <div className='menu-button'>I need help</div>
+                <div className='menu-button'>
+                  <HelpIcon width={20} height={20} />I need help
+                </div>
               </ExternalLink>
 
-              {formStep === 0 && mode !== ModeOptions.payment && (
+              {/* {formStep === 0 && mode !== ModeOptions.payment && (
                 <button
                   className='reset-button'
                   onClick={resetForm}
@@ -386,7 +391,7 @@ export const TransferWidget = ({
                 >
                   Reset
                 </button>
-              )}
+              )} */}
             </div>
           </div>
           {mode === ModeOptions.payment && paymentTitleOption?.title && (
@@ -436,16 +441,21 @@ export const TransferWidget = ({
         <div
           className={`kima-card-footer ${mode === ModeOptions.bridge && formStep !== 0 && 'confirm'}`}
         >
+          <div className='kima-powered'>
+            <span>POWERED BY</span>
+            <span className='kima-logo'>
+              <FooterLogo fill='#666666'/>
+              <span>Network</span>
+            </span>
+          </div>
           <div className={`button-group`}>
-            {formStep !== 0 && (
-              <SecondaryButton
-                clickHandler={onBack}
-                theme={theme.colorMode}
-                disabled={isApproving || isSubmitting || isSigning}
-              >
-                {formStep > 0 ? 'Back' : 'Cancel'}
-              </SecondaryButton>
-            )}
+            <SecondaryButton
+              clickHandler={onBack}
+              theme={theme.colorMode}
+              disabled={isApproving || isSubmitting || isSigning}
+            >
+              {formStep > 0 ? 'BACK' : 'CANCEL'}
+            </SecondaryButton>
             {allowance > 0 && formStep !== 0 ? (
               <SecondaryButton
                 clickHandler={onCancelApprove}
@@ -458,7 +468,7 @@ export const TransferWidget = ({
                   isSigning
                 }
               >
-                {isCancellingApprove ? 'Cancelling Approval' : 'Cancel Approve'}
+                {isCancellingApprove ? 'CANCELLING APPROVE' : 'CANCEL APPROVE'}
               </SecondaryButton>
             ) : null}
             <PrimaryButton
@@ -504,13 +514,6 @@ export const TransferWidget = ({
             }
           }}
         />
-        <div className='floating-footer'>
-          <div className={`items ${theme.colorMode}`}>
-            <span>Powered by</span>
-            <FooterLogo width={50} fill='black' />
-            <strong>Network</strong>
-          </div>
-        </div>
       </div>
     </div>
   )

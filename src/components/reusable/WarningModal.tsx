@@ -1,6 +1,7 @@
 import React from 'react'
 import SecondaryButton from './SecondaryButton'
 import PrimaryButton from './PrimaryButton'
+import { CrossIcon } from '@assets/icons'
 
 interface WarningModalProps {
   message: string
@@ -16,7 +17,12 @@ const WarningModal: React.FC<WarningModalProps> = ({
   return (
     <div className='warning-modal-overlay'>
       <div className='warning-modal'>
-        <h3>Warning</h3>
+        <div className='title'>
+          <h3>Warning</h3>
+          <button onClick={onCancel}>
+            <CrossIcon width={15} height={15} fill='white' />
+          </button>
+        </div>
         <p>{message}</p>
         <div className='warning-modal-buttons'>
           <SecondaryButton

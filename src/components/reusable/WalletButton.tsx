@@ -136,7 +136,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
     >
       <div className='info-wrapper'>
         <button
-          className={`${isReady ? 'connected' : 'disconnected'} ${width < 640 && 'shortened'} ${theme.colorMode}`}
+          className={`hex-button ${isReady ? 'connected' : 'disconnected'} ${width < 640 && 'shortened'} ${theme.colorMode}`}
           onClick={handleClick}
         >
           {isReady
@@ -144,8 +144,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
               ? `${walletAddress || ''}`
               : getShortenedAddress(walletAddress || '')
             : ''}
-          {!isReady && <WalletIcon />}
-          {!isReady && 'Connect Wallet'}
+          {!isReady && 'CONNECT WALLET'}
         </button>
 
         {isReady && <CopyButton text={walletAddress as string} />}

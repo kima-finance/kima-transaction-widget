@@ -21,7 +21,7 @@ interface KimaTransactionDataResponse {
       targetchain: string
       tx_id: string
       kimahash: string
-    }[]
+    }
   }
 }
 
@@ -41,17 +41,17 @@ interface KimaLiquidityTransactionDataResponse {
       symbol: string
       tx_id: string
       kimahash: string
-    }[]
+    }
   }
 }
 
 const emptyStatus = {
   status: TransactionStatus.AVAILABLE,
-  sourceChain: '',
+  originChain: '',
   targetChain: '',
-  tssPullHash: '',
-  tssReleaseHash: '',
-  sourceSymbol: '',
+  pullHash: '',
+  releaseHash: '',
+  originSymbol: '',
   targetSymbol: '',
   amount: '',
   kimaTxHash: '',
@@ -62,35 +62,35 @@ const selectStatus = (
   response: KimaTransactionDataResponse | KimaLiquidityTransactionDataResponse
 ): TransactionData | null => {
   if ('liquidity_transaction_data' in response.data) {
-    const data = response.data.liquidity_transaction_data[0]
+    const data = response.data.liquidity_transaction_data
     // the response could be empty if the transaction hasn't been processed yet
     if (!data) return emptyStatus
     return {
       status: data.txstatus as TransactionStatus,
-      sourceChain: data.chain,
+      originChain: data.chain,
       targetChain: data.chain,
-      tssPullHash: data.releasehash,
-      tssReleaseHash: data.releasehash,
+      pullHash: data.releasehash,
+      releaseHash: data.releasehash,
       failReason: data.failreason,
       amount: data.amount,
-      sourceSymbol: data.symbol,
+      originSymbol: data.symbol,
       targetSymbol: data.symbol,
       kimaTxHash: data.kimahash
     }
   }
 
-  const data = response.data.transaction_data[0]
+  const data = response.data.transaction_data
   // the response could be empty if the transaction hasn't been processed yet
   if (!data) return emptyStatus
   return {
     status: data.txstatus as TransactionStatus,
-    sourceChain: data.originchain,
+    originChain: data.originchain,
     targetChain: data.targetchain,
-    tssPullHash: data.pullhash,
-    tssReleaseHash: data.releasehash,
+    pullHash: data.pullhash,
+    releaseHash: data.releasehash,
     failReason: data.failreason,
     amount: data.amount,
-    sourceSymbol: data.originsymbol,
+    originSymbol: data.originsymbol,
     targetSymbol: data.targetsymbol,
     kimaTxHash: data.kimahash
   }
@@ -120,11 +120,14 @@ export const getTxData = async ({
   backendUrl: string
   refPollForUpdates: React.MutableRefObject<boolean>
 }) => {
+  console.log("getTxData: ", txId)
   try {
     const path = isLP ? 'tx/lp' : 'tx'
     const response = await fetchWrapper.get(
       `${backendUrl}/${path}/${txId}/status`
     )
+
+    console.log("response: ", response)
     if (typeof response === 'string') throw new Error(response)
 
     const data = selectStatus(

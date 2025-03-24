@@ -52,9 +52,11 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
   const networks = useSelector(selectNetworks)
 
   const sourceChain = useMemo(
-    () => networks.find((network) => network.shortName === data?.sourceChain),
+    () => networks.find((network) => network.shortName === data?.originChain),
     [data, networks]
   )
+
+  console.log("sourceChain: ", sourceChain)
 
   const targetChain = useMemo(
     () => networks.find((network) => network.shortName === data?.targetChain),
@@ -71,18 +73,18 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                   ${step >= index ? (index === loadingStep ? 'active' : index === errorStep ? 'error' : 'completed') : ''} 
                   ${step < index && 'locked'} ${theme.colorMode}`}
             >
-              {step < index && <Lock />}
+              {step < index && <Lock stroke='#353539'/>}
 
               {step >= index ? (
                 index === loadingStep ? (
-                  <Loader className='loader' />
+                  <Loader stroke='white' className='loader' />
                 ) : index === errorStep ? (
-                  <WarningIcon />
+                  <WarningIcon fill='white'/>
                 ) : (
-                  <CheckIcon />
+                  <CheckIcon fill='white' />
                 )
               ) : null}
-              <p>{item.title}</p>
+              <p className='label'>{item.title}</p>
             </div>
             {index === 0 && data?.kimaTxHash ? (
               <div className={`info-item ${theme.colorMode}`}>
@@ -100,30 +102,30 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                 </p>
               </div>
             ) : null}
-            {index === 1 && data?.tssPullHash ? (
+            {index === 1 && data?.pullHash ? (
               <div
                 className={`info-item ${theme.colorMode} source-chain ${step >= 3 ? 'paid' : ''}`}
               >
-                <ChainIcon symbol={data.sourceChain as string} />
+                <ChainIcon symbol={data.originChain as string} />
                 <p className='chain-name'>{sourceChain?.name} TX ID:</p>
                 <p>
                   <ExternalLink
                     to={`${
                       sourceChain?.blockExplorers?.default.url
-                    }/${data?.sourceChain === ChainName.TRON ? 'transaction' : 'tx'}/${data?.tssPullHash}${
-                      data?.sourceChain === ChainName.SOLANA &&
+                    }/${data?.originChain === ChainName.TRON ? 'transaction' : 'tx'}/${data?.pullHash}${
+                      data?.originChain === ChainName.SOLANA &&
                       networkOption === NetworkOptions.testnet
                         ? '?cluster=devnet'
                         : ''
                     }`}
                   >
-                    {getShortenedAddress(data?.tssPullHash || '')}
+                    {getShortenedAddress(data?.pullHash || '')}
                   </ExternalLink>
-                  <CopyButton text={data?.tssPullHash || ''} />
+                  <CopyButton text={data?.pullHash || ''} />
                 </p>
               </div>
             ) : null}
-            {index === 3 && data?.tssReleaseHash ? (
+            {index === 3 && data?.releaseHash ? (
               <div className={`info-item ${theme.colorMode} target-chain`}>
                 <ChainIcon symbol={data.targetChain as string} />
                 <p className='chain-name'>{targetChain?.name} TX ID:</p>
@@ -131,16 +133,16 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                   <ExternalLink
                     to={`${
                       targetChain?.blockExplorers?.default.url
-                    }/${data?.targetChain === ChainName.TRON ? 'transaction' : 'tx'}/${data?.tssReleaseHash}${
+                    }/${data?.targetChain === ChainName.TRON ? 'transaction' : 'tx'}/${data?.releaseHash}${
                       data?.targetChain === ChainName.SOLANA &&
                       networkOption === NetworkOptions.testnet
                         ? '?cluster=devnet'
                         : ''
                     }`}
                   >
-                    {getShortenedAddress(data?.tssReleaseHash || '')}
+                    {getShortenedAddress(data?.releaseHash || '')}
                   </ExternalLink>
-                  <CopyButton text={data?.tssReleaseHash || ''} />
+                  <CopyButton text={data?.releaseHash || ''} />
                 </p>
               </div>
             ) : null}

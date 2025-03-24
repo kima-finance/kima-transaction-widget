@@ -132,42 +132,37 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
         </div>
       ) : (
         <div className='detail-item'>
-          <span className='label'>Source wallet:</span>
+          <span className='label'>Source wallet</span>
           <div className='network-details'>
             <div className='kima-card-network-container'>
               <span className={`kima-card-network-label ${theme.colorMode}`}>
                 <ChainIcon symbol={originNetworkOption?.shortName} />
-                {originNetworkOption.name}
+                {originNetworkOption.shortName}
               </span>
             </div>
             <p className={theme.colorMode}>
               {width >= 916
                 ? dAppOption === DAppOptions.LPDrain
-                  ? targetAddress
-                  : walletAddress
+                  ? getShortenedAddress(targetAddress)
+                  : getShortenedAddress(walletAddress as string)
                 : dAppOption === DAppOptions.LPDrain
-                  ? targetWalletAddress
-                  : sourceWalletAddress}
+                  ? getShortenedAddress(targetWalletAddress)
+                  : getShortenedAddress(sourceWalletAddress as string)}
             </p>
           </div>
         </div>
       )}
       <div className='detail-item amount'>
-        <span className='label'>
-          Transaction
-          {width > 500 && <br />}
-          Details:
-        </span>
         <span className='amount-container'>
           <div className='amount-details'>
             <span>Source Transfer amount</span>
             <div className='coin-details'>
-              <p>
+              <span>
                 {feeDeduct
                   ? formatterFloat.format(Number(amount))
                   : formatterFloat.format(Number(amount) + totalFeeUsd)}{' '}
                 {sourceCurrency}
-              </p>
+              </span>
             </div>
           </div>
           <div className='amount-details'>
@@ -193,7 +188,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
           </div> */}
           <div className='amount-details'>
             <span>Target Transfer Amount</span>
-            <span className='service-fee'>
+            <span className='service-fee target-amount'>
               {!feeDeduct
                 ? formatterFloat.format(Number(amount))
                 : formatterFloat.format(Number(amount) - totalFeeUsd)}{' '}
@@ -222,22 +217,22 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
         </div>
       ) : (
         <div className='detail-item'>
-          <span className='label'>Target wallet:</span>
+          <span className='label'>Target wallet</span>
           <div className='network-details'>
             <div className='kima-card-network-container'>
               <span className={`kima-card-network-label ${theme.colorMode}`}>
                 <ChainIcon symbol={targetNetworkOption?.shortName} />
-                {targetNetworkOption?.name}
+                {targetNetworkOption?.shortName}
               </span>
             </div>
             <p className={theme.colorMode}>
-              {width >= 916
+            {width >= 916
                 ? dAppOption === DAppOptions.LPDrain
-                  ? walletAddress
-                  : targetAddress
+                  ? getShortenedAddress(targetAddress)
+                  : getShortenedAddress(walletAddress as string)
                 : dAppOption === DAppOptions.LPDrain
-                  ? sourceWalletAddress
-                  : targetWalletAddress}
+                  ? getShortenedAddress(targetWalletAddress)
+                  : getShortenedAddress(sourceWalletAddress as string)}
             </p>
           </div>
         </div>

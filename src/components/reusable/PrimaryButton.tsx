@@ -19,9 +19,8 @@ const PrimaryButton = ({
   ref
 }: Props) => {
   return (
-    <div className='primary-button-wrapper'>
       <button
-        className={`primary-button ${className}`}
+        className={`hex-button primary-button ${className}`}
         onClick={clickHandler}
         ref={ref}
         disabled={disabled}
@@ -33,7 +32,6 @@ const PrimaryButton = ({
         )}
         {children}
       </button>
-    </div>
   )
 }
 

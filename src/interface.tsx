@@ -82,11 +82,11 @@ export interface ThemeOptions {
 
 export interface TransactionData {
   status: TransactionStatus
-  sourceChain: string
+  originChain: string
   targetChain: string
-  tssPullHash: string
-  tssReleaseHash: string
-  sourceSymbol: string
+  pullHash: string
+  releaseHash: string
+  originSymbol: string
   targetSymbol: string
   amount: number | string
   kimaTxHash: string

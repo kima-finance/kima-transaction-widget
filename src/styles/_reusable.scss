@@ -33,7 +33,7 @@
         z-index: 10;
         height: 7px;
         border-radius: 16px;
-        background: linear-gradient(90deg, #adf4a6, #80d7f5, #9990d5);
+        background: linear-gradient(90deg, #794bca, #c34c52, #e69597);
         transition: width 0.8s ease-in-out;
 
         &.step-25 {
@@ -53,7 +53,7 @@
         }
 
         @include breakpoint(mobile) {
-          background: linear-gradient(180deg, #adf4a6, #80d7f5, #9990d5);
+          background: linear-gradient(180deg, #794bca, #c34c52, #e69597);
           width: 7px !important;
           transition: height 0.8s ease-in-out;
 
@@ -95,6 +95,8 @@
           margin-top: -21px;
           position: relative;
           border-radius: 40px;
+          background: $backgroundSecondary;
+          border: 1px solid $dividerPrimary;
 
           @include breakpoint(phablet) {
             width: 32px;
@@ -115,7 +117,7 @@
 
           &.completed,
           &.active {
-            border: 1px solid $financeIcon;
+            border: 1px solid white;
 
             svg {
               top: -53px;
@@ -257,14 +259,6 @@
                 }
               }
             }
-          }
-
-          &.light {
-            background-color: white;
-          }
-
-          &.dark {
-            background-color: $financeDark;
           }
 
           .step-info {
@@ -543,7 +537,7 @@
       }
 
       @include breakpoint(mobile) {
-        font-size: 12px;
+        font-size: 14px;
       }
 
       .bank-input {
@@ -554,7 +548,7 @@
         display: flex;
         align-items: center;
 
-        @include breakpoint(mobile) {
+        @include breakpoint('max-width: 570px') {
           flex-direction: column;
           justify-content: center;
           width: 100%;
@@ -572,12 +566,15 @@
         > span {
           width: 140px;
           margin-right: 100px;
+          color: var(--text-80, rgba(255, 255, 255, 0.8));
 
           @include breakpoint(phablet) {
+            width: 100px;
             margin-right: 20px;
           }
 
-          @include breakpoint(mobile) {
+          @include breakpoint('max-width: 570px') {
+            width: 100%;
             width: 100%;
             margin-bottom: 10px;
             margin-right: 0;
@@ -593,6 +590,10 @@
           gap: 10px;
           flex-grow: 1;
           align-items: center;
+
+          @include breakpoint('max-width: 570px') {
+            width: 100%;
+          }
 
           @include breakpoint(mobile) {
             flex-direction: column;
@@ -649,17 +650,16 @@
           }
         }
 
-        .max-disclaimer{
+        .max-disclaimer {
           display: flex;
           flex-direction: row;
           align-items: center;
           gap: 5px;
-          
 
           p {
             margin: 0;
             padding: 0;
-            font-size: 12px;
+            font-size: 14px;
           }
 
           @include breakpoint(phablet) {
@@ -678,12 +678,13 @@
           .max-button {
             font-family: 'Manrope';
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 600;
             padding: 4px 16px;
-            border: 1px solid $financeGrey;
-            border-radius: 50px;
-            background-color: $hover;
-            color: $finance;
+            border: 1px solid $dividerPrimary;
+            border-radius: 2px;
+            background-color: $backgroundSecondary;
+            color: var(--text-100, #fff);
+
             cursor: pointer;
 
             &:hover {
@@ -803,6 +804,10 @@
             width: 100%;
             align-items: center;
 
+            .label {
+              color: var(--text-80, rgba(255, 255, 255, 0.8));
+            }
+
             @include breakpoint(mobile) {
               width: 100%;
               flex-direction: column;
@@ -810,6 +815,10 @@
 
             input {
               width: 390px;
+              border-radius: 2px;
+              border: 1px solid $dividerPrimary;
+              padding: 8px;
+              height: 32px;
 
               @include breakpoint(mobile) {
                 width: 100%;
@@ -819,7 +828,7 @@
         }
 
         input {
-          border-radius: 50px;
+          // border-radius: 50px;
           // height: 3em;
           background: transparent;
           outline: none;
@@ -827,45 +836,44 @@
           width: 100px;
           padding: 15px 20px;
           box-sizing: content-box;
-          font-size: 14px;
 
-          @include breakpoint(mobile) {
+          &.amount-input {
+            border: 1px solid $dividerPrimary;
+            background: $backgroundSecondary;
+            color: var(--text-60, rgba(255, 255, 255, 0.6));
+          }
+          // font-size: 14px;
+
+          @include breakpoint('max-width: 570px') {
             padding: 15px 10px;
             width: 100%;
           }
 
           ::placeholder {
-            color: $finance;
+            color: var(--text-60, rgba(255, 255, 255, 0.6));
           }
 
           &.kima-address-input {
             width: 325px;
+            border: 1px solid $dividerPrimary;
+            background: $backgroundSecondary;
+            color: var(--text-60, rgba(255, 255, 255, 0.6));
+            padding: 8px;
+            height: 32px;
 
             @include breakpoint('min-width: 640px') {
-              padding: 15px;
-              width: 390px;
+              width: 370px;
             }
 
             @include breakpoint('max-width: 585px') {
               width: 280px;
             }
 
-            @include breakpoint(mobile) {
+            @include breakpoint('max-width: 570px') {
               width: 100%;
-              font-size: 12px;
+              font-size: 14px;
+              max-width: 440px;
             }
-          }
-
-          &.light {
-            border: 1px solid $financeIcon;
-            color: black;
-            background-color: white;
-          }
-
-          &.dark {
-            border: 1px solid $finance;
-            color: white;
-            background-color: $financeDark;
           }
         }
 
@@ -889,7 +897,7 @@
               }
 
               @include breakpoint('min-width: 640px') {
-                width: 425px;
+                width: 400px;
               }
 
               @include breakpoint('max-width: 585px') {
@@ -916,19 +924,18 @@
       .coin-dropdown {
         position: relative;
         width: 125px;
-        border-radius: 50px;
-        border: 0.5px solid $financeIcon;
-        padding-left: 4px;
-        padding-right: 24px;
-        height: 50px;
+        border-radius: 2px;
+        border: 1px solid $dividerPrimary;
+        padding: 8px;
+        height: 32px;
         display: flex;
         align-items: center;
         cursor: pointer;
         box-sizing: content-box;
         @include transition();
 
-        @include breakpoint('max-width: 639px') {
-          width: 105px;
+        @include breakpoint('max-width: 570px') {
+          flex: 1;
         }
 
         @include breakpoint(mobile) {
@@ -947,19 +954,19 @@
             justify-content: center;
             padding: 8px;
             background-color: white;
-            margin-right: 6px;
+            margin-right: 10px;
             border-radius: 9999px;
           }
         }
 
         &.light {
-          color: black;
-          background: $financeLighter;
+          color: var(--text-60, rgba(255, 255, 255, 0.6));
+          background: $backgroundSecondary;
         }
 
         &.dark {
-          color: white;
-          background: $financeDark !important;
+          color: var(--text-60, rgba(255, 255, 255, 0.6));
+          background: $backgroundSecondary;
 
           .coin-wrapper {
             // background: $borderSecondary;
@@ -1013,11 +1020,11 @@
             }
 
             &.light:hover {
-              background: $hover;
+              background: $backgroundSecondary;
             }
 
             &.dark:hover {
-              background: $financeDarker;
+              background: $backgroundSecondary;
             }
           }
 
@@ -1038,16 +1045,17 @@
         }
 
         &.light {
-          background: $financeLighter !important;
+          background: $backgroundSecondary;
         }
 
         &.dark {
-          background: $financeDark !important;
+          background: $backgroundSecondary;
         }
 
         &.toggled {
           border-bottom: none;
-          border-radius: 30px 30px 0 0;
+          // border-radius: 30px 30px 0 0;
+          background: $backgroundTertiary;
         }
 
         &.collapsed {
@@ -1175,11 +1183,10 @@
         width: 230px;
         min-width: 150px;
         max-width: 300px;
-        border-radius: 50px;
-        border: 0.5px solid $financeIcon;
-        padding-left: 4px;
-        padding-right: 24px;
-        height: 50px;
+        border-radius: 2px;
+        border: 1px solid $dividerPrimary;
+        padding: 8px;
+        height: 32px;
         display: flex;
         align-items: center;
         cursor: pointer;
@@ -1187,7 +1194,7 @@
         @include transition();
 
         @include breakpoint('max-width: 586px') {
-          width: 185px;
+          width: 210px;
         }
 
         @include breakpoint(mobile) {
@@ -1202,7 +1209,7 @@
           border-radius: 15px;
           padding: 3px;
           padding-right: 7px;
-          color: black;
+          color: var(--text-60, rgba(255, 255, 255, 0.6));
           z-index: inherit;
 
           .icon {
@@ -1211,7 +1218,7 @@
             padding: 4px 4px;
             border-radius: 40px;
             background-color: white;
-            margin-right: 5px;
+            margin-right: 8px;
           }
 
           span {
@@ -1221,7 +1228,7 @@
 
         &.dark {
           .network-wrapper {
-            color: white;
+            color: var(--text-60, rgba(255, 255, 255, 0.6));
           }
         }
 
@@ -1240,9 +1247,9 @@
         }
 
         .network-menu {
-          border: 0.5px solid $financeIcon;
+          border: 1px solid $dividerPrimary;
           border-top: none;
-          border-radius: 0 0 30px 30px;
+          // border-radius: 0 0 30px 30px;
           position: absolute;
           z-index: 1000;
           max-height: 200px;
@@ -1254,10 +1261,10 @@
           @include transition;
 
           &-item {
-            margin: 7px 14px;
-            padding: 11px 7px;
-            border-radius: 20px;
-            width: 220x;
+            // margin: 7px 14px;
+            padding: 12px;
+            // border-radius: 20px;
+            // width: 220px;
             @include transition;
             display: flex;
             justify-content: start;
@@ -1279,11 +1286,13 @@
             }
 
             &.light:hover {
-              background: $hover;
+              color: var(--text-100, #fff);
+              background: $backgroundSecondary;
             }
 
             &.dark:hover {
-              background: $financeDarker;
+              background: $backgroundSecondary;
+              color: var(--text-100, #fff);
             }
           }
 
@@ -1293,25 +1302,26 @@
           }
 
           &.light {
-            background-color: $financeLighter;
+            background-color: $backgroundTertiary;
           }
 
           &.dark {
-            background: $financeDark;
+            background: $backgroundTertiary;
           }
         }
 
         &.light {
-          background: $financeLighter !important;
+          background: $backgroundSecondary;
         }
 
         &.dark {
-          background: $financeDark !important;
+          background: $backgroundSecondary;
         }
 
         &.toggled {
           border-bottom: none;
-          border-radius: 30px 30px 0 0;
+          background: $backgroundTertiary;
+          // border-radius: 30px 30px 0 0;
         }
 
         &.collapsed {
@@ -1351,13 +1361,9 @@
       flex-direction: column;
 
       @include breakpoint(phablet) {
-        width: 430px;
+        width: 100%;
         align-items: flex-start;
         flex-direction: column;
-
-        .balance-info {
-          margin-left: auto;
-        }
       }
 
       @include breakpoint(mobile) {
@@ -1371,6 +1377,7 @@
 
         @include breakpoint('max-width: 639px') {
           flex-direction: row-reverse;
+          width: 100%;
           gap: 3px;
         }
 
@@ -1393,22 +1400,81 @@
       button {
         cursor: pointer;
         display: flex;
-        width: 270px;
         align-items: center;
         height: 50px;
-        border: none;
-        border-radius: 50px;
-        padding: 0 24px;
-        color: white;
-        background-color: $finance;
-        font-size: 14px;
+        padding: 8px;
+        background: $backgroundSecondary;
+        color: var(--text-60, rgba(255, 255, 255, 0.6));
+        white-space: nowrap; /* Prevent text from wrapping */
+        overflow: hidden; /* Hide the overflow */
+        text-overflow: ellipsis;
+
+        @include breakpoint('max-width: 639px') {
+          flex: 1;
+        }
+
+        &.connected {
+          border: 1px solid $dividerPrimary;
+        }
+
+        &.disconnected {
+          color: var(--text-100, #fff);
+          &.hex-button {
+            position: relative;
+            background: transparent;
+            padding: 1rem 2rem;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            z-index: 1;
+
+            clip-path: polygon(
+              10px 0%,
+              /* Top-left horizontal */ 100% 0%,
+              /* Top-right */ 100% calc(100% - 10px),
+              /* Bottom-right start */ calc(100% - 10px) 100%,
+              /* Bottom-right hex corner */ 0% 100%,
+              /* Bottom-left */ 0% 10px /* Top-left hex corner */
+            );
+            overflow: hidden;
+          }
+
+          &.hex-button::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: -2;
+            background: linear-gradient(135deg, #794bca, #c34c52, #e69597);
+
+            clip-path: polygon(
+              10px 0%,
+              /* Top-left start */ 100% 0%,
+              /* Top-right */ 100% calc(100% - 10px),
+              /* Bottom-right start */ calc(100% - 10px) 100%,
+              /* Bottom-right hex corner */ 0% 100%,
+              /* Bottom-left */ 0% 28px,
+              /* Left border visible portion */ 4px 24px,
+              /* Start of cut */ 0% 20px,
+              /* End of cut */ 0% 10px /* Continue up to top-left hex corner */
+            );
+          }
+
+          &.hex-button::after {
+            content: '';
+            position: absolute;
+            inset: 1.5px;
+            z-index: -1;
+            background: #121212;
+            clip-path: inherit;
+          }
+        }
 
         @include breakpoint('max-width: 586px') {
           width: 220px;
         }
 
         @include breakpoint(mobile) {
-          font-size: 12px;
+          font-size: 14px;
           width: 100%;
         }
 
@@ -1417,7 +1483,7 @@
           font-size: 14px;
 
           @include breakpoint(mobile) {
-            font-size: 12px;
+            font-size: 14px;
           }
         }
       }
@@ -1436,18 +1502,6 @@
         margin-left: 1em;
       }
 
-      .connected {
-        &.light {
-          color: black;
-          background-color: $hover;
-        }
-
-        &.dark {
-          color: $financeLight;
-          background-color: $financeDark;
-        }
-      }
-
       &.error-below {
         flex-direction: column;
 
@@ -1458,7 +1512,7 @@
       }
 
       .balance-info {
-        color: $finance;
+        color: var(--text-60, rgba(255, 255, 255, 0.6));
       }
     }
 
@@ -1594,22 +1648,27 @@
     .confirm-details {
       font-size: 16px;
       font-family: 'Manrope';
+      color: white;
+      font-weight: 600;
 
       @include breakpoint(mobile) {
-        font-size: 12px;
-      }
-
-      > p {
-        text-align: center;
         font-size: 14px;
       }
 
+      > p {
+        font-size: 16px;
+
+        @include breakpoint(mobile) {
+          font-size: 14px;
+        }
+      }
+
       .detail-item {
-        padding: 16px 20px;
+        padding: 16px 0;
         display: flex;
         flex-direction: row;
         align-items: center;
-        border-top: 1px solid $secondary;
+        border-top: 1px solid $dividerPrimary;
 
         @include breakpoint(mobile) {
           flex-direction: column;
@@ -1630,24 +1689,17 @@
 
         p {
           margin: 0;
-          border-radius: 50px;
-          padding: 16px;
+          border-radius: 2px;
+          padding: 12px;
           text-align: center;
-          flex-grow: 2;
-          font-size: 14px;
+          color: var(--text-60, rgba(255, 255, 255, 0.6));
+          background: $backgroundSecondary;
+          border: 1px solid $dividerPrimary;
+          align-self: center;
 
           @include breakpoint(mobile) {
-            font-size: 12px;
-          }
-
-          &.light {
-            background-color: $financeLighter;
-            color: black;
-          }
-
-          &.dark {
-            background-color: $finance;
-            color: white;
+            font-size: 14px;
+            width: 100%;
           }
         }
 
@@ -1674,8 +1726,6 @@
         }
 
         .kima-card-network-container {
-          width: 210px;
-
           @include breakpoint(mobile) {
             width: 100%;
           }
@@ -1683,10 +1733,14 @@
 
         .kima-card-network-label {
           display: flex;
+          min-width: 60px;
           flex-direction: row;
-          padding: 4px 18px;
-          border-radius: 50px;
+          padding: 8px;
+          border-radius: 2px;
           height: 50px;
+          background: $backgroundSecondary;
+          border: 1px solid $dividerPrimary;
+          color: var(--text-60, rgba(255, 255, 255, 0.6));
 
           .icon {
             display: flex;
@@ -1695,22 +1749,13 @@
             background-color: white;
             padding: 4px;
           }
-
-          &.light {
-            background-color: $hover;
-            color: black;
-          }
-
-          &.dark {
-            background-color: $financeDark;
-            color: white;
-          }
         }
 
         .amount-container {
           display: flex;
           flex-direction: column;
           justify-content: start;
+          width: 100%;
 
           @include breakpoint(mobile) {
             width: 100%;
@@ -1725,10 +1770,12 @@
             flex-direction: row;
 
             @include breakpoint(mobile) {
-              width: 100%;
               justify-content: end;
-              padding-right: 6px;
-              font-size: 12px;
+              font-size: 14px;
+            }
+
+            span {
+              color: white;
             }
 
             p {
@@ -1743,10 +1790,10 @@
             display: flex;
             flex-direction: row;
             justify-content: space-between;
-            width: 300px;
-            padding: 8px 6px;
-            font-size: 14px;
-            border-top: 1px solid $financeIcon;
+            width: 100%;
+            padding: 8px 0;
+            font-size: 16px;
+            color: var(--text-80, rgba(255, 255, 255, 0.8));
 
             &:first-of-type {
               border-top: none;
@@ -1755,7 +1802,15 @@
 
             @include breakpoint(mobile) {
               width: 100%;
-              font-size: 12px;
+              font-size: 14px;
+            }
+
+            .service-fee {
+              color: white;
+
+              &.target-amount {
+                color: #9576f5;
+              }
             }
 
             &.fee {
@@ -1776,14 +1831,6 @@
         @include breakpoint(mobile) {
           align-items: start;
         }
-      }
-
-      @include breakpoint(phablet) {
-        padding: 0 20px;
-      }
-
-      @include breakpoint(mobile) {
-        padding: 0;
       }
     }
 
@@ -1842,18 +1889,11 @@
       .content-wrapper {
         display: flex;
         flex-direction: column;
-        border: 1px solid $financeIcon;
-        border-radius: 30px;
+        border: 1px solid $dividerPrimary;
+        border-radius: 2px;
         padding: 12px 24px;
-
-        &.light {
-          background-color: $financeLighter;
-        }
-
-        &.dark {
-          background-color: $financeDark;
-          color: white;
-        }
+        background: $backgroundSecondary;
+        color: var(--text-60, rgba(255, 255, 255, 0.6));
 
         @include breakpoint('min-width: 500px') {
           min-width: 420px;
@@ -1908,6 +1948,10 @@
             p {
               display: flex;
               align-items: center;
+
+              &.label {
+                color: white;
+              }
 
               @include breakpoint(mobile) {
                 &.chain-name {
@@ -2001,7 +2045,6 @@
               &:not(:first-of-type) {
                 padding-left: 21px;
                 padding-top: 3px;
-                margin-top: 15px;
               }
             }
           }
@@ -2016,25 +2059,21 @@
               }
 
               &:not(:first-of-type) {
-                padding: 6px 12px;
-                border-radius: 30px;
+                padding: 8px;
+                height: 50px;
+                border-radius: 2px;
+                margin-top: 15px;
 
-                &.light {
-                  background-color: $hover;
-                }
-
-                &.dark {
-                  background-color: $financeDark;
-                  color: white;
-                }
+                background-color: $backgroundSecondary;
+                border: 1px solid $dividerPrimary;
               }
 
               &.source-chain {
-                margin-top: -55px;
+                margin-top: -40px;
               }
 
               &.paid {
-                margin-top: -15px;
+                margin-top: -25px;
               }
 
               &.target-chain {
@@ -2108,7 +2147,7 @@
       flex-direction: column;
       gap: 10px;
       font-size: 14px;
-      border-top: 1px solid $secondary;
+      border-top: 1px solid $dividerPrimary;
       padding: 16px 20px;
 
       &.dark {
@@ -2141,9 +2180,9 @@
 
     .fee-option input[type='radio'] {
       appearance: none;
-      width: 18px;
-      height: 18px;
-      border: 1px solid $financeIcon;
+      width: 25px;
+      height: 25px;
+      border: 1px solid $dividerPrimary;
       border-radius: 50%;
       outline: none;
       cursor: pointer;
@@ -2159,9 +2198,9 @@
     /* Adds the inner dot and perfectly centers it */
     .fee-option input[type='radio']:checked::before {
       content: '';
-      width: 10px;
-      height: 10px;
-      background-color: $financeIcon;
+      width: 15px;
+      height: 15px;
+      background-color: #b073ff;
       border-radius: 50%;
       display: block;
       position: absolute;
@@ -2173,13 +2212,13 @@
     /* Prevents text from pushing the radio button */
     .radio-label {
       line-height: 1.2;
-      font-size: 14px;
-      color: #333;
+      font-size: 16px;
+      color: white;
       flex-grow: 1;
       word-break: break-word;
 
-      &.dark {
-        color: white;
+      @include breakpoint(mobile) {
+        font-size: 14px;
       }
     }
 
@@ -2304,37 +2343,61 @@
     }
   }
 
-  .primary-button-wrapper {
-    background: linear-gradient(to right, #8d77cc, #7bd5fb, #b2f79c);
-    padding: 2px;
-    border-radius: 30px;
-    max-height: 48px;
-
-    @include breakpoint(mobile) {
-      width: 100%;
-    }
-  }
-
   .primary-button {
-    background: black;
-    border-radius: 30px;
-    width: fit-content;
-    height: 45px;
-    padding: 13px 27px;
-    cursor: pointer;
     color: white;
-    font-weight: bold;
-    font-family: inherit;
-    border: none;
-    @include transition;
     display: flex;
-    align-items: center;
+    gap: 10px;
     justify-content: center;
-    letter-spacing: 0;
-    font-size: 16px;
+    align-items: center;
 
-    &.light {
-      background-color: black;
+    color: var(--text-100, #fff);
+    &.hex-button {
+      position: relative;
+      background: transparent;
+      padding: 4px 16px;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      z-index: 1;
+
+      clip-path: polygon(
+        10px 0%,
+        /* Top-left horizontal */ 100% 0%,
+        /* Top-right */ 100% calc(100% - 10px),
+        /* Bottom-right start */ calc(100% - 10px) 100%,
+        /* Bottom-right hex corner */ 0% 100%,
+        /* Bottom-left */ 0% 10px /* Top-left hex corner */
+      );
+      overflow: hidden;
+    }
+
+    &.hex-button::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background: linear-gradient(135deg, #794bca, #c34c52, #e69597);
+
+      clip-path: polygon(
+        10px 0%,
+        /* Top-left start */ 100% 0%,
+        /* Top-right */ 100% calc(100% - 10px),
+        /* Bottom-right start */ calc(100% - 10px) 100%,
+        /* Bottom-right hex corner */ 0% 100%,
+        /* Bottom-left */ 0% 28px,
+        /* Left border visible portion */ 4px 24px,
+        /* Start of cut */ 0% 20px,
+        /* End of cut */ 0% 10px /* Continue up to top-left hex corner */
+      );
+    }
+
+    &.hex-button::after {
+      content: '';
+      position: absolute;
+      inset: 1.5px;
+      z-index: -1;
+      background: #121212;
+      clip-path: inherit;
     }
 
     &:hover,
@@ -2369,32 +2432,59 @@
   }
 
   .secondary-button {
-    border-radius: 30px;
-    width: fit-content;
-    padding: 7px 27px;
-    height: 50px;
-    background-color: transparent;
-    cursor: pointer;
-    font-weight: bold;
-    font-family: inherit;
-    border-radius: 30px;
-    border: 1px solid;
-    letter-spacing: 0;
-    font-size: 16px;
-    @include transition;
+    color: white;
     display: flex;
-    align-items: center;
-    justify-content: center;
     gap: 10px;
+    justify-content: center;
+    align-items: center;
 
-    &.dark {
-      color: white;
-      border-color: white;
+    &.hex-button {
+      position: relative;
+      background: transparent;
+      padding: 4px 16px;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      z-index: 1;
+
+      clip-path: polygon(
+        10px 0%,
+        /* Top-left horizontal */ 100% 0%,
+        /* Top-right */ 100% calc(100% - 10px),
+        /* Bottom-right start */ calc(100% - 10px) 100%,
+        /* Bottom-right hex corner */ 0% 100%,
+        /* Bottom-left */ 0% 10px /* Top-left hex corner */
+      );
+      overflow: hidden;
     }
 
-    &.light {
-      color: black;
-      border-color: black;
+    &.hex-button::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background: var(--text-60, rgba(255, 255, 255, 0.6));
+
+      clip-path: polygon(
+        10px 0%,
+        /* Top-left start */ 100% 0%,
+        /* Top-right */ 100% calc(100% - 10px),
+        /* Bottom-right start */ calc(100% - 10px) 100%,
+        /* Bottom-right hex corner */ 0% 100%,
+        /* Bottom-left */ 0% 28px,
+        /* Left border visible portion */ 4px 24px,
+        /* Start of cut */ 0% 20px,
+        /* End of cut */ 0% 10px /* Continue up to top-left hex corner */
+      );
+    }
+
+    &.hex-button::after {
+      content: '';
+      position: absolute;
+      inset: 1.5px;
+      z-index: -1;
+      background: #121212;
+      clip-path: inherit;
     }
 
     &:hover,

@@ -16,8 +16,11 @@ const useGetTxData = (
 
   const result = useQuery({
     queryKey: ['txData', txId, dAppOption],
-    queryFn: async () =>
-      await getTxData({ txId, isLP, backendUrl, refPollForUpdates }),
+    queryFn: async () => {
+      const result = await getTxData({ txId, isLP, backendUrl, refPollForUpdates })
+      console.log('result1: ', result)
+      return result;
+    },
     // only poll for updates while the transaction is in progress
     refetchInterval: refPollForUpdates.current ? POLLING_INTERVAL_MS : false, // 10 sec
     staleTime: POLLING_INTERVAL_MS,
@@ -27,6 +30,7 @@ const useGetTxData = (
       !!backendUrl
   })
 
+  console.log('result2: ', result)
   return result
 }
 

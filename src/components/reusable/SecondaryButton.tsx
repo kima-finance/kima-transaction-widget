@@ -21,14 +21,14 @@ const SecondaryButton = ({
   isLoading
 }: Props) => (
   <button
-    className={`secondary-button ${className} ${theme}`}
+    className={`hex-button secondary-button ${className} ${theme}`}
     onClick={clickHandler}
     {...style}
     disabled={disabled}
   >
     {isLoading && (
       <div className='loading-indicator'>
-        <Loading180Ring width={24} height={24} fill='black' />
+        <Loading180Ring width={24} height={24} fill='white' />
       </div>
     )}
     {children}

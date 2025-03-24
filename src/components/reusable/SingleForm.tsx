@@ -16,7 +16,7 @@ import {
   selectAmount,
   selectTargetCurrency
 } from '../../store/selectors'
-import { BankInput, CoinDropdown, WalletButton } from './'
+import { BankInput, CoinDropdown, SecondaryButton, WalletButton } from './'
 import { setAmount } from '../../store/optionSlice'
 import { ModeOptions } from '../../interface'
 import AddressInput from './AddressInput'
@@ -112,7 +112,7 @@ const SingleForm = ({
   return (
     <div className='single-form'>
       <div className='form-item'>
-        <span className='label'>Source Network:</span>
+        <span className='label'>Source Network</span>
         <div className='items'>
           <NetworkSelector type='source' />
           <CoinDropdown />
@@ -127,13 +127,13 @@ const SingleForm = ({
         <div
           className={`form-item wallet-button-item ${isReady && 'connected'}`}
         >
-          <span className='label'>Wallet:</span>
+          <span className='label'>Wallet</span>
           <WalletButton />
         </div>
 
         {mode === ModeOptions.bridge && (
           <div className='form-item'>
-            <span className='label'>Target Network:</span>
+            <span className='label'>Target Network</span>
             <div className='items'>
               <NetworkSelector type='target' />
               <CoinDropdown isSourceChain={false} />
@@ -148,22 +148,22 @@ const SingleForm = ({
           <BankInput />
         ) : (
           <div className={`form-item ${theme.colorMode}`}>
-            <span className='label'>Target Address:</span>
+            <span className='label'>Target Address</span>
             <AddressInput
               theme={theme.colorMode as string}
-              placeholder='Target address'
+              placeholder='Insert your Target address'
             />
           </div>
         )
       ) : null}
 
       <div className={`form-item ${theme.colorMode}`}>
-        <span className='label'>Amount:</span>
+        <span className='label'>Amount</span>
         <div className={`amount-label-container items ${theme.colorMode}`}>
           <input
-            className={`${theme.colorMode}`}
+            className={`${theme.colorMode} amount-input`}
             type='text'
-            placeholder='Enter amount'
+            placeholder='Amount'
             value={amountValue || ''}
             onChange={(e) => {
               const value = e.target.value
@@ -179,15 +179,15 @@ const SingleForm = ({
             }}
           />
           <div className='max-disclaimer'>
-            <span
+            <SecondaryButton
               className='max-button'
-              onClick={() => {
+              clickHandler={() => {
                 setAmountValue(maxValue.toString())
                 dispatch(setAmount(maxValue.toString()))
               }}
             >
-              Max
-            </span>
+              MAX
+            </SecondaryButton>
             {totalFeeUsd !== -1 && <p>Est fees: $ {totalFeeUsd} USD</p>}
           </div>
         </div>

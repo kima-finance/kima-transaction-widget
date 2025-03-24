@@ -69,13 +69,15 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const backendUrl = useSelector(selectBackendUrl)
   const { data, error } = useGetTxData(txId, dAppOption, backendUrl)
 
+  console.log('data: ', data)
+
   const transactionSourceChain = useMemo(
     () =>
       networks.find(
         (network) =>
           network.shortName ===
           (mode === ModeOptions.status
-            ? data?.sourceChain
+            ? data?.originChain
             : sourceChain.shortName)
       ),
     [data, mode, sourceChain]
@@ -259,7 +261,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                       ? `(${sourceSymbol})`
                       : isEmptyStatus
                         ? ''
-                        : `(${data?.sourceSymbol})`}
+                        : `(${data?.originSymbol})`}
                     <div className='title-icon'>
                       <ChainIcon
                         symbol={transactionSourceChain?.shortName as string}
@@ -269,7 +271,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                       ? `(${transactionSourceChain?.shortName})`
                       : isEmptyStatus
                         ? ''
-                        : `(${data?.sourceChain})`}{' '}
+                        : `(${data?.originChain})`}{' '}
                     {mode !== ModeOptions.status
                       ? `→ `
                       : isEmptyStatus
@@ -317,7 +319,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                     setMinimized(true)
                   }}
                 >
-                  <MinimizeIcon />
+                  <MinimizeIcon fill='white' />
                 </button>
                 {!isValidTxId || loadingStep < 0 || error ? (
                   <button className='reset-button' onClick={resetForm}>
@@ -406,11 +408,13 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
             }
           }}
         />
-        <div className='floating-footer status'>
-          <div className={`items ${theme.colorMode}`}>
-            <span>Powered by</span>
-            <FooterLogo fill='black' />
-            <strong>Network</strong>
+        <div className={`kima-card-footer transaction`}>
+          <div className='kima-powered'>
+            <span>POWERED BY</span>
+            <span className='kima-logo'>
+              <FooterLogo fill='#666666' />
+              <span>Network</span>
+            </span>
           </div>
         </div>
         {/* <Tooltip
