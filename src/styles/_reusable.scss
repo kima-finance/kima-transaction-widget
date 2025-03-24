@@ -492,7 +492,7 @@
 
       &.collapsed {
         right: 10px;
-        top: 24px;
+        top: 22px;
         transform: rotate(-180deg);
       }
 
@@ -500,7 +500,7 @@
         box-sizing: content-box;
         position: absolute;
         right: 20px;
-        top: 14px;
+        top: 16px;
         transform: rotate(0deg);
       }
     }
@@ -954,7 +954,7 @@
             justify-content: center;
             padding: 8px;
             background-color: white;
-            margin-right: 10px;
+            margin-right: 12px;
             border-radius: 9999px;
           }
         }
@@ -989,33 +989,31 @@
         }
 
         .coin-menu {
-          border: 0.5px solid $financeIcon;
+          border: 1px solid $dividerPrimary;
           border-top: none;
-          border-radius: 0 0 30px 30px;
+          // border-radius: 0 0 30px 30px;
           position: absolute;
-          z-index: 100;
-          max-height: 10em;
-          width: 100.5%;
+          z-index: 1000;
+          max-height: 200px;
+          width: 100%;
           top: 100%;
           left: -0.5px;
-          overflow: hidden;
+          overflow-x: clip;
+          overflow-y: scroll;
           @include transition;
-          padding: 0.5em 0;
 
           .coin-item {
-            margin: 2.5px 12px;
-            padding: 2.5px 12px;
-            border-radius: 20px;
             max-width: 240px;
+            padding: 10px;
             @include transition;
             display: flex;
             justify-content: start;
             flex-direction: row;
             align-items: center;
+            background: $backgroundTertiary;
 
             p {
               width: 100%;
-              text-align: center;
               margin: 0;
             }
 
@@ -1026,16 +1024,6 @@
             &.dark:hover {
               background: $backgroundSecondary;
             }
-          }
-
-          &.light {
-            color: black;
-            background: $financeLighter;
-          }
-
-          &.dark {
-            color: white;
-            background: $financeDark;
           }
 
           &.collapsed {
@@ -1218,7 +1206,7 @@
             padding: 4px 4px;
             border-radius: 40px;
             background-color: white;
-            margin-right: 8px;
+            margin-right: 18px;
           }
 
           span {
