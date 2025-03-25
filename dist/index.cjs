@@ -4864,7 +4864,7 @@ var emptyStatus = {
 };
 var selectStatus = (response) => {
   if ("liquidity_transaction_data" in response.data) {
-    const data2 = response.data.liquidity_transaction_data[0];
+    const data2 = response.data.liquidity_transaction_data;
     if (!data2) return emptyStatus;
     return {
       status: data2.txstatus,
@@ -4879,7 +4879,7 @@ var selectStatus = (response) => {
       kimaTxHash: data2.kimahash
     };
   }
-  const data = response.data.transaction_data[0];
+  const data = response.data.transaction_data;
   if (!data) return emptyStatus;
   return {
     status: data.txstatus,
@@ -4933,6 +4933,7 @@ var POLLING_INTERVAL_MS = 1e3 * 10;
 var useGetTxData = (txId, dAppOption, backendUrl) => {
   const refPollForUpdates = (0, import_react118.useRef)(false);
   const isLP = dAppOption === "LPAdd" /* LPAdd */ || dAppOption === "LPDrain" /* LPDrain */;
+  const validTxId = typeof txId === "number" ? txId > 0 : txId.toString().length > 0;
   const result = (0, import_react_query12.useQuery)({
     queryKey: ["txData", txId, dAppOption],
     queryFn: async () => await getTxData({ txId, isLP, backendUrl, refPollForUpdates }),
@@ -4940,7 +4941,7 @@ var useGetTxData = (txId, dAppOption, backendUrl) => {
     refetchInterval: refPollForUpdates.current ? POLLING_INTERVAL_MS : false,
     // 10 sec
     staleTime: POLLING_INTERVAL_MS,
-    enabled: (Number(txId) > 0 || txId.toString().length > 0) && !!dAppOption && !!backendUrl
+    enabled: validTxId && !!dAppOption && !!backendUrl
   });
   return result;
 };
