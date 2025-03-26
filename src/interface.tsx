@@ -86,6 +86,7 @@ export interface TransactionData {
   targetChain: string
   tssPullHash: string
   tssReleaseHash: string
+  tssRefundHash: string
   sourceSymbol: string
   targetSymbol: string
   amount: number | string

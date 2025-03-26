@@ -10,6 +10,7 @@ interface KimaTransactionDataResponse {
       pullhash: string
       releasefailcount: number
       releasehash: string
+      refundhash: string
       txstatus: string
       amount: number
       creator: string
@@ -33,6 +34,7 @@ interface KimaLiquidityTransactionDataResponse {
       pullhash: string
       releasefailcount: number
       releasehash: string
+      refundhash: string
       txstatus: string
       amount: number
       creator: string
@@ -51,6 +53,7 @@ const emptyStatus = {
   targetChain: '',
   tssPullHash: '',
   tssReleaseHash: '',
+  tssRefundHash: '',
   sourceSymbol: '',
   targetSymbol: '',
   amount: '',
@@ -71,6 +74,7 @@ const selectStatus = (
       targetChain: data.chain,
       tssPullHash: data.releasehash,
       tssReleaseHash: data.releasehash,
+      tssRefundHash: data.refundhash,
       failReason: data.failreason,
       amount: data.amount,
       sourceSymbol: data.symbol,
@@ -88,6 +92,7 @@ const selectStatus = (
     targetChain: data.targetchain,
     tssPullHash: data.pullhash,
     tssReleaseHash: data.releasehash,
+    tssRefundHash: data.refundhash,
     failReason: data.failreason,
     amount: data.amount,
     sourceSymbol: data.originsymbol,
@@ -104,7 +109,9 @@ const isFinished = (data: TransactionData | null) => {
       TransactionStatus.COMPLETED,
       TransactionStatus.FAILEDTOPULL,
       TransactionStatus.FAILEDTOPAY,
-      TransactionStatus.UNAVAILABLE
+      TransactionStatus.UNAVAILABLE,
+      TransactionStatus.REFUNDFAILED,
+      TransactionStatus.REFUNDCOMPLETED
     ].includes(data.status)
   )
 }
