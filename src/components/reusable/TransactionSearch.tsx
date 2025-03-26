@@ -1,10 +1,7 @@
 import React, { useRef, useState } from 'react'
 import SecondaryButton from './SecondaryButton'
 import { useSelector } from 'react-redux'
-import {
-  selectBackendUrl,
-  selectTheme
-} from '@store/selectors'
+import { selectBackendUrl, selectTheme } from '@store/selectors'
 import { useDispatch } from 'react-redux'
 import { setMode, setSubmitted, setTxId } from '@store/optionSlice'
 import toast from 'react-hot-toast'
