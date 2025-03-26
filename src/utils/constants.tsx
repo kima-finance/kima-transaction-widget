@@ -343,7 +343,9 @@ export enum TransactionStatus {
   FAILEDTOPAY = 'FailedToPay',
   FAILEDTOPULL = 'FailedToPull',
   UNAVAILABLE = 'UnAvailable',
-  KEYSIGNED = 'KeySigned'
+  REFUNDSTART = 'RefundStart',
+  REFUNDFAILED = 'RefundFailed',
+  REFUNDCOMPLETED = 'RefundCompleted'
 }
 
 export const tooltipInfo = [

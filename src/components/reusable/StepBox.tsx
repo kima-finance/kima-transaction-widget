@@ -123,6 +123,27 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                 </p>
               </div>
             ) : null}
+            {index === 3 && data?.tssRefundHash ? (
+              <div className={`info-item ${theme.colorMode} target-chain`}>
+                <ChainIcon symbol={data.sourceChain as string} />
+                <p className='chain-name'>{sourceChain?.name} TX ID:</p>
+                <p>
+                  <ExternalLink
+                    to={`${
+                      sourceChain?.blockExplorers?.default.url
+                    }/${data?.sourceChain === ChainName.TRON ? 'transaction' : 'tx'}/${data?.tssRefundHash}${
+                      data?.sourceChain === ChainName.SOLANA &&
+                      networkOption === NetworkOptions.testnet
+                        ? '?cluster=devnet'
+                        : ''
+                    }`}
+                  >
+                    {getShortenedAddress(data?.tssRefundHash || '')}
+                  </ExternalLink>
+                  <CopyButton text={data?.tssRefundHash || ''} />
+                </p>
+              </div>
+            ) : null}
             {index === 3 && data?.tssReleaseHash ? (
               <div className={`info-item ${theme.colorMode} target-chain`}>
                 <ChainIcon symbol={data.targetChain as string} />

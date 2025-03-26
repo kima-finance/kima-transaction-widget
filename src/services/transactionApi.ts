@@ -10,6 +10,7 @@ interface KimaTransactionDataResponse {
       pullhash: string
       releasefailcount: number
       releasehash: string
+      refundhash: string
       txstatus: string
       amount: number
       creator: string
@@ -21,7 +22,7 @@ interface KimaTransactionDataResponse {
       targetchain: string
       tx_id: string
       kimahash: string
-    }[]
+    }
   }
 }
 
@@ -33,6 +34,7 @@ interface KimaLiquidityTransactionDataResponse {
       pullhash: string
       releasefailcount: number
       releasehash: string
+      refundhash: string
       txstatus: string
       amount: number
       creator: string
@@ -41,7 +43,7 @@ interface KimaLiquidityTransactionDataResponse {
       symbol: string
       tx_id: string
       kimahash: string
-    }[]
+    }
   }
 }
 
@@ -51,6 +53,7 @@ const emptyStatus = {
   targetChain: '',
   tssPullHash: '',
   tssReleaseHash: '',
+  tssRefundHash: '',
   sourceSymbol: '',
   targetSymbol: '',
   amount: '',
@@ -62,7 +65,7 @@ const selectStatus = (
   response: KimaTransactionDataResponse | KimaLiquidityTransactionDataResponse
 ): TransactionData | null => {
   if ('liquidity_transaction_data' in response.data) {
-    const data = response.data.liquidity_transaction_data[0]
+    const data = response.data.liquidity_transaction_data
     // the response could be empty if the transaction hasn't been processed yet
     if (!data) return emptyStatus
     return {
@@ -71,6 +74,7 @@ const selectStatus = (
       targetChain: data.chain,
       tssPullHash: data.releasehash,
       tssReleaseHash: data.releasehash,
+      tssRefundHash: data.refundhash,
       failReason: data.failreason,
       amount: data.amount,
       sourceSymbol: data.symbol,
@@ -79,7 +83,7 @@ const selectStatus = (
     }
   }
 
-  const data = response.data.transaction_data[0]
+  const data = response.data.transaction_data
   // the response could be empty if the transaction hasn't been processed yet
   if (!data) return emptyStatus
   return {
@@ -88,6 +92,7 @@ const selectStatus = (
     targetChain: data.targetchain,
     tssPullHash: data.pullhash,
     tssReleaseHash: data.releasehash,
+    tssRefundHash: data.refundhash,
     failReason: data.failreason,
     amount: data.amount,
     sourceSymbol: data.originsymbol,
@@ -104,7 +109,9 @@ const isFinished = (data: TransactionData | null) => {
       TransactionStatus.COMPLETED,
       TransactionStatus.FAILEDTOPULL,
       TransactionStatus.FAILEDTOPAY,
-      TransactionStatus.UNAVAILABLE
+      TransactionStatus.UNAVAILABLE,
+      TransactionStatus.REFUNDFAILED,
+      TransactionStatus.REFUNDCOMPLETED
     ].includes(data.status)
   )
 }
