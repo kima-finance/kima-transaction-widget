@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useSelector } from 'react-redux'
 import { selectMode } from '@store/selectors'
 import { getFees } from '../services/feesApi'
+import log from '@utils/logger'
 
 const useGetFees = (
   amount: number | null,
@@ -20,7 +21,7 @@ const useGetFees = (
   return useQuery<ServiceFee, Error>({
     queryKey: ['fees', amount, feeDeductWithMode, sourceNetwork, targetNetwork],
     queryFn: async () => {
-      console.log('useGetFees: ', {
+      log.debug('useGetFees: ', {
         amount,
         deductFees,
         feeDeductWithMode,

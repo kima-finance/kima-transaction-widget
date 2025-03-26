@@ -28,6 +28,7 @@ import useHideWuiListItem from '../../hooks/useHideActivityTab'
 import { useKimaContext } from '../../KimaProvider'
 import { useGetEnvOptions } from '../../hooks/useGetEnvOptions'
 import { NetworkOptions } from '@interface'
+import log from '@utils/logger'
 
 const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const dispatch = useDispatch()
@@ -52,7 +53,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const networkOption = envOptions?.env || NetworkOptions.testnet
 
   useEffect(() => {
-    console.info('WalletBalance:', {
+    log.debug('WalletBalance:', {
       balance,
       walletAddress,
       isReady,
@@ -72,13 +73,13 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   }, [])
   // TODO: refactor to use plugins
   const handleClick = async () => {
-    console.info('Handling click')
+    log.debug('Handling click')
 
     // TODO: Refactor to use evm account details modal
     if (externalProvider) return
 
     if (selectedNetwork.shortName === ChainName.SOLANA) {
-      console.info('Handling click: Case SOL', 1)
+      log.debug('Handling click: Case SOL', 1)
       isSolanaConnected
         ? dispatch(setAccountDetailsModal(true))
         : dispatch(setSolanaConnectModal(true))
@@ -86,7 +87,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
     }
 
     if (selectedNetwork.shortName === ChainName.TRON) {
-      console.info('Handling click: Case TRX', 2)
+      log.debug('Handling click: Case TRX', 2)
       isTronConnected
         ? dispatch(setAccountDetailsModal(true))
         : dispatch(setTronConnectModal(true))
@@ -94,22 +95,22 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
     }
 
     // if (selectedNetwork === ChainName.BTC) {
-    //   console.info('Handling click: Case BTC', 3)
+    //   log.debug('Handling click: Case BTC', 3)
     //   connectBitcoinWallet()
     //   return
     // }
 
-    console.info('Handling click: Case EVM', 4)
+    log.debug('Handling click: Case EVM', 4)
     try {
-      console.info('Attempting to open AppKitModal')
+      log.debug('Attempting to open AppKitModal')
       await open() // Ensure await usage
-      console.info('AppKitModal opened successfully')
+      log.debug('AppKitModal opened successfully')
     } catch (error) {
-      console.error('Failed to open AppKitModal', error)
+      log.error('Failed to open AppKitModal', error)
     }
   }
 
-  // console.log("wallet button is ready: ", isReady)
+  // log.debug("wallet button is ready: ", isReady)
 
   const errorMessage = useMemo(() => {
     if (!isReady) return statusMessage

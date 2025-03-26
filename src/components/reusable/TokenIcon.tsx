@@ -8,6 +8,7 @@ import {
   USDIcon,
   HoneyIcon
 } from '../../assets/icons'
+import log from '@utils/logger'
 
 type IconProps = { width?: number; height?: number }
 export interface TokenIconProps extends IconProps {
@@ -34,7 +35,7 @@ export default function TokenIcon({
 
   const Icon = COIN_LIST[symbol]
   if (!Icon) {
-    console.warn(`Token icon not found for symbol: ${symbol}`)
+    log.warn(`Token icon not found for symbol: ${symbol}`)
     return null
   }
 

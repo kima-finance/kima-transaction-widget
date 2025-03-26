@@ -15,6 +15,7 @@ import { isEmptyObject } from '../../helpers/functions'
 import { getOrCreateAssociatedTokenAccount } from '../../utils/solana/getOrCreateAssociatedTokenAccount'
 import { useKimaContext } from '../../../../src/KimaProvider'
 import { formatUnits } from 'ethers'
+import log from '@utils/logger'
 
 export default function useBalance() {
   const [balance, setBalance] = useState<number>(0)
@@ -57,11 +58,11 @@ export default function useBalance() {
         !publicKey ||
         !connection
       ){
-        console.log("missing parameters: ", {tokenAddress, sourceChain, publicKey, connection})
+        log.warn("missing parameters: ", {tokenAddress, sourceChain, publicKey, connection})
         return
       }
       try {
-        console.log('solana use balance effect...')
+        log.debug('solana use balance effect...')
         const mint = new PublicKey(tokenAddress)
         const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
           connection,

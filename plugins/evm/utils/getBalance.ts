@@ -7,6 +7,7 @@ import {
   CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET,
   CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET
 } from '@utils/constants'
+import log from '@utils/logger'
 
 export const getEvmBalance = async (input: {
   walletAddress: string
@@ -40,7 +41,7 @@ export const getEvmBalance = async (input: {
       decimals: 18
     }
   } catch (error) {
-    console.error('Failed to fetch EVM balance:', error)
+    log.error('Failed to fetch EVM balance:', error)
     throw new Error('Failed to retrieve balance from Viem')
   }
 }
