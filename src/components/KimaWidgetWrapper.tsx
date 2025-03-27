@@ -42,6 +42,7 @@ import { indexPluginsByChain } from '../pluginRegistry'
 import { useKimaContext } from 'src/KimaProvider'
 import { useGetEnvOptions } from '../hooks/useGetEnvOptions'
 import { ChainData } from '@plugins/pluginTypes'
+import { useDebugCode } from '../hooks/useDebugMode'
 
 interface Props {
   theme: ThemeOptions
@@ -70,6 +71,7 @@ const KimaWidgetWrapper = ({
   excludedSourceNetworks = [],
   excludedTargetNetworks = []
 }: Props) => {
+  useDebugCode()
   const { kimaBackendUrl } = useKimaContext()
   const submitted = useSelector(selectSubmitted)
   const dispatch = useDispatch()
