@@ -1,4 +1,5 @@
 import { Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js'
+import log from '@utils/logger'
 
 export const getSolBalance = async (
   connection: Connection,
@@ -6,11 +7,11 @@ export const getSolBalance = async (
 ): Promise<number> => {
   try {
     const balance = (await connection.getBalance(publicKey)) / LAMPORTS_PER_SOL
-    console.log('(NEW) SOL balance:', balance)
+    log.debug('(NEW) SOL balance:', balance)
 
     return balance ?? 0
   } catch (error) {
-    console.error('Error fetching SOL balance:', error)
+    log.error('Error fetching SOL balance:', error)
     throw new Error('Cant fetch sol balance')
   }
 }

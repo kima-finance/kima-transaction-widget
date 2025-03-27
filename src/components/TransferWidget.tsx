@@ -62,6 +62,7 @@ import useDisconnectWallet from '../hooks/useDisconnectWallet'
 import { useKimaContext } from 'src/KimaProvider'
 import { ChainData } from '@plugins/pluginTypes'
 import WarningModal from './reusable/WarningModal'
+import log from '@utils/logger'
 
 interface Props {
   theme: ThemeOptions
@@ -231,7 +232,7 @@ export const TransferWidget = ({
     const { error, message: validationMessage } = validate()
 
     if (error === ValidationError.Warning && formStep === 0) {
-      console.log('validationError: Warning: ', validationMessage)
+      log.info('validationError: Warning: ', validationMessage)
       setWarningModalOpen({ message: validationMessage })
       return
     }

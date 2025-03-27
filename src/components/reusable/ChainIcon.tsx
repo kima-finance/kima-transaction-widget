@@ -13,6 +13,7 @@ import {
   BaseIcon,
   BeraIcon
 } from '../../assets/icons'
+import log from '@utils/logger'
 
 type IconProps = { width?: number; height?: number }
 
@@ -35,18 +36,12 @@ export interface ChainIconProps extends IconProps {
   symbol: string
 }
 
-export default function ChainIcon({
-  symbol
-}: ChainIconProps) {
+export default function ChainIcon({ symbol }: ChainIconProps) {
   // return an empty icon if no symbol found
   const Icon = chainIcons[symbol]
   if (!Icon) {
-    console.warn(`Chain icon not found for symbol: ${symbol}`)
-    return (
-      <div
-        className='icon'
-      ></div>
-    )
+    log.warn(`Chain icon not found for symbol: ${symbol}`)
+    return <div className='icon'></div>
   }
 
   return (

@@ -22,6 +22,7 @@ import {
 } from '@reown/appkit/networks' // Adjust this import based on real networks you need to support
 import { NetworkOptions } from '@interface'
 import { EthersAdapter } from '@reown/appkit-adapter-ethers'
+import log from '@utils/logger'
 
 const appkitMainnetChains = [
   mainnet,
@@ -61,15 +62,11 @@ export const setupAppKit = (
   projectId: string,
   networkOption: NetworkOptions
 ) => {
-    console.log('setupAppkit: network option: ', networkOption)
+  log.debug('setupAppkit: network option: ', networkOption)
 
   // prevent calling createAppKit multiple times
   if (appKitModel && !appkitNetworkOption) {
-    console.log(
-      'appkitModel Already exists... - ',
-      appKitModel,
-      appkitNetworkOption
-    )
+    log.debug('appkitModel Already exists...', appKitModel, appkitNetworkOption)
     return appKitModel
   }
 
@@ -93,8 +90,6 @@ export const setupAppKit = (
       history: false
     }
   })
-  // console.debug('setupAppKit:networkOption:', networkOption)
-  // console.log('setupAppKit: appkitModel: ', appKitModel)
 
   return appKitModel
 }

@@ -5,6 +5,7 @@ import { useKimaContext } from '../../../../src/KimaProvider'
 import { selectNetworkOption, selectSourceChain } from '@store/selectors'
 import { useSelector } from 'react-redux'
 import { NetworkOptions } from '@interface'
+import log from '@utils/logger'
 
 const useNativeEvmBalance = () => {
   const { externalProvider } = useKimaContext()
@@ -31,7 +32,7 @@ const useNativeEvmBalance = () => {
           isTestnet: networkOption === NetworkOptions.testnet
         })
       } catch (error) {
-        console.error(
+        log.error(
           `Error getting native balance for wallet ${walletAddress}`,
           error
         )
