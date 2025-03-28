@@ -2780,12 +2780,14 @@ function useEvmAllowance() {
   const appkitAccountInfo = useAppKitAccount4();
   const sourceChain = useSelector4(selectSourceChain);
   const networkOption = useSelector4(selectNetworkOption);
-  const { totalFeeUsd, allowanceAmount, decimals } = useSelector4(selectServiceFee);
+  const { totalFeeUsd, allowanceAmount, submitAmount, decimals } = useSelector4(selectServiceFee);
   const selectedCoin = useSelector4(selectSourceCurrency);
   const tokenOptions = useSelector4(selectTokenOptions);
   const backendUrl = useSelector4(selectBackendUrl);
   const feeDeduct = useSelector4(selectFeeDeduct);
-  const allowanceNumber = Number(formatUnits4(allowanceAmount ?? "0", decimals));
+  const allowanceNumber = Number(
+    formatUnits4(feeDeduct ? submitAmount : allowanceAmount ?? "0", decimals)
+  );
   const amount = useSelector4(selectAmount);
   const { pools } = useGetPools_default(backendUrl, networkOption);
   const walletAddress = externalProvider?.signer?.address || appkitAccountInfo?.address;
@@ -3101,10 +3103,13 @@ import { PublicKey as PublicKey5, Transaction } from "@solana/web3.js";
 import { formatUnits as formatUnits5 } from "ethers";
 function useSolanaAllowance() {
   const sourceChain = useSelector6(selectSourceChain);
-  const { allowanceAmount, decimals } = useSelector6(selectServiceFee);
+  const { allowanceAmount, submitAmount, decimals } = useSelector6(selectServiceFee);
+  const feeDeduct = useSelector6(selectFeeDeduct);
   const backendUrl = useSelector6(selectBackendUrl);
   const networkOption = useSelector6(selectNetworkOption);
-  const allowanceNumber = Number(formatUnits5(allowanceAmount ?? "0", decimals));
+  const allowanceNumber = Number(
+    formatUnits5(feeDeduct ? submitAmount : allowanceAmount ?? "0", decimals)
+  );
   const { externalProvider } = useKimaContext();
   const { connection: internalConnection } = useConnection2();
   const {
@@ -3154,7 +3159,7 @@ function useSolanaAllowance() {
       return;
     }
     try {
-      const message = `I approve moving ${allowanceNumber} ${data.originSymbol} from ${data.originChain} to ${data.targetAddress} on ${data.targetChain}`;
+      const message = `I approve the transfer of ${allowanceNumber} ${data.originSymbol} from ${data.originChain} to ${data.targetAddress} on ${data.targetChain}.`;
       const encodedMessage = new TextEncoder().encode(message);
       const signature = await signMessage(encodedMessage);
       return `0x${Buffer.from(signature).toString("hex")}`;
@@ -3694,11 +3699,14 @@ function useTronAllowance() {
   const sourceChain = useSelector9(selectSourceChain);
   const networkOption = useSelector9(selectNetworkOption);
   const backendUrl = useSelector9(selectBackendUrl);
-  const { allowanceAmount, decimals } = useSelector9(selectServiceFee);
+  const { allowanceAmount, submitAmount, decimals } = useSelector9(selectServiceFee);
   useTronWallet();
   const selectedCoin = useSelector9(selectSourceCurrency);
   const tokenOptions = useSelector9(selectTokenOptions);
-  const allowanceNumber = Number(formatUnits7(allowanceAmount ?? "0", decimals));
+  const feeDeduct = useSelector9(selectFeeDeduct);
+  const allowanceNumber = Number(
+    formatUnits7(feeDeduct ? submitAmount : allowanceAmount ?? "0", decimals)
+  );
   const { pools } = useGetPools_default(backendUrl, networkOption);
   const {
     address: internalUserAddress,
@@ -3742,7 +3750,7 @@ function useTronAllowance() {
       return;
     }
     try {
-      const message = `I approve moving ${allowanceNumber} ${data.originSymbol} from ${data.originChain} to ${data.targetAddress} on ${data.targetChain}`;
+      const message = `I approve the transfer of ${allowanceNumber} ${data.originSymbol} from ${data.originChain} to ${data.targetAddress} on ${data.targetChain}.`;
       const signedMessage = await signMessage(message);
       return signedMessage;
     } catch (error2) {
@@ -4798,7 +4806,7 @@ var StepBox = ({ step, errorStep, loadingStep, data }) => {
       to: `${explorerUrl}/transactions/?tx=${data?.kimaTxHash}`
     },
     getShortenedAddress(data?.kimaTxHash || "")
-  ), /* @__PURE__ */ React97.createElement(CopyButton_default, { text: data?.kimaTxHash }))) : null, index === 1 && data?.pullHash ? /* @__PURE__ */ React97.createElement(
+  ), /* @__PURE__ */ React97.createElement(CopyButton_default, { text: data?.kimaTxHash }))) : null, index === 1 && data?.tssPullHash ? /* @__PURE__ */ React97.createElement(
     "div",
     {
       className: `info-item ${theme.colorMode} source-chain ${step >= 3 ? "paid" : ""}`
@@ -4808,17 +4816,23 @@ var StepBox = ({ step, errorStep, loadingStep, data }) => {
     /* @__PURE__ */ React97.createElement("p", null, /* @__PURE__ */ React97.createElement(
       ExternalLink_default,
       {
-        to: `${sourceChain?.blockExplorers?.default.url}/${data?.originChain === "TRX" /* TRON */ ? "transaction" : "tx"}/${data?.pullHash}${data?.originChain === "SOL" /* SOLANA */ && networkOption === "testnet" /* testnet */ ? "?cluster=devnet" : ""}`
+        to: `${sourceChain?.blockExplorers?.default.url}/${data?.originChain === "TRX" /* TRON */ ? "transaction" : "tx"}/${data?.tssPullHash}${data?.originChain === "SOL" /* SOLANA */ && networkOption === "testnet" /* testnet */ ? "?cluster=devnet" : ""}`
       },
-      getShortenedAddress(data?.pullHash || "")
-    ), /* @__PURE__ */ React97.createElement(CopyButton_default, { text: data?.pullHash || "" }))
-  ) : null, index === 3 && data?.releaseHash ? /* @__PURE__ */ React97.createElement("div", { className: `info-item ${theme.colorMode} target-chain` }, /* @__PURE__ */ React97.createElement(ChainIcon, { symbol: data.targetChain }), /* @__PURE__ */ React97.createElement("p", { className: "chain-name" }, targetChain?.name, " TX ID:"), /* @__PURE__ */ React97.createElement("p", null, /* @__PURE__ */ React97.createElement(
+      getShortenedAddress(data?.tssPullHash || "")
+    ), /* @__PURE__ */ React97.createElement(CopyButton_default, { text: data?.tssPullHash || "" }))
+  ) : null, index === 3 && data?.tssRefundHash ? /* @__PURE__ */ React97.createElement("div", { className: `info-item ${theme.colorMode} target-chain` }, /* @__PURE__ */ React97.createElement(ChainIcon, { symbol: data.originChain }), /* @__PURE__ */ React97.createElement("p", { className: "chain-name" }, sourceChain?.name, " TX ID:"), /* @__PURE__ */ React97.createElement("p", null, /* @__PURE__ */ React97.createElement(
     ExternalLink_default,
     {
-      to: `${targetChain?.blockExplorers?.default.url}/${data?.targetChain === "TRX" /* TRON */ ? "transaction" : "tx"}/${data?.releaseHash}${data?.targetChain === "SOL" /* SOLANA */ && networkOption === "testnet" /* testnet */ ? "?cluster=devnet" : ""}`
+      to: `${sourceChain?.blockExplorers?.default.url}/${data?.originChain === "TRX" /* TRON */ ? "transaction" : "tx"}/${data?.tssRefundHash}${data?.originChain === "SOL" /* SOLANA */ && networkOption === "testnet" /* testnet */ ? "?cluster=devnet" : ""}`
     },
-    getShortenedAddress(data?.releaseHash || "")
-  ), /* @__PURE__ */ React97.createElement(CopyButton_default, { text: data?.releaseHash || "" }))) : null))));
+    getShortenedAddress(data?.tssRefundHash || "")
+  ), /* @__PURE__ */ React97.createElement(CopyButton_default, { text: data?.tssRefundHash || "" }))) : null, index === 3 && data?.tssReleaseHash ? /* @__PURE__ */ React97.createElement("div", { className: `info-item ${theme.colorMode} target-chain` }, /* @__PURE__ */ React97.createElement(ChainIcon, { symbol: data.targetChain }), /* @__PURE__ */ React97.createElement("p", { className: "chain-name" }, targetChain?.name, " TX ID:"), /* @__PURE__ */ React97.createElement("p", null, /* @__PURE__ */ React97.createElement(
+    ExternalLink_default,
+    {
+      to: `${targetChain?.blockExplorers?.default.url}/${data?.targetChain === "TRX" /* TRON */ ? "transaction" : "tx"}/${data?.tssReleaseHash}${data?.targetChain === "SOL" /* SOLANA */ && networkOption === "testnet" /* testnet */ ? "?cluster=devnet" : ""}`
+    },
+    getShortenedAddress(data?.tssReleaseHash || "")
+  ), /* @__PURE__ */ React97.createElement(CopyButton_default, { text: data?.tssReleaseHash || "" }))) : null))));
 };
 var StepBox_default = StepBox;
 
@@ -4896,9 +4910,10 @@ var emptyStatus = {
   status: "Available" /* AVAILABLE */,
   originChain: "",
   targetChain: "",
-  pullHash: "",
-  releaseHash: "",
-  originSymbol: "",
+  tssPullHash: "",
+  tssReleaseHash: "",
+  tssRefundHash: "",
+  sourceSymbol: "",
   targetSymbol: "",
   amount: "",
   kimaTxHash: "",
@@ -4912,11 +4927,12 @@ var selectStatus = (response) => {
       status: data2.txstatus,
       originChain: data2.chain,
       targetChain: data2.chain,
-      pullHash: data2.releasehash,
-      releaseHash: data2.releasehash,
+      tssPullHash: data2.releasehash,
+      tssReleaseHash: data2.releasehash,
+      tssRefundHash: data2.refundhash,
       failReason: data2.failreason,
       amount: data2.amount,
-      originSymbol: data2.symbol,
+      sourceSymbol: data2.symbol,
       targetSymbol: data2.symbol,
       kimaTxHash: data2.kimahash
     };
@@ -4927,11 +4943,12 @@ var selectStatus = (response) => {
     status: data.txstatus,
     originChain: data.originchain,
     targetChain: data.targetchain,
-    pullHash: data.pullhash,
-    releaseHash: data.releasehash,
+    tssPullHash: data.pullhash,
+    tssRefundHash: data.refundhash,
+    tssReleaseHash: data.releasehash,
     failReason: data.failreason,
     amount: data.amount,
-    originSymbol: data.originsymbol,
+    sourceSymbol: data.originsymbol,
     targetSymbol: data.targetsymbol,
     kimaTxHash: data.kimahash
   };
@@ -4942,7 +4959,9 @@ var isFinished = (data) => {
     "Completed" /* COMPLETED */,
     "FailedToPull" /* FAILEDTOPULL */,
     "FailedToPay" /* FAILEDTOPAY */,
-    "UnAvailable" /* UNAVAILABLE */
+    "UnAvailable" /* UNAVAILABLE */,
+    "RefundFailed" /* REFUNDFAILED */,
+    "RefundCompleted" /* REFUNDCOMPLETED */
   ].includes(data.status);
 };
 var getTxData = async ({
@@ -4977,6 +4996,7 @@ var POLLING_INTERVAL_MS = 1e3 * 10;
 var useGetTxData = (txId, dAppOption, backendUrl) => {
   const refPollForUpdates = useRef2(false);
   const isLP = dAppOption === "LPAdd" /* LPAdd */ || dAppOption === "LPDrain" /* LPDrain */;
+  const validTxId = typeof txId === "number" ? txId > 0 : txId.toString().length > 0;
   const result = useQuery11({
     queryKey: ["txData", txId, dAppOption],
     queryFn: async () => {
@@ -4988,7 +5008,7 @@ var useGetTxData = (txId, dAppOption, backendUrl) => {
     refetchInterval: refPollForUpdates.current ? POLLING_INTERVAL_MS : false,
     // 10 sec
     staleTime: POLLING_INTERVAL_MS,
-    enabled: (Number(txId) > 0 || txId.toString().length > 0) && !!dAppOption && !!backendUrl
+    enabled: validTxId && !!dAppOption && !!backendUrl
   });
   console.log("result2: ", result);
   return result;
@@ -5136,12 +5156,37 @@ var TransactionWidget = ({ theme }) => {
       console.log(data.failReason);
       toast3.error("Unavailable", { icon: /* @__PURE__ */ React102.createElement(Error_default, null) });
       setErrorMessage("Unavailable");
-    } else if (status === "KeySigned" /* KEYSIGNED */) {
-      setStep(3);
-      setLoadingStep(3);
     } else if (status === "Paid" /* PAID */) {
       setStep(3);
       setLoadingStep(3);
+    } else if (status === "RefundStart" /* REFUNDSTART */) {
+      setStep(3);
+      setLoadingStep(3);
+      toast3.error(
+        "Failed to release tokens to target! Starting refund process.",
+        {
+          icon: /* @__PURE__ */ React102.createElement(Error_default, null)
+        }
+      );
+      setErrorMessage(
+        "Failed to release tokens to target! Starting refund process."
+      );
+    } else if (status === "RefundFailed" /* REFUNDFAILED */) {
+      setStep(3);
+      setErrorStep(3);
+      setLoadingStep(-1);
+      toast3.error("Failed to refund tokens to source!", {
+        icon: /* @__PURE__ */ React102.createElement(Error_default, null)
+      });
+      setErrorMessage("Failed to refund tokens to source!");
+    } else if (status === "RefundCompleted" /* REFUNDCOMPLETED */) {
+      setStep(4);
+      setErrorStep(3);
+      setLoadingStep(-1);
+      toast3.success("Refund completed!", {
+        icon: /* @__PURE__ */ React102.createElement(Error_default, null)
+      });
+      setErrorMessage("Refund completed!");
     } else if (status === "FailedToPay" /* FAILEDTOPAY */) {
       setStep(3);
       setErrorStep(3);
@@ -6291,9 +6336,9 @@ var TransferWidget = ({
     if (error === "ApprovalNeeded" /* ApprovalNeeded */) {
       const sig2 = await signMessage?.({
         targetAddress,
-        targetChain: targetChain.name,
+        targetChain: targetChain.shortName,
         originSymbol: sourceCurrency,
-        originChain: sourceChain.name
+        originChain: sourceChain.shortName
       });
       setSignature2(sig2);
       return approve();
@@ -6306,9 +6351,9 @@ var TransferWidget = ({
     if (!sig) {
       sig = await signMessage?.({
         targetAddress,
-        targetChain: targetChain.name,
+        targetChain: targetChain.shortName,
         originSymbol: sourceCurrency,
-        originChain: sourceChain.name
+        originChain: sourceChain.shortName
       });
     }
     const { success, message: submitMessage } = await submitTransaction(sig);
