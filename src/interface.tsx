@@ -84,9 +84,10 @@ export interface TransactionData {
   status: TransactionStatus
   originChain: string
   targetChain: string
-  pullHash: string
-  releaseHash: string
-  originSymbol: string
+  tssPullHash: string
+  tssReleaseHash: string
+  tssRefundHash: string
+  sourceSymbol: string
   targetSymbol: string
   amount: number | string
   kimaTxHash: string

@@ -10,6 +10,7 @@ interface KimaTransactionDataResponse {
       pullhash: string
       releasefailcount: number
       releasehash: string
+      refundhash: string
       txstatus: string
       amount: number
       creator: string
@@ -33,6 +34,7 @@ interface KimaLiquidityTransactionDataResponse {
       pullhash: string
       releasefailcount: number
       releasehash: string
+      refundhash: string
       txstatus: string
       amount: number
       creator: string
@@ -41,6 +43,7 @@ interface KimaLiquidityTransactionDataResponse {
       symbol: string
       tx_id: string
       kimahash: string
+    }
     }
   }
 }
@@ -63,6 +66,7 @@ const selectStatus = (
 ): TransactionData | null => {
   if ('liquidity_transaction_data' in response.data) {
     const data = response.data.liquidity_transaction_data
+    const data = response.data.liquidity_transaction_data
     // the response could be empty if the transaction hasn't been processed yet
     if (!data) return emptyStatus
     return {
@@ -79,6 +83,7 @@ const selectStatus = (
     }
   }
 
+  const data = response.data.transaction_data
   const data = response.data.transaction_data
   // the response could be empty if the transaction hasn't been processed yet
   if (!data) return emptyStatus
@@ -104,7 +109,9 @@ const isFinished = (data: TransactionData | null) => {
       TransactionStatus.COMPLETED,
       TransactionStatus.FAILEDTOPULL,
       TransactionStatus.FAILEDTOPAY,
-      TransactionStatus.UNAVAILABLE
+      TransactionStatus.UNAVAILABLE,
+      TransactionStatus.REFUNDFAILED,
+      TransactionStatus.REFUNDCOMPLETED
     ].includes(data.status)
   )
 }

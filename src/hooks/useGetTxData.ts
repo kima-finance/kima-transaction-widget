@@ -14,6 +14,9 @@ const useGetTxData = (
   const isLP =
     dAppOption === DAppOptions.LPAdd || dAppOption === DAppOptions.LPDrain
 
+  const validTxId =
+    typeof txId === 'number' ? txId > 0 : txId.toString().length > 0
+
   const result = useQuery({
     queryKey: ['txData', txId, dAppOption],
     queryFn: async () => {
@@ -24,10 +27,7 @@ const useGetTxData = (
     // only poll for updates while the transaction is in progress
     refetchInterval: refPollForUpdates.current ? POLLING_INTERVAL_MS : false, // 10 sec
     staleTime: POLLING_INTERVAL_MS,
-    enabled:
-      (Number(txId) > 0 || txId.toString().length > 0) &&
-      !!dAppOption &&
-      !!backendUrl
+    enabled: validTxId && !!dAppOption && !!backendUrl
   })
 
   console.log('result2: ', result)
