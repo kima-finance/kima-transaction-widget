@@ -191,9 +191,9 @@ export const TransferWidget = ({
     if (error === ValidationError.ApprovalNeeded) {
       const sig = await signMessage?.({
         targetAddress,
-        targetChain: targetChain.name,
+        targetChain: targetChain.shortName,
         originSymbol: sourceCurrency,
-        originChain: sourceChain.name
+        originChain: sourceChain.shortName
       })
 
       setSignature(sig)
@@ -218,9 +218,9 @@ export const TransferWidget = ({
     if (!sig) {
       sig = await signMessage?.({
         targetAddress,
-        targetChain: targetChain.name,
+        targetChain: targetChain.shortName,
         originSymbol: sourceCurrency,
-        originChain: sourceChain.name
+        originChain: sourceChain.shortName
       })
     }
 

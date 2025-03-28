@@ -155,12 +155,37 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       console.log(data.failReason)
       toast.error('Unavailable', { icon: <ErrorIcon /> })
       setErrorMessage('Unavailable')
-    } else if (status === TransactionStatus.KEYSIGNED) {
-      setStep(3)
-      setLoadingStep(3)
     } else if (status === TransactionStatus.PAID) {
       setStep(3)
       setLoadingStep(3)
+    } else if (status === TransactionStatus.REFUNDSTART) {
+      setStep(3)
+      setLoadingStep(3)
+      toast.error(
+        'Failed to release tokens to target! Starting refund process.',
+        {
+          icon: <ErrorIcon />
+        }
+      )
+      setErrorMessage(
+        'Failed to release tokens to target! Starting refund process.'
+      )
+    } else if (status === TransactionStatus.REFUNDFAILED) {
+      setStep(3)
+      setErrorStep(3)
+      setLoadingStep(-1)
+      toast.error('Failed to refund tokens to source!', {
+        icon: <ErrorIcon />
+      })
+      setErrorMessage('Failed to refund tokens to source!')
+    } else if (status === TransactionStatus.REFUNDCOMPLETED) {
+      setStep(4)
+      setErrorStep(3)
+      setLoadingStep(-1)
+      toast.success('Refund completed!', {
+        icon: <ErrorIcon />
+      })
+      setErrorMessage('Refund completed!')
     } else if (status === TransactionStatus.FAILEDTOPAY) {
       setStep(3)
       setErrorStep(3)
