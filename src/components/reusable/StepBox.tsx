@@ -102,7 +102,7 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                 </p>
               </div>
             ) : null}
-            {index === 1 && data?.pullHash ? (
+            {index === 1 && data?.tssPullHash ? (
               <div
                 className={`info-item ${theme.colorMode} source-chain ${step >= 3 ? 'paid' : ''}`}
               >
@@ -112,29 +112,29 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                   <ExternalLink
                     to={`${
                       sourceChain?.blockExplorers?.default.url
-                    }/${data?.originChain === ChainName.TRON ? 'transaction' : 'tx'}/${data?.pullHash}${
+                    }/${data?.originChain === ChainName.TRON ? 'transaction' : 'tx'}/${data?.tssPullHash}${
                       data?.originChain === ChainName.SOLANA &&
                       networkOption === NetworkOptions.testnet
                         ? '?cluster=devnet'
                         : ''
                     }`}
                   >
-                    {getShortenedAddress(data?.pullHash || '')}
+                    {getShortenedAddress(data?.tssPullHash || '')}
                   </ExternalLink>
-                  <CopyButton text={data?.pullHash || ''} />
+                  <CopyButton text={data?.tssPullHash || ''} />
                 </p>
               </div>
             ) : null}
             {index === 3 && data?.tssRefundHash ? (
               <div className={`info-item ${theme.colorMode} target-chain`}>
-                <ChainIcon symbol={data.sourceChain as string} />
+                <ChainIcon symbol={data.originChain as string} />
                 <p className='chain-name'>{sourceChain?.name} TX ID:</p>
                 <p>
                   <ExternalLink
                     to={`${
                       sourceChain?.blockExplorers?.default.url
-                    }/${data?.sourceChain === ChainName.TRON ? 'transaction' : 'tx'}/${data?.tssRefundHash}${
-                      data?.sourceChain === ChainName.SOLANA &&
+                    }/${data?.originChain === ChainName.TRON ? 'transaction' : 'tx'}/${data?.tssRefundHash}${
+                      data?.originChain === ChainName.SOLANA &&
                       networkOption === NetworkOptions.testnet
                         ? '?cluster=devnet'
                         : ''
@@ -154,16 +154,16 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                   <ExternalLink
                     to={`${
                       targetChain?.blockExplorers?.default.url
-                    }/${data?.targetChain === ChainName.TRON ? 'transaction' : 'tx'}/${data?.releaseHash}${
+                    }/${data?.targetChain === ChainName.TRON ? 'transaction' : 'tx'}/${data?.tssReleaseHash}${
                       data?.targetChain === ChainName.SOLANA &&
                       networkOption === NetworkOptions.testnet
                         ? '?cluster=devnet'
                         : ''
                     }`}
                   >
-                    {getShortenedAddress(data?.releaseHash || '')}
+                    {getShortenedAddress(data?.tssReleaseHash || '')}
                   </ExternalLink>
-                  <CopyButton text={data?.releaseHash || ''} />
+                  <CopyButton text={data?.tssReleaseHash || ''} />
                 </p>
               </div>
             ) : null}
