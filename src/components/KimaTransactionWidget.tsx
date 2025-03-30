@@ -53,7 +53,6 @@ const KimaTransactionWidget = ({
 }: Props) => {
   const dispatch = useDispatch()
 
-  dispatch(setTheme(theme))
   const { kimaBackendUrl } = useKimaContext()
   const {
     data: envOptions,
@@ -76,11 +75,19 @@ const KimaTransactionWidget = ({
     }
   }, [chainData])
 
-  if (isLoadingEnvs || isLoadingChainData) return <SkeletonLoader />
+  useEffect(() => {
+    if (theme?.colorMode) {
+      dispatch(setTheme(theme))
+    }
+  }, [theme?.colorMode])
+
+  if (isLoadingEnvs || isLoadingChainData)
+    return <SkeletonLoader theme={theme} />
 
   if (envOptionsError || !envOptions)
     return (
       <ErrorWidget
+        theme={theme}
         title={LoadingErrorTitle.EnvLoadingError}
         message={LoadingErrorMessage.EnvLoadingError}
       />
@@ -89,6 +96,7 @@ const KimaTransactionWidget = ({
   if (chainDataError || !chainData)
     return (
       <ErrorWidget
+        theme={theme}
         title={LoadingErrorTitle.ChainLoadingError}
         message={LoadingErrorMessage.ChainLoadingError}
       />
