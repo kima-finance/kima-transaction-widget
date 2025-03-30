@@ -17,6 +17,7 @@ import { getShortenedAddress } from '../../utils/functions'
 import { ExternalLink } from '../reusable'
 import toast from 'react-hot-toast'
 import { NetworkOptions } from '../../interface'
+import log from '@utils/logger'
 
 const PendingTxPopup = ({ handleHtlcContinue, handleHtlcReclaim }) => {
   const dispatch = useDispatch()
@@ -114,7 +115,7 @@ const PendingTxPopup = ({ handleHtlcContinue, handleHtlcReclaim }) => {
                             now.getTime() / 1000
                           )
 
-                          console.log(currentTimestamp, tx.expireTime)
+                          log.debug(currentTimestamp, tx.expireTime)
                           if (currentTimestamp < +tx.expireTime) {
                             toast.error(
                               'Please wait for until htlc is expired!'

@@ -3,8 +3,7 @@ import { useDispatch } from 'react-redux'
 import { setTxId, setSubmitted } from '@store/optionSlice'
 import { getTransactionId } from '@utils/functions'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
-import { useSelector } from 'react-redux'
-import { selectSignature } from '@store/selectors'
+import log from '@utils/logger'
 
 const useSubmitTransaction = ({
   amount,
@@ -73,7 +72,7 @@ const useSubmitTransaction = ({
 
       return { success: true, message: 'Transaction submitted successfully.' }
     } catch (error) {
-      console.error('Error submitting transaction:', error)
+      log.error('Error submitting transaction:', error)
       setSubmitting(false)
       return { success: false, message: 'Failed to submit transaction' }
     }

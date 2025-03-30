@@ -31,6 +31,22 @@ $hover: #d6e4ea;
     border-color 0ms;
 }
 
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@mixin pulse-loader($duration: 1.5s) {
+  animation: pulse $duration ease-in-out infinite;
+}
+
 @mixin breakpoint($point) {
   @if $point == desktop {
     @media (max-width: 1440px) {

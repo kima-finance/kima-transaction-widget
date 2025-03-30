@@ -40,8 +40,9 @@ import { ChainName } from '@utils/constants'
 import { useChainData } from '../hooks/useChainData'
 import { indexPluginsByChain } from '../pluginRegistry'
 import { useKimaContext } from 'src/KimaProvider'
-import { useGetEnvOptions } from '../hooks/useGetEnvOptions'
+import { EnvOptions, useGetEnvOptions } from '../hooks/useGetEnvOptions'
 import { ChainData } from '@plugins/pluginTypes'
+import { useDebugCode } from '../hooks/useDebugMode'
 
 interface Props {
   theme: ThemeOptions
@@ -55,6 +56,8 @@ interface Props {
   paymentTitleOption?: PaymentTitleOption
   excludedSourceNetworks?: Array<ChainName>
   excludedTargetNetworks?: Array<ChainName>
+  chainData: ChainData[]
+  envOptions: EnvOptions
 }
 
 const KimaWidgetWrapper = ({
@@ -68,14 +71,15 @@ const KimaWidgetWrapper = ({
   compliantOption = true,
   transactionOption,
   excludedSourceNetworks = [],
-  excludedTargetNetworks = []
+  excludedTargetNetworks = [],
+  chainData,
+  envOptions
 }: Props) => {
+  useDebugCode()
   const { kimaBackendUrl } = useKimaContext()
   const submitted = useSelector(selectSubmitted)
   const dispatch = useDispatch()
   const { setThemeMode, setThemeVariables } = useAppKitTheme()
-  const { data: chainData } = useChainData(kimaBackendUrl)
-  const { data: envOptions } = useGetEnvOptions({ kimaBackendUrl })
 
   const networkOption = envOptions?.env
   const kimaExplorer =

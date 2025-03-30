@@ -42,6 +42,7 @@ import TransactionStatusMessage from './reusable/TransactionStatusMessage'
 import TransactionSearch from './reusable/TransactionSearch'
 import { useChainData } from '../hooks/useChainData'
 import { ChainData } from '@plugins/pluginTypes'
+import log from '@utils/logger'
 
 export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [step, setStep] = useState(0)
@@ -133,7 +134,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       return
     }
 
-    console.log('tx status:', data.status, data.failReason, errorMessage)
+    log.debug('tx status:', data.status, data.failReason, errorMessage)
     setErrorStep(-1)
     const status = data.status as string
 
@@ -150,20 +151,45 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setStep(1)
       setErrorStep(1)
       setLoadingStep(-1)
-      console.log(data.failReason)
+      log.error('transaction failed:', data.failReason)
       toast.error('Unavailable', { icon: <ErrorIcon /> })
       setErrorMessage('Unavailable')
-    } else if (status === TransactionStatus.KEYSIGNED) {
-      setStep(3)
-      setLoadingStep(3)
     } else if (status === TransactionStatus.PAID) {
       setStep(3)
       setLoadingStep(3)
+    } else if (status === TransactionStatus.REFUNDSTART) {
+      setStep(3)
+      setLoadingStep(3)
+      toast.error(
+        'Failed to release tokens to target! Starting refund process.',
+        {
+          icon: <ErrorIcon />
+        }
+      )
+      setErrorMessage(
+        'Failed to release tokens to target! Starting refund process.'
+      )
+    } else if (status === TransactionStatus.REFUNDFAILED) {
+      setStep(3)
+      setErrorStep(3)
+      setLoadingStep(-1)
+      toast.error('Failed to refund tokens to source!', {
+        icon: <ErrorIcon />
+      })
+      setErrorMessage('Failed to refund tokens to source!')
+    } else if (status === TransactionStatus.REFUNDCOMPLETED) {
+      setStep(4)
+      setErrorStep(3)
+      setLoadingStep(-1)
+      toast.success('Refund completed!', {
+        icon: <ErrorIcon />
+      })
+      setErrorMessage('Refund completed!')
     } else if (status === TransactionStatus.FAILEDTOPAY) {
       setStep(3)
       setErrorStep(3)
       setLoadingStep(-1)
-      console.log(data.failReason)
+      log.error('transaction failed:', data.failReason)
       toast.error('Failed to release tokens to target!', {
         icon: <ErrorIcon />
       })
@@ -172,7 +198,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setStep(1)
       setErrorStep(1)
       setLoadingStep(-1)
-      console.log(data.failReason)
+      log.error('transaction failed:', data.failReason)
       toast.error('Failed to pull tokens from source!', { icon: <ErrorIcon /> })
       setErrorMessage('Failed to pull tokens from source!')
     } else if (status === TransactionStatus.COMPLETED) {

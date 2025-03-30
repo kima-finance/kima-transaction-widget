@@ -1,6 +1,7 @@
 import { TransactionData } from '@interface'
 import { TransactionStatus } from '@utils/constants'
 import { fetchWrapper } from 'src/helpers/fetch-wrapper'
+import log from '@utils/logger'
 
 interface KimaTransactionDataResponse {
   data: {
@@ -10,6 +11,7 @@ interface KimaTransactionDataResponse {
       pullhash: string
       releasefailcount: number
       releasehash: string
+      refundhash: string
       txstatus: string
       amount: number
       creator: string
@@ -33,6 +35,7 @@ interface KimaLiquidityTransactionDataResponse {
       pullhash: string
       releasefailcount: number
       releasehash: string
+      refundhash: string
       txstatus: string
       amount: number
       creator: string
@@ -51,6 +54,7 @@ const emptyStatus = {
   targetChain: '',
   tssPullHash: '',
   tssReleaseHash: '',
+  tssRefundHash: '',
   sourceSymbol: '',
   targetSymbol: '',
   amount: '',
@@ -71,6 +75,7 @@ const selectStatus = (
       targetChain: data.chain,
       tssPullHash: data.releasehash,
       tssReleaseHash: data.releasehash,
+      tssRefundHash: data.refundhash,
       failReason: data.failreason,
       amount: data.amount,
       sourceSymbol: data.symbol,
@@ -88,6 +93,7 @@ const selectStatus = (
     targetChain: data.targetchain,
     tssPullHash: data.pullhash,
     tssReleaseHash: data.releasehash,
+    tssRefundHash: data.refundhash,
     failReason: data.failreason,
     amount: data.amount,
     sourceSymbol: data.originsymbol,
@@ -104,7 +110,9 @@ const isFinished = (data: TransactionData | null) => {
       TransactionStatus.COMPLETED,
       TransactionStatus.FAILEDTOPULL,
       TransactionStatus.FAILEDTOPAY,
-      TransactionStatus.UNAVAILABLE
+      TransactionStatus.UNAVAILABLE,
+      TransactionStatus.REFUNDFAILED,
+      TransactionStatus.REFUNDCOMPLETED
     ].includes(data.status)
   )
 }
@@ -135,7 +143,7 @@ export const getTxData = async ({
     refPollForUpdates.current = !isFinished(data)
     return data
   } catch (error) {
-    console.error(`Error fetching transaction ${txId} data:`, error)
+    log.error(`Error fetching transaction ${txId} data:`, error)
     throw new Error(
       `Error fetching transaction ${txId} data: ${JSON.stringify(error)}`
     )

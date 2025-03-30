@@ -1,4 +1,5 @@
 import { fetchWrapper } from '../helpers/fetch-wrapper'
+import log from '@utils/logger'
 
 export const getCompliance = async (
   walletAddress: string,
@@ -12,10 +13,10 @@ export const getCompliance = async (
       `${backendUrl}/compliant?address=${walletAddress}`
     )
 
-    console.log('compliance: ', response)
+    log.debug('compliance: ', response)
     return response
   } catch (error) {
-    console.error('compliance error: ', error)
+    log.error('compliance error: ', error)
     throw new Error('Cant get compliance')
   }
 }

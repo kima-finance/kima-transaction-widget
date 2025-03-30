@@ -23,8 +23,8 @@ const Widget = () => {
           theme={{
             colorMode: ColorModeOptions.dark
           }}
-          mode={ModeOptions.bridge}
-          txId={'0x0910692f33ad'}
+          mode={ModeOptions.status}
+          txId={'4285'}
           // autoSwitchChain={false}
           // useFIAT={true}
           // titleOption={{

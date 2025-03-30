@@ -10,14 +10,19 @@ import {
 
 import '../index.css'
 
-import { ChainName } from '@utils/constants'
+import {
+  ChainName,
+  LoadingErrorMessage,
+  LoadingErrorTitle
+} from '@utils/constants'
 import KimaWidgetWrapper from './KimaWidgetWrapper'
 import { useGetEnvOptions } from '../hooks/useGetEnvOptions'
 import { useKimaContext } from 'src/KimaProvider'
-import { Loading180Ring } from '@assets/loading'
 import { useChainData } from '../hooks/useChainData'
 import { useDispatch } from 'react-redux'
 import { setSourceChain, setTargetChain } from '@store/optionSlice'
+import SkeletonLoader from 'src/SkeletonLoader'
+import ErrorWidget from './ErrorWidget'
 
 interface Props {
   theme: ThemeOptions
@@ -48,12 +53,19 @@ const KimaTransactionWidget = ({
 }: Props) => {
   const dispatch = useDispatch()
   const { kimaBackendUrl } = useKimaContext()
-  const { isLoading: isLoadingEnvs } = useGetEnvOptions({
+  const {
+    data: envOptions,
+    error: envOptionsError,
+    isLoading: isLoadingEnvs
+  } = useGetEnvOptions({
     kimaBackendUrl
   })
 
-  const { data: chainData, isLoading: isLoadingChainData } =
-    useChainData(kimaBackendUrl)
+  const {
+    data: chainData,
+    error: chainDataError,
+    isLoading: isLoadingChainData
+  } = useChainData(kimaBackendUrl)
 
   useEffect(() => {
     if (!isLoadingChainData && chainData) {
@@ -62,9 +74,25 @@ const KimaTransactionWidget = ({
     }
   }, [chainData])
 
-  return isLoadingEnvs || isLoadingChainData ? (
-    <Loading180Ring />
-  ) : (
+  if (isLoadingEnvs || isLoadingChainData) return <SkeletonLoader />
+
+  if (envOptionsError || !envOptions)
+    return (
+      <ErrorWidget
+        title={LoadingErrorTitle.EnvLoadingError}
+        message={LoadingErrorMessage.EnvLoadingError}
+      />
+    )
+
+  if (chainDataError || !chainData)
+    return (
+      <ErrorWidget
+        title={LoadingErrorTitle.ChainLoadingError}
+        message={LoadingErrorMessage.ChainLoadingError}
+      />
+    )
+
+  return (
     <KimaWidgetWrapper
       {...{
         theme,
@@ -77,7 +105,9 @@ const KimaTransactionWidget = ({
         compliantOption,
         transactionOption,
         excludedSourceNetworks,
-        excludedTargetNetworks
+        excludedTargetNetworks,
+        chainData,
+        envOptions
       }}
     />
   )
