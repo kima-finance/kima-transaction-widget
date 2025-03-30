@@ -6688,9 +6688,7 @@ import { useDispatch as useDispatch27 } from "react-redux";
 
 // src/SkeletonLoader.tsx
 import React113 from "react";
-import { useSelector as useSelector39 } from "react-redux";
-var SkeletonLoader = () => {
-  const theme = useSelector39(selectTheme);
+var SkeletonLoader = ({ theme }) => {
   return /* @__PURE__ */ React113.createElement(
     "div",
     {
@@ -6706,12 +6704,11 @@ var SkeletonLoader_default = SkeletonLoader;
 
 // src/components/ErrorWidget.tsx
 import React114 from "react";
-import { useSelector as useSelector40 } from "react-redux";
 var ErrorWidget = ({
+  theme,
   title,
   message
 }) => {
-  const theme = useSelector40(selectTheme);
   return /* @__PURE__ */ React114.createElement(
     "div",
     {
@@ -6740,7 +6737,6 @@ var KimaTransactionWidget = ({
   excludedTargetNetworks = []
 }) => {
   const dispatch = useDispatch27();
-  dispatch(setTheme(theme));
   const { kimaBackendUrl } = useKimaContext();
   const {
     data: envOptions,
@@ -6760,11 +6756,13 @@ var KimaTransactionWidget = ({
       dispatch(setTargetChain(chainData[1]));
     }
   }, [chainData]);
-  if (isLoadingEnvs || isLoadingChainData) return /* @__PURE__ */ React115.createElement(SkeletonLoader_default, null);
+  if (isLoadingEnvs || isLoadingChainData)
+    return /* @__PURE__ */ React115.createElement(SkeletonLoader_default, { theme });
   if (envOptionsError || !envOptions)
     return /* @__PURE__ */ React115.createElement(
       ErrorWidget_default,
       {
+        theme,
         title: "Fatal ENV Initialization Error" /* EnvLoadingError */,
         message: "There was an error loading the required environment variables from the backend. Please check that the backend is running properly and the widget points to the corresponding url." /* EnvLoadingError */
       }
@@ -6773,6 +6771,7 @@ var KimaTransactionWidget = ({
     return /* @__PURE__ */ React115.createElement(
       ErrorWidget_default,
       {
+        theme,
         title: "Fatal Chains Initialization Error" /* ChainLoadingError */,
         message: "There was an error loading the chain data from the backend. Please check that the backend is running properly and the widget points to the corresponding url." /* ChainLoadingError */
       }

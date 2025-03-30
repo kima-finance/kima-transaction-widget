@@ -6640,13 +6640,11 @@ var KimaWidgetWrapper = ({
 var KimaWidgetWrapper_default = KimaWidgetWrapper;
 
 // src/components/KimaTransactionWidget.tsx
-var import_react_redux55 = require("react-redux");
+var import_react_redux53 = require("react-redux");
 
 // src/SkeletonLoader.tsx
 var import_react137 = __toESM(require("react"), 1);
-var import_react_redux53 = require("react-redux");
-var SkeletonLoader = () => {
-  const theme = (0, import_react_redux53.useSelector)(selectTheme);
+var SkeletonLoader = ({ theme }) => {
   return /* @__PURE__ */ import_react137.default.createElement(
     "div",
     {
@@ -6662,12 +6660,11 @@ var SkeletonLoader_default = SkeletonLoader;
 
 // src/components/ErrorWidget.tsx
 var import_react138 = __toESM(require("react"), 1);
-var import_react_redux54 = require("react-redux");
 var ErrorWidget = ({
+  theme,
   title,
   message
 }) => {
-  const theme = (0, import_react_redux54.useSelector)(selectTheme);
   return /* @__PURE__ */ import_react138.default.createElement(
     "div",
     {
@@ -6695,8 +6692,7 @@ var KimaTransactionWidget = ({
   excludedSourceNetworks = [],
   excludedTargetNetworks = []
 }) => {
-  const dispatch = (0, import_react_redux55.useDispatch)();
-  dispatch(setTheme(theme));
+  const dispatch = (0, import_react_redux53.useDispatch)();
   const { kimaBackendUrl } = useKimaContext();
   const {
     data: envOptions,
@@ -6716,11 +6712,13 @@ var KimaTransactionWidget = ({
       dispatch(setTargetChain(chainData[1]));
     }
   }, [chainData]);
-  if (isLoadingEnvs || isLoadingChainData) return /* @__PURE__ */ import_react139.default.createElement(SkeletonLoader_default, null);
+  if (isLoadingEnvs || isLoadingChainData)
+    return /* @__PURE__ */ import_react139.default.createElement(SkeletonLoader_default, { theme });
   if (envOptionsError || !envOptions)
     return /* @__PURE__ */ import_react139.default.createElement(
       ErrorWidget_default,
       {
+        theme,
         title: "Fatal ENV Initialization Error" /* EnvLoadingError */,
         message: "There was an error loading the required environment variables from the backend. Please check that the backend is running properly and the widget points to the corresponding url." /* EnvLoadingError */
       }
@@ -6729,6 +6727,7 @@ var KimaTransactionWidget = ({
     return /* @__PURE__ */ import_react139.default.createElement(
       ErrorWidget_default,
       {
+        theme,
         title: "Fatal Chains Initialization Error" /* ChainLoadingError */,
         message: "There was an error loading the chain data from the backend. Please check that the backend is running properly and the widget points to the corresponding url." /* ChainLoadingError */
       }
