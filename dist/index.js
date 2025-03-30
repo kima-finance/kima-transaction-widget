@@ -6756,6 +6756,11 @@ var KimaTransactionWidget = ({
       dispatch(setTargetChain(chainData[1]));
     }
   }, [chainData]);
+  useEffect21(() => {
+    if (theme?.colorMode) {
+      dispatch(setTheme(theme));
+    }
+  }, [theme?.colorMode]);
   if (isLoadingEnvs || isLoadingChainData)
     return /* @__PURE__ */ React115.createElement(SkeletonLoader_default, { theme });
   if (envOptionsError || !envOptions)
