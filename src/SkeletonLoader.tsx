@@ -1,12 +1,8 @@
 import { FooterLogo } from '@assets/icons'
-import { ColorModeOptions } from '@interface'
-import { selectTheme } from '@store/selectors'
+import { ColorModeOptions, ThemeOptions } from '@interface'
 import React from 'react'
-import { useSelector } from 'react-redux'
 
-const SkeletonLoader = () => {
-  const theme = useSelector(selectTheme)
-
+const SkeletonLoader = ({ theme }: { theme: ThemeOptions }) => {
   return (
     <div
       className={`kima-card ${theme.colorMode}`}
