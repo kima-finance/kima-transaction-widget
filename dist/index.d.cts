@@ -4,6 +4,7 @@ import { Connection, Transaction, VersionedTransaction, PublicKey } from '@solan
 import { TronWeb } from 'tronweb';
 import { SignedTransaction } from '@tronweb3/tronwallet-abstract-adapter';
 import { BrowserProvider, JsonRpcSigner } from 'ethers';
+import { LogLevelDesc } from 'loglevel';
 
 declare enum ChainName {
     ETHEREUM = "ETH",
@@ -35,7 +36,9 @@ declare enum TransactionStatus {
     FAILEDTOPAY = "FailedToPay",
     FAILEDTOPULL = "FailedToPull",
     UNAVAILABLE = "UnAvailable",
-    KEYSIGNED = "KeySigned"
+    REFUNDSTART = "RefundStart",
+    REFUNDFAILED = "RefundFailed",
+    REFUNDCOMPLETED = "RefundCompleted"
 }
 
 declare enum NetworkOptions {
@@ -98,6 +101,7 @@ interface TransactionData {
     targetChain: string;
     tssPullHash: string;
     tssReleaseHash: string;
+    tssRefundHash: string;
     sourceSymbol: string;
     targetSymbol: string;
     amount: number | string;
@@ -142,13 +146,14 @@ interface KimaProviderProps {
     externalProvider?: ExternalProvider;
     kimaBackendUrl: string;
     children: ReactNode;
+    logLevel?: LogLevelDesc;
     errorHandler?: (e: any) => void;
     closeHandler?: (e: any) => void;
     successHandler?: (e: any) => void;
     keplrHandler?: (e: any) => void;
     switchChainHandler?: (e: any) => void;
 }
-declare const KimaProvider: ({ walletConnectProjectId, children, externalProvider, kimaBackendUrl, keplrHandler, successHandler, closeHandler, errorHandler, switchChainHandler }: KimaProviderProps) => react.JSX.Element;
+declare const KimaProvider: ({ walletConnectProjectId, children, externalProvider, kimaBackendUrl, logLevel, keplrHandler, successHandler, closeHandler, errorHandler, switchChainHandler }: KimaProviderProps) => react.JSX.Element;
 
 interface Props {
     theme: ThemeOptions;
