@@ -6696,6 +6696,7 @@ var KimaTransactionWidget = ({
   excludedTargetNetworks = []
 }) => {
   const dispatch = (0, import_react_redux55.useDispatch)();
+  dispatch(setTheme(theme));
   const { kimaBackendUrl } = useKimaContext();
   const {
     data: envOptions,

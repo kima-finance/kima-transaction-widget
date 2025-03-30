@@ -6740,6 +6740,7 @@ var KimaTransactionWidget = ({
   excludedTargetNetworks = []
 }) => {
   const dispatch = useDispatch27();
+  dispatch(setTheme(theme));
   const { kimaBackendUrl } = useKimaContext();
   const {
     data: envOptions,
