@@ -1,6 +1,7 @@
 import { checkPoolBalance, preciseSubtraction } from '@utils/functions'
 import { ModeOptions, NetworkFee } from '@interface'
 import { useMemo } from 'react'
+import log from '@utils/logger'
 
 export enum ValidationError {
   Error = 'ValidationError',
@@ -53,14 +54,14 @@ const useValidateTransaction = ({
 
     const amountMinusFees = preciseSubtraction(balance as number, totalFeeUsd)
     const maxVal = amountMinusFees > 0 ? amountMinusFees : 0
-    console.log('maxValue: ', { maxVal, amountMinusFees })
+    log.debug('maxValue: ', { maxVal, amountMinusFees })
 
     return maxVal
   }, [balance, totalFeeUsd, feeDeduct])
 
   const validate = (isSubmitting: boolean = false) => {
-    console.log('allowance: ', allowance)
-    console.log('isApproved: ', isApproved)
+    log.debug('allowance: ', allowance)
+    log.debug('isApproved: ', isApproved)
 
     // Validation logic
     if (!sourceAddress) {

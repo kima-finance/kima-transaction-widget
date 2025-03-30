@@ -14,6 +14,7 @@ import { ChainName, isEVMChain } from '../../utils/constants'
 import { isEmptyObject } from '../../helpers/functions'
 import { NetworkOptions } from '@interface'
 import { getEvmTokenBalance } from '../../utils/getTokenBalance'
+import log from '@utils/logger'
 
 const zeroBalance = { balance: 0, decimals: 6 }
 
@@ -30,7 +31,12 @@ export default function useBalance() {
 
   // Get token address
   const tokenAddress = useMemo(() => {
-    if (isEmptyObject(tokenOptions) || sourceChain.shortName === ChainName.FIAT) return ''
+    if (
+      isEmptyObject(tokenOptions) ||
+      sourceChain.shortName === ChainName.FIAT
+    ) {
+      return ''
+    }
     return tokenOptions?.[sourceCurrency]?.[sourceChain.shortName] || ''
   }, [sourceCurrency, sourceChain, tokenOptions])
 
@@ -61,7 +67,7 @@ export default function useBalance() {
           isTestnet: networkOption === NetworkOptions.testnet
         })
       } catch (error) {
-        console.error(
+        log.error(
           `Error getting ${sourceChain} ${sourceCurrency} balance for wallet ${walletAddress}:`,
           error
         )

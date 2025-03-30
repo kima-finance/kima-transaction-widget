@@ -11,6 +11,7 @@ import {
 import useIsWalletReady from '../../hooks/useIsWalletReady'
 import { ModeOptions } from '../../interface'
 import { ChainCompatibility, ChainData } from '@plugins/pluginTypes'
+import log from '@utils/logger'
 
 /**
  * Component for target address input
@@ -54,7 +55,7 @@ const AddressInput = ({
       return
     }
 
-    console.log(
+    log.debug(
       'AddressInput:: source or target chain non EVM. resetting target address'
     )
 

@@ -1,4 +1,5 @@
 import { fetchWrapper } from '../helpers/fetch-wrapper'
+import log from '@utils/logger'
 
 export const getPools = async (backenUrl: string): Promise<any> => {
   const poolsData: any = await fetchWrapper.get(`${backenUrl}/chains/pool`)
@@ -13,7 +14,7 @@ export const getPoolsBalances = async (
     `${backendUrl}/chains/pool_balance`
   )
 
-  console.log('poolsBalancesData: ', poolsBalancesData)
+  log.debug('poolsBalancesData: ', poolsBalancesData)
 
   return poolsBalancesData.poolBalance || []
 }
