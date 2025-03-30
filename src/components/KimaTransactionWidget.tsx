@@ -75,6 +75,12 @@ const KimaTransactionWidget = ({
     }
   }, [chainData])
 
+  useEffect(() => {
+    if (theme?.colorMode) {
+      dispatch(setTheme(theme))
+    }
+  }, [theme?.colorMode])
+
   if (isLoadingEnvs || isLoadingChainData)
     return <SkeletonLoader theme={theme} />
 
