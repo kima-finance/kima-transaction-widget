@@ -20,7 +20,7 @@ import { useGetEnvOptions } from '../hooks/useGetEnvOptions'
 import { useKimaContext } from 'src/KimaProvider'
 import { useChainData } from '../hooks/useChainData'
 import { useDispatch } from 'react-redux'
-import { setSourceChain, setTargetChain } from '@store/optionSlice'
+import { setSourceChain, setTargetChain, setTheme } from '@store/optionSlice'
 import SkeletonLoader from 'src/SkeletonLoader'
 import ErrorWidget from './ErrorWidget'
 
@@ -52,6 +52,8 @@ const KimaTransactionWidget = ({
   excludedTargetNetworks = []
 }: Props) => {
   const dispatch = useDispatch()
+
+  dispatch(setTheme(theme))
   const { kimaBackendUrl } = useKimaContext()
   const {
     data: envOptions,
