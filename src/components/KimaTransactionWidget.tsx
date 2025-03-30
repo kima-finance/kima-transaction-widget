@@ -18,6 +18,7 @@ import { Loading180Ring } from '@assets/loading'
 import { useChainData } from '../hooks/useChainData'
 import { useDispatch } from 'react-redux'
 import { setSourceChain, setTargetChain } from '@store/optionSlice'
+import SkeletonLoader from 'src/SkeletonLoader'
 
 interface Props {
   theme: ThemeOptions
@@ -63,7 +64,7 @@ const KimaTransactionWidget = ({
   }, [chainData])
 
   return isLoadingEnvs || isLoadingChainData ? (
-    <Loading180Ring />
+    <SkeletonLoader />
   ) : (
     <KimaWidgetWrapper
       {...{
