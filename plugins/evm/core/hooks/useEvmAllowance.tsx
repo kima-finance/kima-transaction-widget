@@ -29,6 +29,7 @@ import {
   parseUnits
 } from 'viem'
 import { SignDataType } from '@plugins/pluginTypes'
+import log from '@utils/logger'
 
 export default function useEvmAllowance() {
   const { externalProvider } = useKimaContext()
@@ -50,13 +51,13 @@ export default function useEvmAllowance() {
   const amount = useSelector(selectAmount)
 
   const { pools } = useGetPools(backendUrl, networkOption)
-  // console.log("appkit provider:", appkitProvider)
+  // log.debug("appkit provider:", appkitProvider);
 
   // get the proper address
   const walletAddress =
     externalProvider?.signer?.address || appkitAccountInfo?.address
 
-  // console.log("appkit account: ", appkitAccountInfo)
+  // log.debug("appkit account: ", appkitAccountInfo);
 
   // get the proper provider
   const walletProvider =
@@ -76,7 +77,7 @@ export default function useEvmAllowance() {
     isEVMChain(sourceChain.shortName) &&
     (!!externalProvider?.provider || !!appkitProvider)
 
-  // console.log("enabled: ", enabled, )
+  // log.debug("enabled: ", enabled, );
 
   const {
     data: allowanceData,
@@ -100,12 +101,12 @@ export default function useEvmAllowance() {
 
   const signMessage = async (data: SignDataType) => {
     if (!walletProvider) {
-      console.error('No available provider')
+      log.error('No available provider')
       return
     }
 
     if (!allowanceData?.decimals) {
-      console.warn('useEvmAllowance: Missing required data')
+      log.warn('useEvmAllowance: Missing required data')
       return
     }
 
@@ -122,14 +123,14 @@ export default function useEvmAllowance() {
         message: `I approve the transfer of ${allowanceNumber} ${data.originSymbol} from ${data.originChain} to ${data.targetAddress} on ${data.targetChain}.`
       })
     } catch (error) {
-      console.error('useEvmAllowance: Error on signing message:', error)
+      log.error('useEvmAllowance: Error on signing message:', error)
       throw new Error('Error on signing message')
     }
   }
 
   const approveErc20TokenTransfer = async (isCancel = false) => {
     if (!walletProvider) {
-      console.error('No available provider')
+      log.error('No available provider')
       return
     }
 
@@ -147,7 +148,7 @@ export default function useEvmAllowance() {
       !poolAddress ||
       !allowanceAmount
     ) {
-      console.warn('useEvmAllowance: Missing required data', {
+      log.warn('useEvmAllowance: Missing required data', {
         allowanceAmount,
         allowanceData,
         tokenAddress,
@@ -189,7 +190,7 @@ export default function useEvmAllowance() {
         args: [poolAddress as `0x${string}`, finalAmount]
       })
 
-      console.log(
+      log.info(
         'useEvmAllowance: Transaction sent, waiting for confirmation:',
         hash
       )
@@ -198,14 +199,14 @@ export default function useEvmAllowance() {
       const receipt = await viemClient.waitForTransactionReceipt({ hash })
 
       if (receipt.status === 'success') {
-        console.log('useEvmAllowance: Transaction successful:', receipt)
+        log.info('useEvmAllowance: Transaction successful:', receipt)
         setApprovalsCount((prev: number) => prev + 1)
       } else {
-        console.error('useEvmAllowance: Transaction failed:', receipt)
+        log.error('useEvmAllowance: Transaction failed:', receipt)
         throw new Error('Transaction failed')
       }
     } catch (error) {
-      console.error('useEvmAllowance: Error on EVM approval:', error)
+      log.error('useEvmAllowance: Error on EVM approval:', error)
       throw new Error('Error on EVM approval')
     }
   }
