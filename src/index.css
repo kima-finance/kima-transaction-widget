@@ -3005,6 +3005,12 @@
   flex-direction: column;
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1), color 0ms, background-color 0ms, border-color 0ms;
 }
+.kima-card-content.error svg {
+  margin: 10px auto;
+}
+.kima-card-content.error h2 {
+  text-align: justify;
+}
 .kima-card-content.skeleton {
   display: flex;
   flex-direction: column;

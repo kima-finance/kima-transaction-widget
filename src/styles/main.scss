@@ -76,6 +76,16 @@
     flex-direction: column;
     @include transition;
 
+    &.error {
+      svg {
+        margin: 10px auto;
+      }
+
+      h2 {
+        text-align: justify;
+      }
+    }
+
     &.skeleton {
       display: flex;
       flex-direction: column;
