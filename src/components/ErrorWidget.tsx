@@ -1,18 +1,16 @@
 import { ErrorIcon, FooterLogo } from '@assets/icons'
-import { ColorModeOptions } from '@interface'
-import { selectTheme } from '@store/selectors'
+import { ColorModeOptions, ThemeOptions } from '@interface'
 import React from 'react'
-import { useSelector } from 'react-redux'
 
 const ErrorWidget = ({
+  theme,
   title,
   message
 }: {
+  theme: ThemeOptions
   title: string
   message: string
 }) => {
-  const theme = useSelector(selectTheme)
-
   return (
     <div
       className={`kima-card ${theme.colorMode}`}
