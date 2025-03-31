@@ -6645,6 +6645,7 @@ var import_react_redux53 = require("react-redux");
 // src/SkeletonLoader.tsx
 var import_react137 = __toESM(require("react"), 1);
 var SkeletonLoader = ({ theme }) => {
+  console.log("theme from skeleton loader: ", theme);
   return /* @__PURE__ */ import_react137.default.createElement(
     "div",
     {
@@ -6665,6 +6666,7 @@ var ErrorWidget = ({
   title,
   message
 }) => {
+  console.log("theme from error widget: ", theme);
   return /* @__PURE__ */ import_react138.default.createElement(
     "div",
     {
@@ -6694,18 +6696,20 @@ var KimaTransactionWidget = ({
 }) => {
   const dispatch = (0, import_react_redux53.useDispatch)();
   const { kimaBackendUrl } = useKimaContext();
+  const [hydrated, setHydrated] = (0, import_react139.useState)(false);
   const {
     data: envOptions,
     error: envOptionsError,
     isLoading: isLoadingEnvs
-  } = useGetEnvOptions({
-    kimaBackendUrl
-  });
+  } = useGetEnvOptions({ kimaBackendUrl });
   const {
     data: chainData,
     error: chainDataError,
     isLoading: isLoadingChainData
   } = useChainData(kimaBackendUrl);
+  (0, import_react139.useEffect)(() => {
+    if (typeof window !== "undefined") setHydrated(true);
+  }, []);
   (0, import_react139.useEffect)(() => {
     if (!isLoadingChainData && chainData) {
       dispatch(setSourceChain(chainData[0]));
@@ -6713,10 +6717,12 @@ var KimaTransactionWidget = ({
     }
   }, [chainData]);
   (0, import_react139.useEffect)(() => {
+    console.log("theme from kima transaction widget effect: ", theme);
     if (theme?.colorMode) {
       dispatch(setTheme(theme));
     }
   }, [theme?.colorMode]);
+  if (!hydrated || !theme?.colorMode) return null;
   if (isLoadingEnvs || isLoadingChainData)
     return /* @__PURE__ */ import_react139.default.createElement(SkeletonLoader_default, { theme });
   if (envOptionsError || !envOptions)

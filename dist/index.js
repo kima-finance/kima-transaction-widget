@@ -3971,7 +3971,7 @@ var KimaProvider = ({
 var KimaProvider_default = KimaProvider;
 
 // src/components/KimaTransactionWidget.tsx
-import React115, { useEffect as useEffect21 } from "react";
+import React115, { useEffect as useEffect21, useState as useState16 } from "react";
 
 // src/components/KimaWidgetWrapper.tsx
 import React112, { useEffect as useEffect20 } from "react";
@@ -6689,6 +6689,7 @@ import { useDispatch as useDispatch27 } from "react-redux";
 // src/SkeletonLoader.tsx
 import React113 from "react";
 var SkeletonLoader = ({ theme }) => {
+  console.log("theme from skeleton loader: ", theme);
   return /* @__PURE__ */ React113.createElement(
     "div",
     {
@@ -6709,6 +6710,7 @@ var ErrorWidget = ({
   title,
   message
 }) => {
+  console.log("theme from error widget: ", theme);
   return /* @__PURE__ */ React114.createElement(
     "div",
     {
@@ -6738,18 +6740,20 @@ var KimaTransactionWidget = ({
 }) => {
   const dispatch = useDispatch27();
   const { kimaBackendUrl } = useKimaContext();
+  const [hydrated, setHydrated] = useState16(false);
   const {
     data: envOptions,
     error: envOptionsError,
     isLoading: isLoadingEnvs
-  } = useGetEnvOptions({
-    kimaBackendUrl
-  });
+  } = useGetEnvOptions({ kimaBackendUrl });
   const {
     data: chainData,
     error: chainDataError,
     isLoading: isLoadingChainData
   } = useChainData(kimaBackendUrl);
+  useEffect21(() => {
+    if (typeof window !== "undefined") setHydrated(true);
+  }, []);
   useEffect21(() => {
     if (!isLoadingChainData && chainData) {
       dispatch(setSourceChain(chainData[0]));
@@ -6757,10 +6761,12 @@ var KimaTransactionWidget = ({
     }
   }, [chainData]);
   useEffect21(() => {
+    console.log("theme from kima transaction widget effect: ", theme);
     if (theme?.colorMode) {
       dispatch(setTheme(theme));
     }
   }, [theme?.colorMode]);
+  if (!hydrated || !theme?.colorMode) return null;
   if (isLoadingEnvs || isLoadingChainData)
     return /* @__PURE__ */ React115.createElement(SkeletonLoader_default, { theme });
   if (envOptionsError || !envOptions)
