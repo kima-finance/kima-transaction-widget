@@ -11,6 +11,8 @@ const ErrorWidget = ({
   title: string
   message: string
 }) => {
+  console.log("theme from error widget: ", theme)
+
   return (
     <div
       className={`kima-card ${theme.colorMode}`}
