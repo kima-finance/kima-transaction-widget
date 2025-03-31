@@ -1,5 +1,16 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import 'react-tooltip/dist/react-tooltip.css';
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 1;
+  }
+}
 @font-face {
   font-family: "Manrope";
   src: url("./fonts/Manrope-ExtraLight.eot");
@@ -49,6 +60,13 @@
   font-family: "Sohne";
   font-weight: 400;
   letter-spacing: 1px;
+}
+.kima-card .kima-card-header .topbar .title.skeleton {
+  background: #778da3;
+  border-radius: 50px;
+  height: 25px;
+  width: 60%;
+  animation: pulse 1.5s ease-in-out infinite;
 }
 .kima-card .kima-card-header .topbar .title h3 {
   margin: 0;
@@ -308,6 +326,16 @@
   flex-direction: row;
   gap: 20px;
   margin-bottom: 30px;
+}
+.kima-card .kima-card-footer .button-group.skeleton {
+  align-items: flex-end;
+}
+.kima-card .kima-card-footer .button-group .skeleton {
+  background: #778da3;
+  border-radius: 50px;
+  height: 30px;
+  width: 100px;
+  animation: pulse 1.5s ease-in-out infinite;
 }
 @media (max-width: 500px) {
   .kima-card .kima-card-footer .button-group {
@@ -2976,6 +3004,24 @@
   display: flex;
   flex-direction: column;
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1), color 0ms, background-color 0ms, border-color 0ms;
+}
+.kima-card-content.error svg {
+  margin: 10px auto;
+}
+.kima-card-content.error h2 {
+  text-align: justify;
+}
+.kima-card-content.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.kima-card-content .skeleton {
+  background: #778da3;
+  border-radius: 50px;
+  height: 25px;
+  width: 100%;
+  animation: pulse 1.5s ease-in-out infinite;
 }
 .kima-card.transaction-card {
   padding: 30px 40px;
