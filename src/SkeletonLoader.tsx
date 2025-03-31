@@ -3,6 +3,8 @@ import { ColorModeOptions, ThemeOptions } from '@interface'
 import React from 'react'
 
 const SkeletonLoader = ({ theme }: { theme: ThemeOptions }) => {
+  console.log("theme from skeleton loader: ", theme);
+  
   return (
     <div
       className={`kima-card ${theme.colorMode}`}
