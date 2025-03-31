@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   TransactionOption,
   ThemeOptions,
@@ -52,21 +52,26 @@ const KimaTransactionWidget = ({
   excludedTargetNetworks = []
 }: Props) => {
   const dispatch = useDispatch()
-
   const { kimaBackendUrl } = useKimaContext()
+
+  const [hydrated, setHydrated] = useState(false)
+
   const {
     data: envOptions,
     error: envOptionsError,
     isLoading: isLoadingEnvs
-  } = useGetEnvOptions({
-    kimaBackendUrl
-  })
+  } = useGetEnvOptions({ kimaBackendUrl })
 
   const {
     data: chainData,
     error: chainDataError,
     isLoading: isLoadingChainData
   } = useChainData(kimaBackendUrl)
+
+  // ensure hydration first
+  useEffect(() => {
+    if (typeof window !== 'undefined') setHydrated(true)
+  }, [])
 
   useEffect(() => {
     if (!isLoadingChainData && chainData) {
@@ -80,6 +85,9 @@ const KimaTransactionWidget = ({
       dispatch(setTheme(theme))
     }
   }, [theme?.colorMode])
+
+  // Don't render until hydrated and theme is defined
+  if (!hydrated || !theme?.colorMode) return null
 
   if (isLoadingEnvs || isLoadingChainData)
     return <SkeletonLoader theme={theme} />
