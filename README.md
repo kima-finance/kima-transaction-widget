@@ -288,6 +288,8 @@ For debugging purposes, you can specify the log level. Available levels are  `tr
 
 The log level can also be set using the `LOG_LEVEL` environment or the equivalent for your framework: `NEXT_PUBLIC_LOG_LEVEL`, `VITE_LOG_LEVEL`. The Widget property will take precedence over the environment variable as it is set last.
 
+**DEBUG mode**: Type `D` `E` `B` `U` `G` while focus is on the Widget (not in the console) to enable debug mode. This will set the log level to `debug` and log all messages to the console. Type it again to disable debug mode and restore the default log level. Useful to temporarily toggle logging in the browser when in production or an already deployed app where changing the ENV variable would require a redeploy.
+
 ### `externalProvider`
 
 Used to provide an already connected wallet instance from your app. Depending on the network your dapp is currently connected to is the instance that you will need to provide.

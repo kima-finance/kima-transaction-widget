@@ -1,24 +1,33 @@
-// plugins/solana/features/walletConnect/WalletProvider.tsx
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useEffect, useState } from 'react'
 import { setupAppKit } from '../../config/modalConfig'
 import { NetworkOptions } from '@interface'
-import '../../config/modalConfig'
 
 export interface WalletProviderProps {
   children: ReactNode
   walletConnectProjectId: string
   networkOption: NetworkOptions
-  isLoadingEnvs: boolean
+  isLoading: boolean
 }
 
 const WalletProvider = ({
   children,
   networkOption,
   walletConnectProjectId,
-  isLoadingEnvs
+  isLoading
 }: WalletProviderProps) => {
-  if (networkOption && !isLoadingEnvs)
-    setupAppKit(walletConnectProjectId, networkOption)
+  const [isReady, setIsReady] = useState(false)
+
+  useEffect(() => {
+    if (!isLoading && networkOption) {
+      setupAppKit(walletConnectProjectId, networkOption)
+      setIsReady(true)
+    }
+  }, [networkOption, isLoading, walletConnectProjectId])
+
+  if (!isReady) {
+    return <></>
+  }
+
   return <>{children}</>
 }
 

@@ -44,8 +44,8 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
     useIsWalletReady()
   const { balance } = useBalance()
   const { open } = useAppKit()
-  const { width, updateWidth } = useWidth()
   const { open: isModalOpen } = useAppKitState()
+  const { width, updateWidth } = useWidth()
   useHideWuiListItem(isModalOpen)
 
   const { kimaBackendUrl } = useKimaContext()
