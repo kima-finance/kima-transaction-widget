@@ -6287,6 +6287,7 @@ var TransferWidget = ({
         originSymbol: sourceCurrency,
         originChain: sourceChain.shortName
       });
+      setSignature2(sig);
     }
     const { success, message: submitMessage } = await submitTransaction(sig);
     if (!success) return import_react_hot_toast5.toast.error(submitMessage, { icon: /* @__PURE__ */ import_react133.default.createElement(Error_default, null) });

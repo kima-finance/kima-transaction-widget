@@ -216,6 +216,8 @@ export const TransferWidget = ({
         originSymbol: sourceCurrency,
         originChain: sourceChain.shortName
       })
+
+      setSignature(sig)
     }
 
     // submit the kima transaction
