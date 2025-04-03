@@ -135,10 +135,12 @@ const initialState: OptionState = {
   initChainFromProvider: false,
   serviceFee: {
     allowanceAmount: '0',
-    decimals: 18,
     submitAmount: '0',
     totalFee: '0',
-    totalFeeUsd: -1
+    sourceFee: '0',
+    targetFee: '0',
+    kimaFee: '0',
+    decimals: 18
   },
   backendUrl: '',
   txId: -1,

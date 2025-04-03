@@ -14,7 +14,9 @@ import {
   selectServiceFee,
   selectFeeDeduct,
   selectAmount,
-  selectTargetCurrency
+  selectTargetCurrency,
+  selectSourceAddress,
+  selectTargetAddress
 } from '../../store/selectors'
 import { BankInput, CoinDropdown, WalletButton } from './'
 import { setAmount } from '../../store/optionSlice'
@@ -48,11 +50,13 @@ const SingleForm = ({
   const mode = useSelector(selectMode)
   const theme = useSelector(selectTheme)
   const feeDeduct = useSelector(selectFeeDeduct)
-  const { totalFeeUsd } = useSelector(selectServiceFee)
+  const { totalFee } = useSelector(selectServiceFee)
   const compliantOption = useSelector(selectCompliantOption)
   const targetCompliant = useSelector(selectTargetCompliant)
   const sourceNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
+  const sourceAddress = useSelector(selectSourceAddress)
+  const targetAddress = useSelector(selectTargetAddress)
   const { isReady } = useIsWalletReady()
   const [amountValue, setAmountValue] = useState('')
   const amount = useSelector(selectAmount)
@@ -68,8 +72,11 @@ const SingleForm = ({
     parseFloat(amount),
     feeDeduct,
     sourceNetwork.shortName,
+    sourceAddress,
     sourceCurrency,
     targetNetwork.shortName,
+    targetAddress,
+    targetCurrency,
     backendUrl
   )
 
@@ -94,10 +101,10 @@ const SingleForm = ({
 
   const maxValue = useMemo(() => {
     if (!balance) return 0
-    if (totalFeeUsd < 0) return balance
+    if (+totalFee < 0) return balance
 
-    return preciseSubtraction(balance as number, totalFeeUsd)
-  }, [balance, totalFeeUsd, feeDeduct])
+    return preciseSubtraction(balance as number, +totalFee)
+  }, [balance, totalFee, feeDeduct])
 
   useEffect(() => {
     if (!errorMessage) return
@@ -188,7 +195,7 @@ const SingleForm = ({
             >
               Max
             </span>
-            {totalFeeUsd !== -1 && <p>Est fees: $ {totalFeeUsd} USD</p>}
+            {+totalFee !== -1 && <p>Est fees: $ {totalFee} USD</p>}
           </div>
         </div>
       </div>

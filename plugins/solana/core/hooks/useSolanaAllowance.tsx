@@ -23,17 +23,16 @@ import { getPoolAddress, getTokenAddress } from '@utils/functions'
 import { PublicKey, Transaction } from '@solana/web3.js'
 import { PluginUseAllowanceResult, SignDataType } from '@plugins/pluginTypes'
 import { useKimaContext } from '../../../../src/KimaProvider'
-import { formatUnits } from 'ethers'
+import { formatterFloat } from 'src/helpers/functions'
 
 export default function useSolanaAllowance(): PluginUseAllowanceResult {
   const sourceChain = useSelector(selectSourceChain)
-  const { allowanceAmount, submitAmount, decimals } =
-    useSelector(selectServiceFee)
+  const { allowanceAmount, submitAmount } = useSelector(selectServiceFee)
   const feeDeduct = useSelector(selectFeeDeduct)
   const backendUrl = useSelector(selectBackendUrl)
   const networkOption = useSelector(selectNetworkOption)
-  const allowanceNumber = Number(
-    formatUnits(feeDeduct ? submitAmount : (allowanceAmount ?? '0'), decimals)
+  const allowanceNumber = formatterFloat.format(
+    Number(feeDeduct ? submitAmount : (allowanceAmount ?? '0'))
   )
   const { externalProvider } = useKimaContext()
 

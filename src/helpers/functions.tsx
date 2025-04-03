@@ -3,7 +3,7 @@ export const formatterInt = new Intl.NumberFormat('en-US', {
 })
 
 export const formatterFloat = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 9
+  maximumFractionDigits: 6
 })
 
 export function isEmptyObject(arg) {

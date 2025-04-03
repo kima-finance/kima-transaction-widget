@@ -1,5 +1,5 @@
 import { checkPoolBalance, preciseSubtraction } from '@utils/functions'
-import { ModeOptions, NetworkFee } from '@interface'
+import { ModeOptions } from '@interface'
 import { useMemo } from 'react'
 
 export enum ValidationError {
@@ -16,11 +16,10 @@ const useValidateTransaction = ({
   targetAddress,
   targetChain,
   targetCurrency,
-  targetNetworkFee,
   feeDeduct,
   balance,
   amount,
-  totalFeeUsd,
+  totalFee,
   compliantOption,
   sourceCompliant,
   targetCompliant,
@@ -34,11 +33,10 @@ const useValidateTransaction = ({
   targetAddress: string
   targetChain: string
   targetCurrency: string
-  targetNetworkFee?: NetworkFee
   feeDeduct: boolean
   balance: number
   amount: string
-  totalFeeUsd: number
+  totalFee: string
   compliantOption: boolean
   sourceCompliant: any
   targetCompliant: any
@@ -49,14 +47,14 @@ const useValidateTransaction = ({
   const maxValue = useMemo(() => {
     if (!balance) return 0
 
-    if (totalFeeUsd < 0) return balance
+    if (+totalFee < 0) return balance
 
-    const amountMinusFees = preciseSubtraction(balance as number, totalFeeUsd)
+    const amountMinusFees = preciseSubtraction(balance as number, +totalFee)
     const maxVal = amountMinusFees > 0 ? amountMinusFees : 0
     console.log('maxValue: ', { maxVal, amountMinusFees })
 
     return maxVal
-  }, [balance, totalFeeUsd, feeDeduct])
+  }, [balance, totalFee, feeDeduct])
 
   const validate = (isSubmitting: boolean = false) => {
     console.log('allowance: ', allowance)
@@ -84,7 +82,7 @@ const useValidateTransaction = ({
       }
     }
 
-    if (totalFeeUsd < 0) {
+    if (+totalFee < 0) {
       return { error: ValidationError.Error, message: 'Fee calculation error' }
     }
 
@@ -121,7 +119,7 @@ const useValidateTransaction = ({
       }
     }
 
-    if (+amount < totalFeeUsd && formStep === 0) {
+    if (+amount < +totalFee && formStep === 0) {
       return {
         error: ValidationError.Warning,
         message:
@@ -140,8 +138,7 @@ const useValidateTransaction = ({
       pools,
       targetChain,
       targetCurrency,
-      amount,
-      targetNetworkFee
+      amount
     })
 
     if (!isPoolAvailable) {

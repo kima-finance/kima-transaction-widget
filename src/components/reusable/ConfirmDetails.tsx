@@ -34,7 +34,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
   const dAppOption = useSelector(selectDappOption)
   const theme = useSelector(selectTheme)
   const amount = useSelector(selectAmount)
-  const { totalFeeUsd, targetNetworkFee, sourceNetworkFee } =
+  const { totalFee, targetFee, sourceFee, kimaFee } =
     useSelector(selectServiceFee)
   const originNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
@@ -88,11 +88,11 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
       originNetwork.shortName === ChainName.BTC ||
       targetNetwork.shortName === ChainName.BTC
     ) {
-      return (feeDeduct ? +amount : +amount + totalFeeUsd).toFixed(8)
+      return (feeDeduct ? +amount : +amount + +totalFee).toFixed(8)
     }
 
-    return formatterFloat.format(feeDeduct ? +amount : +amount + totalFeeUsd)
-  }, [amount, totalFeeUsd, originNetwork, targetNetwork, feeDeduct])
+    return formatterFloat.format(feeDeduct ? +amount : +amount + +totalFee)
+  }, [amount, totalFee, originNetwork, targetNetwork, feeDeduct])
 
   return (
     <div className={`confirm-details ${theme.colorMode}`}>
@@ -165,7 +165,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
               <p>
                 {feeDeduct
                   ? formatterFloat.format(Number(amount))
-                  : formatterFloat.format(Number(amount) + totalFeeUsd)}{' '}
+                  : formatterFloat.format(Number(amount) + +totalFee)}{' '}
                 {sourceCurrency}
               </p>
             </div>
@@ -173,15 +173,19 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
           <div className='amount-details'>
             <span>Source Network Fee ({originNetwork.shortName})</span>
             <span className='service-fee'>
-              {formatterFloat.format(sourceNetworkFee?.amount || 0)}{' '}
-              {sourceCurrency}
+              {formatterFloat.format(+sourceFee)} {sourceCurrency}
+            </span>
+          </div>
+          <div className='amount-details'>
+            <span>Kima Service Fee</span>
+            <span className='service-fee'>
+              {formatterFloat.format(+kimaFee)} USD
             </span>
           </div>
           <div className='amount-details'>
             <span>Target Network Fee ({targetNetwork.shortName})</span>
             <span className='service-fee'>
-              {formatterFloat.format(targetNetworkFee?.amount || 0)}{' '}
-              {sourceCurrency}
+              {formatterFloat.format(+targetFee)} {sourceCurrency}
             </span>
           </div>
           {/* TODO: Implement when the new service fee comes in
@@ -196,7 +200,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
             <span className='service-fee'>
               {!feeDeduct
                 ? formatterFloat.format(Number(amount))
-                : formatterFloat.format(Number(amount) - totalFeeUsd)}{' '}
+                : formatterFloat.format(Number(amount) - +totalFee)}{' '}
               {targetCurrency}
             </span>
           </div>
@@ -244,7 +248,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
       )}
 
       {/* checkbox shall only be displayed in transfer scenario */}
-      {mode === ModeOptions.bridge && totalFeeUsd > 0 ? (
+      {mode === ModeOptions.bridge && +totalFee > 0 ? (
         // <FeeDeductionSlider />
         <FeeDeductionRadioButtons />
       ) : null}

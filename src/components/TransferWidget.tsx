@@ -99,9 +99,7 @@ export const TransferWidget = ({
   const targetCurrency = useSelector(selectTargetCurrency)
   const amount = useSelector(selectAmount)
   const {
-    totalFeeUsd,
     totalFee,
-    targetNetworkFee,
     submitAmount,
     decimals: feeDecimals
   } = useSelector(selectServiceFee)
@@ -151,11 +149,10 @@ export const TransferWidget = ({
     targetChain: targetChain.shortName,
     balance,
     amount,
-    totalFeeUsd,
+    totalFee,
     sourceCompliant,
     targetCompliant,
     targetCurrency,
-    targetNetworkFee,
     compliantOption,
     mode,
     pools,
@@ -164,8 +161,8 @@ export const TransferWidget = ({
   })
 
   const { submitTransaction, isSubmitting } = useSubmitTransaction({
-    amount: BigInt(submitAmount ?? '0'),
-    totalFee: BigInt(totalFee ?? '0'),
+    amount: submitAmount,
+    totalFee: totalFee,
     originAddress: sourceAddress,
     targetAddress,
     originChain: sourceChain.shortName,

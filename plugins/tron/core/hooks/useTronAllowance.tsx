@@ -29,21 +29,20 @@ import { PluginUseAllowanceResult, SignDataType } from '@plugins/pluginTypes'
 import { TronWeb } from 'tronweb'
 import { TronProvider } from '@interface'
 import { useKimaContext } from '../../../../src/KimaProvider'
-import { formatUnits } from 'ethers'
+import { formatterFloat } from 'src/helpers/functions'
 
 export default function useTronAllowance(): PluginUseAllowanceResult {
   const { externalProvider } = useKimaContext()
   const sourceChain = useSelector(selectSourceChain)
   const networkOption = useSelector(selectNetworkOption)
   const backendUrl = useSelector(selectBackendUrl)
-  const { allowanceAmount, submitAmount, decimals } =
-    useSelector(selectServiceFee)
+  const { allowanceAmount, submitAmount } = useSelector(selectServiceFee)
   useTronWallet()
   const selectedCoin = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
   const feeDeduct = useSelector(selectFeeDeduct)
-  const allowanceNumber = Number(
-    formatUnits(feeDeduct ? submitAmount : (allowanceAmount ?? '0'), decimals)
+  const allowanceNumber = formatterFloat.format(
+    Number(feeDeduct ? submitAmount : (allowanceAmount ?? '0'))
   )
 
   const { pools } = useGetPools(backendUrl, networkOption)

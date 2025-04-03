@@ -4,7 +4,8 @@ import { setTxId, setSubmitted } from '@store/optionSlice'
 import { getTransactionId } from '@utils/functions'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 import { useSelector } from 'react-redux'
-import { selectSignature } from '@store/selectors'
+import { selectServiceFee, selectSignature } from '@store/selectors'
+import { parseUnits } from 'viem'
 
 const useSubmitTransaction = ({
   amount,
@@ -18,8 +19,8 @@ const useSubmitTransaction = ({
   backendUrl,
   decimals
 }: {
-  amount: bigint
-  totalFee: bigint
+  amount: string
+  totalFee: string
   originAddress: string
   targetAddress: string
   originChain: string
@@ -32,6 +33,7 @@ const useSubmitTransaction = ({
   const dispatch = useDispatch()
 
   const [isSubmitting, setSubmitting] = useState(false)
+  const { feeId } = useSelector(selectServiceFee)
 
   const submitTransaction = async (signature: string) => {
     try {
@@ -44,15 +46,15 @@ const useSubmitTransaction = ({
         targetChain,
         originSymbol,
         targetSymbol,
-        amount: amount.toString(),
-        fee: totalFee.toString(),
+        amount: parseUnits(amount, decimals).toString(),
+        fee: parseUnits(totalFee, decimals).toString(),
         decimals,
         htlcCreationHash: '',
         htlcCreationVout: 0,
         htlcExpirationTimestamp: '0',
         htlcVersion: '',
         senderPubKey: '',
-        options: JSON.stringify({ signature })
+        options: JSON.stringify({ signature, feeId })
       })
 
       const transactionResult: any = await fetchWrapper.post(

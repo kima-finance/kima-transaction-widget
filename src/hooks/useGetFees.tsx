@@ -8,8 +8,11 @@ const useGetFees = (
   amount: number | null,
   deductFees: boolean,
   sourceNetwork: string | null,
+  sourceAddress: string | null,
   sourceSymbol: string | null,
   targetNetwork: string | null,
+  targetAddress: string | null,
+  targetSymbol: string | null,
   backendUrl: string
 ) => {
   // In Payment mode, the target (seller) must always receive the full amount
@@ -31,8 +34,11 @@ const useGetFees = (
         amount!,
         feeDeductWithMode!,
         sourceNetwork!,
+        sourceAddress!,
         sourceSymbol!,
         targetNetwork!,
+        targetAddress!,
+        targetSymbol!,
         backendUrl
       )
     },
@@ -40,8 +46,11 @@ const useGetFees = (
       !!backendUrl &&
       !!amount &&
       !!sourceNetwork &&
+      !!sourceAddress &&
       !!sourceSymbol &&
-      !!targetNetwork, // Only run when all params are valid
+      !!targetNetwork &&
+      !!targetAddress &&
+      !!targetSymbol, // Only run when all params are valid
     staleTime: 60000, // Cache for 60 seconds
     retry: 1
   })

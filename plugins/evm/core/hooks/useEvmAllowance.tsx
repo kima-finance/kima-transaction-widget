@@ -29,6 +29,7 @@ import {
   parseUnits
 } from 'viem'
 import { SignDataType } from '@plugins/pluginTypes'
+import { formatterFloat } from 'src/helpers/functions'
 
 export default function useEvmAllowance() {
   const { externalProvider } = useKimaContext()
@@ -38,14 +39,14 @@ export default function useEvmAllowance() {
 
   const sourceChain = useSelector(selectSourceChain)
   const networkOption = useSelector(selectNetworkOption)
-  const { totalFeeUsd, allowanceAmount, submitAmount, decimals } =
+  const { totalFee, allowanceAmount, submitAmount, decimals } =
     useSelector(selectServiceFee)
   const selectedCoin = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
   const backendUrl = useSelector(selectBackendUrl)
   const feeDeduct = useSelector(selectFeeDeduct)
-  const allowanceNumber = Number(
-    formatUnits(feeDeduct ? submitAmount : (allowanceAmount ?? '0'), decimals)
+  const allowanceNumber = formatterFloat.format(
+    Number(feeDeduct ? submitAmount : (allowanceAmount ?? '0'))
   )
   const amount = useSelector(selectAmount)
 
@@ -175,10 +176,7 @@ export default function useEvmAllowance() {
         ? BigInt(0)
         : feeDeduct
           ? parseUnits(amount, allowanceData.decimals)
-          : parseUnits(
-              (+amount + totalFeeUsd).toString(),
-              allowanceData.decimals
-            )
+          : parseUnits((+amount + +totalFee).toString(), allowanceData.decimals)
 
       // write transaction using viem
       const hash = await walletClient.writeContract({
