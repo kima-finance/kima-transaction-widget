@@ -399,7 +399,7 @@ export const TransferWidget = ({
               {...{
                 allowance,
                 balance,
-                decimals,
+                decimals: 2,
                 formStep,
                 onBack,
                 onCancelApprove,

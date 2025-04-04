@@ -1,5 +1,6 @@
 import { ServiceFee } from '@interface'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
+import { formatterFloat } from 'src/helpers/functions'
 
 export const getFees = async (
   amount: number,
@@ -19,7 +20,17 @@ export const getFees = async (
 
     console.log('response: ', response)
 
-    return response as ServiceFee
+    const result = response as ServiceFee
+
+    return {
+      ...result,
+      allowanceAmount: formatterFloat.format(+result.allowanceAmount),
+      submitAmount: formatterFloat.format(+result.submitAmount),
+      sourceFee: formatterFloat.format(+result.sourceFee),
+      targetFee: formatterFloat.format(+result.targetFee),
+      kimaFee: formatterFloat.format(+result.kimaFee),
+      totalFee: formatterFloat.format(+result.totalFee)
+    }
   } catch (e) {
     console.error('Failed to fetch fees:', e)
     throw new Error('Failed to fetch fees')

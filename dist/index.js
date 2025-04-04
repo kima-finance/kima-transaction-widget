@@ -2768,7 +2768,7 @@ var formatterInt2 = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0
 });
 var formatterFloat2 = new Intl.NumberFormat("en-US", {
-  maximumFractionDigits: 6
+  maximumFractionDigits: 2
 });
 var formatUSD = (amount) => {
   const numericAmount = typeof amount === "string" ? parseFloat(amount) : amount;
@@ -5324,7 +5324,16 @@ var getFees = async (amount, deductFee, originChain, originAddress, originSymbol
       `${backendUrl}/submit/fees?amount=${amount}&originChain=${originChain}&originAddress=${originAddress}&originSymbol=${originSymbol}&targetChain=${targetChain}&targetAddress=${targetAddress}&targetSymbol=${targetSymbol}&deductFee=${deductFee}`
     );
     console.log("response: ", response);
-    return response;
+    const result = response;
+    return {
+      ...result,
+      allowanceAmount: formatterFloat2.format(+result.allowanceAmount),
+      submitAmount: formatterFloat2.format(+result.submitAmount),
+      sourceFee: formatterFloat2.format(+result.sourceFee),
+      targetFee: formatterFloat2.format(+result.targetFee),
+      kimaFee: formatterFloat2.format(+result.kimaFee),
+      totalFee: formatterFloat2.format(+result.totalFee)
+    };
   } catch (e) {
     console.error("Failed to fetch fees:", e);
     throw new Error("Failed to fetch fees");
@@ -6094,8 +6103,8 @@ var useSubmitTransaction = ({
         targetChain,
         originSymbol,
         targetSymbol,
-        amount: parseUnits3(amount, decimals).toString(),
-        fee: parseUnits3(totalFee, decimals).toString(),
+        amount: parseUnits3(formatterFloat2.format(+amount), decimals).toString(),
+        fee: parseUnits3(formatterFloat2.format(+totalFee), decimals).toString(),
         decimals,
         htlcCreationHash: "",
         htlcCreationVout: 0,
@@ -6452,7 +6461,7 @@ var TransferWidget = ({
         ...{
           allowance,
           balance,
-          decimals,
+          decimals: 2,
           formStep,
           onBack,
           onCancelApprove,

@@ -6,6 +6,7 @@ import { fetchWrapper } from '../helpers/fetch-wrapper'
 import { useSelector } from 'react-redux'
 import { selectServiceFee, selectSignature } from '@store/selectors'
 import { parseUnits } from 'viem'
+import { formatterFloat } from 'src/helpers/functions'
 
 const useSubmitTransaction = ({
   amount,
@@ -46,8 +47,8 @@ const useSubmitTransaction = ({
         targetChain,
         originSymbol,
         targetSymbol,
-        amount: parseUnits(amount, decimals).toString(),
-        fee: parseUnits(totalFee, decimals).toString(),
+        amount: parseUnits(formatterFloat.format(+amount), decimals).toString(),
+        fee: parseUnits(formatterFloat.format(+totalFee), decimals).toString(),
         decimals,
         htlcCreationHash: '',
         htlcCreationVout: 0,
