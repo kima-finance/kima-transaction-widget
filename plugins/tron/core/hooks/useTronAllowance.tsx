@@ -30,6 +30,7 @@ import { TronWeb } from 'tronweb'
 import { TronProvider } from '@interface'
 import { useKimaContext } from '../../../../src/KimaProvider'
 import { formatterFloat } from 'src/helpers/functions'
+import { parseUnits } from 'viem'
 
 export default function useTronAllowance(): PluginUseAllowanceResult {
   const { externalProvider } = useKimaContext()
@@ -150,7 +151,9 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
       // Define the contract method and parameters
       const functionSelector = 'approve(address,uint256)' // select the function to call
 
-      const amount = isCancel ? '0' : allowanceAmount
+      const amount = isCancel
+        ? '0'
+        : parseUnits(allowanceAmount, allowanceData.decimals).toString()
       const parameter = [
         { type: 'address', value: poolAddress },
         {

@@ -183,14 +183,16 @@ export const TransferWidget = ({
 
     // if is missing approve, trigger approval
     if (error === ValidationError.ApprovalNeeded) {
-      const sig = await signMessage?.({
-        targetAddress,
-        targetChain: targetChain.shortName,
-        originSymbol: sourceCurrency,
-        originChain: sourceChain.shortName
-      })
+      if (!signature) {
+        const sig = await signMessage?.({
+          targetAddress,
+          targetChain: targetChain.shortName,
+          originSymbol: sourceCurrency,
+          originChain: sourceChain.shortName
+        })
 
-      setSignature(sig)
+        setSignature(sig)
+      }
 
       return approve()
     }

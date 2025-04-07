@@ -3107,6 +3107,7 @@ import {
   TOKEN_PROGRAM_ID
 } from "@solana/spl-token";
 import { PublicKey as PublicKey5, Transaction } from "@solana/web3.js";
+import { parseUnits as parseUnits3 } from "viem";
 function useSolanaAllowance() {
   const sourceChain = useSelector6(selectSourceChain);
   const { allowanceAmount, submitAmount } = useSelector6(selectServiceFee);
@@ -3193,7 +3194,7 @@ function useSolanaAllowance() {
         new PublicKey5(tokenAddress),
         userPublicKey
       );
-      const amount = isCancel ? 0 : allowanceAmount;
+      const amount = isCancel ? 0n : parseUnits3(allowanceAmount, allowanceData.decimals);
       const approveInstruction = createApproveInstruction(
         tokenAccountAddress,
         new PublicKey5(poolAddress),
@@ -3699,6 +3700,7 @@ var getTokenAllowance3 = async ({
 
 // plugins/tron/core/hooks/useTronAllowance.tsx
 import { TronWeb as TronWeb3 } from "tronweb";
+import { parseUnits as parseUnits4 } from "viem";
 function useTronAllowance() {
   const { externalProvider } = useKimaContext();
   const sourceChain = useSelector9(selectSourceChain);
@@ -3772,7 +3774,7 @@ function useTronAllowance() {
     const tokenAddress = getTokenAddress(tokenOptions, selectedCoin, "TRX");
     try {
       const functionSelector = "approve(address,uint256)";
-      const amount = isCancel ? "0" : allowanceAmount;
+      const amount = isCancel ? "0" : parseUnits4(allowanceAmount, allowanceData.decimals).toString();
       const parameter = [
         { type: "address", value: poolAddress },
         {
@@ -6082,7 +6084,7 @@ var useValidateTransaction_default = useValidateTransaction;
 import { useState as useState13 } from "react";
 import { useDispatch as useDispatch24 } from "react-redux";
 import { useSelector as useSelector37 } from "react-redux";
-import { parseUnits as parseUnits3 } from "viem";
+import { parseUnits as parseUnits5 } from "viem";
 var useSubmitTransaction = ({
   amount,
   totalFee,
@@ -6108,8 +6110,8 @@ var useSubmitTransaction = ({
         targetChain,
         originSymbol,
         targetSymbol,
-        amount: parseUnits3(formatterFloat2.format(+amount), decimals).toString(),
-        fee: parseUnits3(formatterFloat2.format(+totalFee), decimals).toString(),
+        amount: parseUnits5(formatterFloat2.format(+amount), decimals).toString(),
+        fee: parseUnits5(formatterFloat2.format(+totalFee), decimals).toString(),
         decimals,
         htlcCreationHash: "",
         htlcCreationVout: 0,
@@ -6324,13 +6326,15 @@ var TransferWidget = ({
       return toast5.error(validationMessage, { icon: /* @__PURE__ */ React111.createElement(Error_default, null) });
     }
     if (error === "ApprovalNeeded" /* ApprovalNeeded */) {
-      const sig2 = await signMessage?.({
-        targetAddress,
-        targetChain: targetChain.shortName,
-        originSymbol: sourceCurrency,
-        originChain: sourceChain.shortName
-      });
-      setSignature2(sig2);
+      if (!signature) {
+        const sig2 = await signMessage?.({
+          targetAddress,
+          targetChain: targetChain.shortName,
+          originSymbol: sourceCurrency,
+          originChain: sourceChain.shortName
+        });
+        setSignature2(sig2);
+      }
       return approve();
     }
     if (dAppOption === "LPDrain" /* LPDrain */ || dAppOption === "LPAdd" /* LPAdd */) {

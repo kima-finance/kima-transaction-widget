@@ -24,6 +24,7 @@ import { PublicKey, Transaction } from '@solana/web3.js'
 import { PluginUseAllowanceResult, SignDataType } from '@plugins/pluginTypes'
 import { useKimaContext } from '../../../../src/KimaProvider'
 import { formatterFloat } from 'src/helpers/functions'
+import { parseUnits } from 'viem'
 
 export default function useSolanaAllowance(): PluginUseAllowanceResult {
   const sourceChain = useSelector(selectSourceChain)
@@ -156,7 +157,9 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
         userPublicKey
       )
 
-      const amount = isCancel ? 0 : allowanceAmount
+      const amount = isCancel
+        ? 0n
+        : parseUnits(allowanceAmount, allowanceData.decimals)
       const approveInstruction = createApproveInstruction(
         tokenAccountAddress,
         new PublicKey(poolAddress),
