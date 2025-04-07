@@ -3155,7 +3155,7 @@ function useSolanaAllowance() {
         new import_web38.PublicKey(tokenAddress),
         userPublicKey
       );
-      const amount = isCancel ? 0n : BigInt(allowanceAmount);
+      const amount = isCancel ? 0 : allowanceAmount;
       const approveInstruction = (0, import_spl_token2.createApproveInstruction)(
         tokenAccountAddress,
         new import_web38.PublicKey(poolAddress),

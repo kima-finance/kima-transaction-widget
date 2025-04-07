@@ -3193,7 +3193,7 @@ function useSolanaAllowance() {
         new PublicKey5(tokenAddress),
         userPublicKey
       );
-      const amount = isCancel ? 0n : BigInt(allowanceAmount);
+      const amount = isCancel ? 0 : allowanceAmount;
       const approveInstruction = createApproveInstruction(
         tokenAccountAddress,
         new PublicKey5(poolAddress),

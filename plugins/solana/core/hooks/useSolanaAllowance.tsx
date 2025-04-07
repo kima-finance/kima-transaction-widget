@@ -156,7 +156,7 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
         userPublicKey
       )
 
-      const amount = isCancel ? 0n : BigInt(allowanceAmount)
+      const amount = isCancel ? 0 : allowanceAmount
       const approveInstruction = createApproveInstruction(
         tokenAccountAddress,
         new PublicKey(poolAddress),
