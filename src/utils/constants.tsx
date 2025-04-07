@@ -345,7 +345,8 @@ export enum TransactionStatus {
   UNAVAILABLE = 'UnAvailable',
   REFUNDSTART = 'RefundStart',
   REFUNDFAILED = 'RefundFailed',
-  REFUNDCOMPLETED = 'RefundCompleted'
+  REFUNDCOMPLETED = 'RefundCompleted',
+  DECLINEDINVALID = 'DeclinedInvalid'
 }
 
 export const tooltipInfo = [

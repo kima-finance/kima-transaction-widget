@@ -37,7 +37,8 @@ declare enum TransactionStatus {
     UNAVAILABLE = "UnAvailable",
     REFUNDSTART = "RefundStart",
     REFUNDFAILED = "RefundFailed",
-    REFUNDCOMPLETED = "RefundCompleted"
+    REFUNDCOMPLETED = "RefundCompleted",
+    DECLINEDINVALID = "DeclinedInvalid"
 }
 
 declare enum NetworkOptions {

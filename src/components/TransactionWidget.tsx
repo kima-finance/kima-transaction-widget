@@ -203,6 +203,11 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
     } else if (status === TransactionStatus.COMPLETED) {
       setStep(4)
       setLoadingStep(-1)
+    } else if (status === TransactionStatus.DECLINEDINVALID) {
+      setStep(0)
+      setErrorStep(0)
+      setLoadingStep(-1)
+      toast.error('Invalid signature!')
     }
   }, [data?.status])
 

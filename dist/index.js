@@ -2768,7 +2768,7 @@ var formatterInt2 = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0
 });
 var formatterFloat2 = new Intl.NumberFormat("en-US", {
-  maximumFractionDigits: 2
+  maximumFractionDigits: 6
 });
 var formatUSD = (amount) => {
   const numericAmount = typeof amount === "string" ? parseFloat(amount) : amount;
@@ -5183,6 +5183,11 @@ var TransactionWidget = ({ theme }) => {
     } else if (status === "Completed" /* COMPLETED */) {
       setStep(4);
       setLoadingStep(-1);
+    } else if (status === "DeclinedInvalid" /* DECLINEDINVALID */) {
+      setStep(0);
+      setErrorStep(0);
+      setLoadingStep(-1);
+      toast3.error("Invalid signature!");
     }
   }, [data?.status]);
   const resetForm = () => {
@@ -6365,6 +6370,7 @@ var TransferWidget = ({
     if (isApproving || isSubmitting || isSigning) return;
     if (formStep > 0) {
       setFormStep(0);
+      setSignature2("");
     }
     if (formStep === 0) {
       closeHandler && closeHandler(0);
@@ -6383,10 +6389,12 @@ var TransferWidget = ({
   const onCancelApprove = () => {
     if (isCancellingApprove) return;
     approve(true);
+    setSignature2("");
   };
   const resetForm = async () => {
     if (isApproving || isSubmitting || isSigning) return;
     closeHandler && closeHandler(0);
+    setSignature2("");
     setFormStep(0);
     if (mode !== "payment" /* payment */) {
       if (transactionOption?.sourceChain) {

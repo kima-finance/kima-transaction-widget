@@ -253,6 +253,7 @@ export const TransferWidget = ({
 
     if (formStep > 0) {
       setFormStep(0)
+      setSignature('')
     }
 
     if (formStep === 0) {
@@ -275,12 +276,14 @@ export const TransferWidget = ({
   const onCancelApprove = () => {
     if (isCancellingApprove) return
     approve(true)
+    setSignature('')
   }
 
   const resetForm = async () => {
     if (isApproving || isSubmitting || isSigning) return
     closeHandler && closeHandler(0)
 
+    setSignature('')
     setFormStep(0)
     if (mode !== ModeOptions.payment) {
       if (transactionOption?.sourceChain) {
