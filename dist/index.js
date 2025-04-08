@@ -5514,7 +5514,7 @@ var SingleForm = ({
     error
   } = useGetFees_default(
     parseFloat(amount),
-    feeDeduct,
+    false,
     sourceNetwork.shortName,
     sourceAddress,
     sourceCurrency,

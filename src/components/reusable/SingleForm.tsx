@@ -70,7 +70,7 @@ const SingleForm = ({
     error
   } = useGetFees(
     parseFloat(amount),
-    feeDeduct,
+    false,
     sourceNetwork.shortName,
     sourceAddress,
     sourceCurrency,
