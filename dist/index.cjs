@@ -1876,13 +1876,13 @@ function get(url) {
   };
   return fetch(url, requestOptions).then(handleResponse);
 }
-function post(url, body) {
+function post(url, body, token) {
   const requestOptions = {
     method: "POST",
     credentials: "include",
     headers: {
-      "Content-Type": "application/json"
-      // Authorization: `Bearer ${token}`
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
     },
     body
   };
@@ -6079,9 +6079,11 @@ var useSubmitTransaction = ({
         senderPubKey: "",
         options: JSON.stringify({ signature })
       });
+      const token = localStorage.getItem(`access_token:${originAddress}`);
       const transactionResult = await fetchWrapper.post(
         `${backendUrl}/submit`,
-        params
+        params,
+        token || ""
       );
       if (transactionResult?.code !== 0) {
         setSubmitting(false);
