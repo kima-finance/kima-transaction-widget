@@ -15,13 +15,13 @@ function get(url: string) {
   return fetch(url, requestOptions).then(handleResponse)
 }
 
-function post(url: string, body: any) {
+function post(url: string, body: any, token: string) {
   const requestOptions: any = {
     method: 'POST',
     credentials: 'include',
     headers: {
-      'Content-Type': 'application/json'
-      // Authorization: `Bearer ${token}`
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
     },
     body: body
   }

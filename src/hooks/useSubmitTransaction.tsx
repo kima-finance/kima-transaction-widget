@@ -55,9 +55,11 @@ const useSubmitTransaction = ({
         options: JSON.stringify({ signature })
       })
 
+      const token = localStorage.getItem(`access_token:${originAddress}`)
       const transactionResult: any = await fetchWrapper.post(
         `${backendUrl}/submit`,
-        params
+        params,
+        token || ''
       )
 
       if (transactionResult?.code !== 0) {
