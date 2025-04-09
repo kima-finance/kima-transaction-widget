@@ -4,6 +4,8 @@ import { setTxId, setSubmitted } from '@store/optionSlice'
 import { getTransactionId } from '@utils/functions'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 import log from '@utils/logger'
+import { useSelector } from 'react-redux'
+import { selectFeeDeduct } from '@store/selectors'
 
 const useSubmitTransaction = ({
   amount,
@@ -29,6 +31,7 @@ const useSubmitTransaction = ({
   decimals: number
 }) => {
   const dispatch = useDispatch()
+  const feeDeduct = useSelector(selectFeeDeduct)
 
   const [isSubmitting, setSubmitting] = useState(false)
 
@@ -43,7 +46,7 @@ const useSubmitTransaction = ({
         targetChain,
         originSymbol,
         targetSymbol,
-        amount: amount.toString(),
+        amount: feeDeduct ? (amount - totalFee).toString() : amount.toString(),
         fee: totalFee.toString(),
         decimals,
         htlcCreationHash: '',
