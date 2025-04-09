@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
+import log from '@utils/logger'
 
 export interface KYCResult {
   id: string
@@ -28,12 +29,12 @@ export const useKycStatus = (inputs: {
           })
         )
         const kycResult: Array<KYCResult> = res.data
-        console.log({ kycResult })
+        log.debug({ kycResult })
 
         return kycResult[0]
       } catch (e) {
         const msg = `failed to check kyc status for ${uuid}`
-        console.error(msg, e)
+        log.error(msg, e)
         throw new Error(msg)
       }
     },

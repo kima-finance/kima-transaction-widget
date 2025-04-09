@@ -6,6 +6,7 @@ import {
   CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET,
   CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET
 } from '@utils/constants'
+import log from '@utils/logger'
 
 export const getTokenAllowance = async ({
   tokenOptions,
@@ -26,7 +27,10 @@ export const getTokenAllowance = async ({
     const tokenAddress = getTokenAddress(tokenOptions, selectedCoin, chain)
     const poolAddress = getPoolAddress(pools, chain)
 
-    if (!tokenAddress || !poolAddress || !userAddress) return
+    if (!tokenAddress || !poolAddress || !userAddress)
+      throw new Error(
+        'Cannot find pool or token address for the specified token and chain'
+      )
 
     // determine network based on mainnet/testnet
     const network = isTestnet
@@ -61,7 +65,7 @@ export const getTokenAllowance = async ({
       erc20Contract.read.decimals() as Promise<number>
     ])
 
-    console.log('allowance data: ', allowance, balance, decimals)
+    log.debug('allowance data: ', allowance, balance, decimals)
 
     return {
       allowance: Number(formatUnits(allowance, decimals)),
@@ -69,7 +73,7 @@ export const getTokenAllowance = async ({
       decimals: Number(decimals)
     }
   } catch (error) {
-    console.error('Error getting EVM allowance: ', error)
+    log.error('Error getting EVM allowance: ', error)
     throw new Error('Error getting EVM allowance')
   }
 }

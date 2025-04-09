@@ -30,6 +30,7 @@ import { TronWeb } from 'tronweb'
 import { TronProvider } from '@interface'
 import { useKimaContext } from '../../../../src/KimaProvider'
 import { formatUnits } from 'ethers'
+import log from '@utils/logger'
 
 export default function useTronAllowance(): PluginUseAllowanceResult {
   const { externalProvider } = useKimaContext()
@@ -86,9 +87,9 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
     ? (externalProvider.provider as TronProvider).signMessage
     : internalSignMessage
 
-  // console.log('tronWeb: ', tronWeb)
-  // console.log('userAddress: ', userAddress)
-  // console.log('signTronTransaction: ', signTronTransaction)
+  // log.debug('tronWeb: ', tronWeb);
+  // log.debug('userAddress: ', userAddress);
+  // log.debug('signTronTransaction: ', signTronTransaction);
 
   const {
     data: allowanceData,
@@ -118,7 +119,7 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
 
   const signTronMessage = async (data: SignDataType) => {
     if (!tronWeb) {
-      console.warn('TronWeb not initialized')
+      log.warn('TronWeb not initialized')
       return
     }
     try {
@@ -126,7 +127,7 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
       const signedMessage = await signMessage(message)
       return signedMessage
     } catch (error) {
-      console.error('Error signing message:', error)
+      log.error('Error signing message:', error)
       throw error
     }
   }
@@ -141,7 +142,7 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
       !selectedCoin ||
       !allowanceAmount
     ) {
-      console.warn('Missing required data for approveTrc20TokenTransfer')
+      log.warn('Missing required data for approveTrc20TokenTransfer')
       return
     }
     const poolAddress = getPoolAddress(pools, 'TRX')
@@ -160,7 +161,7 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
         }
       ]
 
-      console.log('useTronAllowance: Approving amount:', amount)
+      log.info('useTronAllowance: Approving amount:', amount)
       const transaction = await tronWeb.transactionBuilder.triggerSmartContract(
         tronWeb.address.toHex(tokenAddress),
         functionSelector,
@@ -171,13 +172,13 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
 
       const signedTx = await signTronTransaction(transaction.transaction as any)
       const tx = await tronWeb.trx.sendRawTransaction(signedTx)
-      console.log('useTronAllowance: Transaction sent: hash', tx.txID)
+      log.info('useTronAllowance: Transaction sent: hash', tx.txID)
 
       setApprovalsCount((prev) => prev + 1)
 
       return
     } catch (error) {
-      console.error('Error approving token: ', error)
+      log.error('Error approving token: ', error)
       throw error
     }
   }
