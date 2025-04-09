@@ -2378,6 +2378,18 @@
 .kima-card .kima-card-content .radio-label.dark {
   color: white;
 }
+.kima-card .kima-card-content .fee-option input[type=radio]:disabled {
+  border-color: rgba(119, 141, 163, 0.3019607843);
+  background-color: transparent;
+  cursor: not-allowed;
+}
+.kima-card .kima-card-content .fee-option input[type=radio]:checked:disabled::before {
+  background-color: rgba(119, 141, 163, 0.3019607843);
+}
+.kima-card .kima-card-content .fee-option input[type=radio]:disabled + .radio-label {
+  color: rgba(119, 141, 163, 0.3019607843);
+  cursor: not-allowed;
+}
 .kima-card .kima-card-content .transaction-status-message {
   display: flex;
   flex-direction: column;

@@ -27,7 +27,13 @@ import ChainIcon from './ChainIcon'
 import { useDispatch } from 'react-redux'
 import FeeDeductionRadioButtons from './FeeDeductionRadioButtons'
 
-const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
+const ConfirmDetails = ({
+  isApproved,
+  isSigned
+}: {
+  isApproved: boolean
+  isSigned: boolean
+}) => {
   const dispatch = useDispatch()
   const feeDeduct = useSelector(selectFeeDeduct)
   const mode = useSelector(selectMode)
@@ -246,7 +252,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
       {/* checkbox shall only be displayed in transfer scenario */}
       {mode === ModeOptions.bridge && totalFeeUsd > 0 ? (
         // <FeeDeductionSlider />
-        <FeeDeductionRadioButtons />
+        <FeeDeductionRadioButtons isSigned={isSigned}/>
       ) : null}
 
       {/* {mode === ModeOptions.bridge && totalFeeUsd > 0 && (
