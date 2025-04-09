@@ -12,6 +12,7 @@ import { useDispatch } from 'react-redux'
 import { ModeOptions } from '../interface'
 import { setSourceCurrency, setTargetCurrency } from '../store/optionSlice'
 import { ChainToken } from '@plugins/pluginTypes'
+import log from '@utils/logger'
 
 export default function useCurrencyOptions(isSourceChain: boolean) {
   const dispatch = useDispatch()
@@ -23,15 +24,11 @@ export default function useCurrencyOptions(isSourceChain: boolean) {
   const networks = useSelector(selectNetworks)
 
   const output = useMemo(() => {
-    console.log('useCurrencyOptions: networks: ', networks)
+    log.debug('useCurrencyOptions: networks: ', networks)
     const networkTokenList =
       networks.find((network) => network.id === chain.id) || networks[0]
 
-    console.log(
-      'useCurrencyOptions: networkTokenList: ',
-      networkTokenList,
-      chain
-    )
+    log.debug('useCurrencyOptions: networkTokenList: ', networkTokenList, chain)
 
     return !!networks
       ? { tokenList: networkTokenList?.supportedTokens as ChainToken[] }

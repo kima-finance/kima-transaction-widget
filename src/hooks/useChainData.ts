@@ -8,6 +8,7 @@ import {
   TokenOptions
 } from '../store/optionSlice'
 import { Option } from '../interface'
+import log from '@utils/logger'
 
 export const useChainData = (
   backendURL: string,
@@ -28,11 +29,11 @@ export const useChainData = (
         dispatch(setNetworks(chains))
         dispatch(setTokenOptions(tokens))
 
-        console.log('useChainData::Chain data:', { networks, tokens, chains })
+        log.debug('useChainData::Chain data:', { networks, tokens, chains })
 
         return chains
       } catch (error) {
-        console.error('Error fetching chain data:', error)
+        log.error('Error fetching chain data:', error)
         return []
       }
     },

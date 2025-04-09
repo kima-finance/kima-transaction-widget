@@ -40,6 +40,13 @@
         font-weight: 400;
         letter-spacing: 1px;
 
+        &.skeleton {
+          background: $borderSecondary;
+          height: 25px;
+          width: 60%;
+          @include pulse-loader();
+        }
+
         h3 {
           margin: 0;
           font-size: 24px;
@@ -374,6 +381,17 @@
       gap: 20px;
       margin-bottom: 30px;
       padding: 20px;
+
+      &.skeleton {
+        align-items: flex-end;
+      }
+
+      .skeleton {
+        background: $borderSecondary;
+        height: 30px;
+        width: 100px;
+        @include pulse-loader();
+      }
 
       @include breakpoint(mobile) {
         margin-top: 0px;
