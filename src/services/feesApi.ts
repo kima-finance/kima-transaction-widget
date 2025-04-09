@@ -1,5 +1,6 @@
 import { NetworkFee, ServiceFee } from '@interface'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
+import log from '@utils/logger'
 
 export interface FeeResult
   extends Omit<ServiceFee, 'sourceNetworkFee' | 'targetNetworkFee'> {
@@ -19,7 +20,7 @@ export const getFees = async (
       `${backendUrl}/submit/fees?amount=${amount}&originChain=${originChain}&originSymbol=${originSymbol}&targetChain=${targetChain}&deductFee=${deductFee}`
     )
 
-    console.log('response: ', response)
+    log.debug('response: ', response)
     const { breakdown, ...totals } = response as FeeResult
     const [sourceNetworkFee, targetNetworkFee] = breakdown
 
@@ -31,7 +32,7 @@ export const getFees = async (
 
     return serviceFees
   } catch (e) {
-    console.error('Failed to fetch fees:', e)
+    log.error('Failed to fetch fees:', e)
     throw new Error('Failed to fetch fees')
   }
 }

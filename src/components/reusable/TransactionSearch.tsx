@@ -9,6 +9,7 @@ import { getTxData } from 'src/services/transactionApi'
 import { ErrorIcon } from '@assets/icons'
 import { ModeOptions } from '@interface'
 import PrimaryButton from './PrimaryButton'
+import log from '@utils/logger'
 
 const TransactionSearch = () => {
   const theme = useSelector(selectTheme)
@@ -30,14 +31,14 @@ const TransactionSearch = () => {
         refPollForUpdates,
         isLP: false
       })
-      console.log('transaction data: ', data)
+      log.debug('transaction data: ', data)
 
       // // dispatch the needed actions to pass to the transaction form
       dispatch(setTxId(transactionId))
       dispatch(setMode(ModeOptions.status))
       dispatch(setSubmitted(true))
     } catch (error) {
-      console.error('Error searching transaction: ', error)
+      log.error('Error searching transaction: ', error)
       return toast.error(
         'Transaction not found. Please check for the proper transaction id.',
         { icon: <ErrorIcon /> }

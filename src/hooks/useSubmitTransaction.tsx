@@ -3,8 +3,9 @@ import { useDispatch } from 'react-redux'
 import { setTxId, setSubmitted } from '@store/optionSlice'
 import { getTransactionId } from '@utils/functions'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
+import log from '@utils/logger'
 import { useSelector } from 'react-redux'
-import { selectSignature } from '@store/selectors'
+import { selectFeeDeduct } from '@store/selectors'
 
 const useSubmitTransaction = ({
   amount,
@@ -30,6 +31,7 @@ const useSubmitTransaction = ({
   decimals: number
 }) => {
   const dispatch = useDispatch()
+  const feeDeduct = useSelector(selectFeeDeduct)
 
   const [isSubmitting, setSubmitting] = useState(false)
 
@@ -44,7 +46,7 @@ const useSubmitTransaction = ({
         targetChain,
         originSymbol,
         targetSymbol,
-        amount: amount.toString(),
+        amount: feeDeduct ? (amount - totalFee).toString() : amount.toString(),
         fee: totalFee.toString(),
         decimals,
         htlcCreationHash: '',
@@ -75,7 +77,7 @@ const useSubmitTransaction = ({
 
       return { success: true, message: 'Transaction submitted successfully.' }
     } catch (error) {
-      console.error('Error submitting transaction:', error)
+      log.error('Error submitting transaction:', error)
       setSubmitting(false)
       return { success: false, message: 'Failed to submit transaction' }
     }

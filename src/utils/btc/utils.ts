@@ -3,6 +3,7 @@ import * as hex64 from 'hex64'
 import * as btc from '@kimafinance/btc-signer'
 import { BitcoinNetworkType } from 'sats-connect'
 import { fetchWrapper } from '../../helpers/fetch-wrapper'
+import log from '@utils/logger'
 
 export type UTXO = {
   txid: string
@@ -73,8 +74,8 @@ export const createPSBT = async (
   const fee = BigInt(300) // set the miner fee amount
   const recipient1Amount = BigInt(Math.min(paymentOutput.value, 3000)) - fee
 
-  console.log('redeemScript = ' + hex64.encode(p2sh.redeemScript!))
-  // console.log("witnessScript = " + p2sh.witnessScript? hex.encode(p2sh.witnessScript!) : "undefined");
+  log.debug('redeemScript = ' + hex64.encode(p2sh.redeemScript!))
+  // log.debug("witnessScript = " + p2sh.witnessScript? hex.encode(p2sh.witnessScript!) : "undefined");
 
   // payment input
   tx.addInput({
