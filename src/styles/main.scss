@@ -89,8 +89,7 @@
     }
 
     .skeleton {
-      background: $finance;
-      border-radius: 50px;
+      background: $borderSecondary;
       height: 25px;
       width: 100%;
       @include pulse-loader();

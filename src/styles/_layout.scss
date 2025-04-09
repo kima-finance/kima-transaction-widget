@@ -41,8 +41,7 @@
         letter-spacing: 1px;
 
         &.skeleton {
-          background: $finance;
-          border-radius: 50px;
+          background: $borderSecondary;
           height: 25px;
           width: 60%;
           @include pulse-loader();
@@ -388,8 +387,7 @@
       }
 
       .skeleton {
-        background: $finance;
-        border-radius: 50px;
+        background: $borderSecondary;
         height: 30px;
         width: 100px;
         @include pulse-loader();

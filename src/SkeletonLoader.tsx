@@ -1,4 +1,3 @@
-import { FooterLogo } from '@assets/icons'
 import { ColorModeOptions, ThemeOptions } from '@interface'
 import React from 'react'
 
@@ -35,13 +34,6 @@ const SkeletonLoader = ({ theme }: { theme: ThemeOptions }) => {
         <div className={`kima-card-footer`}>
           <div className={`button-group skeleton`}>
             <div className='skeleton'></div>
-          </div>
-        </div>
-        <div className='floating-footer'>
-          <div className={`items ${theme.colorMode}`}>
-            <span>Powered by</span>
-            <FooterLogo width={50} fill='black' />
-            <strong>Network</strong>
           </div>
         </div>
       </div>
