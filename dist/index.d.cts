@@ -4,6 +4,7 @@ import { Connection, Transaction, VersionedTransaction, PublicKey } from '@solan
 import { TronWeb } from 'tronweb';
 import { SignedTransaction } from '@tronweb3/tronwallet-abstract-adapter';
 import { BrowserProvider, JsonRpcSigner } from 'ethers';
+import { LogLevelDesc } from 'loglevel';
 
 declare enum ChainName {
     ETHEREUM = "ETH",
@@ -145,13 +146,14 @@ interface KimaProviderProps {
     externalProvider?: ExternalProvider;
     kimaBackendUrl: string;
     children: ReactNode;
+    logLevel?: LogLevelDesc;
     errorHandler?: (e: any) => void;
     closeHandler?: (e: any) => void;
     successHandler?: (e: any) => void;
     keplrHandler?: (e: any) => void;
     switchChainHandler?: (e: any) => void;
 }
-declare const KimaProvider: ({ walletConnectProjectId, children, externalProvider, kimaBackendUrl, keplrHandler, successHandler, closeHandler, errorHandler, switchChainHandler }: KimaProviderProps) => react.JSX.Element;
+declare const KimaProvider: ({ walletConnectProjectId, children, externalProvider, kimaBackendUrl, logLevel, keplrHandler, successHandler, closeHandler, errorHandler, switchChainHandler }: KimaProviderProps) => react.JSX.Element;
 
 interface Props {
     theme: ThemeOptions;
@@ -166,6 +168,6 @@ interface Props {
     excludedSourceNetworks?: Array<ChainName>;
     excludedTargetNetworks?: Array<ChainName>;
 }
-declare const KimaTransactionWidget: ({ mode, txId, dAppOption, theme, titleOption, paymentTitleOption, helpURL, compliantOption, transactionOption, excludedSourceNetworks, excludedTargetNetworks }: Props) => react__default.JSX.Element;
+declare const KimaTransactionWidget: ({ mode, txId, dAppOption, theme, titleOption, paymentTitleOption, helpURL, compliantOption, transactionOption, excludedSourceNetworks, excludedTargetNetworks }: Props) => react__default.JSX.Element | null;
 
 export { CHAIN_NAMES_TO_STRING, CHAIN_STRING_TO_NAME, ColorModeOptions, type CompliantOption, CurrencyOptions, DAppOptions, type ExternalProvider, KimaProvider, KimaTransactionWidget, ModeOptions, type NetworkFee, NetworkOptions, type Option, type PaymentTitleOption, type ServiceFee, type SolProvider, ChainName as SupportNetworks, type ThemeOptions, type TitleOption, type TransactionData, type TransactionOption, type TronProvider, type Web3ModalAccountInfo };

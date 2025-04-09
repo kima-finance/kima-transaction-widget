@@ -70,8 +70,7 @@
   letter-spacing: 1px;
 }
 .kima-card .kima-card-header .topbar .title.skeleton {
-  background: #778da3;
-  border-radius: 50px;
+  background: #979797;
   height: 25px;
   width: 60%;
   animation: pulse 1.5s ease-in-out infinite;
@@ -375,8 +374,7 @@
   align-items: flex-end;
 }
 .kima-card .kima-card-footer .button-group .skeleton {
-  background: #778da3;
-  border-radius: 50px;
+  background: #979797;
   height: 30px;
   width: 100px;
   animation: pulse 1.5s ease-in-out infinite;
@@ -1545,9 +1543,6 @@
   border-radius: 40px;
   background-color: white;
   margin-right: 18px;
-}
-.kima-card .kima-card-content .single-form .network-dropdown .network-wrapper span {
-  text-align: center;
 }
 .kima-card .kima-card-content .single-form .network-dropdown:before {
   box-sizing: content-box;
@@ -3036,8 +3031,7 @@
   gap: 20px;
 }
 .kima-card-content .skeleton {
-  background: #778da3;
-  border-radius: 50px;
+  background: #979797;
   height: 25px;
   width: 100%;
   animation: pulse 1.5s ease-in-out infinite;
