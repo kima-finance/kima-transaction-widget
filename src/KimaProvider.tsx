@@ -7,11 +7,13 @@ import { getPluginProvider } from '@pluginRegistry'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ExternalProvider } from '@interface'
 import { useGetEnvOptions } from './hooks/useGetEnvOptions'
+import log from './utils/logger'
 
 import '../plugins/index'
 import { isValidExternalProvider } from '@utils/functions'
 import { PublicKey } from '@solana/web3.js'
 import { JsonRpcSigner } from 'ethers'
+import { LogLevelDesc } from 'loglevel'
 
 interface KimaContextProps {
   sourceAddress: string | undefined
@@ -29,6 +31,7 @@ interface KimaProviderProps {
   externalProvider?: ExternalProvider
   kimaBackendUrl: string
   children: ReactNode
+  logLevel?: LogLevelDesc
   errorHandler?: (e: any) => void
   closeHandler?: (e: any) => void
   successHandler?: (e: any) => void
@@ -51,16 +54,17 @@ export const useKimaContext = () => {
 }
 
 const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
-  ({ kimaBackendUrl, walletConnectProjectId, children }) => {
+  ({ kimaBackendUrl, walletConnectProjectId, children, logLevel }) => {
     // get env variables from backend
     const { data: envOptions, isLoading } = useGetEnvOptions({
       kimaBackendUrl
     })
-    console.log('internalkimaprovider: networkoption: ', envOptions?.env)
+    log.debug('internalkimaprovider: networkoption: ', envOptions?.env)
+    log.debug('internalkimaprovider: isLoading: ', isLoading)
 
     // Use a stable selector to avoid unnecessary re-renders
     const plugins = useSelector(selectAllPlugins, (prev, next) => prev === next)
-    console.info('Registered Plugins:', plugins)
+    log.debug('Registered Plugins:', plugins)
 
     // Create providers dynamically but flatten their structure
     const WrappedProviders = useMemo(() => {
@@ -73,6 +77,7 @@ const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
               key={plugin.data.id}
               networkOption={envOptions?.env}
               walletConnectProjectId={walletConnectProjectId}
+              isLoading={isLoading}
             >
               {acc}
             </Provider>
@@ -80,7 +85,7 @@ const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
         }
         return acc
       }, children)
-    }, [plugins, walletConnectProjectId, isLoading])
+    }, [plugins, walletConnectProjectId, envOptions, isLoading])
 
     return <>{WrappedProviders}</>
   }
@@ -91,12 +96,18 @@ const KimaProvider = ({
   children = <></>,
   externalProvider,
   kimaBackendUrl = 'http://localhost:3001',
+  logLevel,
   keplrHandler,
   successHandler,
   closeHandler,
   errorHandler,
   switchChainHandler
 }: KimaProviderProps) => {
+  if (logLevel) {
+    log.debug('KimaProvider: setting log level to:', logLevel)
+    log.setLevel(logLevel, false)
+  } // else use default from ENV
+
   let validExternalProvider
   let sourceAddress
   // validation for provider

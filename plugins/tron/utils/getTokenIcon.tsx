@@ -5,6 +5,7 @@ import {
   KEURICON,
   BTCIcon
 } from '../assets/icons'
+import log from '@utils/logger'
 
 const COIN_LIST: Record<string, { symbol: string; icon: React.FC }> = {
   USDK: {
@@ -32,7 +33,7 @@ const COIN_LIST: Record<string, { symbol: string; icon: React.FC }> = {
 export default function getTokenIcon(symbol: string) {
   const token = COIN_LIST[symbol]
   if (!token) {
-    console.warn(`Token icon not found for symbol: ${symbol}`)
+    log.warn(`Token icon not found for symbol: ${symbol}`)
     return null
   }
   return token.icon

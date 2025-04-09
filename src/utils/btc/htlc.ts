@@ -5,6 +5,7 @@ import { base64 } from '@scure/base'
 import * as btc from '@kimafinance/btc-signer'
 import { UTXO } from './utils'
 import { sha256 } from '@noble/hashes/sha256'
+import log from '@utils/logger'
 
 // Compute HASH160 of a public key
 function hash160(publicKey: string): Buffer {
@@ -22,11 +23,11 @@ export function createHTLCScript(
   timeout: number,
   network: any
 ): Buffer {
-  console.log('senderAddress = ' + senderAddress)
-  console.log('senderPublicKey = ' + senderPublicKey)
-  console.log('recipientAddress = ' + recipientAddress)
-  console.log('timeout = ' + timeout)
-  console.log('network = ' + network)
+  log.debug('senderAddress = ' + senderAddress)
+  log.debug('senderPublicKey = ' + senderPublicKey)
+  log.debug('recipientAddress = ' + recipientAddress)
+  log.debug('timeout = ' + timeout)
+  log.debug('network = ' + network)
 
   let recipientAddressCheck
   try {
@@ -39,10 +40,10 @@ export function createHTLCScript(
   }
 
   const senderPKH = hash160(senderPublicKey)
-  console.log('senderPKH:', senderPKH.toString('hex'))
+  log.debug('senderPKH:', senderPKH.toString('hex'))
 
   const recipientPKH = recipientAddressCheck.data
-  console.log('recipientPKH:', recipientPKH.toString('hex'))
+  log.debug('recipientPKH:', recipientPKH.toString('hex'))
 
   // Reminder: the input to the HTLC script is <signature> <publicKey>
   // Define the HTLC script
@@ -109,7 +110,7 @@ export function createReclaimPsbt(
 ) {
   const htlcScriptHash = sha256(htlcScript)
   const htlcScriptHex = Buffer.from(htlcScript).toString('hex')
-  console.log('htlcScriptHex = ' + htlcScriptHex)
+  log.debug('htlcScriptHex = ' + htlcScriptHex)
   const scriptPubKey = btc.Script.encode(['OP_0', htlcScriptHash]) // the scriptPubKey of the HTLC UTXO
 
   const lockTimeBigEndian = Number(htlcTimeout) + 1 // this is the next available time to reclaim the HTLC output
@@ -139,7 +140,7 @@ export function createReclaimPsbt(
   })
 
   const psbt = tx.toPSBT(0)
-  console.log('txHex = ' + tx.hex)
+  log.debug('txHex = ' + tx.hex)
   const psbtB64 = base64.encode(psbt)
   return psbtB64
 }

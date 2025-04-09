@@ -24,6 +24,7 @@ import { PublicKey, Transaction } from '@solana/web3.js'
 import { PluginUseAllowanceResult, SignDataType } from '@plugins/pluginTypes'
 import { useKimaContext } from '../../../../src/KimaProvider'
 import { formatUnits } from 'ethers'
+import log from '@utils/logger'
 
 export default function useSolanaAllowance(): PluginUseAllowanceResult {
   const sourceChain = useSelector(selectSourceChain)
@@ -118,7 +119,7 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
 
   const signSolanaMessage = async (data: SignDataType) => {
     if (!signMessage) {
-      console.warn('useSolanaAllowance: Missing Solana provider setup')
+      log.warn('useSolanaAllowance: Missing Solana provider setup')
       return
     }
 
@@ -128,14 +129,14 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
       const signature = await signMessage(encodedMessage)
       return `0x${Buffer.from(signature).toString('hex')}`
     } catch (error) {
-      console.error('Error signing message:', error)
+      log.error('Error signing message:', error)
       throw error
     }
   }
 
   const approveSPLTokenTransfer = async (isCancel: boolean = false) => {
     if (!allowanceAmount) {
-      console.warn('useSolanaAllowance: Missing allowance amount')
+      log.warn('useSolanaAllowance: Missing allowance amount')
       return
     }
     if (
@@ -144,7 +145,7 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
       !connection ||
       !userPublicKey
     ) {
-      console.warn('useSolanaAllowance: Missing Solana provider setup')
+      log.warn('useSolanaAllowance: Missing Solana provider setup')
       return
     }
 
@@ -183,20 +184,20 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
         }
       )
 
-      console.log('Solana approval Transaction ID:', signature)
+      log.debug('Solana approval Transaction ID:', signature)
       const confirmation = await connection.confirmTransaction(
         signature,
         'finalized'
       )
 
       if (confirmation.value.err) {
-        console.error('Transaction failed:', confirmation.value.err)
+        log.error('Transaction failed:', confirmation.value.err)
         return
       }
 
       setApprovalsCount((prev) => prev + 1)
     } catch (error) {
-      console.error('Error approving SPL token transfer:', error)
+      log.error('Error approving SPL token transfer:', error)
       throw error
     }
   }

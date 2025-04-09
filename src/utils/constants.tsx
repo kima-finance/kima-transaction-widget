@@ -364,3 +364,13 @@ export type PendingTxData = {
 }
 
 export const TRON_USDK_OWNER_ADDRESS = 'TBVn4bsBN4DhtZ7D3vEVpAyqkvdFn7zmpU'
+
+export enum LoadingErrorTitle {
+  EnvLoadingError = 'Fatal ENV Initialization Error',
+  ChainLoadingError = 'Fatal Chains Initialization Error'
+}
+
+export enum LoadingErrorMessage {
+  EnvLoadingError = 'There was an error loading the required environment variables from the backend. Please check that the backend is running properly and the widget points to the corresponding url.',
+  ChainLoadingError = 'There was an error loading the chain data from the backend. Please check that the backend is running properly and the widget points to the corresponding url.'
+}
