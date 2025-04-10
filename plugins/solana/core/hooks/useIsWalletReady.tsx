@@ -30,7 +30,7 @@ function useIsWalletReady(): {
   // set source address upon connection & valid network selected
   useEffect(() => {
     solanaAddress &&
-      sourceChain === 'SOL' &&
+      sourceChain.shortName === 'SOL' &&
       dispatch(setSourceAddress(solanaAddress.toBase58()))
   }, [solanaAddress, sourceChain])
 

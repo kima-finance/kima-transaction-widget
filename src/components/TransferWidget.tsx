@@ -98,11 +98,7 @@ export const TransferWidget = ({
   const sourceCurrency = useSelector(selectSourceCurrency)
   const targetCurrency = useSelector(selectTargetCurrency)
   const amount = useSelector(selectAmount)
-  const {
-    totalFee,
-    submitAmount,
-    decimals: feeDecimals
-  } = useSelector(selectServiceFee)
+  const { totalFee, decimals: feeDecimals } = useSelector(selectServiceFee)
   const compliantOption = useSelector(selectCompliantOption)
   const networkOptions = useSelector(selectNetworkOption)
   const feeDeduct = useSelector(selectFeeDeduct)
@@ -112,6 +108,7 @@ export const TransferWidget = ({
   const [isCancellingApprove, setCancellingApprove] = useState(false)
   const [isApproving, setApproving] = useState(false)
   const [isSigning, setSigning] = useState(false)
+  const [feeOptionDisabled, setFeeOptionDisabled] = useState(false)
   const pendingTxs = useSelector(selectPendingTxs)
   const networks = useSelector(selectNetworks)
 
@@ -161,7 +158,7 @@ export const TransferWidget = ({
   })
 
   const { submitTransaction, isSubmitting } = useSubmitTransaction({
-    amount: submitAmount,
+    amount: feeDeduct ? +amount - +totalFee : +amount,
     totalFee: totalFee,
     originAddress: sourceAddress,
     targetAddress,
@@ -184,6 +181,7 @@ export const TransferWidget = ({
     // if is missing approve, trigger approval
     if (error === ValidationError.ApprovalNeeded) {
       if (!signature) {
+        setFeeOptionDisabled(true)
         const sig = await signMessage?.({
           targetAddress,
           targetChain: targetChain.shortName,
@@ -212,6 +210,7 @@ export const TransferWidget = ({
 
     let sig = signature
     if (!sig) {
+      setFeeOptionDisabled(true)
       sig = await signMessage?.({
         targetAddress,
         targetChain: targetChain.shortName,
@@ -256,6 +255,7 @@ export const TransferWidget = ({
     if (formStep > 0) {
       setFormStep(0)
       setSignature('')
+      setFeeOptionDisabled(false)
     }
 
     if (formStep === 0) {
@@ -286,6 +286,7 @@ export const TransferWidget = ({
     closeHandler && closeHandler(0)
 
     setSignature('')
+    setFeeOptionDisabled(true)
     setFormStep(0)
     if (mode !== ModeOptions.payment) {
       if (transactionOption?.sourceChain) {
@@ -419,19 +420,8 @@ export const TransferWidget = ({
           ) : (
             <ConfirmDetails
               {...{
-                allowance,
-                balance,
-                decimals,
-                formStep,
-                onBack,
-                onCancelApprove,
-                onNext,
-                getButtonLabel,
-                isApproving,
-                isSigning,
-                isSubmitting,
-                isCancellingApprove,
-                isApproved
+                isApproved,
+                feeOptionDisabled
               }}
             />
           )}

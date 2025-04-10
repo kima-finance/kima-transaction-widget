@@ -29,7 +29,7 @@ function useIsWalletReady(): {
   // set source address upon connection & valid network selected
   useEffect(() => {
     internalTronAddress &&
-      sourceChain === 'TRX' &&
+      sourceChain.shortName === 'TRX' &&
       dispatch(setSourceAddress(internalTronAddress))
   }, [internalTronAddress, sourceChain])
 

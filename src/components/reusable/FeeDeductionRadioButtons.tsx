@@ -13,7 +13,7 @@ import {
 } from '@store/selectors'
 import { formatterFloat } from 'src/helpers/functions'
 
-const FeeDeductionRadioButtons = () => {
+const FeeDeductionRadioButtons = ({ disabled }: { disabled: boolean }) => {
   const dispatch = useDispatch()
   const feeDeduct = useSelector(selectFeeDeduct)
   const amount = useSelector(selectAmount)
@@ -31,11 +31,12 @@ const FeeDeductionRadioButtons = () => {
   return (
     <div className={`fee-deduction-radio-container ${theme.colorMode}`}>
       <div className='fee-options'>
-        <label className='fee-option'>
+        <label className={`fee-option ${disabled ? 'disabled' : ''}`}>
           <input
             type='radio'
             name='feeDeduction'
             checked={feeDeduct}
+            disabled={disabled}
             onChange={() => handleChange(true)}
           />
           <span className={`radio-label ${theme.colorMode}`}>
@@ -47,11 +48,12 @@ const FeeDeductionRadioButtons = () => {
           </span>
         </label>
 
-        <label className='fee-option'>
+        <label className={`fee-option ${disabled ? 'disabled' : ''}`}>
           <input
             type='radio'
             name='feeDeduction'
             checked={!feeDeduct}
+            disabled={disabled}
             onChange={() => handleChange(false)}
           />
           <span className={`radio-label ${theme.colorMode}`}>

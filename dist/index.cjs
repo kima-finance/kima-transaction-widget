@@ -3215,7 +3215,7 @@ function useIsWalletReady2() {
   const { publicKey: solanaAddress } = (0, import_wallet_adapter_react4.useWallet)();
   const sourceChain = (0, import_react_redux8.useSelector)(selectSourceChain);
   (0, import_react84.useEffect)(() => {
-    solanaAddress && sourceChain === "SOL" && dispatch(setSourceAddress(solanaAddress.toBase58()));
+    solanaAddress && sourceChain.shortName === "SOL" && dispatch(setSourceAddress(solanaAddress.toBase58()));
   }, [solanaAddress, sourceChain]);
   return (0, import_react84.useMemo)(() => {
     if (externalProvider && externalProvider.type === "solana")
@@ -3780,7 +3780,7 @@ function useIsWalletReady3() {
   const { externalProvider } = useKimaContext();
   const { address: internalTronAddress } = (0, import_tronwallet_adapter_react_hooks4.useWallet)();
   (0, import_react89.useEffect)(() => {
-    internalTronAddress && sourceChain === "TRX" && dispatch(setSourceAddress(internalTronAddress));
+    internalTronAddress && sourceChain.shortName === "TRX" && dispatch(setSourceAddress(internalTronAddress));
   }, [internalTronAddress, sourceChain]);
   return (0, import_react89.useMemo)(() => {
     if (externalProvider && externalProvider.type === "tron")
@@ -3931,7 +3931,7 @@ var import_react136 = __toESM(require("react"), 1);
 
 // src/components/KimaWidgetWrapper.tsx
 var import_react134 = __toESM(require("react"), 1);
-var import_react_redux53 = require("react-redux");
+var import_react_redux52 = require("react-redux");
 
 // src/components/TransactionWidget.tsx
 var import_react121 = __toESM(require("react"), 1);
@@ -4552,13 +4552,10 @@ function ChainIcon({
   return /* @__PURE__ */ import_react110.default.createElement("div", { className: "icon" }, /* @__PURE__ */ import_react110.default.createElement(Icon, null));
 }
 
-// src/components/reusable/ConfirmDetails.tsx
-var import_react_redux27 = require("react-redux");
-
 // src/components/reusable/FeeDeductionRadioButtons.tsx
 var import_react111 = __toESM(require("react"), 1);
 var import_react_redux25 = require("react-redux");
-var FeeDeductionRadioButtons = () => {
+var FeeDeductionRadioButtons = ({ disabled }) => {
   const dispatch = (0, import_react_redux25.useDispatch)();
   const feeDeduct = (0, import_react_redux25.useSelector)(selectFeeDeduct);
   const amount = (0, import_react_redux25.useSelector)(selectAmount);
@@ -4571,24 +4568,26 @@ var FeeDeductionRadioButtons = () => {
   const handleChange = (value) => {
     dispatch(setFeeDeduct(value));
   };
-  return /* @__PURE__ */ import_react111.default.createElement("div", { className: `fee-deduction-radio-container ${theme.colorMode}` }, /* @__PURE__ */ import_react111.default.createElement("div", { className: "fee-options" }, /* @__PURE__ */ import_react111.default.createElement("label", { className: "fee-option" }, /* @__PURE__ */ import_react111.default.createElement(
+  return /* @__PURE__ */ import_react111.default.createElement("div", { className: `fee-deduction-radio-container ${theme.colorMode}` }, /* @__PURE__ */ import_react111.default.createElement("div", { className: "fee-options" }, /* @__PURE__ */ import_react111.default.createElement("label", { className: `fee-option ${disabled ? "disabled" : ""}` }, /* @__PURE__ */ import_react111.default.createElement(
     "input",
     {
       type: "radio",
       name: "feeDeduction",
       checked: feeDeduct,
+      disabled,
       onChange: () => handleChange(true)
     }
   ), /* @__PURE__ */ import_react111.default.createElement("span", { className: `radio-label ${theme.colorMode}` }, `Pay $${formatterFloat2.format(
     Number(amount)
   )} ${sourceCurrency} in ${sourceNetwork.name} to receive $${formatterFloat2.format(
     Number(amount) - +totalFee
-  )} ${targetCurrency} in ${targetNetwork.name}`)), /* @__PURE__ */ import_react111.default.createElement("label", { className: "fee-option" }, /* @__PURE__ */ import_react111.default.createElement(
+  )} ${targetCurrency} in ${targetNetwork.name}`)), /* @__PURE__ */ import_react111.default.createElement("label", { className: `fee-option ${disabled ? "disabled" : ""}` }, /* @__PURE__ */ import_react111.default.createElement(
     "input",
     {
       type: "radio",
       name: "feeDeduction",
       checked: !feeDeduct,
+      disabled,
       onChange: () => handleChange(false)
     }
   ), /* @__PURE__ */ import_react111.default.createElement("span", { className: `radio-label ${theme.colorMode}` }, `Pay $${formatterFloat2.format(
@@ -4600,8 +4599,10 @@ var FeeDeductionRadioButtons = () => {
 var FeeDeductionRadioButtons_default = FeeDeductionRadioButtons;
 
 // src/components/reusable/ConfirmDetails.tsx
-var ConfirmDetails = ({ isApproved }) => {
-  const dispatch = (0, import_react_redux27.useDispatch)();
+var ConfirmDetails = ({
+  isApproved,
+  feeOptionDisabled
+}) => {
   const feeDeduct = (0, import_react_redux26.useSelector)(selectFeeDeduct);
   const mode = (0, import_react_redux26.useSelector)(selectMode);
   const dAppOption = (0, import_react_redux26.useSelector)(selectDappOption);
@@ -4640,33 +4641,27 @@ var ConfirmDetails = ({ isApproved }) => {
       (mode === "payment" /* payment */ ? transactionOption?.targetAddress : targetAddress) || ""
     );
   }, [mode, transactionOption, targetAddress]);
-  const amountToShow = (0, import_react112.useMemo)(() => {
-    if (originNetwork.shortName === "BTC" /* BTC */ || targetNetwork.shortName === "BTC" /* BTC */) {
-      return (feeDeduct ? +amount : +amount + +totalFee).toFixed(8);
-    }
-    return formatterFloat2.format(feeDeduct ? +amount : +amount + +totalFee);
-  }, [amount, totalFee, originNetwork, targetNetwork, feeDeduct]);
   return /* @__PURE__ */ import_react112.default.createElement("div", { className: `confirm-details ${theme.colorMode}` }, /* @__PURE__ */ import_react112.default.createElement("p", null, "Step ", isApproved ? "2" : "1", "\xA0of 2\xA0\xA0\xA0", isApproved ? "Submit transaction" : originNetwork.shortName === "FIAT" /* FIAT */ ? "Bank Details" : "Approval"), originNetwork.shortName === "FIAT" /* FIAT */ ? /* @__PURE__ */ import_react112.default.createElement("div", null, /* @__PURE__ */ import_react112.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react112.default.createElement("span", { className: "label" }, "IBAN:"), /* @__PURE__ */ import_react112.default.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ import_react112.default.createElement(ChainIcon, { symbol: originNetworkOption?.shortName }), "FIAT"), /* @__PURE__ */ import_react112.default.createElement("p", null, "ES6621000418401234567891")), /* @__PURE__ */ import_react112.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react112.default.createElement("span", { className: "label" }, "Recipient:"), /* @__PURE__ */ import_react112.default.createElement("p", null, "Kima Sandbox")), /* @__PURE__ */ import_react112.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react112.default.createElement("span", { className: "label" }, "BIC:"), /* @__PURE__ */ import_react112.default.createElement("p", null, "CAIXESBBXXX")), /* @__PURE__ */ import_react112.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react112.default.createElement("span", { className: "label" }, "Description:"), /* @__PURE__ */ import_react112.default.createElement("p", { className: "signature" }, signature))) : /* @__PURE__ */ import_react112.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react112.default.createElement("span", { className: "label" }, "Source wallet:"), /* @__PURE__ */ import_react112.default.createElement("div", { className: "network-details" }, /* @__PURE__ */ import_react112.default.createElement("div", { className: "kima-card-network-container" }, /* @__PURE__ */ import_react112.default.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ import_react112.default.createElement(ChainIcon, { symbol: originNetworkOption?.shortName }), originNetworkOption.name)), /* @__PURE__ */ import_react112.default.createElement("p", { className: theme.colorMode }, width >= 916 ? dAppOption === "LPDrain" /* LPDrain */ ? targetAddress : walletAddress : dAppOption === "LPDrain" /* LPDrain */ ? targetWalletAddress : sourceWalletAddress))), /* @__PURE__ */ import_react112.default.createElement("div", { className: "detail-item amount" }, /* @__PURE__ */ import_react112.default.createElement("span", { className: "label" }, "Transaction", width > 500 && /* @__PURE__ */ import_react112.default.createElement("br", null), "Details:"), /* @__PURE__ */ import_react112.default.createElement("span", { className: "amount-container" }, /* @__PURE__ */ import_react112.default.createElement("div", { className: "amount-details" }, /* @__PURE__ */ import_react112.default.createElement("span", null, "Source Transfer amount"), /* @__PURE__ */ import_react112.default.createElement("div", { className: "coin-details" }, /* @__PURE__ */ import_react112.default.createElement("p", null, feeDeduct ? formatterFloat2.format(Number(amount)) : formatterFloat2.format(Number(amount) + +totalFee), " ", sourceCurrency))), /* @__PURE__ */ import_react112.default.createElement("div", { className: "amount-details" }, /* @__PURE__ */ import_react112.default.createElement("span", null, "Source Network Fee (", originNetwork.shortName, ")"), /* @__PURE__ */ import_react112.default.createElement("span", { className: "service-fee" }, formatterFloat2.format(+sourceFee), " ", sourceCurrency)), /* @__PURE__ */ import_react112.default.createElement("div", { className: "amount-details" }, /* @__PURE__ */ import_react112.default.createElement("span", null, "Kima Service Fee"), /* @__PURE__ */ import_react112.default.createElement("span", { className: "service-fee" }, formatterFloat2.format(+kimaFee), " USD")), /* @__PURE__ */ import_react112.default.createElement("div", { className: "amount-details" }, /* @__PURE__ */ import_react112.default.createElement("span", null, "Target Network Fee (", targetNetwork.shortName, ")"), /* @__PURE__ */ import_react112.default.createElement("span", { className: "service-fee" }, formatterFloat2.format(+targetFee), " ", sourceCurrency)), /* @__PURE__ */ import_react112.default.createElement("div", { className: "amount-details" }, /* @__PURE__ */ import_react112.default.createElement("span", null, "Target Transfer Amount"), /* @__PURE__ */ import_react112.default.createElement("span", { className: "service-fee" }, !feeDeduct ? formatterFloat2.format(Number(amount)) : formatterFloat2.format(Number(amount) - +totalFee), " ", targetCurrency)))), targetNetwork.shortName === "FIAT" /* FIAT */ ? /* @__PURE__ */ import_react112.default.createElement("div", null, /* @__PURE__ */ import_react112.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react112.default.createElement("span", { className: "label" }, "IBAN:"), /* @__PURE__ */ import_react112.default.createElement("p", null, bankDetails.iban), /* @__PURE__ */ import_react112.default.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ import_react112.default.createElement(ChainIcon, { symbol: targetNetworkOption?.shortName }), "FIAT")), /* @__PURE__ */ import_react112.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react112.default.createElement("span", { className: "label" }, "Recipient:"), /* @__PURE__ */ import_react112.default.createElement("p", null, bankDetails.recipient))) : /* @__PURE__ */ import_react112.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react112.default.createElement("span", { className: "label" }, "Target wallet:"), /* @__PURE__ */ import_react112.default.createElement("div", { className: "network-details" }, /* @__PURE__ */ import_react112.default.createElement("div", { className: "kima-card-network-container" }, /* @__PURE__ */ import_react112.default.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ import_react112.default.createElement(ChainIcon, { symbol: targetNetworkOption?.shortName }), targetNetworkOption?.name)), /* @__PURE__ */ import_react112.default.createElement("p", { className: theme.colorMode }, width >= 916 ? dAppOption === "LPDrain" /* LPDrain */ ? walletAddress : targetAddress : dAppOption === "LPDrain" /* LPDrain */ ? sourceWalletAddress : targetWalletAddress))), mode === "bridge" /* bridge */ && +totalFee > 0 ? (
     // <FeeDeductionSlider />
-    /* @__PURE__ */ import_react112.default.createElement(FeeDeductionRadioButtons_default, null)
+    /* @__PURE__ */ import_react112.default.createElement(FeeDeductionRadioButtons_default, { disabled: feeOptionDisabled })
   ) : null);
 };
 var ConfirmDetails_default = ConfirmDetails;
 
 // src/components/reusable/AddressInput.tsx
 var import_react113 = __toESM(require("react"), 1);
+var import_react_redux27 = require("react-redux");
 var import_react_redux28 = require("react-redux");
-var import_react_redux29 = require("react-redux");
 var AddressInput = ({
   theme,
   placeholder
 }) => {
-  const dispatch = (0, import_react_redux28.useDispatch)();
-  const mode = (0, import_react_redux29.useSelector)(selectMode);
-  const sourceChain = (0, import_react_redux29.useSelector)(selectSourceChain);
-  const targetChain = (0, import_react_redux29.useSelector)(selectTargetChain);
+  const dispatch = (0, import_react_redux27.useDispatch)();
+  const mode = (0, import_react_redux28.useSelector)(selectMode);
+  const sourceChain = (0, import_react_redux28.useSelector)(selectSourceChain);
+  const targetChain = (0, import_react_redux28.useSelector)(selectTargetChain);
   const { walletAddress: sourceAddress, isReady } = useIsWalletReady4();
-  const targetAddress = (0, import_react_redux29.useSelector)(selectTargetAddress);
+  const targetAddress = (0, import_react_redux28.useSelector)(selectTargetAddress);
   const isCompatible = (sourceChain2, targetChain2) => {
     return sourceChain2.compatibility === targetChain2.compatibility;
   };
@@ -4698,11 +4693,11 @@ var AddressInput_default = AddressInput;
 
 // src/components/reusable/CustomCheckbox.tsx
 var import_react114 = __toESM(require("react"), 1);
-var import_react_redux30 = require("react-redux");
+var import_react_redux29 = require("react-redux");
 
 // src/components/reusable/StepBox.tsx
 var import_react115 = __toESM(require("react"), 1);
-var import_react_redux31 = require("react-redux");
+var import_react_redux30 = require("react-redux");
 var stepInfo2 = [
   {
     title: "Initialize"
@@ -4721,10 +4716,10 @@ var stepInfo2 = [
   }
 ];
 var StepBox = ({ step, errorStep, loadingStep, data }) => {
-  const theme = (0, import_react_redux31.useSelector)(selectTheme);
-  const explorerUrl = (0, import_react_redux31.useSelector)(selectKimaExplorer);
-  const networkOption = (0, import_react_redux31.useSelector)(selectNetworkOption);
-  const networks = (0, import_react_redux31.useSelector)(selectNetworks);
+  const theme = (0, import_react_redux30.useSelector)(selectTheme);
+  const explorerUrl = (0, import_react_redux30.useSelector)(selectKimaExplorer);
+  const networkOption = (0, import_react_redux30.useSelector)(selectNetworkOption);
+  const networks = (0, import_react_redux30.useSelector)(selectNetworks);
   const sourceChain = (0, import_react115.useMemo)(
     () => networks.find((network) => network.shortName === data?.sourceChain),
     [data, networks]
@@ -4781,12 +4776,12 @@ var StepBox_default = StepBox;
 
 // src/components/reusable/BankInput.tsx
 var import_react116 = __toESM(require("react"), 1);
+var import_react_redux31 = require("react-redux");
 var import_react_redux32 = require("react-redux");
-var import_react_redux33 = require("react-redux");
 var BankInput = () => {
-  const dispatch = (0, import_react_redux32.useDispatch)();
-  const theme = (0, import_react_redux33.useSelector)(selectTheme);
-  const bankDetails = (0, import_react_redux33.useSelector)(selectBankDetails);
+  const dispatch = (0, import_react_redux31.useDispatch)();
+  const theme = (0, import_react_redux32.useSelector)(selectTheme);
+  const bankDetails = (0, import_react_redux32.useSelector)(selectBankDetails);
   return /* @__PURE__ */ import_react116.default.createElement("div", { className: "bank-input" }, /* @__PURE__ */ import_react116.default.createElement("div", { className: `form-item ${theme.colorMode}` }, /* @__PURE__ */ import_react116.default.createElement("span", { className: "label" }, "IBAN:"), /* @__PURE__ */ import_react116.default.createElement(
     "input",
     {
@@ -4811,14 +4806,14 @@ var BankInput_default = BankInput;
 
 // src/components/reusable/TxButton.tsx
 var import_react117 = __toESM(require("react"), 1);
+var import_react_redux33 = require("react-redux");
 var import_react_redux34 = require("react-redux");
-var import_react_redux35 = require("react-redux");
 var TxButton = ({ theme }) => {
-  const dispatch = (0, import_react_redux34.useDispatch)();
+  const dispatch = (0, import_react_redux33.useDispatch)();
   const handleClick = () => {
     dispatch(setPendingTxPopup(true));
   };
-  const txCount = (0, import_react_redux35.useSelector)(selectPendingTxs);
+  const txCount = (0, import_react_redux34.useSelector)(selectPendingTxs);
   return /* @__PURE__ */ import_react117.default.createElement(
     "button",
     {
@@ -4839,9 +4834,9 @@ var TxButton = ({ theme }) => {
 var TxButton_default = TxButton;
 
 // src/components/TransactionWidget.tsx
+var import_react_redux37 = require("react-redux");
 var import_react_redux38 = require("react-redux");
 var import_react_redux39 = require("react-redux");
-var import_react_redux40 = require("react-redux");
 var import_react_hot_toast3 = require("react-hot-toast");
 
 // src/hooks/useGetTxData.ts
@@ -4963,13 +4958,13 @@ var TransactionStatusMessage_default = TransactionStatusMessage;
 
 // src/components/reusable/TransactionSearch.tsx
 var import_react120 = __toESM(require("react"), 1);
+var import_react_redux35 = require("react-redux");
 var import_react_redux36 = require("react-redux");
-var import_react_redux37 = require("react-redux");
 var import_react_hot_toast2 = __toESM(require("react-hot-toast"), 1);
 var TransactionSearch = () => {
-  const theme = (0, import_react_redux36.useSelector)(selectTheme);
-  const backendUrl = (0, import_react_redux36.useSelector)(selectBackendUrl);
-  const dispatch = (0, import_react_redux37.useDispatch)();
+  const theme = (0, import_react_redux35.useSelector)(selectTheme);
+  const backendUrl = (0, import_react_redux35.useSelector)(selectBackendUrl);
+  const dispatch = (0, import_react_redux36.useDispatch)();
   const [transactionId, setTransactionId] = (0, import_react120.useState)("");
   const refPollForUpdates = (0, import_react120.useRef)(false);
   const handleSearch = async () => {
@@ -5018,21 +5013,21 @@ var TransactionWidget = ({ theme }) => {
   const [errorMessage, setErrorMessage] = (0, import_react121.useState)("");
   const [loadingStep, setLoadingStep] = (0, import_react121.useState)(-1);
   const [minimized, setMinimized] = (0, import_react121.useState)(false);
-  const dispatch = (0, import_react_redux40.useDispatch)();
-  const mode = (0, import_react_redux39.useSelector)(selectMode);
-  const feeDeduct = (0, import_react_redux39.useSelector)(selectFeeDeduct);
-  const amount = (0, import_react_redux39.useSelector)(selectAmount);
-  const txId = (0, import_react_redux39.useSelector)(selectTxId);
-  const dAppOption = (0, import_react_redux39.useSelector)(selectDappOption);
-  const { totalFee } = (0, import_react_redux39.useSelector)(selectServiceFee);
-  const transactionOption = (0, import_react_redux39.useSelector)(selectTransactionOption);
-  const sourceChain = (0, import_react_redux39.useSelector)(selectSourceChain);
-  const targetChain = (0, import_react_redux39.useSelector)(selectTargetChain);
-  const sourceSymbol = (0, import_react_redux39.useSelector)(selectSourceCurrency);
-  const targetSymbol = (0, import_react_redux39.useSelector)(selectTargetCurrency);
-  const networks = (0, import_react_redux39.useSelector)(selectNetworks);
+  const dispatch = (0, import_react_redux39.useDispatch)();
+  const mode = (0, import_react_redux38.useSelector)(selectMode);
+  const feeDeduct = (0, import_react_redux38.useSelector)(selectFeeDeduct);
+  const amount = (0, import_react_redux38.useSelector)(selectAmount);
+  const txId = (0, import_react_redux38.useSelector)(selectTxId);
+  const dAppOption = (0, import_react_redux38.useSelector)(selectDappOption);
+  const { totalFee } = (0, import_react_redux38.useSelector)(selectServiceFee);
+  const transactionOption = (0, import_react_redux38.useSelector)(selectTransactionOption);
+  const sourceChain = (0, import_react_redux38.useSelector)(selectSourceChain);
+  const targetChain = (0, import_react_redux38.useSelector)(selectTargetChain);
+  const sourceSymbol = (0, import_react_redux38.useSelector)(selectSourceCurrency);
+  const targetSymbol = (0, import_react_redux38.useSelector)(selectTargetCurrency);
+  const networks = (0, import_react_redux38.useSelector)(selectNetworks);
   const { successHandler, closeHandler } = useKimaContext();
-  const backendUrl = (0, import_react_redux39.useSelector)(selectBackendUrl);
+  const backendUrl = (0, import_react_redux38.useSelector)(selectBackendUrl);
   const { data, error } = useGetTxData_default(txId, dAppOption, backendUrl);
   const transactionSourceChain = (0, import_react121.useMemo)(
     () => networks.find(
@@ -5180,7 +5175,7 @@ var TransactionWidget = ({ theme }) => {
     );
     dispatch(setSubmitted(false));
   };
-  return /* @__PURE__ */ import_react121.default.createElement(import_react_redux38.Provider, { store }, /* @__PURE__ */ import_react121.default.createElement(
+  return /* @__PURE__ */ import_react121.default.createElement(import_react_redux37.Provider, { store }, /* @__PURE__ */ import_react121.default.createElement(
     "div",
     {
       className: `kima-card transaction-card ${theme.colorMode} ${minimized ? "minimized" : ""}`,
@@ -5269,16 +5264,16 @@ var TransactionWidget = ({ theme }) => {
 
 // src/components/TransferWidget.tsx
 var import_react133 = __toESM(require("react"), 1);
-var import_react_redux52 = require("react-redux");
+var import_react_redux51 = require("react-redux");
 
 // src/components/reusable/SingleForm.tsx
 var import_react123 = __toESM(require("react"), 1);
 var import_react_hot_toast4 = require("react-hot-toast");
-var import_react_redux43 = require("react-redux");
+var import_react_redux42 = require("react-redux");
 
 // src/hooks/useGetFees.tsx
 var import_react_query13 = require("@tanstack/react-query");
-var import_react_redux41 = require("react-redux");
+var import_react_redux40 = require("react-redux");
 
 // src/services/feesApi.ts
 var getFees = async (amount, deductFee, originChain, originAddress, originSymbol, targetChain, targetAddress, targetSymbol, backendUrl) => {
@@ -5305,7 +5300,7 @@ var getFees = async (amount, deductFee, originChain, originAddress, originSymbol
 
 // src/hooks/useGetFees.tsx
 var useGetFees = (amount, deductFees, sourceNetwork, sourceAddress, sourceSymbol, targetNetwork, targetAddress, targetSymbol, backendUrl) => {
-  const mode = (0, import_react_redux41.useSelector)(selectMode);
+  const mode = (0, import_react_redux40.useSelector)(selectMode);
   const feeDeductWithMode = mode === "payment" /* payment */ ? false : deductFees;
   return (0, import_react_query13.useQuery)({
     queryKey: ["fees", amount, feeDeductWithMode, sourceNetwork, targetNetwork],
@@ -5340,17 +5335,17 @@ var useGetFees_default = useGetFees;
 
 // src/components/primary/NetworkSelector.tsx
 var import_react122 = __toESM(require("react"), 1);
-var import_react_redux42 = require("react-redux");
+var import_react_redux41 = require("react-redux");
 var NetworkSelector = ({ type }) => {
   const [collapsed, setCollapsed] = (0, import_react122.useState)(true);
   const ref = (0, import_react122.useRef)(null);
-  const dispatch = (0, import_react_redux42.useDispatch)();
-  const theme = (0, import_react_redux42.useSelector)(selectTheme);
-  const networkOptions3 = (0, import_react_redux42.useSelector)(selectNetworks);
-  const sourceNetwork = (0, import_react_redux42.useSelector)(selectSourceChain);
-  const targetNetwork = (0, import_react_redux42.useSelector)(selectTargetChain);
-  const excludedSourceNetworks = (0, import_react_redux42.useSelector)(selectExcludedSourceNetworks);
-  const excludedTargetNetworks = (0, import_react_redux42.useSelector)(selectExcludedTargetNetworks);
+  const dispatch = (0, import_react_redux41.useDispatch)();
+  const theme = (0, import_react_redux41.useSelector)(selectTheme);
+  const networkOptions3 = (0, import_react_redux41.useSelector)(selectNetworks);
+  const sourceNetwork = (0, import_react_redux41.useSelector)(selectSourceChain);
+  const targetNetwork = (0, import_react_redux41.useSelector)(selectTargetChain);
+  const excludedSourceNetworks = (0, import_react_redux41.useSelector)(selectExcludedSourceNetworks);
+  const excludedTargetNetworks = (0, import_react_redux41.useSelector)(selectExcludedTargetNetworks);
   const { switchChainHandler } = useKimaContext();
   const isSourceSelector = type === "source";
   const networks = (0, import_react122.useMemo)(() => {
@@ -5447,23 +5442,23 @@ var SingleForm = ({
   balance,
   decimals
 }) => {
-  const dispatch = (0, import_react_redux43.useDispatch)();
-  const mode = (0, import_react_redux43.useSelector)(selectMode);
-  const theme = (0, import_react_redux43.useSelector)(selectTheme);
-  const feeDeduct = (0, import_react_redux43.useSelector)(selectFeeDeduct);
-  const { totalFee } = (0, import_react_redux43.useSelector)(selectServiceFee);
-  const compliantOption = (0, import_react_redux43.useSelector)(selectCompliantOption);
-  const targetCompliant = (0, import_react_redux43.useSelector)(selectTargetCompliant);
-  const sourceNetwork = (0, import_react_redux43.useSelector)(selectSourceChain);
-  const targetNetwork = (0, import_react_redux43.useSelector)(selectTargetChain);
-  const sourceAddress = (0, import_react_redux43.useSelector)(selectSourceAddress);
-  const targetAddress = (0, import_react_redux43.useSelector)(selectTargetAddress);
+  const dispatch = (0, import_react_redux42.useDispatch)();
+  const mode = (0, import_react_redux42.useSelector)(selectMode);
+  const theme = (0, import_react_redux42.useSelector)(selectTheme);
+  const feeDeduct = (0, import_react_redux42.useSelector)(selectFeeDeduct);
+  const { totalFee } = (0, import_react_redux42.useSelector)(selectServiceFee);
+  const compliantOption = (0, import_react_redux42.useSelector)(selectCompliantOption);
+  const targetCompliant = (0, import_react_redux42.useSelector)(selectTargetCompliant);
+  const sourceNetwork = (0, import_react_redux42.useSelector)(selectSourceChain);
+  const targetNetwork = (0, import_react_redux42.useSelector)(selectTargetChain);
+  const sourceAddress = (0, import_react_redux42.useSelector)(selectSourceAddress);
+  const targetAddress = (0, import_react_redux42.useSelector)(selectTargetAddress);
   const { isReady } = useIsWalletReady4();
   const [amountValue, setAmountValue] = (0, import_react123.useState)("");
-  const amount = (0, import_react_redux43.useSelector)(selectAmount);
-  const sourceCurrency = (0, import_react_redux43.useSelector)(selectSourceCurrency);
-  const targetCurrency = (0, import_react_redux43.useSelector)(selectTargetCurrency);
-  const backendUrl = (0, import_react_redux43.useSelector)(selectBackendUrl);
+  const amount = (0, import_react_redux42.useSelector)(selectAmount);
+  const sourceCurrency = (0, import_react_redux42.useSelector)(selectSourceCurrency);
+  const targetCurrency = (0, import_react_redux42.useSelector)(selectTargetCurrency);
+  const backendUrl = (0, import_react_redux42.useSelector)(selectBackendUrl);
   const {
     data: fees,
     isLoading,
@@ -5596,17 +5591,17 @@ var import_react_hot_toast5 = require("react-hot-toast");
 
 // plugins/solana/components/SolanaWalletConnectModal.tsx
 var import_react126 = __toESM(require("react"), 1);
-var import_react_redux46 = require("react-redux");
+var import_react_redux45 = require("react-redux");
 
 // plugins/solana/components/SolanaWalletSelect.tsx
 var import_react124 = __toESM(require("react"), 1);
-var import_react_redux44 = require("react-redux");
+var import_react_redux43 = require("react-redux");
 var import_wallet_adapter_react7 = require("@solana/wallet-adapter-react");
 var import_wallet_adapter_base = require("@solana/wallet-adapter-base");
 var SolanaWalletSelect = () => {
-  const theme = (0, import_react_redux44.useSelector)(selectTheme);
-  const sourceChain = (0, import_react_redux44.useSelector)(selectSourceChain);
-  const dispatch = (0, import_react_redux44.useDispatch)();
+  const theme = (0, import_react_redux43.useSelector)(selectTheme);
+  const sourceChain = (0, import_react_redux43.useSelector)(selectSourceChain);
+  const dispatch = (0, import_react_redux43.useDispatch)();
   const sliderRef = (0, import_react124.useRef)();
   const { wallet, wallets, select, connect, connected } = (0, import_wallet_adapter_react7.useWallet)();
   const [detected, undetected] = (0, import_react124.useMemo)(() => {
@@ -5695,14 +5690,14 @@ var SolanaWalletSelect_default = SolanaWalletSelect;
 
 // plugins/solana/components/AccountDetailsModal.tsx
 var import_react125 = __toESM(require("react"), 1);
-var import_react_redux45 = require("react-redux");
+var import_react_redux44 = require("react-redux");
 var import_wallet_adapter_react8 = require("@solana/wallet-adapter-react");
 var AccountDetailsModal = () => {
-  const dispatch = (0, import_react_redux45.useDispatch)();
-  const theme = (0, import_react_redux45.useSelector)(selectTheme);
-  const networkOption = (0, import_react_redux45.useSelector)(selectNetworkOption);
-  const sourceChain = (0, import_react_redux45.useSelector)(selectSourceChain);
-  const accountDetailsModal = (0, import_react_redux45.useSelector)(selectAccountDetailsModal);
+  const dispatch = (0, import_react_redux44.useDispatch)();
+  const theme = (0, import_react_redux44.useSelector)(selectTheme);
+  const networkOption = (0, import_react_redux44.useSelector)(selectNetworkOption);
+  const sourceChain = (0, import_react_redux44.useSelector)(selectSourceChain);
+  const accountDetailsModal = (0, import_react_redux44.useSelector)(selectAccountDetailsModal);
   const { walletAddress } = useIsWalletReady_default2();
   const { disconnect: solanaWalletDisconnect } = (0, import_wallet_adapter_react8.useWallet)();
   const { balance: solBalance } = useGetSolBalance_default();
@@ -5740,9 +5735,9 @@ var AccountDetailsModal_default = AccountDetailsModal;
 
 // plugins/solana/components/SolanaWalletConnectModal.tsx
 var SolanaWalletConnectModal = () => {
-  const dispatch = (0, import_react_redux46.useDispatch)();
-  const theme = (0, import_react_redux46.useSelector)(selectTheme);
-  const connectModal = (0, import_react_redux46.useSelector)(selectSolanaConnectModal);
+  const dispatch = (0, import_react_redux45.useDispatch)();
+  const theme = (0, import_react_redux45.useSelector)(selectTheme);
+  const connectModal = (0, import_react_redux45.useSelector)(selectSolanaConnectModal);
   return /* @__PURE__ */ import_react126.default.createElement("div", null, /* @__PURE__ */ import_react126.default.createElement(AccountDetailsModal_default, null), /* @__PURE__ */ import_react126.default.createElement(
     "div",
     {
@@ -5769,22 +5764,22 @@ var SolanaWalletConnectModal_default = SolanaWalletConnectModal;
 
 // plugins/tron/components/TronWalletConnectModal.tsx
 var import_react129 = __toESM(require("react"), 1);
-var import_react_redux49 = require("react-redux");
+var import_react_redux48 = require("react-redux");
 
 // plugins/tron/components/AccountDetailsModal.tsx
 var import_react127 = __toESM(require("react"), 1);
-var import_react_redux47 = require("react-redux");
+var import_react_redux46 = require("react-redux");
 var import_tronwallet_adapter_react_hooks7 = require("@tronweb3/tronwallet-adapter-react-hooks");
 var AccountDetailsModal2 = () => {
-  const dispatch = (0, import_react_redux47.useDispatch)();
-  const theme = (0, import_react_redux47.useSelector)(selectTheme);
-  const networkOption = (0, import_react_redux47.useSelector)(selectNetworkOption);
-  const accountDetailsModal = (0, import_react_redux47.useSelector)(selectAccountDetailsModal);
-  const sourcheChain = (0, import_react_redux47.useSelector)(selectSourceChain);
+  const dispatch = (0, import_react_redux46.useDispatch)();
+  const theme = (0, import_react_redux46.useSelector)(selectTheme);
+  const networkOption = (0, import_react_redux46.useSelector)(selectNetworkOption);
+  const accountDetailsModal = (0, import_react_redux46.useSelector)(selectAccountDetailsModal);
+  const sourcheChain = (0, import_react_redux46.useSelector)(selectSourceChain);
   const { walletAddress } = useIsWalletReady_default3();
   const { disconnect: tronWalletDisconnect } = (0, import_tronwallet_adapter_react_hooks7.useWallet)();
   const { balance: tronBalance } = useGetTrxBalance_default();
-  const selectedNetwork = (0, import_react_redux47.useSelector)(selectSourceChain);
+  const selectedNetwork = (0, import_react_redux46.useSelector)(selectSourceChain);
   const networkDetails = (0, import_react127.useMemo)(
     () => networkOptions.find(({ id }) => id === selectedNetwork.shortName),
     [selectedNetwork]
@@ -5822,13 +5817,13 @@ var AccountDetailsModal_default2 = AccountDetailsModal2;
 
 // plugins/tron/components/TronWalletSelect.tsx
 var import_react128 = __toESM(require("react"), 1);
-var import_react_redux48 = require("react-redux");
+var import_react_redux47 = require("react-redux");
 var import_tronwallet_adapter_react_hooks8 = require("@tronweb3/tronwallet-adapter-react-hooks");
 var import_tronwallet_abstract_adapter2 = require("@tronweb3/tronwallet-abstract-adapter");
 var TronWalletSelect = () => {
-  const theme = (0, import_react_redux48.useSelector)(selectTheme);
+  const theme = (0, import_react_redux47.useSelector)(selectTheme);
   const sliderRef = (0, import_react128.useRef)();
-  const dispatch = (0, import_react_redux48.useDispatch)();
+  const dispatch = (0, import_react_redux47.useDispatch)();
   const {
     wallets,
     select,
@@ -5902,9 +5897,9 @@ var TronWalletSelect_default = TronWalletSelect;
 
 // plugins/tron/components/TronWalletConnectModal.tsx
 var TronWalletConnectModal = () => {
-  const dispatch = (0, import_react_redux49.useDispatch)();
-  const theme = (0, import_react_redux49.useSelector)(selectTheme);
-  const connectModal = (0, import_react_redux49.useSelector)(selectTronConnectModal);
+  const dispatch = (0, import_react_redux48.useDispatch)();
+  const theme = (0, import_react_redux48.useSelector)(selectTheme);
+  const connectModal = (0, import_react_redux48.useSelector)(selectTronConnectModal);
   return /* @__PURE__ */ import_react129.default.createElement("div", null, /* @__PURE__ */ import_react129.default.createElement(AccountDetailsModal_default2, null), /* @__PURE__ */ import_react129.default.createElement(
     "div",
     {
@@ -6038,8 +6033,8 @@ var useValidateTransaction_default = useValidateTransaction;
 
 // src/hooks/useSubmitTransaction.tsx
 var import_react131 = require("react");
+var import_react_redux49 = require("react-redux");
 var import_react_redux50 = require("react-redux");
-var import_react_redux51 = require("react-redux");
 var import_viem8 = require("viem");
 var useSubmitTransaction = ({
   amount,
@@ -6053,9 +6048,10 @@ var useSubmitTransaction = ({
   backendUrl,
   decimals
 }) => {
-  const dispatch = (0, import_react_redux50.useDispatch)();
+  const dispatch = (0, import_react_redux49.useDispatch)();
   const [isSubmitting, setSubmitting] = (0, import_react131.useState)(false);
-  const { feeId } = (0, import_react_redux51.useSelector)(selectServiceFee);
+  const { feeId } = (0, import_react_redux50.useSelector)(selectServiceFee);
+  const feeDeduct = (0, import_react_redux50.useSelector)(selectFeeDeduct);
   const submitTransaction = async (signature) => {
     try {
       setSubmitting(true);
@@ -6066,7 +6062,7 @@ var useSubmitTransaction = ({
         targetChain,
         originSymbol,
         targetSymbol,
-        amount: (0, import_viem8.parseUnits)(formatterFloat2.format(+amount), decimals).toString(),
+        amount: (0, import_viem8.parseUnits)(formatterFloat2.format(amount), decimals).toString(),
         fee: (0, import_viem8.parseUnits)(formatterFloat2.format(+totalFee), decimals).toString(),
         decimals,
         htlcCreationHash: "",
@@ -6074,7 +6070,7 @@ var useSubmitTransaction = ({
         htlcExpirationTimestamp: "0",
         htlcVersion: "",
         senderPubKey: "",
-        options: JSON.stringify({ signature, feeId })
+        options: JSON.stringify({ signature, feeId, feeDeduct })
       });
       const transactionResult = await fetchWrapper.post(
         `${backendUrl}/submit`,
@@ -6198,36 +6194,33 @@ var TransferWidget = ({
   titleOption,
   paymentTitleOption
 }) => {
-  const dispatch = (0, import_react_redux52.useDispatch)();
+  const dispatch = (0, import_react_redux51.useDispatch)();
   const mainRef = (0, import_react133.useRef)(null);
   const [signature, setSignature2] = (0, import_react133.useState)("");
   const [formStep, setFormStep] = (0, import_react133.useState)(0);
   const [warningModalOpen, setWarningModalOpen] = (0, import_react133.useState)(null);
-  const dAppOption = (0, import_react_redux52.useSelector)(selectDappOption);
-  const mode = (0, import_react_redux52.useSelector)(selectMode);
-  const transactionOption = (0, import_react_redux52.useSelector)(selectTransactionOption);
-  const backendUrl = (0, import_react_redux52.useSelector)(selectBackendUrl);
-  const sourceAddress = (0, import_react_redux52.useSelector)(selectSourceAddress);
-  const targetAddress = (0, import_react_redux52.useSelector)(selectTargetAddress);
-  const sourceChain = (0, import_react_redux52.useSelector)(selectSourceChain);
-  const targetChain = (0, import_react_redux52.useSelector)(selectTargetChain);
-  const sourceCurrency = (0, import_react_redux52.useSelector)(selectSourceCurrency);
-  const targetCurrency = (0, import_react_redux52.useSelector)(selectTargetCurrency);
-  const amount = (0, import_react_redux52.useSelector)(selectAmount);
-  const {
-    totalFee,
-    submitAmount,
-    decimals: feeDecimals
-  } = (0, import_react_redux52.useSelector)(selectServiceFee);
-  const compliantOption = (0, import_react_redux52.useSelector)(selectCompliantOption);
-  const networkOptions3 = (0, import_react_redux52.useSelector)(selectNetworkOption);
-  const feeDeduct = (0, import_react_redux52.useSelector)(selectFeeDeduct);
+  const dAppOption = (0, import_react_redux51.useSelector)(selectDappOption);
+  const mode = (0, import_react_redux51.useSelector)(selectMode);
+  const transactionOption = (0, import_react_redux51.useSelector)(selectTransactionOption);
+  const backendUrl = (0, import_react_redux51.useSelector)(selectBackendUrl);
+  const sourceAddress = (0, import_react_redux51.useSelector)(selectSourceAddress);
+  const targetAddress = (0, import_react_redux51.useSelector)(selectTargetAddress);
+  const sourceChain = (0, import_react_redux51.useSelector)(selectSourceChain);
+  const targetChain = (0, import_react_redux51.useSelector)(selectTargetChain);
+  const sourceCurrency = (0, import_react_redux51.useSelector)(selectSourceCurrency);
+  const targetCurrency = (0, import_react_redux51.useSelector)(selectTargetCurrency);
+  const amount = (0, import_react_redux51.useSelector)(selectAmount);
+  const { totalFee, decimals: feeDecimals } = (0, import_react_redux51.useSelector)(selectServiceFee);
+  const compliantOption = (0, import_react_redux51.useSelector)(selectCompliantOption);
+  const networkOptions3 = (0, import_react_redux51.useSelector)(selectNetworkOption);
+  const feeDeduct = (0, import_react_redux51.useSelector)(selectFeeDeduct);
   const { keplrHandler, closeHandler } = useKimaContext();
   const [isCancellingApprove, setCancellingApprove] = (0, import_react133.useState)(false);
   const [isApproving, setApproving] = (0, import_react133.useState)(false);
   const [isSigning, setSigning] = (0, import_react133.useState)(false);
-  const pendingTxs = (0, import_react_redux52.useSelector)(selectPendingTxs);
-  const networks = (0, import_react_redux52.useSelector)(selectNetworks);
+  const [feeOptionDisabled, setFeeOptionDisabled] = (0, import_react133.useState)(false);
+  const pendingTxs = (0, import_react_redux51.useSelector)(selectPendingTxs);
+  const networks = (0, import_react_redux51.useSelector)(selectNetworks);
   const { width: windowWidth } = useWidth_default();
   const { disconnectWallet } = useDisconnectWallet4();
   const { balance } = useBalance2();
@@ -6265,7 +6258,7 @@ var TransferWidget = ({
     formStep
   });
   const { submitTransaction, isSubmitting } = useSubmitTransaction_default({
-    amount: submitAmount,
+    amount: feeDeduct ? +amount - +totalFee : +amount,
     totalFee,
     originAddress: sourceAddress,
     targetAddress,
@@ -6283,6 +6276,7 @@ var TransferWidget = ({
     }
     if (error === "ApprovalNeeded" /* ApprovalNeeded */) {
       if (!signature) {
+        setFeeOptionDisabled(true);
         const sig2 = await signMessage?.({
           targetAddress,
           targetChain: targetChain.shortName,
@@ -6299,6 +6293,7 @@ var TransferWidget = ({
     }
     let sig = signature;
     if (!sig) {
+      setFeeOptionDisabled(true);
       sig = await signMessage?.({
         targetAddress,
         targetChain: targetChain.shortName,
@@ -6331,6 +6326,7 @@ var TransferWidget = ({
     if (formStep > 0) {
       setFormStep(0);
       setSignature2("");
+      setFeeOptionDisabled(false);
     }
     if (formStep === 0) {
       closeHandler && closeHandler(0);
@@ -6355,6 +6351,7 @@ var TransferWidget = ({
     if (isApproving || isSubmitting || isSigning) return;
     closeHandler && closeHandler(0);
     setSignature2("");
+    setFeeOptionDisabled(true);
     setFormStep(0);
     if (mode !== "payment" /* payment */) {
       if (transactionOption?.sourceChain) {
@@ -6445,19 +6442,8 @@ var TransferWidget = ({
       ConfirmDetails_default,
       {
         ...{
-          allowance,
-          balance,
-          decimals,
-          formStep,
-          onBack,
-          onCancelApprove,
-          onNext,
-          getButtonLabel,
-          isApproving,
-          isSigning,
-          isSubmitting,
-          isCancellingApprove,
-          isApproved
+          isApproved,
+          feeOptionDisabled
         }
       }
     )), /* @__PURE__ */ import_react133.default.createElement(
@@ -6536,8 +6522,8 @@ var KimaWidgetWrapper = ({
   excludedTargetNetworks = []
 }) => {
   const { kimaBackendUrl } = useKimaContext();
-  const submitted = (0, import_react_redux53.useSelector)(selectSubmitted);
-  const dispatch = (0, import_react_redux53.useDispatch)();
+  const submitted = (0, import_react_redux52.useSelector)(selectSubmitted);
+  const dispatch = (0, import_react_redux52.useDispatch)();
   const { setThemeMode, setThemeVariables } = (0, import_react135.useAppKitTheme)();
   const { data: chainData } = useChainData(kimaBackendUrl);
   const { data: envOptions } = useGetEnvOptions({ kimaBackendUrl });
@@ -6603,7 +6589,7 @@ var KimaWidgetWrapper = ({
 var KimaWidgetWrapper_default = KimaWidgetWrapper;
 
 // src/components/KimaTransactionWidget.tsx
-var import_react_redux54 = require("react-redux");
+var import_react_redux53 = require("react-redux");
 var KimaTransactionWidget = ({
   mode,
   txId,
@@ -6617,7 +6603,7 @@ var KimaTransactionWidget = ({
   excludedSourceNetworks = [],
   excludedTargetNetworks = []
 }) => {
-  const dispatch = (0, import_react_redux54.useDispatch)();
+  const dispatch = (0, import_react_redux53.useDispatch)();
   const { kimaBackendUrl } = useKimaContext();
   const { isLoading: isLoadingEnvs } = useGetEnvOptions({
     kimaBackendUrl

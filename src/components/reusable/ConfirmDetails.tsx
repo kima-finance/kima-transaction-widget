@@ -24,11 +24,15 @@ import { ChainName } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 import useWidth from '../../hooks/useWidth'
 import ChainIcon from './ChainIcon'
-import { useDispatch } from 'react-redux'
 import FeeDeductionRadioButtons from './FeeDeductionRadioButtons'
 
-const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
-  const dispatch = useDispatch()
+const ConfirmDetails = ({
+  isApproved,
+  feeOptionDisabled
+}: {
+  isApproved: boolean
+  feeOptionDisabled: boolean
+}) => {
   const feeDeduct = useSelector(selectFeeDeduct)
   const mode = useSelector(selectMode)
   const dAppOption = useSelector(selectDappOption)
@@ -83,16 +87,16 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
     )
   }, [mode, transactionOption, targetAddress])
 
-  const amountToShow = useMemo(() => {
-    if (
-      originNetwork.shortName === ChainName.BTC ||
-      targetNetwork.shortName === ChainName.BTC
-    ) {
-      return (feeDeduct ? +amount : +amount + +totalFee).toFixed(8)
-    }
+  // const amountToShow = useMemo(() => {
+  //   if (
+  //     originNetwork.shortName === ChainName.BTC ||
+  //     targetNetwork.shortName === ChainName.BTC
+  //   ) {
+  //     return (feeDeduct ? +amount : +amount + +totalFee).toFixed(8)
+  //   }
 
-    return formatterFloat.format(feeDeduct ? +amount : +amount + +totalFee)
-  }, [amount, totalFee, originNetwork, targetNetwork, feeDeduct])
+  //   return formatterFloat.format(feeDeduct ? +amount : +amount + +totalFee)
+  // }, [amount, totalFee, originNetwork, targetNetwork, feeDeduct])
 
   return (
     <div className={`confirm-details ${theme.colorMode}`}>
@@ -250,7 +254,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
       {/* checkbox shall only be displayed in transfer scenario */}
       {mode === ModeOptions.bridge && +totalFee > 0 ? (
         // <FeeDeductionSlider />
-        <FeeDeductionRadioButtons />
+        <FeeDeductionRadioButtons disabled={feeOptionDisabled} />
       ) : null}
 
       {/* {mode === ModeOptions.bridge && totalFeeUsd > 0 && (

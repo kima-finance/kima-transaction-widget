@@ -2137,6 +2137,10 @@
       align-items: center; /* Ensures both text and radio button align */
       gap: 10px;
       cursor: pointer;
+
+      &.disabled {
+        opacity: 0.5;
+      }
     }
 
     .fee-option input[type='radio'] {

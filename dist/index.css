@@ -2426,6 +2426,9 @@
   gap: 10px;
   cursor: pointer;
 }
+.kima-card .kima-card-content .fee-option.disabled {
+  opacity: 0.5;
+}
 .kima-card .kima-card-content .fee-option input[type=radio] {
   appearance: none;
   width: 18px;
