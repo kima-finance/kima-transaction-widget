@@ -32,7 +32,11 @@ import {
   setDappOption
 } from '../store/optionSlice'
 import '../index.css'
-import { selectSubmitted } from '../store/selectors'
+import {
+  selectCCWidgetProcessed,
+  selectSourceChain,
+  selectSubmitted
+} from '../store/selectors'
 import { TransactionWidget } from './TransactionWidget'
 import { TransferWidget } from './TransferWidget'
 import { useAppKitTheme } from '@reown/appkit/react'
@@ -80,6 +84,8 @@ const KimaWidgetWrapper = ({
   const submitted = useSelector(selectSubmitted)
   const dispatch = useDispatch()
   const { setThemeMode, setThemeVariables } = useAppKitTheme()
+  const sourceChain = useSelector(selectSourceChain)
+  const ccWidgetProcessed = useSelector(selectCCWidgetProcessed)
 
   const networkOption = envOptions?.env
   const kimaExplorer =
@@ -143,6 +149,23 @@ const KimaWidgetWrapper = ({
     // once the supported chains are fetched map chains to plugins so they can be found
     indexPluginsByChain(chainData)
   }, [chainData])
+
+  // case credit card
+  if (sourceChain.shortName === 'CC') {
+    // case submitted, and got back control from cc widget
+    if (submitted && ccWidgetProcessed) {
+      return <TransactionWidget theme={theme} />
+    }
+
+    return (
+      <TransferWidget
+        theme={theme}
+        helpURL={helpURL}
+        titleOption={titleOption}
+        paymentTitleOption={paymentTitleOption}
+      />
+    )
+  }
 
   return submitted ? (
     <TransactionWidget theme={theme} />

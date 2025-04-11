@@ -22,6 +22,7 @@ import SingleForm from './reusable/SingleForm'
 import {
   setAmount,
   setSourceChain,
+  setSubmitted,
   setTargetAddress,
   setTargetChain,
   setTargetCurrency,
@@ -30,6 +31,7 @@ import {
 import {
   selectAmount,
   selectBackendUrl,
+  selectCCWidgetProcessed,
   selectCompliantOption,
   selectDappOption,
   selectFeeDeduct,
@@ -41,6 +43,7 @@ import {
   selectSourceAddress,
   selectSourceChain,
   selectSourceCurrency,
+  selectSubmitted,
   selectTargetAddress,
   selectTargetChain,
   selectTargetCurrency,
@@ -63,6 +66,7 @@ import { useKimaContext } from 'src/KimaProvider'
 import { ChainData } from '@plugins/pluginTypes'
 import WarningModal from './reusable/WarningModal'
 import log from '@utils/logger'
+import CCWidget from './reusable/CCWidget'
 
 interface Props {
   theme: ThemeOptions
@@ -117,6 +121,8 @@ export const TransferWidget = ({
   const [isSigning, setSigning] = useState(false)
   const pendingTxs = useSelector(selectPendingTxs)
   const networks = useSelector(selectNetworks)
+  const submitted = useSelector(selectSubmitted)
+  const ccWidgetProcessed = useSelector(selectCCWidgetProcessed)
 
   const { width: windowWidth } = useWidth()
 
@@ -149,6 +155,7 @@ export const TransferWidget = ({
     isApproved,
     sourceAddress,
     targetAddress,
+    sourceChain: sourceChain.shortName,
     targetChain: targetChain.shortName,
     balance,
     amount,
@@ -252,6 +259,10 @@ export const TransferWidget = ({
 
   const onBack = () => {
     if (isApproving || isSubmitting || isSigning) return
+
+    if (formStep > 0 && sourceChain.shortName === 'CC' && submitted) {
+      return dispatch(setSubmitted(false))
+    }
 
     if (formStep > 0) {
       setFormStep(0)
@@ -413,6 +424,8 @@ export const TransferWidget = ({
                 isCancellingApprove
               }}
             />
+          ) : submitted && !ccWidgetProcessed ? (
+            <CCWidget />
           ) : (
             <ConfirmDetails
               {...{
@@ -447,7 +460,9 @@ export const TransferWidget = ({
                 {formStep > 0 ? 'Back' : 'Cancel'}
               </SecondaryButton>
             )}
-            {allowance > 0 && formStep !== 0 ? (
+            {allowance > 0 &&
+            formStep !== 0 &&
+            sourceChain.shortName !== 'CC' ? (
               <SecondaryButton
                 clickHandler={onCancelApprove}
                 isLoading={isCancellingApprove}
@@ -462,18 +477,20 @@ export const TransferWidget = ({
                 {isCancellingApprove ? 'Cancelling Approval' : 'Cancel Approve'}
               </SecondaryButton>
             ) : null}
-            <PrimaryButton
-              clickHandler={onNext}
-              isLoading={isApproving || isSubmitting || isSigning}
-              disabled={
-                isApproving ||
-                isSubmitting ||
-                isSigning ||
-                (mode === ModeOptions.payment && !transactionOption)
-              }
-            >
-              {getButtonLabel()}
-            </PrimaryButton>
+            {!submitted && (
+              <PrimaryButton
+                clickHandler={onNext}
+                isLoading={isApproving || isSubmitting || isSigning}
+                disabled={
+                  isApproving ||
+                  isSubmitting ||
+                  isSigning ||
+                  (mode === ModeOptions.payment && !transactionOption)
+                }
+              >
+                {getButtonLabel()}
+              </PrimaryButton>
+            )}
           </div>
         </div>
         <SolanaWalletConnectModal />

@@ -10,7 +10,6 @@ import {
   selectTargetCompliant,
   selectTargetChain,
   selectTheme,
-  selectTransactionOption,
   selectServiceFee,
   selectFeeDeduct,
   selectAmount,
@@ -26,6 +25,7 @@ import useGetFees from '../../hooks/useGetFees'
 import { setServiceFee } from '@store/optionSlice'
 import { preciseSubtraction } from '@utils/functions'
 import NetworkSelector from '@components/primary/NetworkSelector'
+import { ChainCompatibility } from '@plugins/pluginTypes'
 
 const SingleForm = ({
   balance,
@@ -124,12 +124,14 @@ const SingleForm = ({
           sourceNetwork.shortName === ChainName.FIAT ? 'reverse' : '1'
         }`}
       >
-        <div
-          className={`form-item wallet-button-item ${isReady && 'connected'}`}
-        >
-          <span className='label'>Wallet:</span>
-          <WalletButton />
-        </div>
+        {sourceNetwork.compatibility !== ChainCompatibility.CC && (
+          <div
+            className={`form-item wallet-button-item ${isReady && 'connected'}`}
+          >
+            <span className='label'>Wallet:</span>
+            <WalletButton />
+          </div>
+        )}
 
         {mode === ModeOptions.bridge && (
           <div className='form-item'>

@@ -11,7 +11,8 @@ import {
   TronIcon,
   BTCIcon,
   BaseIcon,
-  BeraIcon
+  BeraIcon,
+  CreditCardIcon
 } from '../../assets/icons'
 import log from '@utils/logger'
 
@@ -29,7 +30,8 @@ const chainIcons: Record<string, React.FC<IconProps>> = {
   TRX: TronIcon,
   SOL: SolanaIcon,
   FIAT: BankIcon,
-  BERA: BeraIcon
+  BERA: BeraIcon,
+  CC: CreditCardIcon
 }
 
 export interface ChainIconProps extends IconProps {

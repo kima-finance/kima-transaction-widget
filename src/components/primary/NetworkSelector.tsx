@@ -46,7 +46,8 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({ type }) => {
     return networkOptions.filter(
       (network: ChainData) =>
         network.shortName !== sourceNetwork.shortName &&
-        !excludedTargetNetworks.includes(network.shortName as ChainName)
+        !excludedTargetNetworks.includes(network.shortName as ChainName) &&
+        network.shortName !== 'CC'
     ) // Exclude source from target options
   }, [
     networkOptions,

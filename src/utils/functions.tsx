@@ -57,7 +57,7 @@ export const checkPoolBalance = ({
   const targetToken = poolTokens.find(
     (token: any) => token.tokenSymbol === finalTargetCurrency
   )
-  
+
   if (!targetToken) {
     return {
       isPoolAvailable: false,
@@ -89,7 +89,11 @@ export const getTokenAddress = (
   selectedCoin: string,
   chain: string
 ) => {
-  return tokenOptions[selectedCoin][chain] || ''
+  return (
+    tokenOptions[
+      chain === 'BASE' && selectedCoin === 'USDK' ? 'KIMAUSD' : selectedCoin
+    ][chain] || ''
+  )
 }
 
 // get pool address of a given chain

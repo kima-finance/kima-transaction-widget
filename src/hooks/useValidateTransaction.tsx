@@ -15,6 +15,7 @@ const useValidateTransaction = ({
   isApproved,
   sourceAddress,
   targetAddress,
+  sourceChain,
   targetChain,
   targetCurrency,
   targetNetworkFee,
@@ -33,6 +34,7 @@ const useValidateTransaction = ({
   isApproved: boolean
   sourceAddress: string
   targetAddress: string
+  sourceChain: string
   targetChain: string
   targetCurrency: string
   targetNetworkFee?: NetworkFee
@@ -64,7 +66,7 @@ const useValidateTransaction = ({
     log.debug('isApproved: ', isApproved)
 
     // Validation logic
-    if (!sourceAddress) {
+    if (!sourceAddress && sourceChain !== 'CC') {
       return {
         error: ValidationError.Error,
         message: 'Wallet is not connected'
@@ -106,7 +108,7 @@ const useValidateTransaction = ({
     }
 
     // Check if the amount exceeds the max value
-    if (+amount > balance && formStep === 0) {
+    if (+amount > balance && formStep === 0 && sourceChain !== 'CC') {
       return {
         error: ValidationError.Warning,
         message:
@@ -114,7 +116,7 @@ const useValidateTransaction = ({
       }
     }
 
-    if (+amount > maxValue && formStep === 0) {
+    if (+amount > maxValue && formStep === 0 && sourceChain !== 'CC') {
       return {
         error: ValidationError.Warning,
         message:

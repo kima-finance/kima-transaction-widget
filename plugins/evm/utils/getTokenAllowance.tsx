@@ -25,6 +25,7 @@ export const getTokenAllowance = async ({
 }) => {
   try {
     const tokenAddress = getTokenAddress(tokenOptions, selectedCoin, chain)
+
     const poolAddress = getPoolAddress(pools, chain)
 
     if (!tokenAddress || !poolAddress || !userAddress) return

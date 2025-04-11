@@ -62,7 +62,11 @@ function useIsWalletReady(): {
   useEffect(() => {
     async function checkChainId() {
       // case external provider
-      if (externalProvider?.type === 'evm' && externalProvider?.provider) {
+      if (
+        externalProvider?.type === 'evm' &&
+        externalProvider?.provider &&
+        sourceChain.compatibility === ChainCompatibility.EVM
+      ) {
         try {
           const network = await (
             externalProvider.provider as BrowserProvider
@@ -109,7 +113,10 @@ function useIsWalletReady(): {
       }
 
       // case there's not external provider
-      if (!externalProvider) {
+      if (
+        !externalProvider &&
+        sourceChain.compatibility === ChainCompatibility.EVM
+      ) {
         log.debug('useIsWalletReady:EVM: Checking AppKit connection')
 
         // wallet id is the same as the current source chain

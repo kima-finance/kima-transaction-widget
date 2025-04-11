@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { setTxId, setSubmitted } from '@store/optionSlice'
+import { setTxId, setSubmitted, setCCTransactionId } from '@store/optionSlice'
 import { getTransactionId } from '@utils/functions'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 import log from '@utils/logger'
@@ -37,7 +37,7 @@ const useSubmitTransaction = ({
       setSubmitting(true)
 
       const params = JSON.stringify({
-        originAddress,
+        originAddress: originChain === 'CC' ? targetAddress : originAddress,
         originChain,
         targetAddress,
         targetChain,
@@ -54,10 +54,16 @@ const useSubmitTransaction = ({
         options: JSON.stringify({ signature })
       })
 
-      const transactionResult: any = await fetchWrapper.post(
+      let ccTransactionId
+      let transactionResult: any = await fetchWrapper.post(
         `${backendUrl}/submit`,
         params
       )
+
+      if (originChain === 'CC') {
+        ccTransactionId = transactionResult.ccTransactionId
+        transactionResult = transactionResult.result
+      }
 
       if (transactionResult?.code !== 0) {
         setSubmitting(false)
@@ -67,6 +73,7 @@ const useSubmitTransaction = ({
       const transactionId = getTransactionId(transactionResult.events)
 
       dispatch(setTxId(transactionId))
+      dispatch(setCCTransactionId(ccTransactionId))
       dispatch(setSubmitted(true))
       setSubmitting(false)
 

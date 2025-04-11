@@ -73,6 +73,8 @@ export interface OptionState {
   backendUrl: string // URL for kima-transaction-backend component
   kimaExplorerUrl: string // URL for kima explore (testnet, staging or demo)
   txId?: number | string // transaction id to monitor it's status
+  ccTransactionId: number | string // credit card transaction id for cc transaction widget
+  ccWidgetProcessed: boolean // check if cc widget returned control to kima widget
   sourceCurrency: string // Currently selected token for source chain
   targetCurrency: string // Currently selected token for target chain
   expireTime: string // Bitcoi HTLC expiration time
@@ -142,6 +144,8 @@ const initialState: OptionState = {
   },
   backendUrl: '',
   txId: -1,
+  ccTransactionId: -1,
+  ccWidgetProcessed: false,
   sourceCurrency: 'USDK',
   targetCurrency: 'USDK',
   compliantOption: true,
@@ -291,6 +295,18 @@ export const optionSlice = createSlice({
     setTxId: (state: OptionState, action: PayloadAction<number | string>) => {
       state.txId = action.payload
     },
+    setCCTransactionId: (
+      state: OptionState,
+      action: PayloadAction<number | string>
+    ) => {
+      state.ccTransactionId = action.payload
+    },
+    setCCWidgetProcessed: (
+      state: OptionState,
+      action: PayloadAction<boolean>
+    ) => {
+      state.ccWidgetProcessed = action.payload
+    },
     setSourceCurrency: (state: OptionState, action: PayloadAction<string>) => {
       state.sourceCurrency = action.payload
     },
@@ -390,6 +406,8 @@ export const {
   setFeeDeduct,
   setBackendUrl,
   setTxId,
+  setCCTransactionId,
+  setCCWidgetProcessed,
   setSourceCurrency,
   setTargetCurrency,
   setCompliantOption,

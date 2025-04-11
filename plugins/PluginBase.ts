@@ -22,21 +22,21 @@ export abstract class PluginBase implements Plugin {
   abstract Provider: React.FC<PluginProviderProps>
 
   // hooks
-  useAllowance: () => PluginUseAllowanceResult
-  useNativeBalance: () => PluginUseBalanceResult | undefined
-  useTokenBalance: () => PluginUseBalanceResult | undefined
-  useWalletIsReady: () => PluginUseWalletIsReadyResult
-  useDisconnectWallet: () => PluginUseDisconnectWalletResult
+  useAllowance?: () => PluginUseAllowanceResult
+  useNativeBalance?: () => PluginUseBalanceResult | undefined
+  useTokenBalance?: () => PluginUseBalanceResult | undefined
+  useWalletIsReady?: () => PluginUseWalletIsReadyResult
+  useDisconnectWallet?: () => PluginUseDisconnectWalletResult
 
   constructor(args: {
     store: any
     id: string
     compatibility: ChainCompatibility
-    useAllowance: () => PluginUseAllowanceResult
-    useNativeBalance: () => PluginUseBalanceResult | undefined
-    useTokenBalance(): PluginUseBalanceResult | undefined
-    useWalletIsReady: () => PluginUseWalletIsReadyResult
-    useDisconnectWallet: () => PluginUseDisconnectWalletResult
+    useAllowance?: () => PluginUseAllowanceResult
+    useNativeBalance?: () => PluginUseBalanceResult | undefined
+    useTokenBalance?(): PluginUseBalanceResult | undefined
+    useWalletIsReady?: () => PluginUseWalletIsReadyResult
+    useDisconnectWallet?: () => PluginUseDisconnectWalletResult
   }) {
     this._store = args.store
     this.data = {

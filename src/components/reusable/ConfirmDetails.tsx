@@ -36,8 +36,8 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
   const amount = useSelector(selectAmount)
   const { totalFeeUsd, targetNetworkFee, sourceNetworkFee } =
     useSelector(selectServiceFee)
-  const originNetwork = useSelector(selectSourceChain)
-  const targetNetwork = useSelector(selectTargetChain)
+  const sourceChain = useSelector(selectSourceChain)
+  const targetChain = useSelector(selectTargetChain)
   const targetAddress = useSelector(selectTargetAddress)
   const bankDetails = useSelector(selectBankDetails)
   const signature = useSelector(selectSignature)
@@ -45,21 +45,20 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
 
   const transactionOption = useSelector(selectTransactionOption)
   const { walletAddress } = useIsWalletReady()
-  const originNetworkOption = useMemo(
-    () =>
-      networkOptions.filter((network) => network.id === originNetwork.id)[0],
-    [networkOptions, originNetwork]
+  const sourceChainOption = useMemo(
+    () => networkOptions.filter((network) => network.id === sourceChain.id)[0],
+    [networkOptions, sourceChain]
   )
-  const targetNetworkOption = useMemo(
+  const targetChainOption = useMemo(
     () =>
       networkOptions.filter(
         (network) =>
           network.shortName ===
           (mode === ModeOptions.payment
             ? transactionOption?.targetChain
-            : targetNetwork.shortName)
+            : targetChain.shortName)
       )[0],
-    [networkOptions, originNetwork]
+    [networkOptions, sourceChain]
   )
   const sourceCurrency = useSelector(selectSourceCurrency)
   const targetCurrency = useSelector(selectTargetCurrency)
@@ -85,14 +84,14 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
 
   const amountToShow = useMemo(() => {
     if (
-      originNetwork.shortName === ChainName.BTC ||
-      targetNetwork.shortName === ChainName.BTC
+      sourceChain.shortName === ChainName.BTC ||
+      targetChain.shortName === ChainName.BTC
     ) {
       return (feeDeduct ? +amount : +amount + totalFeeUsd).toFixed(8)
     }
 
     return formatterFloat.format(feeDeduct ? +amount : +amount + totalFeeUsd)
-  }, [amount, totalFeeUsd, originNetwork, targetNetwork, feeDeduct])
+  }, [amount, totalFeeUsd, sourceChain, targetChain, feeDeduct])
 
   return (
     <div className={`confirm-details ${theme.colorMode}`}>
@@ -100,18 +99,18 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
         Step {isApproved ? '2' : '1'}&nbsp;of 2&nbsp;&nbsp;&nbsp;
         {isApproved
           ? 'Submit transaction'
-          : originNetwork.shortName === ChainName.FIAT
+          : sourceChain.shortName === ChainName.FIAT
             ? 'Bank Details'
             : 'Approval'}
       </p>
-      {originNetwork.shortName === ChainName.FIAT ? (
+      {sourceChain.shortName === ChainName.FIAT ? (
         <div>
           <div className='detail-item'>
             <span className='label'>IBAN:</span>
             <span className={`kima-card-network-label ${theme.colorMode}`}>
-              <ChainIcon symbol={originNetworkOption?.shortName} />
+              <ChainIcon symbol={sourceChainOption?.shortName} />
               {/* <div className='icon'>
-                <originNetworkOption.icon />
+                <sourceChainOption.icon />
               </div> */}
               FIAT
             </span>
@@ -132,23 +131,27 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
         </div>
       ) : (
         <div className='detail-item'>
-          <span className='label'>Source wallet:</span>
+          <span className='label'>
+            Source{sourceChain.shortName !== 'CC' && ' wallet'}:
+          </span>
           <div className='network-details'>
             <div className='kima-card-network-container'>
               <span className={`kima-card-network-label ${theme.colorMode}`}>
-                <ChainIcon symbol={originNetworkOption?.shortName} />
-                {originNetworkOption.name}
+                <ChainIcon symbol={sourceChainOption?.shortName} />
+                {sourceChainOption.name}
               </span>
             </div>
-            <p className={theme.colorMode}>
-              {width >= 916
-                ? dAppOption === DAppOptions.LPDrain
-                  ? targetAddress
-                  : walletAddress
-                : dAppOption === DAppOptions.LPDrain
-                  ? targetWalletAddress
-                  : sourceWalletAddress}
-            </p>
+            {sourceChain.shortName !== 'CC' && (
+              <p className={theme.colorMode}>
+                {width >= 916
+                  ? dAppOption === DAppOptions.LPDrain
+                    ? targetAddress
+                    : walletAddress
+                  : dAppOption === DAppOptions.LPDrain
+                    ? targetWalletAddress
+                    : sourceWalletAddress}
+              </p>
+            )}
           </div>
         </div>
       )}
@@ -171,14 +174,14 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
             </div>
           </div>
           <div className='amount-details'>
-            <span>Source Network Fee ({originNetwork.shortName})</span>
+            <span>Source Network Fee ({sourceChain.shortName})</span>
             <span className='service-fee'>
               {formatterFloat.format(sourceNetworkFee?.amount || 0)}{' '}
               {sourceCurrency}
             </span>
           </div>
           <div className='amount-details'>
-            <span>Target Network Fee ({targetNetwork.shortName})</span>
+            <span>Target Network Fee ({targetChain.shortName})</span>
             <span className='service-fee'>
               {formatterFloat.format(targetNetworkFee?.amount || 0)}{' '}
               {sourceCurrency}
@@ -186,7 +189,7 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
           </div>
           {/* TODO: Implement when the new service fee comes in
           <div className='amount-details'>
-            <span>Business Fee ({originNetwork})</span>
+            <span>Business Fee ({sourceChain})</span>
             <span className='service-fee'>
               {formatterFloat.format(totalFeeUsd)} {sourceCurrency}
             </span>
@@ -202,15 +205,15 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
           </div>
         </span>
       </div>
-      {targetNetwork.shortName === ChainName.FIAT ? (
+      {targetChain.shortName === ChainName.FIAT ? (
         <div>
           <div className='detail-item'>
             <span className='label'>IBAN:</span>
             <p>{bankDetails.iban}</p>
             <span className={`kima-card-network-label ${theme.colorMode}`}>
-              <ChainIcon symbol={targetNetworkOption?.shortName} />
+              <ChainIcon symbol={targetChainOption?.shortName} />
               {/* <div className='icon'>
-                <targetNetworkOption.icon />
+                <targetChainOption.icon />
               </div> */}
               FIAT
             </span>
@@ -226,8 +229,8 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
           <div className='network-details'>
             <div className='kima-card-network-container'>
               <span className={`kima-card-network-label ${theme.colorMode}`}>
-                <ChainIcon symbol={targetNetworkOption?.shortName} />
-                {targetNetworkOption?.name}
+                <ChainIcon symbol={targetChainOption?.shortName} />
+                {targetChainOption?.name}
               </span>
             </div>
             <p className={theme.colorMode}>
@@ -252,8 +255,8 @@ const ConfirmDetails = ({ isApproved }: { isApproved: boolean }) => {
       {/* {mode === ModeOptions.bridge && totalFeeUsd > 0 && (
         <span className='transfer-notice'>
           {feeDeduct
-            ? `You will transfer exactly $${amount} ${sourceCurrency} from ${originNetwork}, and the fee of $${totalFeeUsd} will be deducted on the target network (${targetNetwork}) receiving $${Number(amount) - totalFeeUsd} ${targetCurrency}.`
-            : `You will send $${Number(amount) + totalFeeUsd} ${sourceCurrency} from ${originNetwork}, ensuring ${amount} ${targetCurrency} arrives in the target network (${targetNetwork}).`}
+            ? `You will transfer exactly $${amount} ${sourceCurrency} from ${sourceChain}, and the fee of $${totalFeeUsd} will be deducted on the target network (${targetChain}) receiving $${Number(amount) - totalFeeUsd} ${targetCurrency}.`
+            : `You will send $${Number(amount) + totalFeeUsd} ${sourceCurrency} from ${sourceChain}, ensuring ${amount} ${targetCurrency} arrives in the target network (${targetChain}).`}
         </span>
       )} */}
     </div>

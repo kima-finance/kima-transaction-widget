@@ -77,7 +77,7 @@ export default function useEvmAllowance() {
     isEVMChain(sourceChain.shortName) &&
     (!!externalProvider?.provider || !!appkitProvider)
 
-  // log.debug("enabled: ", enabled, );
+  log.debug('evm allowance: enabled: ', enabled)
 
   const {
     data: allowanceData,
@@ -85,8 +85,8 @@ export default function useEvmAllowance() {
     refetch
   } = useQuery({
     queryKey,
-    queryFn: () =>
-      getTokenAllowance({
+    queryFn: async () =>
+      await getTokenAllowance({
         tokenOptions,
         selectedCoin,
         userAddress: walletAddress!,

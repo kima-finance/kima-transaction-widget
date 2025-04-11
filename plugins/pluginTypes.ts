@@ -11,11 +11,11 @@ export interface Plugin {
 
   // hooks
   // TODO: refactor to return a UseQueryResult
-  useAllowance: () => PluginUseAllowanceResult
-  useNativeBalance: () => PluginUseBalanceResult | undefined
-  useTokenBalance(): PluginUseBalanceResult | undefined
-  useWalletIsReady: () => PluginUseWalletIsReadyResult
-  useDisconnectWallet: () => PluginUseDisconnectWalletResult
+  useAllowance?: () => PluginUseAllowanceResult
+  useNativeBalance?: () => PluginUseBalanceResult | undefined
+  useTokenBalance?(): PluginUseBalanceResult | undefined
+  useWalletIsReady?: () => PluginUseWalletIsReadyResult
+  useDisconnectWallet?: () => PluginUseDisconnectWalletResult
 }
 
 export interface SignDataType {
@@ -83,5 +83,6 @@ export enum ChainCompatibility {
   EVM = 'EVM',
   FIAT = 'FIAT',
   COSMOS = 'COSMOS',
-  SELF = 'SELF'
+  SELF = 'SELF',
+  CC = 'CC'
 }
