@@ -113,19 +113,15 @@ interface Web3ModalAccountInfo {
     isConnected?: boolean | undefined;
     chainId?: number | undefined;
 }
-interface NetworkFee {
-    chain: string;
-    feeType: string;
-    amount: number;
-}
 interface ServiceFee {
+    feeId: string;
     allowanceAmount: string;
     decimals: number;
-    sourceNetworkFee?: NetworkFee;
     submitAmount: string;
-    targetNetworkFee?: NetworkFee;
-    totalFeeUsd: number;
-    totalFee: string;
+    sourceFee: string;
+    targetFee: string;
+    kimaFee: string;
+    totalFee: number;
 }
 interface TronProvider {
     tronWeb: TronWeb;
@@ -170,4 +166,4 @@ interface Props {
 }
 declare const KimaTransactionWidget: ({ mode, txId, dAppOption, theme, titleOption, paymentTitleOption, helpURL, compliantOption, transactionOption, excludedSourceNetworks, excludedTargetNetworks }: Props) => react__default.JSX.Element | null;
 
-export { CHAIN_NAMES_TO_STRING, CHAIN_STRING_TO_NAME, ColorModeOptions, type CompliantOption, CurrencyOptions, DAppOptions, type ExternalProvider, KimaProvider, KimaTransactionWidget, ModeOptions, type NetworkFee, NetworkOptions, type Option, type PaymentTitleOption, type ServiceFee, type SolProvider, ChainName as SupportNetworks, type ThemeOptions, type TitleOption, type TransactionData, type TransactionOption, type TronProvider, type Web3ModalAccountInfo };
+export { CHAIN_NAMES_TO_STRING, CHAIN_STRING_TO_NAME, ColorModeOptions, type CompliantOption, CurrencyOptions, DAppOptions, type ExternalProvider, KimaProvider, KimaTransactionWidget, ModeOptions, NetworkOptions, type Option, type PaymentTitleOption, type ServiceFee, type SolProvider, ChainName as SupportNetworks, type ThemeOptions, type TitleOption, type TransactionData, type TransactionOption, type TronProvider, type Web3ModalAccountInfo };
