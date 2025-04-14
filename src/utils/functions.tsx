@@ -3,7 +3,6 @@ import { BrowserProvider, formatUnits, JsonRpcSigner, parseUnits } from 'ethers'
 import {
   CHAIN_NAMES_TO_STRING,
   ExternalProvider,
-  NetworkFee,
   SolProvider,
   TronProvider
 } from '@interface'
@@ -26,19 +25,19 @@ export const checkPoolBalance = ({
   targetChain,
   targetCurrency,
   amount,
-  targetNetworkFee
+  targetFee
 }: {
   pools: Array<any> | undefined
   targetChain: string
   targetCurrency: string
   amount: string
-  targetNetworkFee: NetworkFee | undefined
+  targetFee: string
 }): { isPoolAvailable: boolean; error: string } => {
   const finalTargetCurrency =
     targetCurrency === 'KIMAUSD' ? 'USDK' : targetCurrency
   if (!pools) return { isPoolAvailable: false, error: 'Pools data unavailable' }
 
-  if (!targetNetworkFee)
+  if (!targetFee)
     return { isPoolAvailable: false, error: 'Undefined target network fee' }
 
   /* find the current selected pool to transfer from kima pool */
@@ -74,7 +73,7 @@ export const checkPoolBalance = ({
     }
 
   // check if pool has enough gas for releasing tokens
-  if (targetNetworkFee.amount >= poolGasAvailable)
+  if (Number(targetFee) >= poolGasAvailable)
     return {
       isPoolAvailable: false,
       error: `${CHAIN_NAMES_TO_STRING[targetChain]} pool has not enough gas!`

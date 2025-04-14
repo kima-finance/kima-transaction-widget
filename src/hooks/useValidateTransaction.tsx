@@ -1,5 +1,5 @@
 import { checkPoolBalance, preciseSubtraction } from '@utils/functions'
-import { ModeOptions, NetworkFee } from '@interface'
+import { ModeOptions } from '@interface'
 import { useMemo } from 'react'
 import log from '@utils/logger'
 
@@ -18,7 +18,7 @@ const useValidateTransaction = ({
   sourceChain,
   targetChain,
   targetCurrency,
-  targetNetworkFee,
+  targetFee,
   feeDeduct,
   balance,
   amount,
@@ -37,7 +37,7 @@ const useValidateTransaction = ({
   sourceChain: string
   targetChain: string
   targetCurrency: string
-  targetNetworkFee?: NetworkFee
+  targetFee?: string
   feeDeduct: boolean
   balance: number
   amount: string
@@ -144,7 +144,7 @@ const useValidateTransaction = ({
       targetChain,
       targetCurrency,
       amount,
-      targetNetworkFee
+      targetFee
     })
 
     if (!isPoolAvailable) {

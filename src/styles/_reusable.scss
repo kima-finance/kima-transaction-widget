@@ -649,12 +649,11 @@
           }
         }
 
-        .max-disclaimer{
+        .max-disclaimer {
           display: flex;
           flex-direction: row;
           align-items: center;
           gap: 5px;
-          
 
           p {
             margin: 0;
@@ -1711,10 +1710,8 @@
           display: flex;
           flex-direction: column;
           justify-content: start;
-
-          @include breakpoint(mobile) {
-            width: 100%;
-          }
+          width: 100%;
+          font-weight: bold;
 
           svg {
             margin-right: 6px;
@@ -1739,14 +1736,31 @@
             }
           }
 
+          .fee-breakdown {
+            padding-left: 20px;
+
+            &.collapsed {
+              display: none;
+            }
+
+            .amount-details {
+              padding: 8px 6px !important;
+            }
+          }
+
           .amount-details {
             display: flex;
             flex-direction: row;
             justify-content: space-between;
-            width: 300px;
-            padding: 8px 6px;
+            width: 100%;
+            padding: 8px 0;
             font-size: 14px;
-            border-top: 1px solid $financeIcon;
+
+            .fee-collapse {
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+            }
 
             &:first-of-type {
               border-top: none;
@@ -2168,6 +2182,21 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
+    }
+
+    .fee-option input[type='radio']:disabled {
+      border-color: $financeGrey;
+      background-color: transparent;
+      cursor: not-allowed;
+    }
+
+    .fee-option input[type='radio']:checked:disabled::before {
+      background-color: $financeGrey;
+    }
+
+    .fee-option input[type='radio']:disabled + .radio-label {
+      color: $financeGrey;
+      cursor: not-allowed;
     }
 
     /* Prevents text from pushing the radio button */
