@@ -265,6 +265,7 @@ export const TransferWidget = ({
     }
 
     if (formStep > 0) {
+      setSignature('')
       setFormStep(0)
     }
 
@@ -429,19 +430,8 @@ export const TransferWidget = ({
           ) : (
             <ConfirmDetails
               {...{
-                allowance,
-                balance,
-                decimals,
-                formStep,
-                onBack,
-                onCancelApprove,
-                onNext,
-                getButtonLabel,
-                isApproving,
-                isSigning,
-                isSubmitting,
-                isCancellingApprove,
-                isApproved
+                isApproved,
+                isSigned: signature !== ''
               }}
             />
           )}

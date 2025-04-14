@@ -2183,6 +2183,22 @@
       }
     }
 
+    .fee-option input[type='radio']:disabled {
+      border-color: $financeGrey;
+      background-color: transparent;
+      cursor: not-allowed;
+    }
+    
+    .fee-option input[type='radio']:checked:disabled::before {
+      background-color: $financeGrey;
+    }
+    
+    .fee-option input[type='radio']:disabled + .radio-label {
+      color: $financeGrey;
+      cursor: not-allowed;
+    }
+    
+
     .transaction-status-message {
       display: flex;
       flex-direction: column;

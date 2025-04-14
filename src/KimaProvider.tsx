@@ -60,6 +60,7 @@ const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
       kimaBackendUrl
     })
     log.debug('internalkimaprovider: networkoption: ', envOptions?.env)
+    log.debug('internalkimaprovider: isLoading: ', isLoading)
 
     // Use a stable selector to avoid unnecessary re-renders
     const plugins = useSelector(selectAllPlugins, (prev, next) => prev === next)
@@ -76,6 +77,7 @@ const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
               key={plugin.data.id}
               networkOption={envOptions?.env}
               walletConnectProjectId={walletConnectProjectId}
+              isLoading={isLoading}
             >
               {acc}
             </Provider>
@@ -83,7 +85,7 @@ const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
         }
         return acc
       }, children)
-    }, [plugins, walletConnectProjectId, isLoading])
+    }, [plugins, walletConnectProjectId, envOptions, isLoading])
 
     return <>{WrappedProviders}</>
   }

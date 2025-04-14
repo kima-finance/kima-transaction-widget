@@ -58,6 +58,7 @@ export interface PluginProviderProps {
   children: React.ReactNode
   walletConnectProjectId: string
   networkOption: NetworkOptions | undefined
+  isLoading?: boolean
 }
 
 export interface PluginData {
