@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { formatterFloat } from '../../helpers/functions'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
@@ -26,6 +26,7 @@ import useWidth from '../../hooks/useWidth'
 import ChainIcon from './ChainIcon'
 import { useDispatch } from 'react-redux'
 import FeeDeductionRadioButtons from './FeeDeductionRadioButtons'
+import { MiniArrowIcon } from '@assets/icons'
 
 const ConfirmDetails = ({
   isApproved,
@@ -40,8 +41,14 @@ const ConfirmDetails = ({
   const dAppOption = useSelector(selectDappOption)
   const theme = useSelector(selectTheme)
   const amount = useSelector(selectAmount)
-  const { totalFeeUsd, targetNetworkFee, sourceNetworkFee } =
-    useSelector(selectServiceFee)
+  const {
+    totalFee,
+    targetFee,
+    sourceFee,
+    kimaFee,
+    allowanceAmount,
+    submitAmount
+  } = useSelector(selectServiceFee)
   const sourceChain = useSelector(selectSourceChain)
   const targetChain = useSelector(selectTargetChain)
   const targetAddress = useSelector(selectTargetAddress)
@@ -70,6 +77,8 @@ const ConfirmDetails = ({
   const targetCurrency = useSelector(selectTargetCurrency)
   const { width, updateWidth } = useWidth()
 
+  const [feeCollapsed, setFeeCollapsed] = useState(true)
+
   useEffect(() => {
     width === 0 && updateWidth(window.innerWidth)
   }, [])
@@ -93,11 +102,11 @@ const ConfirmDetails = ({
       sourceChain.shortName === ChainName.BTC ||
       targetChain.shortName === ChainName.BTC
     ) {
-      return (feeDeduct ? +amount : +amount + totalFeeUsd).toFixed(8)
+      return (feeDeduct ? +amount : +amount + totalFee).toFixed(8)
     }
 
-    return formatterFloat.format(feeDeduct ? +amount : +amount + totalFeeUsd)
-  }, [amount, totalFeeUsd, sourceChain, targetChain, feeDeduct])
+    return formatterFloat.format(feeDeduct ? +amount : +amount + totalFee)
+  }, [amount, totalFee, sourceChain, targetChain, feeDeduct])
 
   return (
     <div className={`confirm-details ${theme.colorMode}`}>
@@ -162,52 +171,62 @@ const ConfirmDetails = ({
         </div>
       )}
       <div className='detail-item amount'>
-        <span className='label'>
-          Transaction
-          {width > 500 && <br />}
-          Details:
-        </span>
         <span className='amount-container'>
           <div className='amount-details'>
-            <span>Source Transfer amount</span>
+            <span>Amount to Transfer</span>
             <div className='coin-details'>
               <p>
-                {feeDeduct
-                  ? formatterFloat.format(Number(amount))
-                  : formatterFloat.format(Number(amount) + totalFeeUsd)}{' '}
-                {sourceCurrency}
+                {feeDeduct ? submitAmount : allowanceAmount} {sourceCurrency}
               </p>
             </div>
           </div>
           <div className='amount-details'>
-            <span>Source Network Fee ({sourceChain.shortName})</span>
-            <span className='service-fee'>
-              {formatterFloat.format(sourceNetworkFee?.amount || 0)}{' '}
-              {sourceCurrency}
-            </span>
+            <span>Total Network Fees</span>
+            <div
+              className='fee-collapse'
+              onClick={() => setFeeCollapsed(!feeCollapsed)}
+            >
+              <MiniArrowIcon
+                width={15}
+                height={8}
+                style={{
+                  transform: `rotate(${feeCollapsed ? '0deg' : '180deg'})`,
+                  transition: 'transform 0.3s ease'
+                }}
+              />
+              <span className='service-fee'>
+                {formatterFloat.format(totalFee || 0)} {sourceCurrency}
+              </span>
+            </div>
+          </div>
+          <div className={`fee-breakdown ${feeCollapsed ? 'collapsed' : ''}`}>
+            <div className='amount-details'>
+              <span>Source Network Fee ({sourceChain.shortName})</span>
+              <span className='service-fee'>
+                {sourceFee || 0} {sourceCurrency}
+              </span>
+            </div>
+            <div className='amount-details'>
+              <span>Target Network Fee ({targetChain.shortName})</span>
+              <span className='service-fee'>
+                {targetFee || 0} {targetCurrency}
+              </span>
+            </div>
+            <div className='amount-details'>
+              <span>KIMA Service Fee</span>
+              <span className='service-fee'>
+                {kimaFee} {sourceCurrency}
+              </span>
+            </div>
           </div>
           <div className='amount-details'>
-            <span>Target Network Fee ({targetChain.shortName})</span>
-            <span className='service-fee'>
-              {formatterFloat.format(targetNetworkFee?.amount || 0)}{' '}
-              {sourceCurrency}
-            </span>
-          </div>
-          {/* TODO: Implement when the new service fee comes in
-          <div className='amount-details'>
-            <span>Business Fee ({sourceChain})</span>
-            <span className='service-fee'>
-              {formatterFloat.format(totalFeeUsd)} {sourceCurrency}
-            </span>
-          </div> */}
-          <div className='amount-details'>
-            <span>Target Transfer Amount</span>
-            <span className='service-fee'>
-              {!feeDeduct
-                ? formatterFloat.format(Number(amount))
-                : formatterFloat.format(Number(amount) - totalFeeUsd)}{' '}
-              {targetCurrency}
-            </span>
+            <span>Target Amount</span>
+            <div className='coin-details'>
+              <p>
+                {feeDeduct ? +submitAmount-totalFee : +submitAmount}{' '}
+                {sourceCurrency}
+              </p>
+            </div>
           </div>
         </span>
       </div>
@@ -253,16 +272,16 @@ const ConfirmDetails = ({
       )}
 
       {/* checkbox shall only be displayed in transfer scenario */}
-      {mode === ModeOptions.bridge && totalFeeUsd > 0 ? (
+      {mode === ModeOptions.bridge && totalFee > 0 ? (
         // <FeeDeductionSlider />
-        <FeeDeductionRadioButtons isSigned={isSigned}/>
+        <FeeDeductionRadioButtons isSigned={isSigned} />
       ) : null}
 
-      {/* {mode === ModeOptions.bridge && totalFeeUsd > 0 && (
+      {/* {mode === ModeOptions.bridge && totalFee > 0 && (
         <span className='transfer-notice'>
           {feeDeduct
-            ? `You will transfer exactly $${amount} ${sourceCurrency} from ${sourceChain}, and the fee of $${totalFeeUsd} will be deducted on the target network (${targetChain}) receiving $${Number(amount) - totalFeeUsd} ${targetCurrency}.`
-            : `You will send $${Number(amount) + totalFeeUsd} ${sourceCurrency} from ${sourceChain}, ensuring ${amount} ${targetCurrency} arrives in the target network (${targetChain}).`}
+            ? `You will transfer exactly $${amount} ${sourceCurrency} from ${sourceChain}, and the fee of $${totalFee} will be deducted on the target network (${targetChain}) receiving $${Number(amount) - totalFee} ${targetCurrency}.`
+            : `You will send $${Number(amount) + totalFee} ${sourceCurrency} from ${sourceChain}, ensuring ${amount} ${targetCurrency} arrives in the target network (${targetChain}).`}
         </span>
       )} */}
     </div>

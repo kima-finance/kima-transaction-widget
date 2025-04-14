@@ -48,7 +48,7 @@ const SingleForm = ({
   const mode = useSelector(selectMode)
   const theme = useSelector(selectTheme)
   const feeDeduct = useSelector(selectFeeDeduct)
-  const { totalFeeUsd } = useSelector(selectServiceFee)
+  const { totalFee } = useSelector(selectServiceFee)
   const compliantOption = useSelector(selectCompliantOption)
   const targetCompliant = useSelector(selectTargetCompliant)
   const sourceNetwork = useSelector(selectSourceChain)
@@ -94,10 +94,10 @@ const SingleForm = ({
 
   const maxValue = useMemo(() => {
     if (!balance) return 0
-    if (totalFeeUsd < 0) return balance
+    if (totalFee < 0) return balance
 
-    return preciseSubtraction(balance as number, totalFeeUsd)
-  }, [balance, totalFeeUsd, feeDeduct])
+    return preciseSubtraction(balance as number, totalFee)
+  }, [balance, totalFee, feeDeduct])
 
   useEffect(() => {
     if (!errorMessage) return
@@ -190,7 +190,7 @@ const SingleForm = ({
             >
               Max
             </span>
-            {totalFeeUsd !== -1 && <p>Est fees: $ {totalFeeUsd} USD</p>}
+            {totalFee !== -1 && <p>Est fees: $ {totalFee} USD</p>}
           </div>
         </div>
       </div>

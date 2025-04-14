@@ -67,6 +67,7 @@ import { ChainData } from '@plugins/pluginTypes'
 import WarningModal from './reusable/WarningModal'
 import log from '@utils/logger'
 import CCWidget from './reusable/CCWidget'
+import { parseUnits } from 'ethers'
 
 interface Props {
   theme: ThemeOptions
@@ -104,9 +105,8 @@ export const TransferWidget = ({
   const targetCurrency = useSelector(selectTargetCurrency)
   const amount = useSelector(selectAmount)
   const {
-    totalFeeUsd,
     totalFee,
-    targetNetworkFee,
+    targetFee,
     submitAmount,
     decimals: feeDecimals
   } = useSelector(selectServiceFee)
@@ -159,11 +159,11 @@ export const TransferWidget = ({
     targetChain: targetChain.shortName,
     balance,
     amount,
-    totalFeeUsd,
+    totalFee,
     sourceCompliant,
     targetCompliant,
     targetCurrency,
-    targetNetworkFee,
+    targetFee,
     compliantOption,
     mode,
     pools,
@@ -172,8 +172,8 @@ export const TransferWidget = ({
   })
 
   const { submitTransaction, isSubmitting } = useSubmitTransaction({
-    amount: BigInt(submitAmount ?? '0'),
-    totalFee: BigInt(totalFee ?? '0'),
+    amount: parseUnits(submitAmount ?? '0', feeDecimals),
+    totalFee: parseUnits(totalFee.toString() ?? '0', feeDecimals),
     originAddress: sourceAddress,
     targetAddress,
     originChain: sourceChain.shortName,
@@ -429,10 +429,8 @@ export const TransferWidget = ({
             <CCWidget />
           ) : (
             <ConfirmDetails
-              {...{
-                isApproved,
-                isSigned: signature !== ''
-              }}
+              isSigned={signature !== ''}
+              isApproved={isApproved}
             />
           )}
         </div>

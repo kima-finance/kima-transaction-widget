@@ -39,15 +39,12 @@ export default function useEvmAllowance() {
 
   const sourceChain = useSelector(selectSourceChain)
   const networkOption = useSelector(selectNetworkOption)
-  const { totalFeeUsd, allowanceAmount, submitAmount, decimals } =
+  const { totalFee, allowanceAmount, submitAmount, decimals } =
     useSelector(selectServiceFee)
   const selectedCoin = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
   const backendUrl = useSelector(selectBackendUrl)
   const feeDeduct = useSelector(selectFeeDeduct)
-  const allowanceNumber = Number(
-    formatUnits(feeDeduct ? submitAmount : (allowanceAmount ?? '0'), decimals)
-  )
   const amount = useSelector(selectAmount)
 
   const { pools } = useGetPools(backendUrl, networkOption)
@@ -120,7 +117,7 @@ export default function useEvmAllowance() {
 
       return await walletClient.signMessage({
         account: walletAddress as `0x${string}`,
-        message: `I approve the transfer of ${allowanceNumber} ${data.originSymbol} from ${data.originChain} to ${data.targetAddress} on ${data.targetChain}.`
+        message: `I approve the transfer of ${feeDeduct ? submitAmount : allowanceAmount} ${data.originSymbol} from ${data.originChain} to ${data.targetAddress} on ${data.targetChain}.`
       })
     } catch (error) {
       log.error('useEvmAllowance: Error on signing message:', error)
@@ -176,10 +173,7 @@ export default function useEvmAllowance() {
         ? BigInt(0)
         : feeDeduct
           ? parseUnits(amount, allowanceData.decimals)
-          : parseUnits(
-              (+amount + totalFeeUsd).toString(),
-              allowanceData.decimals
-            )
+          : parseUnits((+amount + totalFee).toString(), allowanceData.decimals)
 
       // write transaction using viem
       const hash = await walletClient.writeContract({
@@ -214,7 +208,9 @@ export default function useEvmAllowance() {
   return {
     ...allowanceData,
     isApproved: allowanceData?.allowance
-      ? allowanceData.allowance >= allowanceNumber
+      ? feeDeduct
+        ? +allowanceData.allowance >= +submitAmount
+        : +allowanceData.allowance >= +allowanceAmount
       : false,
     approve: approveErc20TokenTransfer,
     isLoading,

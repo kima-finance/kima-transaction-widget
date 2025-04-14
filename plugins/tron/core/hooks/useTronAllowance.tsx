@@ -43,9 +43,7 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
   const selectedCoin = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
   const feeDeduct = useSelector(selectFeeDeduct)
-  const allowanceNumber = Number(
-    formatUnits(feeDeduct ? submitAmount : (allowanceAmount ?? '0'), decimals)
-  )
+  const allowanceNumber = feeDeduct ? submitAmount : (allowanceAmount ?? '0')
 
   const { pools } = useGetPools(backendUrl, networkOption)
   const {

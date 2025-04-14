@@ -33,9 +33,7 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
   const feeDeduct = useSelector(selectFeeDeduct)
   const backendUrl = useSelector(selectBackendUrl)
   const networkOption = useSelector(selectNetworkOption)
-  const allowanceNumber = Number(
-    formatUnits(feeDeduct ? submitAmount : (allowanceAmount ?? '0'), decimals)
-  )
+  const allowanceNumber = feeDeduct ? submitAmount : (allowanceAmount ?? '0')
   const { externalProvider } = useKimaContext()
 
   const { connection: internalConnection } = useConnection()
