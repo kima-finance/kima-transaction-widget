@@ -59,7 +59,11 @@ const useSubmitTransaction = ({
         htlcExpirationTimestamp: '0',
         htlcVersion: '',
         senderPubKey: '',
-        options: JSON.stringify({ signature, feeId, feeDeduct })
+        options: JSON.stringify({
+          signature,
+          feeId,
+          chargeFeeAtTarget: feeDeduct
+        })
       })
 
       const transactionResult: any = await fetchWrapper.post(
