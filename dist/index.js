@@ -4790,6 +4790,7 @@ var FeeDeductionRadioButtons = ({ isSigned }) => {
   const sourceCurrency = useSelector20(selectSourceCurrency);
   const targetCurrency = useSelector20(selectTargetCurrency);
   const theme = useSelector20(selectTheme);
+  const isSubmitted = useSelector20(selectSubmitted);
   const handleChange = (value) => {
     dispatch(setFeeDeduct(value));
   };
@@ -4800,7 +4801,7 @@ var FeeDeductionRadioButtons = ({ isSigned }) => {
       name: "feeDeduction",
       checked: feeDeduct,
       onChange: () => handleChange(true),
-      disabled: isSigned
+      disabled: isSigned || isSubmitted
     }
   ), /* @__PURE__ */ React95.createElement("span", { className: `radio-label ${theme.colorMode}` }, `Pay $${formatterFloat2.format(
     Number(amount)
@@ -4813,7 +4814,7 @@ var FeeDeductionRadioButtons = ({ isSigned }) => {
       name: "feeDeduction",
       checked: !feeDeduct,
       onChange: () => handleChange(false),
-      disabled: isSigned
+      disabled: isSigned || isSubmitted
     }
   ), /* @__PURE__ */ React95.createElement("span", { className: `radio-label ${theme.colorMode}` }, `Pay $${formatterFloat2.format(
     Number(amount) + Number(totalFee)
@@ -5532,7 +5533,7 @@ import { useSelector as useSelector29 } from "react-redux";
 var getFees = async (amount, deductFee, originChain, originSymbol, targetChain, backendUrl) => {
   try {
     const response = await fetchWrapper.get(
-      `${backendUrl}/submit/fees?amount=${amount}&originChain=${originChain}&originSymbol=${originSymbol}&targetChain=${targetChain}&deductFee=${deductFee}`
+      `${backendUrl}/submit/fees?amount=${amount}&originChain=${originChain === "CC" ? "FIAT" : originChain}&originSymbol=${originSymbol}&targetChain=${targetChain}&deductFee=${deductFee}`
     );
     logger_default.debug("response: ", response);
     return response;
@@ -6288,6 +6289,7 @@ var useSubmitTransaction = ({
 }) => {
   const dispatch = useDispatch25();
   const feeDeduct = useSelector38(selectFeeDeduct);
+  const { feeId } = useSelector38(selectServiceFee);
   const [isSubmitting, setSubmitting] = useState16(false);
   const submitTransaction = async (signature) => {
     try {
@@ -6307,7 +6309,11 @@ var useSubmitTransaction = ({
         htlcExpirationTimestamp: "0",
         htlcVersion: "",
         senderPubKey: "",
-        options: JSON.stringify({ signature })
+        options: JSON.stringify({
+          signature,
+          chargeFeeAtTarget: feeDeduct,
+          feeId
+        })
       });
       let ccTransactionId;
       let transactionResult = await fetchWrapper.post(

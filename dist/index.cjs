@@ -4747,6 +4747,7 @@ var FeeDeductionRadioButtons = ({ isSigned }) => {
   const sourceCurrency = (0, import_react_redux26.useSelector)(selectSourceCurrency);
   const targetCurrency = (0, import_react_redux26.useSelector)(selectTargetCurrency);
   const theme = (0, import_react_redux26.useSelector)(selectTheme);
+  const isSubmitted = (0, import_react_redux26.useSelector)(selectSubmitted);
   const handleChange = (value) => {
     dispatch(setFeeDeduct(value));
   };
@@ -4757,7 +4758,7 @@ var FeeDeductionRadioButtons = ({ isSigned }) => {
       name: "feeDeduction",
       checked: feeDeduct,
       onChange: () => handleChange(true),
-      disabled: isSigned
+      disabled: isSigned || isSubmitted
     }
   ), /* @__PURE__ */ import_react115.default.createElement("span", { className: `radio-label ${theme.colorMode}` }, `Pay $${formatterFloat2.format(
     Number(amount)
@@ -4770,7 +4771,7 @@ var FeeDeductionRadioButtons = ({ isSigned }) => {
       name: "feeDeduction",
       checked: !feeDeduct,
       onChange: () => handleChange(false),
-      disabled: isSigned
+      disabled: isSigned || isSubmitted
     }
   ), /* @__PURE__ */ import_react115.default.createElement("span", { className: `radio-label ${theme.colorMode}` }, `Pay $${formatterFloat2.format(
     Number(amount) + Number(totalFee)
@@ -5489,7 +5490,7 @@ var import_react_redux42 = require("react-redux");
 var getFees = async (amount, deductFee, originChain, originSymbol, targetChain, backendUrl) => {
   try {
     const response = await fetchWrapper.get(
-      `${backendUrl}/submit/fees?amount=${amount}&originChain=${originChain}&originSymbol=${originSymbol}&targetChain=${targetChain}&deductFee=${deductFee}`
+      `${backendUrl}/submit/fees?amount=${amount}&originChain=${originChain === "CC" ? "FIAT" : originChain}&originSymbol=${originSymbol}&targetChain=${targetChain}&deductFee=${deductFee}`
     );
     logger_default.debug("response: ", response);
     return response;
@@ -6245,6 +6246,7 @@ var useSubmitTransaction = ({
 }) => {
   const dispatch = (0, import_react_redux51.useDispatch)();
   const feeDeduct = (0, import_react_redux52.useSelector)(selectFeeDeduct);
+  const { feeId } = (0, import_react_redux52.useSelector)(selectServiceFee);
   const [isSubmitting, setSubmitting] = (0, import_react135.useState)(false);
   const submitTransaction = async (signature) => {
     try {
@@ -6264,7 +6266,11 @@ var useSubmitTransaction = ({
         htlcExpirationTimestamp: "0",
         htlcVersion: "",
         senderPubKey: "",
-        options: JSON.stringify({ signature })
+        options: JSON.stringify({
+          signature,
+          chargeFeeAtTarget: feeDeduct,
+          feeId
+        })
       });
       let ccTransactionId;
       let transactionResult = await fetchWrapper.post(
