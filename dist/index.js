@@ -4766,7 +4766,8 @@ var chainIcons = {
   CC: CreditCard_default
 };
 function ChainIcon({ symbol }) {
-  const Icon = chainIcons[symbol];
+  console.log("icon: ", symbol, symbol === "FIAT");
+  const Icon = symbol === "FIAT" ? chainIcons["CC"] : chainIcons[symbol];
   if (!Icon) {
     logger_default.warn(`Chain icon not found for symbol: ${symbol}`);
     return /* @__PURE__ */ React94.createElement("div", { className: "icon" });
@@ -4979,14 +4980,15 @@ var StepBox = ({ step, errorStep, loadingStep, data }) => {
   const explorerUrl = useSelector24(selectKimaExplorer);
   const networkOption = useSelector24(selectNetworkOption);
   const networks = useSelector24(selectNetworks);
-  const sourceChain = useMemo12(
-    () => networks.find((network) => network.shortName === data?.sourceChain),
-    [data, networks]
-  );
+  const sourceChain = useMemo12(() => {
+    const sourceKey = data?.sourceChain === "FIAT" ? "CC" : data?.sourceChain;
+    return networks.find((network) => network.shortName === sourceKey);
+  }, [data, networks]);
   const targetChain = useMemo12(
     () => networks.find((network) => network.shortName === data?.targetChain),
     [data, networks]
   );
+  console.log("data: ", data);
   return /* @__PURE__ */ React99.createElement("div", { className: "kima-stepbox" }, /* @__PURE__ */ React99.createElement("div", { className: `content-wrapper ${theme.colorMode}` }, stepInfo2.map((item, index) => /* @__PURE__ */ React99.createElement("div", { key: item.title, className: "step-item" }, /* @__PURE__ */ React99.createElement(
     "div",
     {
@@ -5003,12 +5005,12 @@ var StepBox = ({ step, errorStep, loadingStep, data }) => {
       to: `${explorerUrl}/transactions/?tx=${data?.kimaTxHash}`
     },
     getShortenedAddress(data?.kimaTxHash || "")
-  ), /* @__PURE__ */ React99.createElement(CopyButton_default, { text: data?.kimaTxHash }))) : null, index === 1 && data?.tssPullHash ? /* @__PURE__ */ React99.createElement(
+  ), /* @__PURE__ */ React99.createElement(CopyButton_default, { text: data?.kimaTxHash }))) : null, index === 1 && data?.tssPullHash && sourceChain?.shortName !== "CC" ? /* @__PURE__ */ React99.createElement(
     "div",
     {
       className: `info-item ${theme.colorMode} source-chain ${step >= 3 ? "paid" : ""}`
     },
-    /* @__PURE__ */ React99.createElement(ChainIcon, { symbol: data.sourceChain }),
+    /* @__PURE__ */ React99.createElement(ChainIcon, { symbol: sourceChain?.shortName }),
     /* @__PURE__ */ React99.createElement("p", { className: "chain-name" }, sourceChain?.name, " TX ID:"),
     /* @__PURE__ */ React99.createElement("p", null, /* @__PURE__ */ React99.createElement(
       ExternalLink_default,
@@ -5278,7 +5280,7 @@ var TransactionWidget = ({ theme }) => {
   const amount = useSelector28(selectAmount);
   const txId = useSelector28(selectTxId);
   const dAppOption = useSelector28(selectDappOption);
-  const { totalFeeUsd } = useSelector28(selectServiceFee);
+  const { totalFee } = useSelector28(selectServiceFee);
   const transactionOption = useSelector28(selectTransactionOption);
   const sourceChain = useSelector28(selectSourceChain);
   const targetChain = useSelector28(selectTargetChain);
@@ -5438,14 +5440,14 @@ var TransactionWidget = ({ theme }) => {
       }
     },
     /* @__PURE__ */ React104.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React104.createElement("div", { className: "topbar" }, /* @__PURE__ */ React104.createElement("div", { className: "title" }, isValidTxId && !error ? /* @__PURE__ */ React104.createElement("h3", { className: "transaction" }, mode !== "status" /* status */ ? data?.status === "Completed" /* COMPLETED */ ? "TRANSFERRED" : "TRANSFERING" : isEmptyStatus ? "GETTING TRANSACTION STATUS" : data?.status === "Completed" /* COMPLETED */ ? "TRANSFERRED" : "TRANSFERING", /* @__PURE__ */ React104.createElement("div", null, mode !== "status" /* status */ ? Number(amount) !== 0 ? formatterFloat2.format(
-      feeDeduct ? Number(amount) : Number(amount) + totalFeeUsd
+      feeDeduct ? Number(amount) : Number(amount) + totalFee
     ) : "" : data?.amount || "", " ", mode !== "status" /* status */ ? `(${sourceSymbol})` : isEmptyStatus ? "" : `(${data?.sourceSymbol})`, /* @__PURE__ */ React104.createElement("div", { className: "title-icon" }, /* @__PURE__ */ React104.createElement(
       ChainIcon,
       {
         symbol: transactionSourceChain?.shortName
       }
-    )), " ", mode !== "status" /* status */ ? `(${transactionSourceChain?.shortName})` : isEmptyStatus ? "" : `(${data?.sourceChain})`, " ", mode !== "status" /* status */ ? `\u2192 ` : isEmptyStatus ? "" : `\u2192 `, mode !== "status" /* status */ ? Number(amount) !== 0 ? formatterFloat2.format(
-      feeDeduct ? Number(amount) - totalFeeUsd : Number(amount)
+    )), " ", mode !== "status" /* status */ ? `(${transactionSourceChain?.shortName})` : isEmptyStatus ? "" : `(${data?.sourceChain === "FIAT" ? "CC" : data?.sourceChain})`, " ", mode !== "status" /* status */ ? `\u2192 ` : isEmptyStatus ? "" : `\u2192 `, mode !== "status" /* status */ ? Number(amount) !== 0 ? formatterFloat2.format(
+      feeDeduct ? Number(amount) - totalFee : Number(amount)
     ) : "" : data?.amount || "", " ", mode !== "status" /* status */ ? `(${targetSymbol})${" "}` : isEmptyStatus ? "" : `(${data?.targetSymbol})${" "}`, /* @__PURE__ */ React104.createElement("div", { className: "title-icon" }, /* @__PURE__ */ React104.createElement(
       ChainIcon,
       {
@@ -5530,12 +5532,12 @@ import { useQuery as useQuery12 } from "@tanstack/react-query";
 import { useSelector as useSelector29 } from "react-redux";
 
 // src/services/feesApi.ts
-var getFees = async (amount, deductFee, originChain, originSymbol, targetChain, backendUrl) => {
+var getFees = async (amount, deductFee, originChain, originSymbol, targetChain, targetSymbol, originAddress, targetAddress, backendUrl) => {
   try {
     const response = await fetchWrapper.get(
-      `${backendUrl}/submit/fees?amount=${amount}&originChain=${originChain === "CC" ? "FIAT" : originChain}&originSymbol=${originSymbol}&targetChain=${targetChain}&deductFee=${deductFee}`
+      `${backendUrl}/submit/fees?amount=${amount}&originChain=${originChain === "CC" ? "FIAT" : originChain}&originAddress=${originChain === "CC" ? targetAddress : originAddress}&originSymbol=${originSymbol}&targetChain=${targetChain}&deductFee=${deductFee}&targetSymbol=${targetSymbol}&targetAddress=${targetAddress}`
     );
-    logger_default.debug("response: ", response);
+    logger_default.debug("fees response: ", response);
     return response;
   } catch (e) {
     logger_default.error("Failed to fetch fees:", e);
@@ -5544,18 +5546,39 @@ var getFees = async (amount, deductFee, originChain, originSymbol, targetChain, 
 };
 
 // src/hooks/useGetFees.tsx
-var useGetFees = (amount, deductFees, sourceNetwork, sourceSymbol, targetNetwork, backendUrl) => {
+var useGetFees = (amount, deductFees, sourceNetwork, sourceSymbol, targetNetwork, targetSymbol, originAddress, targetAddress, backendUrl) => {
   const mode = useSelector29(selectMode);
   const feeDeductWithMode = mode === "payment" /* payment */ ? false : deductFees;
+  console.log({
+    backendUrl,
+    amount,
+    sourceNetwork,
+    sourceSymbol,
+    targetNetwork
+  });
   return useQuery12({
-    queryKey: ["fees", amount, feeDeductWithMode, sourceNetwork, targetNetwork],
+    queryKey: [
+      "fees",
+      amount,
+      feeDeductWithMode,
+      sourceNetwork,
+      targetNetwork,
+      sourceSymbol,
+      targetSymbol,
+      originAddress,
+      targetAddress
+    ],
     queryFn: async () => {
       logger_default.debug("useGetFees: ", {
         amount,
         deductFees,
         feeDeductWithMode,
         sourceNetwork,
-        targetNetwork
+        targetNetwork,
+        sourceSymbol,
+        targetSymbol,
+        originAddress,
+        targetAddress
       });
       return await getFees(
         amount,
@@ -5563,6 +5586,9 @@ var useGetFees = (amount, deductFees, sourceNetwork, sourceSymbol, targetNetwork
         sourceNetwork,
         sourceSymbol,
         targetNetwork,
+        targetSymbol,
+        originAddress,
+        targetAddress,
         backendUrl
       );
     },
@@ -5699,6 +5725,8 @@ var SingleForm = ({
   const sourceCurrency = useSelector31(selectSourceCurrency);
   const targetCurrency = useSelector31(selectTargetCurrency);
   const backendUrl = useSelector31(selectBackendUrl);
+  const sourceAddress = useSelector31(selectSourceAddress);
+  const targetAddress = useSelector31(selectTargetAddress);
   const {
     data: fees,
     isLoading,
@@ -5709,6 +5737,9 @@ var SingleForm = ({
     sourceNetwork.shortName,
     sourceCurrency,
     targetNetwork.shortName,
+    targetCurrency,
+    sourceAddress,
+    targetAddress,
     backendUrl
   );
   useEffect17(() => {
@@ -6174,7 +6205,7 @@ var useValidateTransaction = ({
   feeDeduct,
   balance,
   amount,
-  totalFeeUsd,
+  totalFee,
   compliantOption,
   sourceCompliant,
   targetCompliant,
@@ -6184,12 +6215,12 @@ var useValidateTransaction = ({
 }) => {
   const maxValue = useMemo20(() => {
     if (!balance) return 0;
-    if (totalFeeUsd < 0) return balance;
-    const amountMinusFees = preciseSubtraction(balance, totalFeeUsd);
+    if (totalFee < 0) return balance;
+    const amountMinusFees = preciseSubtraction(balance, totalFee);
     const maxVal = amountMinusFees > 0 ? amountMinusFees : 0;
     logger_default.debug("maxValue: ", { maxVal, amountMinusFees });
     return maxVal;
-  }, [balance, totalFeeUsd, feeDeduct]);
+  }, [balance, totalFee, feeDeduct]);
   const validate = (isSubmitting = false) => {
     logger_default.debug("allowance: ", allowance);
     logger_default.debug("isApproved: ", isApproved);
@@ -6211,7 +6242,7 @@ var useValidateTransaction = ({
         message: "Amount must be greater than zero"
       };
     }
-    if (totalFeeUsd < 0) {
+    if (totalFee < 0) {
       return { error: "ValidationError" /* Error */, message: "Fee calculation error" };
     }
     if (compliantOption) {
@@ -6240,7 +6271,7 @@ var useValidateTransaction = ({
         message: "The entered amount exceeds the maximum transferable amount (available balance minus transaction fees). Reduce the amount or allow fees to be deducted from the transferred amount. Otherwise, your transaction may fail. Proceed with caution."
       };
     }
-    if (+amount < totalFeeUsd && formStep === 0) {
+    if (+amount < totalFee && formStep === 0) {
       return {
         error: "Warning" /* Warning */,
         message: "Transaction fees exceed the transfer amount. This may result in an ineffective transaction. Proceed with caution."
@@ -6444,8 +6475,11 @@ import { useSelector as useSelector39 } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
 var CCWidget = () => {
   const randomUserId = uuidv4();
-  const amount = useSelector39(selectAmount);
+  const feeDeduct = useSelector39(selectFeeDeduct);
+  const { allowanceAmount, submitAmount } = useSelector39(selectServiceFee);
   const ccTransactionId = useSelector39(selectCCTransactionId);
+  const baseUrl = `${window.location.protocol}//${window.location.host}/`;
+  console.log("current url: ", baseUrl);
   useEffect20(() => {
     const handleMessage = (event) => {
       if (event.origin !== "https://widget-sandbox.depasify.com") return;
@@ -6459,7 +6493,7 @@ var CCWidget = () => {
     {
       width: 600,
       height: 600,
-      src: `https://widget-sandbox.depasify.com/widgets/kyc?partner=Kima&user_uuid=${randomUserId}&scenario=direct_card_payment&amount=${amount}&currency=USD&trx_uuid=${ccTransactionId}`,
+      src: `https://widget-sandbox.depasify.com/widgets/kyc?partner=Kima&user_uuid=${randomUserId}&scenario=direct_card_payment&amount=${feeDeduct ? submitAmount : allowanceAmount}&currency=USD&trx_uuid=${ccTransactionId}&redirect_url=${baseUrl}/status`,
       loading: "lazy",
       title: "Credit Card Widget"
     }

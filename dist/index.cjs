@@ -4723,7 +4723,8 @@ var chainIcons = {
   CC: CreditCard_default
 };
 function ChainIcon({ symbol }) {
-  const Icon = chainIcons[symbol];
+  console.log("icon: ", symbol, symbol === "FIAT");
+  const Icon = symbol === "FIAT" ? chainIcons["CC"] : chainIcons[symbol];
   if (!Icon) {
     logger_default.warn(`Chain icon not found for symbol: ${symbol}`);
     return /* @__PURE__ */ import_react114.default.createElement("div", { className: "icon" });
@@ -4936,14 +4937,15 @@ var StepBox = ({ step, errorStep, loadingStep, data }) => {
   const explorerUrl = (0, import_react_redux32.useSelector)(selectKimaExplorer);
   const networkOption = (0, import_react_redux32.useSelector)(selectNetworkOption);
   const networks = (0, import_react_redux32.useSelector)(selectNetworks);
-  const sourceChain = (0, import_react119.useMemo)(
-    () => networks.find((network) => network.shortName === data?.sourceChain),
-    [data, networks]
-  );
+  const sourceChain = (0, import_react119.useMemo)(() => {
+    const sourceKey = data?.sourceChain === "FIAT" ? "CC" : data?.sourceChain;
+    return networks.find((network) => network.shortName === sourceKey);
+  }, [data, networks]);
   const targetChain = (0, import_react119.useMemo)(
     () => networks.find((network) => network.shortName === data?.targetChain),
     [data, networks]
   );
+  console.log("data: ", data);
   return /* @__PURE__ */ import_react119.default.createElement("div", { className: "kima-stepbox" }, /* @__PURE__ */ import_react119.default.createElement("div", { className: `content-wrapper ${theme.colorMode}` }, stepInfo2.map((item, index) => /* @__PURE__ */ import_react119.default.createElement("div", { key: item.title, className: "step-item" }, /* @__PURE__ */ import_react119.default.createElement(
     "div",
     {
@@ -4960,12 +4962,12 @@ var StepBox = ({ step, errorStep, loadingStep, data }) => {
       to: `${explorerUrl}/transactions/?tx=${data?.kimaTxHash}`
     },
     getShortenedAddress(data?.kimaTxHash || "")
-  ), /* @__PURE__ */ import_react119.default.createElement(CopyButton_default, { text: data?.kimaTxHash }))) : null, index === 1 && data?.tssPullHash ? /* @__PURE__ */ import_react119.default.createElement(
+  ), /* @__PURE__ */ import_react119.default.createElement(CopyButton_default, { text: data?.kimaTxHash }))) : null, index === 1 && data?.tssPullHash && sourceChain?.shortName !== "CC" ? /* @__PURE__ */ import_react119.default.createElement(
     "div",
     {
       className: `info-item ${theme.colorMode} source-chain ${step >= 3 ? "paid" : ""}`
     },
-    /* @__PURE__ */ import_react119.default.createElement(ChainIcon, { symbol: data.sourceChain }),
+    /* @__PURE__ */ import_react119.default.createElement(ChainIcon, { symbol: sourceChain?.shortName }),
     /* @__PURE__ */ import_react119.default.createElement("p", { className: "chain-name" }, sourceChain?.name, " TX ID:"),
     /* @__PURE__ */ import_react119.default.createElement("p", null, /* @__PURE__ */ import_react119.default.createElement(
       ExternalLink_default,
@@ -5235,7 +5237,7 @@ var TransactionWidget = ({ theme }) => {
   const amount = (0, import_react_redux40.useSelector)(selectAmount);
   const txId = (0, import_react_redux40.useSelector)(selectTxId);
   const dAppOption = (0, import_react_redux40.useSelector)(selectDappOption);
-  const { totalFeeUsd } = (0, import_react_redux40.useSelector)(selectServiceFee);
+  const { totalFee } = (0, import_react_redux40.useSelector)(selectServiceFee);
   const transactionOption = (0, import_react_redux40.useSelector)(selectTransactionOption);
   const sourceChain = (0, import_react_redux40.useSelector)(selectSourceChain);
   const targetChain = (0, import_react_redux40.useSelector)(selectTargetChain);
@@ -5395,14 +5397,14 @@ var TransactionWidget = ({ theme }) => {
       }
     },
     /* @__PURE__ */ import_react125.default.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ import_react125.default.createElement("div", { className: "topbar" }, /* @__PURE__ */ import_react125.default.createElement("div", { className: "title" }, isValidTxId && !error ? /* @__PURE__ */ import_react125.default.createElement("h3", { className: "transaction" }, mode !== "status" /* status */ ? data?.status === "Completed" /* COMPLETED */ ? "TRANSFERRED" : "TRANSFERING" : isEmptyStatus ? "GETTING TRANSACTION STATUS" : data?.status === "Completed" /* COMPLETED */ ? "TRANSFERRED" : "TRANSFERING", /* @__PURE__ */ import_react125.default.createElement("div", null, mode !== "status" /* status */ ? Number(amount) !== 0 ? formatterFloat2.format(
-      feeDeduct ? Number(amount) : Number(amount) + totalFeeUsd
+      feeDeduct ? Number(amount) : Number(amount) + totalFee
     ) : "" : data?.amount || "", " ", mode !== "status" /* status */ ? `(${sourceSymbol})` : isEmptyStatus ? "" : `(${data?.sourceSymbol})`, /* @__PURE__ */ import_react125.default.createElement("div", { className: "title-icon" }, /* @__PURE__ */ import_react125.default.createElement(
       ChainIcon,
       {
         symbol: transactionSourceChain?.shortName
       }
-    )), " ", mode !== "status" /* status */ ? `(${transactionSourceChain?.shortName})` : isEmptyStatus ? "" : `(${data?.sourceChain})`, " ", mode !== "status" /* status */ ? `\u2192 ` : isEmptyStatus ? "" : `\u2192 `, mode !== "status" /* status */ ? Number(amount) !== 0 ? formatterFloat2.format(
-      feeDeduct ? Number(amount) - totalFeeUsd : Number(amount)
+    )), " ", mode !== "status" /* status */ ? `(${transactionSourceChain?.shortName})` : isEmptyStatus ? "" : `(${data?.sourceChain === "FIAT" ? "CC" : data?.sourceChain})`, " ", mode !== "status" /* status */ ? `\u2192 ` : isEmptyStatus ? "" : `\u2192 `, mode !== "status" /* status */ ? Number(amount) !== 0 ? formatterFloat2.format(
+      feeDeduct ? Number(amount) - totalFee : Number(amount)
     ) : "" : data?.amount || "", " ", mode !== "status" /* status */ ? `(${targetSymbol})${" "}` : isEmptyStatus ? "" : `(${data?.targetSymbol})${" "}`, /* @__PURE__ */ import_react125.default.createElement("div", { className: "title-icon" }, /* @__PURE__ */ import_react125.default.createElement(
       ChainIcon,
       {
@@ -5487,12 +5489,12 @@ var import_react_query13 = require("@tanstack/react-query");
 var import_react_redux42 = require("react-redux");
 
 // src/services/feesApi.ts
-var getFees = async (amount, deductFee, originChain, originSymbol, targetChain, backendUrl) => {
+var getFees = async (amount, deductFee, originChain, originSymbol, targetChain, targetSymbol, originAddress, targetAddress, backendUrl) => {
   try {
     const response = await fetchWrapper.get(
-      `${backendUrl}/submit/fees?amount=${amount}&originChain=${originChain === "CC" ? "FIAT" : originChain}&originSymbol=${originSymbol}&targetChain=${targetChain}&deductFee=${deductFee}`
+      `${backendUrl}/submit/fees?amount=${amount}&originChain=${originChain === "CC" ? "FIAT" : originChain}&originAddress=${originChain === "CC" ? targetAddress : originAddress}&originSymbol=${originSymbol}&targetChain=${targetChain}&deductFee=${deductFee}&targetSymbol=${targetSymbol}&targetAddress=${targetAddress}`
     );
-    logger_default.debug("response: ", response);
+    logger_default.debug("fees response: ", response);
     return response;
   } catch (e) {
     logger_default.error("Failed to fetch fees:", e);
@@ -5501,18 +5503,39 @@ var getFees = async (amount, deductFee, originChain, originSymbol, targetChain, 
 };
 
 // src/hooks/useGetFees.tsx
-var useGetFees = (amount, deductFees, sourceNetwork, sourceSymbol, targetNetwork, backendUrl) => {
+var useGetFees = (amount, deductFees, sourceNetwork, sourceSymbol, targetNetwork, targetSymbol, originAddress, targetAddress, backendUrl) => {
   const mode = (0, import_react_redux42.useSelector)(selectMode);
   const feeDeductWithMode = mode === "payment" /* payment */ ? false : deductFees;
+  console.log({
+    backendUrl,
+    amount,
+    sourceNetwork,
+    sourceSymbol,
+    targetNetwork
+  });
   return (0, import_react_query13.useQuery)({
-    queryKey: ["fees", amount, feeDeductWithMode, sourceNetwork, targetNetwork],
+    queryKey: [
+      "fees",
+      amount,
+      feeDeductWithMode,
+      sourceNetwork,
+      targetNetwork,
+      sourceSymbol,
+      targetSymbol,
+      originAddress,
+      targetAddress
+    ],
     queryFn: async () => {
       logger_default.debug("useGetFees: ", {
         amount,
         deductFees,
         feeDeductWithMode,
         sourceNetwork,
-        targetNetwork
+        targetNetwork,
+        sourceSymbol,
+        targetSymbol,
+        originAddress,
+        targetAddress
       });
       return await getFees(
         amount,
@@ -5520,6 +5543,9 @@ var useGetFees = (amount, deductFees, sourceNetwork, sourceSymbol, targetNetwork
         sourceNetwork,
         sourceSymbol,
         targetNetwork,
+        targetSymbol,
+        originAddress,
+        targetAddress,
         backendUrl
       );
     },
@@ -5656,6 +5682,8 @@ var SingleForm = ({
   const sourceCurrency = (0, import_react_redux44.useSelector)(selectSourceCurrency);
   const targetCurrency = (0, import_react_redux44.useSelector)(selectTargetCurrency);
   const backendUrl = (0, import_react_redux44.useSelector)(selectBackendUrl);
+  const sourceAddress = (0, import_react_redux44.useSelector)(selectSourceAddress);
+  const targetAddress = (0, import_react_redux44.useSelector)(selectTargetAddress);
   const {
     data: fees,
     isLoading,
@@ -5666,6 +5694,9 @@ var SingleForm = ({
     sourceNetwork.shortName,
     sourceCurrency,
     targetNetwork.shortName,
+    targetCurrency,
+    sourceAddress,
+    targetAddress,
     backendUrl
   );
   (0, import_react127.useEffect)(() => {
@@ -6131,7 +6162,7 @@ var useValidateTransaction = ({
   feeDeduct,
   balance,
   amount,
-  totalFeeUsd,
+  totalFee,
   compliantOption,
   sourceCompliant,
   targetCompliant,
@@ -6141,12 +6172,12 @@ var useValidateTransaction = ({
 }) => {
   const maxValue = (0, import_react134.useMemo)(() => {
     if (!balance) return 0;
-    if (totalFeeUsd < 0) return balance;
-    const amountMinusFees = preciseSubtraction(balance, totalFeeUsd);
+    if (totalFee < 0) return balance;
+    const amountMinusFees = preciseSubtraction(balance, totalFee);
     const maxVal = amountMinusFees > 0 ? amountMinusFees : 0;
     logger_default.debug("maxValue: ", { maxVal, amountMinusFees });
     return maxVal;
-  }, [balance, totalFeeUsd, feeDeduct]);
+  }, [balance, totalFee, feeDeduct]);
   const validate = (isSubmitting = false) => {
     logger_default.debug("allowance: ", allowance);
     logger_default.debug("isApproved: ", isApproved);
@@ -6168,7 +6199,7 @@ var useValidateTransaction = ({
         message: "Amount must be greater than zero"
       };
     }
-    if (totalFeeUsd < 0) {
+    if (totalFee < 0) {
       return { error: "ValidationError" /* Error */, message: "Fee calculation error" };
     }
     if (compliantOption) {
@@ -6197,7 +6228,7 @@ var useValidateTransaction = ({
         message: "The entered amount exceeds the maximum transferable amount (available balance minus transaction fees). Reduce the amount or allow fees to be deducted from the transferred amount. Otherwise, your transaction may fail. Proceed with caution."
       };
     }
-    if (+amount < totalFeeUsd && formStep === 0) {
+    if (+amount < totalFee && formStep === 0) {
       return {
         error: "Warning" /* Warning */,
         message: "Transaction fees exceed the transfer amount. This may result in an ineffective transaction. Proceed with caution."
@@ -6401,8 +6432,11 @@ var import_react_redux53 = require("react-redux");
 var import_uuid = require("uuid");
 var CCWidget = () => {
   const randomUserId = (0, import_uuid.v4)();
-  const amount = (0, import_react_redux53.useSelector)(selectAmount);
+  const feeDeduct = (0, import_react_redux53.useSelector)(selectFeeDeduct);
+  const { allowanceAmount, submitAmount } = (0, import_react_redux53.useSelector)(selectServiceFee);
   const ccTransactionId = (0, import_react_redux53.useSelector)(selectCCTransactionId);
+  const baseUrl = `${window.location.protocol}//${window.location.host}/`;
+  console.log("current url: ", baseUrl);
   (0, import_react137.useEffect)(() => {
     const handleMessage = (event) => {
       if (event.origin !== "https://widget-sandbox.depasify.com") return;
@@ -6416,7 +6450,7 @@ var CCWidget = () => {
     {
       width: 600,
       height: 600,
-      src: `https://widget-sandbox.depasify.com/widgets/kyc?partner=Kima&user_uuid=${randomUserId}&scenario=direct_card_payment&amount=${amount}&currency=USD&trx_uuid=${ccTransactionId}`,
+      src: `https://widget-sandbox.depasify.com/widgets/kyc?partner=Kima&user_uuid=${randomUserId}&scenario=direct_card_payment&amount=${feeDeduct ? submitAmount : allowanceAmount}&currency=USD&trx_uuid=${ccTransactionId}&redirect_url=${baseUrl}/status`,
       loading: "lazy",
       title: "Credit Card Widget"
     }
