@@ -4,7 +4,8 @@ import { v4 as uuidv4 } from 'uuid'
 import {
   selectCCTransactionId,
   selectFeeDeduct,
-  selectServiceFee
+  selectServiceFee,
+  selectTxId
 } from '@store/selectors'
 
 const CCWidget = () => {
@@ -12,6 +13,7 @@ const CCWidget = () => {
   const feeDeduct = useSelector(selectFeeDeduct)
   const { allowanceAmount, submitAmount } = useSelector(selectServiceFee)
   const ccTransactionId = useSelector(selectCCTransactionId)
+  const txId = useSelector(selectTxId)
 
   const baseUrl = `${window.location.protocol}//${window.location.host}/`
 
@@ -33,7 +35,7 @@ const CCWidget = () => {
       <iframe
         width={600}
         height={600}
-        src={`https://widget-sandbox.depasify.com/widgets/kyc?partner=Kima&user_uuid=${randomUserId}&scenario=direct_card_payment&amount=${feeDeduct ? submitAmount : allowanceAmount}&currency=USD&trx_uuid=${ccTransactionId}&redirect_url=${baseUrl}/status`}
+        src={`https://widget-sandbox.depasify.com/widgets/kyc?partner=Kima&user_uuid=${randomUserId}&scenario=direct_card_payment&amount=${feeDeduct ? submitAmount : allowanceAmount}&currency=USD&trx_uuid=${ccTransactionId}&redirect_url=${baseUrl}/status?txId=${txId}`}
         loading='lazy'
         title='Credit Card Widget'
       />
