@@ -6478,6 +6478,7 @@ var CCWidget = () => {
   const feeDeduct = useSelector39(selectFeeDeduct);
   const { allowanceAmount, submitAmount } = useSelector39(selectServiceFee);
   const ccTransactionId = useSelector39(selectCCTransactionId);
+  const txId = useSelector39(selectTxId);
   const baseUrl = `${window.location.protocol}//${window.location.host}/`;
   console.log("current url: ", baseUrl);
   useEffect20(() => {
@@ -6493,7 +6494,7 @@ var CCWidget = () => {
     {
       width: 600,
       height: 600,
-      src: `https://widget-sandbox.depasify.com/widgets/kyc?partner=Kima&user_uuid=${randomUserId}&scenario=direct_card_payment&amount=${feeDeduct ? submitAmount : allowanceAmount}&currency=USD&trx_uuid=${ccTransactionId}&redirect_url=${baseUrl}/status`,
+      src: `https://widget-sandbox.depasify.com/widgets/kyc?partner=Kima&user_uuid=${randomUserId}&scenario=direct_card_payment&amount=${feeDeduct ? submitAmount : allowanceAmount}&currency=USD&trx_uuid=${ccTransactionId}&redirect_url=${baseUrl}/status?txId=${txId}`,
       loading: "lazy",
       title: "Credit Card Widget"
     }
