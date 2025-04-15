@@ -4,6 +4,8 @@ import { setTxId, setSubmitted, setCCTransactionId } from '@store/optionSlice'
 import { getTransactionId } from '@utils/functions'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 import log from '@utils/logger'
+import { useSelector } from 'react-redux'
+import { selectFeeDeduct, selectServiceFee } from '@store/selectors'
 
 const useSubmitTransaction = ({
   amount,
@@ -29,6 +31,8 @@ const useSubmitTransaction = ({
   decimals: number
 }) => {
   const dispatch = useDispatch()
+  const feeDeduct = useSelector(selectFeeDeduct)
+  const { feeId } = useSelector(selectServiceFee)
 
   const [isSubmitting, setSubmitting] = useState(false)
 
@@ -51,7 +55,11 @@ const useSubmitTransaction = ({
         htlcExpirationTimestamp: '0',
         htlcVersion: '',
         senderPubKey: '',
-        options: JSON.stringify({ signature })
+        options: JSON.stringify({
+          signature,
+          chargeFeeAtTarget: feeDeduct,
+          feeId
+        })
       })
 
       let ccTransactionId
