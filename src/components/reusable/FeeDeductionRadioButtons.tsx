@@ -7,6 +7,7 @@ import {
   selectServiceFee,
   selectSourceChain,
   selectSourceCurrency,
+  selectSubmitted,
   selectTargetChain,
   selectTargetCurrency,
   selectTheme
@@ -23,6 +24,7 @@ const FeeDeductionRadioButtons = ({ isSigned }: { isSigned: boolean }) => {
   const sourceCurrency = useSelector(selectSourceCurrency)
   const targetCurrency = useSelector(selectTargetCurrency)
   const theme = useSelector(selectTheme)
+  const isSubmitted = useSelector(selectSubmitted)
 
   const handleChange = (value: boolean) => {
     dispatch(setFeeDeduct(value))
@@ -37,7 +39,7 @@ const FeeDeductionRadioButtons = ({ isSigned }: { isSigned: boolean }) => {
             name='feeDeduction'
             checked={feeDeduct}
             onChange={() => handleChange(true)}
-            disabled={isSigned}
+            disabled={isSigned || isSubmitted}
           />
           <span className={`radio-label ${theme.colorMode}`}>
             {`Pay $${formatterFloat.format(
@@ -54,7 +56,7 @@ const FeeDeductionRadioButtons = ({ isSigned }: { isSigned: boolean }) => {
             name='feeDeduction'
             checked={!feeDeduct}
             onChange={() => handleChange(false)}
-            disabled={isSigned}
+            disabled={isSigned || isSubmitted}
           />
           <span className={`radio-label ${theme.colorMode}`}>
             {`Pay $${formatterFloat.format(
