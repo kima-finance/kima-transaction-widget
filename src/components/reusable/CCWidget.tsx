@@ -1,12 +1,21 @@
 import React, { useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { v4 as uuidv4 } from 'uuid'
-import { selectAmount, selectCCTransactionId } from '@store/selectors'
+import {
+  selectCCTransactionId,
+  selectFeeDeduct,
+  selectServiceFee
+} from '@store/selectors'
 
 const CCWidget = () => {
   const randomUserId = uuidv4()
-  const amount = useSelector(selectAmount)
+  const feeDeduct = useSelector(selectFeeDeduct)
+  const { allowanceAmount, submitAmount } = useSelector(selectServiceFee)
   const ccTransactionId = useSelector(selectCCTransactionId)
+
+  const baseUrl = `${window.location.protocol}//${window.location.host}/`
+
+  console.log('current url: ', baseUrl)
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -24,7 +33,7 @@ const CCWidget = () => {
       <iframe
         width={600}
         height={600}
-        src={`https://widget-sandbox.depasify.com/widgets/kyc?partner=Kima&user_uuid=${randomUserId}&scenario=direct_card_payment&amount=${amount}&currency=USD&trx_uuid=${ccTransactionId}`}
+        src={`https://widget-sandbox.depasify.com/widgets/kyc?partner=Kima&user_uuid=${randomUserId}&scenario=direct_card_payment&amount=${feeDeduct ? submitAmount : allowanceAmount}&currency=USD&trx_uuid=${ccTransactionId}&redirect_url=${baseUrl}/status`}
         loading='lazy'
         title='Credit Card Widget'
       />

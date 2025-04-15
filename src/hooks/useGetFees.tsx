@@ -11,6 +11,9 @@ const useGetFees = (
   sourceNetwork: string | null,
   sourceSymbol: string | null,
   targetNetwork: string | null,
+  targetSymbol: string | null,
+  originAddress: string | null,
+  targetAddress: string | null,
   backendUrl: string
 ) => {
   // In Payment mode, the target (seller) must always receive the full amount
@@ -18,15 +21,37 @@ const useGetFees = (
   const mode = useSelector(selectMode)
   const feeDeductWithMode = mode === ModeOptions.payment ? false : deductFees
 
+  console.log({
+    backendUrl,
+    amount,
+    sourceNetwork,
+    sourceSymbol,
+    targetNetwork
+  })
+
   return useQuery<ServiceFee, Error>({
-    queryKey: ['fees', amount, feeDeductWithMode, sourceNetwork, targetNetwork],
+    queryKey: [
+      'fees',
+      amount,
+      feeDeductWithMode,
+      sourceNetwork,
+      targetNetwork,
+      sourceSymbol,
+      targetSymbol,
+      originAddress,
+      targetAddress
+    ],
     queryFn: async () => {
       log.debug('useGetFees: ', {
         amount,
         deductFees,
         feeDeductWithMode,
         sourceNetwork,
-        targetNetwork
+        targetNetwork,
+        sourceSymbol,
+        targetSymbol,
+        originAddress,
+        targetAddress
       })
       return await getFees(
         amount!,
@@ -34,6 +59,9 @@ const useGetFees = (
         sourceNetwork!,
         sourceSymbol!,
         targetNetwork!,
+        targetSymbol!,
+        originAddress as string,
+        targetAddress!,
         backendUrl
       )
     },

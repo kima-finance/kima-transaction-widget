@@ -39,8 +39,11 @@ export interface ChainIconProps extends IconProps {
 }
 
 export default function ChainIcon({ symbol }: ChainIconProps) {
+  console.log('icon: ', symbol, symbol === 'FIAT')
+
   // return an empty icon if no symbol found
-  const Icon = chainIcons[symbol]
+  const Icon = symbol === 'FIAT' ? chainIcons['CC'] : chainIcons[symbol]
+
   if (!Icon) {
     log.warn(`Chain icon not found for symbol: ${symbol}`)
     return <div className='icon'></div>

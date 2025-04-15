@@ -57,7 +57,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const amount = useSelector(selectAmount)
   const txId = useSelector(selectTxId)
   const dAppOption = useSelector(selectDappOption)
-  const { totalFeeUsd } = useSelector(selectServiceFee)
+  const { totalFee } = useSelector(selectServiceFee)
   const transactionOption = useSelector(selectTransactionOption)
   const sourceChain = useSelector(selectSourceChain)
   const targetChain = useSelector(selectTargetChain)
@@ -277,7 +277,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                         ? formatterFloat.format(
                             feeDeduct
                               ? Number(amount)
-                              : Number(amount) + totalFeeUsd
+                              : Number(amount) + totalFee
                           )
                         : ''
                       : data?.amount || ''}{' '}
@@ -295,7 +295,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                       ? `(${transactionSourceChain?.shortName})`
                       : isEmptyStatus
                         ? ''
-                        : `(${data?.sourceChain})`}{' '}
+                        : `(${data?.sourceChain === 'FIAT' ? 'CC' : data?.sourceChain})`}{' '}
                     {mode !== ModeOptions.status
                       ? `→ `
                       : isEmptyStatus
@@ -306,7 +306,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                       ? Number(amount) !== 0
                         ? formatterFloat.format(
                             feeDeduct
-                              ? Number(amount) - totalFeeUsd
+                              ? Number(amount) - totalFee
                               : Number(amount)
                           )
                         : ''

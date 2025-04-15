@@ -13,7 +13,9 @@ import {
   selectServiceFee,
   selectFeeDeduct,
   selectAmount,
-  selectTargetCurrency
+  selectTargetCurrency,
+  selectSourceAddress,
+  selectTargetAddress
 } from '../../store/selectors'
 import { BankInput, CoinDropdown, WalletButton } from './'
 import { setAmount } from '../../store/optionSlice'
@@ -59,6 +61,8 @@ const SingleForm = ({
   const sourceCurrency = useSelector(selectSourceCurrency)
   const targetCurrency = useSelector(selectTargetCurrency)
   const backendUrl = useSelector(selectBackendUrl)
+  const sourceAddress = useSelector(selectSourceAddress)
+  const targetAddress = useSelector(selectTargetAddress)
 
   const {
     data: fees,
@@ -70,6 +74,9 @@ const SingleForm = ({
     sourceNetwork.shortName,
     sourceCurrency,
     targetNetwork.shortName,
+    targetCurrency,
+    sourceAddress,
+    targetAddress,
     backendUrl
   )
 

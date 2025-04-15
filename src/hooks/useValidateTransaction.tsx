@@ -22,7 +22,7 @@ const useValidateTransaction = ({
   feeDeduct,
   balance,
   amount,
-  totalFeeUsd,
+  totalFee,
   compliantOption,
   sourceCompliant,
   targetCompliant,
@@ -41,7 +41,7 @@ const useValidateTransaction = ({
   feeDeduct: boolean
   balance: number
   amount: string
-  totalFeeUsd: number
+  totalFee: number
   compliantOption: boolean
   sourceCompliant: any
   targetCompliant: any
@@ -52,14 +52,14 @@ const useValidateTransaction = ({
   const maxValue = useMemo(() => {
     if (!balance) return 0
 
-    if (totalFeeUsd < 0) return balance
+    if (totalFee < 0) return balance
 
-    const amountMinusFees = preciseSubtraction(balance as number, totalFeeUsd)
+    const amountMinusFees = preciseSubtraction(balance as number, totalFee)
     const maxVal = amountMinusFees > 0 ? amountMinusFees : 0
     log.debug('maxValue: ', { maxVal, amountMinusFees })
 
     return maxVal
-  }, [balance, totalFeeUsd, feeDeduct])
+  }, [balance, totalFee, feeDeduct])
 
   const validate = (isSubmitting: boolean = false) => {
     log.debug('allowance: ', allowance)
@@ -87,7 +87,7 @@ const useValidateTransaction = ({
       }
     }
 
-    if (totalFeeUsd < 0) {
+    if (totalFee < 0) {
       return { error: ValidationError.Error, message: 'Fee calculation error' }
     }
 
@@ -124,7 +124,7 @@ const useValidateTransaction = ({
       }
     }
 
-    if (+amount < totalFeeUsd && formStep === 0) {
+    if (+amount < totalFee && formStep === 0) {
       return {
         error: ValidationError.Warning,
         message:
