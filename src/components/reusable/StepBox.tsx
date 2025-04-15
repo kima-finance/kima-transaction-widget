@@ -51,15 +51,17 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
   const networkOption = useSelector(selectNetworkOption)
   const networks = useSelector(selectNetworks)
 
-  const sourceChain = useMemo(
-    () => networks.find((network) => network.shortName === data?.sourceChain),
-    [data, networks]
-  )
+  const sourceChain = useMemo(() => {
+    const sourceKey = data?.sourceChain === 'FIAT' ? 'CC' : data?.sourceChain
+    return networks.find((network) => network.shortName === sourceKey)
+  }, [data, networks])
 
   const targetChain = useMemo(
     () => networks.find((network) => network.shortName === data?.targetChain),
     [data, networks]
   )
+
+  console.log('data: ', data)
 
   return (
     <div className='kima-stepbox'>
@@ -100,11 +102,13 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                 </p>
               </div>
             ) : null}
-            {index === 1 && data?.tssPullHash ? (
+            {index === 1 &&
+            data?.tssPullHash &&
+            sourceChain?.shortName !== 'CC' ? (
               <div
                 className={`info-item ${theme.colorMode} source-chain ${step >= 3 ? 'paid' : ''}`}
               >
-                <ChainIcon symbol={data.sourceChain as string} />
+                <ChainIcon symbol={sourceChain?.shortName as string} />
                 <p className='chain-name'>{sourceChain?.name} TX ID:</p>
                 <p>
                   <ExternalLink
