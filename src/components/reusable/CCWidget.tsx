@@ -17,13 +17,10 @@ const CCWidget = () => {
 
   const baseUrl = `${window.location.protocol}//${window.location.host}/`
 
-  console.log('current url: ', baseUrl)
-
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       // You can add origin check here if needed:
       if (event.origin !== 'https://widget-sandbox.depasify.com') return
-      console.log('[iframe message received]:', event.data)
     }
 
     window.addEventListener('message', handleMessage)

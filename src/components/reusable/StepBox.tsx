@@ -61,8 +61,6 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
     [data, networks]
   )
 
-  console.log('data: ', data)
-
   return (
     <div className='kima-stepbox'>
       <div className={`content-wrapper ${theme.colorMode}`}>
