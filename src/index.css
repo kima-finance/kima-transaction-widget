@@ -1886,7 +1886,9 @@
   border-top: none;
 }
 .kima-card .kima-card-content .confirm-details .detail-item.amount {
+  width: 100%;
   align-items: start;
+  padding: 20px 14px;
 }
 .kima-card .kima-card-content .confirm-details .detail-item p {
   margin: 0;
@@ -1962,9 +1964,10 @@
   color: white;
 }
 .kima-card .kima-card-content .confirm-details .detail-item .amount-container {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: start;
+  justify-content: space-between;
 }
 @media (max-width: 500px) {
   .kima-card .kima-card-content .confirm-details .detail-item .amount-container {
@@ -1991,15 +1994,30 @@
   margin: 0;
   flex-grow: 0;
   width: fit-content;
+  font-weight: bold;
+}
+.kima-card .kima-card-content .confirm-details .detail-item .amount-container .fee-breakdown {
+  padding-left: 20px;
+}
+.kima-card .kima-card-content .confirm-details .detail-item .amount-container .fee-breakdown.collapsed {
+  display: none;
+}
+.kima-card .kima-card-content .confirm-details .detail-item .amount-container .fee-breakdown .amount-details {
+  padding: 8px 6px !important;
 }
 .kima-card .kima-card-content .confirm-details .detail-item .amount-container .amount-details {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  width: 300px;
   padding: 8px 6px;
   font-size: 14px;
-  border-top: 1px solid #86b8ce;
+  font-weight: bold;
+}
+.kima-card .kima-card-content .confirm-details .detail-item .amount-container .amount-details .fee-collapse {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  cursor: pointer;
 }
 .kima-card .kima-card-content .confirm-details .detail-item .amount-container .amount-details:first-of-type {
   border-top: none;
@@ -2011,8 +2029,11 @@
     font-size: 12px;
   }
 }
-.kima-card .kima-card-content .confirm-details .detail-item .amount-container .amount-details.fee {
-  color: red;
+.kima-card .kima-card-content .confirm-details .detail-item .amount-container .amount-details .service-fee {
+  font-weight: bold;
+}
+.kima-card .kima-card-content .confirm-details .detail-item .amount-container .amount-details .final-amount {
+  font-weight: bold;
 }
 .kima-card .kima-card-content .confirm-details .detail-item .amount-container .amount-details:last-of-type {
   padding-top: 15px;

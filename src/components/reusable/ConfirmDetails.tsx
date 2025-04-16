@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { formatterFloat } from '../../helpers/functions'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
@@ -26,6 +26,7 @@ import useWidth from '../../hooks/useWidth'
 import ChainIcon from './ChainIcon'
 import { useDispatch } from 'react-redux'
 import FeeDeductionRadioButtons from './FeeDeductionRadioButtons'
+import { MiniArrowIcon } from '@assets/icons'
 
 const ConfirmDetails = ({
   isApproved,
@@ -100,6 +101,8 @@ const ConfirmDetails = ({
     return formatterFloat.format(feeDeduct ? +amount : +amount + totalFeeUsd)
   }, [amount, totalFeeUsd, originNetwork, targetNetwork, feeDeduct])
 
+  const [feeCollapsed, setFeeCollapsed] = useState<boolean>(true)
+
   return (
     <div className={`confirm-details ${theme.colorMode}`}>
       <p>
@@ -159,14 +162,9 @@ const ConfirmDetails = ({
         </div>
       )}
       <div className='detail-item amount'>
-        <span className='label'>
-          Transaction
-          {width > 500 && <br />}
-          Details:
-        </span>
         <span className='amount-container'>
           <div className='amount-details'>
-            <span>Source Transfer amount</span>
+            <span>Amount to transfer</span>
             <div className='coin-details'>
               <p>
                 {feeDeduct
@@ -177,18 +175,39 @@ const ConfirmDetails = ({
             </div>
           </div>
           <div className='amount-details'>
-            <span>Source Network Fee ({originNetwork.shortName})</span>
-            <span className='service-fee'>
-              {formatterFloat.format(sourceNetworkFee?.amount || 0)}{' '}
-              {sourceCurrency}
-            </span>
+            <span>Total Network Fees</span>
+            <div
+              className='fee-collapse'
+              onClick={() => setFeeCollapsed(!feeCollapsed)}
+            >
+              <MiniArrowIcon
+                width={15}
+                height={8}
+                style={{
+                  transform: `rotate(${feeCollapsed ? '0deg' : '180deg'})`,
+                  transition: 'transform 0.3s ease'
+                }}
+              />
+              <span className='service-fee'>
+                {formatterFloat.format(totalFeeUsd || 0)} {sourceCurrency}
+              </span>
+            </div>
           </div>
-          <div className='amount-details'>
-            <span>Target Network Fee ({targetNetwork.shortName})</span>
-            <span className='service-fee'>
-              {formatterFloat.format(targetNetworkFee?.amount || 0)}{' '}
-              {sourceCurrency}
-            </span>
+          <div className={`fee-breakdown ${feeCollapsed ? 'collapsed' : ''}`}>
+            <div className='amount-details'>
+              <span>Source Network Fee ({originNetwork.shortName})</span>
+              <span className='service-fee'>
+                {formatterFloat.format(sourceNetworkFee?.amount || 0)}{' '}
+                {sourceCurrency}
+              </span>
+            </div>
+            <div className='amount-details'>
+              <span>Target Network Fee ({targetNetwork.shortName})</span>
+              <span className='service-fee'>
+                {formatterFloat.format(targetNetworkFee?.amount || 0)}{' '}
+                {sourceCurrency}
+              </span>
+            </div>
           </div>
           {/* TODO: Implement when the new service fee comes in
           <div className='amount-details'>
@@ -198,8 +217,8 @@ const ConfirmDetails = ({
             </span>
           </div> */}
           <div className='amount-details'>
-            <span>Target Transfer Amount</span>
-            <span className='service-fee'>
+            <span>Amount to Receive</span>
+            <span className='final-amount'>
               {!feeDeduct
                 ? formatterFloat.format(Number(amount))
                 : formatterFloat.format(Number(amount) - totalFeeUsd)}{' '}
@@ -252,7 +271,7 @@ const ConfirmDetails = ({
       {/* checkbox shall only be displayed in transfer scenario */}
       {mode === ModeOptions.bridge && totalFeeUsd > 0 ? (
         // <FeeDeductionSlider />
-        <FeeDeductionRadioButtons isSigned={isSigned}/>
+        <FeeDeductionRadioButtons isSigned={isSigned} />
       ) : null}
 
       {/* {mode === ModeOptions.bridge && totalFeeUsd > 0 && (
