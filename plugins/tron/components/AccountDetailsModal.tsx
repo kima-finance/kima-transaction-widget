@@ -26,7 +26,7 @@ const AccountDetailsModal = () => {
   const networkOption = useSelector(selectNetworkOption)
   const accountDetailsModal = useSelector(selectAccountDetailsModal)
   const sourcheChain = useSelector(selectSourceChain)
-  const { walletAddress } = useIsWalletReady()
+  const { connectedAddress } = useIsWalletReady()
   const { disconnect: tronWalletDisconnect } = useTronWallet()
   const { balance: tronBalance } = useGetTronBalance()
   const selectedNetwork = useSelector(selectSourceChain)
@@ -40,8 +40,8 @@ const AccountDetailsModal = () => {
   // construct the explorer url based on network option
   // and the chain selected (sol or trx)
   const explorerUrl = useMemo(() => {
-    return `https://${networkOption === 'testnet' && 'nile.'}tronscan.io/#/address/${walletAddress}`
-  }, [walletAddress, networkOption])
+    return `https://${networkOption === 'testnet' && 'nile.'}tronscan.io/#/address/${connectedAddress}`
+  }, [connectedAddress, networkOption])
 
   // handle disconnection scenario
   const handleDisconnect = () => {
@@ -78,8 +78,8 @@ const AccountDetailsModal = () => {
           <div className='summary'>
             {networkDetails && <networkDetails.icon width={60} height={60} />}
             <div className='address'>
-              <h2>{getShortenedAddress(walletAddress || '')}</h2>
-              <CopyButton text={walletAddress as string} />
+              <h2>{getShortenedAddress(connectedAddress || '')}</h2>
+              <CopyButton text={connectedAddress as string} />
             </div>
             <h3>
               {tronBalance} {selectedNetwork.shortName}

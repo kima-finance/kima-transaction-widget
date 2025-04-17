@@ -19,7 +19,7 @@ const createWalletStatus = (
 function useIsWalletReady(): {
   isReady: boolean
   statusMessage: string
-  walletAddress?: string
+  connectedAddress?: string
 } {
   const dispatch = useDispatch()
   const sourceChain = useSelector(selectSourceChain)
@@ -29,7 +29,7 @@ function useIsWalletReady(): {
   // set source address upon connection & valid network selected
   useEffect(() => {
     internalTronAddress &&
-      sourceChain === 'TRX' &&
+      sourceChain.shortName === 'TRX' &&
       dispatch(setSourceAddress(internalTronAddress))
   }, [internalTronAddress, sourceChain])
 

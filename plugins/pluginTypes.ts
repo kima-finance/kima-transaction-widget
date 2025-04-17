@@ -42,7 +42,7 @@ export interface PluginUseBalanceResult {
 export interface PluginUseWalletIsReadyResult {
   isReady: boolean
   statusMessage: string
-  walletAddress?: string
+  connectedAddress?: string
 }
 
 export interface PluginUseDisconnectWalletResult {

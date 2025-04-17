@@ -8,7 +8,7 @@ const allPlugins = getAllPlugins()
 const defaultStatus = {
   isReady: false,
   statusMessage: '',
-  walletAddress: ''
+  connectedAddress: ''
 } satisfies PluginUseWalletIsReadyResult
 
 export default function useIsWalletReady(): PluginUseWalletIsReadyResult {
