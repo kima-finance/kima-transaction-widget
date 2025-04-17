@@ -40,7 +40,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const { externalProvider } = useKimaContext()
   const { connected: isSolanaConnected } = useSolanaWallet()
   const { connected: isTronConnected } = useTronWallet()
-  const { isReady, statusMessage, walletAddress /*, connectBitcoinWallet*/ } =
+  const { isReady, statusMessage, connectedAddress /*, connectBitcoinWallet*/ } =
     useIsWalletReady()
   const { balance } = useBalance()
   const { open } = useAppKit()
@@ -55,16 +55,16 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   useEffect(() => {
     log.debug('WalletBalance:', {
       balance,
-      walletAddress,
+      connectedAddress,
       isReady,
       statusMessage,
       externalProvider
     })
-  }, [balance, walletAddress, isReady, externalProvider, networkOption])
+  }, [balance, connectedAddress, isReady, externalProvider, networkOption])
 
   useEffect(() => {
-    if (walletAddress) dispatch(setSourceAddress(walletAddress))
-  }, [walletAddress])
+    if (connectedAddress) dispatch(setSourceAddress(connectedAddress))
+  }, [connectedAddress])
 
   useEffect(() => {
     if (width === 0) {
@@ -142,14 +142,14 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
         >
           {isReady
             ? width >= 640
-              ? `${walletAddress || ''}`
-              : getShortenedAddress(walletAddress || '')
+              ? `${connectedAddress || ''}`
+              : getShortenedAddress(connectedAddress || '')
             : ''}
           {!isReady && <WalletIcon />}
           {!isReady && 'Connect Wallet'}
         </button>
 
-        {isReady && <CopyButton text={walletAddress as string} />}
+        {isReady && <CopyButton text={connectedAddress as string} />}
       </div>
 
       {isReady && balance !== undefined ? (
