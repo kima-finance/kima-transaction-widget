@@ -13,6 +13,9 @@ import { isValidExternalProvider } from '@utils/functions'
 import { PublicKey } from '@solana/web3.js'
 import { JsonRpcSigner } from 'ethers'
 
+import { ApolloProvider } from '@apollo/client'
+import { client } from './apolloClient'
+
 interface KimaContextProps {
   sourceAddress: string | undefined
   externalProvider?: ExternalProvider
@@ -132,18 +135,20 @@ const KimaProvider = ({
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <Provider store={store}>
-        <KimaContext.Provider value={kimaContext}>
-          <InternalKimaProvider
-            kimaBackendUrl={kimaBackendUrl}
-            walletConnectProjectId={walletConnectProjectId}
-          >
-            {children}
-          </InternalKimaProvider>
-        </KimaContext.Provider>
-      </Provider>
-    </QueryClientProvider>
+    <ApolloProvider client={client}>
+      <QueryClientProvider client={queryClient}>
+        <Provider store={store}>
+          <KimaContext.Provider value={kimaContext}>
+            <InternalKimaProvider
+              kimaBackendUrl={kimaBackendUrl}
+              walletConnectProjectId={walletConnectProjectId}
+            >
+              {children}
+            </InternalKimaProvider>
+          </KimaContext.Provider>
+        </Provider>
+      </QueryClientProvider>
+    </ApolloProvider>
   )
 }
 

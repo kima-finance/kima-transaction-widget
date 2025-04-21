@@ -42,6 +42,25 @@ import TransactionStatusMessage from './reusable/TransactionStatusMessage'
 import TransactionSearch from './reusable/TransactionSearch'
 import { useChainData } from '../hooks/useChainData'
 import { ChainData } from '@plugins/pluginTypes'
+import { gql, useSubscription } from '@apollo/client'
+
+const GET_TX_STATUS = gql`
+  subscription MySubscription {
+    transaction_data(limit: 1, order_by: { tx_id: desc }) {
+      txstatus
+      tx_id
+      originaddress
+      originchain
+      originsymbol
+      targetaddress
+      targetchain
+      targetsymbol
+      fee
+      amount
+      creator
+    }
+  }
+`
 
 export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [step, setStep] = useState(0)
@@ -65,6 +84,16 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const networks = useSelector(selectNetworks)
 
   const { successHandler, closeHandler } = useKimaContext()
+
+  const {
+    data: txData,
+    loading,
+    error: txError
+  } = useSubscription(GET_TX_STATUS)
+
+  useEffect(() => {
+    console.log(txData, loading, txError)
+  }, [txData, loading, txError])
 
   const backendUrl = useSelector(selectBackendUrl)
   const { data, error } = useGetTxData(txId, dAppOption, backendUrl)

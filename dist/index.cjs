@@ -3845,6 +3845,39 @@ initializePlugins([evm_default, solana_default, tron_default]);
 // src/KimaProvider.tsx
 var import_web39 = require("@solana/web3.js");
 var import_ethers8 = require("ethers");
+var import_client2 = require("@apollo/client");
+
+// src/apolloClient.tsx
+var import_client = require("@apollo/client");
+var import_subscriptions = require("@apollo/client/link/subscriptions");
+var import_utilities = require("@apollo/client/utilities");
+var import_graphql_ws = require("graphql-ws");
+var httpLink = new import_client.HttpLink({
+  uri: "https://graphql.staging.kima.finance/v1/graphql",
+  headers: {}
+});
+var wsLink = new import_subscriptions.GraphQLWsLink(
+  (0, import_graphql_ws.createClient)({
+    url: "wss://graphql.staging.kima.finance/v1/graphql",
+    connectionParams: {
+      headers: {}
+    }
+  })
+);
+var splitLink = (0, import_client.split)(
+  ({ query }) => {
+    const def = (0, import_utilities.getMainDefinition)(query);
+    return def.kind === "OperationDefinition" && def.operation === "subscription";
+  },
+  wsLink,
+  httpLink
+);
+var client = new import_client.ApolloClient({
+  link: splitLink,
+  cache: new import_client.InMemoryCache()
+});
+
+// src/KimaProvider.tsx
 var queryClient = new import_react_query11.QueryClient();
 var KimaContext = (0, import_react91.createContext)(void 0);
 var useKimaContext = () => {
@@ -3915,14 +3948,14 @@ var KimaProvider = ({
     errorHandler,
     switchChainHandler
   };
-  return /* @__PURE__ */ React77.createElement(import_react_query11.QueryClientProvider, { client: queryClient }, /* @__PURE__ */ React77.createElement(import_react_redux14.Provider, { store }, /* @__PURE__ */ React77.createElement(KimaContext.Provider, { value: kimaContext }, /* @__PURE__ */ React77.createElement(
+  return /* @__PURE__ */ React77.createElement(import_client2.ApolloProvider, { client }, /* @__PURE__ */ React77.createElement(import_react_query11.QueryClientProvider, { client: queryClient }, /* @__PURE__ */ React77.createElement(import_react_redux14.Provider, { store }, /* @__PURE__ */ React77.createElement(KimaContext.Provider, { value: kimaContext }, /* @__PURE__ */ React77.createElement(
     InternalKimaProvider,
     {
       kimaBackendUrl,
       walletConnectProjectId
     },
     children
-  ))));
+  )))));
 };
 var KimaProvider_default = KimaProvider;
 
@@ -4899,7 +4932,8 @@ var isFinished = (data) => {
     "FailedToPay" /* FAILEDTOPAY */,
     "UnAvailable" /* UNAVAILABLE */,
     "RefundFailed" /* REFUNDFAILED */,
-    "RefundCompleted" /* REFUNDCOMPLETED */
+    "RefundCompleted" /* REFUNDCOMPLETED */,
+    "DeclinedInvalid" /* DECLINEDINVALID */
   ].includes(data.status);
 };
 var getTxData = async ({
@@ -5006,6 +5040,24 @@ var TransactionSearch = () => {
 var TransactionSearch_default = TransactionSearch;
 
 // src/components/TransactionWidget.tsx
+var import_client3 = require("@apollo/client");
+var GET_TX_STATUS = import_client3.gql`
+  subscription MySubscription {
+    transaction_data(limit: 1, order_by: { tx_id: desc }) {
+      txstatus
+      tx_id
+      originaddress
+      originchain
+      originsymbol
+      targetaddress
+      targetchain
+      targetsymbol
+      fee
+      amount
+      creator
+    }
+  }
+`;
 var TransactionWidget = ({ theme }) => {
   const [step, setStep] = (0, import_react121.useState)(0);
   const [focus, setFocus] = (0, import_react121.useState)(-1);
@@ -5027,6 +5079,14 @@ var TransactionWidget = ({ theme }) => {
   const targetSymbol = (0, import_react_redux38.useSelector)(selectTargetCurrency);
   const networks = (0, import_react_redux38.useSelector)(selectNetworks);
   const { successHandler, closeHandler } = useKimaContext();
+  const {
+    data: txData,
+    loading,
+    error: txError
+  } = (0, import_client3.useSubscription)(GET_TX_STATUS);
+  (0, import_react121.useEffect)(() => {
+    console.log(txData, loading, txError);
+  }, [txData, loading, txError]);
   const backendUrl = (0, import_react_redux38.useSelector)(selectBackendUrl);
   const { data, error } = useGetTxData_default(txId, dAppOption, backendUrl);
   const transactionSourceChain = (0, import_react121.useMemo)(

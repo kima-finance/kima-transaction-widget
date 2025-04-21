@@ -3889,6 +3889,39 @@ initializePlugins([evm_default, solana_default, tron_default]);
 // src/KimaProvider.tsx
 import { PublicKey as PublicKey6 } from "@solana/web3.js";
 import { JsonRpcSigner as JsonRpcSigner2 } from "ethers";
+import { ApolloProvider } from "@apollo/client";
+
+// src/apolloClient.tsx
+import { ApolloClient, InMemoryCache, HttpLink, split } from "@apollo/client";
+import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
+import { getMainDefinition } from "@apollo/client/utilities";
+import { createClient } from "graphql-ws";
+var httpLink = new HttpLink({
+  uri: "https://graphql.staging.kima.finance/v1/graphql",
+  headers: {}
+});
+var wsLink = new GraphQLWsLink(
+  createClient({
+    url: "wss://graphql.staging.kima.finance/v1/graphql",
+    connectionParams: {
+      headers: {}
+    }
+  })
+);
+var splitLink = split(
+  ({ query }) => {
+    const def = getMainDefinition(query);
+    return def.kind === "OperationDefinition" && def.operation === "subscription";
+  },
+  wsLink,
+  httpLink
+);
+var client = new ApolloClient({
+  link: splitLink,
+  cache: new InMemoryCache()
+});
+
+// src/KimaProvider.tsx
 var queryClient = new QueryClient();
 var KimaContext = createContext(void 0);
 var useKimaContext = () => {
@@ -3959,14 +3992,14 @@ var KimaProvider = ({
     errorHandler,
     switchChainHandler
   };
-  return /* @__PURE__ */ React77.createElement(QueryClientProvider, { client: queryClient }, /* @__PURE__ */ React77.createElement(Provider, { store }, /* @__PURE__ */ React77.createElement(KimaContext.Provider, { value: kimaContext }, /* @__PURE__ */ React77.createElement(
+  return /* @__PURE__ */ React77.createElement(ApolloProvider, { client }, /* @__PURE__ */ React77.createElement(QueryClientProvider, { client: queryClient }, /* @__PURE__ */ React77.createElement(Provider, { store }, /* @__PURE__ */ React77.createElement(KimaContext.Provider, { value: kimaContext }, /* @__PURE__ */ React77.createElement(
     InternalKimaProvider,
     {
       kimaBackendUrl,
       walletConnectProjectId
     },
     children
-  ))));
+  )))));
 };
 var KimaProvider_default = KimaProvider;
 
@@ -4943,7 +4976,8 @@ var isFinished = (data) => {
     "FailedToPay" /* FAILEDTOPAY */,
     "UnAvailable" /* UNAVAILABLE */,
     "RefundFailed" /* REFUNDFAILED */,
-    "RefundCompleted" /* REFUNDCOMPLETED */
+    "RefundCompleted" /* REFUNDCOMPLETED */,
+    "DeclinedInvalid" /* DECLINEDINVALID */
   ].includes(data.status);
 };
 var getTxData = async ({
@@ -5050,6 +5084,24 @@ var TransactionSearch = () => {
 var TransactionSearch_default = TransactionSearch;
 
 // src/components/TransactionWidget.tsx
+import { gql, useSubscription } from "@apollo/client";
+var GET_TX_STATUS = gql`
+  subscription MySubscription {
+    transaction_data(limit: 1, order_by: { tx_id: desc }) {
+      txstatus
+      tx_id
+      originaddress
+      originchain
+      originsymbol
+      targetaddress
+      targetchain
+      targetsymbol
+      fee
+      amount
+      creator
+    }
+  }
+`;
 var TransactionWidget = ({ theme }) => {
   const [step, setStep] = useState10(0);
   const [focus, setFocus] = useState10(-1);
@@ -5071,6 +5123,14 @@ var TransactionWidget = ({ theme }) => {
   const targetSymbol = useSelector27(selectTargetCurrency);
   const networks = useSelector27(selectNetworks);
   const { successHandler, closeHandler } = useKimaContext();
+  const {
+    data: txData,
+    loading,
+    error: txError
+  } = useSubscription(GET_TX_STATUS);
+  useEffect13(() => {
+    console.log(txData, loading, txError);
+  }, [txData, loading, txError]);
   const backendUrl = useSelector27(selectBackendUrl);
   const { data, error } = useGetTxData_default(txId, dAppOption, backendUrl);
   const transactionSourceChain = useMemo13(
