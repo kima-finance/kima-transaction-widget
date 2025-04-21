@@ -4943,7 +4943,8 @@ var isFinished = (data) => {
     "FailedToPay" /* FAILEDTOPAY */,
     "UnAvailable" /* UNAVAILABLE */,
     "RefundFailed" /* REFUNDFAILED */,
-    "RefundCompleted" /* REFUNDCOMPLETED */
+    "RefundCompleted" /* REFUNDCOMPLETED */,
+    "DeclinedInvalid" /* DECLINEDINVALID */
   ].includes(data.status);
 };
 var getTxData = async ({

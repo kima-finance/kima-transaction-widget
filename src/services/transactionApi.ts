@@ -111,7 +111,8 @@ const isFinished = (data: TransactionData | null) => {
       TransactionStatus.FAILEDTOPAY,
       TransactionStatus.UNAVAILABLE,
       TransactionStatus.REFUNDFAILED,
-      TransactionStatus.REFUNDCOMPLETED
+      TransactionStatus.REFUNDCOMPLETED,
+      TransactionStatus.DECLINEDINVALID
     ].includes(data.status)
   )
 }
