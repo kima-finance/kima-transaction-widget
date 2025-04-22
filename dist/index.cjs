@@ -4100,7 +4100,7 @@ var import_react144 = __toESM(require("react"), 1);
 
 // src/components/KimaWidgetWrapper.tsx
 var import_react140 = __toESM(require("react"), 1);
-var import_react_redux55 = require("react-redux");
+var import_react_redux56 = require("react-redux");
 
 // src/components/TransactionWidget.tsx
 var import_react125 = __toESM(require("react"), 1);
@@ -4723,7 +4723,6 @@ var chainIcons = {
   CC: CreditCard_default
 };
 function ChainIcon({ symbol }) {
-  console.log("icon: ", symbol, symbol === "FIAT");
   const Icon = symbol === "FIAT" ? chainIcons["CC"] : chainIcons[symbol];
   if (!Icon) {
     logger_default.warn(`Chain icon not found for symbol: ${symbol}`);
@@ -4945,7 +4944,6 @@ var StepBox = ({ step, errorStep, loadingStep, data }) => {
     () => networks.find((network) => network.shortName === data?.targetChain),
     [data, networks]
   );
-  console.log("data: ", data);
   return /* @__PURE__ */ import_react119.default.createElement("div", { className: "kima-stepbox" }, /* @__PURE__ */ import_react119.default.createElement("div", { className: `content-wrapper ${theme.colorMode}` }, stepInfo2.map((item, index) => /* @__PURE__ */ import_react119.default.createElement("div", { key: item.title, className: "step-item" }, /* @__PURE__ */ import_react119.default.createElement(
     "div",
     {
@@ -5397,7 +5395,7 @@ var TransactionWidget = ({ theme }) => {
       }
     },
     /* @__PURE__ */ import_react125.default.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ import_react125.default.createElement("div", { className: "topbar" }, /* @__PURE__ */ import_react125.default.createElement("div", { className: "title" }, isValidTxId && !error ? /* @__PURE__ */ import_react125.default.createElement("h3", { className: "transaction" }, mode !== "status" /* status */ ? data?.status === "Completed" /* COMPLETED */ ? "TRANSFERRED" : "TRANSFERING" : isEmptyStatus ? "GETTING TRANSACTION STATUS" : data?.status === "Completed" /* COMPLETED */ ? "TRANSFERRED" : "TRANSFERING", /* @__PURE__ */ import_react125.default.createElement("div", null, mode !== "status" /* status */ ? Number(amount) !== 0 ? formatterFloat2.format(
-      feeDeduct ? Number(amount) : Number(amount) + totalFee
+      feeDeduct ? Number(amount) : Number(amount) + +totalFee
     ) : "" : data?.amount || "", " ", mode !== "status" /* status */ ? `(${sourceSymbol})` : isEmptyStatus ? "" : `(${data?.sourceSymbol})`, /* @__PURE__ */ import_react125.default.createElement("div", { className: "title-icon" }, /* @__PURE__ */ import_react125.default.createElement(
       ChainIcon,
       {
@@ -5477,7 +5475,7 @@ var TransactionWidget = ({ theme }) => {
 
 // src/components/TransferWidget.tsx
 var import_react138 = __toESM(require("react"), 1);
-var import_react_redux54 = require("react-redux");
+var import_react_redux55 = require("react-redux");
 
 // src/components/reusable/SingleForm.tsx
 var import_react127 = __toESM(require("react"), 1);
@@ -5506,13 +5504,6 @@ var getFees = async (amount, deductFee, originChain, originSymbol, targetChain, 
 var useGetFees = (amount, deductFees, sourceNetwork, sourceSymbol, targetNetwork, targetSymbol, originAddress, targetAddress, backendUrl) => {
   const mode = (0, import_react_redux42.useSelector)(selectMode);
   const feeDeductWithMode = mode === "payment" /* payment */ ? false : deductFees;
-  console.log({
-    backendUrl,
-    amount,
-    sourceNetwork,
-    sourceSymbol,
-    targetNetwork
-  });
   return (0, import_react_query13.useQuery)({
     queryKey: [
       "fees",
@@ -6430,18 +6421,20 @@ var WarningModal_default = WarningModal;
 var import_react137 = __toESM(require("react"), 1);
 var import_react_redux53 = require("react-redux");
 var import_uuid = require("uuid");
+var import_react_redux54 = require("react-redux");
 var CCWidget = () => {
   const randomUserId = (0, import_uuid.v4)();
+  const dispatch = (0, import_react_redux54.useDispatch)();
   const feeDeduct = (0, import_react_redux53.useSelector)(selectFeeDeduct);
   const { allowanceAmount, submitAmount } = (0, import_react_redux53.useSelector)(selectServiceFee);
   const ccTransactionId = (0, import_react_redux53.useSelector)(selectCCTransactionId);
-  const txId = (0, import_react_redux53.useSelector)(selectTxId);
-  const baseUrl = `${window.location.protocol}//${window.location.host}/`;
-  console.log("current url: ", baseUrl);
   (0, import_react137.useEffect)(() => {
     const handleMessage = (event) => {
+      console.log("postMessage: new message: ", event);
+      if (event.data.type === "isCompleted") {
+        dispatch(setCCWidgetProcessed(true));
+      }
       if (event.origin !== "https://widget-sandbox.depasify.com") return;
-      console.log("[iframe message received]:", event.data);
     };
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
@@ -6451,7 +6444,7 @@ var CCWidget = () => {
     {
       width: 600,
       height: 600,
-      src: `https://widget-sandbox.depasify.com/widgets/kyc?partner=Kima&user_uuid=${randomUserId}&scenario=direct_card_payment&amount=${feeDeduct ? submitAmount : allowanceAmount}&currency=USD&trx_uuid=${ccTransactionId}&redirect_url=${baseUrl}/status?txId=${txId}`,
+      src: `https://widget-sandbox.depasify.com/widgets/kyc?partner=Kima&user_uuid=${randomUserId}&scenario=direct_card_payment&amount=${feeDeduct ? submitAmount : allowanceAmount}&currency=USD&trx_uuid=${ccTransactionId}&postmessage=true`,
       loading: "lazy",
       title: "Credit Card Widget"
     }
@@ -6467,39 +6460,39 @@ var TransferWidget = ({
   titleOption,
   paymentTitleOption
 }) => {
-  const dispatch = (0, import_react_redux54.useDispatch)();
+  const dispatch = (0, import_react_redux55.useDispatch)();
   const mainRef = (0, import_react138.useRef)(null);
   const [signature, setSignature2] = (0, import_react138.useState)("");
   const [formStep, setFormStep] = (0, import_react138.useState)(0);
   const [warningModalOpen, setWarningModalOpen] = (0, import_react138.useState)(null);
-  const dAppOption = (0, import_react_redux54.useSelector)(selectDappOption);
-  const mode = (0, import_react_redux54.useSelector)(selectMode);
-  const transactionOption = (0, import_react_redux54.useSelector)(selectTransactionOption);
-  const backendUrl = (0, import_react_redux54.useSelector)(selectBackendUrl);
-  const sourceAddress = (0, import_react_redux54.useSelector)(selectSourceAddress);
-  const targetAddress = (0, import_react_redux54.useSelector)(selectTargetAddress);
-  const sourceChain = (0, import_react_redux54.useSelector)(selectSourceChain);
-  const targetChain = (0, import_react_redux54.useSelector)(selectTargetChain);
-  const sourceCurrency = (0, import_react_redux54.useSelector)(selectSourceCurrency);
-  const targetCurrency = (0, import_react_redux54.useSelector)(selectTargetCurrency);
-  const amount = (0, import_react_redux54.useSelector)(selectAmount);
+  const dAppOption = (0, import_react_redux55.useSelector)(selectDappOption);
+  const mode = (0, import_react_redux55.useSelector)(selectMode);
+  const transactionOption = (0, import_react_redux55.useSelector)(selectTransactionOption);
+  const backendUrl = (0, import_react_redux55.useSelector)(selectBackendUrl);
+  const sourceAddress = (0, import_react_redux55.useSelector)(selectSourceAddress);
+  const targetAddress = (0, import_react_redux55.useSelector)(selectTargetAddress);
+  const sourceChain = (0, import_react_redux55.useSelector)(selectSourceChain);
+  const targetChain = (0, import_react_redux55.useSelector)(selectTargetChain);
+  const sourceCurrency = (0, import_react_redux55.useSelector)(selectSourceCurrency);
+  const targetCurrency = (0, import_react_redux55.useSelector)(selectTargetCurrency);
+  const amount = (0, import_react_redux55.useSelector)(selectAmount);
   const {
     totalFee,
     targetFee,
     submitAmount,
     decimals: feeDecimals
-  } = (0, import_react_redux54.useSelector)(selectServiceFee);
-  const compliantOption = (0, import_react_redux54.useSelector)(selectCompliantOption);
-  const networkOptions3 = (0, import_react_redux54.useSelector)(selectNetworkOption);
-  const feeDeduct = (0, import_react_redux54.useSelector)(selectFeeDeduct);
+  } = (0, import_react_redux55.useSelector)(selectServiceFee);
+  const compliantOption = (0, import_react_redux55.useSelector)(selectCompliantOption);
+  const networkOptions3 = (0, import_react_redux55.useSelector)(selectNetworkOption);
+  const feeDeduct = (0, import_react_redux55.useSelector)(selectFeeDeduct);
   const { keplrHandler, closeHandler } = useKimaContext();
   const [isCancellingApprove, setCancellingApprove] = (0, import_react138.useState)(false);
   const [isApproving, setApproving] = (0, import_react138.useState)(false);
   const [isSigning, setSigning] = (0, import_react138.useState)(false);
-  const pendingTxs = (0, import_react_redux54.useSelector)(selectPendingTxs);
-  const networks = (0, import_react_redux54.useSelector)(selectNetworks);
-  const submitted = (0, import_react_redux54.useSelector)(selectSubmitted);
-  const ccWidgetProcessed = (0, import_react_redux54.useSelector)(selectCCWidgetProcessed);
+  const pendingTxs = (0, import_react_redux55.useSelector)(selectPendingTxs);
+  const networks = (0, import_react_redux55.useSelector)(selectNetworks);
+  const submitted = (0, import_react_redux55.useSelector)(selectSubmitted);
+  const ccWidgetProcessed = (0, import_react_redux55.useSelector)(selectCCWidgetProcessed);
   const { width: windowWidth } = useWidth_default();
   const { disconnectWallet } = useDisconnectWallet4();
   const { balance } = useBalance2();
@@ -6831,11 +6824,11 @@ var KimaWidgetWrapper = ({
 }) => {
   useDebugCode();
   const { kimaBackendUrl } = useKimaContext();
-  const submitted = (0, import_react_redux55.useSelector)(selectSubmitted);
-  const dispatch = (0, import_react_redux55.useDispatch)();
+  const submitted = (0, import_react_redux56.useSelector)(selectSubmitted);
+  const dispatch = (0, import_react_redux56.useDispatch)();
   const { setThemeMode, setThemeVariables } = (0, import_react141.useAppKitTheme)();
-  const sourceChain = (0, import_react_redux55.useSelector)(selectSourceChain);
-  const ccWidgetProcessed = (0, import_react_redux55.useSelector)(selectCCWidgetProcessed);
+  const sourceChain = (0, import_react_redux56.useSelector)(selectSourceChain);
+  const ccWidgetProcessed = (0, import_react_redux56.useSelector)(selectCCWidgetProcessed);
   const networkOption = envOptions?.env;
   const kimaExplorer = envOptions?.kimaExplorer || "https://explorer.sardis.kima.network";
   (0, import_react140.useEffect)(() => {
@@ -6912,7 +6905,7 @@ var KimaWidgetWrapper = ({
 var KimaWidgetWrapper_default = KimaWidgetWrapper;
 
 // src/components/KimaTransactionWidget.tsx
-var import_react_redux56 = require("react-redux");
+var import_react_redux57 = require("react-redux");
 
 // src/SkeletonLoader.tsx
 var import_react142 = __toESM(require("react"), 1);
@@ -6964,7 +6957,7 @@ var KimaTransactionWidget = ({
   excludedSourceNetworks = [],
   excludedTargetNetworks = []
 }) => {
-  const dispatch = (0, import_react_redux56.useDispatch)();
+  const dispatch = (0, import_react_redux57.useDispatch)();
   const { kimaBackendUrl } = useKimaContext();
   const [hydrated, setHydrated] = (0, import_react144.useState)(false);
   const {
