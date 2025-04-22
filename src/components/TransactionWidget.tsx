@@ -277,7 +277,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                         ? formatterFloat.format(
                             feeDeduct
                               ? Number(amount)
-                              : Number(amount) + totalFee
+                              : Number(amount) + +totalFee
                           )
                         : ''
                       : data?.amount || ''}{' '}
