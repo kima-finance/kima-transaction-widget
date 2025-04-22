@@ -21,14 +21,6 @@ const useGetFees = (
   const mode = useSelector(selectMode)
   const feeDeductWithMode = mode === ModeOptions.payment ? false : deductFees
 
-  console.log({
-    backendUrl,
-    amount,
-    sourceNetwork,
-    sourceSymbol,
-    targetNetwork
-  })
-
   return useQuery<ServiceFee, Error>({
     queryKey: [
       'fees',
