@@ -5304,14 +5304,24 @@ var useGetFees = (amount, deductFees, sourceNetwork, sourceAddress, sourceSymbol
   const mode = (0, import_react_redux40.useSelector)(selectMode);
   const feeDeductWithMode = mode === "payment" /* payment */ ? false : deductFees;
   return (0, import_react_query13.useQuery)({
-    queryKey: ["fees", amount, feeDeductWithMode, sourceNetwork, targetNetwork],
+    queryKey: [
+      "fees",
+      amount,
+      feeDeductWithMode,
+      sourceNetwork,
+      targetNetwork,
+      sourceAddress,
+      targetAddress
+    ],
     queryFn: async () => {
       console.log("useGetFees: ", {
         amount,
         deductFees,
         feeDeductWithMode,
         sourceNetwork,
-        targetNetwork
+        targetNetwork,
+        sourceAddress,
+        targetAddress
       });
       return await getFees(
         amount,

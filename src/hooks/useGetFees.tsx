@@ -21,14 +21,24 @@ const useGetFees = (
   const feeDeductWithMode = mode === ModeOptions.payment ? false : deductFees
 
   return useQuery<ServiceFee, Error>({
-    queryKey: ['fees', amount, feeDeductWithMode, sourceNetwork, targetNetwork],
+    queryKey: [
+      'fees',
+      amount,
+      feeDeductWithMode,
+      sourceNetwork,
+      targetNetwork,
+      sourceAddress,
+      targetAddress
+    ],
     queryFn: async () => {
       console.log('useGetFees: ', {
         amount,
         deductFees,
         feeDeductWithMode,
         sourceNetwork,
-        targetNetwork
+        targetNetwork,
+        sourceAddress,
+        targetAddress
       })
       return await getFees(
         amount!,

@@ -5348,14 +5348,24 @@ var useGetFees = (amount, deductFees, sourceNetwork, sourceAddress, sourceSymbol
   const mode = useSelector28(selectMode);
   const feeDeductWithMode = mode === "payment" /* payment */ ? false : deductFees;
   return useQuery12({
-    queryKey: ["fees", amount, feeDeductWithMode, sourceNetwork, targetNetwork],
+    queryKey: [
+      "fees",
+      amount,
+      feeDeductWithMode,
+      sourceNetwork,
+      targetNetwork,
+      sourceAddress,
+      targetAddress
+    ],
     queryFn: async () => {
       console.log("useGetFees: ", {
         amount,
         deductFees,
         feeDeductWithMode,
         sourceNetwork,
-        targetNetwork
+        targetNetwork,
+        sourceAddress,
+        targetAddress
       });
       return await getFees(
         amount,
