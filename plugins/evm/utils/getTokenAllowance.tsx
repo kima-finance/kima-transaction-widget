@@ -28,7 +28,10 @@ export const getTokenAllowance = async ({
 
     const poolAddress = getPoolAddress(pools, chain)
 
-    if (!tokenAddress || !poolAddress || !userAddress) return
+    if (!tokenAddress || !poolAddress || !userAddress)
+      throw new Error(
+        'Cannot find pool or token address for the specified token and chain'
+      )
 
     // determine network based on mainnet/testnet
     const network = isTestnet

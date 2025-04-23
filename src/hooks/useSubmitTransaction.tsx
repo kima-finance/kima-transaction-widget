@@ -47,7 +47,7 @@ const useSubmitTransaction = ({
         targetChain,
         originSymbol,
         targetSymbol,
-        amount: amount.toString(),
+        amount: feeDeduct ? (amount - totalFee).toString() : amount.toString(),
         fee: totalFee.toString(),
         decimals,
         htlcCreationHash: '',

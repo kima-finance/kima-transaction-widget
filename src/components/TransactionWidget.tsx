@@ -33,7 +33,8 @@ import {
   setSubmitted,
   setTargetAddress,
   setTargetChain,
-  setTargetCurrency
+  setTargetCurrency,
+  setTxId
 } from '@store/optionSlice'
 import useGetTxData from '../hooks/useGetTxData'
 import ChainIcon from './reusable/ChainIcon'
@@ -209,6 +210,12 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
 
   const resetForm = () => {
     closeHandler && closeHandler()
+    if (mode === ModeOptions.status && amount === '') {
+      dispatch(setMode(ModeOptions.status))
+      dispatch(setTxId(-1))
+      return dispatch(setSubmitted(true))
+    }
+
     if (mode !== ModeOptions.payment) {
       // reset to default values
       if (transactionOption?.sourceChain) {

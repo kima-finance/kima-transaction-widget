@@ -57,7 +57,7 @@ const ConfirmDetails = ({
   const networkOptions = useSelector(selectNetworks)
 
   const transactionOption = useSelector(selectTransactionOption)
-  const { walletAddress } = useIsWalletReady()
+  const { connectedAddress } = useIsWalletReady()
   const sourceChainOption = useMemo(
     () => networkOptions.filter((network) => network.id === sourceChain.id)[0],
     [networkOptions, sourceChain]
@@ -83,13 +83,13 @@ const ConfirmDetails = ({
     width === 0 && updateWidth(window.innerWidth)
   }, [])
 
-  const sourceWalletAddress = useMemo(() => {
+  const sourceconnectedAddress = useMemo(() => {
     return width >= 916
-      ? walletAddress
-      : getShortenedAddress(walletAddress || '')
-  }, [width, walletAddress])
+      ? connectedAddress
+      : getShortenedAddress(connectedAddress || '')
+  }, [width, connectedAddress])
 
-  const targetWalletAddress = useMemo(() => {
+  const targetconnectedAddress = useMemo(() => {
     return getShortenedAddress(
       (mode === ModeOptions.payment
         ? transactionOption?.targetAddress
@@ -161,10 +161,10 @@ const ConfirmDetails = ({
                 {width >= 916
                   ? dAppOption === DAppOptions.LPDrain
                     ? targetAddress
-                    : walletAddress
+                    : connectedAddress
                   : dAppOption === DAppOptions.LPDrain
-                    ? targetWalletAddress
-                    : sourceWalletAddress}
+                    ? targetconnectedAddress
+                    : sourceconnectedAddress}
               </p>
             )}
           </div>
@@ -261,11 +261,11 @@ const ConfirmDetails = ({
             <p className={theme.colorMode}>
               {width >= 916
                 ? dAppOption === DAppOptions.LPDrain
-                  ? walletAddress
+                  ? connectedAddress
                   : targetAddress
                 : dAppOption === DAppOptions.LPDrain
-                  ? sourceWalletAddress
-                  : targetWalletAddress}
+                  ? sourceconnectedAddress
+                  : targetconnectedAddress}
             </p>
           </div>
         </div>

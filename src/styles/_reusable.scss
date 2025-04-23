@@ -1624,7 +1624,9 @@
         }
 
         &.amount {
+          width: 100%;
           align-items: start;
+          padding: 20px 14px;
         }
 
         p {
@@ -1707,11 +1709,20 @@
         }
 
         .amount-container {
+          width: 100%;
           display: flex;
           flex-direction: column;
+<<<<<<< HEAD
           justify-content: start;
           width: 100%;
           font-weight: bold;
+=======
+          justify-content: space-between;
+
+          @include breakpoint(mobile) {
+            width: 100%;
+          }
+>>>>>>> refactor
 
           svg {
             margin-right: 6px;
@@ -1733,6 +1744,19 @@
               margin: 0;
               flex-grow: 0;
               width: fit-content;
+              font-weight: bold;
+            }
+          }
+
+          .fee-breakdown {
+            padding-left: 20px;
+
+            &.collapsed {
+              display: none;
+            }
+
+            .amount-details{
+              padding: 8px 6px !important; 
             }
           }
 
@@ -1752,6 +1776,7 @@
             display: flex;
             flex-direction: row;
             justify-content: space-between;
+<<<<<<< HEAD
             width: 100%;
             padding: 8px 0;
             font-size: 14px;
@@ -1760,6 +1785,19 @@
               cursor: pointer;
               display: flex;
               align-items: center;
+=======
+            // width: 300px;
+            padding: 8px 6px;
+            font-size: 14px;
+            // border-top: 1px solid $financeIcon;
+            font-weight: bold;
+
+            .fee-collapse {
+              display: flex;
+              gap: 4px;
+              align-items: center;
+              cursor: pointer;
+>>>>>>> refactor
             }
 
             &:first-of-type {
@@ -1772,8 +1810,12 @@
               font-size: 12px;
             }
 
-            &.fee {
-              color: red;
+            .service-fee {
+              font-weight: bold;
+            }
+
+            .final-amount {
+              font-weight: bold;
             }
 
             &:last-of-type {
@@ -2210,6 +2252,21 @@
       &.dark {
         color: white;
       }
+    }
+
+    .fee-option input[type='radio']:disabled {
+      border-color: $financeGrey;
+      background-color: transparent;
+      cursor: not-allowed;
+    }
+
+    .fee-option input[type='radio']:checked:disabled::before {
+      background-color: $financeGrey;
+    }
+
+    .fee-option input[type='radio']:disabled + .radio-label {
+      color: $financeGrey;
+      cursor: not-allowed;
     }
 
     .transaction-status-message {

@@ -42,7 +42,7 @@ export interface PluginUseBalanceResult {
 export interface PluginUseWalletIsReadyResult {
   isReady: boolean
   statusMessage: string
-  walletAddress?: string
+  connectedAddress?: string
 }
 
 export interface PluginUseDisconnectWalletResult {
@@ -58,6 +58,7 @@ export interface PluginProviderProps {
   children: React.ReactNode
   walletConnectProjectId: string
   networkOption: NetworkOptions | undefined
+  isLoading?: boolean
 }
 
 export interface PluginData {

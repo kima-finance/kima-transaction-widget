@@ -1886,7 +1886,9 @@
   border-top: none;
 }
 .kima-card .kima-card-content .confirm-details .detail-item.amount {
+  width: 100%;
   align-items: start;
+  padding: 20px 14px;
 }
 .kima-card .kima-card-content .confirm-details .detail-item p {
   margin: 0;
@@ -1962,11 +1964,15 @@
   color: white;
 }
 .kima-card .kima-card-content .confirm-details .detail-item .amount-container {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: start;
-  width: 100%;
-  font-weight: bold;
+  justify-content: space-between;
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .confirm-details .detail-item .amount-container {
+    width: 100%;
+  }
 }
 .kima-card .kima-card-content .confirm-details .detail-item .amount-container svg {
   margin-right: 6px;
@@ -1989,15 +1995,6 @@
   flex-grow: 0;
   width: fit-content;
 }
-.kima-card .kima-card-content .confirm-details .detail-item .amount-container .fee-breakdown {
-  padding-left: 20px;
-}
-.kima-card .kima-card-content .confirm-details .detail-item .amount-container .fee-breakdown.collapsed {
-  display: none;
-}
-.kima-card .kima-card-content .confirm-details .detail-item .amount-container .fee-breakdown .amount-details {
-  padding: 8px 6px !important;
-}
 .kima-card .kima-card-content .confirm-details .detail-item .amount-container .amount-details {
   display: flex;
   flex-direction: row;
@@ -2005,11 +2002,13 @@
   width: 100%;
   padding: 8px 0;
   font-size: 14px;
+  font-weight: bold;
 }
 .kima-card .kima-card-content .confirm-details .detail-item .amount-container .amount-details .fee-collapse {
-  cursor: pointer;
   display: flex;
+  gap: 4px;
   align-items: center;
+  cursor: pointer;
 }
 .kima-card .kima-card-content .confirm-details .detail-item .amount-container .amount-details:first-of-type {
   border-top: none;
@@ -2021,8 +2020,11 @@
     font-size: 12px;
   }
 }
-.kima-card .kima-card-content .confirm-details .detail-item .amount-container .amount-details.fee {
-  color: red;
+.kima-card .kima-card-content .confirm-details .detail-item .amount-container .amount-details .service-fee {
+  font-weight: bold;
+}
+.kima-card .kima-card-content .confirm-details .detail-item .amount-container .amount-details .final-amount {
+  font-weight: bold;
 }
 .kima-card .kima-card-content .confirm-details .detail-item .amount-container .amount-details:last-of-type {
   padding-top: 15px;
@@ -2399,6 +2401,18 @@
 }
 .kima-card .kima-card-content .radio-label.dark {
   color: white;
+}
+.kima-card .kima-card-content .fee-option input[type=radio]:disabled {
+  border-color: rgba(119, 141, 163, 0.3019607843);
+  background-color: transparent;
+  cursor: not-allowed;
+}
+.kima-card .kima-card-content .fee-option input[type=radio]:checked:disabled::before {
+  background-color: rgba(119, 141, 163, 0.3019607843);
+}
+.kima-card .kima-card-content .fee-option input[type=radio]:disabled + .radio-label {
+  color: rgba(119, 141, 163, 0.3019607843);
+  cursor: not-allowed;
 }
 .kima-card .kima-card-content .transaction-status-message {
   display: flex;
