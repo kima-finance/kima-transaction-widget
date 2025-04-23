@@ -9,7 +9,8 @@ import {
   selectTokenOptions,
   selectNetworkOption,
   selectBackendUrl,
-  selectFeeDeduct
+  selectFeeDeduct,
+  selectSourceAddress
 } from '@store/selectors'
 import {
   useWallet as useTronWallet,
@@ -35,6 +36,7 @@ import log from '@utils/logger'
 export default function useTronAllowance(): PluginUseAllowanceResult {
   const { externalProvider } = useKimaContext()
   const sourceChain = useSelector(selectSourceChain)
+  const sourceAddress = useSelector(selectSourceAddress)
   const networkOption = useSelector(selectNetworkOption)
   const backendUrl = useSelector(selectBackendUrl)
   const { allowanceAmount, submitAmount, decimals } =
@@ -73,9 +75,7 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
   isTronProvider && tronWeb.setAddress(TRON_USDK_OWNER_ADDRESS)
 
   // Set the proper user address
-  const userAddress = isTronProvider
-    ? (externalProvider.signer as string)
-    : internalUserAddress
+  const userAddress = sourceChain.shortName === 'TRX' ? sourceAddress : ''
 
   // Set the proper signTransaction function
   const signTronTransaction = isTronProvider
@@ -110,7 +110,7 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
     enabled:
       !!tokenOptions &&
       !!selectedCoin &&
-      !!userAddress &&
+      userAddress !== '' &&
       !!tronWeb &&
       pools.length > 0 &&
       sourceChain.shortName === 'TRX',

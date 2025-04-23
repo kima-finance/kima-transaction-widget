@@ -374,3 +374,14 @@ export enum LoadingErrorMessage {
   EnvLoadingError = 'There was an error loading the required environment variables from the backend. Please check that the backend is running properly and the widget points to the corresponding url.',
   ChainLoadingError = 'There was an error loading the chain data from the backend. Please check that the backend is running properly and the widget points to the corresponding url.'
 }
+
+export const lightDemoAccounts = {
+  EVM: '0x1150bd27bA25fa13806C98324F201dfe815A4502',
+  // EVM: '0x10962c43ea1bfE1186Dbf59985Df4E1ce94Ca4a9', // personal for testing
+  SOL: 'GtJAoe2hfKqczCnp3hdKnMK4JC96juQWv5nkn5qgpbZ8',
+  // SOL: 'HeiUB7M6WESHurGs2nBbX9tyGC3RcTwtnJZjdRigNZRT', // personal for testing
+  TRX: 'TBVn4bsBN4DhtZ7D3vEVpAyqkvdFn7zmpU'
+  // TRX: 'TL6yGtzbHfQdBRFYh4TLFoU5iiPMmpQtur' // personal for testing
+}
+
+export const lightDemoNetworks = ['ARB', 'AVX', 'BASE', 'OPT', 'BSC', 'SOL']

@@ -5,7 +5,9 @@ import { getTransactionId } from '@utils/functions'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 import log from '@utils/logger'
 import { useSelector } from 'react-redux'
-import { selectFeeDeduct } from '@store/selectors'
+import { selectFeeDeduct, selectMode } from '@store/selectors'
+import { ModeOptions } from '@interface'
+import { lightDemoAccounts } from '@utils/constants'
 
 const useSubmitTransaction = ({
   amount,
@@ -32,6 +34,7 @@ const useSubmitTransaction = ({
 }) => {
   const dispatch = useDispatch()
   const feeDeduct = useSelector(selectFeeDeduct)
+  const mode = useSelector(selectMode)
 
   const [isSubmitting, setSubmitting] = useState(false)
 
@@ -42,7 +45,14 @@ const useSubmitTransaction = ({
       const params = JSON.stringify({
         originAddress,
         originChain,
-        targetAddress,
+        targetAddress:
+          mode === ModeOptions.light
+            ? targetChain === 'SOL'
+              ? lightDemoAccounts.SOL
+              : targetChain === 'TRX'
+                ? lightDemoAccounts.TRX
+                : lightDemoAccounts.EVM
+            : targetAddress,
         targetChain,
         originSymbol,
         targetSymbol,
@@ -54,7 +64,9 @@ const useSubmitTransaction = ({
         htlcExpirationTimestamp: '0',
         htlcVersion: '',
         senderPubKey: '',
-        options: JSON.stringify({ signature })
+        options: JSON.stringify({ signature }),
+        mode,
+        feeDeduct
       })
 
       const transactionResult: any = await fetchWrapper.post(

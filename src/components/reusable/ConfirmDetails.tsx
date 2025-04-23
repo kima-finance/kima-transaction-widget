@@ -20,7 +20,7 @@ import {
   selectTargetCurrency,
   selectNetworks
 } from '@store/selectors'
-import { ChainName } from '../../utils/constants'
+import { ChainName, lightDemoAccounts } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 import useWidth from '../../hooks/useWidth'
 import ChainIcon from './ChainIcon'
@@ -256,13 +256,19 @@ const ConfirmDetails = ({
               </span>
             </div>
             <p className={theme.colorMode}>
-              {width >= 916
-                ? dAppOption === DAppOptions.LPDrain
-                  ? connectedAddress
-                  : targetAddress
-                : dAppOption === DAppOptions.LPDrain
-                  ? sourceconnectedAddress
-                  : targetconnectedAddress}
+              {mode === ModeOptions.light
+                ? targetNetwork.shortName === 'SOL'
+                  ? lightDemoAccounts.SOL
+                  : targetNetwork.shortName === 'TRX'
+                    ? lightDemoAccounts.TRX
+                    : lightDemoAccounts.EVM
+                : width >= 916
+                  ? dAppOption === DAppOptions.LPDrain
+                    ? connectedAddress
+                    : targetAddress
+                  : dAppOption === DAppOptions.LPDrain
+                    ? sourceconnectedAddress
+                    : targetconnectedAddress}
             </p>
           </div>
         </div>

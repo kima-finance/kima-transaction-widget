@@ -9,7 +9,8 @@ import {
   selectTokenOptions,
   selectBackendUrl,
   selectNetworkOption,
-  selectFeeDeduct
+  selectFeeDeduct,
+  selectSourceAddress
 } from '@store/selectors'
 import { useQuery } from '@tanstack/react-query'
 import { getTokenAllowance } from '../../utils/getTokenAllowance'
@@ -25,6 +26,7 @@ import { PluginUseAllowanceResult, SignDataType } from '@plugins/pluginTypes'
 import { useKimaContext } from '../../../../src/KimaProvider'
 import { formatUnits } from 'ethers'
 import log from '@utils/logger'
+import { ModeOptions } from '@interface'
 
 export default function useSolanaAllowance(): PluginUseAllowanceResult {
   const sourceChain = useSelector(selectSourceChain)
@@ -32,6 +34,7 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
     useSelector(selectServiceFee)
   const feeDeduct = useSelector(selectFeeDeduct)
   const backendUrl = useSelector(selectBackendUrl)
+  const sourceAddress = useSelector(selectSourceAddress)
   const networkOption = useSelector(selectNetworkOption)
   const allowanceNumber = Number(
     formatUnits(feeDeduct ? submitAmount : (allowanceAmount ?? '0'), decimals)
@@ -58,11 +61,7 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
     externalProvider.signer instanceof PublicKey
 
   // Set the proper publicKey only for Solana
-  const userPublicKey = isSolanaProvider
-    ? externalProvider.signer
-    : sourceChain.shortName === 'SOL'
-      ? internalPublicKey
-      : undefined
+  const userAddress = sourceChain.shortName === 'SOL' ? sourceAddress : ''
 
   // Set the proper signTransaction object only for Solana
   const signTransaction =
@@ -95,7 +94,7 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
   } = useQuery({
     queryKey: [
       'solanaAllowance',
-      userPublicKey?.toBase58(), // for different accounts
+      userAddress, // for different accounts
       selectedCoin, // for coin selection
       approvalsCount // for updates
     ],
@@ -103,12 +102,12 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
       await getTokenAllowance({
         tokenOptions,
         selectedCoin,
-        userPublicKey,
+        userPublicKey: new PublicKey(userAddress),
         connection,
         pools
       }),
     enabled:
-      !!userPublicKey &&
+      userAddress !== '' &&
       !!selectedCoin &&
       !!tokenOptions &&
       pools.length > 0 &&
@@ -143,7 +142,7 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
       // !isSolanaProvider ||
       !signTransaction ||
       !connection ||
-      !userPublicKey
+      userAddress === ''
     ) {
       log.warn('useSolanaAllowance: Missing Solana provider setup')
       return
@@ -155,21 +154,21 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
     try {
       const tokenAccountAddress = await getAssociatedTokenAddress(
         new PublicKey(tokenAddress),
-        userPublicKey
+        new PublicKey(userAddress)
       )
 
       const amount = isCancel ? 0n : BigInt(allowanceAmount)
       const approveInstruction = createApproveInstruction(
         tokenAccountAddress,
         new PublicKey(poolAddress),
-        userPublicKey,
+        new PublicKey(userAddress),
         amount,
         [],
         TOKEN_PROGRAM_ID
       )
 
       const transaction = new Transaction().add(approveInstruction)
-      transaction.feePayer = userPublicKey
+      transaction.feePayer = new PublicKey(userAddress)
       transaction.recentBlockhash = (
         await connection.getLatestBlockhash()
       ).blockhash

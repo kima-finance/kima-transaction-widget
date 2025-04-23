@@ -3,27 +3,40 @@ import { useSelector, useDispatch } from 'react-redux'
 import {
   selectExcludedSourceNetworks,
   selectExcludedTargetNetworks,
+  selectMode,
   selectNetworks,
   selectSourceChain,
   selectTargetChain,
   selectTheme
 } from '@store/selectors'
-import { setSourceChain, setTargetChain } from '@store/optionSlice'
+import {
+  setSourceChain,
+  setTargetAddress,
+  setTargetChain
+} from '@store/optionSlice'
 import Arrow from '@assets/icons/Arrow'
 import ChainIcon from '../reusable/ChainIcon'
-import { ChainName } from '@utils/constants'
+import {
+  ChainName,
+  lightDemoAccounts,
+  lightDemoNetworks
+} from '@utils/constants'
 import { useKimaContext } from 'src/KimaProvider'
-import { ChainData } from '@plugins/pluginTypes'
+import { ChainCompatibility, ChainData } from '@plugins/pluginTypes'
+import { ModeOptions } from '@interface'
 
 interface NetworkSelectorProps {
   type: 'source' | 'target' // Determines if this is a source or target selector
 }
+
+type DemoChainKey = keyof typeof lightDemoAccounts
 
 const NetworkSelector: React.FC<NetworkSelectorProps> = ({ type }) => {
   const [collapsed, setCollapsed] = useState(true)
   const ref = useRef<HTMLDivElement | null>(null)
 
   const dispatch = useDispatch()
+  const mode = useSelector(selectMode)
   const theme = useSelector(selectTheme)
   const networkOptions = useSelector(selectNetworks)
   const sourceNetwork = useSelector(selectSourceChain)
@@ -36,20 +49,30 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({ type }) => {
 
   // Filter networks based on the type (source/target)
   const networks = useMemo(() => {
-    if (isSourceSelector) {
-      return networkOptions.filter(
-        (network: ChainData) =>
-          !excludedSourceNetworks.includes(network.shortName as ChainName) &&
-          network.shortName !== 'BERA' // temporary disabled as source chain
+    let filteredNetworks = networkOptions
+
+    if (mode === ModeOptions.light) {
+      filteredNetworks = filteredNetworks.filter((network) =>
+        lightDemoNetworks.includes(network.shortName)
       )
     }
-    return networkOptions.filter(
+
+    if (isSourceSelector) {
+      return filteredNetworks.filter(
+        (network: ChainData) =>
+          !excludedSourceNetworks.includes(network.shortName as ChainName) &&
+          network.shortName !== 'BERA' // temporarily disabled
+      )
+    }
+
+    return filteredNetworks.filter(
       (network: ChainData) =>
         network.shortName !== sourceNetwork.shortName &&
         !excludedTargetNetworks.includes(network.shortName as ChainName)
-    ) // Exclude source from target options
+    )
   }, [
     networkOptions,
+    mode,
     sourceNetwork,
     isSourceSelector,
     excludedSourceNetworks,
@@ -89,6 +112,13 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({ type }) => {
     } else {
       if (chain.shortName !== targetNetwork.shortName) {
         dispatch(setTargetChain(chain))
+        const chainCompatibility: DemoChainKey =
+          chain.compatibility === ChainCompatibility.EVM
+            ? 'EVM'
+            : (chain.shortName as DemoChainKey)
+
+        if (mode === ModeOptions.light)
+          dispatch(setTargetAddress(lightDemoAccounts[chainCompatibility]))
       }
     }
     setCollapsed(true) // Explicitly collapse the dropdown after selection

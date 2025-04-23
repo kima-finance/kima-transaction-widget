@@ -2,18 +2,20 @@ import { useEffect, useMemo } from 'react'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import { useDispatch } from 'react-redux'
 import { useSelector } from 'react-redux'
-import { selectSourceChain } from '@store/selectors'
+import { selectMode, selectSourceChain } from '@store/selectors'
 import { setSourceAddress } from '@store/optionSlice'
 import { useKimaContext } from '../../../../src/KimaProvider'
+import { ModeOptions } from '@interface'
+import { lightDemoAccounts } from '@utils/constants'
 
 const createWalletStatus = (
   isReady: boolean,
   statusMessage: string = '',
-  walletAddress?: string
+  connectedAddress?: string
 ) => ({
   isReady,
   statusMessage,
-  walletAddress
+  connectedAddress
 })
 
 function useIsWalletReady(): {
@@ -22,18 +24,31 @@ function useIsWalletReady(): {
   connectedAddress?: string
 } {
   const dispatch = useDispatch()
+  const mode = useSelector(selectMode)
   const sourceChain = useSelector(selectSourceChain)
   const { externalProvider } = useKimaContext()
   const { address: internalTronAddress } = useTronWallet()
 
   // set source address upon connection & valid network selected
   useEffect(() => {
-    internalTronAddress &&
-      sourceChain.shortName === 'TRX' &&
-      dispatch(setSourceAddress(internalTronAddress))
-  }, [internalTronAddress, sourceChain])
+    if (sourceChain.shortName !== 'SOL') return
+
+    if (mode === ModeOptions.light) {
+      dispatch(setSourceAddress(lightDemoAccounts.SOL))
+      return
+    }
+
+    internalTronAddress && dispatch(setSourceAddress(internalTronAddress))
+  }, [mode, internalTronAddress, sourceChain])
 
   return useMemo(() => {
+    if (mode === ModeOptions.light)
+      return createWalletStatus(
+        true,
+        'Connected with light demo account',
+        lightDemoAccounts.TRX
+      )
+
     if (externalProvider && externalProvider.type === 'tron')
       return createWalletStatus(
         true,
@@ -42,7 +57,11 @@ function useIsWalletReady(): {
       )
 
     if (internalTronAddress)
-      return createWalletStatus(true, undefined, internalTronAddress)
+      return createWalletStatus(
+        true,
+        'Connected with internal provider',
+        internalTronAddress
+      )
 
     return createWalletStatus(false, 'Solana wallet not connected', '')
   }, [sourceChain, internalTronAddress, externalProvider])

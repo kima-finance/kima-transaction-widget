@@ -27,6 +27,8 @@ export const getTokenAllowance = async ({
     const tokenAddress = getTokenAddress(tokenOptions, selectedCoin, chain)
     const poolAddress = getPoolAddress(pools, chain)
 
+    console.log(tokenAddress, poolAddress, userAddress)
+
     if (!tokenAddress || !poolAddress || !userAddress)
       throw new Error(
         'Cannot find pool or token address for the specified token and chain'

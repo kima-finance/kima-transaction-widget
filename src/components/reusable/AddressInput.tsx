@@ -31,7 +31,7 @@ const AddressInput = ({
   const mode = useSelector(selectMode)
   const sourceChain = useSelector(selectSourceChain)
   const targetChain = useSelector(selectTargetChain)
-  const { walletAddress: sourceAddress, isReady } = useIsWalletReady()
+  const { connectedAddress: sourceAddress, isReady } = useIsWalletReady()
   const targetAddress = useSelector(selectTargetAddress)
 
   const isCompatible = (

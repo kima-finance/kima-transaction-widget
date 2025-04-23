@@ -10,7 +10,9 @@ import {
   selectNetworkOption,
   selectBackendUrl,
   selectFeeDeduct,
-  selectAmount
+  selectAmount,
+  selectMode,
+  selectSourceAddress
 } from '@store/selectors'
 import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
 import useGetPools from '../../../../src/hooks/useGetPools'
@@ -18,7 +20,7 @@ import { getTokenAllowance } from '../../utils/getTokenAllowance'
 import { getPoolAddress, getTokenAddress } from '@utils/functions'
 import { isEVMChain } from '@plugins/evm/utils/constants'
 import { useKimaContext } from '../../../../src/KimaProvider'
-import { NetworkOptions } from '@interface'
+import { ModeOptions, NetworkOptions } from '@interface'
 import { BrowserProvider, formatUnits } from 'ethers'
 import {
   createPublicClient,
@@ -35,8 +37,8 @@ export default function useEvmAllowance() {
   const { externalProvider } = useKimaContext()
   const { walletProvider: appkitProvider } =
     useAppKitProvider<BrowserProvider>('eip155')
-  const appkitAccountInfo = useAppKitAccount()
 
+  const mode = useSelector(selectMode)
   const sourceChain = useSelector(selectSourceChain)
   const networkOption = useSelector(selectNetworkOption)
   const { totalFeeUsd, allowanceAmount, submitAmount, decimals } =
@@ -54,8 +56,7 @@ export default function useEvmAllowance() {
   // log.debug("appkit provider:", appkitProvider);
 
   // get the proper address
-  const walletAddress =
-    externalProvider?.signer?.address || appkitAccountInfo?.address
+  const walletAddress = useSelector(selectSourceAddress)
 
   // log.debug("appkit account: ", appkitAccountInfo);
 
@@ -75,9 +76,20 @@ export default function useEvmAllowance() {
     !!selectedCoin &&
     pools.length > 0 &&
     isEVMChain(sourceChain.shortName) &&
-    (!!externalProvider?.provider || !!appkitProvider)
+    (!!externalProvider?.provider ||
+      !!appkitProvider ||
+      mode === ModeOptions.light)
 
-  // log.debug("enabled: ", enabled, );
+  // console.log({
+  //   walletAddress,
+  //   tokenOptions,
+  //   selectedCoin,
+  //   poolslength: pools.length > 0,
+  //   isevm: isEVMChain(sourceChain.shortName),
+  //   extprovider: !!externalProvider?.provider,
+  //   appkitprov: !!appkitProvider,
+  //   lightmode: mode === ModeOptions.light
+  // })
 
   const {
     data: allowanceData,

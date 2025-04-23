@@ -93,6 +93,8 @@ const SingleForm = ({
   )
 
   const maxValue = useMemo(() => {
+    if (mode === ModeOptions.light) return 1000
+
     if (!balance) return 0
     if (totalFeeUsd < 0) return balance
 
@@ -131,7 +133,7 @@ const SingleForm = ({
           <WalletButton />
         </div>
 
-        {mode === ModeOptions.bridge && (
+        {mode !== ModeOptions.payment && (
           <div className='form-item'>
             <span className='label'>Target Network:</span>
             <div className='items'>

@@ -11,7 +11,8 @@ import {
   selectSourceCurrency,
   selectSourceChain,
   selectSourceCompliant,
-  selectTheme
+  selectTheme,
+  selectMode
 } from '../../store/selectors'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
 import { ChainName } from '../../utils/constants'
@@ -27,12 +28,13 @@ import { formatUSD } from '../../helpers/functions'
 import useHideWuiListItem from '../../hooks/useHideActivityTab'
 import { useKimaContext } from '../../KimaProvider'
 import { useGetEnvOptions } from '../../hooks/useGetEnvOptions'
-import { NetworkOptions } from '@interface'
+import { ModeOptions, NetworkOptions } from '@interface'
 import log from '@utils/logger'
 
 const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const dispatch = useDispatch()
   const theme = useSelector(selectTheme)
+  const mode = useSelector(selectMode)
   const selectedCoin = useSelector(selectSourceCurrency)
   const sourceCompliant = useSelector(selectSourceCompliant)
   const compliantOption = useSelector(selectCompliantOption)
@@ -40,8 +42,11 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const { externalProvider } = useKimaContext()
   const { connected: isSolanaConnected } = useSolanaWallet()
   const { connected: isTronConnected } = useTronWallet()
-  const { isReady, statusMessage, connectedAddress /*, connectBitcoinWallet*/ } =
-    useIsWalletReady()
+  const {
+    isReady,
+    statusMessage,
+    connectedAddress /*, connectBitcoinWallet*/
+  } = useIsWalletReady()
   const { balance } = useBalance()
   const { open } = useAppKit()
   const { open: isModalOpen } = useAppKitState()
@@ -76,7 +81,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
     log.debug('Handling click')
 
     // TODO: Refactor to use evm account details modal
-    if (externalProvider) return
+    if (externalProvider || mode === ModeOptions.light) return
 
     if (selectedNetwork.shortName === ChainName.SOLANA) {
       log.debug('Handling click: Case SOL', 1)

@@ -186,7 +186,7 @@ export const TransferWidget = ({
     }
 
     // if is missing approve, trigger approval
-    if (error === ValidationError.ApprovalNeeded) {
+    if (error === ValidationError.ApprovalNeeded && mode !== ModeOptions.light) {
       const sig = await signMessage?.({
         targetAddress,
         targetChain: targetChain.shortName,
@@ -213,7 +213,7 @@ export const TransferWidget = ({
     // check signature before submit
 
     let sig = signature
-    if (!sig) {
+    if (!sig && mode !== ModeOptions.light) {
       sig = await signMessage?.({
         targetAddress,
         targetChain: targetChain.shortName,
@@ -437,7 +437,7 @@ export const TransferWidget = ({
                 {formStep > 0 ? 'Back' : 'Cancel'}
               </SecondaryButton>
             )}
-            {allowance > 0 && formStep !== 0 ? (
+            {allowance > 0 && formStep !== 0 && mode !== ModeOptions.light ? (
               <SecondaryButton
                 clickHandler={onCancelApprove}
                 isLoading={isCancellingApprove}

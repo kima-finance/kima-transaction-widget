@@ -8,11 +8,13 @@ import {
   selectSourceChain,
   selectTokenOptions,
   selectSourceCurrency,
-  selectNetworkOption
+  selectNetworkOption,
+  selectSourceAddress,
+  selectMode
 } from '@store/selectors'
 import { ChainName, isEVMChain } from '../../utils/constants'
 import { isEmptyObject } from '../../helpers/functions'
-import { NetworkOptions } from '@interface'
+import { ModeOptions, NetworkOptions } from '@interface'
 import { getEvmTokenBalance } from '../../utils/getTokenBalance'
 import log from '@utils/logger'
 
@@ -24,6 +26,7 @@ export default function useBalance() {
   const { walletProvider } = useAppKitProvider('eip155')
   const { externalProvider } = useKimaContext()
 
+  const mode = useSelector(selectMode)
   const sourceChain = useSelector(selectSourceChain)
   const sourceCurrency = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
@@ -41,7 +44,7 @@ export default function useBalance() {
   }, [sourceCurrency, sourceChain, tokenOptions])
 
   // Get wallet address from externalProvider or AppKit
-  const walletAddress = externalProvider?.signer?.address || signerAddress
+  const walletAddress = useSelector(selectSourceAddress)
 
   // Define query key
   const queryKey = ['evmBalance', sourceChain, tokenAddress, walletAddress]
@@ -51,7 +54,7 @@ export default function useBalance() {
     !!tokenAddress &&
     !!walletAddress &&
     isEVMChain(sourceChain.shortName) &&
-    (!!walletProvider || !!externalProvider)
+    (!!walletProvider || !!externalProvider || mode === ModeOptions.light)
 
   const result = useQuery({
     queryKey,

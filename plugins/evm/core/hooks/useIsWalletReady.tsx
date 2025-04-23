@@ -5,7 +5,11 @@ import {
   useAppKitNetwork,
   useAppKitProvider
 } from '@reown/appkit/react'
-import { selectBackendUrl, selectSourceChain } from '@store/selectors'
+import {
+  selectBackendUrl,
+  selectMode,
+  selectSourceChain
+} from '@store/selectors'
 import { setSourceAddress } from '@store/optionSlice'
 import { appKitModel } from '@plugins/evm/config/modalConfig'
 import { switchNetworkEthers } from '../../utils/switchNetworkEthers'
@@ -14,6 +18,8 @@ import { useChainData } from '../../../../src/hooks/useChainData'
 import { ChainCompatibility, ChainData } from '@plugins/pluginTypes'
 import { BrowserProvider } from 'ethers'
 import log from '@utils/logger'
+import { ModeOptions } from '@interface'
+import { lightDemoAccounts } from '@utils/constants'
 
 function useIsWalletReady(): {
   isReady: boolean
@@ -23,6 +29,7 @@ function useIsWalletReady(): {
   const dispatch = useDispatch()
   const { externalProvider } = useKimaContext()
   const backendUrl = useSelector(selectBackendUrl)
+  const mode = useSelector(selectMode)
   const { data: chains } = useChainData(backendUrl)
 
   const { walletProvider: appkitProvider } = useAppKitProvider('eip155')
@@ -62,6 +69,14 @@ function useIsWalletReady(): {
 
   useEffect(() => {
     async function checkChainId() {
+      // case light demo
+      if (mode === ModeOptions.light) {
+        setIsReady(true)
+        setConnectedAddress(lightDemoAccounts.EVM)
+        setStatusMessage('Connected light demo evm account')
+        return
+      }
+
       // case external provider
       if (externalProvider?.type === 'evm' && externalProvider?.provider) {
         try {

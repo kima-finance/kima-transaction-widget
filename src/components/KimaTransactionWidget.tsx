@@ -23,6 +23,7 @@ import { useDispatch } from 'react-redux'
 import { setSourceChain, setTargetChain, setTheme } from '@store/optionSlice'
 import SkeletonLoader from 'src/SkeletonLoader'
 import ErrorWidget from './ErrorWidget'
+import { Loading180Ring } from '@assets/loading'
 
 interface Props {
   theme: ThemeOptions
@@ -87,7 +88,7 @@ const KimaTransactionWidget = ({
   }, [theme?.colorMode])
 
   // Don't render until hydrated and theme is defined
-  if (!hydrated || !theme?.colorMode) return null
+  if (!hydrated || !theme?.colorMode) return <Loading180Ring width={20} height={20} fill='#86b8ce' />
 
   if (isLoadingEnvs || isLoadingChainData)
     return <SkeletonLoader theme={theme} />

@@ -71,7 +71,7 @@ const useValidateTransaction = ({
       }
     }
 
-    if (!targetAddress) {
+    if (!targetAddress && mode !== ModeOptions.light) {
       return {
         error: ValidationError.Error,
         message: 'Target address is not provided'

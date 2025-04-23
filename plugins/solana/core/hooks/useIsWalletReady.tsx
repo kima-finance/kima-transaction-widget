@@ -1,27 +1,30 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
 import { useSelector } from 'react-redux'
-import { selectSourceChain } from '@store/selectors'
+import { selectMode, selectSourceChain } from '@store/selectors'
 import { useDispatch } from 'react-redux'
 import { setSourceAddress } from '@store/optionSlice'
 import { useKimaContext } from '../../../../src/KimaProvider'
+import { ModeOptions } from '@interface'
+import { lightDemoAccounts } from '@utils/constants'
 
 const createWalletStatus = (
   isReady: boolean,
   statusMessage: string = '',
-  walletAddress?: string
+  connectedAddress?: string
 ) => ({
   isReady,
   statusMessage,
-  walletAddress
+  connectedAddress
 })
 
 function useIsWalletReady(): {
   isReady: boolean
   statusMessage: string
-  walletAddress?: string
+  connectedAddress?: string
 } {
   const dispatch = useDispatch()
+  const mode = useSelector(selectMode)
   const { externalProvider } = useKimaContext()
   const { publicKey: solanaAddress } = useSolanaWallet()
 
@@ -29,12 +32,24 @@ function useIsWalletReady(): {
 
   // set source address upon connection & valid network selected
   useEffect(() => {
-    solanaAddress &&
-      sourceChain === 'SOL' &&
-      dispatch(setSourceAddress(solanaAddress.toBase58()))
-  }, [solanaAddress, sourceChain])
+    if (sourceChain.shortName !== 'SOL') return
+
+    if (mode === ModeOptions.light) {
+      dispatch(setSourceAddress(lightDemoAccounts.SOL))
+      return
+    }
+
+    solanaAddress && dispatch(setSourceAddress(solanaAddress.toBase58()))
+  }, [mode, solanaAddress, sourceChain])
 
   return useMemo(() => {
+    if (mode === ModeOptions.light)
+      return createWalletStatus(
+        true,
+        'Connected light demo account',
+        lightDemoAccounts.SOL
+      )
+
     if (externalProvider && externalProvider.type === 'solana')
       return createWalletStatus(
         true,
@@ -43,7 +58,11 @@ function useIsWalletReady(): {
       )
 
     if (solanaAddress)
-      return createWalletStatus(true, undefined, solanaAddress.toBase58())
+      return createWalletStatus(
+        true,
+        'Connected with internal provider',
+        solanaAddress.toBase58()
+      )
 
     return createWalletStatus(false, 'Solana wallet not connected', '')
   }, [sourceChain, solanaAddress])
