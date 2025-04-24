@@ -384,4 +384,4 @@ export const lightDemoAccounts = {
   // TRX: 'TL6yGtzbHfQdBRFYh4TLFoU5iiPMmpQtur' // personal for testing
 }
 
-export const lightDemoNetworks = ['ARB', 'AVX', 'BASE', 'OPT', 'BSC', 'SOL']
+export const lightDemoNetworks = ['ARB', 'AVX', 'BASE', 'OPT', 'BSC', 'SOL', 'TRX']

@@ -158,7 +158,7 @@ function useIsWalletReady(): {
     }
 
     checkChainId()
-  }, [externalProvider, sourceChain, switchNetwork, walletChainId, isConnected])
+  }, [externalProvider, sourceChain, switchNetwork, walletChainId, isConnected, mode])
 
   useEffect(() => {
     if (
