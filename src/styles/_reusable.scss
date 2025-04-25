@@ -1712,17 +1712,9 @@
           width: 100%;
           display: flex;
           flex-direction: column;
-<<<<<<< HEAD
-          justify-content: start;
+          justify-content: space-between;
           width: 100%;
           font-weight: bold;
-=======
-          justify-content: space-between;
-
-          @include breakpoint(mobile) {
-            width: 100%;
-          }
->>>>>>> refactor
 
           svg {
             margin-right: 6px;
@@ -1744,7 +1736,6 @@
               margin: 0;
               flex-grow: 0;
               width: fit-content;
-              font-weight: bold;
             }
           }
 
@@ -1760,23 +1751,10 @@
             }
           }
 
-          .fee-breakdown {
-            padding-left: 20px;
-
-            &.collapsed {
-              display: none;
-            }
-
-            .amount-details {
-              padding: 8px 6px !important;
-            }
-          }
-
           .amount-details {
             display: flex;
             flex-direction: row;
             justify-content: space-between;
-<<<<<<< HEAD
             width: 100%;
             padding: 8px 0;
             font-size: 14px;
@@ -1785,19 +1763,6 @@
               cursor: pointer;
               display: flex;
               align-items: center;
-=======
-            // width: 300px;
-            padding: 8px 6px;
-            font-size: 14px;
-            // border-top: 1px solid $financeIcon;
-            font-weight: bold;
-
-            .fee-collapse {
-              display: flex;
-              gap: 4px;
-              align-items: center;
-              cursor: pointer;
->>>>>>> refactor
             }
 
             &:first-of-type {

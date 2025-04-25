@@ -201,7 +201,7 @@ const ConfirmDetails = ({
           </div>
           <div className={`fee-breakdown ${feeCollapsed ? 'collapsed' : ''}`}>
             <div className='amount-details'>
-              <span>Source Network Fee ({sourceChain.shortName})</span>
+              <span>{sourceChain.shortName === 'CC' ? 'Credit Card Processing Fee': `Source Network Fee (${sourceChain.shortName})`}</span>
               <span className='service-fee'>
                 {sourceFee || 0} {sourceCurrency}
               </span>

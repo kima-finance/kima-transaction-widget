@@ -249,6 +249,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setMode(transactionOption ? ModeOptions.payment : ModeOptions.bridge)
     )
     // disconnect wallet?
+    dispatch(setTxId(-1))
     dispatch(setSubmitted(false)) // leave it at last since this will unmount the transaction component
   }
 

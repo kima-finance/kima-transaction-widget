@@ -1968,11 +1968,8 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-}
-@media (max-width: 500px) {
-  .kima-card .kima-card-content .confirm-details .detail-item .amount-container {
-    width: 100%;
-  }
+  width: 100%;
+  font-weight: bold;
 }
 .kima-card .kima-card-content .confirm-details .detail-item .amount-container svg {
   margin-right: 6px;
@@ -1995,6 +1992,15 @@
   flex-grow: 0;
   width: fit-content;
 }
+.kima-card .kima-card-content .confirm-details .detail-item .amount-container .fee-breakdown {
+  padding-left: 20px;
+}
+.kima-card .kima-card-content .confirm-details .detail-item .amount-container .fee-breakdown.collapsed {
+  display: none;
+}
+.kima-card .kima-card-content .confirm-details .detail-item .amount-container .fee-breakdown .amount-details {
+  padding: 8px 6px !important;
+}
 .kima-card .kima-card-content .confirm-details .detail-item .amount-container .amount-details {
   display: flex;
   flex-direction: row;
@@ -2002,13 +2008,11 @@
   width: 100%;
   padding: 8px 0;
   font-size: 14px;
-  font-weight: bold;
 }
 .kima-card .kima-card-content .confirm-details .detail-item .amount-container .amount-details .fee-collapse {
-  display: flex;
-  gap: 4px;
-  align-items: center;
   cursor: pointer;
+  display: flex;
+  align-items: center;
 }
 .kima-card .kima-card-content .confirm-details .detail-item .amount-container .amount-details:first-of-type {
   border-top: none;
@@ -3040,6 +3044,13 @@
   display: flex;
   flex-direction: column;
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1), color 0ms, background-color 0ms, border-color 0ms;
+}
+.kima-card-content .cc-widget-loader {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .kima-card-content.error svg {
   margin: 10px auto;
