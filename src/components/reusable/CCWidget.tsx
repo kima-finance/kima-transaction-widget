@@ -41,7 +41,7 @@ const CCWidget = () => {
   const iframeWidth = width >= 900 ? 850 : width - 60
   const iframeHeight = width >= 700 ? 950 : 1100
   return (
-    <div className='cc-widget'>
+    <div className={`cc-widget ${isLoading ? 'loading' : ''}`}>
       {isLoading && (
         <div className='cc-widget-loader'>
           <Loading180Ring width={50} height={50} fill='#86b8ce' />

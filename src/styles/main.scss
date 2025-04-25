@@ -11,10 +11,11 @@
   border-radius: 42px;
   width: 100%;
   @include transition;
-  max-width: 900px;
+  max-width: 950px;
 
   .transfer-card {
     padding: 30px 40px;
+    width: 100%;
 
     @include breakpoint(phablet) {
       padding: 30px 10px;
@@ -76,9 +77,16 @@
     flex-direction: column;
     @include transition;
 
+    .cc-widget {
+      &.loading {
+        width: 70vw;
+        max-width: 700px;
+      }
+    }
+
     .cc-widget-loader {
       width: 100%;
-      height: 100%;
+      height: 300px;
       display: flex;
       justify-content: center;
       align-items: center;
