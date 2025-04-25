@@ -51,7 +51,7 @@ const CCWidget = () => {
       <iframe
         width={isLoading ? 0 : iframeWidth}
         height={isLoading ? 0 : iframeHeight}
-        src={`https://widget-sandbox.depasify.com/widgets/kyc?partner=Kima&user_uuid=${randomUserId}&scenario=direct_card_payment&amount=${feeDeduct ? submitAmount : allowanceAmount}&currency=USD&trx_uuid=${ccTransactionId}&postmessage=true`}
+        src={`https://widget.depasify.com/widgets/kyc?partner=Kima&user_uuid=${randomUserId}&scenario=direct_card_payment&amount=${feeDeduct ? submitAmount : allowanceAmount}&currency=USD&trx_uuid=${ccTransactionId}&postmessage=true`}
         loading='lazy'
         title='Credit Card Widget'
         onLoad={() => setIsLoading(false)}
