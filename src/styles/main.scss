@@ -14,12 +14,17 @@
   max-width: 950px;
 
   .transfer-card {
-    min-width: 60vw;
+    min-width: 800px;
     padding: 30px 40px;
     width: 100%;
 
+    @include breakpoint(tablet) {
+      min-width: 600px;
+    }
+
     @include breakpoint(phablet) {
       padding: 30px 10px;
+      min-width: 300px;
     }
   }
 
