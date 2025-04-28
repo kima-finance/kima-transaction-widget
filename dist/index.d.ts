@@ -122,6 +122,7 @@ interface ServiceFee {
     totalFee: string;
     decimals: number;
     feeId: string;
+    message: string;
 }
 interface TronProvider {
     tronWeb: TronWeb;

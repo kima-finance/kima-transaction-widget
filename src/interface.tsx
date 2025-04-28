@@ -101,15 +101,47 @@ export interface Web3ModalAccountInfo {
 }
 
 // use parseUnits to convert bigint to number
-export interface ServiceFee {
-  allowanceAmount: string // bigint amount to approve for ERC20 allowance
-  submitAmount: string // bigint amount to submit for the Kima transaction
-  sourceFee: string
-  targetFee: string
-  kimaFee: string
-  totalFee: string
+// export interface ServiceFee {
+//   allowanceAmount: string // bigint amount to approve for ERC20 allowance
+//   submitAmount: string // bigint amount to submit for the Kima transaction
+//   sourceFee: string
+//   targetFee: string
+//   kimaFee: string
+//   totalFee: string
+//   decimals: number
+//   feeId: string
+//   message: string
+// }
+
+export interface BigintAmount {
+  value: number | string | bigint
   decimals: number
+}
+
+export interface ServiceFee {
   feeId: string
+  feeOriginGasFiat: string
+  feeOriginGasBigInt: BigintAmount
+  feeKimaProcessingFiat: string
+  feeKimaProcessingBigInt: BigintAmount
+  feeTargetGasFiat: string
+  feeTargetGasBigInt: BigintAmount
+  feeTotalFiat: string
+  feeTotalBigInt: BigintAmount
+  peggedTo: string
+  expiration: string
+  transactionValues: FeeTransactionValues
+}
+
+export interface FeeTransactionValues {
+  feeFromOrigin: TransactionValues
+  feeFromTarget: TransactionValues
+}
+
+export interface TransactionValues {
+  allowanceAmount: BigintAmount
+  submitAmount: BigintAmount
+  message: string
 }
 
 export interface TronProvider {

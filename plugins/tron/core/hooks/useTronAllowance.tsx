@@ -37,14 +37,15 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
   const sourceChain = useSelector(selectSourceChain)
   const networkOption = useSelector(selectNetworkOption)
   const backendUrl = useSelector(selectBackendUrl)
-  const { allowanceAmount, submitAmount } = useSelector(selectServiceFee)
+  const { transactionValues } = useSelector(selectServiceFee)
   useTronWallet()
   const selectedCoin = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
   const feeDeduct = useSelector(selectFeeDeduct)
-  const allowanceNumber = formatterFloat.format(
-    Number(feeDeduct ? submitAmount : (allowanceAmount ?? '0'))
-  )
+  const txValues = feeDeduct
+    ? transactionValues.feeFromTarget
+    : transactionValues.feeFromOrigin
+  const allowanceNumber = BigInt(txValues.allowanceAmount.value)
 
   const { pools } = useGetPools(backendUrl, networkOption)
   const {
@@ -122,8 +123,8 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
       return
     }
     try {
-      const message = `I approve the transfer of ${allowanceNumber} ${data.originSymbol} from ${data.originChain} to ${data.targetAddress} on ${data.targetChain}.`
-      const signedMessage = await signMessage(message)
+      console.info('useTronAllowance: Signing message:', txValues.message)
+      const signedMessage = await signMessage(txValues.message)
       return signedMessage
     } catch (error) {
       console.error('Error signing message:', error)
@@ -139,7 +140,7 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
       !tronWeb ||
       !tokenOptions ||
       !selectedCoin ||
-      !allowanceAmount
+      !allowanceNumber
     ) {
       console.warn('Missing required data for approveTrc20TokenTransfer')
       return
@@ -151,9 +152,10 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
       // Define the contract method and parameters
       const functionSelector = 'approve(address,uint256)' // select the function to call
 
-      const amount = isCancel
-        ? '0'
-        : parseUnits(allowanceAmount, allowanceData.decimals).toString()
+      const amount = isCancel ? '0' : allowanceNumber.toString()
+      // const amount = isCancel
+      //   ? '0'
+      //   : parseUnits(allowanceAmount, allowanceData.decimals).toString()
       const parameter = [
         { type: 'address', value: poolAddress },
         {

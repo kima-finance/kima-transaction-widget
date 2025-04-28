@@ -1528,7 +1528,9 @@ var initialState = {
     sourceFee: "0",
     targetFee: "0",
     kimaFee: "0",
-    decimals: 18
+    feeId: "",
+    decimals: 18,
+    message: ""
   },
   backendUrl: "",
   txId: -1,
@@ -2766,7 +2768,7 @@ function useEvmAllowance() {
   const appkitAccountInfo = (0, import_react79.useAppKitAccount)();
   const sourceChain = (0, import_react_redux5.useSelector)(selectSourceChain);
   const networkOption = (0, import_react_redux5.useSelector)(selectNetworkOption);
-  const { totalFee, allowanceAmount, submitAmount, decimals } = (0, import_react_redux5.useSelector)(selectServiceFee);
+  const { totalFee, allowanceAmount, submitAmount, message } = (0, import_react_redux5.useSelector)(selectServiceFee);
   const selectedCoin = (0, import_react_redux5.useSelector)(selectSourceCurrency);
   const tokenOptions = (0, import_react_redux5.useSelector)(selectTokenOptions);
   const backendUrl = (0, import_react_redux5.useSelector)(selectBackendUrl);
@@ -2815,9 +2817,10 @@ function useEvmAllowance() {
         transport: (0, import_viem5.custom)(window.ethereum)
         // WARNING: NEED TO MAKE SURE THIS USING THE ETHEREUM OBJECT IS STABLE ENOUGH
       });
+      console.log("useEvmAllowance: Signing message:", message);
       return await walletClient.signMessage({
         account: walletAddress,
-        message: `I approve the transfer of ${allowanceNumber} ${data.originSymbol} from ${data.originChain} to ${data.targetAddress} on ${data.targetChain}.`
+        message
       });
     } catch (error) {
       console.error("useEvmAllowance: Error on signing message:", error);
@@ -3072,7 +3075,7 @@ var import_web38 = require("@solana/web3.js");
 var import_viem6 = require("viem");
 function useSolanaAllowance() {
   const sourceChain = (0, import_react_redux7.useSelector)(selectSourceChain);
-  const { allowanceAmount, submitAmount } = (0, import_react_redux7.useSelector)(selectServiceFee);
+  const { allowanceAmount, submitAmount, message } = (0, import_react_redux7.useSelector)(selectServiceFee);
   const feeDeduct = (0, import_react_redux7.useSelector)(selectFeeDeduct);
   const backendUrl = (0, import_react_redux7.useSelector)(selectBackendUrl);
   const networkOption = (0, import_react_redux7.useSelector)(selectNetworkOption);
@@ -3128,7 +3131,6 @@ function useSolanaAllowance() {
       return;
     }
     try {
-      const message = `I approve the transfer of ${allowanceNumber} ${data.originSymbol} from ${data.originChain} to ${data.targetAddress} on ${data.targetChain}.`;
       const encodedMessage = new TextEncoder().encode(message);
       const signature = await signMessage(encodedMessage);
       return `0x${Buffer.from(signature).toString("hex")}`;
@@ -3662,7 +3664,7 @@ function useTronAllowance() {
   const sourceChain = (0, import_react_redux11.useSelector)(selectSourceChain);
   const networkOption = (0, import_react_redux11.useSelector)(selectNetworkOption);
   const backendUrl = (0, import_react_redux11.useSelector)(selectBackendUrl);
-  const { allowanceAmount, submitAmount } = (0, import_react_redux11.useSelector)(selectServiceFee);
+  const { allowanceAmount, submitAmount, message } = (0, import_react_redux11.useSelector)(selectServiceFee);
   (0, import_tronwallet_adapter_react_hooks3.useWallet)();
   const selectedCoin = (0, import_react_redux11.useSelector)(selectSourceCurrency);
   const tokenOptions = (0, import_react_redux11.useSelector)(selectTokenOptions);
@@ -3713,7 +3715,6 @@ function useTronAllowance() {
       return;
     }
     try {
-      const message = `I approve the transfer of ${allowanceNumber} ${data.originSymbol} from ${data.originChain} to ${data.targetAddress} on ${data.targetChain}.`;
       const signedMessage = await signMessage(message);
       return signedMessage;
     } catch (error2) {

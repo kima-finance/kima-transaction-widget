@@ -29,7 +29,7 @@ import {
   parseUnits
 } from 'viem'
 import { SignDataType } from '@plugins/pluginTypes'
-import { formatterFloat } from 'src/helpers/functions'
+// import { formatterFloat } from 'src/helpers/functions'
 
 export default function useEvmAllowance() {
   const { externalProvider } = useKimaContext()
@@ -39,16 +39,14 @@ export default function useEvmAllowance() {
 
   const sourceChain = useSelector(selectSourceChain)
   const networkOption = useSelector(selectNetworkOption)
-  const { totalFee, allowanceAmount, submitAmount, decimals } =
-    useSelector(selectServiceFee)
+  const { transactionValues } = useSelector(selectServiceFee)
   const selectedCoin = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
   const backendUrl = useSelector(selectBackendUrl)
   const feeDeduct = useSelector(selectFeeDeduct)
-  const allowanceNumber = formatterFloat.format(
-    Number(feeDeduct ? submitAmount : (allowanceAmount ?? '0'))
-  )
-  const amount = useSelector(selectAmount)
+  const txValues = feeDeduct ? transactionValues.feeFromTarget : transactionValues.feeFromOrigin
+  const allowanceNumber =  BigInt(txValues.allowanceAmount.value)
+    
 
   const { pools } = useGetPools(backendUrl, networkOption)
   // console.log("appkit provider:", appkitProvider)
@@ -118,9 +116,10 @@ export default function useEvmAllowance() {
         transport: custom(window.ethereum) // WARNING: NEED TO MAKE SURE THIS USING THE ETHEREUM OBJECT IS STABLE ENOUGH
       })
 
+      console.log('useEvmAllowance: Signing message:', txValues.message)
       return await walletClient.signMessage({
         account: walletAddress as `0x${string}`,
-        message: `I approve the transfer of ${allowanceNumber} ${data.originSymbol} from ${data.originChain} to ${data.targetAddress} on ${data.targetChain}.`
+        message: txValues.message
       })
     } catch (error) {
       console.error('useEvmAllowance: Error on signing message:', error)
@@ -146,10 +145,10 @@ export default function useEvmAllowance() {
       !allowanceData?.decimals ||
       !tokenAddress ||
       !poolAddress ||
-      !allowanceAmount
+      !txValues
     ) {
       console.warn('useEvmAllowance: Missing required data', {
-        allowanceAmount,
+        txValues,
         allowanceData,
         tokenAddress,
         signer: externalProvider?.signer || appkitProvider.getSigner(),
@@ -172,11 +171,12 @@ export default function useEvmAllowance() {
         transport: custom(window.ethereum) // WARNING: NEED TO MAKE SURE THIS USING THE ETHEREUM OBJECT IS STABLE ENOUGH
       })
 
-      const finalAmount = isCancel
-        ? BigInt(0)
-        : feeDeduct
-          ? parseUnits(amount, allowanceData.decimals)
-          : parseUnits((+amount + +totalFee).toString(), allowanceData.decimals)
+      const finalAmount = isCancel ? BigInt(0) : allowanceNumber
+      // const finalAmount = isCancel
+      //   ? BigInt(0)
+      //   : feeDeduct
+      //     ? parseUnits(amount, allowanceData.decimals)
+      //     : parseUnits((+amount + +totalFee).toString(), allowanceData.decimals)
 
       // write transaction using viem
       const hash = await walletClient.writeContract({

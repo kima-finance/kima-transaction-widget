@@ -23,18 +23,17 @@ import { getPoolAddress, getTokenAddress } from '@utils/functions'
 import { PublicKey, Transaction } from '@solana/web3.js'
 import { PluginUseAllowanceResult, SignDataType } from '@plugins/pluginTypes'
 import { useKimaContext } from '../../../../src/KimaProvider'
-import { formatterFloat } from 'src/helpers/functions'
+// import { formatterFloat } from 'src/helpers/functions'
 import { parseUnits } from 'viem'
 
 export default function useSolanaAllowance(): PluginUseAllowanceResult {
   const sourceChain = useSelector(selectSourceChain)
-  const { allowanceAmount, submitAmount } = useSelector(selectServiceFee)
+  const { transactionValues } = useSelector(selectServiceFee)
   const feeDeduct = useSelector(selectFeeDeduct)
   const backendUrl = useSelector(selectBackendUrl)
   const networkOption = useSelector(selectNetworkOption)
-  const allowanceNumber = formatterFloat.format(
-    Number(feeDeduct ? submitAmount : (allowanceAmount ?? '0'))
-  )
+  const txValues = feeDeduct ? transactionValues.feeFromTarget : transactionValues.feeFromOrigin
+  const allowanceNumber =  BigInt(txValues.allowanceAmount.value)
   const { externalProvider } = useKimaContext()
 
   const { connection: internalConnection } = useConnection()
@@ -123,8 +122,8 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
     }
 
     try {
-      const message = `I approve the transfer of ${allowanceNumber} ${data.originSymbol} from ${data.originChain} to ${data.targetAddress} on ${data.targetChain}.`
-      const encodedMessage = new TextEncoder().encode(message)
+      console.info('useSolanaAllowance: Signing message:', txValues.message)
+      const encodedMessage = new TextEncoder().encode(txValues.message)
       const signature = await signMessage(encodedMessage)
       return `0x${Buffer.from(signature).toString('hex')}`
     } catch (error) {
@@ -134,7 +133,7 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
   }
 
   const approveSPLTokenTransfer = async (isCancel: boolean = false) => {
-    if (!allowanceAmount) {
+    if (!allowanceNumber) {
       console.warn('useSolanaAllowance: Missing allowance amount')
       return
     }
@@ -157,9 +156,10 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
         userPublicKey
       )
 
-      const amount = isCancel
-        ? 0n
-        : parseUnits(allowanceAmount, allowanceData.decimals)
+      const amount = isCancel ? 0n : allowanceNumber
+      // const amount = isCancel
+      //   ? 0n
+      //   : parseUnits(allowanceAmount, allowanceData.decimals)
       const approveInstruction = createApproveInstruction(
         tokenAccountAddress,
         new PublicKey(poolAddress),

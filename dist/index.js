@@ -1502,7 +1502,9 @@ var initialState = {
     sourceFee: "0",
     targetFee: "0",
     kimaFee: "0",
-    decimals: 18
+    feeId: "",
+    decimals: 18,
+    message: ""
   },
   backendUrl: "",
   txId: -1,
@@ -2790,7 +2792,7 @@ function useEvmAllowance() {
   const appkitAccountInfo = useAppKitAccount4();
   const sourceChain = useSelector4(selectSourceChain);
   const networkOption = useSelector4(selectNetworkOption);
-  const { totalFee, allowanceAmount, submitAmount, decimals } = useSelector4(selectServiceFee);
+  const { totalFee, allowanceAmount, submitAmount, message } = useSelector4(selectServiceFee);
   const selectedCoin = useSelector4(selectSourceCurrency);
   const tokenOptions = useSelector4(selectTokenOptions);
   const backendUrl = useSelector4(selectBackendUrl);
@@ -2839,9 +2841,10 @@ function useEvmAllowance() {
         transport: custom(window.ethereum)
         // WARNING: NEED TO MAKE SURE THIS USING THE ETHEREUM OBJECT IS STABLE ENOUGH
       });
+      console.log("useEvmAllowance: Signing message:", message);
       return await walletClient.signMessage({
         account: walletAddress,
-        message: `I approve the transfer of ${allowanceNumber} ${data.originSymbol} from ${data.originChain} to ${data.targetAddress} on ${data.targetChain}.`
+        message
       });
     } catch (error) {
       console.error("useEvmAllowance: Error on signing message:", error);
@@ -3110,7 +3113,7 @@ import { PublicKey as PublicKey5, Transaction } from "@solana/web3.js";
 import { parseUnits as parseUnits3 } from "viem";
 function useSolanaAllowance() {
   const sourceChain = useSelector6(selectSourceChain);
-  const { allowanceAmount, submitAmount } = useSelector6(selectServiceFee);
+  const { allowanceAmount, submitAmount, message } = useSelector6(selectServiceFee);
   const feeDeduct = useSelector6(selectFeeDeduct);
   const backendUrl = useSelector6(selectBackendUrl);
   const networkOption = useSelector6(selectNetworkOption);
@@ -3166,7 +3169,6 @@ function useSolanaAllowance() {
       return;
     }
     try {
-      const message = `I approve the transfer of ${allowanceNumber} ${data.originSymbol} from ${data.originChain} to ${data.targetAddress} on ${data.targetChain}.`;
       const encodedMessage = new TextEncoder().encode(message);
       const signature = await signMessage(encodedMessage);
       return `0x${Buffer.from(signature).toString("hex")}`;
@@ -3706,7 +3708,7 @@ function useTronAllowance() {
   const sourceChain = useSelector9(selectSourceChain);
   const networkOption = useSelector9(selectNetworkOption);
   const backendUrl = useSelector9(selectBackendUrl);
-  const { allowanceAmount, submitAmount } = useSelector9(selectServiceFee);
+  const { allowanceAmount, submitAmount, message } = useSelector9(selectServiceFee);
   useTronWallet();
   const selectedCoin = useSelector9(selectSourceCurrency);
   const tokenOptions = useSelector9(selectTokenOptions);
@@ -3757,7 +3759,6 @@ function useTronAllowance() {
       return;
     }
     try {
-      const message = `I approve the transfer of ${allowanceNumber} ${data.originSymbol} from ${data.originChain} to ${data.targetAddress} on ${data.targetChain}.`;
       const signedMessage = await signMessage(message);
       return signedMessage;
     } catch (error2) {
