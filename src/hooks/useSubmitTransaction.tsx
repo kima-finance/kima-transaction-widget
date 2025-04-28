@@ -41,7 +41,7 @@ const useSubmitTransaction = ({
       setSubmitting(true)
 
       const params = JSON.stringify({
-        originAddress: originChain === 'CC' ? targetAddress : originAddress,
+        originAddress,
         originChain,
         targetAddress,
         targetChain,

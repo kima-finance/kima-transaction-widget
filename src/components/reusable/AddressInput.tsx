@@ -10,7 +10,7 @@ import {
 } from '../../store/selectors'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
 import { ModeOptions } from '../../interface'
-import { ChainCompatibility, ChainData } from '@plugins/pluginTypes'
+import { ChainData } from '@plugins/pluginTypes'
 import log from '@utils/logger'
 
 /**
@@ -31,7 +31,7 @@ const AddressInput = ({
   const mode = useSelector(selectMode)
   const sourceChain = useSelector(selectSourceChain)
   const targetChain = useSelector(selectTargetChain)
-  const { walletAddress: sourceAddress, isReady } = useIsWalletReady()
+  const { connectedAddress: sourceAddress, isReady } = useIsWalletReady()
   const targetAddress = useSelector(selectTargetAddress)
 
   const isCompatible = (

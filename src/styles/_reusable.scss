@@ -1624,7 +1624,9 @@
         }
 
         &.amount {
+          width: 100%;
           align-items: start;
+          padding: 20px 14px;
         }
 
         p {
@@ -1707,9 +1709,10 @@
         }
 
         .amount-container {
+          width: 100%;
           display: flex;
           flex-direction: column;
-          justify-content: start;
+          justify-content: space-between;
           width: 100%;
           font-weight: bold;
 
@@ -1743,8 +1746,8 @@
               display: none;
             }
 
-            .amount-details {
-              padding: 8px 6px !important;
+            .amount-details{
+              padding: 8px 6px !important; 
             }
           }
 
@@ -1772,8 +1775,12 @@
               font-size: 12px;
             }
 
-            &.fee {
-              color: red;
+            .service-fee {
+              font-weight: bold;
+            }
+
+            .final-amount {
+              font-weight: bold;
             }
 
             &:last-of-type {
@@ -2217,16 +2224,15 @@
       background-color: transparent;
       cursor: not-allowed;
     }
-    
+
     .fee-option input[type='radio']:checked:disabled::before {
       background-color: $financeGrey;
     }
-    
+
     .fee-option input[type='radio']:disabled + .radio-label {
       color: $financeGrey;
       cursor: not-allowed;
     }
-    
 
     .transaction-status-message {
       display: flex;
