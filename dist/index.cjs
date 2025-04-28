@@ -2580,6 +2580,7 @@ function useIsWalletReady() {
   const sourceChain = (0, import_react_redux4.useSelector)(selectSourceChain);
   const [isReady, setIsReady] = (0, import_react78.useState)(false);
   const [statusMessage, setStatusMessage] = (0, import_react78.useState)("Wallet not connected");
+  const [connectedAddress, setConnectedAddress] = (0, import_react78.useState)("");
   const switchNetwork = (0, import_react78.useCallback)(async () => {
     logger_default.debug("useIsWalletReady:EVM:Attempting to switch network...", {
       hasProvider: !!appkitProvider,
@@ -2631,8 +2632,10 @@ function useIsWalletReady() {
             }
             return;
           }
+          const externalProviderSignerAddress = (await externalProvider.provider.getSigner()).address;
           setIsReady(true);
           setStatusMessage("Connected with external provider");
+          setConnectedAddress(externalProviderSignerAddress);
           return;
         } catch (error) {
           logger_default.error("Failed to fetch chainId from provider:", error);
@@ -2646,6 +2649,7 @@ function useIsWalletReady() {
           );
           setIsReady(true);
           setStatusMessage("Connected with AppKit provider");
+          setConnectedAddress(walletAddress);
           logger_default.debug(
             "useIsWalletReady:EVM: is ready + status message: ",
             isReady,
@@ -2664,16 +2668,15 @@ function useIsWalletReady() {
     checkChainId();
   }, [externalProvider, sourceChain, switchNetwork, walletChainId, isConnected]);
   (0, import_react78.useEffect)(() => {
-    if (isConnected && sourceChain.compatibility === "EVM" /* EVM */) {
+    if (connectedAddress !== "" && sourceChain.compatibility === "EVM" /* EVM */) {
       logger_default.debug(
         "useIsWalletReady:EVM: Dispatching source address:",
-        walletAddress
+        connectedAddress
       );
-      logger_default.debug("dispatching evm address: ", walletAddress);
-      dispatch(setSourceAddress(walletAddress ?? ""));
+      dispatch(setSourceAddress(connectedAddress ?? ""));
     }
-  }, [walletAddress, isConnected, dispatch]);
-  return { isReady, statusMessage, walletAddress };
+  }, [connectedAddress, dispatch]);
+  return { isReady, statusMessage, connectedAddress };
 }
 var useIsWalletReady_default = useIsWalletReady;
 
@@ -3881,7 +3884,7 @@ function useIsWalletReady3() {
   const { externalProvider } = useKimaContext();
   const { address: internalTronAddress } = (0, import_tronwallet_adapter_react_hooks4.useWallet)();
   (0, import_react91.useEffect)(() => {
-    internalTronAddress && sourceChain === "TRX" && dispatch(setSourceAddress(internalTronAddress));
+    internalTronAddress && sourceChain.shortName === "TRX" && dispatch(setSourceAddress(internalTronAddress));
   }, [internalTronAddress, sourceChain]);
   return (0, import_react91.useMemo)(() => {
     if (externalProvider && externalProvider.type === "tron")
@@ -4100,7 +4103,7 @@ var import_react144 = __toESM(require("react"), 1);
 
 // src/components/KimaWidgetWrapper.tsx
 var import_react140 = __toESM(require("react"), 1);
-var import_react_redux56 = require("react-redux");
+var import_react_redux55 = require("react-redux");
 
 // src/components/TransactionWidget.tsx
 var import_react125 = __toESM(require("react"), 1);
@@ -4323,7 +4326,7 @@ var allPlugins = getAllPlugins();
 var defaultStatus = {
   isReady: false,
   statusMessage: "",
-  walletAddress: ""
+  connectedAddress: ""
 };
 function useIsWalletReady4() {
   const { currentPlugin } = useGetCurrentPlugin_default();
@@ -4502,7 +4505,7 @@ var WalletButton = ({ errorBelow = false }) => {
   const {
     isReady,
     statusMessage,
-    walletAddress
+    connectedAddress
     /*, connectBitcoinWallet*/
   } = useIsWalletReady4();
   const { balance } = useBalance2();
@@ -4516,15 +4519,15 @@ var WalletButton = ({ errorBelow = false }) => {
   (0, import_react109.useEffect)(() => {
     logger_default.debug("WalletBalance:", {
       balance,
-      walletAddress,
+      connectedAddress,
       isReady,
       statusMessage,
       externalProvider
     });
-  }, [balance, walletAddress, isReady, externalProvider, networkOption]);
+  }, [balance, connectedAddress, isReady, externalProvider, networkOption]);
   (0, import_react109.useEffect)(() => {
-    if (walletAddress) dispatch(setSourceAddress(walletAddress));
-  }, [walletAddress]);
+    if (connectedAddress) dispatch(setSourceAddress(connectedAddress));
+  }, [connectedAddress]);
   (0, import_react109.useEffect)(() => {
     if (width === 0) {
       updateWidth(window.innerWidth);
@@ -4570,10 +4573,10 @@ var WalletButton = ({ errorBelow = false }) => {
         className: `${isReady ? "connected" : "disconnected"} ${width < 640 && "shortened"} ${theme.colorMode}`,
         onClick: handleClick
       },
-      isReady ? width >= 640 ? `${walletAddress || ""}` : getShortenedAddress(walletAddress || "") : "",
+      isReady ? width >= 640 ? `${connectedAddress || ""}` : getShortenedAddress(connectedAddress || "") : "",
       !isReady && /* @__PURE__ */ import_react109.default.createElement(Wallet_default, null),
       !isReady && "Connect Wallet"
-    ), isReady && /* @__PURE__ */ import_react109.default.createElement(CopyButton_default, { text: walletAddress })),
+    ), isReady && /* @__PURE__ */ import_react109.default.createElement(CopyButton_default, { text: connectedAddress })),
     isReady && balance !== void 0 ? /* @__PURE__ */ import_react109.default.createElement("p", { className: "balance-info" }, formatUSD(balance), " ", selectedCoin, " available") : null
   );
 };
@@ -4807,7 +4810,7 @@ var ConfirmDetails = ({
   const signature = (0, import_react_redux27.useSelector)(selectSignature);
   const networkOptions3 = (0, import_react_redux27.useSelector)(selectNetworks);
   const transactionOption = (0, import_react_redux27.useSelector)(selectTransactionOption);
-  const { walletAddress } = useIsWalletReady4();
+  const { connectedAddress } = useIsWalletReady4();
   const sourceChainOption = (0, import_react116.useMemo)(
     () => networkOptions3.filter((network) => network.id === sourceChain.id)[0],
     [networkOptions3, sourceChain]
@@ -4825,10 +4828,10 @@ var ConfirmDetails = ({
   (0, import_react116.useEffect)(() => {
     width === 0 && updateWidth(window.innerWidth);
   }, []);
-  const sourceWalletAddress = (0, import_react116.useMemo)(() => {
-    return width >= 916 ? walletAddress : getShortenedAddress(walletAddress || "");
-  }, [width, walletAddress]);
-  const targetWalletAddress = (0, import_react116.useMemo)(() => {
+  const sourceconnectedAddress = (0, import_react116.useMemo)(() => {
+    return width >= 916 ? connectedAddress : getShortenedAddress(connectedAddress || "");
+  }, [width, connectedAddress]);
+  const targetconnectedAddress = (0, import_react116.useMemo)(() => {
     return getShortenedAddress(
       (mode === "payment" /* payment */ ? transactionOption?.targetAddress : targetAddress) || ""
     );
@@ -4839,7 +4842,7 @@ var ConfirmDetails = ({
     }
     return formatterFloat2.format(feeDeduct ? +amount : +amount + totalFee);
   }, [amount, totalFee, sourceChain, targetChain, feeDeduct]);
-  return /* @__PURE__ */ import_react116.default.createElement("div", { className: `confirm-details ${theme.colorMode}` }, /* @__PURE__ */ import_react116.default.createElement("p", null, "Step ", isApproved ? "2" : "1", "\xA0of 2\xA0\xA0\xA0", isApproved ? "Submit transaction" : sourceChain.shortName === "FIAT" /* FIAT */ ? "Bank Details" : "Approval"), sourceChain.shortName === "FIAT" /* FIAT */ ? /* @__PURE__ */ import_react116.default.createElement("div", null, /* @__PURE__ */ import_react116.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react116.default.createElement("span", { className: "label" }, "IBAN:"), /* @__PURE__ */ import_react116.default.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ import_react116.default.createElement(ChainIcon, { symbol: sourceChainOption?.shortName }), "FIAT"), /* @__PURE__ */ import_react116.default.createElement("p", null, "ES6621000418401234567891")), /* @__PURE__ */ import_react116.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react116.default.createElement("span", { className: "label" }, "Recipient:"), /* @__PURE__ */ import_react116.default.createElement("p", null, "Kima Sandbox")), /* @__PURE__ */ import_react116.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react116.default.createElement("span", { className: "label" }, "BIC:"), /* @__PURE__ */ import_react116.default.createElement("p", null, "CAIXESBBXXX")), /* @__PURE__ */ import_react116.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react116.default.createElement("span", { className: "label" }, "Description:"), /* @__PURE__ */ import_react116.default.createElement("p", { className: "signature" }, signature))) : /* @__PURE__ */ import_react116.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react116.default.createElement("span", { className: "label" }, "Source", sourceChain.shortName !== "CC" && " wallet", ":"), /* @__PURE__ */ import_react116.default.createElement("div", { className: "network-details" }, /* @__PURE__ */ import_react116.default.createElement("div", { className: "kima-card-network-container" }, /* @__PURE__ */ import_react116.default.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ import_react116.default.createElement(ChainIcon, { symbol: sourceChainOption?.shortName }), sourceChainOption.name)), sourceChain.shortName !== "CC" && /* @__PURE__ */ import_react116.default.createElement("p", { className: theme.colorMode }, width >= 916 ? dAppOption === "LPDrain" /* LPDrain */ ? targetAddress : walletAddress : dAppOption === "LPDrain" /* LPDrain */ ? targetWalletAddress : sourceWalletAddress))), /* @__PURE__ */ import_react116.default.createElement("div", { className: "detail-item amount" }, /* @__PURE__ */ import_react116.default.createElement("span", { className: "amount-container" }, /* @__PURE__ */ import_react116.default.createElement("div", { className: "amount-details" }, /* @__PURE__ */ import_react116.default.createElement("span", null, "Amount to Transfer"), /* @__PURE__ */ import_react116.default.createElement("div", { className: "coin-details" }, /* @__PURE__ */ import_react116.default.createElement("p", null, feeDeduct ? submitAmount : allowanceAmount, " ", sourceCurrency))), /* @__PURE__ */ import_react116.default.createElement("div", { className: "amount-details" }, /* @__PURE__ */ import_react116.default.createElement("span", null, "Total Network Fees"), /* @__PURE__ */ import_react116.default.createElement(
+  return /* @__PURE__ */ import_react116.default.createElement("div", { className: `confirm-details ${theme.colorMode}` }, /* @__PURE__ */ import_react116.default.createElement("p", null, "Step ", isApproved ? "2" : "1", "\xA0of 2\xA0\xA0\xA0", isApproved ? "Submit transaction" : sourceChain.shortName === "FIAT" /* FIAT */ ? "Bank Details" : "Approval"), sourceChain.shortName === "FIAT" /* FIAT */ ? /* @__PURE__ */ import_react116.default.createElement("div", null, /* @__PURE__ */ import_react116.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react116.default.createElement("span", { className: "label" }, "IBAN:"), /* @__PURE__ */ import_react116.default.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ import_react116.default.createElement(ChainIcon, { symbol: sourceChainOption?.shortName }), "FIAT"), /* @__PURE__ */ import_react116.default.createElement("p", null, "ES6621000418401234567891")), /* @__PURE__ */ import_react116.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react116.default.createElement("span", { className: "label" }, "Recipient:"), /* @__PURE__ */ import_react116.default.createElement("p", null, "Kima Sandbox")), /* @__PURE__ */ import_react116.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react116.default.createElement("span", { className: "label" }, "BIC:"), /* @__PURE__ */ import_react116.default.createElement("p", null, "CAIXESBBXXX")), /* @__PURE__ */ import_react116.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react116.default.createElement("span", { className: "label" }, "Description:"), /* @__PURE__ */ import_react116.default.createElement("p", { className: "signature" }, signature))) : /* @__PURE__ */ import_react116.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react116.default.createElement("span", { className: "label" }, "Source", sourceChain.shortName !== "CC" && " wallet", ":"), /* @__PURE__ */ import_react116.default.createElement("div", { className: "network-details" }, /* @__PURE__ */ import_react116.default.createElement("div", { className: "kima-card-network-container" }, /* @__PURE__ */ import_react116.default.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ import_react116.default.createElement(ChainIcon, { symbol: sourceChainOption?.shortName }), sourceChainOption.name)), sourceChain.shortName !== "CC" && /* @__PURE__ */ import_react116.default.createElement("p", { className: theme.colorMode }, width >= 916 ? dAppOption === "LPDrain" /* LPDrain */ ? targetAddress : connectedAddress : dAppOption === "LPDrain" /* LPDrain */ ? targetconnectedAddress : sourceconnectedAddress))), /* @__PURE__ */ import_react116.default.createElement("div", { className: "detail-item amount" }, /* @__PURE__ */ import_react116.default.createElement("span", { className: "amount-container" }, /* @__PURE__ */ import_react116.default.createElement("div", { className: "amount-details" }, /* @__PURE__ */ import_react116.default.createElement("span", null, "Amount to Transfer"), /* @__PURE__ */ import_react116.default.createElement("div", { className: "coin-details" }, /* @__PURE__ */ import_react116.default.createElement("p", null, feeDeduct ? submitAmount : allowanceAmount, " ", sourceCurrency))), /* @__PURE__ */ import_react116.default.createElement("div", { className: "amount-details" }, /* @__PURE__ */ import_react116.default.createElement("span", null, "Total Network Fees"), /* @__PURE__ */ import_react116.default.createElement(
     "div",
     {
       className: "fee-collapse",
@@ -4857,7 +4860,7 @@ var ConfirmDetails = ({
       }
     ),
     /* @__PURE__ */ import_react116.default.createElement("span", { className: "service-fee" }, formatterFloat2.format(totalFee || 0), " ", sourceCurrency)
-  )), /* @__PURE__ */ import_react116.default.createElement("div", { className: `fee-breakdown ${feeCollapsed ? "collapsed" : ""}` }, /* @__PURE__ */ import_react116.default.createElement("div", { className: "amount-details" }, /* @__PURE__ */ import_react116.default.createElement("span", null, "Source Network Fee (", sourceChain.shortName, ")"), /* @__PURE__ */ import_react116.default.createElement("span", { className: "service-fee" }, sourceFee || 0, " ", sourceCurrency)), /* @__PURE__ */ import_react116.default.createElement("div", { className: "amount-details" }, /* @__PURE__ */ import_react116.default.createElement("span", null, "Target Network Fee (", targetChain.shortName, ")"), /* @__PURE__ */ import_react116.default.createElement("span", { className: "service-fee" }, targetFee || 0, " ", targetCurrency)), /* @__PURE__ */ import_react116.default.createElement("div", { className: "amount-details" }, /* @__PURE__ */ import_react116.default.createElement("span", null, "KIMA Service Fee"), /* @__PURE__ */ import_react116.default.createElement("span", { className: "service-fee" }, kimaFee, " ", sourceCurrency))), /* @__PURE__ */ import_react116.default.createElement("div", { className: "amount-details" }, /* @__PURE__ */ import_react116.default.createElement("span", null, "Target Amount"), /* @__PURE__ */ import_react116.default.createElement("div", { className: "coin-details" }, /* @__PURE__ */ import_react116.default.createElement("p", null, feeDeduct ? +submitAmount - totalFee : +submitAmount, " ", sourceCurrency))))), targetChain.shortName === "FIAT" /* FIAT */ ? /* @__PURE__ */ import_react116.default.createElement("div", null, /* @__PURE__ */ import_react116.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react116.default.createElement("span", { className: "label" }, "IBAN:"), /* @__PURE__ */ import_react116.default.createElement("p", null, bankDetails.iban), /* @__PURE__ */ import_react116.default.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ import_react116.default.createElement(ChainIcon, { symbol: targetChainOption?.shortName }), "FIAT")), /* @__PURE__ */ import_react116.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react116.default.createElement("span", { className: "label" }, "Recipient:"), /* @__PURE__ */ import_react116.default.createElement("p", null, bankDetails.recipient))) : /* @__PURE__ */ import_react116.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react116.default.createElement("span", { className: "label" }, "Target wallet:"), /* @__PURE__ */ import_react116.default.createElement("div", { className: "network-details" }, /* @__PURE__ */ import_react116.default.createElement("div", { className: "kima-card-network-container" }, /* @__PURE__ */ import_react116.default.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ import_react116.default.createElement(ChainIcon, { symbol: targetChainOption?.shortName }), targetChainOption?.name)), /* @__PURE__ */ import_react116.default.createElement("p", { className: theme.colorMode }, width >= 916 ? dAppOption === "LPDrain" /* LPDrain */ ? walletAddress : targetAddress : dAppOption === "LPDrain" /* LPDrain */ ? sourceWalletAddress : targetWalletAddress))), mode === "bridge" /* bridge */ && totalFee > 0 ? (
+  )), /* @__PURE__ */ import_react116.default.createElement("div", { className: `fee-breakdown ${feeCollapsed ? "collapsed" : ""}` }, /* @__PURE__ */ import_react116.default.createElement("div", { className: "amount-details" }, /* @__PURE__ */ import_react116.default.createElement("span", null, sourceChain.shortName === "CC" ? "Credit Card Processing Fee" : `Source Network Fee (${sourceChain.shortName})`), /* @__PURE__ */ import_react116.default.createElement("span", { className: "service-fee" }, sourceFee || 0, " ", sourceCurrency)), /* @__PURE__ */ import_react116.default.createElement("div", { className: "amount-details" }, /* @__PURE__ */ import_react116.default.createElement("span", null, "Target Network Fee (", targetChain.shortName, ")"), /* @__PURE__ */ import_react116.default.createElement("span", { className: "service-fee" }, targetFee || 0, " ", targetCurrency)), /* @__PURE__ */ import_react116.default.createElement("div", { className: "amount-details" }, /* @__PURE__ */ import_react116.default.createElement("span", null, "KIMA Service Fee"), /* @__PURE__ */ import_react116.default.createElement("span", { className: "service-fee" }, kimaFee, " ", sourceCurrency))), /* @__PURE__ */ import_react116.default.createElement("div", { className: "amount-details" }, /* @__PURE__ */ import_react116.default.createElement("span", null, "Target Amount"), /* @__PURE__ */ import_react116.default.createElement("div", { className: "coin-details" }, /* @__PURE__ */ import_react116.default.createElement("p", null, feeDeduct ? +submitAmount - totalFee : +submitAmount, " ", sourceCurrency))))), targetChain.shortName === "FIAT" /* FIAT */ ? /* @__PURE__ */ import_react116.default.createElement("div", null, /* @__PURE__ */ import_react116.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react116.default.createElement("span", { className: "label" }, "IBAN:"), /* @__PURE__ */ import_react116.default.createElement("p", null, bankDetails.iban), /* @__PURE__ */ import_react116.default.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ import_react116.default.createElement(ChainIcon, { symbol: targetChainOption?.shortName }), "FIAT")), /* @__PURE__ */ import_react116.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react116.default.createElement("span", { className: "label" }, "Recipient:"), /* @__PURE__ */ import_react116.default.createElement("p", null, bankDetails.recipient))) : /* @__PURE__ */ import_react116.default.createElement("div", { className: "detail-item" }, /* @__PURE__ */ import_react116.default.createElement("span", { className: "label" }, "Target wallet:"), /* @__PURE__ */ import_react116.default.createElement("div", { className: "network-details" }, /* @__PURE__ */ import_react116.default.createElement("div", { className: "kima-card-network-container" }, /* @__PURE__ */ import_react116.default.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ import_react116.default.createElement(ChainIcon, { symbol: targetChainOption?.shortName }), targetChainOption?.name)), /* @__PURE__ */ import_react116.default.createElement("p", { className: theme.colorMode }, width >= 916 ? dAppOption === "LPDrain" /* LPDrain */ ? connectedAddress : targetAddress : dAppOption === "LPDrain" /* LPDrain */ ? sourceconnectedAddress : targetconnectedAddress))), mode === "bridge" /* bridge */ && totalFee > 0 ? (
     // <FeeDeductionSlider />
     /* @__PURE__ */ import_react116.default.createElement(FeeDeductionRadioButtons_default, { isSigned })
   ) : null);
@@ -4876,7 +4879,7 @@ var AddressInput = ({
   const mode = (0, import_react_redux30.useSelector)(selectMode);
   const sourceChain = (0, import_react_redux30.useSelector)(selectSourceChain);
   const targetChain = (0, import_react_redux30.useSelector)(selectTargetChain);
-  const { walletAddress: sourceAddress, isReady } = useIsWalletReady4();
+  const { connectedAddress: sourceAddress, isReady } = useIsWalletReady4();
   const targetAddress = (0, import_react_redux30.useSelector)(selectTargetAddress);
   const isCompatible = (sourceChain2, targetChain2) => {
     return sourceChain2.compatibility === targetChain2.compatibility;
@@ -5356,6 +5359,11 @@ var TransactionWidget = ({ theme }) => {
   }, [data?.status]);
   const resetForm = () => {
     closeHandler && closeHandler();
+    if (mode === "status" /* status */ && amount === "") {
+      dispatch(setMode("status" /* status */));
+      dispatch(setTxId(-1));
+      return dispatch(setSubmitted(true));
+    }
     if (mode !== "payment" /* payment */) {
       if (transactionOption?.sourceChain) {
         const sourceChain2 = chainData?.find(
@@ -5384,6 +5392,7 @@ var TransactionWidget = ({ theme }) => {
     dispatch(
       setMode(transactionOption ? "payment" /* payment */ : "bridge" /* bridge */)
     );
+    dispatch(setTxId(-1));
     dispatch(setSubmitted(false));
   };
   return /* @__PURE__ */ import_react125.default.createElement(import_react_redux39.Provider, { store }, /* @__PURE__ */ import_react125.default.createElement(
@@ -5475,7 +5484,7 @@ var TransactionWidget = ({ theme }) => {
 
 // src/components/TransferWidget.tsx
 var import_react138 = __toESM(require("react"), 1);
-var import_react_redux55 = require("react-redux");
+var import_react_redux54 = require("react-redux");
 
 // src/components/reusable/SingleForm.tsx
 var import_react127 = __toESM(require("react"), 1);
@@ -5992,7 +6001,7 @@ var AccountDetailsModal2 = () => {
   const networkOption = (0, import_react_redux48.useSelector)(selectNetworkOption);
   const accountDetailsModal = (0, import_react_redux48.useSelector)(selectAccountDetailsModal);
   const sourcheChain = (0, import_react_redux48.useSelector)(selectSourceChain);
-  const { walletAddress } = useIsWalletReady_default3();
+  const { connectedAddress } = useIsWalletReady_default3();
   const { disconnect: tronWalletDisconnect } = (0, import_tronwallet_adapter_react_hooks7.useWallet)();
   const { balance: tronBalance } = useGetTrxBalance_default();
   const selectedNetwork = (0, import_react_redux48.useSelector)(selectSourceChain);
@@ -6001,8 +6010,8 @@ var AccountDetailsModal2 = () => {
     [selectedNetwork]
   );
   const explorerUrl = (0, import_react131.useMemo)(() => {
-    return `https://${networkOption === "testnet" && "nile."}tronscan.io/#/address/${walletAddress}`;
-  }, [walletAddress, networkOption]);
+    return `https://${networkOption === "testnet" && "nile."}tronscan.io/#/address/${connectedAddress}`;
+  }, [connectedAddress, networkOption]);
   const handleDisconnect = () => {
     tronWalletDisconnect();
     dispatch(setAccountDetailsModal(false));
@@ -6026,7 +6035,7 @@ var AccountDetailsModal2 = () => {
           fill: theme.colorMode === "light" ? "black" : "white"
         }
       )
-    )))), /* @__PURE__ */ import_react131.default.createElement("div", { className: "modal-content" }, /* @__PURE__ */ import_react131.default.createElement("div", { className: "summary" }, networkDetails && /* @__PURE__ */ import_react131.default.createElement(networkDetails.icon, { width: 60, height: 60 }), /* @__PURE__ */ import_react131.default.createElement("div", { className: "address" }, /* @__PURE__ */ import_react131.default.createElement("h2", null, getShortenedAddress(walletAddress || "")), /* @__PURE__ */ import_react131.default.createElement(CopyButton_default, { text: walletAddress })), /* @__PURE__ */ import_react131.default.createElement("h3", null, tronBalance, " ", selectedNetwork.shortName)), /* @__PURE__ */ import_react131.default.createElement(SecondaryButton_default, { className: "block-explorer" }, /* @__PURE__ */ import_react131.default.createElement(ExternalLink_default, { className: "link", to: explorerUrl }, /* @__PURE__ */ import_react131.default.createElement(Explorer_default, { fill: "#778DA3" }), /* @__PURE__ */ import_react131.default.createElement("p", null, "Block explorer"), /* @__PURE__ */ import_react131.default.createElement(ExternalUrl_default, { fill: "#778DA3" }))), /* @__PURE__ */ import_react131.default.createElement(PrimaryButton_default, { clickHandler: handleDisconnect }, "Disconnect")))
+    )))), /* @__PURE__ */ import_react131.default.createElement("div", { className: "modal-content" }, /* @__PURE__ */ import_react131.default.createElement("div", { className: "summary" }, networkDetails && /* @__PURE__ */ import_react131.default.createElement(networkDetails.icon, { width: 60, height: 60 }), /* @__PURE__ */ import_react131.default.createElement("div", { className: "address" }, /* @__PURE__ */ import_react131.default.createElement("h2", null, getShortenedAddress(connectedAddress || "")), /* @__PURE__ */ import_react131.default.createElement(CopyButton_default, { text: connectedAddress })), /* @__PURE__ */ import_react131.default.createElement("h3", null, tronBalance, " ", selectedNetwork.shortName)), /* @__PURE__ */ import_react131.default.createElement(SecondaryButton_default, { className: "block-explorer" }, /* @__PURE__ */ import_react131.default.createElement(ExternalLink_default, { className: "link", to: explorerUrl }, /* @__PURE__ */ import_react131.default.createElement(Explorer_default, { fill: "#778DA3" }), /* @__PURE__ */ import_react131.default.createElement("p", null, "Block explorer"), /* @__PURE__ */ import_react131.default.createElement(ExternalUrl_default, { fill: "#778DA3" }))), /* @__PURE__ */ import_react131.default.createElement(PrimaryButton_default, { clickHandler: handleDisconnect }, "Disconnect")))
   );
 };
 var AccountDetailsModal_default2 = AccountDetailsModal2;
@@ -6274,7 +6283,7 @@ var useSubmitTransaction = ({
     try {
       setSubmitting(true);
       const params = JSON.stringify({
-        originAddress: originChain === "CC" ? targetAddress : originAddress,
+        originAddress,
         originChain,
         targetAddress,
         targetChain,
@@ -6421,32 +6430,43 @@ var WarningModal_default = WarningModal;
 var import_react137 = __toESM(require("react"), 1);
 var import_react_redux53 = require("react-redux");
 var import_uuid = require("uuid");
-var import_react_redux54 = require("react-redux");
 var CCWidget = () => {
   const randomUserId = (0, import_uuid.v4)();
-  const dispatch = (0, import_react_redux54.useDispatch)();
+  const dispatch = (0, import_react_redux53.useDispatch)();
   const feeDeduct = (0, import_react_redux53.useSelector)(selectFeeDeduct);
   const { allowanceAmount, submitAmount } = (0, import_react_redux53.useSelector)(selectServiceFee);
   const ccTransactionId = (0, import_react_redux53.useSelector)(selectCCTransactionId);
+  const [isLoading, setIsLoading] = (0, import_react137.useState)(true);
+  const { width, updateWidth } = useWidth_default();
+  (0, import_react137.useEffect)(() => {
+    if (width === 0) updateWidth(window.innerWidth);
+  }, [width, updateWidth]);
   (0, import_react137.useEffect)(() => {
     const handleMessage = (event) => {
+      if (event.origin !== "https://widget.depasify.com") return;
       console.log("postMessage: new message: ", event);
       if (event.data.type === "isCompleted") {
         dispatch(setCCWidgetProcessed(true));
       }
-      if (event.origin !== "https://widget-sandbox.depasify.com") return;
     };
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
   }, []);
-  return /* @__PURE__ */ import_react137.default.createElement("div", { className: "cc-widget" }, /* @__PURE__ */ import_react137.default.createElement(
+  const iframeWidth = width >= 900 ? 850 : width - 60;
+  const iframeHeight = width >= 700 ? 950 : 1100;
+  return /* @__PURE__ */ import_react137.default.createElement("div", { className: `cc-widget ${isLoading ? "loading" : ""}` }, isLoading && /* @__PURE__ */ import_react137.default.createElement("div", { className: "cc-widget-loader" }, /* @__PURE__ */ import_react137.default.createElement(ring_default, { width: 50, height: 50, fill: "#86b8ce" })), /* @__PURE__ */ import_react137.default.createElement(
     "iframe",
     {
-      width: 600,
-      height: 600,
+      width: isLoading ? 0 : iframeWidth,
+      height: isLoading ? 0 : iframeHeight,
       src: `https://widget.depasify.com/widgets/kyc?partner=KimaStage&user_uuid=${randomUserId}&scenario=direct_card_payment&amount=${feeDeduct ? submitAmount : allowanceAmount}&currency=USD&trx_uuid=${ccTransactionId}&postmessage=true`,
       loading: "lazy",
-      title: "Credit Card Widget"
+      title: "Credit Card Widget",
+      onLoad: () => setIsLoading(false),
+      style: {
+        border: "none",
+        transition: "all 0.3s ease"
+      }
     }
   ));
 };
@@ -6460,39 +6480,39 @@ var TransferWidget = ({
   titleOption,
   paymentTitleOption
 }) => {
-  const dispatch = (0, import_react_redux55.useDispatch)();
+  const dispatch = (0, import_react_redux54.useDispatch)();
   const mainRef = (0, import_react138.useRef)(null);
   const [signature, setSignature2] = (0, import_react138.useState)("");
   const [formStep, setFormStep] = (0, import_react138.useState)(0);
   const [warningModalOpen, setWarningModalOpen] = (0, import_react138.useState)(null);
-  const dAppOption = (0, import_react_redux55.useSelector)(selectDappOption);
-  const mode = (0, import_react_redux55.useSelector)(selectMode);
-  const transactionOption = (0, import_react_redux55.useSelector)(selectTransactionOption);
-  const backendUrl = (0, import_react_redux55.useSelector)(selectBackendUrl);
-  const sourceAddress = (0, import_react_redux55.useSelector)(selectSourceAddress);
-  const targetAddress = (0, import_react_redux55.useSelector)(selectTargetAddress);
-  const sourceChain = (0, import_react_redux55.useSelector)(selectSourceChain);
-  const targetChain = (0, import_react_redux55.useSelector)(selectTargetChain);
-  const sourceCurrency = (0, import_react_redux55.useSelector)(selectSourceCurrency);
-  const targetCurrency = (0, import_react_redux55.useSelector)(selectTargetCurrency);
-  const amount = (0, import_react_redux55.useSelector)(selectAmount);
+  const dAppOption = (0, import_react_redux54.useSelector)(selectDappOption);
+  const mode = (0, import_react_redux54.useSelector)(selectMode);
+  const transactionOption = (0, import_react_redux54.useSelector)(selectTransactionOption);
+  const backendUrl = (0, import_react_redux54.useSelector)(selectBackendUrl);
+  const sourceAddress = (0, import_react_redux54.useSelector)(selectSourceAddress);
+  const targetAddress = (0, import_react_redux54.useSelector)(selectTargetAddress);
+  const sourceChain = (0, import_react_redux54.useSelector)(selectSourceChain);
+  const targetChain = (0, import_react_redux54.useSelector)(selectTargetChain);
+  const sourceCurrency = (0, import_react_redux54.useSelector)(selectSourceCurrency);
+  const targetCurrency = (0, import_react_redux54.useSelector)(selectTargetCurrency);
+  const amount = (0, import_react_redux54.useSelector)(selectAmount);
   const {
     totalFee,
     targetFee,
     submitAmount,
     decimals: feeDecimals
-  } = (0, import_react_redux55.useSelector)(selectServiceFee);
-  const compliantOption = (0, import_react_redux55.useSelector)(selectCompliantOption);
-  const networkOptions3 = (0, import_react_redux55.useSelector)(selectNetworkOption);
-  const feeDeduct = (0, import_react_redux55.useSelector)(selectFeeDeduct);
+  } = (0, import_react_redux54.useSelector)(selectServiceFee);
+  const compliantOption = (0, import_react_redux54.useSelector)(selectCompliantOption);
+  const networkOptions3 = (0, import_react_redux54.useSelector)(selectNetworkOption);
+  const feeDeduct = (0, import_react_redux54.useSelector)(selectFeeDeduct);
   const { keplrHandler, closeHandler } = useKimaContext();
   const [isCancellingApprove, setCancellingApprove] = (0, import_react138.useState)(false);
   const [isApproving, setApproving] = (0, import_react138.useState)(false);
   const [isSigning, setSigning] = (0, import_react138.useState)(false);
-  const pendingTxs = (0, import_react_redux55.useSelector)(selectPendingTxs);
-  const networks = (0, import_react_redux55.useSelector)(selectNetworks);
-  const submitted = (0, import_react_redux55.useSelector)(selectSubmitted);
-  const ccWidgetProcessed = (0, import_react_redux55.useSelector)(selectCCWidgetProcessed);
+  const pendingTxs = (0, import_react_redux54.useSelector)(selectPendingTxs);
+  const networks = (0, import_react_redux54.useSelector)(selectNetworks);
+  const submitted = (0, import_react_redux54.useSelector)(selectSubmitted);
+  const ccWidgetProcessed = (0, import_react_redux54.useSelector)(selectCCWidgetProcessed);
   const { width: windowWidth } = useWidth_default();
   const { disconnectWallet } = useDisconnectWallet4();
   const { balance } = useBalance2();
@@ -6824,11 +6844,11 @@ var KimaWidgetWrapper = ({
 }) => {
   useDebugCode();
   const { kimaBackendUrl } = useKimaContext();
-  const submitted = (0, import_react_redux56.useSelector)(selectSubmitted);
-  const dispatch = (0, import_react_redux56.useDispatch)();
+  const submitted = (0, import_react_redux55.useSelector)(selectSubmitted);
+  const dispatch = (0, import_react_redux55.useDispatch)();
   const { setThemeMode, setThemeVariables } = (0, import_react141.useAppKitTheme)();
-  const sourceChain = (0, import_react_redux56.useSelector)(selectSourceChain);
-  const ccWidgetProcessed = (0, import_react_redux56.useSelector)(selectCCWidgetProcessed);
+  const sourceChain = (0, import_react_redux55.useSelector)(selectSourceChain);
+  const ccWidgetProcessed = (0, import_react_redux55.useSelector)(selectCCWidgetProcessed);
   const networkOption = envOptions?.env;
   const kimaExplorer = envOptions?.kimaExplorer || "https://explorer.sardis.kima.network";
   (0, import_react140.useEffect)(() => {
@@ -6905,7 +6925,7 @@ var KimaWidgetWrapper = ({
 var KimaWidgetWrapper_default = KimaWidgetWrapper;
 
 // src/components/KimaTransactionWidget.tsx
-var import_react_redux57 = require("react-redux");
+var import_react_redux56 = require("react-redux");
 
 // src/SkeletonLoader.tsx
 var import_react142 = __toESM(require("react"), 1);
@@ -6957,7 +6977,7 @@ var KimaTransactionWidget = ({
   excludedSourceNetworks = [],
   excludedTargetNetworks = []
 }) => {
-  const dispatch = (0, import_react_redux57.useDispatch)();
+  const dispatch = (0, import_react_redux56.useDispatch)();
   const { kimaBackendUrl } = useKimaContext();
   const [hydrated, setHydrated] = (0, import_react144.useState)(false);
   const {
@@ -6984,7 +7004,7 @@ var KimaTransactionWidget = ({
       dispatch(setTheme(theme));
     }
   }, [theme?.colorMode]);
-  if (!hydrated || !theme?.colorMode) return null;
+  if (!hydrated || !theme?.colorMode) return /* @__PURE__ */ import_react144.default.createElement(ring_default, { width: 20, height: 20, fill: "#86b8ce" });
   if (isLoadingEnvs || isLoadingChainData)
     return /* @__PURE__ */ import_react144.default.createElement(SkeletonLoader_default, { theme });
   if (envOptionsError || !envOptions)
