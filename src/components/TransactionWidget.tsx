@@ -267,17 +267,16 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
           <div className='topbar'>
             <div className='title'>
               {isValidTxId && !error ? (
-                <h3 className='transaction'>
+                <div className='transaction-title'>
                   {mode !== ModeOptions.status
                     ? data?.status === TransactionStatus.COMPLETED
-                      ? 'TRANSFERRED'
-                      : 'TRANSFERING'
+                      ? 'Transferred '
+                      : 'Transfering '
                     : isEmptyStatus
-                      ? 'GETTING TRANSACTION STATUS'
+                      ? 'Fetching transaction status '
                       : data?.status === TransactionStatus.COMPLETED
-                        ? 'TRANSFERRED'
-                        : 'TRANSFERING'}
-                  <div>
+                        ? 'Transferred '
+                        : 'Transfering '}
                     {/* if not in status mode, display the whole picture for better understanding */}
                     {mode !== ModeOptions.status
                       ? Number(amount) !== 0
@@ -289,20 +288,20 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                         : ''
                       : data?.amount || ''}{' '}
                     {mode !== ModeOptions.status
-                      ? `(${sourceSymbol})`
+                      ? `${sourceSymbol}${' '}`
                       : isEmptyStatus
                         ? ''
-                        : `(${data?.sourceSymbol})`}
+                        : `${data?.sourceSymbol}${' '}`}
                     <div className='title-icon'>
                       <ChainIcon
                         symbol={transactionSourceChain?.shortName as string}
                       />
                     </div>{' '}
                     {mode !== ModeOptions.status
-                      ? `(${transactionSourceChain?.shortName})`
+                      ? `${transactionSourceChain?.name}`
                       : isEmptyStatus
                         ? ''
-                        : `(${data?.sourceChain})`}{' '}
+                        : `${data?.sourceChain}`}{' '}
                     {mode !== ModeOptions.status
                       ? `→ `
                       : isEmptyStatus
@@ -319,22 +318,21 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                         : ''
                       : data?.amount || ''}{' '}
                     {mode !== ModeOptions.status
-                      ? `(${targetSymbol})${' '}`
+                      ? `${targetSymbol}${' '}`
                       : isEmptyStatus
                         ? ''
-                        : `(${data?.targetSymbol})${' '}`}
+                        : `${data?.targetSymbol}${' '}`}
                     <div className='title-icon'>
                       <ChainIcon
                         symbol={transactionTargetChain?.shortName as string}
                       />
                     </div>{' '}
                     {mode !== ModeOptions.status
-                      ? `(${transactionTargetChain?.shortName})${' '}`
+                      ? `${transactionTargetChain?.name}${' '}`
                       : isEmptyStatus
                         ? ''
-                        : `(${data?.targetChain}) ${' '}`}
+                        : `${data?.targetChain} ${' '}`}
                   </div>
-                </h3>
               ) : (
                 <div>
                   <h3 className='transaction'>Transaction Status</h3>

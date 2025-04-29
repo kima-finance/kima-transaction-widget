@@ -42,9 +42,10 @@
           @include pulse-loader();
         }
 
-        h3 {
-          margin: 0;
-          font-size: 28px;
+        .transaction-title {
+          margin-right: 10px;
+          font-size: 24px;
+          text-align: start;
 
           @include breakpoint(phablet) {
             font-size: 24px;
