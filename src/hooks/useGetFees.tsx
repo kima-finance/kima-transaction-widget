@@ -28,7 +28,9 @@ const useGetFees = (
       sourceNetwork,
       targetNetwork,
       sourceAddress,
-      targetAddress
+      targetAddress,
+      sourceSymbol,
+      targetSymbol
     ],
     queryFn: async () => {
       console.log('useGetFees: ', {
