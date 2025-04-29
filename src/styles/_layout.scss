@@ -33,6 +33,11 @@
         font-family: 'Sohne';
         font-weight: 400;
         letter-spacing: 1px;
+        font-size: 26px;
+
+        @include breakpoint(phablet) {
+          font-size: 24px;
+        }
 
         &.skeleton {
           background: $finance;
@@ -44,7 +49,7 @@
 
         .transaction-title {
           margin-right: 10px;
-          font-size: 24px;
+          font-size: 26px;
           text-align: start;
 
           @include breakpoint(phablet) {

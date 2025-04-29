@@ -210,6 +210,15 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
 
   const resetForm = () => {
     closeHandler && closeHandler()
+    
+    if (mode === ModeOptions.light) {
+      dispatch(setMode(ModeOptions.light))
+      dispatch(setTxId(-1))
+      dispatch(setSubmitted(false))
+      dispatch(setSourceChain(networks[0]))
+      return dispatch(setTargetChain(networks[0]))
+    }
+    
     if (mode === ModeOptions.status && amount === '') {
       dispatch(setMode(ModeOptions.status))
       dispatch(setTxId(-1))

@@ -76,12 +76,6 @@ const ConfirmDetails = ({
     width === 0 && updateWidth(window.innerWidth)
   }, [])
 
-  const sourceconnectedAddress = useMemo(() => {
-    return width >= 916
-      ? connectedAddress
-      : getShortenedAddress(connectedAddress || '')
-  }, [width, connectedAddress])
-
   const targetconnectedAddress = useMemo(() => {
     return getShortenedAddress(
       (mode === ModeOptions.payment
@@ -156,7 +150,7 @@ const ConfirmDetails = ({
                   : connectedAddress
                 : dAppOption === DAppOptions.LPDrain
                   ? targetconnectedAddress
-                  : sourceconnectedAddress}
+                  : connectedAddress}
             </p>
           </div>
         </div>
@@ -267,7 +261,7 @@ const ConfirmDetails = ({
                     ? connectedAddress
                     : targetAddress
                   : dAppOption === DAppOptions.LPDrain
-                    ? sourceconnectedAddress
+                    ? connectedAddress
                     : targetconnectedAddress}
             </p>
           </div>
