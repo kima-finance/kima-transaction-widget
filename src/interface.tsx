@@ -100,48 +100,55 @@ export interface Web3ModalAccountInfo {
   chainId?: number | undefined
 }
 
-// use parseUnits to convert bigint to number
-// export interface ServiceFee {
-//   allowanceAmount: string // bigint amount to approve for ERC20 allowance
-//   submitAmount: string // bigint amount to submit for the Kima transaction
-//   sourceFee: string
-//   targetFee: string
-//   kimaFee: string
-//   totalFee: string
-//   decimals: number
-//   feeId: string
-//   message: string
-// }
-
-export interface BigintAmount {
-  value: number | string | bigint
+export interface BigintAmount<TBigInt extends bigint | string> {
+  value: TBigInt
   decimals: number
 }
 
-export interface ServiceFee {
+export interface FeeResult<TBigInt extends BigintAmount<bigint | string>> {
   feeId: string
   feeOriginGasFiat: string
-  feeOriginGasBigInt: BigintAmount
+  feeOriginGasBigInt: TBigInt
   feeKimaProcessingFiat: string
-  feeKimaProcessingBigInt: BigintAmount
+  feeKimaProcessingBigInt: TBigInt
   feeTargetGasFiat: string
-  feeTargetGasBigInt: BigintAmount
+  feeTargetGasBigInt: TBigInt
   feeTotalFiat: string
-  feeTotalBigInt: BigintAmount
+  feeTotalBigInt: TBigInt
   peggedTo: string
   expiration: string
-  transactionValues: FeeTransactionValues
+  transactionValues: FeeTransactionValues<TBigInt>
 }
 
-export interface FeeTransactionValues {
-  feeFromOrigin: TransactionValues
-  feeFromTarget: TransactionValues
+export interface FeeTransactionValues<TBigInt = BigintAmount<bigint | string>> {
+  feeFromOrigin: TransactionValues<TBigInt>
+  feeFromTarget: TransactionValues<TBigInt>
 }
 
-export interface TransactionValues {
-  allowanceAmount: BigintAmount
-  submitAmount: BigintAmount
+export interface TransactionValues<TBigInt = BigintAmount<bigint | string>> {
+  allowanceAmount: TBigInt
+  submitAmount: TBigInt
   message: string
+}
+
+export type FeeResponse = FeeResult<BigintAmount<string>>
+
+export interface ServiceFee {
+  feeId: string
+  peggedTo: string
+  expiration: string
+  transactionValues: FeeTransactionValues<BigintAmount<bigint>> & {
+    originChain: string
+    originAddress: string
+    originSymbol: string
+    targetChain: string
+    targetAddress: string
+    targetSymbol: string
+  }
+  sourceFee: BigintAmount<bigint>
+  targetFee: BigintAmount<bigint>
+  kimaFee: BigintAmount<bigint>
+  totalFee: BigintAmount<bigint>
 }
 
 export interface TronProvider {
@@ -150,6 +157,7 @@ export interface TronProvider {
     transaction: Transaction,
     privateKey?: string
   ) => Promise<SignedTransaction>
+  signMessage(message: string, privateKey?: string): Promise<string>
 }
 
 export interface SolProvider {
@@ -157,6 +165,7 @@ export interface SolProvider {
   signTransaction: <T extends Transaction | VersionedTransaction>(
     transaction: T
   ) => Promise<T>
+  signMessage(message: Uint8Array): Promise<Uint8Array>
 }
 
 export interface ExternalProvider {

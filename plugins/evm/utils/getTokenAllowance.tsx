@@ -1,11 +1,11 @@
 import { TokenOptions } from '@store/optionSlice'
-import { formatUnits } from 'ethers'
 import { createPublicClient, http, getContract, erc20Abi } from 'viem'
 import { getTokenAddress, getPoolAddress } from '@utils/functions'
 import {
   CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET,
   CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET
 } from '@utils/constants'
+import { GetTokenAllowanceResult } from '@plugins/pluginTypes'
 
 export const getTokenAllowance = async ({
   tokenOptions,
@@ -21,12 +21,12 @@ export const getTokenAllowance = async ({
   chain: string
   pools: Array<any>
   isTestnet: boolean
-}) => {
+}): Promise<GetTokenAllowanceResult> => {
   try {
     const tokenAddress = getTokenAddress(tokenOptions, selectedCoin, chain)
     const poolAddress = getPoolAddress(pools, chain)
 
-    if (!tokenAddress || !poolAddress || !userAddress) return
+    if (!tokenAddress || !poolAddress || !userAddress) return {}
 
     // determine network based on mainnet/testnet
     const network = isTestnet
@@ -64,8 +64,8 @@ export const getTokenAllowance = async ({
     console.log('allowance data: ', allowance, balance, decimals)
 
     return {
-      allowance: Number(formatUnits(allowance, decimals)),
-      balance: Number(formatUnits(balance, decimals)),
+      allowance: allowance,
+      balance: balance,
       decimals: Number(decimals)
     }
   } catch (error) {

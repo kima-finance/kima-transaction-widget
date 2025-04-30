@@ -56,12 +56,12 @@ import useValidateTransaction, {
 } from '../hooks/useValidateTransaction'
 import useSubmitTransaction from '../hooks/useSubmitTransaction'
 import useComplianceCheck from '../hooks/useComplianceCheck'
-import useBalance from '../hooks/useBalance'
 import useGetPools from '../hooks/useGetPools'
 import useDisconnectWallet from '../hooks/useDisconnectWallet'
 import { useKimaContext } from 'src/KimaProvider'
 import { ChainData } from '@plugins/pluginTypes'
 import WarningModal from './reusable/WarningModal'
+import { parseUnits } from 'viem'
 
 interface Props {
   theme: ThemeOptions
@@ -98,10 +98,13 @@ export const TransferWidget = ({
   const sourceCurrency = useSelector(selectSourceCurrency)
   const targetCurrency = useSelector(selectTargetCurrency)
   const amount = useSelector(selectAmount)
-  const { totalFee, decimals: feeDecimals } = useSelector(selectServiceFee)
+  const { totalFee, transactionValues } = useSelector(selectServiceFee)
   const compliantOption = useSelector(selectCompliantOption)
   const networkOptions = useSelector(selectNetworkOption)
   const feeDeduct = useSelector(selectFeeDeduct)
+  const txValues = feeDeduct
+    ? transactionValues.feeFromTarget
+    : transactionValues.feeFromOrigin
   const { keplrHandler, closeHandler } = useKimaContext()
 
   // Hooks for wallet connection, allowance
@@ -116,9 +119,7 @@ export const TransferWidget = ({
 
   const { disconnectWallet } = useDisconnectWallet()
 
-  const { balance } = useBalance()
-
-  const { allowance, isApproved, approve, decimals, signMessage } =
+  const { allowance, balance, isApproved, approve, decimals, signMessage } =
     useAllowance({
       setApproving,
       setCancellingApprove
@@ -145,30 +146,19 @@ export const TransferWidget = ({
     targetAddress,
     targetChain: targetChain.shortName,
     balance,
-    amount,
-    totalFee,
+    amount: parseUnits(amount, txValues.allowanceAmount.decimals),
+    decimals: txValues.allowanceAmount.decimals,
+    totalFee: totalFee.value,
     sourceCompliant,
     targetCompliant,
     targetCurrency,
     compliantOption,
-    mode,
     pools,
     feeDeduct,
     formStep
   })
 
-  const { submitTransaction, isSubmitting } = useSubmitTransaction({
-    amount: feeDeduct ? +amount - +totalFee : +amount,
-    totalFee: totalFee,
-    originAddress: sourceAddress,
-    targetAddress,
-    originChain: sourceChain.shortName,
-    targetChain: targetChain.shortName,
-    originSymbol: sourceCurrency,
-    targetSymbol: targetCurrency,
-    backendUrl,
-    decimals: feeDecimals
-  })
+  const { submitTransaction, isSubmitting } = useSubmitTransaction()
 
   const handleSubmit = async () => {
     const { error, message: validationMessage } = validate(true)
@@ -403,8 +393,11 @@ export const TransferWidget = ({
           {formStep === 0 ? (
             <SingleForm
               {...{
-                allowance,
-                balance,
+                allowance: parseUnits(
+                  allowance?.toString() ?? '0',
+                  decimals ?? 18
+                ),
+                balance: parseUnits(balance?.toString() ?? '0', decimals ?? 18),
                 decimals: 2,
                 formStep,
                 onBack,
@@ -440,7 +433,7 @@ export const TransferWidget = ({
                 {formStep > 0 ? 'Back' : 'Cancel'}
               </SecondaryButton>
             )}
-            {allowance > 0 && formStep !== 0 ? (
+            {!!allowance && allowance > 0 && formStep !== 0 ? (
               <SecondaryButton
                 clickHandler={onCancelApprove}
                 isLoading={isCancellingApprove}

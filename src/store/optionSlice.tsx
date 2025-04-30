@@ -135,45 +135,47 @@ const initialState: OptionState = {
   initChainFromProvider: false,
   serviceFee: {
     feeId: '',
-    feeOriginGasFiat: '',
-    feeOriginGasBigInt: {
-      value: '0',
+    sourceFee: {
+      value: BigInt(0),
       decimals: 0
     },
-    feeKimaProcessingFiat: '',
-    feeKimaProcessingBigInt: {
-      value: '0',
+    kimaFee: {
+      value: BigInt(0),
       decimals: 0
     },
-    feeTargetGasFiat: '',
-    feeTargetGasBigInt: {
-      value: '0',
+    targetFee: {
+      value: BigInt(0),
       decimals: 0
     },
-    feeTotalFiat: '',
-    feeTotalBigInt: {
-      value: '0',
+    totalFee: {
+      value: BigInt(0),
       decimals: 0
     },
     transactionValues: {
+      originChain: '',
+      originAddress: '',
+      originSymbol: '',
+      targetChain: '',
+      targetAddress: '',
+      targetSymbol: '',
       feeFromOrigin: {
         allowanceAmount: {
-          value: '0',
+          value: BigInt(0),
           decimals: 0
         },
         submitAmount: {
-          value: '0',
+          value: BigInt(0),
           decimals: 0
         },
         message: ''
       },
       feeFromTarget: {
         allowanceAmount: {
-          value: '0',
+          value: BigInt(0),
           decimals: 0
         },
         submitAmount: {
-          value: '0',
+          value: BigInt(0),
           decimals: 0
         },
         message: ''

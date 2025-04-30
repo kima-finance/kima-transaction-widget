@@ -1,6 +1,6 @@
-import { checkPoolBalance, preciseSubtraction } from '@utils/functions'
-import { ModeOptions } from '@interface'
+import { checkPoolBalance } from '@utils/functions'
 import { useMemo } from 'react'
+import { formatUnits } from 'viem'
 
 export enum ValidationError {
   Error = 'ValidationError',
@@ -9,48 +9,52 @@ export enum ValidationError {
   None = 'None'
 }
 
-const useValidateTransaction = ({
-  allowance,
-  isApproved,
-  sourceAddress,
-  targetAddress,
-  targetChain,
-  targetCurrency,
-  feeDeduct,
-  balance,
-  amount,
-  totalFee,
-  compliantOption,
-  sourceCompliant,
-  targetCompliant,
-  mode,
-  pools,
-  formStep
-}: {
-  allowance: number
+export interface UseValidateTransactionInputs {
+  allowance: bigint | undefined
+  amount: bigint
+  balance: bigint | undefined
+  compliantOption: boolean
+  decimals: number
+  feeDeduct: boolean
+  formStep: number
   isApproved: boolean
+  pools: any[]
   sourceAddress: string
+  sourceCompliant: any
   targetAddress: string
+  targetCompliant: any
   targetChain: string
   targetCurrency: string
-  feeDeduct: boolean
-  balance: number
-  amount: string
-  totalFee: string
-  compliantOption: boolean
-  sourceCompliant: any
-  targetCompliant: any
-  mode: ModeOptions
-  pools: any[]
-  formStep: number
-}) => {
+  totalFee: bigint
+}
+
+const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
+  const {
+    allowance = BigInt(0),
+    amount,
+    balance = BigInt(0),
+    compliantOption,
+    decimals,
+    feeDeduct,
+    formStep,
+    isApproved,
+    pools,
+    sourceAddress,
+    sourceCompliant,
+    targetAddress,
+    targetCompliant,
+    targetChain,
+    targetCurrency,
+    totalFee
+  } = inputs
   const maxValue = useMemo(() => {
-    if (!balance) return 0
+    console.log('useValidateTransaction: maxValue: ', inputs)
+    if (!balance) return BigInt(0)
 
-    if (+totalFee < 0) return balance
+    if (totalFee <= BigInt(0)) return balance
 
-    const amountMinusFees = preciseSubtraction(balance as number, +totalFee)
-    const maxVal = amountMinusFees > 0 ? amountMinusFees : 0
+    const amountMinusFees = balance - totalFee
+    const maxVal = amountMinusFees > BigInt(0) ? amountMinusFees : BigInt(0)
     console.log('maxValue: ', { maxVal, amountMinusFees })
 
     return maxVal
@@ -75,14 +79,14 @@ const useValidateTransaction = ({
       }
     }
 
-    if (+amount <= 0) {
+    if (amount <= BigInt(0)) {
       return {
         error: ValidationError.Error,
         message: 'Amount must be greater than zero'
       }
     }
 
-    if (+totalFee < 0) {
+    if (totalFee <= BigInt(0)) {
       return { error: ValidationError.Error, message: 'Fee calculation error' }
     }
 
@@ -103,7 +107,7 @@ const useValidateTransaction = ({
     }
 
     // Check if the amount exceeds the max value
-    if (+amount > balance && formStep === 0) {
+    if (amount > balance && formStep === 0) {
       return {
         error: ValidationError.Warning,
         message:
@@ -111,7 +115,7 @@ const useValidateTransaction = ({
       }
     }
 
-    if (+amount > maxValue && formStep === 0) {
+    if (amount > maxValue && formStep === 0) {
       return {
         error: ValidationError.Warning,
         message:
@@ -119,7 +123,7 @@ const useValidateTransaction = ({
       }
     }
 
-    if (+amount < +totalFee && formStep === 0) {
+    if (amount < totalFee && formStep === 0) {
       return {
         error: ValidationError.Warning,
         message:
@@ -138,7 +142,7 @@ const useValidateTransaction = ({
       pools,
       targetChain,
       targetCurrency,
-      amount
+      amount: formatUnits(amount, decimals)
     })
 
     if (!isPoolAvailable) {

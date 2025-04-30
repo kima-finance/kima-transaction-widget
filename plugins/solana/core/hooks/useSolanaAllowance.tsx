@@ -1,18 +1,14 @@
-import { useState } from 'react'
 import { useSelector } from 'react-redux'
-import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 
 import {
   selectSourceCurrency,
-  selectSourceChain,
   selectServiceFee,
   selectTokenOptions,
   selectBackendUrl,
   selectNetworkOption,
   selectFeeDeduct
 } from '@store/selectors'
-import { useQuery } from '@tanstack/react-query'
-import { getTokenAllowance } from '../../utils/getTokenAllowance'
+import useBalance from './useBalance'
 import useGetPools from '../../../../src/hooks/useGetPools'
 import {
   createApproveInstruction,
@@ -22,98 +18,26 @@ import {
 import { getPoolAddress, getTokenAddress } from '@utils/functions'
 import { PublicKey, Transaction } from '@solana/web3.js'
 import { PluginUseAllowanceResult, SignDataType } from '@plugins/pluginTypes'
-import { useKimaContext } from '../../../../src/KimaProvider'
-// import { formatterFloat } from 'src/helpers/functions'
-import { parseUnits } from 'viem'
+import { useQueryClient } from '@tanstack/react-query'
+import { useSolanaProvider } from './useSolanaProvider'
 
 export default function useSolanaAllowance(): PluginUseAllowanceResult {
-  const sourceChain = useSelector(selectSourceChain)
+  const queryClient = useQueryClient()
   const { transactionValues } = useSelector(selectServiceFee)
   const feeDeduct = useSelector(selectFeeDeduct)
   const backendUrl = useSelector(selectBackendUrl)
   const networkOption = useSelector(selectNetworkOption)
-  const txValues = feeDeduct ? transactionValues.feeFromTarget : transactionValues.feeFromOrigin
-  const allowanceNumber =  BigInt(txValues.allowanceAmount.value)
-  const { externalProvider } = useKimaContext()
+  const txValues = feeDeduct
+    ? transactionValues.feeFromTarget
+    : transactionValues.feeFromOrigin
+  const allowanceNumber = BigInt(txValues.allowanceAmount.value)
 
-  const { connection: internalConnection } = useConnection()
-  const {
-    publicKey: internalPublicKey,
-    signTransaction: internalSignTransaction,
-    signMessage: internalSignMessage
-  } = useWallet()
   const selectedCoin = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
   const { pools } = useGetPools(backendUrl, networkOption)
-
-  const [approvalsCount, setApprovalsCount] = useState(0)
-
-  // Ensure only Solana-specific logic is executed when sourceChain is SOL
-  const isSolanaProvider =
-    sourceChain.shortName === 'SOL' &&
-    externalProvider?.type === 'solana' &&
-    externalProvider.provider &&
-    externalProvider.signer instanceof PublicKey
-
-  // Set the proper publicKey only for Solana
-  const userPublicKey = isSolanaProvider
-    ? externalProvider.signer
-    : sourceChain.shortName === 'SOL'
-      ? internalPublicKey
-      : undefined
-
-  // Set the proper signTransaction object only for Solana
-  const signTransaction =
-    isSolanaProvider && externalProvider.provider.signTransaction
-      ? externalProvider.provider.signTransaction
-      : sourceChain.shortName === 'SOL'
-        ? internalSignTransaction
-        : undefined
-
-  // Set the proper signMessage object only for Solana
-  const signMessage =
-    isSolanaProvider && externalProvider.provider.signMessage
-      ? externalProvider.provider.signMessage
-      : sourceChain.shortName === 'SOL'
-        ? internalSignMessage
-        : undefined
-
-  // Set the proper connection object only for Solana
-  const connection =
-    isSolanaProvider && externalProvider.provider.connection
-      ? externalProvider.provider.connection
-      : sourceChain.shortName === 'SOL'
-        ? internalConnection
-        : undefined
-
-  const {
-    data: allowanceData,
-    isLoading,
-    error
-  } = useQuery({
-    queryKey: [
-      'solanaAllowance',
-      userPublicKey?.toBase58(), // for different accounts
-      selectedCoin, // for coin selection
-      approvalsCount // for updates
-    ],
-    queryFn: async () =>
-      await getTokenAllowance({
-        tokenOptions,
-        selectedCoin,
-        userPublicKey,
-        connection,
-        pools
-      }),
-    enabled:
-      !!userPublicKey &&
-      !!selectedCoin &&
-      !!tokenOptions &&
-      pools.length > 0 &&
-      sourceChain.shortName === 'SOL',
-    refetchInterval: 1000 * 60, // 1 min
-    staleTime: 1000 * 60 // 1 min
-  })
+  const { userPublicKey, signTransaction, signMessage, connection } =
+    useSolanaProvider()
+  const allowanceData = useBalance()
 
   const signSolanaMessage = async (data: SignDataType) => {
     if (!signMessage) {
@@ -155,11 +79,9 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
         new PublicKey(tokenAddress),
         userPublicKey
       )
-
       const amount = isCancel ? 0n : allowanceNumber
-      // const amount = isCancel
-      //   ? 0n
-      //   : parseUnits(allowanceAmount, allowanceData.decimals)
+      console.log('useSolanaAllowance: Approving amount:', amount)
+
       const approveInstruction = createApproveInstruction(
         tokenAccountAddress,
         new PublicKey(poolAddress),
@@ -196,7 +118,8 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
         return
       }
 
-      setApprovalsCount((prev) => prev + 1)
+      // update allowance data
+      await queryClient.invalidateQueries({ queryKey: ['solanaAllowance'] })
     } catch (error) {
       console.error('Error approving SPL token transfer:', error)
       throw error

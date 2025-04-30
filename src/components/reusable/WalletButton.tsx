@@ -23,7 +23,7 @@ import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import { useAppKit, useAppKitState } from '@reown/appkit/react'
 import CopyButton from './CopyButton'
-import { formatUSD } from '../../helpers/functions'
+import { bigIntToNumber, formatUSD } from '../../helpers/functions'
 import useHideWuiListItem from '../../hooks/useHideActivityTab'
 import { useKimaContext } from '../../KimaProvider'
 import { useGetEnvOptions } from '../../hooks/useGetEnvOptions'
@@ -41,7 +41,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const { connected: isTronConnected } = useTronWallet()
   const { isReady, statusMessage, walletAddress /*, connectBitcoinWallet*/ } =
     useIsWalletReady()
-  const { balance } = useBalance()
+  const { balance, decimals } = useBalance()
   const { open } = useAppKit()
   const { width, updateWidth } = useWidth()
   const { open: isModalOpen } = useAppKitState()
@@ -151,9 +151,10 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
         {isReady && <CopyButton text={walletAddress as string} />}
       </div>
 
-      {isReady && balance !== undefined ? (
+      {isReady && balance !== undefined && decimals !== undefined ? (
         <p className='balance-info'>
-          {formatUSD(balance)} {selectedCoin} available
+          {formatUSD(bigIntToNumber({ value: balance, decimals }))}{' '}
+          {selectedCoin} available
         </p>
       ) : null}
     </div>
