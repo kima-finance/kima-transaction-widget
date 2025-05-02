@@ -499,7 +499,7 @@ export const TransferWidget = ({
           <div className={`items ${theme.colorMode}`}>
             <span>Powered by</span>
             <FooterLogo width={50} fill='black' />
-            <strong>Network</strong>
+            <span className='network'>Network</span>
           </div>
         </div>
       </div>

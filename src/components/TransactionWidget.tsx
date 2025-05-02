@@ -210,7 +210,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
 
   const resetForm = () => {
     closeHandler && closeHandler()
-    
+
     if (mode === ModeOptions.light) {
       dispatch(setMode(ModeOptions.light))
       dispatch(setTxId(-1))
@@ -219,7 +219,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       dispatch(setAmount(''))
       return dispatch(setTargetChain(networks[0]))
     }
-    
+
     if (mode === ModeOptions.status && amount === '') {
       dispatch(setMode(ModeOptions.status))
       dispatch(setTxId(-1))
@@ -287,62 +287,62 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                       : data?.status === TransactionStatus.COMPLETED
                         ? 'Transferred '
                         : 'Transfering '}
-                    {/* if not in status mode, display the whole picture for better understanding */}
-                    {mode !== ModeOptions.status
-                      ? Number(amount) !== 0
-                        ? formatterFloat.format(
-                            feeDeduct
-                              ? Number(amount)
-                              : Number(amount) + totalFeeUsd
-                          )
-                        : ''
-                      : data?.amount || ''}{' '}
-                    {mode !== ModeOptions.status
-                      ? `${sourceSymbol}${' '}`
-                      : isEmptyStatus
-                        ? ''
-                        : `${data?.sourceSymbol}${' '}`}
-                    <div className='title-icon'>
-                      <ChainIcon
-                        symbol={transactionSourceChain?.shortName as string}
-                      />
-                    </div>{' '}
-                    {mode !== ModeOptions.status
-                      ? `${transactionSourceChain?.name}`
-                      : isEmptyStatus
-                        ? ''
-                        : `${data?.sourceChain}`}{' '}
-                    {mode !== ModeOptions.status
-                      ? `→ `
-                      : isEmptyStatus
-                        ? ''
-                        : `→ `}
-                    {/* if not in status mode, display the whole picture for better understanding */}
-                    {mode !== ModeOptions.status
-                      ? Number(amount) !== 0
-                        ? formatterFloat.format(
-                            feeDeduct
-                              ? Number(amount) - totalFeeUsd
-                              : Number(amount)
-                          )
-                        : ''
-                      : data?.amount || ''}{' '}
-                    {mode !== ModeOptions.status
-                      ? `${targetSymbol}${' '}`
-                      : isEmptyStatus
-                        ? ''
-                        : `${data?.targetSymbol}${' '}`}
-                    <div className='title-icon'>
-                      <ChainIcon
-                        symbol={transactionTargetChain?.shortName as string}
-                      />
-                    </div>{' '}
-                    {mode !== ModeOptions.status
-                      ? `${transactionTargetChain?.name}${' '}`
-                      : isEmptyStatus
-                        ? ''
-                        : `${data?.targetChain} ${' '}`}
-                  </div>
+                  {/* if not in status mode, display the whole picture for better understanding */}
+                  {mode !== ModeOptions.status
+                    ? Number(amount) !== 0
+                      ? formatterFloat.format(
+                          feeDeduct
+                            ? Number(amount)
+                            : Number(amount) + totalFeeUsd
+                        )
+                      : ''
+                    : data?.amount || ''}{' '}
+                  {mode !== ModeOptions.status
+                    ? `${sourceSymbol}${' '}`
+                    : isEmptyStatus
+                      ? ''
+                      : `${data?.sourceSymbol}${' '}`}
+                  <div className='title-icon'>
+                    <ChainIcon
+                      symbol={transactionSourceChain?.shortName as string}
+                    />
+                  </div>{' '}
+                  {mode !== ModeOptions.status
+                    ? `${transactionSourceChain?.name}`
+                    : isEmptyStatus
+                      ? ''
+                      : `${data?.sourceChain}`}{' '}
+                  {mode !== ModeOptions.status
+                    ? `→ `
+                    : isEmptyStatus
+                      ? ''
+                      : `→ `}
+                  {/* if not in status mode, display the whole picture for better understanding */}
+                  {mode !== ModeOptions.status
+                    ? Number(amount) !== 0
+                      ? formatterFloat.format(
+                          feeDeduct
+                            ? Number(amount) - totalFeeUsd
+                            : Number(amount)
+                        )
+                      : ''
+                    : data?.amount || ''}{' '}
+                  {mode !== ModeOptions.status
+                    ? `${targetSymbol}${' '}`
+                    : isEmptyStatus
+                      ? ''
+                      : `${data?.targetSymbol}${' '}`}
+                  <div className='title-icon'>
+                    <ChainIcon
+                      symbol={transactionTargetChain?.shortName as string}
+                    />
+                  </div>{' '}
+                  {mode !== ModeOptions.status
+                    ? `${transactionTargetChain?.name}${' '}`
+                    : isEmptyStatus
+                      ? ''
+                      : `${data?.targetChain} ${' '}`}
+                </div>
               ) : (
                 <div>
                   <h3 className='transaction'>Transaction Status</h3>
@@ -450,8 +450,8 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
         <div className='floating-footer status'>
           <div className={`items ${theme.colorMode}`}>
             <span>Powered by</span>
-            <FooterLogo fill='black' />
-            <strong>Network</strong>
+            <FooterLogo width={50} fill='black' />
+            <span className='network'>Network</span>
           </div>
         </div>
         {/* <Tooltip

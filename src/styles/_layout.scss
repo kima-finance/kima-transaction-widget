@@ -403,25 +403,19 @@
     position: absolute;
     width: 100%;
     display: flex;
+    align-items: center;
     justify-content: center;
     pointer-events: none;
     font-family: 'Manrope';
     right: 0;
-
-    &.status {
-      margin-top: 10px;
-    }
+    margin-top: 10px;
 
     @include breakpoint(phablet) {
-      margin-top: 25px;
+      margin-top: 30px;
 
       &.status {
         margin-top: 10px;
       }
-    }
-
-    @include breakpoint(mobile) {
-      margin-top: 20px;
     }
 
     .items {
@@ -430,10 +424,11 @@
       justify-content: center;
       align-items: center;
       text-decoration: none;
-      padding: 2px 8px;
+      padding: 0 14px;
       border-radius: 20px;
-      width: 220px;
-      font-size: 14px;
+      font-size: 12px;
+      gap: 8px;
+      font-family: "Manrope";
 
       &.light {
         background-color: $hover;
@@ -443,16 +438,8 @@
         background-color: $finance;
       }
 
-      span {
-        margin-right: 8px;
-        font-weight: 400;
-      }
-
-      strong {
-        margin-left: 5px;
-        font-size: 14px;
-        font-family: 'Manrope';
-        font-weight: bolder;
+      span.network{
+        font-weight: 800;
       }
     }
   }
