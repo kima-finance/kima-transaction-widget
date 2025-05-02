@@ -31,7 +31,13 @@ import { useGetEnvOptions } from '../../hooks/useGetEnvOptions'
 import { ModeOptions, NetworkOptions } from '@interface'
 import log from '@utils/logger'
 
-const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
+const WalletButton = ({
+  errorBelow = false,
+  initialSelection
+}: {
+  errorBelow?: boolean
+  initialSelection: boolean
+}) => {
   const dispatch = useDispatch()
   const theme = useSelector(selectTheme)
   const mode = useSelector(selectMode)
@@ -132,32 +138,43 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   //   if (!errorMessage) return
   //   toast.error(errorMessage)
   // }, [errorMessage])
+  const isConnected = useMemo(() => {
+    if (mode === ModeOptions.light) {
+      return isReady && !initialSelection
+    }
+
+    return isReady
+  }, [isReady, initialSelection])
 
   return (
     <div
-      className={`wallet-button ${isReady ? 'connected' : 'disconnected'} ${theme.colorMode} ${
+      className={`wallet-button ${isConnected ? 'connected' : 'disconnected'} ${theme.colorMode} ${
         errorBelow ? 'error-below' : ''
       }`}
       data-testid='connect-wallet-btn'
     >
       <div className='info-wrapper'>
         <button
-          className={`${isReady ? 'connected' : 'disconnected'} ${width < 640 && 'shortened'} ${theme.colorMode}`}
+          className={`${isConnected ? 'connected' : 'disconnected'} ${width < 640 && 'shortened'} ${theme.colorMode}`}
           onClick={handleClick}
         >
-          {isReady
+          {isConnected
             ? width >= 640
               ? `${connectedAddress || ''}`
               : getShortenedAddress(connectedAddress || '')
             : ''}
+          {!isConnected &&
+            'Select Network to Load Account'}
           {!isReady && <WalletIcon />}
           {!isReady && 'Connect Wallet'}
         </button>
 
-        {isReady && <CopyButton text={connectedAddress as string} />}
+        {isConnected && (
+          <CopyButton text={connectedAddress as string} />
+        )}
       </div>
 
-      {isReady && balance !== undefined ? (
+      {isConnected &&  balance !== undefined ? (
         <p className='balance-info'>
           {formatUSD(balance)} {selectedCoin} available
         </p>

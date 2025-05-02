@@ -59,6 +59,7 @@ const SingleForm = ({
   const sourceCurrency = useSelector(selectSourceCurrency)
   const targetCurrency = useSelector(selectTargetCurrency)
   const backendUrl = useSelector(selectBackendUrl)
+  const [initialSelection, setInitialSelection] = useState<boolean>(true)
 
   const {
     data: fees,
@@ -111,12 +112,23 @@ const SingleForm = ({
     setAmountValue(amount)
   }, [amount])
 
+  const isConnected = useMemo(() => {
+    if (mode === ModeOptions.light) {
+      return isReady && !initialSelection
+    }
+
+    return isReady
+  }, [isReady, initialSelection])
+
   return (
     <div className='single-form'>
       <div className='form-item'>
         <span className='label'>Source Network:</span>
         <div className='items'>
-          <NetworkSelector type='source' />
+          <NetworkSelector
+            type='source'
+            {...{ initialSelection, setInitialSelection }}
+          />
           <CoinDropdown />
         </div>
       </div>
@@ -127,17 +139,20 @@ const SingleForm = ({
         }`}
       >
         <div
-          className={`form-item wallet-button-item ${isReady && 'connected'}`}
+          className={`form-item wallet-button-item ${isConnected && 'connected'}`}
         >
           <span className='label'>Wallet:</span>
-          <WalletButton />
+          <WalletButton initialSelection={initialSelection} />
         </div>
 
         {mode !== ModeOptions.payment && (
           <div className='form-item'>
             <span className='label'>Target Network:</span>
             <div className='items'>
-              <NetworkSelector type='target' />
+              <NetworkSelector
+                type='target'
+                {...{ initialSelection, setInitialSelection }}
+              />
               <CoinDropdown isSourceChain={false} />
             </div>
           </div>
