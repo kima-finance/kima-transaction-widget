@@ -62,6 +62,7 @@ import { useKimaContext } from 'src/KimaProvider'
 import { ChainData } from '@plugins/pluginTypes'
 import WarningModal from './reusable/WarningModal'
 import { parseUnits } from 'viem'
+import { bigIntChangeDecimals } from 'src/helpers/functions'
 
 interface Props {
   theme: ThemeOptions
@@ -148,7 +149,10 @@ export const TransferWidget = ({
     balance,
     amount: parseUnits(amount, txValues.allowanceAmount.decimals),
     decimals: txValues.allowanceAmount.decimals,
-    totalFee: totalFee.value,
+    totalFee: bigIntChangeDecimals({
+      ...totalFee,
+      newDecimals: txValues.allowanceAmount.decimals
+    }).value,
     sourceCompliant,
     targetCompliant,
     targetCurrency,

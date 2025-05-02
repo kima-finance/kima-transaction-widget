@@ -4210,6 +4210,21 @@ var bigIntToNumber = (inputs) => {
   const valNumberStr = (0, import_viem5.formatUnits)(valBigInt, decimals);
   return Number(valNumberStr);
 };
+var bigIntChangeDecimals = (inputs) => {
+  const { value, decimals, newDecimals } = inputs || {};
+  const valBigInt = BigInt(value);
+  if (decimals === newDecimals) return { value: valBigInt, decimals };
+  if (decimals > newDecimals) {
+    return {
+      value: valBigInt / BigInt(10 ** (decimals - newDecimals)),
+      decimals: newDecimals
+    };
+  }
+  return {
+    value: valBigInt * BigInt(10 ** (newDecimals - decimals)),
+    decimals: newDecimals
+  };
+};
 var formatBigInt = (inputs) => {
   return formatterFloat.format(bigIntToNumber(inputs));
 };
@@ -6072,7 +6087,10 @@ var useSubmitTransaction = () => {
         originSymbol: transactionValues.originSymbol,
         targetSymbol: transactionValues.targetSymbol,
         amount: txValues.submitAmount.value.toString(),
-        fee: totalFee.value.toString(),
+        fee: bigIntChangeDecimals({
+          ...totalFee,
+          newDecimals: txValues.submitAmount.decimals
+        }).value.toString(),
         decimals: txValues.submitAmount.decimals,
         htlcCreationHash: "",
         htlcCreationVout: 0,
@@ -6262,7 +6280,10 @@ var TransferWidget = ({
     balance,
     amount: (0, import_viem8.parseUnits)(amount, txValues.allowanceAmount.decimals),
     decimals: txValues.allowanceAmount.decimals,
-    totalFee: totalFee.value,
+    totalFee: bigIntChangeDecimals({
+      ...totalFee,
+      newDecimals: txValues.allowanceAmount.decimals
+    }).value,
     sourceCompliant,
     targetCompliant,
     targetCurrency,

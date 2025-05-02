@@ -9,6 +9,7 @@ import {
   selectFeeDeduct,
   selectServiceFee
 } from '@store/selectors'
+import { bigIntChangeDecimals } from 'src/helpers/functions'
 
 const useSubmitTransaction = () => {
   const dispatch = useDispatch()
@@ -32,7 +33,10 @@ const useSubmitTransaction = () => {
         originSymbol: transactionValues.originSymbol,
         targetSymbol: transactionValues.targetSymbol,
         amount: txValues.submitAmount.value.toString(),
-        fee: totalFee.value.toString(),
+        fee: bigIntChangeDecimals({
+          ...totalFee,
+          newDecimals: txValues.submitAmount.decimals
+        }).value.toString(),
         decimals: txValues.submitAmount.decimals,
         htlcCreationHash: '',
         htlcCreationVout: 0,

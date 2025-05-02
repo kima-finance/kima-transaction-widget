@@ -21,6 +21,29 @@ export const bigIntToNumber = (
   return Number(valNumberStr)
 }
 
+export const bigIntChangeDecimals = (inputs: {
+  value: string | bigint
+  decimals: number
+  newDecimals: number
+}): BigintAmount<bigint> => {
+  const { value, decimals, newDecimals } = inputs || {}
+  const valBigInt = BigInt(value)
+
+  if (decimals === newDecimals) return { value: valBigInt, decimals }
+
+  if (decimals > newDecimals) {
+    return {
+      value: valBigInt / BigInt(10 ** (decimals - newDecimals)),
+      decimals: newDecimals
+    }
+  }
+
+  return {
+    value: valBigInt * BigInt(10 ** (newDecimals - decimals)),
+    decimals: newDecimals
+  }
+}
+
 export const formatBigInt = (inputs: BigintAmount<bigint | string>): string => {
   return formatterFloat.format(bigIntToNumber(inputs))
 }
