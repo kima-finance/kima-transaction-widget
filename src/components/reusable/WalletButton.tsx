@@ -163,7 +163,7 @@ const WalletButton = ({
               ? `${connectedAddress || ''}`
               : getShortenedAddress(connectedAddress || '')
             : ''}
-          {!isConnected &&
+          {!isConnected && mode === ModeOptions.light &&
             'Select Network to Load Account'}
           {!isReady && <WalletIcon />}
           {!isReady && 'Connect Wallet'}
