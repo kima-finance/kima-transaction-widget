@@ -216,6 +216,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       dispatch(setTxId(-1))
       dispatch(setSubmitted(false))
       dispatch(setSourceChain(networks[0]))
+      dispatch(setAmount(''))
       return dispatch(setTargetChain(networks[0]))
     }
     
