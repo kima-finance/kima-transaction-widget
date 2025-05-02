@@ -25,8 +25,6 @@ import {
   setNetworkOption,
   setTargetAddress,
   setAmount,
-  setExcludedSourceNetworks,
-  setExcludedTargetNetworks,
   setTargetCurrency,
   setSourceChain,
   setDappOption
@@ -53,8 +51,6 @@ interface Props {
   helpURL?: string
   transactionOption?: TransactionOption
   paymentTitleOption?: PaymentTitleOption
-  excludedSourceNetworks?: Array<ChainName>
-  excludedTargetNetworks?: Array<ChainName>
 }
 
 const KimaWidgetWrapper = ({
@@ -66,9 +62,7 @@ const KimaWidgetWrapper = ({
   paymentTitleOption,
   helpURL = '',
   compliantOption = true,
-  transactionOption,
-  excludedSourceNetworks = [],
-  excludedTargetNetworks = []
+  transactionOption
 }: Props) => {
   const { kimaBackendUrl } = useKimaContext()
   const submitted = useSelector(selectSubmitted)
@@ -91,9 +85,6 @@ const KimaWidgetWrapper = ({
     })
 
     if (transactionOption) dispatch(setTransactionOption(transactionOption))
-
-    dispatch(setExcludedSourceNetworks(excludedSourceNetworks))
-    dispatch(setExcludedTargetNetworks(excludedTargetNetworks))
 
     dispatch(setCompliantOption(compliantOption))
     dispatch(setBackendUrl(kimaBackendUrl))

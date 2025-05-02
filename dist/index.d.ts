@@ -197,9 +197,7 @@ interface Props {
     helpURL?: string;
     transactionOption?: TransactionOption;
     paymentTitleOption?: PaymentTitleOption;
-    excludedSourceNetworks?: Array<ChainName>;
-    excludedTargetNetworks?: Array<ChainName>;
 }
-declare const KimaTransactionWidget: ({ mode, txId, dAppOption, theme, titleOption, paymentTitleOption, helpURL, compliantOption, transactionOption, excludedSourceNetworks, excludedTargetNetworks }: Props) => react__default.JSX.Element;
+declare const KimaTransactionWidget: ({ mode, txId, dAppOption, theme, titleOption, paymentTitleOption, helpURL, compliantOption, transactionOption }: Props) => react__default.JSX.Element;
 
 export { type BigintAmount, CHAIN_NAMES_TO_STRING, CHAIN_STRING_TO_NAME, ColorModeOptions, type CompliantOption, CurrencyOptions, DAppOptions, type ExternalProvider, type FeeResponse, type FeeResult, type FeeTransactionValues, KimaProvider, KimaTransactionWidget, ModeOptions, NetworkOptions, type Option, type PaymentTitleOption, type ServiceFee, type SolProvider, ChainName as SupportNetworks, type ThemeOptions, type TitleOption, type TransactionData, type TransactionOption, type TransactionValues, type TronProvider, type Web3ModalAccountInfo };

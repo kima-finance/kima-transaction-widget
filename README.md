@@ -108,8 +108,6 @@ const App = () => {
         closeHandler={() => {
           console.log('closed')
         }}
-        excludedSourceNetworks={[SupportNetworks.SOLANA]} // exclude networks that your dapp doesn't support
-        excludedTargetNetworks={[SupportNetworks.SOLANA]}
       />
     </KimaProvider>
   )

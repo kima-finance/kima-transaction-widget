@@ -1468,12 +1468,14 @@ var initialState = {
     ...import_chains.arbitrumSepolia,
     shortName: "ARB",
     supportedTokens: [],
+    supportedLocations: ["origin", "target"],
     compatibility: "EVM" /* EVM */
   },
   targetChain: {
     ...import_chains.sepolia,
     shortName: "SEP",
     supportedTokens: [],
+    supportedLocations: ["origin", "target"],
     compatibility: "EVM" /* EVM */
   },
   sourceAddress: "",
@@ -1562,9 +1564,7 @@ var initialState = {
   signature: "",
   uuid: "",
   kycStatus: "",
-  expireTime: "1 hour",
-  excludedSourceNetworks: [],
-  excludedTargetNetworks: []
+  expireTime: "1 hour"
 };
 var optionSlice = createSlice({
   name: "option",
@@ -1707,12 +1707,6 @@ var optionSlice = createSlice({
     },
     setExpireTime: (state, action) => {
       state.expireTime = action.payload;
-    },
-    setExcludedSourceNetworks: (state, action) => {
-      state.excludedSourceNetworks = action.payload;
-    },
-    setExcludedTargetNetworks: (state, action) => {
-      state.excludedTargetNetworks = action.payload;
     }
   }
 });
@@ -1762,9 +1756,7 @@ var {
   setKYCStatus,
   setExpireTime,
   setPendingTxData,
-  setPendingTxs,
-  setExcludedSourceNetworks,
-  setExcludedTargetNetworks
+  setPendingTxs
 } = optionSlice.actions;
 var optionSlice_default = optionSlice.reducer;
 
@@ -2087,8 +2079,6 @@ var selectTargetCompliant = (state) => state.option.targetCompliant;
 var selectBackendUrl = (state) => state.option.backendUrl;
 var selectFeeDeduct = (state) => state.option.feeDeduct;
 var selectTxId = (state) => state.option.txId;
-var selectExcludedSourceNetworks = (state) => state.option.excludedSourceNetworks;
-var selectExcludedTargetNetworks = (state) => state.option.excludedTargetNetworks;
 var selectAccountDetailsModal = (state) => state.option.accountDetailsModal;
 var selectBankDetails = (state) => state.option.bankDetails;
 var selectSignature = (state) => state.option.signature;
@@ -5384,45 +5374,31 @@ var NetworkSelector = ({ type }) => {
   const networkOptions3 = (0, import_react_redux45.useSelector)(selectNetworks);
   const sourceNetwork = (0, import_react_redux45.useSelector)(selectSourceChain);
   const targetNetwork = (0, import_react_redux45.useSelector)(selectTargetChain);
-  const excludedSourceNetworks = (0, import_react_redux45.useSelector)(selectExcludedSourceNetworks);
-  const excludedTargetNetworks = (0, import_react_redux45.useSelector)(selectExcludedTargetNetworks);
   const { switchChainHandler } = useKimaContext();
-  const isSourceSelector = type === "source";
+  const isOriginSelector = type === "origin";
   const networks = (0, import_react118.useMemo)(() => {
-    if (isSourceSelector) {
-      return networkOptions3.filter(
-        (network) => !excludedSourceNetworks.includes(network.shortName) && network.shortName !== "BERA"
-        // temporary disabled as source chain
-      );
-    }
     return networkOptions3.filter(
-      (network) => network.shortName !== sourceNetwork.shortName && !excludedTargetNetworks.includes(network.shortName)
+      (network) => network.supportedLocations.includes(type)
     );
-  }, [
-    networkOptions3,
-    sourceNetwork,
-    isSourceSelector,
-    excludedSourceNetworks,
-    excludedTargetNetworks
-  ]);
+  }, [networkOptions3, type]);
   const selectedNetwork = (0, import_react118.useMemo)(() => {
-    const selected = isSourceSelector ? sourceNetwork : targetNetwork;
+    const selected = isOriginSelector ? sourceNetwork : targetNetwork;
     return networks.find((network) => network.id === selected.id) || {
       shortName: "",
-      name: isSourceSelector ? "Select Source Network" : "Select Target Network"
+      name: isOriginSelector ? "Select Source Network" : "Select Target Network"
     };
-  }, [networks, sourceNetwork, targetNetwork, isSourceSelector]);
+  }, [networks, sourceNetwork, targetNetwork, isOriginSelector]);
   (0, import_react118.useEffect)(() => {
     if (!networks.length || selectedNetwork.shortName) return;
     const fallbackNetwork = networks[0];
-    if (isSourceSelector) {
+    if (isOriginSelector) {
       dispatch(setSourceChain(fallbackNetwork));
     } else {
       dispatch(setTargetChain(fallbackNetwork));
     }
-  }, [networks, selectedNetwork, isSourceSelector, dispatch]);
+  }, [networks, selectedNetwork, isOriginSelector, dispatch]);
   const handleNetworkChange = (chain) => {
-    if (isSourceSelector) {
+    if (isOriginSelector) {
       if (chain.id !== sourceNetwork.id) {
         dispatch(setSourceChain(chain));
         switchChainHandler && switchChainHandler(chain);
@@ -5537,7 +5513,7 @@ var SingleForm = ({
     if (amountValue && amount !== "") return;
     setAmountValue(amount);
   }, [amount]);
-  return /* @__PURE__ */ import_react119.default.createElement("div", { className: "single-form" }, /* @__PURE__ */ import_react119.default.createElement("div", { className: "form-item" }, /* @__PURE__ */ import_react119.default.createElement("span", { className: "label" }, "Source Network:"), /* @__PURE__ */ import_react119.default.createElement("div", { className: "items" }, /* @__PURE__ */ import_react119.default.createElement(NetworkSelector_default, { type: "source" }), /* @__PURE__ */ import_react119.default.createElement(CoinDropdown_default, null))), /* @__PURE__ */ import_react119.default.createElement(
+  return /* @__PURE__ */ import_react119.default.createElement("div", { className: "single-form" }, /* @__PURE__ */ import_react119.default.createElement("div", { className: "form-item" }, /* @__PURE__ */ import_react119.default.createElement("span", { className: "label" }, "Source Network:"), /* @__PURE__ */ import_react119.default.createElement("div", { className: "items" }, /* @__PURE__ */ import_react119.default.createElement(NetworkSelector_default, { type: "origin" }), /* @__PURE__ */ import_react119.default.createElement(CoinDropdown_default, null))), /* @__PURE__ */ import_react119.default.createElement(
     "div",
     {
       className: `dynamic-area ${sourceNetwork.shortName === "FIAT" /* FIAT */ ? "reverse" : "1"}`
@@ -6547,9 +6523,7 @@ var KimaWidgetWrapper = ({
   paymentTitleOption,
   helpURL = "",
   compliantOption = true,
-  transactionOption,
-  excludedSourceNetworks = [],
-  excludedTargetNetworks = []
+  transactionOption
 }) => {
   const { kimaBackendUrl } = useKimaContext();
   const submitted = (0, import_react_redux56.useSelector)(selectSubmitted);
@@ -6567,8 +6541,6 @@ var KimaWidgetWrapper = ({
       "--w3m-border-radius-master": "42px"
     });
     if (transactionOption) dispatch(setTransactionOption(transactionOption));
-    dispatch(setExcludedSourceNetworks(excludedSourceNetworks));
-    dispatch(setExcludedTargetNetworks(excludedTargetNetworks));
     dispatch(setCompliantOption(compliantOption));
     dispatch(setBackendUrl(kimaBackendUrl));
     dispatch(setMode(mode));
@@ -6629,9 +6601,7 @@ var KimaTransactionWidget = ({
   paymentTitleOption,
   helpURL = "",
   compliantOption = false,
-  transactionOption,
-  excludedSourceNetworks = [],
-  excludedTargetNetworks = []
+  transactionOption
 }) => {
   const dispatch = (0, import_react_redux57.useDispatch)();
   const { kimaBackendUrl } = useKimaContext();
@@ -6657,9 +6627,7 @@ var KimaTransactionWidget = ({
         paymentTitleOption,
         helpURL,
         compliantOption,
-        transactionOption,
-        excludedSourceNetworks,
-        excludedTargetNetworks
+        transactionOption
       }
     }
   );

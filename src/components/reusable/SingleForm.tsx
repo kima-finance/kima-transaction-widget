@@ -118,7 +118,7 @@ const SingleForm = ({
       <div className='form-item'>
         <span className='label'>Source Network:</span>
         <div className='items'>
-          <NetworkSelector type='source' />
+          <NetworkSelector type='origin' />
           <CoinDropdown />
         </div>
       </div>

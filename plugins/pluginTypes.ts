@@ -68,11 +68,14 @@ export interface PluginData {
   pluginData: { [key: string]: any } // currently empty
 }
 
+export type ChainLocation = 'origin' | 'target'
+
 export interface ChainData extends Chain {
   compatibility: ChainCompatibility
   name: string
   shortName: string
   supportedTokens: ChainToken[]
+  supportedLocations: ChainLocation[]
 }
 
 export interface ChainToken {
