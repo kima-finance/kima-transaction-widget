@@ -167,13 +167,13 @@ const SingleForm = ({
             value={amountValue || ''}
             onChange={(e) => {
               const value = e.target.value
-
-              // Allow numbers and a single dot for decimals
+            
+              // Allow only numbers and one dot, then cap to 2 decimals
               const maskedValue = value
-                .replace(/[^0-9.]/g, '') // Remove non-numeric and non-dot characters
-                .replace(/(\..*?)\..*/g, '$1') // Allow only one dot
-                .replace(new RegExp(`(\\.\\d{${decimals}})\\d+`), '$1') // Limit decimal places
-
+                .replace(/[^0-9.]/g, '')            // Remove non-numeric and non-dot characters
+                .replace(/(\..*?)\..*/g, '$1')      // Allow only one dot
+                .replace(/(\.\d{2})\d+/, '$1')      // Limit to 2 decimal places
+            
               setAmountValue(maskedValue)
               dispatch(setAmount(maskedValue))
             }}
