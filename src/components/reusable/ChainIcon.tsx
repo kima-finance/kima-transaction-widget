@@ -11,8 +11,10 @@ import {
   TronIcon,
   BTCIcon,
   BaseIcon,
-  BeraIcon
+  BeraIcon,
+  CreditCardIcon
 } from '../../assets/icons'
+import log from '@utils/logger'
 
 type IconProps = { width?: number; height?: number }
 
@@ -28,25 +30,21 @@ const chainIcons: Record<string, React.FC<IconProps>> = {
   TRX: TronIcon,
   SOL: SolanaIcon,
   FIAT: BankIcon,
-  BERA: BeraIcon
+  BERA: BeraIcon,
+  CC: CreditCardIcon
 }
 
 export interface ChainIconProps extends IconProps {
   symbol: string
 }
 
-export default function ChainIcon({
-  symbol
-}: ChainIconProps) {
+export default function ChainIcon({ symbol }: ChainIconProps) {
   // return an empty icon if no symbol found
-  const Icon = chainIcons[symbol]
+  const Icon = symbol === 'FIAT' ? chainIcons['CC'] : chainIcons[symbol]
+
   if (!Icon) {
-    console.warn(`Chain icon not found for symbol: ${symbol}`)
-    return (
-      <div
-        className='icon'
-      ></div>
-    )
+    log.warn(`Chain icon not found for symbol: ${symbol}`)
+    return <div className='icon'></div>
   }
 
   return (

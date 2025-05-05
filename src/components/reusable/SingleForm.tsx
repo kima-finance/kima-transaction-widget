@@ -28,6 +28,7 @@ import { setServiceFee } from '@store/optionSlice'
 import NetworkSelector from '@components/primary/NetworkSelector'
 import { parseUnits } from 'viem'
 import { formatBigInt } from 'src/helpers/functions'
+import { ChainCompatibility } from '@plugins/pluginTypes'
 
 const SingleForm = ({
   balance,
@@ -63,6 +64,8 @@ const SingleForm = ({
   const sourceCurrency = useSelector(selectSourceCurrency)
   const targetCurrency = useSelector(selectTargetCurrency)
   const backendUrl = useSelector(selectBackendUrl)
+  const sourceAddress = useSelector(selectSourceAddress)
+  const targetAddress = useSelector(selectTargetAddress)
 
   const {
     data: fees,
@@ -128,12 +131,14 @@ const SingleForm = ({
           sourceNetwork.shortName === ChainName.FIAT ? 'reverse' : '1'
         }`}
       >
-        <div
-          className={`form-item wallet-button-item ${isReady && 'connected'}`}
-        >
-          <span className='label'>Wallet:</span>
-          <WalletButton />
-        </div>
+        {sourceNetwork.compatibility !== ChainCompatibility.CC && (
+          <div
+            className={`form-item wallet-button-item ${isReady && 'connected'}`}
+          >
+            <span className='label'>Wallet:</span>
+            <WalletButton />
+          </div>
+        )}
 
         {mode === ModeOptions.bridge && (
           <div className='form-item'>

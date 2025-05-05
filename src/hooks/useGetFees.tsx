@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useSelector } from 'react-redux'
 import { selectMode } from '@store/selectors'
 import { getFees } from '../services/feesApi'
+import log from '@utils/logger'
 
 export interface UseGetFeesInputs {
   amount: number | null
@@ -40,10 +41,14 @@ const useGetFees = ({
       targetSymbol
     ],
     queryFn: async () => {
-      console.log('useGetFees: ', {
+      log.debug('useGetFees: ', {
         amount,
         sourceNetwork,
-        targetNetwork
+        targetNetwork,
+        sourceSymbol,
+        targetSymbol,
+        originAddress,
+        targetAddress
       })
       return await getFees(
         amount!,
@@ -51,8 +56,8 @@ const useGetFees = ({
         sourceAddress!,
         sourceSymbol!,
         targetNetwork!,
-        targetAddress!,
         targetSymbol!,
+        targetAddress!,
         backendUrl
       )
     },

@@ -35,13 +35,15 @@ export class EvmPlugin extends PluginBase {
   Provider = ({
     children,
     networkOption,
-    walletConnectProjectId
+    walletConnectProjectId,
+    isLoading
   }: PluginProviderProps) => {
     return (
       <WalletProvider
         children={children}
         networkOption={networkOption}
         walletConnectProjectId={walletConnectProjectId}
+        isLoading={isLoading}
       >
         {children}
       </WalletProvider>

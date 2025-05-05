@@ -61,11 +61,11 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
   }, [balance, totalFee, feeDeduct])
 
   const validate = (isSubmitting: boolean = false) => {
-    console.log('allowance: ', allowance)
-    console.log('isApproved: ', isApproved)
+    // log.debug('allowance: ', allowance)
+    // log.debug('isApproved: ', isApproved)
 
     // Validation logic
-    if (!sourceAddress) {
+    if (!sourceAddress && sourceChain !== 'CC') {
       return {
         error: ValidationError.Error,
         message: 'Wallet is not connected'

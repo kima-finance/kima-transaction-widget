@@ -19,7 +19,7 @@ const createWalletStatus = (
 function useIsWalletReady(): {
   isReady: boolean
   statusMessage: string
-  walletAddress?: string
+  connectedAddress?: string
 } {
   const dispatch = useDispatch()
   const sourceChain = useSelector(selectSourceChain)

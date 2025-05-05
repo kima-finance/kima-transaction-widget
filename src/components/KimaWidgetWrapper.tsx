@@ -30,16 +30,20 @@ import {
   setDappOption
 } from '../store/optionSlice'
 import '../index.css'
-import { selectSubmitted } from '../store/selectors'
+import {
+  selectCCWidgetProcessed,
+  selectSourceChain,
+  selectSubmitted
+} from '../store/selectors'
 import { TransactionWidget } from './TransactionWidget'
 import { TransferWidget } from './TransferWidget'
 import { useAppKitTheme } from '@reown/appkit/react'
 import { ChainName } from '@utils/constants'
-import { useChainData } from '../hooks/useChainData'
 import { indexPluginsByChain } from '../pluginRegistry'
 import { useKimaContext } from 'src/KimaProvider'
-import { useGetEnvOptions } from '../hooks/useGetEnvOptions'
+import { EnvOptions } from '../hooks/useGetEnvOptions'
 import { ChainData } from '@plugins/pluginTypes'
+import { useDebugCode } from '../hooks/useDebugMode'
 
 interface Props {
   theme: ThemeOptions
@@ -51,6 +55,10 @@ interface Props {
   helpURL?: string
   transactionOption?: TransactionOption
   paymentTitleOption?: PaymentTitleOption
+  excludedSourceNetworks?: Array<ChainName>
+  excludedTargetNetworks?: Array<ChainName>
+  chainData: ChainData[]
+  envOptions: EnvOptions
 }
 
 const KimaWidgetWrapper = ({
@@ -62,14 +70,19 @@ const KimaWidgetWrapper = ({
   paymentTitleOption,
   helpURL = '',
   compliantOption = true,
-  transactionOption
+  transactionOption,
+  excludedSourceNetworks = [],
+  excludedTargetNetworks = [],
+  chainData,
+  envOptions
 }: Props) => {
+  useDebugCode()
   const { kimaBackendUrl } = useKimaContext()
   const submitted = useSelector(selectSubmitted)
   const dispatch = useDispatch()
   const { setThemeMode, setThemeVariables } = useAppKitTheme()
-  const { data: chainData } = useChainData(kimaBackendUrl)
-  const { data: envOptions } = useGetEnvOptions({ kimaBackendUrl })
+  const sourceChain = useSelector(selectSourceChain)
+  const ccWidgetProcessed = useSelector(selectCCWidgetProcessed)
 
   const networkOption = envOptions?.env
   const kimaExplorer =
@@ -130,6 +143,23 @@ const KimaWidgetWrapper = ({
     // once the supported chains are fetched map chains to plugins so they can be found
     indexPluginsByChain(chainData)
   }, [chainData])
+
+  // case credit card
+  if (sourceChain.shortName === 'CC') {
+    // case submitted, and got back control from cc widget
+    if (submitted && ccWidgetProcessed) {
+      return <TransactionWidget theme={theme} />
+    }
+
+    return (
+      <TransferWidget
+        theme={theme}
+        helpURL={helpURL}
+        titleOption={titleOption}
+        paymentTitleOption={paymentTitleOption}
+      />
+    )
+  }
 
   return submitted ? (
     <TransactionWidget theme={theme} />

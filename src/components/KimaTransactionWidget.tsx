@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   TransactionOption,
   ThemeOptions,
@@ -10,14 +10,20 @@ import {
 
 import '../index.css'
 
-import { ChainName } from '@utils/constants'
+import {
+  ChainName,
+  LoadingErrorMessage,
+  LoadingErrorTitle
+} from '@utils/constants'
 import KimaWidgetWrapper from './KimaWidgetWrapper'
 import { useGetEnvOptions } from '../hooks/useGetEnvOptions'
 import { useKimaContext } from 'src/KimaProvider'
-import { Loading180Ring } from '@assets/loading'
 import { useChainData } from '../hooks/useChainData'
 import { useDispatch } from 'react-redux'
-import { setSourceChain, setTargetChain } from '@store/optionSlice'
+import { setSourceChain, setTargetChain, setTheme } from '@store/optionSlice'
+import SkeletonLoader from 'src/SkeletonLoader'
+import ErrorWidget from './ErrorWidget'
+import { Loading180Ring } from '@assets/loading'
 
 interface Props {
   theme: ThemeOptions
@@ -29,6 +35,8 @@ interface Props {
   helpURL?: string
   transactionOption?: TransactionOption
   paymentTitleOption?: PaymentTitleOption
+  excludedSourceNetworks?: Array<ChainName>
+  excludedTargetNetworks?: Array<ChainName>
 }
 
 const KimaTransactionWidget = ({
@@ -40,16 +48,31 @@ const KimaTransactionWidget = ({
   paymentTitleOption,
   helpURL = '',
   compliantOption = false,
-  transactionOption
+  transactionOption,
+  excludedSourceNetworks = [],
+  excludedTargetNetworks = []
 }: Props) => {
   const dispatch = useDispatch()
   const { kimaBackendUrl } = useKimaContext()
-  const { isLoading: isLoadingEnvs } = useGetEnvOptions({
-    kimaBackendUrl
-  })
 
-  const { data: chainData, isLoading: isLoadingChainData } =
-    useChainData(kimaBackendUrl)
+  const [hydrated, setHydrated] = useState(false)
+
+  const {
+    data: envOptions,
+    error: envOptionsError,
+    isLoading: isLoadingEnvs
+  } = useGetEnvOptions({ kimaBackendUrl })
+
+  const {
+    data: chainData,
+    error: chainDataError,
+    isLoading: isLoadingChainData
+  } = useChainData(kimaBackendUrl)
+
+  // ensure hydration first
+  useEffect(() => {
+    if (typeof window !== 'undefined') setHydrated(true)
+  }, [])
 
   useEffect(() => {
     if (!isLoadingChainData && chainData) {
@@ -58,9 +81,37 @@ const KimaTransactionWidget = ({
     }
   }, [chainData])
 
-  return isLoadingEnvs || isLoadingChainData ? (
-    <Loading180Ring />
-  ) : (
+  useEffect(() => {
+    if (theme?.colorMode) {
+      dispatch(setTheme(theme))
+    }
+  }, [theme?.colorMode])
+
+  // Don't render until hydrated and theme is defined
+  if (!hydrated || !theme?.colorMode) return <Loading180Ring width={20} height={20} fill='#86b8ce'/>
+
+  if (isLoadingEnvs || isLoadingChainData)
+    return <SkeletonLoader theme={theme} />
+
+  if (envOptionsError || !envOptions)
+    return (
+      <ErrorWidget
+        theme={theme}
+        title={LoadingErrorTitle.EnvLoadingError}
+        message={LoadingErrorMessage.EnvLoadingError}
+      />
+    )
+
+  if (chainDataError || !chainData)
+    return (
+      <ErrorWidget
+        theme={theme}
+        title={LoadingErrorTitle.ChainLoadingError}
+        message={LoadingErrorMessage.ChainLoadingError}
+      />
+    )
+
+  return (
     <KimaWidgetWrapper
       {...{
         theme,
@@ -71,7 +122,11 @@ const KimaTransactionWidget = ({
         paymentTitleOption,
         helpURL,
         compliantOption,
-        transactionOption
+        transactionOption,
+        excludedSourceNetworks,
+        excludedTargetNetworks,
+        chainData,
+        envOptions
       }}
     />
   )

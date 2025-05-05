@@ -2,7 +2,7 @@ import { NetworkOptions } from '@interface'
 import { useQuery } from '@tanstack/react-query'
 import { fetchWrapper } from 'src/helpers/fetch-wrapper'
 
-interface EnvOptions {
+export interface EnvOptions {
   env: NetworkOptions
   kimaExplorer: string
 }

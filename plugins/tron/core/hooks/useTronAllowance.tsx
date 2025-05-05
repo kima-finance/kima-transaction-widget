@@ -15,6 +15,7 @@ import { getPoolAddress, getTokenAddress } from '@utils/functions'
 import { PluginUseAllowanceResult, SignDataType } from '@plugins/pluginTypes'
 import { useTronProvider } from '../hooks/useTronProvider'
 import useBalance from './useBalance'
+import log from '@utils/logger'
 
 export default function useTronAllowance(): PluginUseAllowanceResult {
   const queryClient = useQueryClient()
@@ -37,7 +38,7 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
 
   const signTronMessage = async (data: SignDataType) => {
     if (!tronWeb) {
-      console.warn('TronWeb not initialized')
+      log.warn('TronWeb not initialized')
       return
     }
     try {
@@ -45,7 +46,7 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
       const signedMessage = await signMessage(txValues.message)
       return signedMessage
     } catch (error) {
-      console.error('Error signing message:', error)
+      log.error('Error signing message:', error)
       throw error
     }
   }
@@ -60,7 +61,7 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
       !selectedCoin ||
       !allowanceNumber
     ) {
-      console.warn('Missing required data for approveTrc20TokenTransfer')
+      log.warn('Missing required data for approveTrc20TokenTransfer')
       return
     }
     const poolAddress = getPoolAddress(pools, 'TRX')
@@ -78,7 +79,7 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
         }
       ]
 
-      console.log('useTronAllowance: Approving amount:', amount)
+      log.info('useTronAllowance: Approving amount:', amount)
       const transaction = await tronWeb.transactionBuilder.triggerSmartContract(
         tronWeb.address.toHex(tokenAddress),
         functionSelector,
@@ -99,7 +100,7 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
 
       return
     } catch (error) {
-      console.error('Error approving token: ', error)
+      log.error('Error approving token: ', error)
       throw error
     }
   }

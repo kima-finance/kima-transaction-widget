@@ -58,7 +58,7 @@ export const getFees = async (
 
     return output
   } catch (e) {
-    console.error('Failed to fetch fees:', e)
+    // log.error('Failed to fetch fees:', e)
     throw new Error('Failed to fetch fees')
   }
 }

@@ -30,6 +30,7 @@ import {
 const App = () => {
   return (
     <KimaProvider
+      kimaBackendUrl='http://localhost:3001' // or your deployed backend instance
       walletConnectProjectId='e579511a495b5c312b572b036e60555a'
       externalProvider={} // in case you want to provide an already connected wallet
     >
@@ -38,8 +39,6 @@ const App = () => {
           colorMode: ColorModeOptions.light
         }}
         mode={ModeOptions.payment}
-        kimaBackendUrl='http://localhost:3001' // or your deployed backend instance
-        kimaExplorer='https://explorer.sardis.kima.network' // or explorer.kima.network for mainnet
         titleOption={{
           initialTitle: 'New Purchase'
         }}
@@ -53,15 +52,6 @@ const App = () => {
           targetAddress: '0x67cc400c434F691Ed45e452dC8F2Baf0101a9B63',
           amount: 5,
           currency: 'USDK'
-        }}
-        errorHandler={(e: any) => {
-          console.log('error:', e)
-        }}
-        successHandler={() => {
-          console.log('success')
-        }}
-        closeHandler={() => {
-          console.log('closed')
         }}
       />
     </KimaProvider>
@@ -87,6 +77,7 @@ import {
 const App = () => {
   return (
     <KimaProvider
+      kimaBackendUrl='http://localhost:3001' // or your deployed backend instance
       walletConnectProjectId='e579511a495b5c312b572b036e60555a'
       externalProvider={} // in case you want to provide an already connected wallet
     >
@@ -96,8 +87,6 @@ const App = () => {
           fontSize: FontSizeOptions.medium
         }}
         mode={ModeOptions.bridge}
-        kimaBackendUrl='http://localhost:3001' // or your deployed backend instance
-        kimaExplorer='https://explorer.sardis.kima.network' // or explorer.kima.network for mainnet
         compliantOption={false}
         errorHandler={(e: any) => {
           console.log('error:', e)
@@ -131,25 +120,17 @@ import {
 
 const App = () => {
   return (
-    <KimaProvider>
+    <KimaProvider
+      kimaBackendUrl='http://localhost:3001' // or your deployed backend instance
+      walletConnectProjectId='e579511a495b5c312b572b036e60555a'
+    >
       <KimaTransactionWidget
         theme={{
           colorMode: ColorModeOptions.light,
           fontSize: FontSizeOptions.medium
         }}
         mode={ModeOptions.status}
-        kimaBackendUrl='http://localhost:3001' // or your deployed backend instance
-        kimaExplorer='https://explorer.sardis.kima.network' // or explorer.kima.network for mainnet
         txId={10}
-        errorHandler={(e: any) => {
-          console.log('error:', e)
-        }}
-        successHandler={() => {
-          console.log('success')
-        }}
-        closeHandler={() => {
-          console.log('closed')
-        }}
       />
     </KimaProvider>
   )
@@ -279,44 +260,27 @@ Used to specify payment screen's title.
 />
 ```
 
-### `kimaBackendUrl`
-
-Used to specify kima transaction backend url.
-
-- Required: `true`
-- Type: `string`
-
-### `kimaExplorer`
-
-Used to specify url of kima block explorer.
-
-- Required: `false`
-- Type: `string`
-- Default: `explorer.kima.network`
-
-### Event handlers
-
-- `errorHandler: (e: any) => void`: Callback function to handle errors.
-- `closeHandler: (e: any) => void`: Callback function to handle close event.
-- `successHandler: (e: any) => void`: Callback function to handle success event after transaction submission to kima transaction backend.
-
-- `switchChainHandler: (chainId: number) => void`: Callback function to handle chain switch event.
-
-- `keplrHandler: (e: any) => void`: Callback function to handle Keplr wallet events.
-
 ## Kima Provider
 
 ```tsx
 <KimaProvider
-  walletConnectProjectId='e579511a495b5c312b572b036e60555a'
-  networkOption={NetworkOptions.testnet}
+  kimaBackendUrl='http://localhost:3001' // or your deployed backend instance
   externalProvider={new Web3Provider()}
+  logLevel='debug' // optional, default is 'error'
+  walletConnectProjectId='e579511a495b5c312b572b036e60555a'
 >
   {/ * etc */}
 </KimaProvider>
 ```
 
 Used to provide the widget with wallet connection and chain switching functionality.
+
+### `kimaBackendUrl`
+
+Used to specify kima transaction backend url.
+
+- Required: `true`
+- Type: `string`
 
 ### `walletConnectProjectId`
 
@@ -325,20 +289,13 @@ Used to specify the WalletConnect project id. A default value is provided, but y
 - Required: `false`
 - Type: `string`
 
-### `networkOption`
+### `logLevel` (optional)
 
-Used to specify the network type.
+For debugging purposes, you can specify the log level. Available levels are  `trace`, `debug`, `info`, `warn`, `error` and `silent`. By default, the log level is set to `error`.
 
-```ts
-enum NetworkOptions {
-  testnet = 'testnet',
-  mainnet = 'mainnet'
-}
-```
+The log level can also be set using the `LOG_LEVEL` environment or the equivalent for your framework: `NEXT_PUBLIC_LOG_LEVEL`, `VITE_LOG_LEVEL`. The Widget property will take precedence over the environment variable as it is set last.
 
-- Required: `false`
-- Type: `NetworkOptions`
-- Default: `NetworkOptions.testnet`
+**DEBUG mode**: Type `D` `E` `B` `U` `G` while focus is on the Widget (not in the console) to enable debug mode. This will set the log level to `debug` and log all messages to the console. Type it again to disable debug mode and restore the default log level. Useful to temporarily toggle logging in the browser when in production or an already deployed app where changing the ENV variable would require a redeploy.
 
 ### `externalProvider`
 
@@ -354,6 +311,16 @@ interface ExternalProvider {
 
 - Required: `false`
 - Type: `ExternalProvider`
+
+### Event handlers
+
+- `errorHandler: (e: any) => void`: Callback function to handle errors.
+- `closeHandler: (e: any) => void`: Callback function to handle close event.
+- `successHandler: (e: any) => void`: Callback function to handle success event after transaction submission to kima transaction backend.
+
+- `switchChainHandler: (chainId: number) => void`: Callback function to handle chain switch event.
+
+- `keplrHandler: (e: any) => void`: Callback function to handle Keplr wallet events.
 
 ## Note
 

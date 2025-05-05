@@ -649,12 +649,11 @@
           }
         }
 
-        .max-disclaimer{
+        .max-disclaimer {
           display: flex;
           flex-direction: row;
           align-items: center;
           gap: 5px;
-          
 
           p {
             margin: 0;
@@ -1625,7 +1624,9 @@
         }
 
         &.amount {
+          width: 100%;
           align-items: start;
+          padding: 20px 14px;
         }
 
         p {
@@ -1708,13 +1709,12 @@
         }
 
         .amount-container {
+          width: 100%;
           display: flex;
           flex-direction: column;
-          justify-content: start;
-
-          @include breakpoint(mobile) {
-            width: 100%;
-          }
+          justify-content: space-between;
+          width: 100%;
+          font-weight: bold;
 
           svg {
             margin-right: 6px;
@@ -1739,14 +1739,31 @@
             }
           }
 
+          .fee-breakdown {
+            padding-left: 20px;
+
+            &.collapsed {
+              display: none;
+            }
+
+            .amount-details{
+              padding: 8px 6px !important; 
+            }
+          }
+
           .amount-details {
             display: flex;
             flex-direction: row;
             justify-content: space-between;
-            width: 300px;
-            padding: 8px 6px;
+            width: 100%;
+            padding: 8px 0;
             font-size: 14px;
-            border-top: 1px solid $financeIcon;
+
+            .fee-collapse {
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+            }
 
             &:first-of-type {
               border-top: none;
@@ -1758,8 +1775,12 @@
               font-size: 12px;
             }
 
-            &.fee {
-              color: red;
+            .service-fee {
+              font-weight: bold;
+            }
+
+            .final-amount {
+              font-weight: bold;
             }
 
             &:last-of-type {
@@ -2174,6 +2195,21 @@
       transform: translate(-50%, -50%);
     }
 
+    .fee-option input[type='radio']:disabled {
+      border-color: $financeGrey;
+      background-color: transparent;
+      cursor: not-allowed;
+    }
+
+    .fee-option input[type='radio']:checked:disabled::before {
+      background-color: $financeGrey;
+    }
+
+    .fee-option input[type='radio']:disabled + .radio-label {
+      color: $financeGrey;
+      cursor: not-allowed;
+    }
+
     /* Prevents text from pushing the radio button */
     .radio-label {
       line-height: 1.2;
@@ -2185,6 +2221,21 @@
       &.dark {
         color: white;
       }
+    }
+
+    .fee-option input[type='radio']:disabled {
+      border-color: $financeGrey;
+      background-color: transparent;
+      cursor: not-allowed;
+    }
+
+    .fee-option input[type='radio']:checked:disabled::before {
+      background-color: $financeGrey;
+    }
+
+    .fee-option input[type='radio']:disabled + .radio-label {
+      color: $financeGrey;
+      cursor: not-allowed;
     }
 
     .transaction-status-message {

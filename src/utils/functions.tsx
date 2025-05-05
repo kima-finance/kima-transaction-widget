@@ -24,16 +24,21 @@ export const checkPoolBalance = ({
   pools,
   targetChain,
   targetCurrency,
-  amount
+  amount,
+  targetFee
 }: {
   pools: Array<any> | undefined
   targetChain: string
   targetCurrency: string
   amount: string
+  targetFee: string
 }): { isPoolAvailable: boolean; error: string } => {
   const finalTargetCurrency =
     targetCurrency === 'KIMAUSD' ? 'USDK' : targetCurrency
   if (!pools) return { isPoolAvailable: false, error: 'Pools data unavailable' }
+
+  if (!targetFee)
+    return { isPoolAvailable: false, error: 'Undefined target network fee' }
 
   /* find the current selected pool to transfer from kima pool */
   const targetPool = pools.find(
@@ -83,7 +88,11 @@ export const getTokenAddress = (
   selectedCoin: string,
   chain: string
 ) => {
-  return tokenOptions[selectedCoin][chain] || ''
+  return (
+    tokenOptions[
+      chain === 'BASE' && selectedCoin === 'USDK' ? 'KIMAUSD' : selectedCoin
+    ][chain] || ''
+  )
 }
 
 // get pool address of a given chain

@@ -5,6 +5,7 @@ import { WalletReadyState } from '@solana/wallet-adapter-base'
 import { selectTheme, selectSourceChain } from '@store/selectors'
 import ExternalLink from '@components/reusable/ExternalLink'
 import { setSolanaConnectModal } from '@store/optionSlice'
+import log from '@utils/logger'
 
 const SolanaWalletSelect = () => {
   const theme = useSelector(selectTheme)
@@ -59,7 +60,7 @@ const SolanaWalletSelect = () => {
 
   const handleWalletClick = useCallback(
     (walletName: any) => {
-      console.log(
+      log.debug(
         'SolanaWalletSelect: handleWalletClick: walletName: ',
         walletName
       )
@@ -69,22 +70,22 @@ const SolanaWalletSelect = () => {
   )
 
   useEffect(() => {
-    console.log('SolanaWalletSelect: useEffect: wallet: ', wallet)
+    log.debug('SolanaWalletSelect: useEffect: wallet: ', wallet)
 
     if (!wallet) return // Ensure a wallet is selected before attempting connection
 
     // Prevent auto-connection unless Solana is explicitly selected
     if (sourceChain.shortName !== 'SOL') {
-      console.log('SolanaWalletSelect: source chain is not sol...')
+      log.debug('SolanaWalletSelect: source chain is not sol...')
       return
     }
 
     if (!connected) {
-      console.log(
+      log.debug(
         'SolanaWalletSelect: Wallet exists but not connected, connecting wallet:',
         wallet
       )
-      connect().catch((err) => console.error('Solana connect error:', err))
+      connect().catch((err) => log.error('Solana connect error:', err))
     }
 
     dispatch(setSolanaConnectModal(false))
