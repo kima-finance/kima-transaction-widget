@@ -2978,6 +2978,20 @@
   /* Button container */
   /* Responsive behavior for small screens (bottom sheet style) */
 }
+.kima-card .transfer-card {
+  min-width: 800px;
+  width: 100%;
+}
+@media (max-width: 900px) {
+  .kima-card .transfer-card {
+    min-width: 600px;
+  }
+}
+@media (max-width: 768px) {
+  .kima-card .transfer-card {
+    min-width: 300px;
+  }
+}
 .kima-card.light {
   background: #111115;
   color: var(--text-80, rgba(255, 255, 255, 0.8));

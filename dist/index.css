@@ -1634,9 +1634,6 @@
   background-color: white;
   margin-right: 18px;
 }
-.kima-card .kima-card-content .single-form .network-dropdown .network-wrapper span {
-  text-align: center;
-}
 .kima-card .kima-card-content .single-form .network-dropdown:before {
   box-sizing: content-box;
   position: absolute;
@@ -3120,6 +3117,20 @@
     background-color 0ms,
     border-color 0ms;
   max-width: 900px;
+}
+.kima-card .transfer-card {
+  min-width: 800px;
+  width: 100%;
+}
+@media (max-width: 900px) {
+  .kima-card .transfer-card {
+    min-width: 600px;
+  }
+}
+@media (max-width: 768px) {
+  .kima-card .transfer-card {
+    min-width: 300px;
+  }
 }
 .kima-card.light {
   background: #111115;
