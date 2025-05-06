@@ -28,6 +28,8 @@ import { useDispatch } from 'react-redux'
 import { toast, Toaster } from 'react-hot-toast'
 import {
   setAmount,
+  setCCTransactionId,
+  setCCTransactionStatus,
   setMode,
   setSourceChain,
   setSubmitted,
@@ -218,6 +220,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
 
   const resetForm = () => {
     closeHandler && closeHandler()
+
     if (mode === ModeOptions.status && amount === '') {
       dispatch(setMode(ModeOptions.status))
       dispatch(setTxId(-1))
@@ -257,6 +260,8 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setMode(transactionOption ? ModeOptions.payment : ModeOptions.bridge)
     )
     // disconnect wallet?
+    dispatch(setCCTransactionId(''))
+    dispatch(setCCTransactionStatus('idle'))
     dispatch(setTxId(-1))
     dispatch(setSubmitted(false)) // leave it at last since this will unmount the transaction component
   }

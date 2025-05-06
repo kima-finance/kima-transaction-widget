@@ -1,22 +1,47 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { v4 as uuidv4 } from 'uuid'
 import {
-  selectCCTransactionId,
+  selectBackendUrl,
+  selectCCTransactionStatus,
   selectFeeDeduct,
   selectServiceFee
 } from '@store/selectors'
-import { setCCWidgetProcessed } from '@store/optionSlice'
 import { Loading180Ring } from '@assets/loading'
 import useWidth from '../../hooks/useWidth'
+import { setCCTransactionId, setCCTransactionStatus } from '@store/optionSlice'
+import { formatBigInt } from 'src/helpers/functions'
+import { v4 as uuidv4 } from 'uuid'
+import { useCCTransactionId } from '../../hooks/useCCTransactionId'
 
 const CCWidget = () => {
-  const randomUserId = uuidv4()
   const dispatch = useDispatch()
   const feeDeduct = useSelector(selectFeeDeduct)
-  const { allowanceAmount, submitAmount } = useSelector(selectServiceFee)
-  const ccTransactionId = useSelector(selectCCTransactionId)
+  const backendUrl = useSelector(selectBackendUrl)
+  const ccTransactionStatus = useSelector(selectCCTransactionStatus)
 
+  const { transactionValues } = useSelector(selectServiceFee)
+  const randomUserIdRef = useRef(uuidv4())
+  const ccTransactionIdSeedRef = useRef(uuidv4())
+
+  const {
+    data,
+    isLoading: isTransactionIdLoading,
+    error
+  } = useCCTransactionId(backendUrl, ccTransactionIdSeedRef.current)
+
+  useEffect(() => {
+    dispatch(setCCTransactionId(ccTransactionIdSeedRef.current))
+  }, [dispatch])
+
+  const txValues = feeDeduct
+    ? transactionValues.feeFromTarget
+    : transactionValues.feeFromOrigin
+  console.log('txvalues: ', txValues)
+
+  const allowanceAmount = useMemo(
+    () => formatBigInt(txValues.allowanceAmount),
+    [txValues]
+  )
   const [isLoading, setIsLoading] = useState(true)
   const { width, updateWidth } = useWidth()
 
@@ -29,7 +54,8 @@ const CCWidget = () => {
       if (event.origin !== 'https://widget.depasify.com') return
       console.log('postMessage: new message: ', event)
       if (event.data.type === 'isCompleted') {
-        dispatch(setCCWidgetProcessed(true))
+        // set the transaction to success
+        dispatch(setCCTransactionStatus('success'))
       }
     }
 
@@ -42,16 +68,30 @@ const CCWidget = () => {
   const iframeHeight = width >= 700 ? 950 : 1100
   return (
     <div className={`cc-widget ${isLoading ? 'loading' : ''}`}>
-      {isLoading && (
+      {(isLoading ||
+        isTransactionIdLoading ||
+        ccTransactionStatus === 'success') && (
         <div className='cc-widget-loader'>
           <Loading180Ring width={50} height={50} fill='#86b8ce' />
         </div>
       )}
 
       <iframe
-        width={isLoading ? 0 : iframeWidth}
-        height={isLoading ? 0 : iframeHeight}
-        src={`https://widget.depasify.com/widgets/kyc?partner=KimaStage&user_uuid=${randomUserId}&scenario=direct_card_payment&amount=${feeDeduct ? submitAmount : allowanceAmount}&currency=USD&trx_uuid=${ccTransactionId}&postmessage=true`}
+        width={
+          isLoading ||
+          isTransactionIdLoading ||
+          ccTransactionStatus === 'success'
+            ? 0
+            : iframeWidth
+        }
+        height={
+          isLoading ||
+          isTransactionIdLoading ||
+          ccTransactionStatus === 'success'
+            ? 0
+            : iframeHeight
+        }
+        src={`https://widget.depasify.com/widgets/kyc?partner=KimaStage&user_uuid=${randomUserIdRef.current}&scenario=direct_card_payment&amount=${allowanceAmount}&currency=USD&trx_uuid=${data?.transactionId}&postmessage=true`}
         loading='lazy'
         title='Credit Card Widget'
         onLoad={() => setIsLoading(false)}

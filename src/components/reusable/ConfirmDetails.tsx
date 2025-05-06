@@ -1,6 +1,5 @@
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { formatBigInt, formatterFloat } from '../../helpers/functions'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
 import { DAppOptions, ModeOptions } from '../../interface'
 import {
@@ -25,6 +24,8 @@ import { getShortenedAddress } from '../../utils/functions'
 import useWidth from '../../hooks/useWidth'
 import ChainIcon from './ChainIcon'
 import FeeDeductionRadioButtons from './FeeDeductionRadioButtons'
+import { MiniArrowIcon } from '@assets/icons'
+import { formatBigInt } from 'src/helpers/functions'
 
 const ConfirmDetails = ({
   isApproved,
@@ -50,8 +51,10 @@ const ConfirmDetails = ({
   const signature = useSelector(selectSignature)
   const networkOptions = useSelector(selectNetworks)
 
+  const [feeCollapsed, setFeeCollapsed] = useState(true)
+
   const transactionOption = useSelector(selectTransactionOption)
-  const { walletAddress } = useIsWalletReady()
+  const { connectedAddress } = useIsWalletReady()
   const originNetworkOption = useMemo(
     () =>
       networkOptions.filter((network) => network.id === originNetwork.id)[0],
@@ -78,9 +81,9 @@ const ConfirmDetails = ({
 
   const sourceWalletAddress = useMemo(() => {
     return width >= 916
-      ? walletAddress
-      : getShortenedAddress(walletAddress || '')
-  }, [width, walletAddress])
+      ? connectedAddress
+      : getShortenedAddress(connectedAddress || '')
+  }, [width, connectedAddress])
 
   const targetWalletAddress = useMemo(() => {
     return getShortenedAddress(
@@ -139,7 +142,9 @@ const ConfirmDetails = ({
         </div>
       ) : (
         <div className='detail-item'>
-          <span className='label'>Source wallet:</span>
+          <span className='label'>
+            Source {originNetwork.shortName !== 'CC' && 'wallet'}:
+          </span>
           <div className='network-details'>
             <div className='kima-card-network-container'>
               <span className={`kima-card-network-label ${theme.colorMode}`}>
@@ -147,54 +152,78 @@ const ConfirmDetails = ({
                 {originNetworkOption.name}
               </span>
             </div>
-            <p className={theme.colorMode}>
-              {width >= 916
-                ? dAppOption === DAppOptions.LPDrain
-                  ? targetAddress
-                  : walletAddress
-                : dAppOption === DAppOptions.LPDrain
-                  ? targetWalletAddress
-                  : sourceWalletAddress}
-            </p>
+            {originNetwork.shortName !== 'CC' && (
+              <p className={theme.colorMode}>
+                {width >= 916
+                  ? dAppOption === DAppOptions.LPDrain
+                    ? targetAddress
+                    : connectedAddress
+                  : dAppOption === DAppOptions.LPDrain
+                    ? targetWalletAddress
+                    : connectedAddress}
+              </p>
+            )}
           </div>
         </div>
       )}
       <div className='detail-item amount'>
-        <span className='label'>
-          Transaction
-          {width > 500 && <br />}
-          Details:
-        </span>
         <span className='amount-container'>
           <div className='amount-details'>
-            <span>Source Transfer amount</span>
+            <span>Amount to Transfer </span>
             <div className='coin-details'>
               <p>
-                {formatBigInt(txValues.allowanceAmount)}
+                {formatBigInt(txValues.allowanceAmount)}{' '}
                 {sourceCurrency}
               </p>
             </div>
           </div>
           <div className='amount-details'>
-            <span>Source Network Fee ({originNetwork.shortName})</span>
-            <span className='service-fee'>
-              {formatBigInt(sourceFee)} {sourceCurrency}
-            </span>
+            <span>Total Network Fees</span>
+            <div
+              className='fee-collapse'
+              onClick={() => setFeeCollapsed(!feeCollapsed)}
+            >
+              <MiniArrowIcon
+                width={15}
+                height={8}
+                style={{
+                  transform: `rotate(${feeCollapsed ? '0deg' : '180deg'})`,
+                  transition: 'transform 0.3s ease'
+                }}
+              />
+              <span className='service-fee'>
+                {formatBigInt(totalFee)} {sourceCurrency}
+              </span>
+            </div>
           </div>
-          <div className='amount-details'>
-            <span>Kima Service Fee</span>
-            <span className='service-fee'>{formatBigInt(kimaFee)} USD</span>
-          </div>
-          <div className='amount-details'>
-            <span>Target Network Fee ({targetNetwork.shortName})</span>
-            <span className='service-fee'>
-              {formatBigInt(targetFee)} {sourceCurrency}
-            </span>
+          <div className={`fee-breakdown ${feeCollapsed ? 'collapsed' : ''}`}>
+            <div className='amount-details'>
+              <span>
+                {originNetwork.shortName === 'CC'
+                  ? 'Credit Card Processing Fee'
+                  : `Source Network Fee (${originNetwork.shortName})`}
+              </span>
+              <span className='service-fee'>
+                {formatBigInt(sourceFee)} {sourceCurrency}
+              </span>
+            </div>
+            <div className='amount-details'>
+              <span>Target Network Fee ({targetNetwork.shortName})</span>
+              <span className='service-fee'>
+                {formatBigInt(targetFee)} {targetCurrency}
+              </span>
+            </div>
+            <div className='amount-details'>
+              <span>KIMA Service Fee</span>
+              <span className='service-fee'>
+                {formatBigInt(kimaFee)} {sourceCurrency}
+              </span>
+            </div>
           </div>
           <div className='amount-details'>
             <span>Target Transfer Amount</span>
             <span className='service-fee'>
-              {formatBigInt(totalFee)} {targetCurrency}
+              {formatBigInt(txValues.submitAmount)} {targetCurrency}
             </span>
           </div>
         </span>
@@ -227,7 +256,7 @@ const ConfirmDetails = ({
             <p className={theme.colorMode}>
               {width >= 916
                 ? dAppOption === DAppOptions.LPDrain
-                  ? walletAddress
+                  ? connectedAddress
                   : targetAddress
                 : dAppOption === DAppOptions.LPDrain
                   ? sourceWalletAddress

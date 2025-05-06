@@ -73,8 +73,8 @@ export interface OptionState {
   backendUrl: string // URL for kima-transaction-backend component
   kimaExplorerUrl: string // URL for kima explore (testnet, staging or demo)
   txId?: number | string // transaction id to monitor it's status
-  ccTransactionId: number | string // credit card transaction id for cc transaction widget
-  ccWidgetProcessed: boolean // check if cc widget returned control to kima widget
+  ccTransactionId: string // transaction id generated for submitting a credit card transaction
+  ccTransactionStatus: 'initialized' | 'success' | 'failed' | 'idle' // credit card transaction status
   sourceCurrency: string // Currently selected token for source chain
   targetCurrency: string // Currently selected token for target chain
   expireTime: string // Bitcoi HTLC expiration time
@@ -188,8 +188,8 @@ const initialState: OptionState = {
   },
   backendUrl: '',
   txId: -1,
-  ccTransactionId: -1,
-  ccWidgetProcessed: false,
+  ccTransactionId: '',
+  ccTransactionStatus: 'idle',
   sourceCurrency: 'USDK',
   targetCurrency: 'USDK',
   compliantOption: true,
@@ -337,17 +337,14 @@ export const optionSlice = createSlice({
     setTxId: (state: OptionState, action: PayloadAction<number | string>) => {
       state.txId = action.payload
     },
-    setCCTransactionId: (
-      state: OptionState,
-      action: PayloadAction<number | string>
-    ) => {
+    setCCTransactionId: (state: OptionState, action: PayloadAction<string>) => {
       state.ccTransactionId = action.payload
     },
-    setCCWidgetProcessed: (
+    setCCTransactionStatus: (
       state: OptionState,
-      action: PayloadAction<boolean>
+      action: PayloadAction<'initialized' | 'success' | 'failed' | 'idle'>
     ) => {
-      state.ccWidgetProcessed = action.payload
+      state.ccTransactionStatus = action.payload
     },
     setSourceCurrency: (state: OptionState, action: PayloadAction<string>) => {
       state.sourceCurrency = action.payload
@@ -437,7 +434,7 @@ export const {
   setBackendUrl,
   setTxId,
   setCCTransactionId,
-  setCCWidgetProcessed,
+  setCCTransactionStatus,
   setSourceCurrency,
   setTargetCurrency,
   setCompliantOption,

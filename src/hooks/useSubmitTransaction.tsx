@@ -7,6 +7,7 @@ import log from '@utils/logger'
 import { useSelector } from 'react-redux'
 import {
   selectBackendUrl,
+  selectCCTransactionId,
   selectFeeDeduct,
   selectServiceFee
 } from '@store/selectors'
@@ -22,12 +23,16 @@ const useSubmitTransaction = () => {
   const txValues = feeDeduct
     ? transactionValues.feeFromTarget
     : transactionValues.feeFromOrigin
+  const ccTransactionId = useSelector(selectCCTransactionId)
 
   const submitTransaction = async (signature: string) => {
     try {
       setSubmitting(true)
       const params = JSON.stringify({
-        originAddress: transactionValues.originAddress,
+        originAddress:
+          transactionValues.originChain === 'CC'
+            ? transactionValues.targetAddress
+            : transactionValues.originAddress,
         originChain: transactionValues.originChain,
         targetAddress: transactionValues.targetAddress,
         targetChain: transactionValues.targetChain,
@@ -45,23 +50,19 @@ const useSubmitTransaction = () => {
         htlcVersion: '',
         senderPubKey: '',
         options: JSON.stringify({
-          signature,
+          signature: transactionValues.originChain === 'CC' ? '' : signature,
           feeId,
           chargeFeeAtTarget: feeDeduct
-        })
+        }),
+        ccTransactionIdSeed: ccTransactionId
       })
 
-      let ccTransactionId
       let transactionResult: any = await fetchWrapper.post(
         `${backendUrl}/submit`,
         params
       )
 
-      if (originChain === 'CC') {
-        ccTransactionId = transactionResult.ccTransactionId
-        transactionResult = transactionResult.result
-      }
-
+      console.log('transactionResult: ', transactionResult)
       if (transactionResult?.code !== 0) {
         setSubmitting(false)
         return { success: false, message: 'Failed to submit transaction' }
@@ -70,7 +71,6 @@ const useSubmitTransaction = () => {
       const transactionId = getTransactionId(transactionResult.events)
 
       dispatch(setTxId(transactionId))
-      dispatch(setCCTransactionId(ccTransactionId))
       dispatch(setSubmitted(true))
       setSubmitting(false)
 

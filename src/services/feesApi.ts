@@ -14,7 +14,7 @@ export const getFees = async (
 ): Promise<ServiceFee> => {
   try {
     const response: any = await fetchWrapper.get(
-      `${backendUrl}/submit/fees?amount=${amount}&originChain=${originChain}&originAddress=${originAddress}&originSymbol=${originSymbol}&targetChain=${targetChain}&targetAddress=${targetAddress}&targetSymbol=${targetSymbol}`
+      `${backendUrl}/submit/fees?amount=${amount}&originChain=${originChain}&originAddress=${originChain === 'CC' ? targetAddress : originAddress}&originSymbol=${originSymbol}&targetChain=${targetChain}&targetAddress=${targetAddress}&targetSymbol=${targetSymbol}`
     )
     const result = response as FeeResponse
 
@@ -54,7 +54,7 @@ export const getFees = async (
         }
       }
     } satisfies ServiceFee
-    console.log('getFees: ', output, response)
+    // console.log('getFees: ', output, response)
 
     return output
   } catch (e) {

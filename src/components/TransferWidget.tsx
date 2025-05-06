@@ -21,6 +21,7 @@ import SingleForm from './reusable/SingleForm'
 // store
 import {
   setAmount,
+  setCCTransactionStatus,
   setSourceChain,
   setSubmitted,
   setTargetAddress,
@@ -31,7 +32,7 @@ import {
 import {
   selectAmount,
   selectBackendUrl,
-  selectCCWidgetProcessed,
+  selectCCTransactionStatus,
   selectCompliantOption,
   selectDappOption,
   selectFeeDeduct,
@@ -66,7 +67,7 @@ import { ChainData } from '@plugins/pluginTypes'
 import WarningModal from './reusable/WarningModal'
 import log from '@utils/logger'
 import CCWidget from './reusable/CCWidget'
-import { parseUnits } from 'ethers'
+// import { parseUnits } from 'ethers'
 import { parseUnits } from 'viem'
 import { bigIntChangeDecimals } from 'src/helpers/functions'
 
@@ -122,7 +123,7 @@ export const TransferWidget = ({
   const pendingTxs = useSelector(selectPendingTxs)
   const networks = useSelector(selectNetworks)
   const submitted = useSelector(selectSubmitted)
-  const ccWidgetProcessed = useSelector(selectCCWidgetProcessed)
+  const ccTransactionStatus = useSelector(selectCCTransactionStatus)
 
   const { width: windowWidth } = useWidth()
 
@@ -173,12 +174,34 @@ export const TransferWidget = ({
 
   const { submitTransaction, isSubmitting } = useSubmitTransaction()
 
+  // trigger submit effect when cc transaction succeeded
+  useEffect(() => {
+    const submit = async () => {
+      if (ccTransactionStatus === 'success') {
+        const { success, message: submitMessage } =
+          await submitTransaction(signature)
+
+        if (!success) {
+          toast.error(submitMessage, { icon: <ErrorIcon /> })
+        }
+      }
+    }
+
+    submit()
+  }, [ccTransactionStatus])
+
   const handleSubmit = async () => {
     const { error, message: validationMessage } = validate(true)
 
     // check for validation errors
     if (error === ValidationError.Error) {
       return toast.error(validationMessage, { icon: <ErrorIcon /> })
+    }
+
+    // process fiat transaction
+    if (sourceChain.shortName === 'CC') {
+      // return console.log("will process cc")
+      return dispatch(setCCTransactionStatus('initialized'))
     }
 
     // if is missing approve, trigger approval
@@ -255,15 +278,12 @@ export const TransferWidget = ({
   const onBack = () => {
     if (isApproving || isSubmitting || isSigning) return
 
-    if (formStep > 0 && sourceChain.shortName === 'CC' && submitted) {
-      return dispatch(setSubmitted(false))
-    }
-
     if (formStep > 0) {
       setSignature('')
       setFormStep(0)
       setSignature('')
       setFeeOptionDisabled(false)
+      dispatch(setCCTransactionStatus('idle'))
     }
 
     if (formStep === 0) {
@@ -273,6 +293,10 @@ export const TransferWidget = ({
 
   const getButtonLabel = () => {
     if (formStep === 1) {
+      if (ccTransactionStatus === 'idle') {
+        return 'Next'
+      }
+
       if (isApproved) {
         return isSubmitting ? 'Submitting...' : 'Submit'
       } else {
@@ -327,9 +351,9 @@ export const TransferWidget = ({
     await disconnectWallet()
   }
 
-  useEffect(() => {
-    dispatch(setTheme(theme))
-  }, [theme])
+  // useEffect(() => {
+  //   dispatch(setTheme(theme))
+  // }, [theme])
 
   return (
     <div
@@ -428,7 +452,7 @@ export const TransferWidget = ({
                 isCancellingApprove
               }}
             />
-          ) : submitted && !ccWidgetProcessed ? (
+          ) : ccTransactionStatus !== 'idle' ? (
             <CCWidget />
           ) : (
             <ConfirmDetails
@@ -444,16 +468,24 @@ export const TransferWidget = ({
           className={`kima-card-footer ${mode === ModeOptions.bridge && formStep !== 0 && 'confirm'}`}
         >
           <div className={`button-group`}>
-            {formStep !== 0 && (
-              <SecondaryButton
-                clickHandler={onBack}
-                theme={theme.colorMode}
-                disabled={isApproving || isSubmitting || isSigning}
-              >
-                {formStep > 0 ? 'Back' : 'Cancel'}
-              </SecondaryButton>
-            )}
-            {!!allowance && allowance > 0 &&
+            {formStep !== 0 &&
+              !(
+                formStep === 0 &&
+                sourceChain.shortName === 'CC' &&
+                ccTransactionStatus === 'success'
+              ) && (
+                <SecondaryButton
+                  clickHandler={onBack}
+                  theme={theme.colorMode}
+                  disabled={isApproving || isSubmitting || isSigning}
+                >
+                  {formStep > 0 && ccTransactionStatus !== 'initialized'
+                    ? 'Back'
+                    : 'Cancel'}
+                </SecondaryButton>
+              )}
+            {!!allowance &&
+            allowance > 0 &&
             formStep !== 0 &&
             sourceChain.shortName !== 'CC' ? (
               <SecondaryButton
@@ -470,20 +502,23 @@ export const TransferWidget = ({
                 {isCancellingApprove ? 'Cancelling Approval' : 'Cancel Approve'}
               </SecondaryButton>
             ) : null}
-            {!submitted && (
-              <PrimaryButton
-                clickHandler={onNext}
-                isLoading={isApproving || isSubmitting || isSigning}
-                disabled={
-                  isApproving ||
-                  isSubmitting ||
-                  isSigning ||
-                  (mode === ModeOptions.payment && !transactionOption)
-                }
-              >
-                {getButtonLabel()}
-              </PrimaryButton>
-            )}
+            {!submitted &&
+              !(
+                sourceChain.shortName === 'CC' && ccTransactionStatus === 'idle'
+              ) && (
+                <PrimaryButton
+                  clickHandler={onNext}
+                  isLoading={isApproving || isSubmitting || isSigning}
+                  disabled={
+                    isApproving ||
+                    isSubmitting ||
+                    isSigning ||
+                    (mode === ModeOptions.payment && !transactionOption)
+                  }
+                >
+                  {getButtonLabel()}
+                </PrimaryButton>
+              )}
           </div>
         </div>
         <SolanaWalletConnectModal />

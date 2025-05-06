@@ -31,7 +31,7 @@ import {
 } from '../store/optionSlice'
 import '../index.css'
 import {
-  selectCCWidgetProcessed,
+  selectCCTransactionStatus,
   selectSourceChain,
   selectSubmitted
 } from '../store/selectors'
@@ -82,7 +82,7 @@ const KimaWidgetWrapper = ({
   const dispatch = useDispatch()
   const { setThemeMode, setThemeVariables } = useAppKitTheme()
   const sourceChain = useSelector(selectSourceChain)
-  const ccWidgetProcessed = useSelector(selectCCWidgetProcessed)
+  const ccTransactionStatus = useSelector(selectCCTransactionStatus)
 
   const networkOption = envOptions?.env
   const kimaExplorer =
@@ -146,8 +146,9 @@ const KimaWidgetWrapper = ({
 
   // case credit card
   if (sourceChain.shortName === 'CC') {
-    // case submitted, and got back control from cc widget
-    if (submitted && ccWidgetProcessed) {
+    // case submitted, and got a successful cc transaction
+    if (submitted && ccTransactionStatus === 'success') {
+      console.log("will return transaction widget on cc success")
       return <TransactionWidget theme={theme} />
     }
 

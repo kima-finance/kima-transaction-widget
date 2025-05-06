@@ -146,5 +146,5 @@ export const selectUuid = (state: RootState) => state.option.uuid
 export const selectKycStatus = (state: RootState) => state.option.kycStatus
 export const selectCCTransactionId = (state: RootState) =>
   state.option.ccTransactionId
-export const selectCCWidgetProcessed = (state: RootState) =>
-  state.option.ccWidgetProcessed
+export const selectCCTransactionStatus = (state: RootState) =>
+  state.option.ccTransactionStatus

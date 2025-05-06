@@ -47,7 +47,6 @@ const useGetFees = ({
         targetNetwork,
         sourceSymbol,
         targetSymbol,
-        originAddress,
         targetAddress
       })
       return await getFees(
@@ -56,8 +55,8 @@ const useGetFees = ({
         sourceAddress!,
         sourceSymbol!,
         targetNetwork!,
-        targetSymbol!,
         targetAddress!,
+        targetSymbol!,
         backendUrl
       )
     },
@@ -65,11 +64,13 @@ const useGetFees = ({
       !!backendUrl &&
       !!amount &&
       !!sourceNetwork &&
-      !!sourceAddress &&
       !!sourceSymbol &&
       !!targetNetwork &&
       !!targetAddress &&
-      !!targetSymbol, // Only run when all params are valid
+      !!targetSymbol &&
+      (sourceNetwork === 'CC'
+        ? sourceAddress === '' || sourceAddress === null // fiat → allow empty address
+        : !!sourceAddress), // non-fiat → address must be present
     staleTime: 60000, // Cache for 60 seconds
     retry: 1
   })

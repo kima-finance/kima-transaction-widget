@@ -25,20 +25,16 @@ export const checkPoolBalance = ({
   targetChain,
   targetCurrency,
   amount,
-  targetFee
 }: {
   pools: Array<any> | undefined
   targetChain: string
   targetCurrency: string
   amount: string
-  targetFee: string
 }): { isPoolAvailable: boolean; error: string } => {
   const finalTargetCurrency =
     targetCurrency === 'KIMAUSD' ? 'USDK' : targetCurrency
   if (!pools) return { isPoolAvailable: false, error: 'Pools data unavailable' }
 
-  if (!targetFee)
-    return { isPoolAvailable: false, error: 'Undefined target network fee' }
 
   /* find the current selected pool to transfer from kima pool */
   const targetPool = pools.find(

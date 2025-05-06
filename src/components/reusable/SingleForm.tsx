@@ -27,8 +27,9 @@ import useGetFees from '../../hooks/useGetFees'
 import { setServiceFee } from '@store/optionSlice'
 import NetworkSelector from '@components/primary/NetworkSelector'
 import { parseUnits } from 'viem'
-import { formatBigInt } from 'src/helpers/functions'
+// import { formatBigInt } from 'src/helpers/functions'
 import { ChainCompatibility } from '@plugins/pluginTypes'
+import { formatBigInt } from 'src/helpers/functions'
 
 const SingleForm = ({
   balance,
@@ -64,8 +65,6 @@ const SingleForm = ({
   const sourceCurrency = useSelector(selectSourceCurrency)
   const targetCurrency = useSelector(selectTargetCurrency)
   const backendUrl = useSelector(selectBackendUrl)
-  const sourceAddress = useSelector(selectSourceAddress)
-  const targetAddress = useSelector(selectTargetAddress)
 
   const {
     data: fees,
