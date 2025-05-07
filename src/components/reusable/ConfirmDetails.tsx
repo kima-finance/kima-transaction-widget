@@ -178,7 +178,7 @@ const ConfirmDetails = ({
             </div>
           </div>
           <div className='amount-details'>
-            <span>Total Network Fees</span>
+            <span>Total Fees</span>
             <div
               className='fee-collapse'
               onClick={() => setFeeCollapsed(!feeCollapsed)}
