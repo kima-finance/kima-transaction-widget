@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { ErrorIcon, FooterLogo } from '../assets/icons'
 import {
@@ -174,6 +174,30 @@ export const TransferWidget = ({
 
   const { submitTransaction, isSubmitting } = useSubmitTransaction()
 
+  const isBackButtonEnabled = useMemo(() => {
+    if (formStep !== 0) {
+      /* enable if cc transaction is initialized or failed */
+      if (sourceChain.shortName === 'CC') {
+        return ccTransactionStatus !== 'success'
+      }
+
+      return true
+    }
+
+    return false
+  }, [ccTransactionStatus, sourceChain, formStep])
+
+  const isSubmitButtonEnabled = useMemo(() => {
+    if (submitted) return false
+
+    /* case cc transaction initialized */
+    if (sourceChain.shortName === 'CC') {
+      return ccTransactionStatus === 'idle'
+    }
+
+    return true
+  }, [sourceChain, ccTransactionStatus])
+
   // trigger submit effect when cc transaction succeeded
   useEffect(() => {
     const submit = async () => {
@@ -293,7 +317,7 @@ export const TransferWidget = ({
 
   const getButtonLabel = () => {
     if (formStep === 1) {
-      if (ccTransactionStatus === 'idle') {
+      if (sourceChain.shortName === 'CC' && ccTransactionStatus === 'idle') {
         return 'Next'
       }
 
@@ -318,6 +342,7 @@ export const TransferWidget = ({
     closeHandler && closeHandler(0)
 
     setSignature('')
+    setSigning(false)
     setFeeOptionDisabled(true)
     setFormStep(0)
     if (mode !== ModeOptions.payment) {
@@ -389,7 +414,7 @@ export const TransferWidget = ({
         <div className='kima-card-header'>
           <div className='topbar'>
             <div className='title'>
-              <h3>
+              <h3 style={{marginRight: '5px'}}>
                 {formStep === 0
                   ? titleOption?.initialTitle
                     ? titleOption.initialTitle
@@ -414,6 +439,12 @@ export const TransferWidget = ({
               >
                 <div className='menu-button'>I need help</div>
               </ExternalLink>
+
+              {sourceChain.shortName === 'CC' && formStep > 0 && (
+                <ExternalLink to='https://docs.kima.network/kima-network/supported-fiat'>
+                  <div className='menu-button'>Unsupported Countries</div>
+                </ExternalLink>
+              )}
 
               {formStep === 0 && mode !== ModeOptions.payment && (
                 <button
@@ -468,22 +499,17 @@ export const TransferWidget = ({
           className={`kima-card-footer ${mode === ModeOptions.bridge && formStep !== 0 && 'confirm'}`}
         >
           <div className={`button-group`}>
-            {formStep !== 0 &&
-              !(
-                formStep === 0 &&
-                sourceChain.shortName === 'CC' &&
-                ccTransactionStatus === 'success'
-              ) && (
-                <SecondaryButton
-                  clickHandler={onBack}
-                  theme={theme.colorMode}
-                  disabled={isApproving || isSubmitting || isSigning}
-                >
-                  {formStep > 0 && ccTransactionStatus !== 'initialized'
-                    ? 'Back'
-                    : 'Cancel'}
-                </SecondaryButton>
-              )}
+            {isBackButtonEnabled && (
+              <SecondaryButton
+                clickHandler={onBack}
+                theme={theme.colorMode}
+                disabled={isApproving || isSubmitting || isSigning}
+              >
+                {formStep > 0 && ccTransactionStatus !== 'initialized'
+                  ? 'Back'
+                  : 'Cancel'}
+              </SecondaryButton>
+            )}
             {!!allowance &&
             allowance > 0 &&
             formStep !== 0 &&
@@ -502,23 +528,20 @@ export const TransferWidget = ({
                 {isCancellingApprove ? 'Cancelling Approval' : 'Cancel Approve'}
               </SecondaryButton>
             ) : null}
-            {!submitted &&
-              !(
-                sourceChain.shortName === 'CC' && ccTransactionStatus === 'idle'
-              ) && (
-                <PrimaryButton
-                  clickHandler={onNext}
-                  isLoading={isApproving || isSubmitting || isSigning}
-                  disabled={
-                    isApproving ||
-                    isSubmitting ||
-                    isSigning ||
-                    (mode === ModeOptions.payment && !transactionOption)
-                  }
-                >
-                  {getButtonLabel()}
-                </PrimaryButton>
-              )}
+            {isSubmitButtonEnabled && (
+              <PrimaryButton
+                clickHandler={onNext}
+                isLoading={isApproving || isSubmitting || isSigning}
+                disabled={
+                  isApproving ||
+                  isSubmitting ||
+                  isSigning ||
+                  (mode === ModeOptions.payment && !transactionOption)
+                }
+              >
+                {getButtonLabel()}
+              </PrimaryButton>
+            )}
           </div>
         </div>
         <SolanaWalletConnectModal />
