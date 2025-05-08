@@ -60,6 +60,7 @@
   font-family: "Sohne";
   font-weight: 400;
   letter-spacing: 1px;
+  font-size: 24px;
 }
 .kima-card .kima-card-header .topbar .title.skeleton {
   background: #778da3;
@@ -2997,7 +2998,6 @@
 .kima-card .transfer-card {
   min-width: 800px;
   padding: 30px 40px;
-  width: 100%;
 }
 @media (max-width: 900px) {
   .kima-card .transfer-card {
