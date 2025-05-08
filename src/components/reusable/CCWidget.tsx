@@ -57,7 +57,7 @@ const CCWidget = () => {
 
   // IMPORTANT: for staging use KimaStage
   const partnerId = useMemo(
-    () => `Kima${networkOption === NetworkOptions.testnet && 'Test'}`,
+    () => `Kima${networkOption === NetworkOptions.testnet ? 'Test':''}`,
     [networkOption]
   )
 
