@@ -6,11 +6,17 @@ import {
   selectTargetChain,
   selectTheme
 } from '@store/selectors'
-import { setSourceChain, setTargetChain } from '@store/optionSlice'
+import {
+  setSourceChain,
+  setSourceCurrency,
+  setTargetChain,
+  setTargetCurrency
+} from '@store/optionSlice'
 import Arrow from '@assets/icons/Arrow'
 import ChainIcon from '../reusable/ChainIcon'
 import { useKimaContext } from 'src/KimaProvider'
 import { ChainData, ChainLocation } from '@plugins/pluginTypes'
+import log from '@utils/logger'
 
 interface NetworkSelectorProps {
   type: ChainLocation // Determines if this is a source or target selector
@@ -36,7 +42,7 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({ type }) => {
         ? false
         : network.shortName === sourceNetwork.shortName // remove source from target
       const isBeraInSource = isOriginSelector && network.shortName === 'BERA'
-  
+
       return (
         network.supportedLocations.includes(type) &&
         !isSameAsSource &&
@@ -70,14 +76,26 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({ type }) => {
   }, [networks, selectedNetwork, isOriginSelector, dispatch])
 
   const handleNetworkChange = (chain: ChainData) => {
+    log.debug('NetworkSelector: Handling network change', chain)
+    const newCurrency = chain.supportedTokens[0]?.symbol ?? ''
     if (isOriginSelector) {
       if (chain.id !== sourceNetwork.id) {
+        log.debug('NetworkSelector: Setting source chain and currency to:', {
+          chain: chain.shortName,
+          currency: newCurrency
+        })
         dispatch(setSourceChain(chain))
+        dispatch(setSourceCurrency(newCurrency))
         switchChainHandler && switchChainHandler(chain)
       }
     } else {
       if (chain.shortName !== targetNetwork.shortName) {
+        log.debug('NetworkSelector: Setting target chain and currency to:', {
+          chain: chain.shortName,
+          currency: newCurrency
+        })
         dispatch(setTargetChain(chain))
+        dispatch(setTargetCurrency(newCurrency))
       }
     }
     setCollapsed(true) // Explicitly collapse the dropdown after selection

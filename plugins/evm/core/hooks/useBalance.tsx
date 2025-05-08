@@ -28,7 +28,7 @@ export default function useBalance() {
   const { walletAddress, walletProvider } = useEvmProvider()
 
   const { data: allowanceData } = useQuery({
-    queryKey: ['evmAllowance', walletAddress, sourceChain],
+    queryKey: ['evmAllowance', walletAddress, sourceChain.shortName],
     queryFn: () =>
       getTokenAllowance({
         tokenOptions,

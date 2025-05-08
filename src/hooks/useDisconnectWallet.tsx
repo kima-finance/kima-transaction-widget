@@ -22,7 +22,13 @@ export default function useDisconnectWallet(): PluginUseDisconnectWalletResult {
   const pluginEntries = Object.entries(allPlugins)
   const allData = pluginEntries.map(([pluginID, plugin]) => {
     try {
-      const pluginResult = plugin.useDisconnectWallet()
+      const pluginResult = plugin?.useDisconnectWallet?.()
+      if (!pluginResult) {
+        return {
+          pluginID,
+          disconnectWallet: defaultDisconnect.disconnectWallet
+        }
+      }
       // Ensure it satisfies the PluginUseDisconnectWalletResult interface
       return { pluginID, disconnectWallet: pluginResult.disconnectWallet }
     } catch (err) {

@@ -17,7 +17,7 @@ export default function useBalance(): PluginUseBalanceResult {
   // Call useBalance for every plugin in a stable order
   const pluginEntries = Object.entries(allPlugins)
   const allBalances = pluginEntries.map(([pluginID, plugin]) => {
-    const balanceData = plugin.useTokenBalance()
+    const balanceData = plugin?.useTokenBalance?.()
     return { pluginID, ...balanceData }
   })
 

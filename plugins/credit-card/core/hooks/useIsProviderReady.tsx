@@ -19,7 +19,7 @@ const useIsProviderReady = () => {
   // every time fiat is selected
   useEffect(() => {
     if (sourceChain.compatibility === ChainCompatibility.CC) {
-      log.debug("dispatching changes from fiat...")
+      log.debug('CC:useIsProviderReady: dispatching changes from fiat...')
 
       dispatch(setSourceAddress(''))
       dispatch(setSourceCurrency('USD'))

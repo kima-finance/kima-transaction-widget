@@ -24,11 +24,25 @@ export const getTokenAllowance = async ({
   isTestnet: boolean
 }): Promise<GetTokenAllowanceResult> => {
   try {
+    log.debug('EVM:getTokenAllowance:', {
+      tokenOptions,
+      selectedCoin,
+      chain,
+      userAddress,
+      pools
+    })
     const tokenAddress = getTokenAddress(tokenOptions, selectedCoin, chain)
 
     const poolAddress = getPoolAddress(pools, chain)
 
-    if (!tokenAddress || !poolAddress || !userAddress) return {}
+    if (!tokenAddress || !poolAddress || !userAddress) {
+      log.warn('EVM:getTokenAllowance: Missing required data', {
+        tokenAddress,
+        poolAddress,
+        userAddress
+      })
+      return {}
+    }
 
     // determine network based on mainnet/testnet
     const network = isTestnet
@@ -63,7 +77,13 @@ export const getTokenAllowance = async ({
       erc20Contract.read.decimals() as Promise<number>
     ])
 
-    log.debug('allowance data: ', allowance, balance, decimals)
+    log.debug('EVM:getTokenAllowance: data: ', {
+      chain,
+      userAddress,
+      allowance,
+      balance,
+      decimals
+    })
 
     return {
       allowance: allowance,

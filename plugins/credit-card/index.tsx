@@ -3,30 +3,33 @@ import { PluginBase } from '../PluginBase'
 import {
   ChainCompatibility,
   ChainData,
-  PluginProviderProps
+  PluginProviderProps,
+  PluginUseAllowanceResult,
+  PluginUseBalanceResult,
+  PluginUseDisconnectWalletResult
 } from '../pluginTypes'
 import useIsProviderReady from './core/hooks/useIsProviderReady'
 import { store } from '@store/index'
 
-const useAllowance = () => ({
+const useAllowance = (): PluginUseAllowanceResult => ({
   isApproved: true,
-  isLoading: false,
-  approve: async () => {},
-  refetch: async () => {}
+  // isLoading: false,
+  approve: async () => {}
+  // refetch: async () => {}
 })
 
-const useNativeBalance = () => ({
-  balance: 0,
+const useNativeBalance = (): PluginUseBalanceResult => ({
+  balance: BigInt(0),
   decimals: 18
 })
 
-const useTokenBalance = () => ({
-  balance: 0,
+const useTokenBalance = (): PluginUseBalanceResult => ({
+  balance: BigInt(0),
   decimals: 6
 })
 
-const useDisconnectWallet = () => ({
-  disconnect: async () => {}
+const useDisconnectWallet = (): PluginUseDisconnectWalletResult => ({
+  disconnectWallet: async () => {}
 })
 
 export class CreditCardPlugin extends PluginBase {
@@ -38,7 +41,8 @@ export class CreditCardPlugin extends PluginBase {
       useTokenBalance,
       useNativeBalance,
       useAllowance,
-      useWalletIsReady: useIsProviderReady
+      useWalletIsReady: useIsProviderReady,
+      useDisconnectWallet
     })
   }
 
