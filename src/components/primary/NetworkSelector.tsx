@@ -45,7 +45,7 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({ type }) => {
 
         return network.supportedLocations.includes(type) && !isSameAsSource
       }),
-    [networkOptions, type]
+    [networkOptions, sourceNetwork, type]
   )
 
   const selectedNetwork = useMemo(() => {
