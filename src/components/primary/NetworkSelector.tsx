@@ -36,20 +36,17 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({ type }) => {
   const isOriginSelector = type === 'origin'
 
   // Filter networks based on the type (source/target)
-  const networks = useMemo(() => {
-    return networkOptions.filter((network: ChainData) => {
-      const isSameAsSource = isOriginSelector
-        ? false
-        : network.shortName === sourceNetwork.shortName // remove source from target
-      const isBeraInSource = isOriginSelector && network.shortName === 'BERA'
+  const networks = useMemo(
+    () =>
+      networkOptions.filter((network: ChainData) => {
+        const isSameAsSource = isOriginSelector
+          ? false
+          : network.shortName === sourceNetwork.shortName // remove source from target
 
-      return (
-        network.supportedLocations.includes(type) &&
-        !isSameAsSource &&
-        !isBeraInSource
-      )
-    })
-  }, [networkOptions, type, sourceNetwork, isOriginSelector])
+        return network.supportedLocations.includes(type) && !isSameAsSource
+      }),
+    [networkOptions, sourceNetwork, type]
+  )
 
   const selectedNetwork = useMemo(() => {
     const selected = isOriginSelector ? sourceNetwork : targetNetwork
