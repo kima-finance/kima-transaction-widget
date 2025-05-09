@@ -83,6 +83,19 @@
     @include transition;
 
     .cc-widget {
+      width: 100%;
+      position: relative;
+      overflow: hidden; 
+      height: 950px;
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+
+      // the transition happens sligtly off of the 640px breakpoint
+      // specified in the widget so using custom breakpoint
+      @media (max-width: 675px) {
+        height: 1100px;
+      }
+
       &.loading {
         width: 70vw;
         max-width: 700px;
