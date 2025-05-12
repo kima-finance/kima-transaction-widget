@@ -68,110 +68,90 @@ function useIsWalletReady(): {
   }, [appkitProvider, sourceChain])
 
   useEffect(() => {
-    async function checkChainId() {
-      // case light demo
+    const resolveConnection = async () => {
+      // LIGHT MODE
       if (mode === ModeOptions.light) {
+        const demoAddress = lightDemoAccounts.EVM
         setIsReady(true)
-        setConnectedAddress(lightDemoAccounts.EVM)
-        setStatusMessage('Connected light demo evm account')
+        setConnectedAddress(demoAddress)
+        setStatusMessage('Connected light demo EVM account')
+        dispatch(setSourceAddress(demoAddress))
         return
       }
 
-      // case external provider
+      // EXTERNAL PROVIDER MODE
       if (externalProvider?.type === 'evm' && externalProvider?.provider) {
         try {
-          const network = await (
-            externalProvider.provider as BrowserProvider
-          ).getNetwork()
-          const externalProviderChainId = Number(network.chainId)
+          const provider = externalProvider.provider as BrowserProvider
+          const network = await provider.getNetwork()
+          const externalChainId = Number(network.chainId)
 
-          log.debug(
-            'Fetched external provider chain id: ',
-            externalProviderChainId
-          )
+          if (externalChainId === sourceChain.id) {
+            const signer = await provider.getSigner()
+            const externalAddress = await signer.getAddress()
 
-          const expectedChainId = sourceChain?.id
-          log.debug('Expected chain id: ', expectedChainId)
-
-          // external provider connected wallet is not the same as source
-          if (externalProviderChainId !== expectedChainId) {
-            log.warn(
-              'useIsWalletReady:EVM:External wallet connected but chain mismatch:',
-              {
-                currentChainId: externalProviderChainId,
-                expectedId: expectedChainId
-              }
+            setIsReady(true)
+            setConnectedAddress(externalAddress)
+            setStatusMessage('Connected with external provider')
+            dispatch(setSourceAddress(externalAddress))
+          } else {
+            setIsReady(false)
+            setConnectedAddress('')
+            setStatusMessage('Chain mismatch on external provider')
+            dispatch(setSourceAddress(''))
+            await switchNetworkEthers(
+              provider,
+              sourceChain.id,
+              chains as ChainData[]
             )
-
-            // switch network using ethers switch
-            try {
-              await switchNetworkEthers(
-                externalProvider.provider as BrowserProvider,
-                sourceChain.id,
-                chains as ChainData[]
-              )
-            } catch (error) {
-              log.warn('useIsWalletReady:EVM:Could not switch networks:', error)
-            }
-            return
           }
-
-          const externalProviderSignerAddress = (
-            await (externalProvider.provider as BrowserProvider).getSigner()
-          ).address
-
-          setIsReady(true)
-          setStatusMessage('Connected with external provider')
-          setConnectedAddress(externalProviderSignerAddress)
           return
         } catch (error) {
-          log.error('Failed to fetch chainId from provider:', error)
+          log.error('Error using external provider:', error)
+          setIsReady(false)
+          setConnectedAddress('')
+          setStatusMessage('Failed to connect external provider')
+          dispatch(setSourceAddress(''))
+          return
         }
       }
 
-      // case there's not external provider
-      if (!externalProvider) {
-        log.debug('useIsWalletReady:EVM: Checking AppKit connection')
-
-        // wallet id is the same as the current source chain
-        if (isConnected && walletChainId === sourceChain?.id) {
-          log.debug(
-            'useIsWalletReady:EVM: AppKit wallet connected and chain is correct'
-          )
+      // APPKIT MODE
+      if (!externalProvider && isConnected) {
+        if (walletChainId === sourceChain?.id) {
           setIsReady(true)
+          setConnectedAddress(walletAddress ?? '')
           setStatusMessage('Connected with AppKit provider')
-          setConnectedAddress(walletAddress)
-          log.debug(
-            'useIsWalletReady:EVM: is ready + status message: ',
-            isReady,
-            statusMessage
-          )
+          dispatch(setSourceAddress(walletAddress ?? ''))
         } else {
-          log.warn(
-            'useIsWalletReady:EVM: AppKit wallet connected but chain mismatch'
-          )
           setIsReady(false)
+          setConnectedAddress('')
           setStatusMessage('Switching to correct network...')
+          dispatch(setSourceAddress(''))
           switchNetwork()
         }
+        return
       }
+
+      // FALLBACK
+      setIsReady(false)
+      setConnectedAddress('')
+      setStatusMessage('No wallet connected')
+      dispatch(setSourceAddress(''))
     }
 
-    checkChainId()
-  }, [externalProvider, sourceChain, switchNetwork, walletChainId, isConnected, mode])
-
-  useEffect(() => {
-    if (
-      connectedAddress !== '' &&
-      sourceChain.compatibility === ChainCompatibility.EVM
-    ) {
-      log.debug(
-        'useIsWalletReady:EVM: Dispatching source address:',
-        connectedAddress
-      )
-      dispatch(setSourceAddress(connectedAddress ?? ''))
-    }
-  }, [connectedAddress, dispatch])
+    resolveConnection()
+  }, [
+    mode,
+    externalProvider,
+    sourceChain,
+    chains,
+    isConnected,
+    walletAddress,
+    walletChainId,
+    switchNetwork,
+    dispatch
+  ])
 
   return { isReady, statusMessage, connectedAddress }
 }

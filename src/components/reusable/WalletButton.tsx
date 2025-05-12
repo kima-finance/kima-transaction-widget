@@ -74,10 +74,6 @@ const WalletButton = ({
   }, [balance, connectedAddress, isReady, externalProvider, networkOption])
 
   useEffect(() => {
-    if (connectedAddress) dispatch(setSourceAddress(connectedAddress))
-  }, [connectedAddress])
-
-  useEffect(() => {
     if (width === 0) {
       updateWidth(window.innerWidth)
     }
@@ -87,7 +83,7 @@ const WalletButton = ({
     log.debug('Handling click')
 
     // TODO: Refactor to use evm account details modal
-    if (externalProvider || !isConnected) return
+    if (externalProvider || initialSelection) return
 
     if (selectedNetwork.shortName === ChainName.SOLANA) {
       log.debug('Handling click: Case SOL', 1)
