@@ -178,7 +178,7 @@ export const TransferWidget = ({
     if (formStep !== 0) {
       /* enable if cc transaction is initialized or failed */
       if (sourceChain.shortName === 'CC') {
-        return ccTransactionStatus !== 'success'
+        return ccTransactionStatus === 'idle'
       }
 
       return true
