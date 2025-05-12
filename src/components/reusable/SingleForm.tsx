@@ -2,20 +2,15 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { useDispatch, useSelector } from 'react-redux'
 import {
-  selectBackendUrl,
   selectCompliantOption,
   selectMode,
   selectSourceChain,
-  selectSourceCurrency,
   selectTargetCompliant,
   selectTargetChain,
   selectTheme,
   selectServiceFee,
   selectFeeDeduct,
   selectAmount,
-  selectTargetCurrency,
-  selectSourceAddress,
-  selectTargetAddress
 } from '../../store/selectors'
 import { BankInput, CoinDropdown, WalletButton } from './'
 import { setAmount } from '../../store/optionSlice'
@@ -23,8 +18,6 @@ import { ModeOptions } from '../../interface'
 import AddressInput from './AddressInput'
 import { ChainName } from '../../utils/constants'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
-import useGetFees from '../../hooks/useGetFees'
-import { setServiceFee } from '@store/optionSlice'
 import NetworkSelector from '@components/primary/NetworkSelector'
 import { parseUnits } from 'viem'
 // import { formatBigInt } from 'src/helpers/functions'
@@ -33,20 +26,12 @@ import { formatBigInt } from 'src/helpers/functions'
 
 const SingleForm = ({
   balance,
-  decimals
+  decimals,
+  isLoadingFees
 }: {
-  allowance: bigint | undefined
   balance: bigint | undefined
   decimals: number | undefined
-  formStep: number
-  onBack: () => void
-  onCancelApprove: () => void
-  onNext: () => void
-  getButtonLabel: () => string
-  isApproving: boolean
-  isSigning: boolean
-  isSubmitting: boolean
-  isCancellingApprove: boolean
+  isLoadingFees: boolean
 }) => {
   const dispatch = useDispatch()
   const mode = useSelector(selectMode)
@@ -57,35 +42,9 @@ const SingleForm = ({
   const targetCompliant = useSelector(selectTargetCompliant)
   const sourceNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
-  const sourceAddress = useSelector(selectSourceAddress)
-  const targetAddress = useSelector(selectTargetAddress)
   const { isReady } = useIsWalletReady()
   const [amountValue, setAmountValue] = useState('')
   const amount = useSelector(selectAmount)
-  const sourceCurrency = useSelector(selectSourceCurrency)
-  const targetCurrency = useSelector(selectTargetCurrency)
-  const backendUrl = useSelector(selectBackendUrl)
-
-  const {
-    data: fees,
-    isLoading,
-    error
-  } = useGetFees({
-    amount: parseFloat(amount),
-    sourceNetwork: sourceNetwork.shortName,
-    sourceAddress,
-    sourceSymbol: sourceCurrency,
-    targetNetwork: targetNetwork.shortName,
-    targetAddress,
-    targetSymbol: targetCurrency,
-    backendUrl
-  })
-
-  useEffect(() => {
-    if (fees) {
-      dispatch(setServiceFee(fees))
-    }
-  }, [fees, dispatch])
 
   const errorMessage = useMemo(
     () =>
@@ -197,7 +156,13 @@ const SingleForm = ({
               Max
             </span>
             {+totalFee !== -1 && (
-              <p>Est fees: $ {formatBigInt(totalFee)} USD</p>
+              <p className='fee-amount'>
+                Est fees:{' '}
+                <span className={`${isLoadingFees ? 'loading' : ''}`}>
+                  {' '}
+                  {isLoadingFees ? '' : `$ ${formatBigInt(totalFee)} USD`}
+                </span>
+              </p>
             )}
           </div>
         </div>

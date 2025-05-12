@@ -22,6 +22,7 @@ import SingleForm from './reusable/SingleForm'
 import {
   setAmount,
   setCCTransactionStatus,
+  setServiceFee,
   setSourceChain,
   setSubmitted,
   setTargetAddress,
@@ -70,6 +71,7 @@ import CCWidget from './reusable/CCWidget'
 // import { parseUnits } from 'ethers'
 import { parseUnits } from 'viem'
 import { bigIntChangeDecimals } from 'src/helpers/functions'
+import useGetFees from '../hooks/useGetFees'
 
 interface Props {
   theme: ThemeOptions
@@ -171,6 +173,27 @@ export const TransferWidget = ({
     feeDeduct,
     formStep
   })
+
+  const {
+    data: fees,
+    isLoading: isLoadingFees,
+    error
+  } = useGetFees({
+    amount: parseFloat(amount),
+    sourceNetwork: sourceChain.shortName,
+    sourceAddress,
+    sourceSymbol: sourceCurrency,
+    targetNetwork: targetChain.shortName,
+    targetAddress,
+    targetSymbol: targetCurrency,
+    backendUrl
+  })
+
+  useEffect(() => {
+    if (fees) {
+      dispatch(setServiceFee(fees))
+    }
+  }, [fees, dispatch])
 
   const { submitTransaction, isSubmitting } = useSubmitTransaction()
 
@@ -328,6 +351,9 @@ export const TransferWidget = ({
       }
     }
 
+    if (isLoadingFees) {
+      return ''
+    }
     return 'Next'
   }
 
@@ -414,7 +440,7 @@ export const TransferWidget = ({
         <div className='kima-card-header'>
           <div className='topbar'>
             <div className='title'>
-              <h3 style={{marginRight: '5px'}}>
+              <h3 style={{ marginRight: '5px' }}>
                 {formStep === 0
                   ? titleOption?.initialTitle
                     ? titleOption.initialTitle
@@ -472,15 +498,7 @@ export const TransferWidget = ({
                 ),
                 balance: parseUnits(balance?.toString() ?? '0', decimals ?? 18),
                 decimals: 2,
-                formStep,
-                onBack,
-                onCancelApprove,
-                onNext,
-                getButtonLabel,
-                isApproving,
-                isSigning,
-                isSubmitting,
-                isCancellingApprove
+                isLoadingFees
               }}
             />
           ) : ccTransactionStatus !== 'idle' ? (
@@ -531,12 +549,15 @@ export const TransferWidget = ({
             {isSubmitButtonEnabled && (
               <PrimaryButton
                 clickHandler={onNext}
-                isLoading={isApproving || isSubmitting || isSigning}
+                isLoading={
+                  isApproving || isSubmitting || isSigning || isLoadingFees
+                }
                 disabled={
                   isApproving ||
                   isSubmitting ||
                   isSigning ||
-                  (mode === ModeOptions.payment && !transactionOption)
+                  (mode === ModeOptions.payment && !transactionOption) ||
+                  isLoadingFees
                 }
               >
                 {getButtonLabel()}
