@@ -31,10 +31,10 @@ function useIsWalletReady(): {
 
   // set source address upon connection & valid network selected
   useEffect(() => {
-    if (sourceChain.shortName !== 'SOL') return
+    if (sourceChain.shortName !== 'TRX') return
 
     if (mode === ModeOptions.light) {
-      dispatch(setSourceAddress(lightDemoAccounts.SOL))
+      dispatch(setSourceAddress(lightDemoAccounts.TRX))
       return
     }
 
