@@ -6414,7 +6414,7 @@ var CCWidget = () => {
     [networkOption]
   );
   const partnerId = (0, import_react133.useMemo)(
-    () => `Kima${networkOption === "testnet" /* testnet */ ? "Test" : ""}`,
+    () => `Kima${networkOption === "testnet" /* testnet */ ? "Test" : "Stage"}`,
     [networkOption]
   );
   (0, import_react133.useEffect)(() => {

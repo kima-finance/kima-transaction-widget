@@ -6453,7 +6453,7 @@ var CCWidget = () => {
     [networkOption]
   );
   const partnerId = useMemo20(
-    () => `Kima${networkOption === "testnet" /* testnet */ ? "Test" : ""}`,
+    () => `Kima${networkOption === "testnet" /* testnet */ ? "Test" : "Stage"}`,
     [networkOption]
   );
   useEffect20(() => {
