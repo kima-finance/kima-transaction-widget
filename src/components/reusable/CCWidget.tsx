@@ -8,7 +8,6 @@ import {
   selectServiceFee
 } from '@store/selectors'
 import { Loading180Ring } from '@assets/loading'
-import useWidth from '../../hooks/useWidth'
 import { setCCTransactionId, setCCTransactionStatus } from '@store/optionSlice'
 import { formatBigInt } from 'src/helpers/functions'
 import { v4 as uuidv4 } from 'uuid'
@@ -39,31 +38,25 @@ const CCWidget = () => {
   const txValues = feeDeduct
     ? transactionValues.feeFromTarget
     : transactionValues.feeFromOrigin
-  console.log('txvalues: ', txValues)
 
   const allowanceAmount = useMemo(
     () => formatBigInt(txValues.allowanceAmount),
     [txValues]
   )
   const [isLoading, setIsLoading] = useState(true)
-  const { width, updateWidth } = useWidth()
 
   // IMPORTANT: for staging use the same as mainnet
   const baseUrl = useMemo(
     () =>
-      `https://widget${networkOption === NetworkOptions.testnet ? '-sandbox':''}.depasify.com`,
+      `https://widget${networkOption === NetworkOptions.testnet ? '-sandbox' : ''}.depasify.com`,
     [networkOption]
   )
 
   // IMPORTANT: for staging use KimaStage
   const partnerId = useMemo(
-    () => `Kima${networkOption === NetworkOptions.testnet ? 'Test':''}`,
+    () => `Kima${networkOption === NetworkOptions.testnet ? 'Test' : ''}`,
     [networkOption]
   )
-
-  useEffect(() => {
-    if (width === 0) updateWidth(window.innerWidth)
-  }, [width, updateWidth])
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -83,9 +76,6 @@ const CCWidget = () => {
     return () => window.removeEventListener('message', handleMessage)
   }, [])
 
-  // Dynamically calculate size
-  const iframeWidth = width >= 900 ? 850 : width - 60
-  const iframeHeight = width >= 700 ? 950 : 1100
   return (
     <div className={`cc-widget ${isLoading ? 'loading' : ''}`}>
       {(isLoading ||
@@ -102,14 +92,14 @@ const CCWidget = () => {
           isTransactionIdLoading ||
           ccTransactionStatus === 'success'
             ? 0
-            : iframeWidth
+            : '100%'
         }
         height={
           isLoading ||
           isTransactionIdLoading ||
           ccTransactionStatus === 'success'
             ? 0
-            : iframeHeight
+            : '100%'
         }
         src={`${baseUrl}/widgets/kyc?partner=${partnerId}&user_uuid=${randomUserIdRef.current}&scenario=direct_card_payment&amount=${allowanceAmount}&currency=USD&trx_uuid=${data?.transactionId}&postmessage=true`}
         loading='lazy'
@@ -117,7 +107,8 @@ const CCWidget = () => {
         onLoad={() => setIsLoading(false)}
         style={{
           border: 'none',
-          transition: 'all 0.3s ease'
+          transition: 'all 0.3s ease',
+          display: 'block'
         }}
       />
     </div>
