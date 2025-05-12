@@ -11,11 +11,11 @@ export interface Plugin {
 
   // hooks
   // TODO: refactor to return a UseQueryResult
-  useAllowance: () => PluginUseAllowanceResult
-  useNativeBalance: () => PluginUseBalanceResult | undefined
-  useTokenBalance(): PluginUseBalanceResult | undefined
-  useWalletIsReady: () => PluginUseWalletIsReadyResult
-  useDisconnectWallet: () => PluginUseDisconnectWalletResult
+  useAllowance?: () => PluginUseAllowanceResult
+  useNativeBalance?: () => PluginUseBalanceResult | undefined
+  useTokenBalance?(): PluginUseBalanceResult | undefined
+  useWalletIsReady?: () => PluginUseWalletIsReadyResult
+  useDisconnectWallet?: () => PluginUseDisconnectWalletResult
 }
 
 export interface SignDataType {
@@ -45,7 +45,7 @@ export interface PluginUseBalanceResult {
 export interface PluginUseWalletIsReadyResult {
   isReady: boolean
   statusMessage: string
-  walletAddress?: string
+  connectedAddress?: string
 }
 
 export interface PluginUseDisconnectWalletResult {
@@ -61,6 +61,7 @@ export interface PluginProviderProps {
   children: React.ReactNode
   walletConnectProjectId: string
   networkOption: NetworkOptions | undefined
+  isLoading?: boolean
 }
 
 export interface PluginData {
@@ -89,5 +90,6 @@ export enum ChainCompatibility {
   EVM = 'EVM',
   FIAT = 'FIAT',
   COSMOS = 'COSMOS',
-  SELF = 'SELF'
+  SELF = 'SELF',
+  CC = 'CC'
 }

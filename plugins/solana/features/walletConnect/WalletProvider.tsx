@@ -14,6 +14,7 @@ import {
 } from '@solana/wallet-adapter-wallets'
 import { getHostEndpoint } from '@plugins/solana/utils/constants'
 import { NetworkOptions } from '@interface'
+import log from '@utils/logger'
 
 interface WalletProviderProps {
   children: ReactNode
@@ -28,7 +29,7 @@ const WalletProvider = ({
 }: WalletProviderProps) => {
   const endpoint = getHostEndpoint(networkOption)
 
-  console.info(
+  log.debug(
     `WalletProvider initialized with projectId: ${walletConnectProjectId}`
   )
 

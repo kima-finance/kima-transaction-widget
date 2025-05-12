@@ -28,6 +28,7 @@ import useHideWuiListItem from '../../hooks/useHideActivityTab'
 import { useKimaContext } from '../../KimaProvider'
 import { useGetEnvOptions } from '../../hooks/useGetEnvOptions'
 import { NetworkOptions } from '@interface'
+import log from '@utils/logger'
 
 const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const dispatch = useDispatch()
@@ -39,12 +40,12 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const { externalProvider } = useKimaContext()
   const { connected: isSolanaConnected } = useSolanaWallet()
   const { connected: isTronConnected } = useTronWallet()
-  const { isReady, statusMessage, walletAddress /*, connectBitcoinWallet*/ } =
+  const { isReady, statusMessage, connectedAddress /*, connectBitcoinWallet*/ } =
     useIsWalletReady()
   const { balance, decimals } = useBalance()
   const { open } = useAppKit()
-  const { width, updateWidth } = useWidth()
   const { open: isModalOpen } = useAppKitState()
+  const { width, updateWidth } = useWidth()
   useHideWuiListItem(isModalOpen)
 
   const { kimaBackendUrl } = useKimaContext()
@@ -52,18 +53,18 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const networkOption = envOptions?.env || NetworkOptions.testnet
 
   useEffect(() => {
-    console.info('WalletBalance:', {
+    log.debug('WalletBalance:', {
       balance,
-      walletAddress,
+      connectedAddress,
       isReady,
       statusMessage,
       externalProvider
     })
-  }, [balance, walletAddress, isReady, externalProvider, networkOption])
+  }, [balance, connectedAddress, isReady, externalProvider, networkOption])
 
   useEffect(() => {
-    if (walletAddress) dispatch(setSourceAddress(walletAddress))
-  }, [walletAddress])
+    if (connectedAddress) dispatch(setSourceAddress(connectedAddress))
+  }, [connectedAddress])
 
   useEffect(() => {
     if (width === 0) {
@@ -72,13 +73,13 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   }, [])
   // TODO: refactor to use plugins
   const handleClick = async () => {
-    console.info('Handling click')
+    log.debug('Handling click')
 
     // TODO: Refactor to use evm account details modal
     if (externalProvider) return
 
     if (selectedNetwork.shortName === ChainName.SOLANA) {
-      console.info('Handling click: Case SOL', 1)
+      log.debug('Handling click: Case SOL', 1)
       isSolanaConnected
         ? dispatch(setAccountDetailsModal(true))
         : dispatch(setSolanaConnectModal(true))
@@ -86,7 +87,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
     }
 
     if (selectedNetwork.shortName === ChainName.TRON) {
-      console.info('Handling click: Case TRX', 2)
+      log.debug('Handling click: Case TRX', 2)
       isTronConnected
         ? dispatch(setAccountDetailsModal(true))
         : dispatch(setTronConnectModal(true))
@@ -94,22 +95,22 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
     }
 
     // if (selectedNetwork === ChainName.BTC) {
-    //   console.info('Handling click: Case BTC', 3)
+    //   log.debug('Handling click: Case BTC', 3)
     //   connectBitcoinWallet()
     //   return
     // }
 
-    console.info('Handling click: Case EVM', 4)
+    log.debug('Handling click: Case EVM', 4)
     try {
-      console.info('Attempting to open AppKitModal')
+      log.debug('Attempting to open AppKitModal')
       await open() // Ensure await usage
-      console.info('AppKitModal opened successfully')
+      log.debug('AppKitModal opened successfully')
     } catch (error) {
-      console.error('Failed to open AppKitModal', error)
+      log.error('Failed to open AppKitModal', error)
     }
   }
 
-  // console.log("wallet button is ready: ", isReady)
+  // log.debug("wallet button is ready: ", isReady)
 
   const errorMessage = useMemo(() => {
     if (!isReady) return statusMessage
@@ -141,14 +142,14 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
         >
           {isReady
             ? width >= 640
-              ? `${walletAddress || ''}`
-              : getShortenedAddress(walletAddress || '')
+              ? `${connectedAddress || ''}`
+              : getShortenedAddress(connectedAddress || '')
             : ''}
           {!isReady && <WalletIcon />}
           {!isReady && 'Connect Wallet'}
         </button>
 
-        {isReady && <CopyButton text={walletAddress as string} />}
+        {isReady && <CopyButton text={connectedAddress as string} />}
       </div>
 
       {isReady && balance !== undefined && decimals !== undefined ? (

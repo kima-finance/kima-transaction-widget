@@ -1,6 +1,7 @@
 import { GetTokenAllowanceResult } from '@plugins/pluginTypes'
 import { TokenOptions } from '@store/optionSlice'
 import { getTokenAddress, getPoolAddress } from '@utils/functions'
+import log from '@utils/logger'
 
 export const getTokenAllowance = async ({
   tokenOptions,
@@ -31,14 +32,14 @@ export const getTokenAllowance = async ({
       .allowance(userAddress, poolAddress)
       .call()
 
-    console.log('getTronAllowance:', { allowance, balance, decimals })
+    log.debug('getTronAllowance:', { allowance, balance, decimals })
     return {
       allowance: BigInt(allowance),
       balance: BigInt(balance),
       decimals: Number(decimals)
     }
   } catch (error) {
-    console.error('Error getting allowance for tron token', error)
+    log.error('Error getting allowance for tron token', error)
     throw new Error('Error getting allowance for tron token')
   }
 }

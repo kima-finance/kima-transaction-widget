@@ -19,6 +19,7 @@ export interface UseValidateTransactionInputs {
   formStep: number
   isApproved: boolean
   pools: any[]
+  sourceChain: string
   sourceAddress: string
   sourceCompliant: any
   targetAddress: string
@@ -39,6 +40,7 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
     formStep,
     isApproved,
     pools,
+    sourceChain,
     sourceAddress,
     sourceCompliant,
     targetAddress,
@@ -61,11 +63,11 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
   }, [balance, totalFee, feeDeduct])
 
   const validate = (isSubmitting: boolean = false) => {
-    console.log('allowance: ', allowance)
-    console.log('isApproved: ', isApproved)
+    // log.debug('allowance: ', allowance)
+    // log.debug('isApproved: ', isApproved)
 
     // Validation logic
-    if (!sourceAddress) {
+    if (!sourceAddress && sourceChain !== 'CC') {
       return {
         error: ValidationError.Error,
         message: 'Wallet is not connected'
@@ -107,7 +109,7 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
     }
 
     // Check if the amount exceeds the max value
-    if (amount > balance && formStep === 0) {
+    if (amount > balance && formStep === 0 && sourceChain !== 'CC') {
       return {
         error: ValidationError.Warning,
         message:
@@ -115,7 +117,7 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
       }
     }
 
-    if (amount > maxValue && formStep === 0) {
+    if (amount > maxValue && formStep === 0 && sourceChain !== 'CC') {
       return {
         error: ValidationError.Warning,
         message:

@@ -14,6 +14,7 @@ import { useEvmProvider } from './useEvmProvider'
 import { getTokenAllowance } from '@plugins/evm/utils/getTokenAllowance'
 import useGetPools from '../../../../src/hooks/useGetPools'
 import { GetTokenAllowanceResult } from '@plugins/pluginTypes'
+import log from '@utils/logger'
 
 const emptyResult = {} as GetTokenAllowanceResult
 
@@ -27,7 +28,7 @@ export default function useBalance() {
   const { walletAddress, walletProvider } = useEvmProvider()
 
   const { data: allowanceData } = useQuery({
-    queryKey: ['evmAllowance', walletAddress, sourceChain],
+    queryKey: ['evmAllowance', walletAddress, sourceChain.shortName],
     queryFn: () =>
       getTokenAllowance({
         tokenOptions,

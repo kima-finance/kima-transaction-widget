@@ -1,13 +1,14 @@
 import { getAllPlugins } from '@pluginRegistry'
 import { PluginUseWalletIsReadyResult } from '@plugins/pluginTypes'
 import useGetCurrentPlugin from './useGetCurrentPlugin'
+import log from '@utils/logger'
 
 // Preload all plugins
 const allPlugins = getAllPlugins()
 const defaultStatus = {
   isReady: false,
   statusMessage: '',
-  walletAddress: ''
+  connectedAddress: ''
 } satisfies PluginUseWalletIsReadyResult
 
 export default function useIsWalletReady(): PluginUseWalletIsReadyResult {
@@ -22,11 +23,11 @@ export default function useIsWalletReady(): PluginUseWalletIsReadyResult {
       const ready = plugin.useWalletIsReady()
       return { pluginID, ...ready }
     } catch (err) {
-      console.warn('useWalletIsReady: error for plugin', pluginID, err)
+      log.warn('useWalletIsReady: error for plugin', pluginID, err)
       return { pluginID, ...defaultStatus }
     }
   })
-  // console.info('useIsWalletReady:cStates: ', { allData })
+  // log.debug('useIsWalletReady:cStates: ', { allData })
 
   // If we have a current plugin ID, filter down to just that plugin's balance
   // Otherwise, return all (in case currentPluginID is not defined)

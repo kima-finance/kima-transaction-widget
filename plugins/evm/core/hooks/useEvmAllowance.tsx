@@ -20,6 +20,7 @@ import {
   http
 } from 'viem'
 import { PluginUseAllowanceResult, SignDataType } from '@plugins/pluginTypes'
+import log from '@utils/logger'
 import { useEvmProvider } from './useEvmProvider'
 import useBalance from './useBalance'
 
@@ -43,12 +44,12 @@ export default function useEvmAllowance(): PluginUseAllowanceResult {
 
   const signMessage = async (data: SignDataType) => {
     if (!walletProvider) {
-      console.error('No available provider')
+      log.error('No available provider')
       return
     }
 
     if (!allowanceData?.decimals) {
-      console.warn('useEvmAllowance: Missing required data')
+      log.warn('useEvmAllowance: Missing required data')
       return
     }
 
@@ -66,14 +67,14 @@ export default function useEvmAllowance(): PluginUseAllowanceResult {
         message: txValues.message
       })
     } catch (error) {
-      console.error('useEvmAllowance: Error on signing message:', error)
+      log.error('useEvmAllowance: Error on signing message:', error)
       throw new Error('Error on signing message')
     }
   }
 
   const approveErc20TokenTransfer = async (isCancel = false) => {
     if (!walletProvider) {
-      console.error('No available provider')
+      log.error('No available provider')
       return
     }
 
@@ -127,7 +128,7 @@ export default function useEvmAllowance(): PluginUseAllowanceResult {
         args: [poolAddress as `0x${string}`, finalAmount]
       })
 
-      console.log(
+      log.info(
         'useEvmAllowance: Transaction sent, waiting for confirmation:',
         hash
       )
@@ -141,11 +142,11 @@ export default function useEvmAllowance(): PluginUseAllowanceResult {
         await queryClient.invalidateQueries({ queryKey: ['evmAllowance'] })
         // setApprovalsCount((prev: number) => prev + 1)
       } else {
-        console.error('useEvmAllowance: Transaction failed:', receipt)
+        log.error('useEvmAllowance: Transaction failed:', receipt)
         throw new Error('Transaction failed')
       }
     } catch (error) {
-      console.error('useEvmAllowance: Error on EVM approval:', error)
+      log.error('useEvmAllowance: Error on EVM approval:', error)
       throw new Error('Error on EVM approval')
     }
   }

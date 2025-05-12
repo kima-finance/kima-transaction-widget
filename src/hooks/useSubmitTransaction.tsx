@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { setTxId, setSubmitted } from '@store/optionSlice'
+import { setTxId, setSubmitted, setCCTransactionId } from '@store/optionSlice'
 import { getTransactionId } from '@utils/functions'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
+import log from '@utils/logger'
 import { useSelector } from 'react-redux'
 import {
   selectBackendUrl,
+  selectCCTransactionId,
   selectFeeDeduct,
   selectServiceFee
 } from '@store/selectors'
@@ -21,12 +23,16 @@ const useSubmitTransaction = () => {
   const txValues = feeDeduct
     ? transactionValues.feeFromTarget
     : transactionValues.feeFromOrigin
+  const ccTransactionId = useSelector(selectCCTransactionId)
 
   const submitTransaction = async (signature: string) => {
     try {
       setSubmitting(true)
       const params = JSON.stringify({
-        originAddress: transactionValues.originAddress,
+        originAddress:
+          transactionValues.originChain === 'CC'
+            ? transactionValues.targetAddress
+            : transactionValues.originAddress,
         originChain: transactionValues.originChain,
         targetAddress: transactionValues.targetAddress,
         targetChain: transactionValues.targetChain,
@@ -44,17 +50,19 @@ const useSubmitTransaction = () => {
         htlcVersion: '',
         senderPubKey: '',
         options: JSON.stringify({
-          signature,
+          signature: transactionValues.originChain === 'CC' ? '' : signature,
           feeId,
           chargeFeeAtTarget: feeDeduct
-        })
+        }),
+        ccTransactionIdSeed: ccTransactionId
       })
 
-      const transactionResult: any = await fetchWrapper.post(
+      let transactionResult: any = await fetchWrapper.post(
         `${backendUrl}/submit`,
         params
       )
 
+      console.log('transactionResult: ', transactionResult)
       if (transactionResult?.code !== 0) {
         setSubmitting(false)
         return { success: false, message: 'Failed to submit transaction' }
@@ -68,7 +76,7 @@ const useSubmitTransaction = () => {
 
       return { success: true, message: 'Transaction submitted successfully.' }
     } catch (error) {
-      console.error('Error submitting transaction:', error)
+      log.error('Error submitting transaction:', error)
       setSubmitting(false)
       return { success: false, message: 'Failed to submit transaction' }
     }

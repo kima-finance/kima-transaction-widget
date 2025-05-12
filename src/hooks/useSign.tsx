@@ -8,6 +8,7 @@ import { setSignature } from '../store/optionSlice'
 import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
 import { useKimaContext } from '../KimaProvider'
 import { BrowserProvider, JsonRpcSigner } from 'ethers'
+import log from '@utils/logger'
 
 export default function useSign({
   setSigning
@@ -47,7 +48,7 @@ export default function useSign({
       setIsSigned(true)
       dispatch(setSignature(hash))
     } catch (error) {
-      console.error('Signing failed:', error)
+      log.error('Signing failed:', error)
     } finally {
       setSigning(false)
     }

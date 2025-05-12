@@ -144,3 +144,7 @@ export const selectBankDetails = (state: RootState) => state.option.bankDetails
 export const selectSignature = (state: RootState) => state.option.signature
 export const selectUuid = (state: RootState) => state.option.uuid
 export const selectKycStatus = (state: RootState) => state.option.kycStatus
+export const selectCCTransactionId = (state: RootState) =>
+  state.option.ccTransactionId
+export const selectCCTransactionStatus = (state: RootState) =>
+  state.option.ccTransactionStatus
