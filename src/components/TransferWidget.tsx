@@ -63,6 +63,7 @@ import { useKimaContext } from 'src/KimaProvider'
 import { ChainData } from '@plugins/pluginTypes'
 import WarningModal from './reusable/WarningModal'
 import log from '@utils/logger'
+import KimaNetwork from '@assets/icons/KimaNetwork'
 
 interface Props {
   theme: ThemeOptions
@@ -186,7 +187,10 @@ export const TransferWidget = ({
     }
 
     // if is missing approve, trigger approval
-    if (error === ValidationError.ApprovalNeeded && mode !== ModeOptions.light) {
+    if (
+      error === ValidationError.ApprovalNeeded &&
+      mode !== ModeOptions.light
+    ) {
       const sig = await signMessage?.({
         targetAddress,
         targetChain: targetChain.shortName,
@@ -498,8 +502,7 @@ export const TransferWidget = ({
         <div className='floating-footer'>
           <div className={`items ${theme.colorMode}`}>
             <span>Powered by</span>
-            <FooterLogo width={50} fill='black' />
-            <span className='network'>Network</span>
+            <KimaNetwork />
           </div>
         </div>
       </div>

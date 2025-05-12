@@ -44,6 +44,7 @@ import TransactionSearch from './reusable/TransactionSearch'
 import { useChainData } from '../hooks/useChainData'
 import { ChainData } from '@plugins/pluginTypes'
 import log from '@utils/logger'
+import KimaNetwork from '@assets/icons/KimaNetwork'
 
 export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [step, setStep] = useState(0)
@@ -450,8 +451,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
         <div className='floating-footer status'>
           <div className={`items ${theme.colorMode}`}>
             <span>Powered by</span>
-            <FooterLogo width={50} fill='black' />
-            <span className='network'>Network</span>
+            <KimaNetwork />
           </div>
         </div>
         {/* <Tooltip

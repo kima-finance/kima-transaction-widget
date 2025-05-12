@@ -406,7 +406,7 @@
     align-items: center;
     justify-content: center;
     pointer-events: none;
-    font-family: 'Manrope';
+    font-family: 'Sohne';
     right: 0;
     margin-top: 10px;
 
@@ -428,7 +428,7 @@
       border-radius: 20px;
       font-size: 12px;
       gap: 8px;
-      font-family: "Manrope";
+      height: 35px;
 
       &.light {
         background-color: $hover;
@@ -438,7 +438,7 @@
         background-color: $finance;
       }
 
-      span.network{
+      span.network {
         font-weight: 800;
       }
     }
