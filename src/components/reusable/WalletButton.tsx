@@ -87,7 +87,7 @@ const WalletButton = ({
     log.debug('Handling click')
 
     // TODO: Refactor to use evm account details modal
-    if (externalProvider || mode === ModeOptions.light) return
+    if (externalProvider || !isConnected) return
 
     if (selectedNetwork.shortName === ChainName.SOLANA) {
       log.debug('Handling click: Case SOL', 1)
@@ -139,11 +139,7 @@ const WalletButton = ({
   //   toast.error(errorMessage)
   // }, [errorMessage])
   const isConnected = useMemo(() => {
-    if (mode === ModeOptions.light) {
-      return isReady && !initialSelection
-    }
-
-    return isReady
+    return isReady && !initialSelection
   }, [isReady, initialSelection])
 
   return (
@@ -163,18 +159,26 @@ const WalletButton = ({
               ? `${connectedAddress || ''}`
               : getShortenedAddress(connectedAddress || '')
             : ''}
-          {!isConnected && mode === ModeOptions.light &&
+          {!isConnected &&
+            mode === ModeOptions.light &&
             'Select Network to Load Account'}
-          {!isReady && <WalletIcon />}
-          {!isReady && 'Connect Wallet'}
+          {!isConnected &&
+            mode !== ModeOptions.light &&
+            initialSelection &&
+            'Select Network to Connect'}
+          {!isConnected && mode !== ModeOptions.light && !initialSelection && (
+            <WalletIcon />
+          )}
+          {!isConnected &&
+            mode !== ModeOptions.light &&
+            !initialSelection &&
+            'Connect Wallet'}
         </button>
 
-        {isConnected && (
-          <CopyButton text={connectedAddress as string} />
-        )}
+        {isConnected && <CopyButton text={connectedAddress as string} />}
       </div>
 
-      {isConnected &&  balance !== undefined ? (
+      {isConnected && balance !== undefined ? (
         <p className='balance-info'>
           {formatUSD(balance)} {selectedCoin} available
         </p>

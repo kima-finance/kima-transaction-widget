@@ -27,13 +27,22 @@ import { ModeOptions } from '@interface'
 
 interface NetworkSelectorProps {
   type: 'source' | 'target' // Determines if this is a source or target selector
-  initialSelection: boolean,
-  setInitialSelection: React.Dispatch<React.SetStateAction<boolean>>
+  initialSelection: boolean
+  setInitialSelection: React.Dispatch<
+    React.SetStateAction<{
+      sourceSelection: boolean
+      targetSelection: boolean
+    }>
+  >
 }
 
 type DemoChainKey = keyof typeof lightDemoAccounts
 
-const NetworkSelector: React.FC<NetworkSelectorProps> = ({ type, initialSelection, setInitialSelection }) => {
+const NetworkSelector: React.FC<NetworkSelectorProps> = ({
+  type,
+  initialSelection,
+  setInitialSelection
+}) => {
   const [collapsed, setCollapsed] = useState(true)
   const ref = useRef<HTMLDivElement | null>(null)
 
@@ -69,7 +78,7 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({ type, initialSelectio
 
     return filteredNetworks.filter(
       (network: ChainData) =>
-        network.shortName !== sourceNetwork.shortName &&
+        network.shortName !== sourceNetwork?.shortName &&
         !excludedTargetNetworks.includes(network.shortName as ChainName)
     )
   }, [
@@ -82,7 +91,7 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({ type, initialSelectio
   ])
 
   const selectedNetwork = useMemo(() => {
-    if (initialSelection && mode === ModeOptions.light) {
+    if (initialSelection) {
       return {
         shortName: '',
         name: isSourceSelector
@@ -93,7 +102,7 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({ type, initialSelectio
 
     const selected = isSourceSelector ? sourceNetwork : targetNetwork
     return (
-      networks.find((network: ChainData) => network.id === selected.id) || {
+      networks.find((network: ChainData) => network.id === selected?.id) || {
         shortName: '',
         name: isSourceSelector
           ? 'Select Source Network'
@@ -108,6 +117,7 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({ type, initialSelectio
     initialSelection
   ])
 
+  //
   useEffect(() => {
     if (!networks.length || selectedNetwork.shortName) return
 
@@ -122,12 +132,12 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({ type, initialSelectio
 
   const handleNetworkChange = (chain: ChainData) => {
     if (isSourceSelector) {
-      if (chain.id !== sourceNetwork.id) {
+      if (chain.id !== sourceNetwork?.id) {
         dispatch(setSourceChain(chain))
         switchChainHandler && switchChainHandler(chain)
       }
     } else {
-      if (chain.shortName !== targetNetwork.shortName) {
+      if (chain.shortName !== targetNetwork?.shortName) {
         dispatch(setTargetChain(chain))
         const chainCompatibility: DemoChainKey =
           chain.compatibility === ChainCompatibility.EVM
@@ -138,7 +148,10 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({ type, initialSelectio
           dispatch(setTargetAddress(lightDemoAccounts[chainCompatibility]))
       }
     }
-    setInitialSelection(false)
+
+    type === 'source'
+      ? setInitialSelection((prev) => ({ ...prev, sourceSelection: false }))
+      : setInitialSelection((prev) => ({ ...prev, targetSelection: false }))
     setCollapsed(true) // Explicitly collapse the dropdown after selection
   }
 

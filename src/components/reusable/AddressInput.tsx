@@ -22,10 +22,12 @@ import log from '@utils/logger'
 
 const AddressInput = ({
   theme,
-  placeholder
+  placeholder,
+  initialSelection
 }: {
   theme: string
   placeholder: string
+  initialSelection: { sourceSelection: boolean; targetSelection: boolean }
 }) => {
   const dispatch = useDispatch()
   const mode = useSelector(selectMode)
@@ -69,7 +71,11 @@ const AddressInput = ({
       className={`kima-address-input ${theme}`}
       type='text'
       placeholder={placeholder}
-      value={targetAddress}
+      value={
+        initialSelection.sourceSelection || initialSelection.targetSelection
+          ? ''
+          : targetAddress
+      }
       onChange={(e) => dispatch(setTargetAddress(e.target.value))}
       spellCheck={false}
     />

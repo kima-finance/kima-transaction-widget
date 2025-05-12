@@ -900,11 +900,6 @@
               }
             }
           }
-
-          @include breakpoint(mobile) {
-            .wallet-button {
-            }
-          }
         }
 
         @include breakpoint(mobile) {

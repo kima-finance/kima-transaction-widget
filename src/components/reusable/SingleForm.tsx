@@ -59,7 +59,10 @@ const SingleForm = ({
   const sourceCurrency = useSelector(selectSourceCurrency)
   const targetCurrency = useSelector(selectTargetCurrency)
   const backendUrl = useSelector(selectBackendUrl)
-  const [initialSelection, setInitialSelection] = useState<boolean>(true)
+  const [initialSelection, setInitialSelection] = useState({
+    sourceSelection: true,
+    targetSelection: true
+  })
 
   const {
     data: fees,
@@ -113,11 +116,7 @@ const SingleForm = ({
   }, [amount])
 
   const isConnected = useMemo(() => {
-    if (mode === ModeOptions.light) {
-      return isReady && !initialSelection
-    }
-
-    return isReady
+    return isReady && !initialSelection.sourceSelection
   }, [isReady, initialSelection])
 
   return (
@@ -127,7 +126,10 @@ const SingleForm = ({
         <div className='items'>
           <NetworkSelector
             type='source'
-            {...{ initialSelection, setInitialSelection }}
+            {...{
+              initialSelection: initialSelection.sourceSelection,
+              setInitialSelection
+            }}
           />
           <CoinDropdown />
         </div>
@@ -142,7 +144,7 @@ const SingleForm = ({
           className={`form-item wallet-button-item ${isConnected && 'connected'}`}
         >
           <span className='label'>Wallet:</span>
-          <WalletButton initialSelection={initialSelection} />
+          <WalletButton initialSelection={initialSelection.sourceSelection} />
         </div>
 
         {mode !== ModeOptions.payment && (
@@ -151,7 +153,10 @@ const SingleForm = ({
             <div className='items'>
               <NetworkSelector
                 type='target'
-                {...{ initialSelection, setInitialSelection }}
+                {...{
+                  initialSelection: initialSelection.targetSelection,
+                  setInitialSelection
+                }}
               />
               <CoinDropdown isSourceChain={false} />
             </div>
@@ -169,6 +174,7 @@ const SingleForm = ({
             <AddressInput
               theme={theme.colorMode as string}
               placeholder='Target address'
+              initialSelection={initialSelection}
             />
           </div>
         )
