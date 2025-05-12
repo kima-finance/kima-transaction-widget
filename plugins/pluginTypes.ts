@@ -25,17 +25,20 @@ export interface SignDataType {
   originSymbol: string
 }
 
-export interface PluginUseAllowanceResult {
-  isApproved: boolean
-  approve: (isCancel?: boolean) => Promise<void>
-  signMessage?: (data: SignDataType) => Promise<any>
-  allowance?: number | undefined
-  balance?: number | undefined
+export interface GetTokenAllowanceResult {
+  allowance?: bigint | undefined
+  balance?: bigint | undefined
   decimals?: number | undefined
 }
 
+export interface PluginUseAllowanceResult extends GetTokenAllowanceResult {
+  isApproved: boolean
+  approve: (isCancel?: boolean) => Promise<void>
+  signMessage?: (data: SignDataType) => Promise<any>
+}
+
 export interface PluginUseBalanceResult {
-  balance?: number | undefined
+  balance?: bigint | undefined
   decimals?: number | undefined
 }
 
@@ -65,11 +68,14 @@ export interface PluginData {
   pluginData: { [key: string]: any } // currently empty
 }
 
+export type ChainLocation = 'origin' | 'target'
+
 export interface ChainData extends Chain {
   compatibility: ChainCompatibility
   name: string
   shortName: string
   supportedTokens: ChainToken[]
+  supportedLocations: ChainLocation[]
 }
 
 export interface ChainToken {

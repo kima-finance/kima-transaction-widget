@@ -5,55 +5,39 @@ import { getTransactionId } from '@utils/functions'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 import { useSelector } from 'react-redux'
 import {
+  selectBackendUrl,
   selectFeeDeduct,
-  selectServiceFee,
-  selectSignature
+  selectServiceFee
 } from '@store/selectors'
-import { parseUnits } from 'viem'
-import { formatterFloat } from 'src/helpers/functions'
+import { bigIntChangeDecimals } from 'src/helpers/functions'
 
-const useSubmitTransaction = ({
-  amount,
-  totalFee,
-  originAddress,
-  targetAddress,
-  originChain,
-  targetChain,
-  originSymbol,
-  targetSymbol,
-  backendUrl,
-  decimals
-}: {
-  amount: number
-  totalFee: string
-  originAddress: string
-  targetAddress: string
-  originChain: string
-  targetChain: string
-  originSymbol: string
-  targetSymbol: string
-  backendUrl: string
-  decimals: number
-}) => {
+const useSubmitTransaction = () => {
   const dispatch = useDispatch()
+  const backendUrl = useSelector(selectBackendUrl)
 
   const [isSubmitting, setSubmitting] = useState(false)
-  const { feeId } = useSelector(selectServiceFee)
+  const { feeId, transactionValues, totalFee } = useSelector(selectServiceFee)
   const feeDeduct = useSelector(selectFeeDeduct)
+  const txValues = feeDeduct
+    ? transactionValues.feeFromTarget
+    : transactionValues.feeFromOrigin
 
   const submitTransaction = async (signature: string) => {
     try {
       setSubmitting(true)
       const params = JSON.stringify({
-        originAddress,
-        originChain,
-        targetAddress,
-        targetChain,
-        originSymbol,
-        targetSymbol,
-        amount: parseUnits(formatterFloat.format(amount), decimals).toString(),
-        fee: parseUnits(formatterFloat.format(+totalFee), decimals).toString(),
-        decimals,
+        originAddress: transactionValues.originAddress,
+        originChain: transactionValues.originChain,
+        targetAddress: transactionValues.targetAddress,
+        targetChain: transactionValues.targetChain,
+        originSymbol: transactionValues.originSymbol,
+        targetSymbol: transactionValues.targetSymbol,
+        amount: txValues.submitAmount.value.toString(),
+        fee: bigIntChangeDecimals({
+          ...totalFee,
+          newDecimals: txValues.submitAmount.decimals
+        }).value.toString(),
+        decimals: txValues.submitAmount.decimals,
         htlcCreationHash: '',
         htlcCreationVout: 0,
         htlcExpirationTimestamp: '0',

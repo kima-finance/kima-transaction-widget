@@ -7,7 +7,7 @@ import { ColorModeOptions, ModeOptions, ThemeOptions } from '@interface'
 import { Provider } from 'react-redux'
 import { store } from '@store/index'
 import { TransactionStatus } from '../utils/constants'
-import { formatterFloat } from '../helpers/functions'
+import { bigIntToNumber, formatBigInt } from '../helpers/functions'
 import { useSelector } from 'react-redux'
 import {
   selectAmount,
@@ -56,7 +56,10 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const amount = useSelector(selectAmount)
   const txId = useSelector(selectTxId)
   const dAppOption = useSelector(selectDappOption)
-  const { totalFee } = useSelector(selectServiceFee)
+  const { transactionValues } = useSelector(selectServiceFee)
+  const txValues = feeDeduct
+    ? transactionValues.feeFromTarget
+    : transactionValues.feeFromOrigin
   const transactionOption = useSelector(selectTransactionOption)
   const sourceChain = useSelector(selectSourceChain)
   const targetChain = useSelector(selectTargetChain)
@@ -278,11 +281,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                     {/* if not in status mode, display the whole picture for better understanding */}
                     {mode !== ModeOptions.status
                       ? Number(amount) !== 0
-                        ? formatterFloat.format(
-                            feeDeduct
-                              ? Number(amount)
-                              : Number(amount) + +totalFee
-                          )
+                        ? formatBigInt(txValues.allowanceAmount)
                         : ''
                       : data?.amount || ''}{' '}
                     {mode !== ModeOptions.status
@@ -308,11 +307,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                     {/* if not in status mode, display the whole picture for better understanding */}
                     {mode !== ModeOptions.status
                       ? Number(amount) !== 0
-                        ? formatterFloat.format(
-                            feeDeduct
-                              ? Number(amount) - +totalFee
-                              : Number(amount)
-                          )
+                        ? bigIntToNumber(txValues.allowanceAmount)
                         : ''
                       : data?.amount || ''}{' '}
                     {mode !== ModeOptions.status

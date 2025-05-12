@@ -1,42 +1,47 @@
-import { ModeOptions, ServiceFee } from '@interface'
+import { ServiceFee } from '@interface'
 import { useQuery } from '@tanstack/react-query'
 import { useSelector } from 'react-redux'
 import { selectMode } from '@store/selectors'
 import { getFees } from '../services/feesApi'
 
-const useGetFees = (
-  amount: number | null,
-  deductFees: boolean,
-  sourceNetwork: string | null,
-  sourceAddress: string | null,
-  sourceSymbol: string | null,
-  targetNetwork: string | null,
-  targetAddress: string | null,
-  targetSymbol: string | null,
+export interface UseGetFeesInputs {
+  amount: number | null
+  sourceNetwork: string | null
+  sourceAddress: string | null
+  sourceSymbol: string | null
+  targetNetwork: string | null
+  targetAddress: string | null
+  targetSymbol: string | null
   backendUrl: string
-) => {
+}
+const useGetFees = ({
+  amount,
+  sourceNetwork,
+  sourceAddress,
+  sourceSymbol,
+  targetNetwork,
+  targetAddress,
+  targetSymbol,
+  backendUrl
+}: UseGetFeesInputs) => {
   // In Payment mode, the target (seller) must always receive the full amount
-  // so ignore the deductFees param in this case and hard code it to false
+  // so ignore the "feeFromTarget" part of the transaction values
   const mode = useSelector(selectMode)
-  const feeDeductWithMode = mode === ModeOptions.payment ? false : deductFees
 
   return useQuery<ServiceFee, Error>({
     queryKey: [
       'fees',
       amount,
-      feeDeductWithMode,
       sourceNetwork,
-      targetNetwork,
       sourceAddress,
-      targetAddress,
       sourceSymbol,
+      targetNetwork,
+      targetAddress,
       targetSymbol
     ],
     queryFn: async () => {
       console.log('useGetFees: ', {
         amount,
-        deductFees,
-        feeDeductWithMode,
         sourceNetwork,
         targetNetwork,
         sourceAddress,
@@ -44,7 +49,6 @@ const useGetFees = (
       })
       return await getFees(
         amount!,
-        feeDeductWithMode!,
         sourceNetwork!,
         sourceAddress!,
         sourceSymbol!,

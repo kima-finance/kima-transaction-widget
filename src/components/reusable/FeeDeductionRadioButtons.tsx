@@ -11,7 +11,7 @@ import {
   selectTargetCurrency,
   selectTheme
 } from '@store/selectors'
-import { formatterFloat } from 'src/helpers/functions'
+import { bigIntToNumber, formatterFloat } from 'src/helpers/functions'
 
 const FeeDeductionRadioButtons = ({ disabled }: { disabled: boolean }) => {
   const dispatch = useDispatch()
@@ -19,7 +19,8 @@ const FeeDeductionRadioButtons = ({ disabled }: { disabled: boolean }) => {
   const amount = useSelector(selectAmount)
   const sourceNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
-  const { totalFee } = useSelector(selectServiceFee)
+  const { totalFee: feeTotalBigInt } = useSelector(selectServiceFee)
+  const totalFee = bigIntToNumber(feeTotalBigInt)
   const sourceCurrency = useSelector(selectSourceCurrency)
   const targetCurrency = useSelector(selectTargetCurrency)
   const theme = useSelector(selectTheme)
@@ -43,7 +44,7 @@ const FeeDeductionRadioButtons = ({ disabled }: { disabled: boolean }) => {
             {`Pay $${formatterFloat.format(
               Number(amount)
             )} ${sourceCurrency} in ${sourceNetwork.name} to receive $${formatterFloat.format(
-              Number(amount) - +totalFee
+              Number(amount) - totalFee
             )} ${targetCurrency} in ${targetNetwork.name}`}
           </span>
         </label>
@@ -58,7 +59,7 @@ const FeeDeductionRadioButtons = ({ disabled }: { disabled: boolean }) => {
           />
           <span className={`radio-label ${theme.colorMode}`}>
             {`Pay $${formatterFloat.format(
-              Number(amount) + +totalFee
+              Number(amount) + totalFee
             )} ${sourceCurrency} in ${sourceNetwork.name} to receive $${formatterFloat.format(
               Number(amount)
             )} ${targetCurrency} in ${targetNetwork.name}`}

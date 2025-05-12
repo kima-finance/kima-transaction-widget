@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react'
 import { useSelector } from 'react-redux'
-import { formatterFloat } from '../../helpers/functions'
+import { formatBigInt, formatterFloat } from '../../helpers/functions'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
 import { DAppOptions, ModeOptions } from '../../interface'
 import {
@@ -38,8 +38,11 @@ const ConfirmDetails = ({
   const dAppOption = useSelector(selectDappOption)
   const theme = useSelector(selectTheme)
   const amount = useSelector(selectAmount)
-  const { totalFee, targetFee, sourceFee, kimaFee } =
+  const { transactionValues, sourceFee, targetFee, kimaFee, totalFee } =
     useSelector(selectServiceFee)
+  const txValues = feeDeduct
+    ? transactionValues.feeFromTarget
+    : transactionValues.feeFromOrigin
   const originNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
   const targetAddress = useSelector(selectTargetAddress)
@@ -167,9 +170,7 @@ const ConfirmDetails = ({
             <span>Source Transfer amount</span>
             <div className='coin-details'>
               <p>
-                {feeDeduct
-                  ? formatterFloat.format(Number(amount))
-                  : formatterFloat.format(Number(amount) + +totalFee)}{' '}
+                {formatBigInt(txValues.allowanceAmount)}
                 {sourceCurrency}
               </p>
             </div>
@@ -177,35 +178,23 @@ const ConfirmDetails = ({
           <div className='amount-details'>
             <span>Source Network Fee ({originNetwork.shortName})</span>
             <span className='service-fee'>
-              {formatterFloat.format(+sourceFee)} {sourceCurrency}
+              {formatBigInt(sourceFee)} {sourceCurrency}
             </span>
           </div>
           <div className='amount-details'>
             <span>Kima Service Fee</span>
-            <span className='service-fee'>
-              {formatterFloat.format(+kimaFee)} USD
-            </span>
+            <span className='service-fee'>{formatBigInt(kimaFee)} USD</span>
           </div>
           <div className='amount-details'>
             <span>Target Network Fee ({targetNetwork.shortName})</span>
             <span className='service-fee'>
-              {formatterFloat.format(+targetFee)} {sourceCurrency}
+              {formatBigInt(targetFee)} {sourceCurrency}
             </span>
           </div>
-          {/* TODO: Implement when the new service fee comes in
-          <div className='amount-details'>
-            <span>Business Fee ({originNetwork})</span>
-            <span className='service-fee'>
-              {formatterFloat.format(totalFeeUsd)} {sourceCurrency}
-            </span>
-          </div> */}
           <div className='amount-details'>
             <span>Target Transfer Amount</span>
             <span className='service-fee'>
-              {!feeDeduct
-                ? formatterFloat.format(Number(amount))
-                : formatterFloat.format(Number(amount) - +totalFee)}{' '}
-              {targetCurrency}
+              {formatBigInt(totalFee)} {targetCurrency}
             </span>
           </div>
         </span>
@@ -217,9 +206,6 @@ const ConfirmDetails = ({
             <p>{bankDetails.iban}</p>
             <span className={`kima-card-network-label ${theme.colorMode}`}>
               <ChainIcon symbol={targetNetworkOption?.shortName} />
-              {/* <div className='icon'>
-                <targetNetworkOption.icon />
-              </div> */}
               FIAT
             </span>
           </div>
@@ -252,7 +238,7 @@ const ConfirmDetails = ({
       )}
 
       {/* checkbox shall only be displayed in transfer scenario */}
-      {mode === ModeOptions.bridge && +totalFee > 0 ? (
+      {mode === ModeOptions.bridge && BigInt(totalFee.value) > BigInt(0) ? (
         // <FeeDeductionSlider />
         <FeeDeductionRadioButtons disabled={feeOptionDisabled} />
       ) : null}

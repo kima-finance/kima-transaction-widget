@@ -89,8 +89,6 @@ export interface OptionState {
   pendingTxData: Array<PendingTxData> // pending bitcoin transaction data
   networkOption: NetworkOptions // specify testnet or mainnet
   networks: ChainData[]
-  excludedSourceNetworks: Array<ChainName> // array of allowed strings or empty
-  excludedTargetNetworks: Array<ChainName> // array of allowed strings or empty
 }
 
 const initialState: OptionState = {
@@ -106,12 +104,14 @@ const initialState: OptionState = {
     ...arbitrumSepolia,
     shortName: 'ARB',
     supportedTokens: [],
+    supportedLocations: ['origin', 'target'],
     compatibility: ChainCompatibility.EVM
   },
   targetChain: {
     ...sepolia,
     shortName: 'SEP',
     supportedTokens: [],
+    supportedLocations: ['origin', 'target'],
     compatibility: ChainCompatibility.EVM
   },
   sourceAddress: '',
@@ -134,13 +134,55 @@ const initialState: OptionState = {
   feeDeduct: false,
   initChainFromProvider: false,
   serviceFee: {
-    allowanceAmount: '0',
-    submitAmount: '0',
-    totalFee: '0',
-    sourceFee: '0',
-    targetFee: '0',
-    kimaFee: '0',
-    decimals: 18
+    feeId: '',
+    sourceFee: {
+      value: BigInt(0),
+      decimals: 0
+    },
+    kimaFee: {
+      value: BigInt(0),
+      decimals: 0
+    },
+    targetFee: {
+      value: BigInt(0),
+      decimals: 0
+    },
+    totalFee: {
+      value: BigInt(0),
+      decimals: 0
+    },
+    transactionValues: {
+      originChain: '',
+      originAddress: '',
+      originSymbol: '',
+      targetChain: '',
+      targetAddress: '',
+      targetSymbol: '',
+      feeFromOrigin: {
+        allowanceAmount: {
+          value: BigInt(0),
+          decimals: 0
+        },
+        submitAmount: {
+          value: BigInt(0),
+          decimals: 0
+        },
+        message: ''
+      },
+      feeFromTarget: {
+        allowanceAmount: {
+          value: BigInt(0),
+          decimals: 0
+        },
+        submitAmount: {
+          value: BigInt(0),
+          decimals: 0
+        },
+        message: ''
+      }
+    },
+    peggedTo: '',
+    expiration: ''
   },
   backendUrl: '',
   txId: -1,
@@ -158,9 +200,7 @@ const initialState: OptionState = {
   signature: '',
   uuid: '',
   kycStatus: '',
-  expireTime: '1 hour',
-  excludedSourceNetworks: [],
-  excludedTargetNetworks: []
+  expireTime: '1 hour'
 }
 
 export const optionSlice = createSlice({
@@ -343,18 +383,6 @@ export const optionSlice = createSlice({
     },
     setExpireTime: (state: OptionState, action: PayloadAction<string>) => {
       state.expireTime = action.payload
-    },
-    setExcludedSourceNetworks: (
-      state: OptionState,
-      action: PayloadAction<Array<ChainName>>
-    ) => {
-      state.excludedSourceNetworks = action.payload
-    },
-    setExcludedTargetNetworks: (
-      state: OptionState,
-      action: PayloadAction<Array<ChainName>>
-    ) => {
-      state.excludedTargetNetworks = action.payload
     }
   }
 })
@@ -405,9 +433,7 @@ export const {
   setKYCStatus,
   setExpireTime,
   setPendingTxData,
-  setPendingTxs,
-  setExcludedSourceNetworks,
-  setExcludedTargetNetworks
+  setPendingTxs
 } = optionSlice.actions
 
 export default optionSlice.reducer

@@ -10,7 +10,6 @@ import {
   selectTargetCompliant,
   selectTargetChain,
   selectTheme,
-  selectTransactionOption,
   selectServiceFee,
   selectFeeDeduct,
   selectAmount,
@@ -22,19 +21,20 @@ import { BankInput, CoinDropdown, WalletButton } from './'
 import { setAmount } from '../../store/optionSlice'
 import { ModeOptions } from '../../interface'
 import AddressInput from './AddressInput'
-import { COIN_LIST, ChainName } from '../../utils/constants'
+import { ChainName } from '../../utils/constants'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
 import useGetFees from '../../hooks/useGetFees'
 import { setServiceFee } from '@store/optionSlice'
-import { preciseSubtraction } from '@utils/functions'
 import NetworkSelector from '@components/primary/NetworkSelector'
+import { parseUnits } from 'viem'
+import { formatBigInt } from 'src/helpers/functions'
 
 const SingleForm = ({
   balance,
   decimals
 }: {
-  allowance: number | undefined
-  balance: number | undefined
+  allowance: bigint | undefined
+  balance: bigint | undefined
   decimals: number | undefined
   formStep: number
   onBack: () => void
@@ -68,26 +68,22 @@ const SingleForm = ({
     data: fees,
     isLoading,
     error
-  } = useGetFees(
-    parseFloat(amount),
-    false,
-    sourceNetwork.shortName,
+  } = useGetFees({
+    amount: parseFloat(amount),
+    sourceNetwork: sourceNetwork.shortName,
     sourceAddress,
-    sourceCurrency,
-    targetNetwork.shortName,
+    sourceSymbol: sourceCurrency,
+    targetNetwork: targetNetwork.shortName,
     targetAddress,
-    targetCurrency,
+    targetSymbol: targetCurrency,
     backendUrl
-  )
+  })
 
   useEffect(() => {
     if (fees) {
       dispatch(setServiceFee(fees))
     }
   }, [fees, dispatch])
-
-  const TargetIcon =
-    COIN_LIST[targetCurrency || 'USDK']?.icon || COIN_LIST['USDK'].icon
 
   const errorMessage = useMemo(
     () =>
@@ -101,9 +97,10 @@ const SingleForm = ({
 
   const maxValue = useMemo(() => {
     if (!balance) return 0
-    if (+totalFee < 0) return balance
+    if (totalFee.value === BigInt(0)) return balance
 
-    return preciseSubtraction(balance as number, +totalFee)
+    const intAmount = parseUnits(amount, totalFee.decimals)
+    return balance - intAmount
   }, [balance, totalFee, feeDeduct])
 
   useEffect(() => {
@@ -121,7 +118,7 @@ const SingleForm = ({
       <div className='form-item'>
         <span className='label'>Source Network:</span>
         <div className='items'>
-          <NetworkSelector type='source' />
+          <NetworkSelector type='origin' />
           <CoinDropdown />
         </div>
       </div>
@@ -195,7 +192,9 @@ const SingleForm = ({
             >
               Max
             </span>
-            {+totalFee !== -1 && <p>Est fees: $ {totalFee} USD</p>}
+            {+totalFee !== -1 && (
+              <p>Est fees: $ {formatBigInt(totalFee)} USD</p>
+            )}
           </div>
         </div>
       </div>

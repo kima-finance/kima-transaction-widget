@@ -1,63 +1,51 @@
-import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 
 import {
-  selectErrorHandler,
   selectSourceChain,
   selectTokenOptions,
-  selectNetworkOption,
-  selectSourceCurrency
+  selectSourceCurrency,
+  selectBackendUrl,
+  selectNetworkOption
 } from '@store/selectors'
-import { NetworkOptions } from '@interface'
-import { isEmptyObject } from '../../helpers/functions'
-import { tronWebTestnet, tronWebMainnet } from '../../tronweb'
 import ERC20ABI from '../../utils/ethereum/erc20ABI.json'
-import { formatUnits } from 'ethers'
+import { GetTokenAllowanceResult } from '../../../pluginTypes'
+import { getTokenAllowance } from '../../utils/getTokenAllowance'
+import { useQuery } from '@tanstack/react-query'
+import { useTronProvider } from './useTronProvider'
+import useGetPools from '../../../../src/hooks/useGetPools'
 
-export default function useBalance() {
-  const [balance, setBalance] = useState<number>(0)
-  const { address: tronAddress } = useTronWallet()
+const emptyResult = {} as GetTokenAllowanceResult
 
-  const errorHandler = useSelector(selectErrorHandler)
+export default function useBalance(): GetTokenAllowanceResult {
+  const selectedCoin = useSelector(selectSourceCurrency)
   const sourceChain = useSelector(selectSourceChain)
-  const sourceCurrency = useSelector(selectSourceCurrency)
+  const networkOptions = useSelector(selectNetworkOption)
   const tokenOptions = useSelector(selectTokenOptions)
-  const networkOption = useSelector(selectNetworkOption)
+  const backendUrl = useSelector(selectBackendUrl)
+  const { pools } = useGetPools(backendUrl, networkOptions)
+  const { tronWeb, userAddress } = useTronProvider()
 
-  const tokenAddress = useMemo(() => {
-    if (isEmptyObject(tokenOptions)) return ''
-    const coinOptions = tokenOptions[sourceCurrency]
-    if (coinOptions && typeof coinOptions === 'object') {
-      return coinOptions[sourceChain]
-    }
-    return ''
-  }, [sourceCurrency, sourceChain, tokenOptions])
+  const { data: allowanceData } = useQuery({
+    queryKey: ['tronAllowance', userAddress],
+    queryFn: async () =>
+      await getTokenAllowance({
+        tokenOptions,
+        selectedCoin,
+        userAddress: userAddress!,
+        pools,
+        tronWeb,
+        abi: ERC20ABI
+      }),
+    refetchInterval: 1000 * 60, // 1 min
+    enabled:
+      !!tokenOptions &&
+      !!selectedCoin &&
+      !!userAddress &&
+      !!tronWeb &&
+      pools.length > 0 &&
+      sourceChain.shortName === 'TRX',
+    staleTime: 1000 * 60 // 1 min
+  })
 
-  useEffect(() => {
-    setBalance(0)
-  }, [sourceChain])
-
-  useEffect(() => {
-    ;(async () => {
-      if (!tokenAddress || sourceChain !== 'TRX' || !tronAddress) return
-      const tronWeb =
-        networkOption === NetworkOptions.mainnet
-          ? tronWebMainnet
-          : tronWebTestnet
-      try {
-        const trc20Contract = await tronWeb.contract(ERC20ABI.abi, tokenAddress)
-        const [decimals, userBalance] = await Promise.all([
-          trc20Contract.decimals().call(),
-          trc20Contract.balanceOf(tronAddress).call()
-        ])
-
-        setBalance(+formatUnits(userBalance.balance, decimals))
-      } catch (error) {
-        errorHandler(error)
-      }
-    })()
-  }, [tronAddress, tokenAddress, sourceChain, networkOption])
-
-  return useMemo(() => ({ balance }), [balance])
+  return allowanceData ?? emptyResult
 }
