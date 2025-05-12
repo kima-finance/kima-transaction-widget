@@ -43,7 +43,9 @@ const useGetFees = ({
       console.log('useGetFees: ', {
         amount,
         sourceNetwork,
-        targetNetwork
+        targetNetwork,
+        sourceAddress,
+        targetAddress
       })
       return await getFees(
         amount!,
