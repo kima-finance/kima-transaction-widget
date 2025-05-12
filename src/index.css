@@ -1033,6 +1033,26 @@
     align-items: start;
   }
 }
+.kima-card .kima-card-content .single-form .form-item .max-disclaimer .fee-amount {
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+}
+.kima-card .kima-card-content .single-form .form-item .max-disclaimer .fee-amount .loading {
+  animation: pulse 1.5s ease-in-out infinite;
+  margin-top: auto;
+  margin-bottom: auto;
+  display: inline-block;
+  width: 80px;
+  height: 15px;
+  background-color: rgba(119, 141, 163, 0.3019607843);
+  border-radius: 4px;
+  color: transparent;
+  pointer-events: none;
+  user-select: none;
+}
 .kima-card .kima-card-content .single-form .form-item .amount-label-container {
   display: flex;
 }
@@ -3055,6 +3075,19 @@
   display: flex;
   flex-direction: column;
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1), color 0ms, background-color 0ms, border-color 0ms;
+}
+.kima-card-content .cc-widget {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  height: 950px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+@media (max-width: 675px) {
+  .kima-card-content .cc-widget {
+    height: 1100px;
+  }
 }
 .kima-card-content .cc-widget.loading {
   width: 70vw;
