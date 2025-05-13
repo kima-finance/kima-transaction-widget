@@ -180,6 +180,19 @@ const SingleForm = ({
         )
       ) : null}
 
+      {mode === ModeOptions.light && (
+        <div
+          className={`form-item wallet-button-item ${!initialSelection.targetSelection && 'connected'}`}
+          style={{display: "flex", alignItems: "center"}}
+        >
+          <span className='label'>Target Wallet:</span>
+          <WalletButton
+            initialSelection={initialSelection.targetSelection}
+            placeholder={true}
+          />
+        </div>
+      )}
+
       <div className={`form-item ${theme.colorMode}`}>
         <span className='label'>Amount:</span>
         <div className={`amount-label-container items ${theme.colorMode}`}>

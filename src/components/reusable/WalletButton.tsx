@@ -33,10 +33,12 @@ import log from '@utils/logger'
 
 const WalletButton = ({
   errorBelow = false,
-  initialSelection
+  initialSelection,
+  placeholder = false
 }: {
   errorBelow?: boolean
   initialSelection: boolean
+  placeholder?: boolean
 }) => {
   const dispatch = useDispatch()
   const theme = useSelector(selectTheme)
@@ -83,7 +85,7 @@ const WalletButton = ({
     log.debug('Handling click')
 
     // TODO: Refactor to use evm account details modal
-    if (externalProvider || initialSelection) return
+    if (externalProvider || initialSelection || placeholder) return
 
     if (selectedNetwork.shortName === ChainName.SOLANA) {
       log.debug('Handling click: Case SOL', 1)
@@ -175,10 +177,10 @@ const WalletButton = ({
             'Connect Wallet'}
         </button>
 
-        {isConnected && <CopyButton text={connectedAddress as string} />}
+        {isConnected && !placeholder && <CopyButton text={connectedAddress as string} />}
       </div>
 
-      {isConnected && balance !== undefined ? (
+      {isConnected && !placeholder && balance !== undefined ? (
         <p className='balance-info'>
           {formatUSD(balance)} {selectedCoin} available
         </p>
