@@ -2011,7 +2011,8 @@ var getEnvOptions = async ({
   if (typeof response === "string")
     return {
       env: "testnet" /* testnet */,
-      kimaExplorer: "https://explorer.sardis.kima.network"
+      kimaExplorer: "https://explorer.sardis.kima.network",
+      paymentPartnerId: "KimaTest"
     };
   return response;
 };
@@ -6434,6 +6435,10 @@ var CCWidget = () => {
   const { transactionValues } = useSelector42(selectServiceFee);
   const randomUserIdRef = useRef7(uuidv4());
   const ccTransactionIdSeedRef = useRef7(uuidv4());
+  const { data: envOptions, isLoading: isEnvLoading } = useGetEnvOptions({
+    kimaBackendUrl: backendUrl
+  });
+  const partnerId = envOptions?.paymentPartnerId;
   const {
     data,
     isLoading: isTransactionIdLoading,
@@ -6452,16 +6457,12 @@ var CCWidget = () => {
     () => `https://widget${networkOption === "testnet" /* testnet */ ? "-sandbox" : ""}.depasify.com`,
     [networkOption]
   );
-  const partnerId = useMemo20(
-    () => `Kima${networkOption === "testnet" /* testnet */ ? "Test" : "Stage"}`,
-    [networkOption]
-  );
   useEffect20(() => {
     const handleMessage = (event) => {
       if (event.origin !== baseUrl) {
         return;
       }
-      console.log("postMessage: new message: ", event);
+      logger_default.info("postMessage: new message: ", event);
       if (event.data.type === "isCompleted") {
         dispatch(setCCTransactionStatus("success"));
       }
@@ -6469,12 +6470,12 @@ var CCWidget = () => {
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
   }, []);
-  return /* @__PURE__ */ React114.createElement("div", { className: `cc-widget ${isLoading ? "loading" : ""}` }, (isLoading || isTransactionIdLoading || ccTransactionStatus === "success") && /* @__PURE__ */ React114.createElement("div", { className: "cc-widget-loader" }, /* @__PURE__ */ React114.createElement(ring_default, { width: 50, height: 50, fill: "#86b8ce" })), /* @__PURE__ */ React114.createElement(
+  return /* @__PURE__ */ React114.createElement("div", { className: `cc-widget ${isLoading ? "loading" : ""}` }, (isLoading || isTransactionIdLoading || isEnvLoading || ccTransactionStatus === "success") && /* @__PURE__ */ React114.createElement("div", { className: "cc-widget-loader" }, /* @__PURE__ */ React114.createElement(ring_default, { width: 50, height: 50, fill: "#86b8ce" })), /* @__PURE__ */ React114.createElement(
     "iframe",
     {
       width: isLoading || isTransactionIdLoading || ccTransactionStatus === "success" ? 0 : "100%",
       height: isLoading || isTransactionIdLoading || ccTransactionStatus === "success" ? 0 : "100%",
-      src: `${baseUrl}/widgets/kyc?partner=${partnerId}&user_uuid=${randomUserIdRef.current}&scenario=direct_card_payment&amount=${allowanceAmount}&currency=USD&trx_uuid=${data?.transactionId}&postmessage=true`,
+      src: `${baseUrl}/widgets/kyc?partner=${partnerId}&user_uuid=${randomUserIdRef.current}&amount=${allowanceAmount}&currency=USD&trx_uuid=${data?.transactionId}&postmessage=true`,
       loading: "lazy",
       title: "Credit Card Widget",
       onLoad: () => setIsLoading(false),
