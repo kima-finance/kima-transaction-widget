@@ -132,20 +132,20 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
 
   const handleNetworkChange = (chain: ChainData) => {
     if (isSourceSelector) {
+      dispatch(setSourceChain(chain))
       if (chain.id !== sourceNetwork?.id) {
-        dispatch(setSourceChain(chain))
         switchChainHandler && switchChainHandler(chain)
       }
     } else {
-      if (chain.shortName !== targetNetwork?.shortName) {
-        dispatch(setTargetChain(chain))
-        const chainCompatibility: DemoChainKey =
-          chain.compatibility === ChainCompatibility.EVM
-            ? 'EVM'
-            : (chain.shortName as DemoChainKey)
+      dispatch(setTargetChain(chain))
+      const chainCompatibility: DemoChainKey =
+        chain.compatibility === ChainCompatibility.EVM
+          ? 'EVM'
+          : (chain.shortName as DemoChainKey)
 
-        if (mode === ModeOptions.light)
-          dispatch(setTargetAddress(lightDemoAccounts[chainCompatibility]))
+      if (mode === ModeOptions.light) {
+        console.log('dispatching target address from network selector..')
+        dispatch(setTargetAddress(lightDemoAccounts[chainCompatibility]))
       }
     }
 

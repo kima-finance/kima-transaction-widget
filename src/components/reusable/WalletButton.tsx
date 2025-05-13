@@ -12,7 +12,8 @@ import {
   selectSourceChain,
   selectSourceCompliant,
   selectTheme,
-  selectMode
+  selectMode,
+  selectTargetAddress
 } from '../../store/selectors'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
 import { ChainName } from '../../utils/constants'
@@ -47,6 +48,7 @@ const WalletButton = ({
   const sourceCompliant = useSelector(selectSourceCompliant)
   const compliantOption = useSelector(selectCompliantOption)
   const selectedNetwork = useSelector(selectSourceChain)
+  const targetAddress = useSelector(selectTargetAddress)
   const { externalProvider } = useKimaContext()
   const { connected: isSolanaConnected } = useSolanaWallet()
   const { connected: isTronConnected } = useTronWallet()
@@ -85,7 +87,13 @@ const WalletButton = ({
     log.debug('Handling click')
 
     // TODO: Refactor to use evm account details modal
-    if (externalProvider || initialSelection || placeholder) return
+    if (
+      externalProvider ||
+      initialSelection ||
+      placeholder ||
+      mode === ModeOptions.light
+    )
+      return
 
     if (selectedNetwork.shortName === ChainName.SOLANA) {
       log.debug('Handling click: Case SOL', 1)
@@ -141,8 +149,16 @@ const WalletButton = ({
   }, [isReady, initialSelection])
 
   useEffect(() => {
-    if (!isConnected) dispatch(setSourceAddress(''))
-  }, [isConnected])
+    if (!isReady) {
+      console.log(
+        'resetting source address from wallet button and light mode...: ', isReady
+      )
+      dispatch(setSourceAddress(''))
+      return
+    }
+
+    dispatch(setSourceAddress(connectedAddress as string))
+  }, [isReady])
 
   return (
     <div
@@ -156,7 +172,13 @@ const WalletButton = ({
           className={`${isConnected ? 'connected' : 'disconnected'} ${width < 640 && 'shortened'} ${theme.colorMode}`}
           onClick={handleClick}
         >
-          {isConnected
+          {placeholder &&
+            !initialSelection &&
+            (width >= 640
+              ? `${targetAddress || ''}`
+              : getShortenedAddress(targetAddress || ''))}
+
+          {isConnected && !placeholder
             ? width >= 640
               ? `${connectedAddress || ''}`
               : getShortenedAddress(connectedAddress || '')
@@ -177,7 +199,9 @@ const WalletButton = ({
             'Connect Wallet'}
         </button>
 
-        {isConnected && !placeholder && <CopyButton text={connectedAddress as string} />}
+        {isConnected && !placeholder && (
+          <CopyButton text={connectedAddress as string} />
+        )}
       </div>
 
       {isConnected && !placeholder && balance !== undefined ? (

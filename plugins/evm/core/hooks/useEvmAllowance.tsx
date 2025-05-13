@@ -80,6 +80,8 @@ export default function useEvmAllowance() {
       !!appkitProvider ||
       mode === ModeOptions.light)
 
+  // console.log("enabled: ", enabled)
+
   // console.log({
   //   walletAddress,
   //   tokenOptions,

@@ -1,3 +1,5 @@
+import { ChainName } from "@utils/constants"
+
 export const formatterInt = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 0
 })
@@ -29,4 +31,37 @@ export const formatUSD = (amount: number | string): string => {
     style: 'currency',
     currency: 'USD'
   })
+}
+
+const isEVM = (shortName: string) =>
+  [
+    ChainName.ETHEREUM,
+    ChainName.POLYGON,
+    ChainName.AVALANCHE,
+    ChainName.BSC,
+    ChainName.OPTIMISM,
+    ChainName.ARBITRUM,
+    ChainName.POLYGON_ZKEVM,
+    ChainName.BASE,
+    ChainName.BERA
+  ].includes(shortName as ChainName)
+
+export const isSolana = (shortName: string) => shortName === ChainName.SOLANA
+export const isTron = (shortName: string) => shortName === ChainName.TRON
+
+
+export const isAddressCompatible = (address: string, shortName: string): boolean => {
+  if (isEVM(shortName)) {
+    return /^0x[a-fA-F0-9]{40}$/.test(address)
+  }
+
+  if (isSolana(shortName)) {
+    return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address)
+  }
+
+  if (isTron(shortName)) {
+    return /^T[a-zA-Z0-9]{33}$/.test(address)
+  }
+
+  return false
 }

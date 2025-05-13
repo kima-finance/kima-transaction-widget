@@ -148,6 +148,7 @@ export const TransferWidget = ({
   const { validate } = useValidateTransaction({
     allowance,
     isApproved,
+    sourceChain: sourceChain.shortName,
     sourceAddress,
     targetAddress,
     targetChain: targetChain.shortName,

@@ -2,6 +2,7 @@ import { checkPoolBalance, preciseSubtraction } from '@utils/functions'
 import { ModeOptions, NetworkFee } from '@interface'
 import { useMemo } from 'react'
 import log from '@utils/logger'
+import { isAddressCompatible } from 'src/helpers/functions'
 
 export enum ValidationError {
   Error = 'ValidationError',
@@ -13,6 +14,7 @@ export enum ValidationError {
 const useValidateTransaction = ({
   allowance,
   isApproved,
+  sourceChain,
   sourceAddress,
   targetAddress,
   targetChain,
@@ -31,6 +33,7 @@ const useValidateTransaction = ({
 }: {
   allowance: number
   isApproved: boolean
+  sourceChain: string
   sourceAddress: string
   targetAddress: string
   targetChain: string
@@ -78,6 +81,10 @@ const useValidateTransaction = ({
       }
     }
 
+    if (!isAddressCompatible(targetAddress, sourceChain)) {
+      return { error: ValidationError.Error, message: 'The provided target address is invalid' }
+    }
+    
     if (+amount <= 0) {
       return {
         error: ValidationError.Error,
@@ -88,6 +95,7 @@ const useValidateTransaction = ({
     if (totalFeeUsd < 0) {
       return { error: ValidationError.Error, message: 'Fee calculation error' }
     }
+
 
     if (compliantOption) {
       if (!sourceCompliant?.isCompliant) {

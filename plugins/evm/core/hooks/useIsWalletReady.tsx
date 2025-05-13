@@ -153,6 +153,8 @@ function useIsWalletReady(): {
     dispatch
   ])
 
+  // console.log({isReady, statusMessage, connectedAddress})
+
   return { isReady, statusMessage, connectedAddress }
 }
 
