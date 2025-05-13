@@ -48,6 +48,8 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const { width, updateWidth } = useWidth()
   useHideWuiListItem(isModalOpen)
 
+  console.log({isReady, statusMessage, connectedAddress})
+
   const { kimaBackendUrl } = useKimaContext()
   const { data: envOptions } = useGetEnvOptions({ kimaBackendUrl })
   const networkOption = envOptions?.env || NetworkOptions.testnet

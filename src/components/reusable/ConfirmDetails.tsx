@@ -17,7 +17,8 @@ import {
   selectDappOption,
   selectSourceCurrency,
   selectTargetCurrency,
-  selectNetworks
+  selectNetworks,
+  selectSourceAddress
 } from '@store/selectors'
 import { ChainName } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
@@ -38,7 +39,6 @@ const ConfirmDetails = ({
   const mode = useSelector(selectMode)
   const dAppOption = useSelector(selectDappOption)
   const theme = useSelector(selectTheme)
-  const amount = useSelector(selectAmount)
   const { transactionValues, sourceFee, targetFee, kimaFee, totalFee } =
     useSelector(selectServiceFee)
   const txValues = feeDeduct
@@ -46,6 +46,7 @@ const ConfirmDetails = ({
     : transactionValues.feeFromOrigin
   const originNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
+  const sourceAddress = useSelector(selectSourceAddress)
   const targetAddress = useSelector(selectTargetAddress)
   const bankDetails = useSelector(selectBankDetails)
   const signature = useSelector(selectSignature)
@@ -78,20 +79,6 @@ const ConfirmDetails = ({
   useEffect(() => {
     width === 0 && updateWidth(window.innerWidth)
   }, [])
-
-  const sourceWalletAddress = useMemo(() => {
-    return width >= 916
-      ? connectedAddress
-      : getShortenedAddress(connectedAddress || '')
-  }, [width, connectedAddress])
-
-  const targetWalletAddress = useMemo(() => {
-    return getShortenedAddress(
-      (mode === ModeOptions.payment
-        ? transactionOption?.targetAddress
-        : targetAddress) || ''
-    )
-  }, [mode, transactionOption, targetAddress])
 
   // const amountToShow = useMemo(() => {
   //   if (
@@ -154,13 +141,9 @@ const ConfirmDetails = ({
             </div>
             {originNetwork.shortName !== 'CC' && (
               <p className={theme.colorMode}>
-                {width >= 916
-                  ? dAppOption === DAppOptions.LPDrain
-                    ? targetAddress
-                    : connectedAddress
-                  : dAppOption === DAppOptions.LPDrain
-                    ? targetWalletAddress
-                    : connectedAddress}
+                {dAppOption === DAppOptions.LPDrain
+                  ? targetAddress
+                  : connectedAddress}
               </p>
             )}
           </div>
@@ -172,8 +155,7 @@ const ConfirmDetails = ({
             <span>Amount to Transfer </span>
             <div className='coin-details'>
               <p>
-                {formatBigInt(txValues.allowanceAmount)}{' '}
-                {sourceCurrency}
+                {formatBigInt(txValues.allowanceAmount)} {sourceCurrency}
               </p>
             </div>
           </div>
@@ -254,13 +236,9 @@ const ConfirmDetails = ({
               </span>
             </div>
             <p className={theme.colorMode}>
-              {width >= 916
-                ? dAppOption === DAppOptions.LPDrain
-                  ? connectedAddress
-                  : targetAddress
-                : dAppOption === DAppOptions.LPDrain
-                  ? sourceWalletAddress
-                  : targetWalletAddress}
+              {dAppOption === DAppOptions.LPDrain
+                ? connectedAddress
+                : targetAddress}
             </p>
           </div>
         </div>

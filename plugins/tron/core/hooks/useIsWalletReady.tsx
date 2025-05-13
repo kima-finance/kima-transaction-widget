@@ -9,11 +9,11 @@ import { useKimaContext } from '../../../../src/KimaProvider'
 const createWalletStatus = (
   isReady: boolean,
   statusMessage: string = '',
-  walletAddress?: string
+  connectedAddress?: string
 ) => ({
   isReady,
   statusMessage,
-  walletAddress
+  connectedAddress
 })
 
 function useIsWalletReady(): {
@@ -42,9 +42,9 @@ function useIsWalletReady(): {
       )
 
     if (internalTronAddress)
-      return createWalletStatus(true, undefined, internalTronAddress)
+      return createWalletStatus(true, 'Connected with internal provider', internalTronAddress)
 
-    return createWalletStatus(false, 'Solana wallet not connected', '')
+    return createWalletStatus(false, 'Tron wallet not connected', '')
   }, [sourceChain, internalTronAddress, externalProvider])
 }
 
