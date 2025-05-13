@@ -138,6 +138,10 @@ const WalletButton = ({
     return isReady && !initialSelection
   }, [isReady, initialSelection])
 
+  useEffect(() => {
+    if (!isConnected) dispatch(setSourceAddress(''))
+  }, [isConnected])
+
   return (
     <div
       className={`wallet-button ${isConnected ? 'connected' : 'disconnected'} ${theme.colorMode} ${

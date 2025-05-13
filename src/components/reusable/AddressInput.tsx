@@ -49,7 +49,7 @@ const AddressInput = ({
     if (mode === ModeOptions.payment) return
 
     // when both source and target addresses are compatible
-    if (isCompatible(sourceChain, targetChain)) {
+    if (isCompatible(sourceChain, targetChain) && isReady) {
       // previous manual input
       if (targetAddress !== '') return
 
@@ -64,7 +64,7 @@ const AddressInput = ({
     // when the source or target chain is not EVM, the address
     // formats may not be compatible, so reset the target address
     dispatch(setTargetAddress(''))
-  }, [sourceChain, targetChain, sourceAddress, isReady, mode, dispatch])
+  }, [sourceChain, targetChain, sourceAddress, targetAddress, isReady, mode, dispatch])
 
   return (
     <input
