@@ -5,6 +5,7 @@ import { fetchWrapper } from 'src/helpers/fetch-wrapper'
 export interface EnvOptions {
   env: NetworkOptions
   kimaExplorer: string
+  paymentPartnerId: string
 }
 
 const getEnvOptions = async ({
@@ -17,7 +18,8 @@ const getEnvOptions = async ({
   if (typeof response === 'string')
     return {
       env: NetworkOptions.testnet,
-      kimaExplorer: 'https://explorer.sardis.kima.network'
+      kimaExplorer: 'https://explorer.sardis.kima.network',
+      paymentPartnerId: 'KimaTest'
     }
 
   return response as EnvOptions

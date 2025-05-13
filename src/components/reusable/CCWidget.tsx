@@ -13,6 +13,8 @@ import { formatBigInt } from 'src/helpers/functions'
 import { v4 as uuidv4 } from 'uuid'
 import { useCCTransactionId } from '../../hooks/useCCTransactionId'
 import { NetworkOptions } from '@interface'
+import { useGetEnvOptions } from '../../hooks/useGetEnvOptions'
+import log from '@utils/logger'
 
 const CCWidget = () => {
   const dispatch = useDispatch()
@@ -24,6 +26,10 @@ const CCWidget = () => {
   const { transactionValues } = useSelector(selectServiceFee)
   const randomUserIdRef = useRef(uuidv4())
   const ccTransactionIdSeedRef = useRef(uuidv4())
+  const { data: envOptions, isLoading: isEnvLoading } = useGetEnvOptions({
+    kimaBackendUrl: backendUrl
+  })
+  const partnerId = envOptions?.paymentPartnerId
 
   const {
     data,
@@ -52,20 +58,14 @@ const CCWidget = () => {
     [networkOption]
   )
 
-  // IMPORTANT: for staging use KimaStage
-  const partnerId = useMemo(
-    () => `Kima${networkOption === NetworkOptions.testnet ? 'Test' : 'Stage'}`,
-    [networkOption]
-  )
-
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.origin !== baseUrl) {
-        // console.log("event origin missmatch: ", event.origin)
-        // console.log("event: ", event)
+        // log.debug("event origin missmatch: ", event.origin)
+        // log.debug("event: ", event)
         return
       }
-      console.log('postMessage: new message: ', event)
+      log.info('postMessage: new message: ', event)
       if (event.data.type === 'isCompleted') {
         // set the transaction to success
         dispatch(setCCTransactionStatus('success'))
@@ -80,6 +80,7 @@ const CCWidget = () => {
     <div className={`cc-widget ${isLoading ? 'loading' : ''}`}>
       {(isLoading ||
         isTransactionIdLoading ||
+        isEnvLoading ||
         ccTransactionStatus === 'success') && (
         <div className='cc-widget-loader'>
           <Loading180Ring width={50} height={50} fill='#86b8ce' />
