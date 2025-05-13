@@ -70,6 +70,11 @@ const CCWidget = () => {
         // set the transaction to success
         dispatch(setCCTransactionStatus('success'))
       }
+
+      if (event.data.type === 'isFailed') {
+        // set the transaction to success
+        dispatch(setCCTransactionStatus('failed'))
+      }
     }
 
     window.addEventListener('message', handleMessage)
