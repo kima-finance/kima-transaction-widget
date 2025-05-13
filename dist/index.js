@@ -3315,10 +3315,10 @@ import { useEffect as useEffect3, useMemo as useMemo2 } from "react";
 import { useWallet as useSolanaWallet } from "@solana/wallet-adapter-react";
 import { useSelector as useSelector9 } from "react-redux";
 import { useDispatch as useDispatch3 } from "react-redux";
-var createWalletStatus = (isReady, statusMessage = "", walletAddress) => ({
+var createWalletStatus = (isReady, statusMessage = "", connectedAddress) => ({
   isReady,
   statusMessage,
-  walletAddress
+  connectedAddress
 });
 function useIsWalletReady2() {
   const dispatch = useDispatch3();
@@ -3336,7 +3336,7 @@ function useIsWalletReady2() {
         externalProvider.signer.toBase58()
       );
     if (solanaAddress)
-      return createWalletStatus(true, void 0, solanaAddress.toBase58());
+      return createWalletStatus(true, "Connected with internal provider", solanaAddress.toBase58());
     return createWalletStatus(false, "Solana wallet not connected", "");
   }, [sourceChain, solanaAddress]);
 }
@@ -3907,10 +3907,10 @@ import { useEffect as useEffect4, useMemo as useMemo6 } from "react";
 import { useWallet as useTronWallet } from "@tronweb3/tronwallet-adapter-react-hooks";
 import { useDispatch as useDispatch4 } from "react-redux";
 import { useSelector as useSelector14 } from "react-redux";
-var createWalletStatus2 = (isReady, statusMessage = "", walletAddress) => ({
+var createWalletStatus2 = (isReady, statusMessage = "", connectedAddress) => ({
   isReady,
   statusMessage,
-  walletAddress
+  connectedAddress
 });
 function useIsWalletReady3() {
   const dispatch = useDispatch4();
@@ -3928,8 +3928,8 @@ function useIsWalletReady3() {
         externalProvider.signer
       );
     if (internalTronAddress)
-      return createWalletStatus2(true, void 0, internalTronAddress);
-    return createWalletStatus2(false, "Solana wallet not connected", "");
+      return createWalletStatus2(true, "Connected with internal provider", internalTronAddress);
+    return createWalletStatus2(false, "Tron wallet not connected", "");
   }, [sourceChain, internalTronAddress, externalProvider]);
 }
 var useIsWalletReady_default3 = useIsWalletReady3;
@@ -4587,6 +4587,7 @@ var WalletButton = ({ errorBelow = false }) => {
   const { open: isModalOpen } = useAppKitState();
   const { width, updateWidth } = useWidth_default();
   useHideActivityTab_default(isModalOpen);
+  console.log({ isReady, statusMessage, connectedAddress });
   const { kimaBackendUrl } = useKimaContext();
   const { data: envOptions } = useGetEnvOptions({ kimaBackendUrl });
   const networkOption = envOptions?.env || "testnet" /* testnet */;
@@ -4865,11 +4866,11 @@ var ConfirmDetails = ({
   const mode = useSelector25(selectMode);
   const dAppOption = useSelector25(selectDappOption);
   const theme = useSelector25(selectTheme);
-  const amount = useSelector25(selectAmount);
   const { transactionValues, sourceFee, targetFee, kimaFee, totalFee } = useSelector25(selectServiceFee);
   const txValues = feeDeduct ? transactionValues.feeFromTarget : transactionValues.feeFromOrigin;
   const originNetwork = useSelector25(selectSourceChain);
   const targetNetwork = useSelector25(selectTargetChain);
+  const sourceAddress = useSelector25(selectSourceAddress);
   const targetAddress = useSelector25(selectTargetAddress);
   const bankDetails = useSelector25(selectBankDetails);
   const signature = useSelector25(selectSignature);
@@ -4893,15 +4894,7 @@ var ConfirmDetails = ({
   useEffect13(() => {
     width === 0 && updateWidth(window.innerWidth);
   }, []);
-  const sourceWalletAddress = useMemo10(() => {
-    return width >= 916 ? connectedAddress : getShortenedAddress(connectedAddress || "");
-  }, [width, connectedAddress]);
-  const targetWalletAddress = useMemo10(() => {
-    return getShortenedAddress(
-      (mode === "payment" /* payment */ ? transactionOption?.targetAddress : targetAddress) || ""
-    );
-  }, [mode, transactionOption, targetAddress]);
-  return /* @__PURE__ */ React96.createElement("div", { className: `confirm-details ${theme.colorMode}` }, /* @__PURE__ */ React96.createElement("p", null, "Step ", isApproved ? "2" : "1", "\xA0of 2\xA0\xA0\xA0", isApproved ? "Submit transaction" : originNetwork.shortName === "FIAT" /* FIAT */ ? "Bank Details" : "Approval"), originNetwork.shortName === "FIAT" /* FIAT */ ? /* @__PURE__ */ React96.createElement("div", null, /* @__PURE__ */ React96.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React96.createElement("span", { className: "label" }, "IBAN:"), /* @__PURE__ */ React96.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ React96.createElement(ChainIcon, { symbol: originNetworkOption?.shortName }), "FIAT"), /* @__PURE__ */ React96.createElement("p", null, "ES6621000418401234567891")), /* @__PURE__ */ React96.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React96.createElement("span", { className: "label" }, "Recipient:"), /* @__PURE__ */ React96.createElement("p", null, "Kima Sandbox")), /* @__PURE__ */ React96.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React96.createElement("span", { className: "label" }, "BIC:"), /* @__PURE__ */ React96.createElement("p", null, "CAIXESBBXXX")), /* @__PURE__ */ React96.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React96.createElement("span", { className: "label" }, "Description:"), /* @__PURE__ */ React96.createElement("p", { className: "signature" }, signature))) : /* @__PURE__ */ React96.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React96.createElement("span", { className: "label" }, "Source ", originNetwork.shortName !== "CC" && "wallet", ":"), /* @__PURE__ */ React96.createElement("div", { className: "network-details" }, /* @__PURE__ */ React96.createElement("div", { className: "kima-card-network-container" }, /* @__PURE__ */ React96.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ React96.createElement(ChainIcon, { symbol: originNetworkOption?.shortName }), originNetworkOption.name)), originNetwork.shortName !== "CC" && /* @__PURE__ */ React96.createElement("p", { className: theme.colorMode }, width >= 916 ? dAppOption === "LPDrain" /* LPDrain */ ? targetAddress : connectedAddress : dAppOption === "LPDrain" /* LPDrain */ ? targetWalletAddress : connectedAddress))), /* @__PURE__ */ React96.createElement("div", { className: "detail-item amount" }, /* @__PURE__ */ React96.createElement("span", { className: "amount-container" }, /* @__PURE__ */ React96.createElement("div", { className: "amount-details" }, /* @__PURE__ */ React96.createElement("span", null, "Amount to Transfer "), /* @__PURE__ */ React96.createElement("div", { className: "coin-details" }, /* @__PURE__ */ React96.createElement("p", null, formatBigInt(txValues.allowanceAmount), " ", sourceCurrency))), /* @__PURE__ */ React96.createElement("div", { className: "amount-details" }, /* @__PURE__ */ React96.createElement("span", null, "Total Fees"), /* @__PURE__ */ React96.createElement(
+  return /* @__PURE__ */ React96.createElement("div", { className: `confirm-details ${theme.colorMode}` }, /* @__PURE__ */ React96.createElement("p", null, "Step ", isApproved ? "2" : "1", "\xA0of 2\xA0\xA0\xA0", isApproved ? "Submit transaction" : originNetwork.shortName === "FIAT" /* FIAT */ ? "Bank Details" : "Approval"), originNetwork.shortName === "FIAT" /* FIAT */ ? /* @__PURE__ */ React96.createElement("div", null, /* @__PURE__ */ React96.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React96.createElement("span", { className: "label" }, "IBAN:"), /* @__PURE__ */ React96.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ React96.createElement(ChainIcon, { symbol: originNetworkOption?.shortName }), "FIAT"), /* @__PURE__ */ React96.createElement("p", null, "ES6621000418401234567891")), /* @__PURE__ */ React96.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React96.createElement("span", { className: "label" }, "Recipient:"), /* @__PURE__ */ React96.createElement("p", null, "Kima Sandbox")), /* @__PURE__ */ React96.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React96.createElement("span", { className: "label" }, "BIC:"), /* @__PURE__ */ React96.createElement("p", null, "CAIXESBBXXX")), /* @__PURE__ */ React96.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React96.createElement("span", { className: "label" }, "Description:"), /* @__PURE__ */ React96.createElement("p", { className: "signature" }, signature))) : /* @__PURE__ */ React96.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React96.createElement("span", { className: "label" }, "Source ", originNetwork.shortName !== "CC" && "wallet", ":"), /* @__PURE__ */ React96.createElement("div", { className: "network-details" }, /* @__PURE__ */ React96.createElement("div", { className: "kima-card-network-container" }, /* @__PURE__ */ React96.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ React96.createElement(ChainIcon, { symbol: originNetworkOption?.shortName }), originNetworkOption.name)), originNetwork.shortName !== "CC" && /* @__PURE__ */ React96.createElement("p", { className: theme.colorMode }, dAppOption === "LPDrain" /* LPDrain */ ? targetAddress : connectedAddress))), /* @__PURE__ */ React96.createElement("div", { className: "detail-item amount" }, /* @__PURE__ */ React96.createElement("span", { className: "amount-container" }, /* @__PURE__ */ React96.createElement("div", { className: "amount-details" }, /* @__PURE__ */ React96.createElement("span", null, "Amount to Transfer "), /* @__PURE__ */ React96.createElement("div", { className: "coin-details" }, /* @__PURE__ */ React96.createElement("p", null, formatBigInt(txValues.allowanceAmount), " ", sourceCurrency))), /* @__PURE__ */ React96.createElement("div", { className: "amount-details" }, /* @__PURE__ */ React96.createElement("span", null, "Total Fees"), /* @__PURE__ */ React96.createElement(
     "div",
     {
       className: "fee-collapse",
@@ -4919,7 +4912,7 @@ var ConfirmDetails = ({
       }
     ),
     /* @__PURE__ */ React96.createElement("span", { className: "service-fee" }, formatBigInt(totalFee), " ", sourceCurrency)
-  )), /* @__PURE__ */ React96.createElement("div", { className: `fee-breakdown ${feeCollapsed ? "collapsed" : ""}` }, /* @__PURE__ */ React96.createElement("div", { className: "amount-details" }, /* @__PURE__ */ React96.createElement("span", null, originNetwork.shortName === "CC" ? "Credit Card Processing Fee" : `Source Network Fee (${originNetwork.shortName})`), /* @__PURE__ */ React96.createElement("span", { className: "service-fee" }, formatBigInt(sourceFee), " ", sourceCurrency)), /* @__PURE__ */ React96.createElement("div", { className: "amount-details" }, /* @__PURE__ */ React96.createElement("span", null, "Target Network Fee (", targetNetwork.shortName, ")"), /* @__PURE__ */ React96.createElement("span", { className: "service-fee" }, formatBigInt(targetFee), " ", targetCurrency)), /* @__PURE__ */ React96.createElement("div", { className: "amount-details" }, /* @__PURE__ */ React96.createElement("span", null, "KIMA Service Fee"), /* @__PURE__ */ React96.createElement("span", { className: "service-fee" }, formatBigInt(kimaFee), " ", sourceCurrency))), /* @__PURE__ */ React96.createElement("div", { className: "amount-details" }, /* @__PURE__ */ React96.createElement("span", null, "Target Transfer Amount"), /* @__PURE__ */ React96.createElement("span", { className: "service-fee" }, formatBigInt(txValues.submitAmount), " ", targetCurrency)))), targetNetwork.shortName === "FIAT" /* FIAT */ ? /* @__PURE__ */ React96.createElement("div", null, /* @__PURE__ */ React96.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React96.createElement("span", { className: "label" }, "IBAN:"), /* @__PURE__ */ React96.createElement("p", null, bankDetails.iban), /* @__PURE__ */ React96.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ React96.createElement(ChainIcon, { symbol: targetNetworkOption?.shortName }), "FIAT")), /* @__PURE__ */ React96.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React96.createElement("span", { className: "label" }, "Recipient:"), /* @__PURE__ */ React96.createElement("p", null, bankDetails.recipient))) : /* @__PURE__ */ React96.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React96.createElement("span", { className: "label" }, "Target wallet:"), /* @__PURE__ */ React96.createElement("div", { className: "network-details" }, /* @__PURE__ */ React96.createElement("div", { className: "kima-card-network-container" }, /* @__PURE__ */ React96.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ React96.createElement(ChainIcon, { symbol: targetNetworkOption?.shortName }), targetNetworkOption?.name)), /* @__PURE__ */ React96.createElement("p", { className: theme.colorMode }, width >= 916 ? dAppOption === "LPDrain" /* LPDrain */ ? connectedAddress : targetAddress : dAppOption === "LPDrain" /* LPDrain */ ? sourceWalletAddress : targetWalletAddress))), mode === "bridge" /* bridge */ && BigInt(totalFee.value) > BigInt(0) ? (
+  )), /* @__PURE__ */ React96.createElement("div", { className: `fee-breakdown ${feeCollapsed ? "collapsed" : ""}` }, /* @__PURE__ */ React96.createElement("div", { className: "amount-details" }, /* @__PURE__ */ React96.createElement("span", null, originNetwork.shortName === "CC" ? "Credit Card Processing Fee" : `Source Network Fee (${originNetwork.shortName})`), /* @__PURE__ */ React96.createElement("span", { className: "service-fee" }, formatBigInt(sourceFee), " ", sourceCurrency)), /* @__PURE__ */ React96.createElement("div", { className: "amount-details" }, /* @__PURE__ */ React96.createElement("span", null, "Target Network Fee (", targetNetwork.shortName, ")"), /* @__PURE__ */ React96.createElement("span", { className: "service-fee" }, formatBigInt(targetFee), " ", targetCurrency)), /* @__PURE__ */ React96.createElement("div", { className: "amount-details" }, /* @__PURE__ */ React96.createElement("span", null, "KIMA Service Fee"), /* @__PURE__ */ React96.createElement("span", { className: "service-fee" }, formatBigInt(kimaFee), " ", sourceCurrency))), /* @__PURE__ */ React96.createElement("div", { className: "amount-details" }, /* @__PURE__ */ React96.createElement("span", null, "Target Transfer Amount"), /* @__PURE__ */ React96.createElement("span", { className: "service-fee" }, formatBigInt(txValues.submitAmount), " ", targetCurrency)))), targetNetwork.shortName === "FIAT" /* FIAT */ ? /* @__PURE__ */ React96.createElement("div", null, /* @__PURE__ */ React96.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React96.createElement("span", { className: "label" }, "IBAN:"), /* @__PURE__ */ React96.createElement("p", null, bankDetails.iban), /* @__PURE__ */ React96.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ React96.createElement(ChainIcon, { symbol: targetNetworkOption?.shortName }), "FIAT")), /* @__PURE__ */ React96.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React96.createElement("span", { className: "label" }, "Recipient:"), /* @__PURE__ */ React96.createElement("p", null, bankDetails.recipient))) : /* @__PURE__ */ React96.createElement("div", { className: "detail-item" }, /* @__PURE__ */ React96.createElement("span", { className: "label" }, "Target wallet:"), /* @__PURE__ */ React96.createElement("div", { className: "network-details" }, /* @__PURE__ */ React96.createElement("div", { className: "kima-card-network-container" }, /* @__PURE__ */ React96.createElement("span", { className: `kima-card-network-label ${theme.colorMode}` }, /* @__PURE__ */ React96.createElement(ChainIcon, { symbol: targetNetworkOption?.shortName }), targetNetworkOption?.name)), /* @__PURE__ */ React96.createElement("p", { className: theme.colorMode }, dAppOption === "LPDrain" /* LPDrain */ ? connectedAddress : targetAddress))), mode === "bridge" /* bridge */ && BigInt(totalFee.value) > BigInt(0) ? (
     // <FeeDeductionSlider />
     /* @__PURE__ */ React96.createElement(FeeDeductionRadioButtons_default, { disabled: feeOptionDisabled })
   ) : null);
