@@ -2359,7 +2359,7 @@ var checkPoolBalance = ({
   targetCurrency,
   amount
 }) => {
-  const finalTargetCurrency = targetCurrency === "KIMAUSD" ? "USDK" : targetCurrency;
+  const finalTargetCurrency = targetCurrency;
   if (!pools) return { isPoolAvailable: false, error: "Pools data unavailable" };
   const targetPool = pools.find(
     (pool) => pool.chainName === targetChain
@@ -2389,7 +2389,7 @@ var checkPoolBalance = ({
   return { isPoolAvailable: true, error: "" };
 };
 var getTokenAddress = (tokenOptions, selectedCoin, chain) => {
-  return tokenOptions[chain === "BASE" && selectedCoin === "USDK" ? "KIMAUSD" : selectedCoin][chain] || "";
+  return tokenOptions[selectedCoin][chain] || "";
 };
 var getPoolAddress = (pools, chain) => {
   return pools.find((pool) => pool.chainName === chain).poolAddress;
