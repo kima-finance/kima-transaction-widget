@@ -6459,6 +6459,9 @@ var CCWidget = () => {
       if (event.data.type === "isCompleted") {
         dispatch(setCCTransactionStatus("success"));
       }
+      if (event.data.type === "isFailed") {
+        dispatch(setCCTransactionStatus("failed"));
+      }
     };
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
@@ -6688,7 +6691,7 @@ var TransferWidget = ({
   const isBackButtonEnabled = useMemo21(() => {
     if (formStep !== 0) {
       if (sourceChain.shortName === "CC") {
-        return ccTransactionStatus === "idle";
+        return ccTransactionStatus === "idle" || ccTransactionStatus === "failed";
       }
       return true;
     }
