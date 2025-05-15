@@ -7287,7 +7287,7 @@ var KimaWidgetWrapper = ({
     } else if (mode === "status" /* status */) {
       dispatch(setTxId(txId || -1));
       dispatch(setSubmitted(true));
-    } else if (mode === "bridge" /* bridge */) {
+    } else if (mode === "bridge" /* bridge */ || mode === "light" /* light */) {
       dispatch(setTxId(-1));
       dispatch(setSubmitted(false));
     }

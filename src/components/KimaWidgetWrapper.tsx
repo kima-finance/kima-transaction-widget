@@ -133,7 +133,7 @@ const KimaWidgetWrapper = ({
     } else if (mode === ModeOptions.status) {
       dispatch(setTxId(txId || -1))
       dispatch(setSubmitted(true))
-    } else if (mode === ModeOptions.bridge) {
+    } else if (mode === ModeOptions.bridge || mode === ModeOptions.light) {
       dispatch(setTxId(-1))
       dispatch(setSubmitted(false))
     }
