@@ -6,34 +6,40 @@ import {
   selectTokenOptions,
   selectSourceCurrency,
   selectNetworkOption,
-  selectBackendUrl
+  selectBackendUrl,
+  selectSourceAddress,
+  selectMode
 } from '@store/selectors'
 import { isEVMChain } from '../../utils/constants'
-import { NetworkOptions } from '@interface'
+import { ModeOptions, NetworkOptions } from '@interface'
 import { useEvmProvider } from './useEvmProvider'
 import { getTokenAllowance } from '@plugins/evm/utils/getTokenAllowance'
 import useGetPools from '../../../../src/hooks/useGetPools'
 import { GetTokenAllowanceResult } from '@plugins/pluginTypes'
-import log from '@utils/logger'
 
 const emptyResult = {} as GetTokenAllowanceResult
 
 export default function useBalance() {
   const backendUrl = useSelector(selectBackendUrl)
   const sourceChain = useSelector(selectSourceChain)
+  const sourceAddress = useSelector(selectSourceAddress)
+  const mode = useSelector(selectMode)
   const selectedCoin = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
   const networkOption = useSelector(selectNetworkOption)
   const { pools } = useGetPools(backendUrl, networkOption)
   const { walletAddress, walletProvider } = useEvmProvider()
 
+  const userAddress = mode === ModeOptions.light ? sourceAddress : walletAddress
+  // console.log("evmPlugin:useBalance: ", sourceAddress)
+
   const { data: allowanceData } = useQuery({
-    queryKey: ['evmAllowance', walletAddress, sourceChain.shortName],
+    queryKey: ['evmAllowance', userAddress, sourceChain.shortName],
     queryFn: () =>
       getTokenAllowance({
         tokenOptions,
         selectedCoin,
-        userAddress: walletAddress!,
+        userAddress: userAddress!!,
         pools,
         chain: sourceChain.shortName,
         isTestnet: networkOption === NetworkOptions.testnet
@@ -41,7 +47,7 @@ export default function useBalance() {
     staleTime: 60 * 1000,
     refetchInterval: 60 * 1000,
     enabled:
-      !!walletAddress &&
+      !!userAddress &&
       !!tokenOptions &&
       !!selectedCoin &&
       pools.length > 0 &&

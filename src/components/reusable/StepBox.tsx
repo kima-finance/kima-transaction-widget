@@ -89,7 +89,7 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                 <div className='icon'>
                   <USDKIcon width={30} height={30} />
                 </div>
-                <p className='chain-name'>Kima TX ID:</p>
+                <p className='chain-name'>Kima TX Hash:</p>
                 <p>
                   <ExternalLink
                     to={`${explorerUrl}/transactions/?tx=${data?.kimaTxHash}`}
@@ -106,8 +106,8 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
               <div
                 className={`info-item ${theme.colorMode} source-chain ${step >= 3 ? 'paid' : ''}`}
               >
-                <ChainIcon symbol={sourceChain?.shortName as string} />
-                <p className='chain-name'>{sourceChain?.name} TX ID:</p>
+                <ChainIcon symbol={data.sourceChain as string} />
+                <p className='chain-name'>{sourceChain?.name} TX Hash:</p>
                 <p>
                   <ExternalLink
                     to={`${
@@ -128,7 +128,7 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
             {index === 3 && data?.tssRefundHash ? (
               <div className={`info-item ${theme.colorMode} target-chain`}>
                 <ChainIcon symbol={data.sourceChain as string} />
-                <p className='chain-name'>{sourceChain?.name} TX ID:</p>
+                <p className='chain-name'>{sourceChain?.name} TX Hash:</p>
                 <p>
                   <ExternalLink
                     to={`${
@@ -149,7 +149,7 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
             {index === 3 && data?.tssReleaseHash ? (
               <div className={`info-item ${theme.colorMode} target-chain`}>
                 <ChainIcon symbol={data.targetChain as string} />
-                <p className='chain-name'>{targetChain?.name} TX ID:</p>
+                <p className='chain-name'>{targetChain?.name} TX Hash:</p>
                 <p>
                   <ExternalLink
                     to={`${

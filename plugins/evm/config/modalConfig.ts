@@ -8,6 +8,7 @@ import {
   avalancheFuji,
   base,
   baseSepolia,
+  berachainBepolia,
   berachainTestnetbArtio,
   bsc,
   bscTestnet,
@@ -42,8 +43,7 @@ const appkitTestnetChains = [
   arbitrumSepolia,
   optimismSepolia,
   avalancheFuji,
-  polygonZkEvmCardona,
-  berachainTestnetbArtio
+  berachainBepolia
 ]
 
 const metadata = {

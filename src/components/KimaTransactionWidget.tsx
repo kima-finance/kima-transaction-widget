@@ -88,7 +88,7 @@ const KimaTransactionWidget = ({
   }, [theme?.colorMode])
 
   // Don't render until hydrated and theme is defined
-  if (!hydrated || !theme?.colorMode) return <Loading180Ring width={20} height={20} fill='#86b8ce'/>
+  if (!hydrated || !theme?.colorMode) return <Loading180Ring width={20} height={20} fill='#86b8ce' />
 
   if (isLoadingEnvs || isLoadingChainData)
     return <SkeletonLoader theme={theme} />

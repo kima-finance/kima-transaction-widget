@@ -20,6 +20,7 @@ import SingleForm from './reusable/SingleForm'
 
 // store
 import {
+  resetServiceFee,
   setAmount,
   setCCTransactionStatus,
   setServiceFee,
@@ -72,6 +73,7 @@ import CCWidget from './reusable/CCWidget'
 import { parseUnits } from 'viem'
 import { bigIntChangeDecimals } from 'src/helpers/functions'
 import useGetFees from '../hooks/useGetFees'
+import KimaNetwork from '@assets/icons/KimaNetwork'
 
 interface Props {
   theme: ThemeOptions
@@ -122,6 +124,10 @@ export const TransferWidget = ({
   const [isApproving, setApproving] = useState(false)
   const [isSigning, setSigning] = useState(false)
   const [feeOptionDisabled, setFeeOptionDisabled] = useState(false)
+  const [initialSelection, setInitialSelection] = useState({
+    sourceSelection: true,
+    targetSelection: true
+  })
   const pendingTxs = useSelector(selectPendingTxs)
   const networks = useSelector(selectNetworks)
   const submitted = useSelector(selectSubmitted)
@@ -154,9 +160,9 @@ export const TransferWidget = ({
   const { validate } = useValidateTransaction({
     allowance,
     isApproved,
+    sourceChain: sourceChain.shortName,
     sourceAddress,
     targetAddress,
-    sourceChain: sourceChain.shortName,
     targetChain: targetChain.shortName,
     balance,
     amount: parseUnits(amount, txValues.allowanceAmount.decimals),
@@ -171,7 +177,8 @@ export const TransferWidget = ({
     compliantOption,
     pools,
     feeDeduct,
-    formStep
+    formStep,
+    initialSelection
   })
 
   const {
@@ -254,7 +261,10 @@ export const TransferWidget = ({
     }
 
     // if is missing approve, trigger approval
-    if (error === ValidationError.ApprovalNeeded) {
+    if (
+      error === ValidationError.ApprovalNeeded &&
+      mode !== ModeOptions.light
+    ) {
       if (!signature) {
         setFeeOptionDisabled(true)
         const sig = await signMessage?.({
@@ -284,7 +294,7 @@ export const TransferWidget = ({
     // check signature before submit
 
     let sig = signature
-    if (!sig) {
+    if (!sig && mode !== ModeOptions.light) {
       setFeeOptionDisabled(true)
       sig = await signMessage?.({
         targetAddress,
@@ -371,8 +381,19 @@ export const TransferWidget = ({
 
     setSignature('')
     setSigning(false)
-    setFeeOptionDisabled(true)
     setFormStep(0)
+    dispatch(setAmount(transactionOption?.amount.toString() || ''))
+    dispatch(resetServiceFee())
+
+    if (mode === ModeOptions.light) {
+      setInitialSelection({
+        sourceSelection: true,
+        targetSelection: true
+      })
+
+      return
+    }
+
     if (mode !== ModeOptions.payment) {
       if (transactionOption?.sourceChain) {
         const sourceChain = networks.find(
@@ -399,7 +420,6 @@ export const TransferWidget = ({
           transactionOption?.currency || networks[1].supportedTokens[0].symbol
         )
       )
-      dispatch(setAmount(transactionOption?.amount.toString() || ''))
     }
     await disconnectWallet()
   }
@@ -500,7 +520,9 @@ export const TransferWidget = ({
                 ),
                 balance: parseUnits(balance?.toString() ?? '0', decimals ?? 18),
                 decimals: 2,
-                isLoadingFees
+                isLoadingFees,
+                initialSelection,
+                setInitialSelection
               }}
             />
           ) : ccTransactionStatus !== 'idle' ? (
@@ -533,7 +555,8 @@ export const TransferWidget = ({
             {!!allowance &&
             allowance > 0 &&
             formStep !== 0 &&
-            sourceChain.shortName !== 'CC' ? (
+            sourceChain.shortName !== 'CC' &&
+            mode !== ModeOptions.light ? (
               <SecondaryButton
                 clickHandler={onCancelApprove}
                 isLoading={isCancellingApprove}
@@ -599,8 +622,7 @@ export const TransferWidget = ({
         <div className='floating-footer'>
           <div className={`items ${theme.colorMode}`}>
             <span>Powered by</span>
-            <FooterLogo width={50} fill='black' />
-            <strong>Network</strong>
+            <KimaNetwork />
           </div>
         </div>
       </div>

@@ -43,6 +43,58 @@ export interface ComplianceResult {
   }[]
 }
 
+const initialServiceFee = {
+  feeId: '',
+  sourceFee: {
+    value: BigInt(0),
+    decimals: 0
+  },
+  kimaFee: {
+    value: BigInt(0),
+    decimals: 0
+  },
+  targetFee: {
+    value: BigInt(0),
+    decimals: 0
+  },
+  totalFee: {
+    value: BigInt(0),
+    decimals: 0
+  },
+  transactionValues: {
+    originChain: '',
+    originAddress: '',
+    originSymbol: '',
+    targetChain: '',
+    targetAddress: '',
+    targetSymbol: '',
+    feeFromOrigin: {
+      allowanceAmount: {
+        value: BigInt(0),
+        decimals: 0
+      },
+      submitAmount: {
+        value: BigInt(0),
+        decimals: 0
+      },
+      message: ''
+    },
+    feeFromTarget: {
+      allowanceAmount: {
+        value: BigInt(0),
+        decimals: 0
+      },
+      submitAmount: {
+        value: BigInt(0),
+        decimals: 0
+      },
+      message: ''
+    }
+  },
+  peggedTo: '',
+  expiration: ''
+}
+
 export interface OptionState {
   theme: ThemeOptions // light or dark
   mode: ModeOptions // payment or bridge
@@ -135,57 +187,7 @@ const initialState: OptionState = {
   amount: '',
   feeDeduct: false,
   initChainFromProvider: false,
-  serviceFee: {
-    feeId: '',
-    sourceFee: {
-      value: BigInt(0),
-      decimals: 0
-    },
-    kimaFee: {
-      value: BigInt(0),
-      decimals: 0
-    },
-    targetFee: {
-      value: BigInt(0),
-      decimals: 0
-    },
-    totalFee: {
-      value: BigInt(0),
-      decimals: 0
-    },
-    transactionValues: {
-      originChain: '',
-      originAddress: '',
-      originSymbol: '',
-      targetChain: '',
-      targetAddress: '',
-      targetSymbol: '',
-      feeFromOrigin: {
-        allowanceAmount: {
-          value: BigInt(0),
-          decimals: 0
-        },
-        submitAmount: {
-          value: BigInt(0),
-          decimals: 0
-        },
-        message: ''
-      },
-      feeFromTarget: {
-        allowanceAmount: {
-          value: BigInt(0),
-          decimals: 0
-        },
-        submitAmount: {
-          value: BigInt(0),
-          decimals: 0
-        },
-        message: ''
-      }
-    },
-    peggedTo: '',
-    expiration: ''
-  },
+  serviceFee: initialServiceFee,
   backendUrl: '',
   txId: -1,
   ccTransactionId: '',
@@ -396,6 +398,9 @@ export const optionSlice = createSlice({
     },
     setExpireTime: (state: OptionState, action: PayloadAction<string>) => {
       state.expireTime = action.payload
+    },
+    resetServiceFee: (state: OptionState) => {
+      state.serviceFee = initialServiceFee
     }
   }
 })
@@ -448,7 +453,8 @@ export const {
   setKYCStatus,
   setExpireTime,
   setPendingTxData,
-  setPendingTxs
+  setPendingTxs,
+  resetServiceFee
 } = optionSlice.actions
 
 export default optionSlice.reducer

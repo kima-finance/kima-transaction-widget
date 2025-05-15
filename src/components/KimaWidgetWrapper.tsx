@@ -44,6 +44,7 @@ import { useKimaContext } from 'src/KimaProvider'
 import { EnvOptions } from '../hooks/useGetEnvOptions'
 import { ChainData } from '@plugins/pluginTypes'
 import { useDebugCode } from '../hooks/useDebugMode'
+import log from 'loglevel'
 
 interface Props {
   theme: ThemeOptions
@@ -148,7 +149,7 @@ const KimaWidgetWrapper = ({
   if (sourceChain.shortName === 'CC') {
     // case submitted, and got a successful cc transaction
     if (submitted && ccTransactionStatus === 'success') {
-      console.log("will return transaction widget on cc success")
+      log.debug("will return transaction widget on cc success")
       return <TransactionWidget theme={theme} />
     }
 

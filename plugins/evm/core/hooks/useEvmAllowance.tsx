@@ -8,10 +8,13 @@ import {
   selectTokenOptions,
   selectNetworkOption,
   selectBackendUrl,
-  selectFeeDeduct
+  selectFeeDeduct,
+  selectMode,
+  selectSourceAddress
 } from '@store/selectors'
 import useGetPools from '../../../../src/hooks/useGetPools'
 import { getPoolAddress, getTokenAddress } from '@utils/functions'
+import { ModeOptions, NetworkOptions } from '@interface'
 import {
   createPublicClient,
   createWalletClient,
@@ -26,7 +29,9 @@ import useBalance from './useBalance'
 
 export default function useEvmAllowance(): PluginUseAllowanceResult {
   const queryClient = useQueryClient()
+  const mode = useSelector(selectMode)
   const sourceChain = useSelector(selectSourceChain)
+  const sourceAddress = useSelector(selectSourceAddress)
   const networkOption = useSelector(selectNetworkOption)
   const { transactionValues } = useSelector(selectServiceFee)
   const selectedCoin = useSelector(selectSourceCurrency)
@@ -41,6 +46,7 @@ export default function useEvmAllowance(): PluginUseAllowanceResult {
   const { pools } = useGetPools(backendUrl, networkOption)
   const { walletProvider, walletAddress } = useEvmProvider()
   const allowanceData = useBalance()
+  const userAddress = mode === ModeOptions.light ? sourceAddress : walletAddress
 
   const signMessage = async (data: SignDataType) => {
     if (!walletProvider) {
@@ -56,14 +62,14 @@ export default function useEvmAllowance(): PluginUseAllowanceResult {
     try {
       // create a viem wallet client for writing transactions
       const walletClient = createWalletClient({
-        account: walletAddress as `0x${string}`,
+        account: userAddress as `0x${string}`,
         chain: sourceChain,
         transport: custom(window.ethereum as any) // WARNING: NEED TO MAKE SURE THIS USING THE ETHEREUM OBJECT IS STABLE ENOUGH
       })
 
-      console.log('useEvmAllowance: Signing message:', txValues.message)
+      log.debug('useEvmAllowance: Signing message:', txValues.message)
       return await walletClient.signMessage({
-        account: walletAddress as `0x${string}`,
+        account: userAddress as `0x${string}`,
         message: txValues.message
       })
     } catch (error) {
@@ -112,7 +118,7 @@ export default function useEvmAllowance(): PluginUseAllowanceResult {
 
       // create a viem wallet client for writing transactions
       const walletClient = createWalletClient({
-        account: walletAddress as `0x${string}`,
+        account: userAddress as `0x${string}`,
         chain: sourceChain,
         transport: custom(window.ethereum as any) // WARNING: NEED TO MAKE SURE THIS USING THE ETHEREUM OBJECT IS STABLE ENOUGH
       })

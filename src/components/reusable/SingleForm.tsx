@@ -11,9 +11,14 @@ import {
   selectServiceFee,
   selectFeeDeduct,
   selectAmount,
+  selectSourceCurrency,
+  selectTargetCurrency,
+  selectBackendUrl,
+  selectSourceAddress,
+  selectTargetAddress
 } from '../../store/selectors'
 import { BankInput, CoinDropdown, WalletButton } from './'
-import { setAmount } from '../../store/optionSlice'
+import { setAmount, setServiceFee } from '../../store/optionSlice'
 import { ModeOptions } from '../../interface'
 import AddressInput from './AddressInput'
 import { ChainName } from '../../utils/constants'
@@ -23,15 +28,28 @@ import { parseUnits } from 'viem'
 // import { formatBigInt } from 'src/helpers/functions'
 import { ChainCompatibility } from '@plugins/pluginTypes'
 import { formatBigInt } from 'src/helpers/functions'
+import useGetFees from '../../hooks/useGetFees'
 
 const SingleForm = ({
   balance,
   decimals,
-  isLoadingFees
+  isLoadingFees,
+  initialSelection,
+  setInitialSelection
 }: {
   balance: bigint | undefined
   decimals: number | undefined
   isLoadingFees: boolean
+  initialSelection: {
+    sourceSelection: boolean
+    targetSelection: boolean
+  }
+  setInitialSelection: React.Dispatch<
+    React.SetStateAction<{
+      sourceSelection: boolean
+      targetSelection: boolean
+    }>
+  >
 }) => {
   const dispatch = useDispatch()
   const mode = useSelector(selectMode)
@@ -40,11 +58,37 @@ const SingleForm = ({
   const { totalFee } = useSelector(selectServiceFee)
   const compliantOption = useSelector(selectCompliantOption)
   const targetCompliant = useSelector(selectTargetCompliant)
+  const sourceAddress = useSelector(selectSourceAddress)
   const sourceNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
+  const targetAddress = useSelector(selectTargetAddress)
   const { isReady } = useIsWalletReady()
   const [amountValue, setAmountValue] = useState('')
   const amount = useSelector(selectAmount)
+  const sourceCurrency = useSelector(selectSourceCurrency)
+  const targetCurrency = useSelector(selectTargetCurrency)
+  const backendUrl = useSelector(selectBackendUrl)
+
+  const {
+    data: fees,
+    isLoading,
+    error
+  } = useGetFees({
+    amount: parseFloat(amount),
+    sourceNetwork: sourceNetwork.shortName,
+    sourceAddress,
+    sourceSymbol: sourceCurrency,
+    targetNetwork: targetNetwork.shortName,
+    targetAddress,
+    targetSymbol: targetCurrency,
+    backendUrl
+  })
+
+  useEffect(() => {
+    if (fees) {
+      dispatch(setServiceFee(fees))
+    }
+  }, [fees, dispatch])
 
   const errorMessage = useMemo(
     () =>
@@ -57,6 +101,8 @@ const SingleForm = ({
   )
 
   const maxValue = useMemo(() => {
+    if (mode === ModeOptions.light) return 1000
+
     if (!balance) return 0
     if (totalFee.value === BigInt(0)) return balance
 
@@ -74,12 +120,22 @@ const SingleForm = ({
     setAmountValue(amount)
   }, [amount])
 
+  const isConnected = useMemo(() => {
+    return isReady && !initialSelection.sourceSelection
+  }, [isReady, initialSelection])
+
   return (
     <div className='single-form'>
       <div className='form-item'>
         <span className='label'>Source Network:</span>
         <div className='items'>
-          <NetworkSelector type='origin' />
+          <NetworkSelector
+            type='origin'
+            {...{
+              initialSelection: initialSelection.sourceSelection,
+              setInitialSelection
+            }}
+          />
           <CoinDropdown />
         </div>
       </div>
@@ -91,18 +147,24 @@ const SingleForm = ({
       >
         {sourceNetwork.compatibility !== ChainCompatibility.CC && (
           <div
-            className={`form-item wallet-button-item ${isReady && 'connected'}`}
+            className={`form-item wallet-button-item ${isConnected && 'connected'}`}
           >
             <span className='label'>Wallet:</span>
-            <WalletButton />
+            <WalletButton initialSelection={initialSelection.sourceSelection} />
           </div>
         )}
 
-        {mode === ModeOptions.bridge && (
+        {mode !== ModeOptions.payment && (
           <div className='form-item'>
             <span className='label'>Target Network:</span>
             <div className='items'>
-              <NetworkSelector type='target' />
+              <NetworkSelector
+                type='target'
+                {...{
+                  initialSelection: initialSelection.targetSelection,
+                  setInitialSelection
+                }}
+              />
               <CoinDropdown isSourceChain={false} />
             </div>
           </div>
@@ -119,10 +181,24 @@ const SingleForm = ({
             <AddressInput
               theme={theme.colorMode as string}
               placeholder='Target address'
+              initialSelection={initialSelection}
             />
           </div>
         )
       ) : null}
+
+      {mode === ModeOptions.light && (
+        <div
+          className={`form-item wallet-button-item ${!initialSelection.targetSelection && 'connected'}`}
+          style={{ display: 'flex', alignItems: 'center' }}
+        >
+          <span className='label'>Target Wallet:</span>
+          <WalletButton
+            initialSelection={initialSelection.targetSelection}
+            placeholder={true}
+          />
+        </div>
+      )}
 
       <div className={`form-item ${theme.colorMode}`}>
         <span className='label'>Amount:</span>
@@ -132,6 +208,7 @@ const SingleForm = ({
             type='text'
             placeholder='Enter amount'
             value={amountValue || ''}
+            disabled={initialSelection.sourceSelection || initialSelection.targetSelection}
             onChange={(e) => {
               const value = e.target.value
 
