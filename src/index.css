@@ -392,13 +392,19 @@
   font-family: "Sohne";
   right: 0;
   margin-top: 10px;
+  height: 35px;
 }
 @media (max-width: 768px) {
   .kima-card .floating-footer {
-    margin-top: 30px;
+    margin-top: 35px;
   }
   .kima-card .floating-footer.status {
-    margin-top: 10px;
+    margin-top: 30px;
+  }
+}
+@media (max-width: 500px) {
+  .kima-card .floating-footer {
+    margin-top: 30px;
   }
 }
 .kima-card .floating-footer .items {
@@ -407,7 +413,7 @@
   justify-content: center;
   align-items: center;
   text-decoration: none;
-  padding: 0 14px;
+  padding: 4px 15px;
   border-radius: 20px;
   font-size: 12px;
   gap: 8px;
