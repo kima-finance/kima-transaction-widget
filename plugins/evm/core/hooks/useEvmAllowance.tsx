@@ -98,7 +98,7 @@ export default function useEvmAllowance(): PluginUseAllowanceResult {
       !poolAddress ||
       !txValues
     ) {
-      console.warn('useEvmAllowance: Missing required data', {
+      log.warn('useEvmAllowance: Missing required data', {
         txValues,
         allowanceData,
         tokenAddress,
@@ -143,7 +143,7 @@ export default function useEvmAllowance(): PluginUseAllowanceResult {
       const receipt = await viemClient.waitForTransactionReceipt({ hash })
 
       if (receipt.status === 'success') {
-        console.log('useEvmAllowance: Transaction successful:', receipt)
+        log.debug('useEvmAllowance: Transaction successful:', receipt)
         // update allowance data
         await queryClient.invalidateQueries({ queryKey: ['evmAllowance'] })
         // setApprovalsCount((prev: number) => prev + 1)
