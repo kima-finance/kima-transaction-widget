@@ -2572,7 +2572,8 @@ function useBalance() {
   const networkOption = useSelector(selectNetworkOption);
   const { pools } = useGetPools_default(backendUrl, networkOption);
   const { walletAddress, walletProvider } = useEvmProvider();
-  const userAddress = mode === "light" /* light */ ? sourceAddress : walletAddress;
+  const userAddress = mode === "light" /* light */ ? lightDemoAccounts.EVM : walletAddress;
+  const enabled = !!userAddress && !!tokenOptions && !!selectedCoin && pools.length > 0 && isEVMChain2(sourceChain.shortName) && (!!walletProvider || mode === "light" /* light */);
   const { data: allowanceData } = useQuery3({
     queryKey: ["evmAllowance", userAddress, sourceChain.shortName],
     queryFn: () => getTokenAllowance({
@@ -2585,7 +2586,7 @@ function useBalance() {
     }),
     staleTime: 60 * 1e3,
     refetchInterval: 60 * 1e3,
-    enabled: !!userAddress && !!tokenOptions && !!selectedCoin && pools.length > 0 && isEVMChain2(sourceChain.shortName) && !!walletProvider
+    enabled
   });
   return allowanceData ?? emptyResult;
 }
@@ -2949,7 +2950,7 @@ function useEvmAllowance() {
     );
     const poolAddress = getPoolAddress(pools, sourceChain.shortName);
     if (!allowanceData?.decimals || !tokenAddress || !poolAddress || !txValues) {
-      console.warn("useEvmAllowance: Missing required data", {
+      logger_default.warn("useEvmAllowance: Missing required data", {
         txValues,
         allowanceData,
         tokenAddress,
@@ -2984,7 +2985,7 @@ function useEvmAllowance() {
       );
       const receipt = await viemClient.waitForTransactionReceipt({ hash });
       if (receipt.status === "success") {
-        console.log("useEvmAllowance: Transaction successful:", receipt);
+        logger_default.debug("useEvmAllowance: Transaction successful:", receipt);
         await queryClient2.invalidateQueries({ queryKey: ["evmAllowance"] });
       } else {
         logger_default.error("useEvmAllowance: Transaction failed:", receipt);
@@ -7078,14 +7079,11 @@ var TransferWidget = ({
     setFormStep(0);
     dispatch(setAmount(transactionOption?.amount.toString() || ""));
     dispatch(resetServiceFee());
-    if (mode === "light" /* light */) {
+    if (mode !== "payment" /* payment */) {
       setInitialSelection({
         sourceSelection: true,
         targetSelection: true
       });
-      return;
-    }
-    if (mode !== "payment" /* payment */) {
       if (transactionOption?.sourceChain) {
         const sourceChain2 = networks.find(
           (currentChain) => currentChain.shortName === transactionOption.sourceChain
