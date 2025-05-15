@@ -385,16 +385,12 @@ export const TransferWidget = ({
     dispatch(setAmount(transactionOption?.amount.toString() || ''))
     dispatch(resetServiceFee())
 
-    if (mode === ModeOptions.light) {
+    if (mode !== ModeOptions.payment) {
       setInitialSelection({
         sourceSelection: true,
         targetSelection: true
       })
 
-      return
-    }
-
-    if (mode !== ModeOptions.payment) {
       if (transactionOption?.sourceChain) {
         const sourceChain = networks.find(
           (currentChain: ChainData) =>
