@@ -4899,7 +4899,7 @@ function ChainIcon({ symbol }) {
   const Icon = symbol === "FIAT" ? chainIcons["CC"] : chainIcons[symbol];
   if (!Icon) {
     logger_default.warn(`Chain icon not found for symbol: ${symbol}`);
-    return /* @__PURE__ */ import_react111.default.createElement("div", { className: "icon" });
+    return /* @__PURE__ */ import_react111.default.createElement("div", null);
   }
   return /* @__PURE__ */ import_react111.default.createElement("div", { className: "icon" }, /* @__PURE__ */ import_react111.default.createElement(Icon, null));
 }
@@ -6700,6 +6700,8 @@ function useDisconnectWallet5() {
 var import_react133 = __toESM(require("react"), 1);
 var WarningModal = ({
   message,
+  cancelButtonText = "Cancel",
+  acknowledgeButtonText = "Acknowledge",
   onAcknowledge,
   onCancel
 }) => {
@@ -6709,14 +6711,14 @@ var WarningModal = ({
       className: "warning-modal-cancel",
       clickHandler: onCancel
     },
-    "Cancel"
+    cancelButtonText
   ), /* @__PURE__ */ import_react133.default.createElement(
     PrimaryButton_default,
     {
       className: "warning-modal-acknowledge",
       clickHandler: onAcknowledge
     },
-    "Acknowledge"
+    acknowledgeButtonText
   ))));
 };
 var WarningModal_default = WarningModal;
@@ -6828,6 +6830,7 @@ var TransferWidget = ({
   const [signature, setSignature2] = (0, import_react135.useState)("");
   const [formStep, setFormStep] = (0, import_react135.useState)(0);
   const [warningModalOpen, setWarningModalOpen] = (0, import_react135.useState)(null);
+  const [resetModalOpen, setResetModalOpen] = (0, import_react135.useState)(false);
   const dAppOption = (0, import_react_redux57.useSelector)(selectDappOption);
   const mode = (0, import_react_redux57.useSelector)(selectMode);
   const transactionOption = (0, import_react_redux57.useSelector)(selectTransactionOption);
@@ -7079,6 +7082,18 @@ var TransferWidget = ({
         background: theme.colorMode === "light" /* light */ ? theme.backgroundColorLight : theme.backgroundColorDark
       }
     },
+    resetModalOpen && /* @__PURE__ */ import_react135.default.createElement(
+      WarningModal_default,
+      {
+        message: "Are you sure you want to reset the widget?",
+        acknowledgeButtonText: "Accept",
+        onAcknowledge: () => {
+          resetForm();
+          setResetModalOpen(false);
+        },
+        onCancel: () => setResetModalOpen(false)
+      }
+    ),
     warningModalOpen && /* @__PURE__ */ import_react135.default.createElement(
       WarningModal_default,
       {
@@ -7104,7 +7119,7 @@ var TransferWidget = ({
       "button",
       {
         className: "reset-button",
-        onClick: resetForm,
+        onClick: () => setResetModalOpen(true),
         disabled: isApproving || isSubmitting || isSigning
       },
       "Reset"
