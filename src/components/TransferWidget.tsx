@@ -98,6 +98,8 @@ export const TransferWidget = ({
     message: string
   } | null>(null) // State for warning modal
 
+  const [resetModalOpen, setResetModalOpen] = useState<boolean>(false) // State for reset modal
+
   // Redux variables
   const dAppOption = useSelector(selectDappOption)
   const mode = useSelector(selectMode)
@@ -434,6 +436,17 @@ export const TransferWidget = ({
             : theme.backgroundColorDark
       }}
     >
+      {resetModalOpen && (
+        <WarningModal
+          message='Are you sure you want to reset the widget?'
+          acknowledgeButtonText='Accept'
+          onAcknowledge={() => {
+            resetForm()
+            setResetModalOpen(false)
+          }}
+          onCancel={() => setResetModalOpen(false)}
+        />
+      )}
       {warningModalOpen && (
         <WarningModal
           message={warningModalOpen.message}
@@ -493,7 +506,7 @@ export const TransferWidget = ({
               {formStep === 0 && mode !== ModeOptions.payment && (
                 <button
                   className='reset-button'
-                  onClick={resetForm}
+                  onClick={() => setResetModalOpen(true)}
                   disabled={isApproving || isSubmitting || isSigning}
                 >
                   Reset
