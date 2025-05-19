@@ -1545,6 +1545,7 @@ var lightDemoAccounts = {
   TRX: "TBVn4bsBN4DhtZ7D3vEVpAyqkvdFn7zmpU"
   // TRX: 'TL6yGtzbHfQdBRFYh4TLFoU5iiPMmpQtur' // personal for testing
 };
+var lightDemoNetworks = ["ARB", "AVX", "BASE", "OPT", "BSC", "SOL", "TRX"];
 
 // src/interface.tsx
 var NetworkOptions = /* @__PURE__ */ ((NetworkOptions4) => {
@@ -5131,20 +5132,20 @@ var StepBox = ({ step, errorStep, loadingStep, data }) => {
     /* @__PURE__ */ import_react116.default.createElement("p", null, /* @__PURE__ */ import_react116.default.createElement(
       ExternalLink_default,
       {
-        to: `${sourceChain?.blockExplorers?.default.url}/${data?.sourceChain === "TRX" /* TRON */ ? "transaction" : "tx"}/${data?.tssPullHash}${data?.sourceChain === "SOL" /* SOLANA */ && networkOption === "testnet" /* testnet */ ? "?cluster=devnet" : ""}`
+        to: `${sourceChain?.blockExplorers?.default.url}/${data?.sourceChain === "TRX" /* TRON */ ? "#/transaction" : "tx"}/${data?.tssPullHash}${data?.sourceChain === "SOL" /* SOLANA */ && networkOption === "testnet" /* testnet */ ? "?cluster=devnet" : ""}`
       },
       getShortenedAddress(data?.tssPullHash || "")
     ), /* @__PURE__ */ import_react116.default.createElement(CopyButton_default, { text: data?.tssPullHash || "" }))
   ) : null, index === 3 && data?.tssRefundHash ? /* @__PURE__ */ import_react116.default.createElement("div", { className: `info-item ${theme.colorMode} target-chain` }, /* @__PURE__ */ import_react116.default.createElement(ChainIcon, { symbol: data.sourceChain }), /* @__PURE__ */ import_react116.default.createElement("p", { className: "chain-name" }, sourceChain?.name, " TX Hash:"), /* @__PURE__ */ import_react116.default.createElement("p", null, /* @__PURE__ */ import_react116.default.createElement(
     ExternalLink_default,
     {
-      to: `${sourceChain?.blockExplorers?.default.url}/${data?.sourceChain === "TRX" /* TRON */ ? "transaction" : "tx"}/${data?.tssRefundHash}${data?.sourceChain === "SOL" /* SOLANA */ && networkOption === "testnet" /* testnet */ ? "?cluster=devnet" : ""}`
+      to: `${sourceChain?.blockExplorers?.default.url}/${data?.sourceChain === "TRX" /* TRON */ ? "#/transaction" : "tx"}/${data?.tssRefundHash}${data?.sourceChain === "SOL" /* SOLANA */ && networkOption === "testnet" /* testnet */ ? "?cluster=devnet" : ""}`
     },
     getShortenedAddress(data?.tssRefundHash || "")
   ), /* @__PURE__ */ import_react116.default.createElement(CopyButton_default, { text: data?.tssRefundHash || "" }))) : null, index === 3 && data?.tssReleaseHash ? /* @__PURE__ */ import_react116.default.createElement("div", { className: `info-item ${theme.colorMode} target-chain` }, /* @__PURE__ */ import_react116.default.createElement(ChainIcon, { symbol: data.targetChain }), /* @__PURE__ */ import_react116.default.createElement("p", { className: "chain-name" }, targetChain?.name, " TX Hash:"), /* @__PURE__ */ import_react116.default.createElement("p", null, /* @__PURE__ */ import_react116.default.createElement(
     ExternalLink_default,
     {
-      to: `${targetChain?.blockExplorers?.default.url}/${data?.targetChain === "TRX" /* TRON */ ? "transaction" : "tx"}/${data?.tssReleaseHash}${data?.targetChain === "SOL" /* SOLANA */ && networkOption === "testnet" /* testnet */ ? "?cluster=devnet" : ""}`
+      to: `${targetChain?.blockExplorers?.default.url}/${data?.targetChain === "TRX" /* TRON */ ? "#/transaction" : "tx"}/${data?.tssReleaseHash}${data?.targetChain === "SOL" /* SOLANA */ && networkOption === "testnet" /* testnet */ ? "?cluster=devnet" : ""}`
     },
     getShortenedAddress(data?.tssReleaseHash || "")
   ), /* @__PURE__ */ import_react116.default.createElement(CopyButton_default, { text: data?.tssReleaseHash || "" }))) : null))));
@@ -5530,6 +5531,7 @@ var TransactionWidget = ({ theme }) => {
       dispatch(setTxId(-1));
       dispatch(setSubmitted(false));
       dispatch(setAmount(""));
+      return;
     }
     if (mode === "status" /* status */ && amount === "") {
       dispatch(setMode("status" /* status */));
@@ -5680,13 +5682,13 @@ var NetworkSelector = ({
   const targetNetwork = (0, import_react_redux44.useSelector)(selectTargetChain);
   const { switchChainHandler } = useKimaContext();
   const isOriginSelector = type === "origin";
-  const networks = (0, import_react123.useMemo)(
-    () => networkOptions3.filter((network) => {
+  const networks = (0, import_react123.useMemo)(() => {
+    return networkOptions3.filter((network) => {
       const isSameAsSource = isOriginSelector ? false : network.shortName === sourceNetwork.shortName;
-      return network.supportedLocations.includes(type) && !isSameAsSource;
-    }),
-    [networkOptions3, sourceNetwork, type]
-  );
+      const isAllowedInLightMode = mode !== "light" /* light */ || lightDemoNetworks.includes(network.shortName);
+      return network.supportedLocations.includes(type) && !isSameAsSource && isAllowedInLightMode;
+    });
+  }, [networkOptions3, sourceNetwork, type, mode]);
   const selectedNetwork = (0, import_react123.useMemo)(() => {
     if (initialSelection) {
       return {
