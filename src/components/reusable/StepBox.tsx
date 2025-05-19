@@ -112,7 +112,7 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                   <ExternalLink
                     to={`${
                       sourceChain?.blockExplorers?.default.url
-                    }/${data?.sourceChain === ChainName.TRON ? 'transaction' : 'tx'}/${data?.tssPullHash}${
+                    }/${data?.sourceChain === ChainName.TRON ? '#/transaction' : 'tx'}/${data?.tssPullHash}${
                       data?.sourceChain === ChainName.SOLANA &&
                       networkOption === NetworkOptions.testnet
                         ? '?cluster=devnet'
@@ -133,7 +133,7 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                   <ExternalLink
                     to={`${
                       sourceChain?.blockExplorers?.default.url
-                    }/${data?.sourceChain === ChainName.TRON ? 'transaction' : 'tx'}/${data?.tssRefundHash}${
+                    }/${data?.sourceChain === ChainName.TRON ? '#/transaction' : 'tx'}/${data?.tssRefundHash}${
                       data?.sourceChain === ChainName.SOLANA &&
                       networkOption === NetworkOptions.testnet
                         ? '?cluster=devnet'
@@ -154,7 +154,7 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                   <ExternalLink
                     to={`${
                       targetChain?.blockExplorers?.default.url
-                    }/${data?.targetChain === ChainName.TRON ? 'transaction' : 'tx'}/${data?.tssReleaseHash}${
+                    }/${data?.targetChain === ChainName.TRON ? '#/transaction' : 'tx'}/${data?.tssReleaseHash}${
                       data?.targetChain === ChainName.SOLANA &&
                       networkOption === NetworkOptions.testnet
                         ? '?cluster=devnet'
