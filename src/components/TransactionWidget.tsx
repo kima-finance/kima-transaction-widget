@@ -232,6 +232,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       dispatch(setTxId(-1))
       dispatch(setSubmitted(false))
       dispatch(setAmount(''))
+      return
     }
 
     if (mode === ModeOptions.status && amount === '') {
