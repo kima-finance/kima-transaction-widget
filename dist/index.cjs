@@ -6202,6 +6202,7 @@ var useSubmitTransaction = () => {
   const submitTransaction = async (signature) => {
     try {
       setSubmitting(true);
+      console.log(totalFee);
       const params = JSON.stringify({
         originAddress: transactionValues.originChain === "CC" ? transactionValues.targetAddress : transactionValues.originAddress,
         originChain: transactionValues.originChain,
@@ -6495,6 +6496,7 @@ var getFees = async (amount, originChain, originAddress, originSymbol, targetCha
         }
       }
     };
+    console.log("getFees: ", output, response);
     return output;
   } catch (e) {
     throw new Error("Failed to fetch fees");
