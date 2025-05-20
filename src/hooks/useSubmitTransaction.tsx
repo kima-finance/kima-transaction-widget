@@ -63,7 +63,7 @@ const useSubmitTransaction = () => {
         params
       )
 
-      console.log('submitTransaction: response: ', transactionResult)
+      log.debug('submitTransaction: response: ', transactionResult)
       if (transactionResult?.code !== 0) {
         setSubmitting(false)
         return { success: false, message: 'Failed to submit transaction' }
