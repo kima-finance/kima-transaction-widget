@@ -6202,7 +6202,6 @@ var useSubmitTransaction = () => {
   const submitTransaction = async (signature) => {
     try {
       setSubmitting(true);
-      console.log(totalFee);
       const params = JSON.stringify({
         originAddress: transactionValues.originChain === "CC" ? transactionValues.targetAddress : transactionValues.originAddress,
         originChain: transactionValues.originChain,
@@ -6367,6 +6366,7 @@ var useCCTransactionId = (backendUrl, transactionIdSeed) => {
         `${backendUrl}/submit/transactionId?transactionIdSeed=${transactionIdSeed}`
       );
       if (!res.ok) {
+        console.error("Error getting transaction id: ", res);
         throw new Error("Failed to fetch transaction ID");
       }
       const data = await res.json();
@@ -6383,6 +6383,7 @@ var useCCTransactionId = (backendUrl, transactionIdSeed) => {
 // src/components/reusable/CCWidget.tsx
 var CCWidget = () => {
   const dispatch = (0, import_react_redux55.useDispatch)();
+  const theme = (0, import_react_redux55.useSelector)(selectTheme);
   const feeDeduct = (0, import_react_redux55.useSelector)(selectFeeDeduct);
   const backendUrl = (0, import_react_redux55.useSelector)(selectBackendUrl);
   const ccTransactionStatus = (0, import_react_redux55.useSelector)(selectCCTransactionStatus);
@@ -6428,11 +6429,14 @@ var CCWidget = () => {
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
   }, []);
+  (0, import_react133.useEffect)(() => {
+    if (error) dispatch(setCCTransactionStatus("fatal"));
+  }, [dispatch, error]);
   return /* @__PURE__ */ import_react133.default.createElement("div", { className: `cc-widget ${isLoading ? "loading" : ""}` }, (isLoading || isTransactionIdLoading || isEnvLoading || ccTransactionStatus === "success") && /* @__PURE__ */ import_react133.default.createElement("div", { className: "cc-widget-loader" }, /* @__PURE__ */ import_react133.default.createElement(ring_default, { width: 50, height: 50, fill: "#86b8ce" })), /* @__PURE__ */ import_react133.default.createElement(
     "iframe",
     {
-      width: isLoading || isTransactionIdLoading || ccTransactionStatus === "success" ? 0 : "100%",
-      height: isLoading || isTransactionIdLoading || ccTransactionStatus === "success" ? 0 : "100%",
+      width: isLoading || isTransactionIdLoading || ccTransactionStatus === "success" || error ? 0 : "100%",
+      height: isLoading || isTransactionIdLoading || ccTransactionStatus === "success" || error ? 0 : "100%",
       src: `${baseUrl}/widgets/kyc?partner=${partnerId}&user_uuid=${randomUserIdRef.current}&amount=${allowanceAmount}&currency=USD&trx_uuid=${data?.transactionId}&postmessage=true`,
       loading: "lazy",
       title: "Credit Card Widget",
@@ -6496,7 +6500,6 @@ var getFees = async (amount, originChain, originAddress, originSymbol, targetCha
         }
       }
     };
-    console.log("getFees: ", output, response);
     return output;
   } catch (e) {
     throw new Error("Failed to fetch fees");
@@ -7074,7 +7077,9 @@ var import_react139 = __toESM(require("react"), 1);
 var ErrorWidget = ({
   theme,
   title,
-  message
+  message,
+  backButtonEnabled = false,
+  backButtonFunction
 }) => {
   return /* @__PURE__ */ import_react139.default.createElement(
     "div",
@@ -7084,12 +7089,13 @@ var ErrorWidget = ({
         background: theme.colorMode === "light" /* light */ ? theme.backgroundColorLight : theme.backgroundColorDark
       }
     },
-    /* @__PURE__ */ import_react139.default.createElement("div", { className: "transfer-card" }, /* @__PURE__ */ import_react139.default.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ import_react139.default.createElement("div", { className: "topbar" }, /* @__PURE__ */ import_react139.default.createElement("div", { className: "title" }, /* @__PURE__ */ import_react139.default.createElement("h3", null, title))), /* @__PURE__ */ import_react139.default.createElement("h4", { className: "subtitle" })), /* @__PURE__ */ import_react139.default.createElement("div", { className: "kima-card-content error" }, /* @__PURE__ */ import_react139.default.createElement(Error_default, { width: 40, height: 40 }), /* @__PURE__ */ import_react139.default.createElement("h2", null, message)), /* @__PURE__ */ import_react139.default.createElement("div", { className: `kima-card-footer` }), /* @__PURE__ */ import_react139.default.createElement("div", { className: "floating-footer" }, /* @__PURE__ */ import_react139.default.createElement("div", { className: `items ${theme.colorMode}` }, /* @__PURE__ */ import_react139.default.createElement("span", null, "Powered by"), /* @__PURE__ */ import_react139.default.createElement(FooterLogo_default, { width: 50, fill: "black" }), /* @__PURE__ */ import_react139.default.createElement("strong", null, "Network"))))
+    /* @__PURE__ */ import_react139.default.createElement("div", { className: "transfer-card" }, /* @__PURE__ */ import_react139.default.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ import_react139.default.createElement("div", { className: "topbar" }, /* @__PURE__ */ import_react139.default.createElement("div", { className: "title" }, /* @__PURE__ */ import_react139.default.createElement("h3", null, title))), /* @__PURE__ */ import_react139.default.createElement("h4", { className: "subtitle" })), /* @__PURE__ */ import_react139.default.createElement("div", { className: "kima-card-content error" }, /* @__PURE__ */ import_react139.default.createElement(Error_default, { width: 40, height: 40 }), /* @__PURE__ */ import_react139.default.createElement("h2", null, message)), backButtonEnabled && /* @__PURE__ */ import_react139.default.createElement("div", { style: { display: "flex", justifyContent: "flex-end" } }, /* @__PURE__ */ import_react139.default.createElement(PrimaryButton_default, { clickHandler: backButtonFunction }, "Back")), /* @__PURE__ */ import_react139.default.createElement("div", { className: `kima-card-footer` }), /* @__PURE__ */ import_react139.default.createElement("div", { className: "floating-footer" }, /* @__PURE__ */ import_react139.default.createElement("div", { className: `items ${theme.colorMode}` }, /* @__PURE__ */ import_react139.default.createElement("span", null, "Powered by"), /* @__PURE__ */ import_react139.default.createElement(FooterLogo_default, { width: 50, fill: "black" }), /* @__PURE__ */ import_react139.default.createElement("strong", null, "Network"))))
   );
 };
 var ErrorWidget_default = ErrorWidget;
 
 // src/components/KimaTransactionWidget.tsx
+var import_react_redux60 = require("react-redux");
 var KimaTransactionWidget = ({
   mode,
   txId,
@@ -7106,6 +7112,7 @@ var KimaTransactionWidget = ({
   const dispatch = (0, import_react_redux59.useDispatch)();
   const { kimaBackendUrl } = useKimaContext();
   const [hydrated, setHydrated] = (0, import_react140.useState)(false);
+  const ccTransactionStatus = (0, import_react_redux60.useSelector)(selectCCTransactionStatus);
   const {
     data: envOptions,
     error: envOptionsError,
@@ -7130,9 +7137,23 @@ var KimaTransactionWidget = ({
       dispatch(setTheme(theme));
     }
   }, [theme?.colorMode]);
-  if (!hydrated || !theme?.colorMode) return /* @__PURE__ */ import_react140.default.createElement(ring_default, { width: 20, height: 20, fill: "#86b8ce" });
+  if (!hydrated || !theme?.colorMode)
+    return /* @__PURE__ */ import_react140.default.createElement(ring_default, { width: 20, height: 20, fill: "#86b8ce" });
   if (isLoadingEnvs || isLoadingChainData)
     return /* @__PURE__ */ import_react140.default.createElement(SkeletonLoader_default, { theme });
+  if (ccTransactionStatus === "fatal")
+    return /* @__PURE__ */ import_react140.default.createElement(
+      ErrorWidget_default,
+      {
+        theme,
+        title: "Error getting CC transaction id",
+        message: "There was an error generating the transaction id and your transaction couldn't be generated. Please try again, if the error persists contact us.",
+        backButtonEnabled: true,
+        backButtonFunction: () => {
+          dispatch(setCCTransactionStatus("idle"));
+        }
+      }
+    );
   if (envOptionsError || !envOptions)
     return /* @__PURE__ */ import_react140.default.createElement(
       ErrorWidget_default,
