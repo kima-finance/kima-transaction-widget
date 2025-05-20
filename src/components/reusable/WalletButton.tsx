@@ -23,7 +23,7 @@ import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import { useAppKit, useAppKitState } from '@reown/appkit/react'
 import CopyButton from './CopyButton'
-import { formatUSD } from '../../helpers/functions'
+import { bigIntToNumber, formatUSD } from '../../helpers/functions'
 import useHideWuiListItem from '../../hooks/useHideActivityTab'
 import { useKimaContext } from '../../KimaProvider'
 import { useGetEnvOptions } from '../../hooks/useGetEnvOptions'
@@ -40,13 +40,15 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const { externalProvider } = useKimaContext()
   const { connected: isSolanaConnected } = useSolanaWallet()
   const { connected: isTronConnected } = useTronWallet()
-  const { isReady, statusMessage, walletAddress /*, connectBitcoinWallet*/ } =
+  const { isReady, statusMessage, connectedAddress /*, connectBitcoinWallet*/ } =
     useIsWalletReady()
-  const { balance } = useBalance()
+  const { balance, decimals } = useBalance()
   const { open } = useAppKit()
   const { open: isModalOpen } = useAppKitState()
   const { width, updateWidth } = useWidth()
   useHideWuiListItem(isModalOpen)
+
+  console.log({isReady, statusMessage, connectedAddress})
 
   const { kimaBackendUrl } = useKimaContext()
   const { data: envOptions } = useGetEnvOptions({ kimaBackendUrl })
@@ -55,16 +57,16 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   useEffect(() => {
     log.debug('WalletBalance:', {
       balance,
-      walletAddress,
+      connectedAddress,
       isReady,
       statusMessage,
       externalProvider
     })
-  }, [balance, walletAddress, isReady, externalProvider, networkOption])
+  }, [balance, connectedAddress, isReady, externalProvider, networkOption])
 
   useEffect(() => {
-    if (walletAddress) dispatch(setSourceAddress(walletAddress))
-  }, [walletAddress])
+    if (connectedAddress) dispatch(setSourceAddress(connectedAddress))
+  }, [connectedAddress])
 
   useEffect(() => {
     if (width === 0) {
@@ -142,18 +144,19 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
         >
           {isReady
             ? width >= 640
-              ? `${walletAddress || ''}`
-              : getShortenedAddress(walletAddress || '')
+              ? `${connectedAddress || ''}`
+              : getShortenedAddress(connectedAddress || '')
             : ''}
           {!isReady && 'CONNECT WALLET'}
         </button>
 
-        {isReady && <CopyButton text={walletAddress as string} />}
+        {isReady && <CopyButton text={connectedAddress as string} />}
       </div>
 
-      {isReady && balance !== undefined ? (
+      {isReady && balance !== undefined && decimals !== undefined ? (
         <p className='balance-info'>
-          {formatUSD(balance)} {selectedCoin} available
+          {formatUSD(bigIntToNumber({ value: balance, decimals }))}{' '}
+          {selectedCoin} available
         </p>
       ) : null}
     </div>

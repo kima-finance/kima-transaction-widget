@@ -7,7 +7,7 @@ import { ColorModeOptions, ModeOptions, ThemeOptions } from '@interface'
 import { Provider } from 'react-redux'
 import { store } from '@store/index'
 import { TransactionStatus } from '../utils/constants'
-import { formatterFloat } from '../helpers/functions'
+import { bigIntToNumber, formatBigInt } from '../helpers/functions'
 import { useSelector } from 'react-redux'
 import {
   selectAmount,
@@ -28,12 +28,15 @@ import { useDispatch } from 'react-redux'
 import { toast, Toaster } from 'react-hot-toast'
 import {
   setAmount,
+  setCCTransactionId,
+  setCCTransactionStatus,
   setMode,
   setSourceChain,
   setSubmitted,
   setTargetAddress,
   setTargetChain,
-  setTargetCurrency
+  setTargetCurrency,
+  setTxId
 } from '@store/optionSlice'
 import useGetTxData from '../hooks/useGetTxData'
 import ChainIcon from './reusable/ChainIcon'
@@ -57,7 +60,10 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const amount = useSelector(selectAmount)
   const txId = useSelector(selectTxId)
   const dAppOption = useSelector(selectDappOption)
-  const { totalFeeUsd } = useSelector(selectServiceFee)
+  const { transactionValues } = useSelector(selectServiceFee)
+  const txValues = feeDeduct
+    ? transactionValues.feeFromTarget
+    : transactionValues.feeFromOrigin
   const transactionOption = useSelector(selectTransactionOption)
   const sourceChain = useSelector(selectSourceChain)
   const targetChain = useSelector(selectTargetChain)
@@ -78,7 +84,9 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
         (network) =>
           network.shortName ===
           (mode === ModeOptions.status
-            ? data?.originChain
+            ? data?.sourceChain === 'FIAT'
+              ? 'CC'
+              : data?.sourceChain
             : sourceChain.shortName)
       ),
     [data, mode, sourceChain]
@@ -206,11 +214,23 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
     } else if (status === TransactionStatus.COMPLETED) {
       setStep(4)
       setLoadingStep(-1)
+    } else if (status === TransactionStatus.DECLINEDINVALID) {
+      setStep(0)
+      setErrorStep(0)
+      setLoadingStep(-1)
+      toast.error('Invalid signature!')
     }
   }, [data?.status])
 
   const resetForm = () => {
     closeHandler && closeHandler()
+
+    if (mode === ModeOptions.status && amount === '') {
+      dispatch(setMode(ModeOptions.status))
+      dispatch(setTxId(-1))
+      return dispatch(setSubmitted(true))
+    }
+
     if (mode !== ModeOptions.payment) {
       // reset to default values
       if (transactionOption?.sourceChain) {
@@ -230,7 +250,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
         )
         dispatch(setTargetChain(targetChain as ChainData))
       } else {
-        dispatch(setTargetChain(networks[0]))
+        dispatch(setTargetChain(networks[1]))
       }
       dispatch(setTargetAddress(transactionOption?.targetAddress || ''))
       dispatch(
@@ -244,6 +264,10 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setMode(transactionOption ? ModeOptions.payment : ModeOptions.bridge)
     )
     // disconnect wallet?
+    dispatch(setAmount(''))
+    dispatch(setCCTransactionId(''))
+    dispatch(setCCTransactionStatus('idle'))
+    dispatch(setTxId(-1))
     dispatch(setSubmitted(false)) // leave it at last since this will unmount the transaction component
   }
 
@@ -262,74 +286,68 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
           <div className='topbar'>
             <div className='title'>
               {isValidTxId && !error ? (
-                <h3 className='transaction'>
+                <div className='transaction'>
                   {mode !== ModeOptions.status
                     ? data?.status === TransactionStatus.COMPLETED
-                      ? 'TRANSFERRED'
-                      : 'TRANSFERING'
+                      ? 'Transferred '
+                      : 'Transfering '
                     : isEmptyStatus
-                      ? 'GETTING TRANSACTION STATUS'
+                      ? 'Getting Transaction Status'
                       : data?.status === TransactionStatus.COMPLETED
-                        ? 'TRANSFERRED'
-                        : 'TRANSFERING'}
-                  <div>
-                    {/* if not in status mode, display the whole picture for better understanding */}
-                    {mode !== ModeOptions.status
-                      ? Number(amount) !== 0
-                        ? formatterFloat.format(
-                            feeDeduct
-                              ? Number(amount)
-                              : Number(amount) + totalFeeUsd
-                          )
-                        : ''
-                      : data?.amount || ''}{' '}
-                    {mode !== ModeOptions.status
-                      ? `(${sourceSymbol})`
-                      : isEmptyStatus
-                        ? ''
-                        : `(${data?.originSymbol})`}
-                    <div className='title-icon'>
-                      <ChainIcon
-                        symbol={transactionSourceChain?.shortName as string}
-                      />
-                    </div>{' '}
-                    {mode !== ModeOptions.status
-                      ? `(${transactionSourceChain?.shortName})`
-                      : isEmptyStatus
-                        ? ''
-                        : `(${data?.originChain})`}{' '}
-                    {mode !== ModeOptions.status
-                      ? `→ `
-                      : isEmptyStatus
-                        ? ''
-                        : `→ `}
-                    {/* if not in status mode, display the whole picture for better understanding */}
-                    {mode !== ModeOptions.status
-                      ? Number(amount) !== 0
-                        ? formatterFloat.format(
-                            feeDeduct
-                              ? Number(amount) - totalFeeUsd
-                              : Number(amount)
-                          )
-                        : ''
-                      : data?.amount || ''}{' '}
-                    {mode !== ModeOptions.status
-                      ? `(${targetSymbol})${' '}`
-                      : isEmptyStatus
-                        ? ''
-                        : `(${data?.targetSymbol})${' '}`}
-                    <div className='title-icon'>
-                      <ChainIcon
-                        symbol={transactionTargetChain?.shortName as string}
-                      />
-                    </div>{' '}
-                    {mode !== ModeOptions.status
-                      ? `(${transactionTargetChain?.shortName})${' '}`
-                      : isEmptyStatus
-                        ? ''
-                        : `(${data?.targetChain}) ${' '}`}
-                  </div>
-                </h3>
+                        ? 'Transfered '
+                        : 'Transfering '}
+                  {/* if not in status mode, display the whole picture for better understanding */}
+                  {mode !== ModeOptions.status
+                    ? Number(amount) !== 0
+                      ? transactionSourceChain?.shortName === 'CC'
+                        ? bigIntToNumber(txValues.allowanceAmount).toFixed(2)
+                        : formatBigInt(txValues.allowanceAmount)
+                      : ''
+                    : data?.amount || ''}{' '}
+                  {mode !== ModeOptions.status
+                    ? `${sourceSymbol} `
+                    : isEmptyStatus
+                      ? ''
+                      : `(${data?.sourceSymbol})`}
+                  <div className='title-icon'>
+                    <ChainIcon
+                      symbol={transactionSourceChain?.shortName as string}
+                    />
+                  </div>{' '}
+                  {mode !== ModeOptions.status
+                    ? `${transactionSourceChain?.name}`
+                    : isEmptyStatus
+                      ? ''
+                      : `${data?.originChain === 'FIAT' ? 'CC' : data?.originChain}`}{' '}
+                  {mode !== ModeOptions.status
+                    ? `→ `
+                    : isEmptyStatus
+                      ? ''
+                      : `→ `}
+                  {/* if not in status mode, display the whole picture for better understanding */}
+                  {mode !== ModeOptions.status
+                    ? Number(amount) !== 0
+                      ? transactionSourceChain?.shortName === 'CC'
+                        ? bigIntToNumber(txValues.submitAmount).toFixed(2)
+                        : formatBigInt(txValues.submitAmount)
+                      : ''
+                    : data?.amount || ''}{' '}
+                  {mode !== ModeOptions.status
+                    ? `${targetSymbol}${' '}`
+                    : isEmptyStatus
+                      ? ''
+                      : `${data?.targetSymbol}${' '}`}
+                  <div className='title-icon'>
+                    <ChainIcon
+                      symbol={transactionTargetChain?.shortName as string}
+                    />
+                  </div>{' '}
+                  {mode !== ModeOptions.status
+                    ? `${transactionTargetChain?.name}${' '}`
+                    : isEmptyStatus
+                      ? ''
+                      : `${data?.targetChain} ${' '}`}
+                </div>
               ) : (
                 <div>
                   <h3 className='transaction'>Transaction Status</h3>

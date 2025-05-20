@@ -134,14 +134,6 @@ export const selectTargetChainFetching = (state: RootState) =>
 // Core
 export const selectTxId = (state: RootState) => state.option.txId
 
-// Core
-export const selectExcludedSourceNetworks = (state: RootState) =>
-  state.option.excludedSourceNetworks
-
-// Core
-export const selectExcludedTargetNetworks = (state: RootState) =>
-  state.option.excludedTargetNetworks
-
 // Solana & Tron | Should be seggregated
 export const selectAccountDetailsModal = (state: RootState) =>
   state.option.accountDetailsModal
@@ -152,3 +144,7 @@ export const selectBankDetails = (state: RootState) => state.option.bankDetails
 export const selectSignature = (state: RootState) => state.option.signature
 export const selectUuid = (state: RootState) => state.option.uuid
 export const selectKycStatus = (state: RootState) => state.option.kycStatus
+export const selectCCTransactionId = (state: RootState) =>
+  state.option.ccTransactionId
+export const selectCCTransactionStatus = (state: RootState) =>
+  state.option.ccTransactionStatus

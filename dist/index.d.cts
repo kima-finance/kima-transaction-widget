@@ -38,7 +38,8 @@ declare enum TransactionStatus {
     UNAVAILABLE = "UnAvailable",
     REFUNDSTART = "RefundStart",
     REFUNDFAILED = "RefundFailed",
-    REFUNDCOMPLETED = "RefundCompleted"
+    REFUNDCOMPLETED = "RefundCompleted",
+    DECLINEDINVALID = "DeclinedInvalid"
 }
 
 declare enum NetworkOptions {
@@ -113,27 +114,60 @@ interface Web3ModalAccountInfo {
     isConnected?: boolean | undefined;
     chainId?: number | undefined;
 }
-interface NetworkFee {
-    chain: string;
-    feeType: string;
-    amount: number;
-}
-interface ServiceFee {
-    allowanceAmount: string;
+interface BigintAmount<TBigInt extends bigint | string> {
+    value: TBigInt;
     decimals: number;
-    sourceNetworkFee?: NetworkFee;
-    submitAmount: string;
-    targetNetworkFee?: NetworkFee;
-    totalFeeUsd: number;
-    totalFee: string;
+}
+interface FeeResult<TBigInt extends BigintAmount<bigint | string>> {
+    feeId: string;
+    feeOriginGasFiat: string;
+    feeOriginGasBigInt: TBigInt;
+    feeKimaProcessingFiat: string;
+    feeKimaProcessingBigInt: TBigInt;
+    feeTargetGasFiat: string;
+    feeTargetGasBigInt: TBigInt;
+    feeTotalFiat: string;
+    feeTotalBigInt: TBigInt;
+    peggedTo: string;
+    expiration: string;
+    transactionValues: FeeTransactionValues<TBigInt>;
+}
+interface FeeTransactionValues<TBigInt = BigintAmount<bigint | string>> {
+    feeFromOrigin: TransactionValues<TBigInt>;
+    feeFromTarget: TransactionValues<TBigInt>;
+}
+interface TransactionValues<TBigInt = BigintAmount<bigint | string>> {
+    allowanceAmount: TBigInt;
+    submitAmount: TBigInt;
+    message: string;
+}
+type FeeResponse = FeeResult<BigintAmount<string>>;
+interface ServiceFee {
+    feeId: string;
+    peggedTo: string;
+    expiration: string;
+    transactionValues: FeeTransactionValues<BigintAmount<bigint>> & {
+        originChain: string;
+        originAddress: string;
+        originSymbol: string;
+        targetChain: string;
+        targetAddress: string;
+        targetSymbol: string;
+    };
+    sourceFee: BigintAmount<bigint>;
+    targetFee: BigintAmount<bigint>;
+    kimaFee: BigintAmount<bigint>;
+    totalFee: BigintAmount<bigint>;
 }
 interface TronProvider {
     tronWeb: TronWeb;
     signTransaction: (transaction: Transaction, privateKey?: string) => Promise<SignedTransaction>;
+    signMessage(message: string, privateKey?: string): Promise<string>;
 }
 interface SolProvider {
     connection: Connection;
     signTransaction: <T extends Transaction | VersionedTransaction>(transaction: T) => Promise<T>;
+    signMessage(message: Uint8Array): Promise<Uint8Array>;
 }
 interface ExternalProvider {
     type: 'evm' | 'solana' | 'tron';
@@ -168,6 +202,6 @@ interface Props {
     excludedSourceNetworks?: Array<ChainName>;
     excludedTargetNetworks?: Array<ChainName>;
 }
-declare const KimaTransactionWidget: ({ mode, txId, dAppOption, theme, titleOption, paymentTitleOption, helpURL, compliantOption, transactionOption, excludedSourceNetworks, excludedTargetNetworks }: Props) => react__default.JSX.Element | null;
+declare const KimaTransactionWidget: ({ mode, txId, dAppOption, theme, titleOption, paymentTitleOption, helpURL, compliantOption, transactionOption, excludedSourceNetworks, excludedTargetNetworks }: Props) => react__default.JSX.Element;
 
-export { CHAIN_NAMES_TO_STRING, CHAIN_STRING_TO_NAME, ColorModeOptions, type CompliantOption, CurrencyOptions, DAppOptions, type ExternalProvider, KimaProvider, KimaTransactionWidget, ModeOptions, type NetworkFee, NetworkOptions, type Option, type PaymentTitleOption, type ServiceFee, type SolProvider, ChainName as SupportNetworks, type ThemeOptions, type TitleOption, type TransactionData, type TransactionOption, type TronProvider, type Web3ModalAccountInfo };
+export { type BigintAmount, CHAIN_NAMES_TO_STRING, CHAIN_STRING_TO_NAME, ColorModeOptions, type CompliantOption, CurrencyOptions, DAppOptions, type ExternalProvider, type FeeResponse, type FeeResult, type FeeTransactionValues, KimaProvider, KimaTransactionWidget, ModeOptions, NetworkOptions, type Option, type PaymentTitleOption, type ServiceFee, type SolProvider, ChainName as SupportNetworks, type ThemeOptions, type TitleOption, type TransactionData, type TransactionOption, type TransactionValues, type TronProvider, type Web3ModalAccountInfo };

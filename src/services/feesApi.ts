@@ -1,38 +1,64 @@
-import { NetworkFee, ServiceFee } from '@interface'
+import type { FeeResponse, ServiceFee } from '@interface'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
-import log from '@utils/logger'
-
-export interface FeeResult
-  extends Omit<ServiceFee, 'sourceNetworkFee' | 'targetNetworkFee'> {
-  breakdown: NetworkFee[]
-}
+import { toBigintAmount } from 'src/helpers/functions'
 
 export const getFees = async (
   amount: number,
-  deductFee: boolean,
   originChain: string,
+  originAddress: string,
   originSymbol: string,
   targetChain: string,
+  targetAddress: string,
+  targetSymbol: string,
   backendUrl: string
 ): Promise<ServiceFee> => {
   try {
     const response: any = await fetchWrapper.get(
-      `${backendUrl}/submit/fees?amount=${amount}&originChain=${originChain}&originSymbol=${originSymbol}&targetChain=${targetChain}&deductFee=${deductFee}`
+      `${backendUrl}/submit/fees?amount=${amount}&originChain=${originChain}&originAddress=${originChain === 'CC' ? targetAddress : originAddress}&originSymbol=${originSymbol}&targetChain=${targetChain}&targetAddress=${targetAddress}&targetSymbol=${targetSymbol}`
     )
+    const result = response as FeeResponse
 
-    log.debug('response: ', response)
-    const { breakdown, ...totals } = response as FeeResult
-    const [sourceNetworkFee, targetNetworkFee] = breakdown
+    // convert bigint string values to bigint
+    const output = {
+      feeId: result.feeId,
+      peggedTo: result.peggedTo,
+      expiration: result.expiration,
+      sourceFee: toBigintAmount(result.feeOriginGasBigInt),
+      targetFee: toBigintAmount(result.feeTargetGasBigInt),
+      kimaFee: toBigintAmount(result.feeKimaProcessingBigInt),
+      totalFee: toBigintAmount(result.feeTotalBigInt),
+      transactionValues: {
+        originChain,
+        originAddress,
+        originSymbol,
+        targetChain,
+        targetAddress,
+        targetSymbol,
+        feeFromOrigin: {
+          allowanceAmount: toBigintAmount(
+            result.transactionValues.feeFromOrigin.allowanceAmount
+          ),
+          submitAmount: toBigintAmount(
+            result.transactionValues.feeFromOrigin.submitAmount
+          ),
+          message: result.transactionValues.feeFromOrigin.message
+        },
+        feeFromTarget: {
+          allowanceAmount: toBigintAmount(
+            result.transactionValues.feeFromTarget.allowanceAmount
+          ),
+          submitAmount: toBigintAmount(
+            result.transactionValues.feeFromTarget.submitAmount
+          ),
+          message: result.transactionValues.feeFromTarget.message
+        }
+      }
+    } satisfies ServiceFee
+    // console.log('getFees: ', output, response)
 
-    const serviceFees: ServiceFee = {
-      ...totals,
-      sourceNetworkFee,
-      targetNetworkFee
-    }
-
-    return serviceFees
+    return output
   } catch (e) {
-    log.error('Failed to fetch fees:', e)
+    // log.error('Failed to fetch fees:', e)
     throw new Error('Failed to fetch fees')
   }
 }

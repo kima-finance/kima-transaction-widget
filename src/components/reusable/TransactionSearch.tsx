@@ -59,7 +59,7 @@ const TransactionSearch = () => {
           spellCheck={false}
         />
       </div>
-      <PrimaryButton clickHandler={handleSearch}>Search</PrimaryButton>
+      <PrimaryButton clickHandler={handleSearch}>SEARCH</PrimaryButton>
     </div>
   )
 }

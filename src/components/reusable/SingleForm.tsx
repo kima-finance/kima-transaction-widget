@@ -2,53 +2,42 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { useDispatch, useSelector } from 'react-redux'
 import {
-  selectBackendUrl,
   selectCompliantOption,
   selectMode,
   selectSourceChain,
-  selectSourceCurrency,
   selectTargetCompliant,
   selectTargetChain,
   selectTheme,
-  selectTransactionOption,
   selectServiceFee,
   selectFeeDeduct,
   selectAmount,
-  selectTargetCurrency
 } from '../../store/selectors'
 import { BankInput, CoinDropdown, SecondaryButton, WalletButton } from './'
 import { setAmount } from '../../store/optionSlice'
 import { ModeOptions } from '../../interface'
 import AddressInput from './AddressInput'
-import { COIN_LIST, ChainName } from '../../utils/constants'
+import { ChainName } from '../../utils/constants'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
-import useGetFees from '../../hooks/useGetFees'
-import { setServiceFee } from '@store/optionSlice'
-import { preciseSubtraction } from '@utils/functions'
 import NetworkSelector from '@components/primary/NetworkSelector'
+import { parseUnits } from 'viem'
+// import { formatBigInt } from 'src/helpers/functions'
+import { ChainCompatibility } from '@plugins/pluginTypes'
+import { formatBigInt } from 'src/helpers/functions'
 
 const SingleForm = ({
   balance,
-  decimals
+  decimals,
+  isLoadingFees
 }: {
-  allowance: number | undefined
-  balance: number | undefined
+  balance: bigint | undefined
   decimals: number | undefined
-  formStep: number
-  onBack: () => void
-  onCancelApprove: () => void
-  onNext: () => void
-  getButtonLabel: () => string
-  isApproving: boolean
-  isSigning: boolean
-  isSubmitting: boolean
-  isCancellingApprove: boolean
+  isLoadingFees: boolean
 }) => {
   const dispatch = useDispatch()
   const mode = useSelector(selectMode)
   const theme = useSelector(selectTheme)
   const feeDeduct = useSelector(selectFeeDeduct)
-  const { totalFeeUsd } = useSelector(selectServiceFee)
+  const { totalFee } = useSelector(selectServiceFee)
   const compliantOption = useSelector(selectCompliantOption)
   const targetCompliant = useSelector(selectTargetCompliant)
   const sourceNetwork = useSelector(selectSourceChain)
@@ -56,31 +45,6 @@ const SingleForm = ({
   const { isReady } = useIsWalletReady()
   const [amountValue, setAmountValue] = useState('')
   const amount = useSelector(selectAmount)
-  const sourceCurrency = useSelector(selectSourceCurrency)
-  const targetCurrency = useSelector(selectTargetCurrency)
-  const backendUrl = useSelector(selectBackendUrl)
-
-  const {
-    data: fees,
-    isLoading,
-    error
-  } = useGetFees(
-    parseFloat(amount),
-    feeDeduct,
-    sourceNetwork.shortName,
-    sourceCurrency,
-    targetNetwork.shortName,
-    backendUrl
-  )
-
-  useEffect(() => {
-    if (fees) {
-      dispatch(setServiceFee(fees))
-    }
-  }, [fees, dispatch])
-
-  const TargetIcon =
-    COIN_LIST[targetCurrency || 'USDK']?.icon || COIN_LIST['USDK'].icon
 
   const errorMessage = useMemo(
     () =>
@@ -94,10 +58,11 @@ const SingleForm = ({
 
   const maxValue = useMemo(() => {
     if (!balance) return 0
-    if (totalFeeUsd < 0) return balance
+    if (totalFee.value === BigInt(0)) return balance
 
-    return preciseSubtraction(balance as number, totalFeeUsd)
-  }, [balance, totalFeeUsd, feeDeduct])
+    const intAmount = parseUnits(amount, totalFee.decimals)
+    return balance - intAmount
+  }, [balance, totalFee, feeDeduct])
 
   useEffect(() => {
     if (!errorMessage) return
@@ -114,7 +79,7 @@ const SingleForm = ({
       <div className='form-item'>
         <span className='label'>Source Network</span>
         <div className='items'>
-          <NetworkSelector type='source' />
+          <NetworkSelector type='origin' />
           <CoinDropdown />
         </div>
       </div>
@@ -124,12 +89,14 @@ const SingleForm = ({
           sourceNetwork.shortName === ChainName.FIAT ? 'reverse' : '1'
         }`}
       >
-        <div
-          className={`form-item wallet-button-item ${isReady && 'connected'}`}
-        >
-          <span className='label'>Wallet</span>
-          <WalletButton />
-        </div>
+        {sourceNetwork.compatibility !== ChainCompatibility.CC && (
+          <div
+            className={`form-item wallet-button-item ${isReady && 'connected'}`}
+          >
+            <span className='label'>Wallet</span>
+            <WalletButton />
+          </div>
+        )}
 
         {mode === ModeOptions.bridge && (
           <div className='form-item'>
@@ -188,7 +155,15 @@ const SingleForm = ({
             >
               MAX
             </SecondaryButton>
-            {totalFeeUsd !== -1 && <p>Est fees: $ {totalFeeUsd} USD</p>}
+            {+totalFee !== -1 && (
+              <p className='fee-amount'>
+                Est fees:{' '}
+                <span className={`${isLoadingFees ? 'loading' : ''}`}>
+                  {' '}
+                  {isLoadingFees ? '' : `$ ${formatBigInt(totalFee)} USD`}
+                </span>
+              </p>
+            )}
           </div>
         </div>
       </div>

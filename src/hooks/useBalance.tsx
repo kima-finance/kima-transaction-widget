@@ -4,7 +4,10 @@ import { PluginUseBalanceResult } from '@plugins/pluginTypes'
 
 // Preload all plugins
 const allPlugins = getAllPlugins()
-const zeroBalance = { balance: 0, decimals: 6 } satisfies PluginUseBalanceResult
+const zeroBalance = {
+  balance: BigInt(0),
+  decimals: 6
+} satisfies PluginUseBalanceResult
 
 export default function useBalance(): PluginUseBalanceResult {
   // Get the current plugin and extract its ID
@@ -14,7 +17,7 @@ export default function useBalance(): PluginUseBalanceResult {
   // Call useBalance for every plugin in a stable order
   const pluginEntries = Object.entries(allPlugins)
   const allBalances = pluginEntries.map(([pluginID, plugin]) => {
-    const balanceData = plugin.useTokenBalance()
+    const balanceData = plugin?.useTokenBalance?.()
     return { pluginID, ...balanceData }
   })
 

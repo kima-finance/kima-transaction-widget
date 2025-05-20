@@ -1,11 +1,11 @@
 import { TokenOptions } from '@store/optionSlice'
-import { formatUnits } from 'ethers'
 import { createPublicClient, http, getContract, erc20Abi } from 'viem'
 import { getTokenAddress, getPoolAddress } from '@utils/functions'
 import {
   CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET,
   CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET
 } from '@utils/constants'
+import { GetTokenAllowanceResult } from '@plugins/pluginTypes'
 import log from '@utils/logger'
 
 export const getTokenAllowance = async ({
@@ -22,15 +22,27 @@ export const getTokenAllowance = async ({
   chain: string
   pools: Array<any>
   isTestnet: boolean
-}) => {
+}): Promise<GetTokenAllowanceResult> => {
   try {
+    log.debug('EVM:getTokenAllowance:', {
+      tokenOptions,
+      selectedCoin,
+      chain,
+      userAddress,
+      pools
+    })
     const tokenAddress = getTokenAddress(tokenOptions, selectedCoin, chain)
+
     const poolAddress = getPoolAddress(pools, chain)
 
-    if (!tokenAddress || !poolAddress || !userAddress)
-      throw new Error(
-        'Cannot find pool or token address for the specified token and chain'
-      )
+    if (!tokenAddress || !poolAddress || !userAddress) {
+      log.warn('EVM:getTokenAllowance: Missing required data', {
+        tokenAddress,
+        poolAddress,
+        userAddress
+      })
+      return {}
+    }
 
     // determine network based on mainnet/testnet
     const network = isTestnet
@@ -65,11 +77,17 @@ export const getTokenAllowance = async ({
       erc20Contract.read.decimals() as Promise<number>
     ])
 
-    log.debug('allowance data: ', allowance, balance, decimals)
+    log.debug('EVM:getTokenAllowance: data: ', {
+      chain,
+      userAddress,
+      allowance,
+      balance,
+      decimals
+    })
 
     return {
-      allowance: Number(formatUnits(allowance, decimals)),
-      balance: Number(formatUnits(balance, decimals)),
+      allowance: allowance,
+      balance: balance,
       decimals: Number(decimals)
     }
   } catch (error) {

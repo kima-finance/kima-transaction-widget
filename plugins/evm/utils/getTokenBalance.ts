@@ -4,19 +4,15 @@ import {
   CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET
 } from '@utils/constants'
 import { createPublicClient, erc20Abi, getContract, http } from 'viem'
+import { PluginUseBalanceResult } from '@plugins/pluginTypes'
 
 export const getEvmTokenBalance = async (input: {
   address: string
   tokenAddress: string
   chain: string
   isTestnet: boolean
-}) => {
-  const {
-    tokenAddress,
-    chain,
-    address,
-    isTestnet = true
-  } = input
+}): Promise<PluginUseBalanceResult> => {
+  const { tokenAddress, chain, address, isTestnet = true } = input
 
   // determine network based on testnet/mainnet
   const network = isTestnet
@@ -46,7 +42,7 @@ export const getEvmTokenBalance = async (input: {
   ])
 
   return {
-    balance: Number(formatUnits(userBalance, decimals)),
+    balance: userBalance,
     decimals: Number(decimals)
   }
 }

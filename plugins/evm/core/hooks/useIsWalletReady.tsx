@@ -18,7 +18,7 @@ import log from '@utils/logger'
 function useIsWalletReady(): {
   isReady: boolean
   statusMessage: string
-  walletAddress?: string
+  connectedAddress?: string
 } {
   const dispatch = useDispatch()
   const { externalProvider } = useKimaContext()
@@ -37,6 +37,7 @@ function useIsWalletReady(): {
 
   const [isReady, setIsReady] = useState(false)
   const [statusMessage, setStatusMessage] = useState('Wallet not connected')
+  const [connectedAddress, setConnectedAddress] = useState<string>('')
 
   const switchNetwork = useCallback(async () => {
     log.debug('useIsWalletReady:EVM:Attempting to switch network...', {
@@ -62,7 +63,11 @@ function useIsWalletReady(): {
   useEffect(() => {
     async function checkChainId() {
       // case external provider
-      if (externalProvider?.type === 'evm' && externalProvider?.provider) {
+      if (
+        externalProvider?.type === 'evm' &&
+        externalProvider?.provider &&
+        sourceChain.compatibility === ChainCompatibility.EVM
+      ) {
         try {
           const network = await (
             externalProvider.provider as BrowserProvider
@@ -100,8 +105,13 @@ function useIsWalletReady(): {
             return
           }
 
+          const externalProviderSignerAddress = (
+            await (externalProvider.provider as BrowserProvider).getSigner()
+          ).address
+
           setIsReady(true)
           setStatusMessage('Connected with external provider')
+          setConnectedAddress(externalProviderSignerAddress)
           return
         } catch (error) {
           log.error('Failed to fetch chainId from provider:', error)
@@ -109,7 +119,10 @@ function useIsWalletReady(): {
       }
 
       // case there's not external provider
-      if (!externalProvider) {
+      if (
+        !externalProvider &&
+        sourceChain.compatibility === ChainCompatibility.EVM
+      ) {
         log.debug('useIsWalletReady:EVM: Checking AppKit connection')
 
         // wallet id is the same as the current source chain
@@ -119,6 +132,7 @@ function useIsWalletReady(): {
           )
           setIsReady(true)
           setStatusMessage('Connected with AppKit provider')
+          setConnectedAddress(walletAddress)
           log.debug(
             'useIsWalletReady:EVM: is ready + status message: ',
             isReady,
@@ -139,17 +153,19 @@ function useIsWalletReady(): {
   }, [externalProvider, sourceChain, switchNetwork, walletChainId, isConnected])
 
   useEffect(() => {
-    if (isConnected && sourceChain.compatibility === ChainCompatibility.EVM) {
+    if (
+      connectedAddress !== '' &&
+      sourceChain.compatibility === ChainCompatibility.EVM
+    ) {
       log.debug(
         'useIsWalletReady:EVM: Dispatching source address:',
-        walletAddress
+        connectedAddress
       )
-      log.debug('dispatching evm address: ', walletAddress)
-      dispatch(setSourceAddress(walletAddress ?? ''))
+      dispatch(setSourceAddress(connectedAddress ?? ''))
     }
-  }, [walletAddress, isConnected, dispatch])
+  }, [connectedAddress, dispatch])
 
-  return { isReady, statusMessage, walletAddress }
+  return { isReady, statusMessage, connectedAddress }
 }
 
 export default useIsWalletReady

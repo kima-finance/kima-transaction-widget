@@ -32,7 +32,6 @@ const appkitMainnetChains = [
   arbitrum,
   optimism,
   avalanche,
-  polygonZkEvm
 ]
 
 const appkitTestnetChains = [

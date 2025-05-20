@@ -1,6 +1,5 @@
-import { useState } from 'react'
 import { useSelector } from 'react-redux'
-import { useQuery } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 
 import {
   selectSourceCurrency,
@@ -9,95 +8,39 @@ import {
   selectTokenOptions,
   selectNetworkOption,
   selectBackendUrl,
-  selectFeeDeduct,
-  selectAmount
+  selectFeeDeduct
 } from '@store/selectors'
-import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
 import useGetPools from '../../../../src/hooks/useGetPools'
-import { getTokenAllowance } from '../../utils/getTokenAllowance'
 import { getPoolAddress, getTokenAddress } from '@utils/functions'
-import { isEVMChain } from '@plugins/evm/utils/constants'
-import { useKimaContext } from '../../../../src/KimaProvider'
-import { NetworkOptions } from '@interface'
-import { BrowserProvider, formatUnits } from 'ethers'
 import {
   createPublicClient,
   createWalletClient,
   custom,
   erc20Abi,
-  http,
-  parseUnits
+  http
 } from 'viem'
-import { SignDataType } from '@plugins/pluginTypes'
+import { PluginUseAllowanceResult, SignDataType } from '@plugins/pluginTypes'
 import log from '@utils/logger'
+import { useEvmProvider } from './useEvmProvider'
+import useBalance from './useBalance'
 
-export default function useEvmAllowance() {
-  const { externalProvider } = useKimaContext()
-  const { walletProvider: appkitProvider } =
-    useAppKitProvider<BrowserProvider>('eip155')
-  const appkitAccountInfo = useAppKitAccount()
-
+export default function useEvmAllowance(): PluginUseAllowanceResult {
+  const queryClient = useQueryClient()
   const sourceChain = useSelector(selectSourceChain)
   const networkOption = useSelector(selectNetworkOption)
-  const { totalFeeUsd, allowanceAmount, submitAmount, decimals } =
-    useSelector(selectServiceFee)
+  const { transactionValues } = useSelector(selectServiceFee)
   const selectedCoin = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
   const backendUrl = useSelector(selectBackendUrl)
   const feeDeduct = useSelector(selectFeeDeduct)
-  const allowanceNumber = Number(
-    formatUnits(feeDeduct ? submitAmount : (allowanceAmount ?? '0'), decimals)
-  )
-  const amount = useSelector(selectAmount)
+  const txValues = feeDeduct
+    ? transactionValues.feeFromTarget
+    : transactionValues.feeFromOrigin
+  const allowanceNumber = BigInt(txValues.allowanceAmount.value)
 
   const { pools } = useGetPools(backendUrl, networkOption)
-  // log.debug("appkit provider:", appkitProvider);
-
-  // get the proper address
-  const walletAddress =
-    externalProvider?.signer?.address || appkitAccountInfo?.address
-
-  // log.debug("appkit account: ", appkitAccountInfo);
-
-  // get the proper provider
-  const walletProvider =
-    externalProvider?.provider instanceof BrowserProvider
-      ? externalProvider.provider
-      : appkitProvider
-
-  const [approvalsCount, setApprovalsCount] = useState(0)
-
-  const queryKey = ['evmAllowance', walletAddress, sourceChain, approvalsCount]
-
-  const enabled =
-    !!walletAddress &&
-    !!tokenOptions &&
-    !!selectedCoin &&
-    pools.length > 0 &&
-    isEVMChain(sourceChain.shortName) &&
-    (!!externalProvider?.provider || !!appkitProvider)
-
-  // log.debug("enabled: ", enabled, );
-
-  const {
-    data: allowanceData,
-    isLoading,
-    refetch
-  } = useQuery({
-    queryKey,
-    queryFn: () =>
-      getTokenAllowance({
-        tokenOptions,
-        selectedCoin,
-        userAddress: walletAddress!,
-        pools,
-        chain: sourceChain.shortName,
-        isTestnet: networkOption === NetworkOptions.testnet
-      }),
-    staleTime: 60 * 1000,
-    refetchInterval: 60 * 1000,
-    enabled
-  })
+  const { walletProvider, walletAddress } = useEvmProvider()
+  const allowanceData = useBalance()
 
   const signMessage = async (data: SignDataType) => {
     if (!walletProvider) {
@@ -115,12 +58,13 @@ export default function useEvmAllowance() {
       const walletClient = createWalletClient({
         account: walletAddress as `0x${string}`,
         chain: sourceChain,
-        transport: custom(window.ethereum) // WARNING: NEED TO MAKE SURE THIS USING THE ETHEREUM OBJECT IS STABLE ENOUGH
+        transport: custom(window.ethereum as any) // WARNING: NEED TO MAKE SURE THIS USING THE ETHEREUM OBJECT IS STABLE ENOUGH
       })
 
+      console.log('useEvmAllowance: Signing message:', txValues.message)
       return await walletClient.signMessage({
         account: walletAddress as `0x${string}`,
-        message: `I approve the transfer of ${allowanceNumber} ${data.originSymbol} from ${data.originChain} to ${data.targetAddress} on ${data.targetChain}.`
+        message: txValues.message
       })
     } catch (error) {
       log.error('useEvmAllowance: Error on signing message:', error)
@@ -146,13 +90,14 @@ export default function useEvmAllowance() {
       !allowanceData?.decimals ||
       !tokenAddress ||
       !poolAddress ||
-      !allowanceAmount
+      !txValues
     ) {
-      log.warn('useEvmAllowance: Missing required data', {
-        allowanceAmount,
+      console.warn('useEvmAllowance: Missing required data', {
+        txValues,
         allowanceData,
         tokenAddress,
-        signer: externalProvider?.signer || appkitProvider.getSigner(),
+        signer: walletProvider.getSigner(),
+        // signer: externalProvider?.signer || appkitProvider.getSigner(),
         poolAddress
       })
       return
@@ -169,17 +114,10 @@ export default function useEvmAllowance() {
       const walletClient = createWalletClient({
         account: walletAddress as `0x${string}`,
         chain: sourceChain,
-        transport: custom(window.ethereum) // WARNING: NEED TO MAKE SURE THIS USING THE ETHEREUM OBJECT IS STABLE ENOUGH
+        transport: custom(window.ethereum as any) // WARNING: NEED TO MAKE SURE THIS USING THE ETHEREUM OBJECT IS STABLE ENOUGH
       })
 
-      const finalAmount = isCancel
-        ? BigInt(0)
-        : feeDeduct
-          ? parseUnits(amount, allowanceData.decimals)
-          : parseUnits(
-              (+amount + totalFeeUsd).toString(),
-              allowanceData.decimals
-            )
+      const finalAmount = isCancel ? BigInt(0) : allowanceNumber
 
       // write transaction using viem
       const hash = await walletClient.writeContract({
@@ -199,8 +137,10 @@ export default function useEvmAllowance() {
       const receipt = await viemClient.waitForTransactionReceipt({ hash })
 
       if (receipt.status === 'success') {
-        log.info('useEvmAllowance: Transaction successful:', receipt)
-        setApprovalsCount((prev: number) => prev + 1)
+        console.log('useEvmAllowance: Transaction successful:', receipt)
+        // update allowance data
+        await queryClient.invalidateQueries({ queryKey: ['evmAllowance'] })
+        // setApprovalsCount((prev: number) => prev + 1)
       } else {
         log.error('useEvmAllowance: Transaction failed:', receipt)
         throw new Error('Transaction failed')
@@ -217,8 +157,6 @@ export default function useEvmAllowance() {
       ? allowanceData.allowance >= allowanceNumber
       : false,
     approve: approveErc20TokenTransfer,
-    isLoading,
-    signMessage,
-    refetch
-  }
+    signMessage
+  } satisfies PluginUseAllowanceResult
 }

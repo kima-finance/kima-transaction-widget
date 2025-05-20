@@ -1,22 +1,25 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import {
-  selectExcludedSourceNetworks,
-  selectExcludedTargetNetworks,
   selectNetworks,
   selectSourceChain,
   selectTargetChain,
   selectTheme
 } from '@store/selectors'
-import { setSourceChain, setTargetChain } from '@store/optionSlice'
+import {
+  setSourceChain,
+  setSourceCurrency,
+  setTargetChain,
+  setTargetCurrency
+} from '@store/optionSlice'
 import Arrow from '@assets/icons/Arrow'
 import ChainIcon from '../reusable/ChainIcon'
-import { ChainName } from '@utils/constants'
 import { useKimaContext } from 'src/KimaProvider'
-import { ChainData } from '@plugins/pluginTypes'
+import { ChainData, ChainLocation } from '@plugins/pluginTypes'
+import log from '@utils/logger'
 
 interface NetworkSelectorProps {
-  type: 'source' | 'target' // Determines if this is a source or target selector
+  type: ChainLocation // Determines if this is a source or target selector
 }
 
 const NetworkSelector: React.FC<NetworkSelectorProps> = ({ type }) => {
@@ -28,67 +31,68 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({ type }) => {
   const networkOptions = useSelector(selectNetworks)
   const sourceNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
-  const excludedSourceNetworks = useSelector(selectExcludedSourceNetworks)
-  const excludedTargetNetworks = useSelector(selectExcludedTargetNetworks)
   const { switchChainHandler } = useKimaContext()
 
-  const isSourceSelector = type === 'source'
+  const isOriginSelector = type === 'origin'
 
   // Filter networks based on the type (source/target)
-  const networks = useMemo(() => {
-    if (isSourceSelector) {
-      return networkOptions.filter(
-        (network: ChainData) =>
-          !excludedSourceNetworks.includes(network.shortName as ChainName) &&
-          network.shortName !== 'BERA' // temporary disabled as source chain
-      )
-    }
-    return networkOptions.filter(
-      (network: ChainData) =>
-        network.shortName !== sourceNetwork.shortName &&
-        !excludedTargetNetworks.includes(network.shortName as ChainName)
-    ) // Exclude source from target options
-  }, [
-    networkOptions,
-    sourceNetwork,
-    isSourceSelector,
-    excludedSourceNetworks,
-    excludedTargetNetworks
-  ])
+  const networks = useMemo(
+    () =>
+      networkOptions.filter((network: ChainData) => {
+        const isSameAsSource = isOriginSelector
+          ? false
+          : network.shortName === sourceNetwork.shortName // remove source from target
+
+        return network.supportedLocations.includes(type) && !isSameAsSource
+      }),
+    [networkOptions, sourceNetwork, type]
+  )
 
   const selectedNetwork = useMemo(() => {
-    const selected = isSourceSelector ? sourceNetwork : targetNetwork
+    const selected = isOriginSelector ? sourceNetwork : targetNetwork
     return (
       networks.find((network: ChainData) => network.id === selected.id) || {
         shortName: '',
-        name: isSourceSelector
+        name: isOriginSelector
           ? 'Select Source Network'
           : 'Select Target Network'
       }
     )
-  }, [networks, sourceNetwork, targetNetwork, isSourceSelector])
+  }, [networks, sourceNetwork, targetNetwork, isOriginSelector])
 
   useEffect(() => {
     if (!networks.length || selectedNetwork.shortName) return
 
     // Fallback to the first available network if none is selected
     const fallbackNetwork = networks[0]
-    if (isSourceSelector) {
+    if (isOriginSelector) {
       dispatch(setSourceChain(fallbackNetwork))
     } else {
       dispatch(setTargetChain(fallbackNetwork))
     }
-  }, [networks, selectedNetwork, isSourceSelector, dispatch])
+  }, [networks, selectedNetwork, isOriginSelector, dispatch])
 
   const handleNetworkChange = (chain: ChainData) => {
-    if (isSourceSelector) {
+    log.debug('NetworkSelector: Handling network change', chain)
+    const newCurrency = chain.supportedTokens[0]?.symbol ?? ''
+    if (isOriginSelector) {
       if (chain.id !== sourceNetwork.id) {
+        log.debug('NetworkSelector: Setting source chain and currency to:', {
+          chain: chain.shortName,
+          currency: newCurrency
+        })
         dispatch(setSourceChain(chain))
+        dispatch(setSourceCurrency(newCurrency))
         switchChainHandler && switchChainHandler(chain)
       }
     } else {
       if (chain.shortName !== targetNetwork.shortName) {
+        log.debug('NetworkSelector: Setting target chain and currency to:', {
+          chain: chain.shortName,
+          currency: newCurrency
+        })
         dispatch(setTargetChain(chain))
+        dispatch(setTargetCurrency(newCurrency))
       }
     }
     setCollapsed(true) // Explicitly collapse the dropdown after selection

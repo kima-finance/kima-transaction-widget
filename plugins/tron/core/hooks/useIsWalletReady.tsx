@@ -9,17 +9,17 @@ import { useKimaContext } from '../../../../src/KimaProvider'
 const createWalletStatus = (
   isReady: boolean,
   statusMessage: string = '',
-  walletAddress?: string
+  connectedAddress?: string
 ) => ({
   isReady,
   statusMessage,
-  walletAddress
+  connectedAddress
 })
 
 function useIsWalletReady(): {
   isReady: boolean
   statusMessage: string
-  walletAddress?: string
+  connectedAddress?: string
 } {
   const dispatch = useDispatch()
   const sourceChain = useSelector(selectSourceChain)
@@ -29,7 +29,7 @@ function useIsWalletReady(): {
   // set source address upon connection & valid network selected
   useEffect(() => {
     internalTronAddress &&
-      sourceChain === 'TRX' &&
+      sourceChain.shortName === 'TRX' &&
       dispatch(setSourceAddress(internalTronAddress))
   }, [internalTronAddress, sourceChain])
 
@@ -42,9 +42,9 @@ function useIsWalletReady(): {
       )
 
     if (internalTronAddress)
-      return createWalletStatus(true, undefined, internalTronAddress)
+      return createWalletStatus(true, 'Connected with internal provider', internalTronAddress)
 
-    return createWalletStatus(false, 'Solana wallet not connected', '')
+    return createWalletStatus(false, 'Tron wallet not connected', '')
   }, [sourceChain, internalTronAddress, externalProvider])
 }
 

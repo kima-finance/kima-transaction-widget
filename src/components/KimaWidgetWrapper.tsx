@@ -25,14 +25,16 @@ import {
   setNetworkOption,
   setTargetAddress,
   setAmount,
-  setExcludedSourceNetworks,
-  setExcludedTargetNetworks,
   setTargetCurrency,
   setSourceChain,
   setDappOption
 } from '../store/optionSlice'
 import '../index.css'
-import { selectSubmitted } from '../store/selectors'
+import {
+  selectCCTransactionStatus,
+  selectSourceChain,
+  selectSubmitted
+} from '../store/selectors'
 import { TransactionWidget } from './TransactionWidget'
 import { TransferWidget } from './TransferWidget'
 import { useAppKitTheme } from '@reown/appkit/react'
@@ -79,6 +81,8 @@ const KimaWidgetWrapper = ({
   const submitted = useSelector(selectSubmitted)
   const dispatch = useDispatch()
   const { setThemeMode, setThemeVariables } = useAppKitTheme()
+  const sourceChain = useSelector(selectSourceChain)
+  const ccTransactionStatus = useSelector(selectCCTransactionStatus)
 
   const networkOption = envOptions?.env
   const kimaExplorer =
@@ -94,9 +98,6 @@ const KimaWidgetWrapper = ({
     })
 
     if (transactionOption) dispatch(setTransactionOption(transactionOption))
-
-    dispatch(setExcludedSourceNetworks(excludedSourceNetworks))
-    dispatch(setExcludedTargetNetworks(excludedTargetNetworks))
 
     dispatch(setCompliantOption(compliantOption))
     dispatch(setBackendUrl(kimaBackendUrl))
@@ -142,6 +143,24 @@ const KimaWidgetWrapper = ({
     // once the supported chains are fetched map chains to plugins so they can be found
     indexPluginsByChain(chainData)
   }, [chainData])
+
+  // case credit card
+  if (sourceChain.shortName === 'CC') {
+    // case submitted, and got a successful cc transaction
+    if (submitted && ccTransactionStatus === 'success') {
+      console.log("will return transaction widget on cc success")
+      return <TransactionWidget theme={theme} />
+    }
+
+    return (
+      <TransferWidget
+        theme={theme}
+        helpURL={helpURL}
+        titleOption={titleOption}
+        paymentTitleOption={paymentTitleOption}
+      />
+    )
+  }
 
   return submitted ? (
     <TransactionWidget theme={theme} />

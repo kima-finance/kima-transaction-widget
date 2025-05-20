@@ -9,17 +9,17 @@ import { useKimaContext } from '../../../../src/KimaProvider'
 const createWalletStatus = (
   isReady: boolean,
   statusMessage: string = '',
-  walletAddress?: string
+  connectedAddress?: string
 ) => ({
   isReady,
   statusMessage,
-  walletAddress
+  connectedAddress
 })
 
 function useIsWalletReady(): {
   isReady: boolean
   statusMessage: string
-  walletAddress?: string
+  connectedAddress?: string
 } {
   const dispatch = useDispatch()
   const { externalProvider } = useKimaContext()
@@ -30,7 +30,7 @@ function useIsWalletReady(): {
   // set source address upon connection & valid network selected
   useEffect(() => {
     solanaAddress &&
-      sourceChain === 'SOL' &&
+      sourceChain.shortName === 'SOL' &&
       dispatch(setSourceAddress(solanaAddress.toBase58()))
   }, [solanaAddress, sourceChain])
 
@@ -43,7 +43,7 @@ function useIsWalletReady(): {
       )
 
     if (solanaAddress)
-      return createWalletStatus(true, undefined, solanaAddress.toBase58())
+      return createWalletStatus(true, 'Connected with internal provider', solanaAddress.toBase58())
 
     return createWalletStatus(false, 'Solana wallet not connected', '')
   }, [sourceChain, solanaAddress])

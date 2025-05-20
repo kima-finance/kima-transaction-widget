@@ -1,121 +1,40 @@
-import { useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 
-import ERC20ABI from '@utils/ethereum/erc20ABI.json'
 import {
   selectSourceCurrency,
-  selectSourceChain,
   selectServiceFee,
   selectTokenOptions,
   selectNetworkOption,
   selectBackendUrl,
   selectFeeDeduct
 } from '@store/selectors'
-import {
-  useWallet as useTronWallet,
-  useWallet
-} from '@tronweb3/tronwallet-adapter-react-hooks'
-import {
-  TRON_USDK_OWNER_ADDRESS,
-  tronWebMainnet,
-  tronWebTestnet
-} from '../../tronweb'
 
-import { useQuery } from '@tanstack/react-query'
-import { getTokenAllowance } from '../../utils/getTokenAllowance'
+import { useQueryClient } from '@tanstack/react-query'
 import useGetPools from '../../../../src/hooks/useGetPools'
 import { getPoolAddress, getTokenAddress } from '@utils/functions'
 import { PluginUseAllowanceResult, SignDataType } from '@plugins/pluginTypes'
-import { TronWeb } from 'tronweb'
-import { TronProvider } from '@interface'
-import { useKimaContext } from '../../../../src/KimaProvider'
-import { formatUnits } from 'ethers'
+import { useTronProvider } from '../hooks/useTronProvider'
+import useBalance from './useBalance'
 import log from '@utils/logger'
 
 export default function useTronAllowance(): PluginUseAllowanceResult {
-  const { externalProvider } = useKimaContext()
-  const sourceChain = useSelector(selectSourceChain)
+  const queryClient = useQueryClient()
   const networkOption = useSelector(selectNetworkOption)
   const backendUrl = useSelector(selectBackendUrl)
-  const { allowanceAmount, submitAmount, decimals } =
-    useSelector(selectServiceFee)
-  useTronWallet()
+  const { transactionValues } = useSelector(selectServiceFee)
   const selectedCoin = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
   const feeDeduct = useSelector(selectFeeDeduct)
-  const allowanceNumber = Number(
-    formatUnits(feeDeduct ? submitAmount : (allowanceAmount ?? '0'), decimals)
-  )
+  const txValues = feeDeduct
+    ? transactionValues.feeFromTarget
+    : transactionValues.feeFromOrigin
+  const allowanceNumber = BigInt(txValues.allowanceAmount.value)
 
   const { pools } = useGetPools(backendUrl, networkOption)
-  const {
-    address: internalUserAddress,
-    signTransaction: internalSignTronTransaction,
-    signMessage: internalSignMessage
-  } = useWallet()
 
-  const [approvalsCount, setApprovalsCount] = useState(0) // for refetch purposes after approving
-
-  // Ensure only Tron-specific logic is executed when sourceChain is Tron
-  const isTronProvider =
-    sourceChain.shortName === 'TRX' &&
-    externalProvider?.type === 'tron' &&
-    (externalProvider.provider as TronProvider).tronWeb instanceof TronWeb &&
-    typeof externalProvider.signer === 'string'
-
-  // Set the proper TronWeb instance
-  const tronWeb = useMemo(() => {
-    if (isTronProvider)
-      return (externalProvider.provider as TronProvider).tronWeb
-    return networkOption === 'mainnet' ? tronWebMainnet : tronWebTestnet
-  }, [isTronProvider, externalProvider, networkOption])
-
-  isTronProvider && tronWeb.setAddress(TRON_USDK_OWNER_ADDRESS)
-
-  // Set the proper user address
-  const userAddress = isTronProvider
-    ? (externalProvider.signer as string)
-    : internalUserAddress
-
-  // Set the proper signTransaction function
-  const signTronTransaction = isTronProvider
-    ? (externalProvider.provider as TronProvider).signTransaction
-    : internalSignTronTransaction
-
-  // Set the proper signMessage function
-  const signMessage = isTronProvider
-    ? (externalProvider.provider as TronProvider).signMessage
-    : internalSignMessage
-
-  // log.debug('tronWeb: ', tronWeb);
-  // log.debug('userAddress: ', userAddress);
-  // log.debug('signTronTransaction: ', signTronTransaction);
-
-  const {
-    data: allowanceData,
-    isLoading,
-    error
-  } = useQuery({
-    queryKey: ['tronAllowance', userAddress, approvalsCount],
-    queryFn: async () =>
-      await getTokenAllowance({
-        tokenOptions,
-        selectedCoin,
-        userAddress: userAddress!,
-        pools,
-        tronWeb,
-        abi: ERC20ABI
-      }),
-    refetchInterval: 1000 * 60, // 1 min
-    enabled:
-      !!tokenOptions &&
-      !!selectedCoin &&
-      !!userAddress &&
-      !!tronWeb &&
-      pools.length > 0 &&
-      sourceChain.shortName === 'TRX',
-    staleTime: 1000 * 60 // 1 min
-  })
+  const { tronWeb, userAddress, signTronTransaction, signMessage } =
+    useTronProvider()
+  const allowanceData = useBalance()
 
   const signTronMessage = async (data: SignDataType) => {
     if (!tronWeb) {
@@ -123,8 +42,8 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
       return
     }
     try {
-      const message = `I approve the transfer of ${allowanceNumber} ${data.originSymbol} from ${data.originChain} to ${data.targetAddress} on ${data.targetChain}.`
-      const signedMessage = await signMessage(message)
+      console.info('useTronAllowance: Signing message:', txValues.message)
+      const signedMessage = await signMessage(txValues.message)
       return signedMessage
     } catch (error) {
       log.error('Error signing message:', error)
@@ -140,7 +59,7 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
       !tronWeb ||
       !tokenOptions ||
       !selectedCoin ||
-      !allowanceAmount
+      !allowanceNumber
     ) {
       log.warn('Missing required data for approveTrc20TokenTransfer')
       return
@@ -151,8 +70,7 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
     try {
       // Define the contract method and parameters
       const functionSelector = 'approve(address,uint256)' // select the function to call
-
-      const amount = isCancel ? '0' : allowanceAmount
+      const amount = isCancel ? '0' : allowanceNumber.toString()
       const parameter = [
         { type: 'address', value: poolAddress },
         {
@@ -172,9 +90,13 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
 
       const signedTx = await signTronTransaction(transaction.transaction as any)
       const tx = await tronWeb.trx.sendRawTransaction(signedTx)
-      log.info('useTronAllowance: Transaction sent: hash', tx.txID)
+      console.log('useTronAllowance: Transaction sent', {
+        hash: tx.txid,
+        tx: JSON.stringify(tx, null, 2)
+      })
 
-      setApprovalsCount((prev) => prev + 1)
+      // update allowance data
+      await queryClient.invalidateQueries({ queryKey: ['tronAllowance'] })
 
       return
     } catch (error) {

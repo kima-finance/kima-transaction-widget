@@ -1,7 +1,6 @@
-import { checkPoolBalance, preciseSubtraction } from '@utils/functions'
-import { ModeOptions, NetworkFee } from '@interface'
+import { checkPoolBalance } from '@utils/functions'
 import { useMemo } from 'react'
-import log from '@utils/logger'
+import { formatUnits } from 'viem'
 
 export enum ValidationError {
   Error = 'ValidationError',
@@ -10,63 +9,65 @@ export enum ValidationError {
   None = 'None'
 }
 
-const useValidateTransaction = ({
-  allowance,
-  isApproved,
-  sourceAddress,
-  targetAddress,
-  targetChain,
-  targetCurrency,
-  targetNetworkFee,
-  feeDeduct,
-  balance,
-  amount,
-  totalFeeUsd,
-  compliantOption,
-  sourceCompliant,
-  targetCompliant,
-  mode,
-  pools,
-  formStep,
-  isWalletReady
-}: {
-  allowance: number
+export interface UseValidateTransactionInputs {
+  allowance: bigint | undefined
+  amount: bigint
+  balance: bigint | undefined
+  compliantOption: boolean
+  decimals: number
+  feeDeduct: boolean
+  formStep: number
   isApproved: boolean
+  pools: any[]
+  sourceChain: string
   sourceAddress: string
+  sourceCompliant: any
   targetAddress: string
+  targetCompliant: any
   targetChain: string
   targetCurrency: string
-  targetNetworkFee?: NetworkFee
-  feeDeduct: boolean
-  balance: number
-  amount: string
-  totalFeeUsd: number
-  compliantOption: boolean
-  sourceCompliant: any
-  targetCompliant: any
-  mode: ModeOptions
-  pools: any[]
-  formStep: number
-  isWalletReady: boolean
-}) => {
+  totalFee: bigint
+}
+
+const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
+  const {
+    allowance = BigInt(0),
+    amount,
+    balance = BigInt(0),
+    compliantOption,
+    decimals,
+    feeDeduct,
+    formStep,
+    isApproved,
+    pools,
+    sourceChain,
+    sourceAddress,
+    sourceCompliant,
+    targetAddress,
+    targetCompliant,
+    targetChain,
+    targetCurrency,
+    totalFee
+  } = inputs
   const maxValue = useMemo(() => {
-    if (!balance) return 0
+    console.log('useValidateTransaction: maxValue: ', inputs)
+    if (!balance) return BigInt(0)
 
-    if (totalFeeUsd < 0) return balance
+    if (totalFee <= BigInt(0)) return balance
 
-    const amountMinusFees = preciseSubtraction(balance as number, totalFeeUsd)
-    const maxVal = amountMinusFees > 0 ? amountMinusFees : 0
-    log.debug('maxValue: ', { maxVal, amountMinusFees })
+    const amountMinusFees = balance - totalFee
+    const maxVal = amountMinusFees > BigInt(0) ? amountMinusFees : BigInt(0)
+    console.log('maxValue: ', { maxVal, amountMinusFees })
 
     return maxVal
-  }, [balance, totalFeeUsd, feeDeduct])
+  }, [balance, totalFee, feeDeduct])
 
   const validate = (isSubmitting: boolean = false) => {
-    log.debug('allowance: ', allowance)
-    log.debug('isApproved: ', isApproved)
+    // log.debug('allowance: ', allowance)
+    // log.debug('isApproved: ', isApproved)
 
     // Validation logic
-    if (!sourceAddress || !isWalletReady) {
+    if (!sourceAddress && sourceChain !== 'CC') {
       return {
         error: ValidationError.Error,
         message: 'Wallet is not connected'
@@ -80,14 +81,14 @@ const useValidateTransaction = ({
       }
     }
 
-    if (+amount <= 0) {
+    if (amount <= BigInt(0)) {
       return {
         error: ValidationError.Error,
         message: 'Amount must be greater than zero'
       }
     }
 
-    if (totalFeeUsd < 0) {
+    if (totalFee <= BigInt(0)) {
       return { error: ValidationError.Error, message: 'Fee calculation error' }
     }
 
@@ -108,7 +109,7 @@ const useValidateTransaction = ({
     }
 
     // Check if the amount exceeds the max value
-    if (+amount > balance && formStep === 0) {
+    if (amount > balance && formStep === 0 && sourceChain !== 'CC') {
       return {
         error: ValidationError.Warning,
         message:
@@ -116,7 +117,7 @@ const useValidateTransaction = ({
       }
     }
 
-    if (+amount > maxValue && formStep === 0) {
+    if (amount > maxValue && formStep === 0 && sourceChain !== 'CC') {
       return {
         error: ValidationError.Warning,
         message:
@@ -124,7 +125,7 @@ const useValidateTransaction = ({
       }
     }
 
-    if (+amount < totalFeeUsd && formStep === 0) {
+    if (amount < totalFee && formStep === 0) {
       return {
         error: ValidationError.Warning,
         message:
@@ -143,8 +144,7 @@ const useValidateTransaction = ({
       pools,
       targetChain,
       targetCurrency,
-      amount,
-      targetNetworkFee
+      amount: formatUnits(amount, decimals)
     })
 
     if (!isPoolAvailable) {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { ErrorIcon, FooterLogo, HelpIcon } from '../assets/icons'
 import {
@@ -21,7 +21,10 @@ import SingleForm from './reusable/SingleForm'
 // store
 import {
   setAmount,
+  setCCTransactionStatus,
+  setServiceFee,
   setSourceChain,
+  setSubmitted,
   setTargetAddress,
   setTargetChain,
   setTargetCurrency,
@@ -30,6 +33,7 @@ import {
 import {
   selectAmount,
   selectBackendUrl,
+  selectCCTransactionStatus,
   selectCompliantOption,
   selectDappOption,
   selectFeeDeduct,
@@ -41,6 +45,7 @@ import {
   selectSourceAddress,
   selectSourceChain,
   selectSourceCurrency,
+  selectSubmitted,
   selectTargetAddress,
   selectTargetChain,
   selectTargetCurrency,
@@ -56,7 +61,6 @@ import useValidateTransaction, {
 } from '../hooks/useValidateTransaction'
 import useSubmitTransaction from '../hooks/useSubmitTransaction'
 import useComplianceCheck from '../hooks/useComplianceCheck'
-import useBalance from '../hooks/useBalance'
 import useGetPools from '../hooks/useGetPools'
 import useDisconnectWallet from '../hooks/useDisconnectWallet'
 import { useKimaContext } from 'src/KimaProvider'
@@ -64,6 +68,11 @@ import { ChainData } from '@plugins/pluginTypes'
 import WarningModal from './reusable/WarningModal'
 import useIsWalletReady from '../hooks/useIsWalletReady'
 import log from '@utils/logger'
+import CCWidget from './reusable/CCWidget'
+// import { parseUnits } from 'ethers'
+import { parseUnits } from 'viem'
+import { bigIntChangeDecimals } from 'src/helpers/functions'
+import useGetFees from '../hooks/useGetFees'
 
 interface Props {
   theme: ThemeOptions
@@ -101,32 +110,30 @@ export const TransferWidget = ({
   const targetCurrency = useSelector(selectTargetCurrency)
   const { isReady } = useIsWalletReady()
   const amount = useSelector(selectAmount)
-  const {
-    totalFeeUsd,
-    totalFee,
-    targetNetworkFee,
-    submitAmount,
-    decimals: feeDecimals
-  } = useSelector(selectServiceFee)
+  const { totalFee, transactionValues } = useSelector(selectServiceFee)
   const compliantOption = useSelector(selectCompliantOption)
   const networkOptions = useSelector(selectNetworkOption)
   const feeDeduct = useSelector(selectFeeDeduct)
+  const txValues = feeDeduct
+    ? transactionValues.feeFromTarget
+    : transactionValues.feeFromOrigin
   const { keplrHandler, closeHandler } = useKimaContext()
 
   // Hooks for wallet connection, allowance
   const [isCancellingApprove, setCancellingApprove] = useState(false)
   const [isApproving, setApproving] = useState(false)
   const [isSigning, setSigning] = useState(false)
+  const [feeOptionDisabled, setFeeOptionDisabled] = useState(false)
   const pendingTxs = useSelector(selectPendingTxs)
   const networks = useSelector(selectNetworks)
+  const submitted = useSelector(selectSubmitted)
+  const ccTransactionStatus = useSelector(selectCCTransactionStatus)
 
   const { width: windowWidth } = useWidth()
 
   const { disconnectWallet } = useDisconnectWallet()
 
-  const { balance } = useBalance()
-
-  const { allowance, isApproved, approve, decimals, signMessage } =
+  const { allowance, balance, isApproved, approve, decimals, signMessage } =
     useAllowance({
       setApproving,
       setCancellingApprove
@@ -151,34 +158,89 @@ export const TransferWidget = ({
     isApproved,
     sourceAddress,
     targetAddress,
+    sourceChain: sourceChain.shortName,
     targetChain: targetChain.shortName,
     balance,
-    amount,
-    totalFeeUsd,
+    amount: parseUnits(amount, txValues.allowanceAmount.decimals),
+    decimals: txValues.allowanceAmount.decimals,
+    totalFee: bigIntChangeDecimals({
+      ...totalFee,
+      newDecimals: txValues.allowanceAmount.decimals
+    }).value,
     sourceCompliant,
     targetCompliant,
     targetCurrency,
-    targetNetworkFee,
     compliantOption,
-    mode,
     pools,
     feeDeduct,
     formStep,
     isWalletReady: isReady
   })
 
-  const { submitTransaction, isSubmitting } = useSubmitTransaction({
-    amount: BigInt(submitAmount ?? '0'),
-    totalFee: BigInt(totalFee ?? '0'),
-    originAddress: sourceAddress,
+  const {
+    data: fees,
+    isLoading: isLoadingFees,
+    error
+  } = useGetFees({
+    amount: parseFloat(amount),
+    sourceNetwork: sourceChain.shortName,
+    sourceAddress,
+    sourceSymbol: sourceCurrency,
+    targetNetwork: targetChain.shortName,
     targetAddress,
-    originChain: sourceChain.shortName,
-    targetChain: targetChain.shortName,
-    originSymbol: sourceCurrency,
     targetSymbol: targetCurrency,
-    backendUrl,
-    decimals: feeDecimals
+    backendUrl
   })
+
+  useEffect(() => {
+    if (fees) {
+      dispatch(setServiceFee(fees))
+    }
+  }, [fees, dispatch])
+
+  const { submitTransaction, isSubmitting } = useSubmitTransaction()
+
+  const isBackButtonEnabled = useMemo(() => {
+    if (formStep !== 0) {
+      /* enable if cc transaction is initialized or failed */
+      if (sourceChain.shortName === 'CC') {
+        return (
+          ccTransactionStatus === 'idle' || ccTransactionStatus === 'failed'
+        )
+      }
+
+      return true
+    }
+
+    return false
+  }, [ccTransactionStatus, sourceChain, formStep])
+
+  const isSubmitButtonEnabled = useMemo(() => {
+    if (submitted) return false
+
+    /* case cc transaction initialized */
+    if (sourceChain.shortName === 'CC') {
+      return ccTransactionStatus === 'idle'
+    }
+
+    return true
+  }, [sourceChain, ccTransactionStatus])
+
+  // trigger submit effect when cc transaction succeeded
+  useEffect(() => {
+    const submit = async () => {
+      if (ccTransactionStatus === 'success') {
+        const { success, message: submitMessage } =
+          await submitTransaction(signature)
+
+        if (!success) {
+          toast.error(submitMessage, { icon: <ErrorIcon /> })
+        }
+      }
+    }
+
+    submit()
+  }, [ccTransactionStatus])
 
   const handleSubmit = async () => {
     const { error, message: validationMessage } = validate(true)
@@ -188,16 +250,25 @@ export const TransferWidget = ({
       return toast.error(validationMessage, { icon: <ErrorIcon /> })
     }
 
+    // process fiat transaction
+    if (sourceChain.shortName === 'CC') {
+      // return console.log("will process cc")
+      return dispatch(setCCTransactionStatus('initialized'))
+    }
+
     // if is missing approve, trigger approval
     if (error === ValidationError.ApprovalNeeded) {
-      const sig = await signMessage?.({
-        targetAddress,
-        targetChain: targetChain.shortName,
-        originSymbol: sourceCurrency,
-        originChain: sourceChain.shortName
-      })
+      if (!signature) {
+        setFeeOptionDisabled(true)
+        const sig = await signMessage?.({
+          targetAddress,
+          targetChain: targetChain.shortName,
+          originSymbol: sourceCurrency,
+          originChain: sourceChain.shortName
+        })
 
-      setSignature(sig)
+        setSignature(sig)
+      }
 
       return approve()
     }
@@ -217,12 +288,15 @@ export const TransferWidget = ({
 
     let sig = signature
     if (!sig) {
+      setFeeOptionDisabled(true)
       sig = await signMessage?.({
         targetAddress,
         targetChain: targetChain.shortName,
         originSymbol: sourceCurrency,
         originChain: sourceChain.shortName
       })
+
+      setSignature(sig)
     }
 
     // submit the kima transaction
@@ -257,7 +331,11 @@ export const TransferWidget = ({
     if (isApproving || isSubmitting || isSigning) return
 
     if (formStep > 0) {
+      setSignature('')
       setFormStep(0)
+      setSignature('')
+      setFeeOptionDisabled(false)
+      dispatch(setCCTransactionStatus('idle'))
     }
 
     if (formStep === 0) {
@@ -269,6 +347,10 @@ export const TransferWidget = ({
 
   const getButtonLabel = () => {
     if (formStep === 1) {
+      if (sourceChain.shortName === 'CC' && ccTransactionStatus === 'idle') {
+        return 'NEXT'
+      }
+
       if (isApproved) {
         return isSubmitting ? 'SUBMITTING' : 'SUBMIT'
       } else {
@@ -276,18 +358,25 @@ export const TransferWidget = ({
       }
     }
 
+    if (isLoadingFees) {
+      return ''
+    }
     return 'NEXT'
   }
 
   const onCancelApprove = () => {
     if (isCancellingApprove) return
     approve(true)
+    setSignature('')
   }
 
   const resetForm = async () => {
     if (isApproving || isSubmitting || isSigning) return
     closeHandler && closeHandler(0)
 
+    setSignature('')
+    setSigning(false)
+    setFeeOptionDisabled(true)
     setFormStep(0)
     if (mode !== ModeOptions.payment) {
       if (transactionOption?.sourceChain) {
@@ -320,9 +409,9 @@ export const TransferWidget = ({
     await disconnectWallet()
   }
 
-  useEffect(() => {
-    dispatch(setTheme(theme))
-  }, [theme])
+  // useEffect(() => {
+  //   dispatch(setTheme(theme))
+  // }, [theme])
 
   return (
     <div
@@ -358,7 +447,7 @@ export const TransferWidget = ({
         <div className='kima-card-header'>
           <div className='topbar'>
             <div className='title'>
-              <h3>
+              <h3 style={{ marginRight: '5px' }}>
                 {formStep === 0
                   ? titleOption?.initialTitle
                     ? titleOption.initialTitle
@@ -386,7 +475,13 @@ export const TransferWidget = ({
                 </div>
               </ExternalLink>
 
-              {/* {formStep === 0 && mode !== ModeOptions.payment && (
+              {sourceChain.shortName === 'CC' && formStep > 0 && (
+                <ExternalLink to='https://docs.kima.network/kima-network/supported-fiat'>
+                  <div className='menu-button'>Unsupported Countries</div>
+                </ExternalLink>
+              )}
+
+              {formStep === 0 && mode !== ModeOptions.payment && (
                 <button
                   className='reset-button'
                   onClick={resetForm}
@@ -394,7 +489,7 @@ export const TransferWidget = ({
                 >
                   Reset
                 </button>
-              )} */}
+              )} 
             </div>
           </div>
           {mode === ModeOptions.payment && paymentTitleOption?.title && (
@@ -406,36 +501,22 @@ export const TransferWidget = ({
           {formStep === 0 ? (
             <SingleForm
               {...{
-                allowance,
-                balance,
-                decimals,
-                formStep,
-                onBack,
-                onCancelApprove,
-                onNext,
-                getButtonLabel,
-                isApproving,
-                isSigning,
-                isSubmitting,
-                isCancellingApprove
+                allowance: parseUnits(
+                  allowance?.toString() ?? '0',
+                  decimals ?? 18
+                ),
+                balance: parseUnits(balance?.toString() ?? '0', decimals ?? 18),
+                decimals: 2,
+                isLoadingFees
               }}
             />
+          ) : ccTransactionStatus !== 'idle' ? (
+            <CCWidget />
           ) : (
             <ConfirmDetails
               {...{
-                allowance,
-                balance,
-                decimals,
-                formStep,
-                onBack,
-                onCancelApprove,
-                onNext,
-                getButtonLabel,
-                isApproving,
-                isSigning,
-                isSubmitting,
-                isCancellingApprove,
-                isApproved
+                isApproved,
+                feeOptionDisabled
               }}
             />
           )}
@@ -452,14 +533,21 @@ export const TransferWidget = ({
             </span>
           </div>
           <div className={`button-group`}>
-            <SecondaryButton
-              clickHandler={onBack}
-              theme={theme.colorMode}
-              disabled={isApproving || isSubmitting || isSigning}
-            >
-              {formStep > 0 ? 'BACK' : 'CANCEL'}
-            </SecondaryButton>
-            {allowance > 0 && formStep !== 0 ? (
+            {isBackButtonEnabled && (
+              <SecondaryButton
+                clickHandler={onBack}
+                theme={theme.colorMode}
+                disabled={isApproving || isSubmitting || isSigning}
+              >
+                {formStep > 0 && ccTransactionStatus !== 'initialized'
+                  ? 'BACK'
+                  : 'CANCEL'}
+              </SecondaryButton>
+            )}
+            {!!allowance &&
+            allowance > 0 &&
+            formStep !== 0 &&
+            sourceChain.shortName !== 'CC' ? (
               <SecondaryButton
                 clickHandler={onCancelApprove}
                 isLoading={isCancellingApprove}
@@ -474,18 +562,23 @@ export const TransferWidget = ({
                 {isCancellingApprove ? 'CANCELLING APPROVE' : 'CANCEL APPROVE'}
               </SecondaryButton>
             ) : null}
-            <PrimaryButton
-              clickHandler={onNext}
-              isLoading={isApproving || isSubmitting || isSigning}
-              disabled={
-                isApproving ||
-                isSubmitting ||
-                isSigning ||
-                (mode === ModeOptions.payment && !transactionOption)
-              }
-            >
-              {getButtonLabel()}
-            </PrimaryButton>
+            {isSubmitButtonEnabled && (
+              <PrimaryButton
+                clickHandler={onNext}
+                isLoading={
+                  isApproving || isSubmitting || isSigning || isLoadingFees
+                }
+                disabled={
+                  isApproving ||
+                  isSubmitting ||
+                  isSigning ||
+                  (mode === ModeOptions.payment && !transactionOption) ||
+                  isLoadingFees
+                }
+              >
+                {getButtonLabel()}
+              </PrimaryButton>
+            )}
           </div>
         </div>
         <SolanaWalletConnectModal />

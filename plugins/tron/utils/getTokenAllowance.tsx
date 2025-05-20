@@ -1,6 +1,6 @@
+import { GetTokenAllowanceResult } from '@plugins/pluginTypes'
 import { TokenOptions } from '@store/optionSlice'
 import { getTokenAddress, getPoolAddress } from '@utils/functions'
-import { formatUnits } from 'ethers'
 import log from '@utils/logger'
 
 export const getTokenAllowance = async ({
@@ -17,7 +17,7 @@ export const getTokenAllowance = async ({
   pools: Array<any>
   tronWeb: any
   abi: any
-}) => {
+}): Promise<GetTokenAllowanceResult> => {
   try {
     // find token address
     const tokenAddress = getTokenAddress(tokenOptions, selectedCoin, 'TRX')
@@ -34,8 +34,8 @@ export const getTokenAllowance = async ({
 
     log.debug('getTronAllowance:', { allowance, balance, decimals })
     return {
-      allowance: Number(formatUnits(allowance, decimals)),
-      balance: Number(formatUnits(balance, decimals)),
+      allowance: BigInt(allowance),
+      balance: BigInt(balance),
       decimals: Number(decimals)
     }
   } catch (error) {

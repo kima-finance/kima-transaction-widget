@@ -1,3 +1,4 @@
+import { GetTokenAllowanceResult } from '@plugins/pluginTypes'
 import { getAssociatedTokenAddress } from '@solana/spl-token'
 import { Connection, ParsedAccountData, PublicKey } from '@solana/web3.js'
 import { TokenOptions } from '@store/optionSlice'
@@ -16,7 +17,7 @@ export const getTokenAllowance = async ({
   userPublicKey: PublicKey
   connection: Connection
   pools: Array<any>
-}) => {
+}): Promise<GetTokenAllowanceResult> => {
   try {
     // get selected token address
     const tokenAddress = getTokenAddress(tokenOptions, selectedCoin, 'SOL')
@@ -42,11 +43,12 @@ export const getTokenAllowance = async ({
     return {
       allowance:
         parsedAccountInfo.parsed?.info?.delegate === poolAddress // check if has delegated the tokens to the kima pool
-          ? (parsedAccountInfo.parsed?.info?.delegatedAmount
-              ?.uiAmount as number)
-          : 0,
-      balance: parsedAccountInfo.parsed?.info?.tokenAmount?.uiAmount as number,
-      decimals: parsedAccountInfo.parsed?.info?.tokenAmount?.decimals as number
+          ? BigInt(parsedAccountInfo.parsed?.info?.delegatedAmount?.amount ?? 0)
+          : BigInt(0),
+      balance: BigInt(parsedAccountInfo.parsed?.info?.tokenAmount?.amount ?? 0),
+      decimals: Number(
+        parsedAccountInfo.parsed?.info?.tokenAmount?.decimals ?? 0
+      )
     }
   } catch (error) {
     log.error('Error fetching token allowance:', error)

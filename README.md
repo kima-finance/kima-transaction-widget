@@ -88,8 +88,15 @@ const App = () => {
         }}
         mode={ModeOptions.bridge}
         compliantOption={false}
-        excludedSourceNetworks={[SupportNetworks.SOLANA]} // exclude networks that your dapp doesn't support
-        excludedTargetNetworks={[SupportNetworks.SOLANA]}
+        errorHandler={(e: any) => {
+          console.log('error:', e)
+        }}
+        successHandler={() => {
+          console.log('success')
+        }}
+        closeHandler={() => {
+          console.log('closed')
+        }}
       />
     </KimaProvider>
   )

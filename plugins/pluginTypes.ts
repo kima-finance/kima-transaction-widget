@@ -11,11 +11,11 @@ export interface Plugin {
 
   // hooks
   // TODO: refactor to return a UseQueryResult
-  useAllowance: () => PluginUseAllowanceResult
-  useNativeBalance: () => PluginUseBalanceResult | undefined
-  useTokenBalance(): PluginUseBalanceResult | undefined
-  useWalletIsReady: () => PluginUseWalletIsReadyResult
-  useDisconnectWallet: () => PluginUseDisconnectWalletResult
+  useAllowance?: () => PluginUseAllowanceResult
+  useNativeBalance?: () => PluginUseBalanceResult | undefined
+  useTokenBalance?(): PluginUseBalanceResult | undefined
+  useWalletIsReady?: () => PluginUseWalletIsReadyResult
+  useDisconnectWallet?: () => PluginUseDisconnectWalletResult
 }
 
 export interface SignDataType {
@@ -25,24 +25,27 @@ export interface SignDataType {
   originSymbol: string
 }
 
-export interface PluginUseAllowanceResult {
-  isApproved: boolean
-  approve: (isCancel?: boolean) => Promise<void>
-  signMessage?: (data: SignDataType) => Promise<any>
-  allowance?: number | undefined
-  balance?: number | undefined
+export interface GetTokenAllowanceResult {
+  allowance?: bigint | undefined
+  balance?: bigint | undefined
   decimals?: number | undefined
 }
 
+export interface PluginUseAllowanceResult extends GetTokenAllowanceResult {
+  isApproved: boolean
+  approve: (isCancel?: boolean) => Promise<void>
+  signMessage?: (data: SignDataType) => Promise<any>
+}
+
 export interface PluginUseBalanceResult {
-  balance?: number | undefined
+  balance?: bigint | undefined
   decimals?: number | undefined
 }
 
 export interface PluginUseWalletIsReadyResult {
   isReady: boolean
   statusMessage: string
-  walletAddress?: string
+  connectedAddress?: string
 }
 
 export interface PluginUseDisconnectWalletResult {
@@ -66,11 +69,14 @@ export interface PluginData {
   pluginData: { [key: string]: any } // currently empty
 }
 
+export type ChainLocation = 'origin' | 'target'
+
 export interface ChainData extends Chain {
   compatibility: ChainCompatibility
   name: string
   shortName: string
   supportedTokens: ChainToken[]
+  supportedLocations: ChainLocation[]
 }
 
 export interface ChainToken {
@@ -84,5 +90,6 @@ export enum ChainCompatibility {
   EVM = 'EVM',
   FIAT = 'FIAT',
   COSMOS = 'COSMOS',
-  SELF = 'SELF'
+  SELF = 'SELF',
+  CC = 'CC'
 }
