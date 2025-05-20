@@ -14,6 +14,7 @@ export const useCCTransactionId = (
       )
 
       if (!res.ok) {
+        console.error("Error getting transaction id: ", res)
         throw new Error('Failed to fetch transaction ID')
       }
 

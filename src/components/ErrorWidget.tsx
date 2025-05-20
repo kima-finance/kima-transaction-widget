@@ -1,15 +1,20 @@
 import { ErrorIcon, FooterLogo } from '@assets/icons'
 import { ColorModeOptions, ThemeOptions } from '@interface'
 import React from 'react'
+import { PrimaryButton } from './reusable'
 
 const ErrorWidget = ({
   theme,
   title,
-  message
+  message,
+  backButtonEnabled = false,
+  backButtonFunction
 }: {
   theme: ThemeOptions
   title: string
   message: string
+  backButtonEnabled?: boolean
+  backButtonFunction?: any
 }) => {
   return (
     <div
@@ -36,6 +41,14 @@ const ErrorWidget = ({
           <ErrorIcon width={40} height={40} />
           <h2>{message}</h2>
         </div>
+
+        {backButtonEnabled && (
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <PrimaryButton clickHandler={backButtonFunction}>
+              Back
+            </PrimaryButton>
+          </div>
+        )}
 
         <div className={`kima-card-footer`}></div>
         <div className='floating-footer'>

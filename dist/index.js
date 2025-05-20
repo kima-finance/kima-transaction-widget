@@ -6778,6 +6778,7 @@ var useCCTransactionId = (backendUrl, transactionIdSeed) => {
         `${backendUrl}/submit/transactionId?transactionIdSeed=${transactionIdSeed}`
       );
       if (!res.ok) {
+        console.error("Error getting transaction id: ", res);
         throw new Error("Failed to fetch transaction ID");
       }
       const data = await res.json();
@@ -6793,6 +6794,7 @@ var useCCTransactionId = (backendUrl, transactionIdSeed) => {
 // src/components/reusable/CCWidget.tsx
 var CCWidget = () => {
   const dispatch = useDispatch25();
+  const theme = useSelector44(selectTheme);
   const feeDeduct = useSelector44(selectFeeDeduct);
   const backendUrl = useSelector44(selectBackendUrl);
   const ccTransactionStatus = useSelector44(selectCCTransactionStatus);
@@ -6838,11 +6840,14 @@ var CCWidget = () => {
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
   }, []);
+  useEffect20(() => {
+    if (error) dispatch(setCCTransactionStatus("fatal"));
+  }, [dispatch, error]);
   return /* @__PURE__ */ React115.createElement("div", { className: `cc-widget ${isLoading ? "loading" : ""}` }, (isLoading || isTransactionIdLoading || isEnvLoading || ccTransactionStatus === "success") && /* @__PURE__ */ React115.createElement("div", { className: "cc-widget-loader" }, /* @__PURE__ */ React115.createElement(ring_default, { width: 50, height: 50, fill: "#86b8ce" })), /* @__PURE__ */ React115.createElement(
     "iframe",
     {
-      width: isLoading || isTransactionIdLoading || ccTransactionStatus === "success" ? 0 : "100%",
-      height: isLoading || isTransactionIdLoading || ccTransactionStatus === "success" ? 0 : "100%",
+      width: isLoading || isTransactionIdLoading || ccTransactionStatus === "success" || error ? 0 : "100%",
+      height: isLoading || isTransactionIdLoading || ccTransactionStatus === "success" || error ? 0 : "100%",
       src: `${baseUrl}/widgets/kyc?partner=${partnerId}&user_uuid=${randomUserIdRef.current}&amount=${allowanceAmount}&currency=USD&trx_uuid=${data?.transactionId}&postmessage=true`,
       loading: "lazy",
       title: "Credit Card Widget",
@@ -7402,7 +7407,9 @@ import React119 from "react";
 var ErrorWidget = ({
   theme,
   title,
-  message
+  message,
+  backButtonEnabled = false,
+  backButtonFunction
 }) => {
   return /* @__PURE__ */ React119.createElement(
     "div",
@@ -7412,12 +7419,13 @@ var ErrorWidget = ({
         background: theme.colorMode === "light" /* light */ ? theme.backgroundColorLight : theme.backgroundColorDark
       }
     },
-    /* @__PURE__ */ React119.createElement("div", { className: "transfer-card" }, /* @__PURE__ */ React119.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React119.createElement("div", { className: "topbar" }, /* @__PURE__ */ React119.createElement("div", { className: "title" }, /* @__PURE__ */ React119.createElement("h3", null, title))), /* @__PURE__ */ React119.createElement("h4", { className: "subtitle" })), /* @__PURE__ */ React119.createElement("div", { className: "kima-card-content error" }, /* @__PURE__ */ React119.createElement(Error_default, { width: 40, height: 40 }), /* @__PURE__ */ React119.createElement("h2", null, message)), /* @__PURE__ */ React119.createElement("div", { className: `kima-card-footer` }), /* @__PURE__ */ React119.createElement("div", { className: "floating-footer" }, /* @__PURE__ */ React119.createElement("div", { className: `items ${theme.colorMode}` }, /* @__PURE__ */ React119.createElement("span", null, "Powered by"), /* @__PURE__ */ React119.createElement(FooterLogo_default, { width: 50, fill: "black" }), /* @__PURE__ */ React119.createElement("strong", null, "Network"))))
+    /* @__PURE__ */ React119.createElement("div", { className: "transfer-card" }, /* @__PURE__ */ React119.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React119.createElement("div", { className: "topbar" }, /* @__PURE__ */ React119.createElement("div", { className: "title" }, /* @__PURE__ */ React119.createElement("h3", null, title))), /* @__PURE__ */ React119.createElement("h4", { className: "subtitle" })), /* @__PURE__ */ React119.createElement("div", { className: "kima-card-content error" }, /* @__PURE__ */ React119.createElement(Error_default, { width: 40, height: 40 }), /* @__PURE__ */ React119.createElement("h2", null, message)), backButtonEnabled && /* @__PURE__ */ React119.createElement("div", { style: { display: "flex", justifyContent: "flex-end" } }, /* @__PURE__ */ React119.createElement(PrimaryButton_default, { clickHandler: backButtonFunction }, "Back")), /* @__PURE__ */ React119.createElement("div", { className: `kima-card-footer` }), /* @__PURE__ */ React119.createElement("div", { className: "floating-footer" }, /* @__PURE__ */ React119.createElement("div", { className: `items ${theme.colorMode}` }, /* @__PURE__ */ React119.createElement("span", null, "Powered by"), /* @__PURE__ */ React119.createElement(FooterLogo_default, { width: 50, fill: "black" }), /* @__PURE__ */ React119.createElement("strong", null, "Network"))))
   );
 };
 var ErrorWidget_default = ErrorWidget;
 
 // src/components/KimaTransactionWidget.tsx
+import { useSelector as useSelector47 } from "react-redux";
 var KimaTransactionWidget = ({
   mode,
   txId,
@@ -7434,6 +7442,7 @@ var KimaTransactionWidget = ({
   const dispatch = useDispatch28();
   const { kimaBackendUrl } = useKimaContext();
   const [hydrated, setHydrated] = useState18(false);
+  const ccTransactionStatus = useSelector47(selectCCTransactionStatus);
   const {
     data: envOptions,
     error: envOptionsError,
@@ -7461,6 +7470,19 @@ var KimaTransactionWidget = ({
   if (!hydrated || !theme?.colorMode) return /* @__PURE__ */ React120.createElement(ring_default, { width: 20, height: 20, fill: "#86b8ce" });
   if (isLoadingEnvs || isLoadingChainData)
     return /* @__PURE__ */ React120.createElement(SkeletonLoader_default, { theme });
+  if (ccTransactionStatus === "fatal")
+    return /* @__PURE__ */ React120.createElement(
+      ErrorWidget_default,
+      {
+        theme,
+        title: "Error getting CC transaction id",
+        message: "There was an error generating the transaction id and your transaction couldn't be generated. Please try again, if the error persists contact us.",
+        backButtonEnabled: true,
+        backButtonFunction: () => {
+          dispatch(setCCTransactionStatus("idle"));
+        }
+      }
+    );
   if (envOptionsError || !envOptions)
     return /* @__PURE__ */ React120.createElement(
       ErrorWidget_default,

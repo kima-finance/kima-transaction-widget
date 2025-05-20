@@ -20,10 +20,17 @@ import { useGetEnvOptions } from '../hooks/useGetEnvOptions'
 import { useKimaContext } from 'src/KimaProvider'
 import { useChainData } from '../hooks/useChainData'
 import { useDispatch } from 'react-redux'
-import { setSourceChain, setTargetChain, setTheme } from '@store/optionSlice'
+import {
+  setCCTransactionStatus,
+  setSourceChain,
+  setTargetChain,
+  setTheme
+} from '@store/optionSlice'
 import SkeletonLoader from 'src/SkeletonLoader'
 import ErrorWidget from './ErrorWidget'
 import { Loading180Ring } from '@assets/loading'
+import { useSelector } from 'react-redux'
+import { selectCCTransactionStatus } from '@store/selectors'
 
 interface Props {
   theme: ThemeOptions
@@ -56,6 +63,7 @@ const KimaTransactionWidget = ({
   const { kimaBackendUrl } = useKimaContext()
 
   const [hydrated, setHydrated] = useState(false)
+  const ccTransactionStatus = useSelector(selectCCTransactionStatus)
 
   const {
     data: envOptions,
@@ -92,6 +100,19 @@ const KimaTransactionWidget = ({
 
   if (isLoadingEnvs || isLoadingChainData)
     return <SkeletonLoader theme={theme} />
+
+  if (ccTransactionStatus === 'fatal')
+    return (
+      <ErrorWidget
+        theme={theme}
+        title='Error getting CC transaction id'
+        message="There was an error generating the transaction id and your transaction couldn't be generated. Please try again, if the error persists contact us."
+        backButtonEnabled={true}
+        backButtonFunction={() => {
+          dispatch(setCCTransactionStatus('idle'))
+        }}
+      />
+    )
 
   if (envOptionsError || !envOptions)
     return (
