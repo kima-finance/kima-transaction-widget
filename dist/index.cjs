@@ -6508,7 +6508,7 @@ var useValidateTransaction = (inputs) => {
         message: "Amount must be greater than zero"
       };
     }
-    if (amount >= BigInt(100) && networkOption === "testnet" /* testnet */) {
+    if (amount > (0, import_viem7.parseUnits)("100", decimals) && networkOption === "testnet" /* testnet */) {
       return {
         error: "ValidationError" /* Error */,
         message: "Testnet transfers for USD stablecoins are capped to $100 per transaction"

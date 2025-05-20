@@ -6474,7 +6474,7 @@ var TronWalletConnectModal_default = TronWalletConnectModal;
 
 // src/hooks/useValidateTransaction.tsx
 import { useMemo as useMemo19 } from "react";
-import { formatUnits as formatUnits3 } from "viem";
+import { formatUnits as formatUnits3, parseUnits as parseUnits3 } from "viem";
 import { useSelector as useSelector42 } from "react-redux";
 import log2 from "loglevel";
 var useValidateTransaction = (inputs) => {
@@ -6546,7 +6546,7 @@ var useValidateTransaction = (inputs) => {
         message: "Amount must be greater than zero"
       };
     }
-    if (amount >= BigInt(100) && networkOption === "testnet" /* testnet */) {
+    if (amount > parseUnits3("100", decimals) && networkOption === "testnet" /* testnet */) {
       return {
         error: "ValidationError" /* Error */,
         message: "Testnet transfers for USD stablecoins are capped to $100 per transaction"
@@ -6881,7 +6881,7 @@ var CCWidget = () => {
 var CCWidget_default = CCWidget;
 
 // src/components/TransferWidget.tsx
-import { parseUnits as parseUnits3 } from "viem";
+import { parseUnits as parseUnits4 } from "viem";
 var TransferWidget = ({
   theme,
   helpURL,
@@ -6948,7 +6948,7 @@ var TransferWidget = ({
     targetAddress,
     targetChain: targetChain.shortName,
     balance,
-    amount: parseUnits3(amount, txValues.allowanceAmount.decimals),
+    amount: parseUnits4(amount, txValues.allowanceAmount.decimals),
     decimals: txValues.allowanceAmount.decimals,
     totalFee: bigIntChangeDecimals({
       ...totalFee,
@@ -7191,11 +7191,11 @@ var TransferWidget = ({
       SingleForm_default,
       {
         ...{
-          allowance: parseUnits3(
+          allowance: parseUnits4(
             allowance?.toString() ?? "0",
             decimals ?? 18
           ),
-          balance: parseUnits3(balance?.toString() ?? "0", decimals ?? 18),
+          balance: parseUnits4(balance?.toString() ?? "0", decimals ?? 18),
           decimals: 2,
           isLoadingFees,
           initialSelection,

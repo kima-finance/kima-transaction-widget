@@ -1,6 +1,6 @@
 import { checkPoolBalance } from '@utils/functions'
 import { useMemo } from 'react'
-import { formatUnits } from 'viem'
+import { formatUnits, parseUnits } from 'viem'
 import { useSelector } from 'react-redux'
 import { selectMode, selectNetworkOption } from '@store/selectors'
 import { ModeOptions, NetworkOptions } from '@interface'
@@ -122,10 +122,14 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
       }
     }
 
-    if (amount >= BigInt(100) && networkOption === NetworkOptions.testnet) {
+    if (
+      amount > parseUnits('100', decimals) &&
+      networkOption === NetworkOptions.testnet
+    ) {
       return {
         error: ValidationError.Error,
-        message: 'Testnet transfers for USD stablecoins are capped to $100 per transaction'
+        message:
+          'Testnet transfers for USD stablecoins are capped to $100 per transaction'
       }
     }
 
