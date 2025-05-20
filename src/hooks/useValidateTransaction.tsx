@@ -1,6 +1,10 @@
 import { checkPoolBalance } from '@utils/functions'
 import { useMemo } from 'react'
 import { formatUnits } from 'viem'
+import { useSelector } from 'react-redux'
+import { selectMode, selectNetworkOption } from '@store/selectors'
+import { ModeOptions, NetworkOptions } from '@interface'
+import log from 'loglevel'
 
 export enum ValidationError {
   Error = 'ValidationError',
@@ -49,6 +53,9 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
     targetCurrency,
     totalFee
   } = inputs
+
+  const mode = useSelector(selectMode)
+  const networkOption = useSelector(selectNetworkOption)
   const maxValue = useMemo(() => {
     console.log('useValidateTransaction: maxValue: ', inputs)
     if (!balance) return BigInt(0)
@@ -88,8 +95,18 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
       }
     }
 
+    if (amount >= BigInt(100) && networkOption === NetworkOptions.testnet) {
+      return {
+        error: ValidationError.Error,
+        message: 'Testnet transfers for USD stablecoins are capped to $100 per transaction'
+      }
+    }
+
     if (totalFee <= BigInt(0)) {
-      return { error: ValidationError.Error, message: 'Fee calculation error' }
+      return {
+        error: ValidationError.Error,
+        message: 'Fee calculation error'
+      }
     }
 
     if (compliantOption) {
