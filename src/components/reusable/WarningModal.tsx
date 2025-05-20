@@ -29,13 +29,13 @@ const WarningModal: React.FC<WarningModalProps> = ({
             className='warning-modal-cancel'
             clickHandler={onCancel}
           >
-            Cancel
+            CANCEL
           </SecondaryButton>
           <PrimaryButton
             className='warning-modal-acknowledge'
             clickHandler={onAcknowledge}
           >
-            Acknowledge
+            ACKNOWLEDGE
           </PrimaryButton>
         </div>
       </div>

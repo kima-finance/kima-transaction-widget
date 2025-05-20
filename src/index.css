@@ -3454,6 +3454,114 @@
   padding: 8px;
   height: 40px;
 }
+.kima-card .warning-modal-buttons .primary-button {
+  color: white;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  font-family: "Roboto Mono", monospace;
+  color: var(--text-100, #fff);
+}
+.kima-card .warning-modal-buttons .primary-button.hex-button {
+  position: relative;
+  background: transparent;
+  padding: 4px 16px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  z-index: 1;
+  clip-path: polygon(10px 0%, 100% 0%, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0% 100%, 0% 10px);
+  overflow: hidden;
+}
+.kima-card .warning-modal-buttons .primary-button.hex-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: linear-gradient(135deg, #794bca, #c34c52, #e69597);
+  clip-path: polygon(10px 0%, 100% 0%, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0% 100%, 0% 28px, 4px 24px, 0% 20px, 0% 10px);
+}
+.kima-card .warning-modal-buttons .primary-button.hex-button::after {
+  content: "";
+  position: absolute;
+  inset: 1.5px;
+  z-index: -1;
+  background: #121212;
+  clip-path: inherit;
+}
+.kima-card .warning-modal-buttons .primary-button:hover, .kima-card .warning-modal-buttons .primary-button:disabled {
+  opacity: 0.7;
+}
+.kima-card .warning-modal-buttons .primary-button:disabled {
+  cursor: default;
+}
+.kima-card .warning-modal-buttons .primary-button .loading-indicator {
+  margin-right: 7px;
+}
+.kima-card .warning-modal-buttons .primary-button .loading-indicator svg {
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+  fill: white !important;
+}
+@media (max-width: 500px) {
+  .kima-card .warning-modal-buttons .primary-button:hover {
+    opacity: 1;
+  }
+  .kima-card .warning-modal-buttons .primary-button:hover:focus:active {
+    opacity: 0.7;
+  }
+}
+.kima-card .warning-modal-buttons .secondary-button {
+  color: white;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  font-family: "Roboto Mono", monospace;
+}
+.kima-card .warning-modal-buttons .secondary-button.hex-button {
+  position: relative;
+  background: transparent;
+  padding: 4px 16px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  z-index: 1;
+  clip-path: polygon(10px 0%, 100% 0%, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0% 100%, 0% 10px);
+  overflow: hidden;
+}
+.kima-card .warning-modal-buttons .secondary-button.hex-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: var(--text-60, rgba(255, 255, 255, 0.6));
+  clip-path: polygon(10px 0%, 100% 0%, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0% 100%, 0% 28px, 4px 24px, 0% 20px, 0% 10px);
+}
+.kima-card .warning-modal-buttons .secondary-button.hex-button::after {
+  content: "";
+  position: absolute;
+  inset: 1.5px;
+  z-index: -1;
+  background: #121212;
+  clip-path: inherit;
+}
+.kima-card .warning-modal-buttons .secondary-button:hover, .kima-card .warning-modal-buttons .secondary-button:disabled {
+  opacity: 0.7;
+}
+.kima-card .warning-modal-buttons .secondary-button:disabled {
+  cursor: default;
+}
+@media (max-width: 500px) {
+  .kima-card .warning-modal-buttons .secondary-button:hover {
+    opacity: 1;
+  }
+  .kima-card .warning-modal-buttons .secondary-button:hover:focus:active {
+    opacity: 0.7;
+  }
+}
 @media (max-width: 500px) {
   .kima-card .warning-modal {
     width: 100%;

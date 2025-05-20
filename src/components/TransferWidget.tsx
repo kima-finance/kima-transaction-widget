@@ -174,7 +174,6 @@ export const TransferWidget = ({
     pools,
     feeDeduct,
     formStep,
-    isWalletReady: isReady
   })
 
   const {

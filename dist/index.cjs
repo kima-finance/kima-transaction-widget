@@ -6352,14 +6352,14 @@ var WarningModal = ({
       className: "warning-modal-cancel",
       clickHandler: onCancel
     },
-    "Cancel"
+    "CANCEL"
   ), /* @__PURE__ */ import_react133.default.createElement(
     PrimaryButton_default,
     {
       className: "warning-modal-acknowledge",
       clickHandler: onAcknowledge
     },
-    "Acknowledge"
+    "ACKNOWLEDGE"
   ))));
 };
 var WarningModal_default = WarningModal;
@@ -6641,8 +6641,7 @@ var TransferWidget = ({
     compliantOption,
     pools,
     feeDeduct,
-    formStep,
-    isWalletReady: isReady
+    formStep
   });
   const {
     data: fees,

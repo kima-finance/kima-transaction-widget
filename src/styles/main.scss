@@ -81,7 +81,7 @@
     .cc-widget {
       width: 100%;
       position: relative;
-      overflow: hidden; 
+      overflow: hidden;
       height: 730px;
       padding-top: 10px;
       padding-bottom: 10px;
@@ -368,6 +368,172 @@
     button {
       padding: 8px;
       height: 40px;
+    }
+
+    .primary-button {
+      color: white;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Roboto Mono', monospace;
+
+      color: var(--text-100, #fff);
+      &.hex-button {
+        position: relative;
+        background: transparent;
+        padding: 4px 16px;
+        font-weight: bold;
+        border: none;
+        cursor: pointer;
+        z-index: 1;
+
+        clip-path: polygon(
+          10px 0%,
+          /* Top-left horizontal */ 100% 0%,
+          /* Top-right */ 100% calc(100% - 10px),
+          /* Bottom-right start */ calc(100% - 10px) 100%,
+          /* Bottom-right hex corner */ 0% 100%,
+          /* Bottom-left */ 0% 10px /* Top-left hex corner */
+        );
+        overflow: hidden;
+      }
+
+      &.hex-button::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -2;
+        background: linear-gradient(135deg, #794bca, #c34c52, #e69597);
+
+        clip-path: polygon(
+          10px 0%,
+          /* Top-left start */ 100% 0%,
+          /* Top-right */ 100% calc(100% - 10px),
+          /* Bottom-right start */ calc(100% - 10px) 100%,
+          /* Bottom-right hex corner */ 0% 100%,
+          /* Bottom-left */ 0% 28px,
+          /* Left border visible portion */ 4px 24px,
+          /* Start of cut */ 0% 20px,
+          /* End of cut */ 0% 10px /* Continue up to top-left hex corner */
+        );
+      }
+
+      &.hex-button::after {
+        content: '';
+        position: absolute;
+        inset: 1.5px;
+        z-index: -1;
+        background: #121212;
+        clip-path: inherit;
+      }
+
+      &:hover,
+      &:disabled {
+        opacity: 0.7;
+      }
+
+      &:disabled {
+        cursor: default;
+      }
+
+      .loading-indicator {
+        margin-right: 7px;
+
+        svg {
+          width: 20px;
+          height: 20px;
+          margin-top: 4px;
+          fill: white !important;
+        }
+      }
+
+      @include breakpoint(mobile) {
+        &:hover {
+          opacity: 1;
+        }
+
+        &:hover:focus:active {
+          opacity: 0.7;
+        }
+      }
+    }
+
+    .secondary-button {
+      color: white;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Roboto Mono', monospace;
+
+      &.hex-button {
+        position: relative;
+        background: transparent;
+        padding: 4px 16px;
+        font-weight: bold;
+        border: none;
+        cursor: pointer;
+        z-index: 1;
+
+        clip-path: polygon(
+          10px 0%,
+          /* Top-left horizontal */ 100% 0%,
+          /* Top-right */ 100% calc(100% - 10px),
+          /* Bottom-right start */ calc(100% - 10px) 100%,
+          /* Bottom-right hex corner */ 0% 100%,
+          /* Bottom-left */ 0% 10px /* Top-left hex corner */
+        );
+        overflow: hidden;
+      }
+
+      &.hex-button::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -2;
+        background: var(--text-60, rgba(255, 255, 255, 0.6));
+
+        clip-path: polygon(
+          10px 0%,
+          /* Top-left start */ 100% 0%,
+          /* Top-right */ 100% calc(100% - 10px),
+          /* Bottom-right start */ calc(100% - 10px) 100%,
+          /* Bottom-right hex corner */ 0% 100%,
+          /* Bottom-left */ 0% 28px,
+          /* Left border visible portion */ 4px 24px,
+          /* Start of cut */ 0% 20px,
+          /* End of cut */ 0% 10px /* Continue up to top-left hex corner */
+        );
+      }
+
+      &.hex-button::after {
+        content: '';
+        position: absolute;
+        inset: 1.5px;
+        z-index: -1;
+        background: #121212;
+        clip-path: inherit;
+      }
+
+      &:hover,
+      &:disabled {
+        opacity: 0.7;
+      }
+
+      &:disabled {
+        cursor: default;
+      }
+
+      @include breakpoint(mobile) {
+        &:hover {
+          opacity: 1;
+        }
+
+        &:hover:focus:active {
+          opacity: 0.7;
+        }
+      }
     }
   }
 
