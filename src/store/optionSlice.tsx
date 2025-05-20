@@ -126,7 +126,7 @@ export interface OptionState {
   kimaExplorerUrl: string // URL for kima explore (testnet, staging or demo)
   txId?: number | string // transaction id to monitor it's status
   ccTransactionId: string // transaction id generated for submitting a credit card transaction
-  ccTransactionStatus: 'initialized' | 'success' | 'failed' | 'idle' | 'fatal' // credit card transaction status
+  ccTransactionStatus: 'initialized' | 'success' | 'failed' | 'idle' | 'error-id' | 'error-generic' // credit card transaction status
   sourceCurrency: string // Currently selected token for source chain
   targetCurrency: string // Currently selected token for target chain
   expireTime: string // Bitcoi HTLC expiration time
@@ -345,7 +345,7 @@ export const optionSlice = createSlice({
     setCCTransactionStatus: (
       state: OptionState,
       action: PayloadAction<
-        'initialized' | 'success' | 'failed' | 'idle' | 'fatal'
+        'initialized' | 'success' | 'failed' | 'idle' | 'error-id' | 'error-generic'
       >
     ) => {
       state.ccTransactionStatus = action.payload

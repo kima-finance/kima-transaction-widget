@@ -5912,6 +5912,7 @@ var SingleForm = ({
   const mode = (0, import_react_redux46.useSelector)(selectMode);
   const theme = (0, import_react_redux46.useSelector)(selectTheme);
   const feeDeduct = (0, import_react_redux46.useSelector)(selectFeeDeduct);
+  const networkOption = (0, import_react_redux46.useSelector)(selectNetworkOption);
   const { totalFee } = (0, import_react_redux46.useSelector)(selectServiceFee);
   const compliantOption = (0, import_react_redux46.useSelector)(selectCompliantOption);
   const targetCompliant = (0, import_react_redux46.useSelector)(selectTargetCompliant);
@@ -6029,7 +6030,12 @@ var SingleForm = ({
       disabled: initialSelection.sourceSelection || initialSelection.targetSelection,
       onChange: (e) => {
         const value = e.target.value;
-        const maskedValue = value.replace(/[^0-9.]/g, "").replace(/(\..*?)\..*/g, "$1").replace(new RegExp(`(\\.\\d{${decimals}})\\d+`), "$1");
+        let maskedValue = value.replace(/[^0-9.]/g, "").replace(/(\..*?)\..*/g, "$1").replace(new RegExp(`(\\.\\d{${decimals}})\\d+`), "$1");
+        const isTestnet = networkOption === "testnet" /* testnet */;
+        const numericValue = parseFloat(maskedValue);
+        if (isTestnet && numericValue > 100) {
+          maskedValue = "100";
+        }
         setAmountValue(maskedValue);
         dispatch(setAmount(maskedValue));
       }
@@ -6039,8 +6045,10 @@ var SingleForm = ({
     {
       className: "max-button",
       onClick: () => {
-        setAmountValue(maxValue.toString());
-        dispatch(setAmount(maxValue.toString()));
+        const isTestnet = networkOption === "testnet" /* testnet */;
+        const cappedValue = isTestnet ? Math.min(Number(maxValue), 100).toString() : maxValue.toString();
+        setAmountValue(cappedValue);
+        dispatch(setAmount(cappedValue));
       }
     },
     "Max"
@@ -6453,6 +6461,7 @@ var useValidateTransaction = (inputs) => {
     initialSelection
   } = inputs;
   const mode = (0, import_react_redux53.useSelector)(selectMode);
+  const networkOption = (0, import_react_redux53.useSelector)(selectNetworkOption);
   const maxValue = (0, import_react131.useMemo)(() => {
     import_loglevel2.default.debug("useValidateTransaction: maxValue: ", inputs);
     if (!balance) return BigInt(0);
@@ -6499,8 +6508,17 @@ var useValidateTransaction = (inputs) => {
         message: "Amount must be greater than zero"
       };
     }
+    if (amount >= BigInt(100) && networkOption === "testnet" /* testnet */) {
+      return {
+        error: "ValidationError" /* Error */,
+        message: "Testnet transfers for USD stablecoins are capped to $100 per transaction"
+      };
+    }
     if (totalFee <= BigInt(0)) {
-      return { error: "ValidationError" /* Error */, message: "Fee calculation error" };
+      return {
+        error: "ValidationError" /* Error */,
+        message: "Fee calculation error"
+      };
     }
     if (compliantOption) {
       if (!sourceCompliant?.isCompliant) {
@@ -6803,7 +6821,7 @@ var CCWidget = () => {
     return () => window.removeEventListener("message", handleMessage);
   }, []);
   (0, import_react134.useEffect)(() => {
-    if (error) dispatch(setCCTransactionStatus("fatal"));
+    if (error) dispatch(setCCTransactionStatus("error-id"));
   }, [dispatch, error]);
   return /* @__PURE__ */ import_react134.default.createElement("div", { className: `cc-widget ${isLoading ? "loading" : ""}` }, (isLoading || isTransactionIdLoading || isEnvLoading || ccTransactionStatus === "success") && /* @__PURE__ */ import_react134.default.createElement("div", { className: "cc-widget-loader" }, /* @__PURE__ */ import_react134.default.createElement(ring_default, { width: 50, height: 50, fill: "#86b8ce" })), /* @__PURE__ */ import_react134.default.createElement(
     "iframe",
@@ -6949,6 +6967,7 @@ var TransferWidget = ({
         const { success, message: submitMessage } = await submitTransaction(signature);
         if (!success) {
           import_react_hot_toast5.toast.error(submitMessage, { icon: /* @__PURE__ */ import_react135.default.createElement(Error_default, null) });
+          dispatch(setCCTransactionStatus("error-generic"));
         }
       }
     };
@@ -7432,15 +7451,30 @@ var KimaTransactionWidget = ({
   if (!hydrated || !theme?.colorMode) return /* @__PURE__ */ import_react141.default.createElement(ring_default, { width: 20, height: 20, fill: "#86b8ce" });
   if (isLoadingEnvs || isLoadingChainData)
     return /* @__PURE__ */ import_react141.default.createElement(SkeletonLoader_default, { theme });
-  if (ccTransactionStatus === "fatal")
+  if (ccTransactionStatus === "error-id")
     return /* @__PURE__ */ import_react141.default.createElement(
       ErrorWidget_default,
       {
         theme,
-        title: "Error getting CC transaction id",
+        title: "Credit Card Transaction Id Generation Error",
         message: "There was an error generating the transaction id and your transaction couldn't be generated. Please try again, if the error persists contact us.",
         backButtonEnabled: true,
         backButtonFunction: () => {
+          dispatch(setAmount(""));
+          dispatch(setCCTransactionStatus("idle"));
+        }
+      }
+    );
+  if (ccTransactionStatus === "error-generic")
+    return /* @__PURE__ */ import_react141.default.createElement(
+      ErrorWidget_default,
+      {
+        theme,
+        title: "Credit Card Transaction Error",
+        message: "There was an error sending the transaction. Please verify that the amount, chains and target address are correct, if the error persists contact us.",
+        backButtonEnabled: true,
+        backButtonFunction: () => {
+          dispatch(setAmount(""));
           dispatch(setCCTransactionStatus("idle"));
         }
       }

@@ -241,6 +241,7 @@ export const TransferWidget = ({
 
         if (!success) {
           toast.error(submitMessage, { icon: <ErrorIcon /> })
+          dispatch(setCCTransactionStatus('error-generic'))
         }
       }
     }

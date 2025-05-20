@@ -85,7 +85,7 @@ const CCWidget = () => {
   }, [])
 
   useEffect(() => {
-    if (error) dispatch(setCCTransactionStatus('fatal'))
+    if (error) dispatch(setCCTransactionStatus('error-id'))
   }, [dispatch, error])
 
   return (

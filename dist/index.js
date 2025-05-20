@@ -5950,6 +5950,7 @@ var SingleForm = ({
   const mode = useSelector35(selectMode);
   const theme = useSelector35(selectTheme);
   const feeDeduct = useSelector35(selectFeeDeduct);
+  const networkOption = useSelector35(selectNetworkOption);
   const { totalFee } = useSelector35(selectServiceFee);
   const compliantOption = useSelector35(selectCompliantOption);
   const targetCompliant = useSelector35(selectTargetCompliant);
@@ -6067,7 +6068,12 @@ var SingleForm = ({
       disabled: initialSelection.sourceSelection || initialSelection.targetSelection,
       onChange: (e) => {
         const value = e.target.value;
-        const maskedValue = value.replace(/[^0-9.]/g, "").replace(/(\..*?)\..*/g, "$1").replace(new RegExp(`(\\.\\d{${decimals}})\\d+`), "$1");
+        let maskedValue = value.replace(/[^0-9.]/g, "").replace(/(\..*?)\..*/g, "$1").replace(new RegExp(`(\\.\\d{${decimals}})\\d+`), "$1");
+        const isTestnet = networkOption === "testnet" /* testnet */;
+        const numericValue = parseFloat(maskedValue);
+        if (isTestnet && numericValue > 100) {
+          maskedValue = "100";
+        }
         setAmountValue(maskedValue);
         dispatch(setAmount(maskedValue));
       }
@@ -6077,8 +6083,10 @@ var SingleForm = ({
     {
       className: "max-button",
       onClick: () => {
-        setAmountValue(maxValue.toString());
-        dispatch(setAmount(maxValue.toString()));
+        const isTestnet = networkOption === "testnet" /* testnet */;
+        const cappedValue = isTestnet ? Math.min(Number(maxValue), 100).toString() : maxValue.toString();
+        setAmountValue(cappedValue);
+        dispatch(setAmount(cappedValue));
       }
     },
     "Max"
@@ -6491,6 +6499,7 @@ var useValidateTransaction = (inputs) => {
     initialSelection
   } = inputs;
   const mode = useSelector42(selectMode);
+  const networkOption = useSelector42(selectNetworkOption);
   const maxValue = useMemo19(() => {
     log2.debug("useValidateTransaction: maxValue: ", inputs);
     if (!balance) return BigInt(0);
@@ -6537,8 +6546,17 @@ var useValidateTransaction = (inputs) => {
         message: "Amount must be greater than zero"
       };
     }
+    if (amount >= BigInt(100) && networkOption === "testnet" /* testnet */) {
+      return {
+        error: "ValidationError" /* Error */,
+        message: "Testnet transfers for USD stablecoins are capped to $100 per transaction"
+      };
+    }
     if (totalFee <= BigInt(0)) {
-      return { error: "ValidationError" /* Error */, message: "Fee calculation error" };
+      return {
+        error: "ValidationError" /* Error */,
+        message: "Fee calculation error"
+      };
     }
     if (compliantOption) {
       if (!sourceCompliant?.isCompliant) {
@@ -6841,7 +6859,7 @@ var CCWidget = () => {
     return () => window.removeEventListener("message", handleMessage);
   }, []);
   useEffect20(() => {
-    if (error) dispatch(setCCTransactionStatus("fatal"));
+    if (error) dispatch(setCCTransactionStatus("error-id"));
   }, [dispatch, error]);
   return /* @__PURE__ */ React115.createElement("div", { className: `cc-widget ${isLoading ? "loading" : ""}` }, (isLoading || isTransactionIdLoading || isEnvLoading || ccTransactionStatus === "success") && /* @__PURE__ */ React115.createElement("div", { className: "cc-widget-loader" }, /* @__PURE__ */ React115.createElement(ring_default, { width: 50, height: 50, fill: "#86b8ce" })), /* @__PURE__ */ React115.createElement(
     "iframe",
@@ -6987,6 +7005,7 @@ var TransferWidget = ({
         const { success, message: submitMessage } = await submitTransaction(signature);
         if (!success) {
           toast5.error(submitMessage, { icon: /* @__PURE__ */ React116.createElement(Error_default, null) });
+          dispatch(setCCTransactionStatus("error-generic"));
         }
       }
     };
@@ -7470,15 +7489,30 @@ var KimaTransactionWidget = ({
   if (!hydrated || !theme?.colorMode) return /* @__PURE__ */ React120.createElement(ring_default, { width: 20, height: 20, fill: "#86b8ce" });
   if (isLoadingEnvs || isLoadingChainData)
     return /* @__PURE__ */ React120.createElement(SkeletonLoader_default, { theme });
-  if (ccTransactionStatus === "fatal")
+  if (ccTransactionStatus === "error-id")
     return /* @__PURE__ */ React120.createElement(
       ErrorWidget_default,
       {
         theme,
-        title: "Error getting CC transaction id",
+        title: "Credit Card Transaction Id Generation Error",
         message: "There was an error generating the transaction id and your transaction couldn't be generated. Please try again, if the error persists contact us.",
         backButtonEnabled: true,
         backButtonFunction: () => {
+          dispatch(setAmount(""));
+          dispatch(setCCTransactionStatus("idle"));
+        }
+      }
+    );
+  if (ccTransactionStatus === "error-generic")
+    return /* @__PURE__ */ React120.createElement(
+      ErrorWidget_default,
+      {
+        theme,
+        title: "Credit Card Transaction Error",
+        message: "There was an error sending the transaction. Please verify that the amount, chains and target address are correct, if the error persists contact us.",
+        backButtonEnabled: true,
+        backButtonFunction: () => {
+          dispatch(setAmount(""));
           dispatch(setCCTransactionStatus("idle"));
         }
       }

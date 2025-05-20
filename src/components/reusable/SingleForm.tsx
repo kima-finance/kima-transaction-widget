@@ -15,11 +15,12 @@ import {
   selectTargetCurrency,
   selectBackendUrl,
   selectSourceAddress,
-  selectTargetAddress
+  selectTargetAddress,
+  selectNetworkOption
 } from '../../store/selectors'
 import { BankInput, CoinDropdown, WalletButton } from './'
 import { setAmount, setServiceFee } from '../../store/optionSlice'
-import { ModeOptions } from '../../interface'
+import { ModeOptions, NetworkOptions } from '../../interface'
 import AddressInput from './AddressInput'
 import { ChainName } from '../../utils/constants'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
@@ -55,6 +56,7 @@ const SingleForm = ({
   const mode = useSelector(selectMode)
   const theme = useSelector(selectTheme)
   const feeDeduct = useSelector(selectFeeDeduct)
+  const networkOption = useSelector(selectNetworkOption)
   const { totalFee } = useSelector(selectServiceFee)
   const compliantOption = useSelector(selectCompliantOption)
   const targetCompliant = useSelector(selectTargetCompliant)
@@ -213,10 +215,17 @@ const SingleForm = ({
               const value = e.target.value
 
               // Allow numbers and a single dot for decimals
-              const maskedValue = value
+              let maskedValue = value
                 .replace(/[^0-9.]/g, '') // Remove non-numeric and non-dot characters
                 .replace(/(\..*?)\..*/g, '$1') // Allow only one dot
                 .replace(new RegExp(`(\\.\\d{${decimals}})\\d+`), '$1') // Limit decimal places
+
+              const isTestnet = networkOption === NetworkOptions.testnet
+              // Cap value at 100 if environment is TESTNET
+              const numericValue = parseFloat(maskedValue)
+              if (isTestnet && numericValue > 100) {
+                maskedValue = '100'
+              }
 
               setAmountValue(maskedValue)
               dispatch(setAmount(maskedValue))
@@ -226,8 +235,13 @@ const SingleForm = ({
             <span
               className='max-button'
               onClick={() => {
-                setAmountValue(maxValue.toString())
-                dispatch(setAmount(maxValue.toString()))
+                const isTestnet = networkOption === NetworkOptions.testnet
+                const cappedValue = isTestnet
+                  ? Math.min(Number(maxValue), 100).toString()
+                  : maxValue.toString()
+
+                setAmountValue(cappedValue)
+                dispatch(setAmount(cappedValue))
               }}
             >
               Max
