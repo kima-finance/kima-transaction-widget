@@ -5,7 +5,8 @@ import {
   selectCCTransactionStatus,
   selectFeeDeduct,
   selectNetworkOption,
-  selectServiceFee
+  selectServiceFee,
+  selectTheme
 } from '@store/selectors'
 import { Loading180Ring } from '@assets/loading'
 import { setCCTransactionId, setCCTransactionStatus } from '@store/optionSlice'
@@ -15,9 +16,11 @@ import { useCCTransactionId } from '../../hooks/useCCTransactionId'
 import { NetworkOptions } from '@interface'
 import { useGetEnvOptions } from '../../hooks/useGetEnvOptions'
 import log from '@utils/logger'
+import ErrorWidget from '@components/ErrorWidget'
 
 const CCWidget = () => {
   const dispatch = useDispatch()
+  const theme = useSelector(selectTheme)
   const feeDeduct = useSelector(selectFeeDeduct)
   const backendUrl = useSelector(selectBackendUrl)
   const ccTransactionStatus = useSelector(selectCCTransactionStatus)
@@ -81,6 +84,10 @@ const CCWidget = () => {
     return () => window.removeEventListener('message', handleMessage)
   }, [])
 
+  useEffect(() => {
+    if (error) dispatch(setCCTransactionStatus('fatal'))
+  }, [dispatch, error])
+
   return (
     <div className={`cc-widget ${isLoading ? 'loading' : ''}`}>
       {(isLoading ||
@@ -96,14 +103,16 @@ const CCWidget = () => {
         width={
           isLoading ||
           isTransactionIdLoading ||
-          ccTransactionStatus === 'success'
+          ccTransactionStatus === 'success' ||
+          error
             ? 0
             : '100%'
         }
         height={
           isLoading ||
           isTransactionIdLoading ||
-          ccTransactionStatus === 'success'
+          ccTransactionStatus === 'success' ||
+          error
             ? 0
             : '100%'
         }
