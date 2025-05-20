@@ -11,16 +11,15 @@ import {
   selectServiceFee,
   selectFeeDeduct,
   selectAmount,
-  selectSourceCurrency,
-  selectTargetCurrency,
-  selectBackendUrl,
   selectSourceAddress,
   selectTargetAddress,
-  selectNetworkOption
+  selectSourceCurrency,
+  selectTargetCurrency,
+  selectBackendUrl
 } from '../../store/selectors'
 import { BankInput, CoinDropdown, WalletButton } from './'
 import { setAmount, setServiceFee } from '../../store/optionSlice'
-import { ModeOptions, NetworkOptions } from '../../interface'
+import { ModeOptions } from '../../interface'
 import AddressInput from './AddressInput'
 import { ChainName } from '../../utils/constants'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
@@ -29,6 +28,8 @@ import { parseUnits } from 'viem'
 // import { formatBigInt } from 'src/helpers/functions'
 import { ChainCompatibility } from '@plugins/pluginTypes'
 import { formatBigInt } from 'src/helpers/functions'
+import { useKimaContext } from 'src/KimaProvider'
+import { useGetEnvOptions } from '../../hooks/useGetEnvOptions'
 import useGetFees from '../../hooks/useGetFees'
 
 const SingleForm = ({
@@ -56,7 +57,6 @@ const SingleForm = ({
   const mode = useSelector(selectMode)
   const theme = useSelector(selectTheme)
   const feeDeduct = useSelector(selectFeeDeduct)
-  const networkOption = useSelector(selectNetworkOption)
   const { totalFee } = useSelector(selectServiceFee)
   const compliantOption = useSelector(selectCompliantOption)
   const targetCompliant = useSelector(selectTargetCompliant)
@@ -91,6 +91,8 @@ const SingleForm = ({
       dispatch(setServiceFee(fees))
     }
   }, [fees, dispatch])
+  const { kimaBackendUrl } = useKimaContext()
+  const { data: envOptions } = useGetEnvOptions({ kimaBackendUrl })
 
   const errorMessage = useMemo(
     () =>
@@ -121,6 +123,39 @@ const SingleForm = ({
     if (amountValue && amount !== '') return
     setAmountValue(amount)
   }, [amount])
+
+  const onAmountChange = (value: string) => {
+    // Allow numbers and a single dot for decimals
+    let maskedValue = value
+      .replace(/[^0-9.]/g, '') // Remove non-numeric and non-dot characters
+      .replace(/(\..*?)\..*/g, '$1') // Allow only one dot
+      .replace(new RegExp(`(\\.\\d{${decimals}})\\d+`), '$1') // Limit decimal places
+
+    if (envOptions?.transferLimitMaxUSDT) {
+      // enforce max transfer limit
+      const txLimit = parseFloat(envOptions.transferLimitMaxUSDT)
+      const numericValue = parseFloat(maskedValue)
+      if (numericValue > txLimit) {
+        maskedValue = txLimit.toString()
+      }
+    }
+
+    setAmountValue(maskedValue)
+    dispatch(setAmount(maskedValue))
+  }
+
+  const onMaxClick = () => () => {
+    // the max amount the user can transfer is either
+    // their balance (minus fees) or the transfer limit
+    const txLimit = envOptions?.transferLimitMaxUSDT
+      ? parseFloat(envOptions.transferLimitMaxUSDT)
+      : Number.MAX_VALUE
+
+    const cappedValue = Math.min(Number(maxValue), txLimit).toString()
+
+    setAmountValue(cappedValue)
+    dispatch(setAmount(cappedValue))
+  }
 
   const isConnected = useMemo(() => {
     return isReady && !initialSelection.sourceSelection
@@ -210,40 +245,10 @@ const SingleForm = ({
             type='text'
             placeholder='Enter amount'
             value={amountValue || ''}
-            disabled={initialSelection.sourceSelection || initialSelection.targetSelection}
-            onChange={(e) => {
-              const value = e.target.value
-
-              // Allow numbers and a single dot for decimals
-              let maskedValue = value
-                .replace(/[^0-9.]/g, '') // Remove non-numeric and non-dot characters
-                .replace(/(\..*?)\..*/g, '$1') // Allow only one dot
-                .replace(new RegExp(`(\\.\\d{${decimals}})\\d+`), '$1') // Limit decimal places
-
-              const isTestnet = networkOption === NetworkOptions.testnet
-              // Cap value at 100 if environment is TESTNET
-              const numericValue = parseFloat(maskedValue)
-              if (isTestnet && numericValue > 100) {
-                maskedValue = '100'
-              }
-
-              setAmountValue(maskedValue)
-              dispatch(setAmount(maskedValue))
-            }}
+            onChange={(e) => onAmountChange(e.target.value)}
           />
           <div className='max-disclaimer'>
-            <span
-              className='max-button'
-              onClick={() => {
-                const isTestnet = networkOption === NetworkOptions.testnet
-                const cappedValue = isTestnet
-                  ? Math.min(Number(maxValue), 100).toString()
-                  : maxValue.toString()
-
-                setAmountValue(cappedValue)
-                dispatch(setAmount(cappedValue))
-              }}
-            >
+            <span className='max-button' onClick={onMaxClick}>
               Max
             </span>
             {+totalFee !== -1 && (

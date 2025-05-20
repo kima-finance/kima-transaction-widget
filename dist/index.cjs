@@ -2078,7 +2078,8 @@ var getEnvOptions = async ({
     return {
       env: "testnet" /* testnet */,
       kimaExplorer: "https://explorer.sardis.kima.network",
-      paymentPartnerId: "KimaTest"
+      paymentPartnerId: "KimaTest",
+      transferLimitMaxUSDT: null
     };
   return response;
 };
@@ -5912,7 +5913,6 @@ var SingleForm = ({
   const mode = (0, import_react_redux46.useSelector)(selectMode);
   const theme = (0, import_react_redux46.useSelector)(selectTheme);
   const feeDeduct = (0, import_react_redux46.useSelector)(selectFeeDeduct);
-  const networkOption = (0, import_react_redux46.useSelector)(selectNetworkOption);
   const { totalFee } = (0, import_react_redux46.useSelector)(selectServiceFee);
   const compliantOption = (0, import_react_redux46.useSelector)(selectCompliantOption);
   const targetCompliant = (0, import_react_redux46.useSelector)(selectTargetCompliant);
@@ -5945,6 +5945,8 @@ var SingleForm = ({
       dispatch(setServiceFee(fees));
     }
   }, [fees, dispatch]);
+  const { kimaBackendUrl } = useKimaContext();
+  const { data: envOptions } = useGetEnvOptions({ kimaBackendUrl });
   const errorMessage = (0, import_react124.useMemo)(
     () => compliantOption && targetCompliant !== null && !targetCompliant?.isCompliant ? `Target address has ${targetCompliant.results?.[0].result.risk_score} risk` : "",
     [compliantOption, targetCompliant]
@@ -5964,6 +5966,24 @@ var SingleForm = ({
     if (amountValue && amount !== "") return;
     setAmountValue(amount);
   }, [amount]);
+  const onAmountChange = (value) => {
+    let maskedValue = value.replace(/[^0-9.]/g, "").replace(/(\..*?)\..*/g, "$1").replace(new RegExp(`(\\.\\d{${decimals}})\\d+`), "$1");
+    if (envOptions?.transferLimitMaxUSDT) {
+      const txLimit = parseFloat(envOptions.transferLimitMaxUSDT);
+      const numericValue = parseFloat(maskedValue);
+      if (numericValue > txLimit) {
+        maskedValue = txLimit.toString();
+      }
+    }
+    setAmountValue(maskedValue);
+    dispatch(setAmount(maskedValue));
+  };
+  const onMaxClick = () => () => {
+    const txLimit = envOptions?.transferLimitMaxUSDT ? parseFloat(envOptions.transferLimitMaxUSDT) : Number.MAX_VALUE;
+    const cappedValue = Math.min(Number(maxValue), txLimit).toString();
+    setAmountValue(cappedValue);
+    dispatch(setAmount(cappedValue));
+  };
   const isConnected = (0, import_react124.useMemo)(() => {
     return isReady && !initialSelection.sourceSelection;
   }, [isReady, initialSelection]);
@@ -6027,32 +6047,9 @@ var SingleForm = ({
       type: "text",
       placeholder: "Enter amount",
       value: amountValue || "",
-      disabled: initialSelection.sourceSelection || initialSelection.targetSelection,
-      onChange: (e) => {
-        const value = e.target.value;
-        let maskedValue = value.replace(/[^0-9.]/g, "").replace(/(\..*?)\..*/g, "$1").replace(new RegExp(`(\\.\\d{${decimals}})\\d+`), "$1");
-        const isTestnet = networkOption === "testnet" /* testnet */;
-        const numericValue = parseFloat(maskedValue);
-        if (isTestnet && numericValue > 100) {
-          maskedValue = "100";
-        }
-        setAmountValue(maskedValue);
-        dispatch(setAmount(maskedValue));
-      }
+      onChange: (e) => onAmountChange(e.target.value)
     }
-  ), /* @__PURE__ */ import_react124.default.createElement("div", { className: "max-disclaimer" }, /* @__PURE__ */ import_react124.default.createElement(
-    "span",
-    {
-      className: "max-button",
-      onClick: () => {
-        const isTestnet = networkOption === "testnet" /* testnet */;
-        const cappedValue = isTestnet ? Math.min(Number(maxValue), 100).toString() : maxValue.toString();
-        setAmountValue(cappedValue);
-        dispatch(setAmount(cappedValue));
-      }
-    },
-    "Max"
-  ), +totalFee !== -1 && /* @__PURE__ */ import_react124.default.createElement("p", { className: "fee-amount" }, "Est fees:", " ", /* @__PURE__ */ import_react124.default.createElement("span", { className: `${isLoadingFees ? "loading" : ""}` }, " ", isLoadingFees ? "" : `$ ${formatBigInt(totalFee)} USD`))))));
+  ), /* @__PURE__ */ import_react124.default.createElement("div", { className: "max-disclaimer" }, /* @__PURE__ */ import_react124.default.createElement("span", { className: "max-button", onClick: onMaxClick }, "Max"), +totalFee !== -1 && /* @__PURE__ */ import_react124.default.createElement("p", { className: "fee-amount" }, "Est fees:", " ", /* @__PURE__ */ import_react124.default.createElement("span", { className: `${isLoadingFees ? "loading" : ""}` }, " ", isLoadingFees ? "" : `$ ${formatBigInt(totalFee)} USD`))))));
 };
 var SingleForm_default = SingleForm;
 

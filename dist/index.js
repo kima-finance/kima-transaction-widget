@@ -2052,7 +2052,8 @@ var getEnvOptions = async ({
     return {
       env: "testnet" /* testnet */,
       kimaExplorer: "https://explorer.sardis.kima.network",
-      paymentPartnerId: "KimaTest"
+      paymentPartnerId: "KimaTest",
+      transferLimitMaxUSDT: null
     };
   return response;
 };
@@ -5950,7 +5951,6 @@ var SingleForm = ({
   const mode = useSelector35(selectMode);
   const theme = useSelector35(selectTheme);
   const feeDeduct = useSelector35(selectFeeDeduct);
-  const networkOption = useSelector35(selectNetworkOption);
   const { totalFee } = useSelector35(selectServiceFee);
   const compliantOption = useSelector35(selectCompliantOption);
   const targetCompliant = useSelector35(selectTargetCompliant);
@@ -5983,6 +5983,8 @@ var SingleForm = ({
       dispatch(setServiceFee(fees));
     }
   }, [fees, dispatch]);
+  const { kimaBackendUrl } = useKimaContext();
+  const { data: envOptions } = useGetEnvOptions({ kimaBackendUrl });
   const errorMessage = useMemo14(
     () => compliantOption && targetCompliant !== null && !targetCompliant?.isCompliant ? `Target address has ${targetCompliant.results?.[0].result.risk_score} risk` : "",
     [compliantOption, targetCompliant]
@@ -6002,6 +6004,24 @@ var SingleForm = ({
     if (amountValue && amount !== "") return;
     setAmountValue(amount);
   }, [amount]);
+  const onAmountChange = (value) => {
+    let maskedValue = value.replace(/[^0-9.]/g, "").replace(/(\..*?)\..*/g, "$1").replace(new RegExp(`(\\.\\d{${decimals}})\\d+`), "$1");
+    if (envOptions?.transferLimitMaxUSDT) {
+      const txLimit = parseFloat(envOptions.transferLimitMaxUSDT);
+      const numericValue = parseFloat(maskedValue);
+      if (numericValue > txLimit) {
+        maskedValue = txLimit.toString();
+      }
+    }
+    setAmountValue(maskedValue);
+    dispatch(setAmount(maskedValue));
+  };
+  const onMaxClick = () => () => {
+    const txLimit = envOptions?.transferLimitMaxUSDT ? parseFloat(envOptions.transferLimitMaxUSDT) : Number.MAX_VALUE;
+    const cappedValue = Math.min(Number(maxValue), txLimit).toString();
+    setAmountValue(cappedValue);
+    dispatch(setAmount(cappedValue));
+  };
   const isConnected = useMemo14(() => {
     return isReady && !initialSelection.sourceSelection;
   }, [isReady, initialSelection]);
@@ -6065,32 +6085,9 @@ var SingleForm = ({
       type: "text",
       placeholder: "Enter amount",
       value: amountValue || "",
-      disabled: initialSelection.sourceSelection || initialSelection.targetSelection,
-      onChange: (e) => {
-        const value = e.target.value;
-        let maskedValue = value.replace(/[^0-9.]/g, "").replace(/(\..*?)\..*/g, "$1").replace(new RegExp(`(\\.\\d{${decimals}})\\d+`), "$1");
-        const isTestnet = networkOption === "testnet" /* testnet */;
-        const numericValue = parseFloat(maskedValue);
-        if (isTestnet && numericValue > 100) {
-          maskedValue = "100";
-        }
-        setAmountValue(maskedValue);
-        dispatch(setAmount(maskedValue));
-      }
+      onChange: (e) => onAmountChange(e.target.value)
     }
-  ), /* @__PURE__ */ React107.createElement("div", { className: "max-disclaimer" }, /* @__PURE__ */ React107.createElement(
-    "span",
-    {
-      className: "max-button",
-      onClick: () => {
-        const isTestnet = networkOption === "testnet" /* testnet */;
-        const cappedValue = isTestnet ? Math.min(Number(maxValue), 100).toString() : maxValue.toString();
-        setAmountValue(cappedValue);
-        dispatch(setAmount(cappedValue));
-      }
-    },
-    "Max"
-  ), +totalFee !== -1 && /* @__PURE__ */ React107.createElement("p", { className: "fee-amount" }, "Est fees:", " ", /* @__PURE__ */ React107.createElement("span", { className: `${isLoadingFees ? "loading" : ""}` }, " ", isLoadingFees ? "" : `$ ${formatBigInt(totalFee)} USD`))))));
+  ), /* @__PURE__ */ React107.createElement("div", { className: "max-disclaimer" }, /* @__PURE__ */ React107.createElement("span", { className: "max-button", onClick: onMaxClick }, "Max"), +totalFee !== -1 && /* @__PURE__ */ React107.createElement("p", { className: "fee-amount" }, "Est fees:", " ", /* @__PURE__ */ React107.createElement("span", { className: `${isLoadingFees ? "loading" : ""}` }, " ", isLoadingFees ? "" : `$ ${formatBigInt(totalFee)} USD`))))));
 };
 var SingleForm_default = SingleForm;
 
