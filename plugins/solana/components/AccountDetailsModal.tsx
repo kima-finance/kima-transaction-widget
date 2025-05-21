@@ -36,7 +36,7 @@ const AccountDetailsModal = () => {
   // construct the explorer url based on network option
   // and the chain selected (sol or trx)
   const explorerUrl = useMemo(() => {
-    return `https://solscan.io/account/address/${walletAddress}?cluster=${networkOption === 'mainnet' ? 'mainnet' : 'devnet'}`
+    return `https://solscan.io/account/${walletAddress}?cluster=${networkOption === 'mainnet' ? 'mainnet' : 'devnet'}`
   }, [walletAddress, networkOption])
 
   // handle disconnection scenario

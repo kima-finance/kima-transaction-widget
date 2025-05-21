@@ -6213,7 +6213,7 @@ var AccountDetailsModal = () => {
   const { balance: solBalance } = useGetSolBalance_default();
   const networkDetails = networkOptions2[0];
   const explorerUrl = (0, import_react126.useMemo)(() => {
-    return `https://solscan.io/account/address/${walletAddress}?cluster=${networkOption === "mainnet" ? "mainnet" : "devnet"}`;
+    return `https://solscan.io/account/${walletAddress}?cluster=${networkOption === "mainnet" ? "mainnet" : "devnet"}`;
   }, [walletAddress, networkOption]);
   const handleDisconnect = () => {
     solanaWalletDisconnect();
