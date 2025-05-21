@@ -20,13 +20,15 @@ import {
   selectNetworks,
   selectSourceAddress
 } from '@store/selectors'
-import { ChainName } from '../../utils/constants'
+import { ChainName, lightDemoAccounts } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 import useWidth from '../../hooks/useWidth'
 import ChainIcon from './ChainIcon'
 import FeeDeductionRadioButtons from './FeeDeductionRadioButtons'
 import { MiniArrowIcon } from '@assets/icons'
 import { formatBigInt } from 'src/helpers/functions'
+
+// TODO: ADD LIGHT DEMO LOGIC AND FIXES
 
 const ConfirmDetails = ({
   isApproved,
@@ -236,9 +238,15 @@ const ConfirmDetails = ({
               </span>
             </div>
             <p className={theme.colorMode}>
-              {dAppOption === DAppOptions.LPDrain
-                ? connectedAddress
-                : targetAddress}
+              {mode === ModeOptions.light
+                ? targetNetwork.shortName === 'SOL'
+                  ? lightDemoAccounts.SOL
+                  : targetNetwork.shortName === 'TRX'
+                    ? lightDemoAccounts.TRX
+                    : lightDemoAccounts.EVM
+                : dAppOption === DAppOptions.LPDrain
+                  ? connectedAddress
+                  : targetAddress}
             </p>
           </div>
         </div>

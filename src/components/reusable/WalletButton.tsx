@@ -11,7 +11,9 @@ import {
   selectSourceCurrency,
   selectSourceChain,
   selectSourceCompliant,
-  selectTheme
+  selectTheme,
+  selectMode,
+  selectTargetAddress
 } from '../../store/selectors'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
 import { ChainName } from '../../utils/constants'
@@ -27,16 +29,26 @@ import { bigIntToNumber, formatUSD } from '../../helpers/functions'
 import useHideWuiListItem from '../../hooks/useHideActivityTab'
 import { useKimaContext } from '../../KimaProvider'
 import { useGetEnvOptions } from '../../hooks/useGetEnvOptions'
-import { NetworkOptions } from '@interface'
+import { ModeOptions, NetworkOptions } from '@interface'
 import log from '@utils/logger'
 
-const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
+const WalletButton = ({
+  errorBelow = false,
+  initialSelection,
+  placeholder = false
+}: {
+  errorBelow?: boolean
+  initialSelection: boolean
+  placeholder?: boolean
+}) => {
   const dispatch = useDispatch()
   const theme = useSelector(selectTheme)
+  const mode = useSelector(selectMode)
   const selectedCoin = useSelector(selectSourceCurrency)
   const sourceCompliant = useSelector(selectSourceCompliant)
   const compliantOption = useSelector(selectCompliantOption)
   const selectedNetwork = useSelector(selectSourceChain)
+  const targetAddress = useSelector(selectTargetAddress)
   const { externalProvider } = useKimaContext()
   const { connected: isSolanaConnected } = useSolanaWallet()
   const { connected: isTronConnected } = useTronWallet()
@@ -48,7 +60,7 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   const { width, updateWidth } = useWidth()
   useHideWuiListItem(isModalOpen)
 
-  console.log({isReady, statusMessage, connectedAddress})
+  // console.log({isReady, statusMessage, connectedAddress})
 
   const { kimaBackendUrl } = useKimaContext()
   const { data: envOptions } = useGetEnvOptions({ kimaBackendUrl })
@@ -65,10 +77,6 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   }, [balance, connectedAddress, isReady, externalProvider, networkOption])
 
   useEffect(() => {
-    if (connectedAddress) dispatch(setSourceAddress(connectedAddress))
-  }, [connectedAddress])
-
-  useEffect(() => {
     if (width === 0) {
       updateWidth(window.innerWidth)
     }
@@ -78,7 +86,13 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
     log.debug('Handling click')
 
     // TODO: Refactor to use evm account details modal
-    if (externalProvider) return
+    if (
+      externalProvider ||
+      initialSelection ||
+      placeholder ||
+      mode === ModeOptions.light
+    )
+      return
 
     if (selectedNetwork.shortName === ChainName.SOLANA) {
       log.debug('Handling click: Case SOL', 1)
@@ -129,32 +143,67 @@ const WalletButton = ({ errorBelow = false }: { errorBelow?: boolean }) => {
   //   if (!errorMessage) return
   //   toast.error(errorMessage)
   // }, [errorMessage])
+  const isConnected = useMemo(() => {
+    return isReady && !initialSelection
+  }, [isReady, initialSelection])
+
+  useEffect(() => {
+    if (!isReady) {
+      // console.log(
+      //   'resetting source address from wallet button and light mode...: ', isReady
+      // )
+      dispatch(setSourceAddress(''))
+      return
+    }
+
+    dispatch(setSourceAddress(connectedAddress as string))
+  }, [isReady])
 
   return (
     <div
-      className={`wallet-button ${isReady ? 'connected' : 'disconnected'} ${theme.colorMode} ${
+      className={`wallet-button ${isConnected ? 'connected' : 'disconnected'} ${theme.colorMode} ${
         errorBelow ? 'error-below' : ''
       }`}
       data-testid='connect-wallet-btn'
     >
       <div className='info-wrapper'>
         <button
-          className={`${isReady ? 'connected' : 'disconnected'} ${width < 640 && 'shortened'} ${theme.colorMode}`}
+          className={`${isConnected ? 'connected' : 'disconnected'} ${width < 640 && 'shortened'} ${theme.colorMode}`}
           onClick={handleClick}
         >
-          {isReady
+          {placeholder &&
+            !initialSelection &&
+            (width >= 640
+              ? `${targetAddress || ''}`
+              : getShortenedAddress(targetAddress || ''))}
+
+          {isConnected && !placeholder
             ? width >= 640
               ? `${connectedAddress || ''}`
               : getShortenedAddress(connectedAddress || '')
             : ''}
-          {!isReady && <WalletIcon />}
-          {!isReady && 'Connect Wallet'}
+          {!isConnected &&
+            mode === ModeOptions.light &&
+            'Select Network to Load Account'}
+          {!isConnected &&
+            mode !== ModeOptions.light &&
+            initialSelection &&
+            'Select Network to Connect'}
+          {!isConnected && mode !== ModeOptions.light && !initialSelection && (
+            <WalletIcon />
+          )}
+          {!isConnected &&
+            mode !== ModeOptions.light &&
+            !initialSelection &&
+            'Connect Wallet'}
         </button>
 
-        {isReady && <CopyButton text={connectedAddress as string} />}
+        {isConnected && !placeholder && (
+          <CopyButton text={connectedAddress as string} />
+        )}
       </div>
 
-      {isReady && balance !== undefined && decimals !== undefined ? (
+      {isConnected && !placeholder && balance !== undefined && decimals !== undefined ? (
         <p className='balance-info'>
           {formatUSD(bigIntToNumber({ value: balance, decimals }))}{' '}
           {selectedCoin} available

@@ -4,6 +4,7 @@ import { formatUnits, parseUnits } from 'viem'
 import { useSelector } from 'react-redux'
 import { selectMode, selectNetworkOption } from '@store/selectors'
 import { ModeOptions, NetworkOptions } from '@interface'
+import { isAddressCompatible } from 'src/helpers/functions'
 import log from 'loglevel'
 
 export enum ValidationError {
@@ -31,6 +32,10 @@ export interface UseValidateTransactionInputs {
   targetChain: string
   targetCurrency: string
   totalFee: bigint
+  initialSelection: {
+    sourceSelection: boolean
+    targetSelection: boolean
+  }
 }
 
 const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
@@ -51,20 +56,21 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
     targetCompliant,
     targetChain,
     targetCurrency,
-    totalFee
+    totalFee,
+    initialSelection
   } = inputs
 
   const mode = useSelector(selectMode)
   const networkOption = useSelector(selectNetworkOption)
   const maxValue = useMemo(() => {
-    console.log('useValidateTransaction: maxValue: ', inputs)
+    log.debug('useValidateTransaction: maxValue: ', inputs)
     if (!balance) return BigInt(0)
 
     if (totalFee <= BigInt(0)) return balance
 
     const amountMinusFees = balance - totalFee
     const maxVal = amountMinusFees > BigInt(0) ? amountMinusFees : BigInt(0)
-    console.log('maxValue: ', { maxVal, amountMinusFees })
+    log.debug('maxValue: ', { maxVal, amountMinusFees })
 
     return maxVal
   }, [balance, totalFee, feeDeduct])
@@ -73,18 +79,39 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
     // log.debug('allowance: ', allowance)
     // log.debug('isApproved: ', isApproved)
 
+    if (initialSelection.sourceSelection) {
+      return {
+        error: ValidationError.Error,
+        message: 'Select a source network to proceed'
+      }
+    }
+
+    if (initialSelection.targetSelection) {
+      return {
+        error: ValidationError.Error,
+        message: 'Select a target network to proceed'
+      }
+    }
+
     // Validation logic
-    if (!sourceAddress && sourceChain !== 'CC') {
+    if (!sourceAddress && sourceChain !== 'CC' && mode !== ModeOptions.light) {
       return {
         error: ValidationError.Error,
         message: 'Wallet is not connected'
       }
     }
 
-    if (!targetAddress) {
+    if (!targetAddress && mode !== ModeOptions.light) {
       return {
         error: ValidationError.Error,
         message: 'Target address is not provided'
+      }
+    }
+
+    if (!isAddressCompatible(targetAddress, targetChain)) {
+      return {
+        error: ValidationError.Error,
+        message: 'The provided target address is invalid'
       }
     }
 
@@ -98,7 +125,8 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
     if (amount > parseUnits('100', decimals) && networkOption === NetworkOptions.testnet) {
       return {
         error: ValidationError.Error,
-        message: 'Testnet transfers for USD stablecoins are capped to $100 per transaction'
+        message:
+          'Testnet transfers for USD stablecoins are capped to $100 per transaction'
       }
     }
 

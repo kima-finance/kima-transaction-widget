@@ -27,6 +27,7 @@ import {
 import { useDispatch } from 'react-redux'
 import { toast, Toaster } from 'react-hot-toast'
 import {
+  resetServiceFee,
   setAmount,
   setCCTransactionId,
   setCCTransactionStatus,
@@ -46,6 +47,7 @@ import TransactionSearch from './reusable/TransactionSearch'
 import { useChainData } from '../hooks/useChainData'
 import { ChainData } from '@plugins/pluginTypes'
 import log from '@utils/logger'
+import KimaNetwork from '@assets/icons/KimaNetwork'
 
 export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [step, setStep] = useState(0)
@@ -223,6 +225,16 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const resetForm = () => {
     closeHandler && closeHandler()
 
+    dispatch(resetServiceFee())
+
+    if (mode === ModeOptions.light) {
+      dispatch(setMode(ModeOptions.light))
+      dispatch(setTxId(-1))
+      dispatch(setSubmitted(false))
+      dispatch(setAmount(''))
+      return
+    }
+
     if (mode === ModeOptions.status && amount === '') {
       dispatch(setMode(ModeOptions.status))
       dispatch(setTxId(-1))
@@ -284,13 +296,13 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
           <div className='topbar'>
             <div className='title'>
               {isValidTxId && !error ? (
-                <div className='transaction'>
+                <div className='transaction-title'>
                   {mode !== ModeOptions.status
                     ? data?.status === TransactionStatus.COMPLETED
                       ? 'Transferred '
                       : 'Transfering '
                     : isEmptyStatus
-                      ? 'Getting Transaction Status'
+                      ? 'Fetching transaction status '
                       : data?.status === TransactionStatus.COMPLETED
                         ? 'Transfered '
                         : 'Transfering '}
@@ -453,8 +465,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
         <div className='floating-footer status'>
           <div className={`items ${theme.colorMode}`}>
             <span>Powered by</span>
-            <FooterLogo fill='black' />
-            <strong>Network</strong>
+            <KimaNetwork />
           </div>
         </div>
         {/* <Tooltip

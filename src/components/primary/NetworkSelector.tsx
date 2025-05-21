@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import {
+  selectMode,
   selectNetworks,
   selectSourceChain,
   selectTargetChain,
@@ -10,56 +11,106 @@ import {
   setSourceChain,
   setSourceCurrency,
   setTargetChain,
+  setTargetAddress,
   setTargetCurrency
 } from '@store/optionSlice'
 import Arrow from '@assets/icons/Arrow'
 import ChainIcon from '../reusable/ChainIcon'
+import {
+  ChainName,
+  isEVMChain,
+  lightDemoAccounts,
+  lightDemoNetworks
+} from '@utils/constants'
 import { useKimaContext } from 'src/KimaProvider'
-import { ChainData, ChainLocation } from '@plugins/pluginTypes'
+import {
+  ChainCompatibility,
+  ChainData,
+  ChainLocation
+} from '@plugins/pluginTypes'
+import { ModeOptions } from '@interface'
 import log from '@utils/logger'
+import { isSolana, isTron } from 'src/helpers/functions'
+
+// TODO: ADD LIGHT DEMO LOGIC
 
 interface NetworkSelectorProps {
   type: ChainLocation // Determines if this is a source or target selector
+  initialSelection: boolean
+  setInitialSelection: React.Dispatch<
+    React.SetStateAction<{
+      sourceSelection: boolean
+      targetSelection: boolean
+    }>
+  >
 }
 
-const NetworkSelector: React.FC<NetworkSelectorProps> = ({ type }) => {
+type DemoChainKey = keyof typeof lightDemoAccounts
+
+const NetworkSelector: React.FC<NetworkSelectorProps> = ({
+  type,
+  initialSelection,
+  setInitialSelection
+}) => {
   const [collapsed, setCollapsed] = useState(true)
   const ref = useRef<HTMLDivElement | null>(null)
 
   const dispatch = useDispatch()
   const theme = useSelector(selectTheme)
   const networkOptions = useSelector(selectNetworks)
+  const mode = useSelector(selectMode)
   const sourceNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
   const { switchChainHandler } = useKimaContext()
 
   const isOriginSelector = type === 'origin'
 
-  // Filter networks based on the type (source/target)
-  const networks = useMemo(
-    () =>
-      networkOptions.filter((network: ChainData) => {
-        const isSameAsSource = isOriginSelector
-          ? false
-          : network.shortName === sourceNetwork.shortName // remove source from target
+  const networks = useMemo(() => {
+  return networkOptions.filter((network: ChainData) => {
+    const isSameAsSource = isOriginSelector
+      ? false
+      : network.shortName === sourceNetwork.shortName;
 
-        return network.supportedLocations.includes(type) && !isSameAsSource
-      }),
-    [networkOptions, sourceNetwork, type]
-  )
+    const isAllowedInLightMode =
+      mode !== ModeOptions.light || lightDemoNetworks.includes(network.shortName);
+
+    return (
+      network.supportedLocations.includes(type) &&
+      !isSameAsSource &&
+      isAllowedInLightMode
+    );
+  });
+}, [networkOptions, sourceNetwork, type, mode]);
+
 
   const selectedNetwork = useMemo(() => {
+    if (initialSelection) {
+      return {
+        shortName: '',
+        name: isOriginSelector
+          ? 'Select Source Network'
+          : 'Select Target Network'
+      }
+    }
+
     const selected = isOriginSelector ? sourceNetwork : targetNetwork
     return (
-      networks.find((network: ChainData) => network.id === selected.id) || {
+      networks.find((network: ChainData) => network.id === selected?.id) || {
         shortName: '',
         name: isOriginSelector
           ? 'Select Source Network'
           : 'Select Target Network'
       }
     )
-  }, [networks, sourceNetwork, targetNetwork, isOriginSelector])
+  }, [
+    networks,
+    sourceNetwork,
+    targetNetwork,
+    isOriginSelector,
+    initialSelection
+  ])
 
+  //
   useEffect(() => {
     if (!networks.length || selectedNetwork.shortName) return
 
@@ -86,15 +137,21 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({ type }) => {
         switchChainHandler && switchChainHandler(chain)
       }
     } else {
-      if (chain.shortName !== targetNetwork.shortName) {
-        log.debug('NetworkSelector: Setting target chain and currency to:', {
-          chain: chain.shortName,
-          currency: newCurrency
-        })
-        dispatch(setTargetChain(chain))
-        dispatch(setTargetCurrency(newCurrency))
+      dispatch(setTargetChain(chain))
+      const chainCompatibility: DemoChainKey =
+        chain.compatibility === ChainCompatibility.EVM
+          ? 'EVM'
+          : (chain.shortName as DemoChainKey)
+
+      if (mode === ModeOptions.light) {
+        // console.log('dispatching target address from network selector..')
+        dispatch(setTargetAddress(lightDemoAccounts[chainCompatibility]))
       }
     }
+
+    type === 'origin'
+      ? setInitialSelection((prev) => ({ ...prev, sourceSelection: false }))
+      : setInitialSelection((prev) => ({ ...prev, targetSelection: false }))
     setCollapsed(true) // Explicitly collapse the dropdown after selection
   }
 
@@ -110,6 +167,18 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({ type }) => {
       document.removeEventListener('mousedown', handleOutsideClick)
     }
   }, [])
+
+  useEffect(() => {
+    if(mode !== ModeOptions.light) return
+
+    if (isEVMChain(targetNetwork.shortName)) {
+      dispatch(setTargetAddress(lightDemoAccounts.EVM))
+    } else if (isSolana(targetNetwork.shortName)) {
+      dispatch(setTargetAddress(lightDemoAccounts.SOL))
+    } else if (isTron(targetNetwork.shortName)) {
+      dispatch(setTargetAddress(lightDemoAccounts.TRX))
+    }
+  }, [sourceNetwork, targetNetwork, mode])
 
   return (
     <div

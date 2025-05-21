@@ -4,12 +4,16 @@ import PrimaryButton from './PrimaryButton'
 
 interface WarningModalProps {
   message: string
+  cancelButtonText?: string
+  acknowledgeButtonText?: string
   onAcknowledge: () => void
   onCancel: () => void
 }
 
 const WarningModal: React.FC<WarningModalProps> = ({
   message,
+  cancelButtonText = 'Cancel',
+  acknowledgeButtonText = 'Acknowledge',
   onAcknowledge,
   onCancel
 }) => {
@@ -23,13 +27,13 @@ const WarningModal: React.FC<WarningModalProps> = ({
             className='warning-modal-cancel'
             clickHandler={onCancel}
           >
-            Cancel
+            {cancelButtonText}
           </SecondaryButton>
           <PrimaryButton
             className='warning-modal-acknowledge'
             clickHandler={onAcknowledge}
           >
-            Acknowledge
+            {acknowledgeButtonText}
           </PrimaryButton>
         </div>
       </div>

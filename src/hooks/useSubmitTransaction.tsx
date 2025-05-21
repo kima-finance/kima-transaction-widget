@@ -9,13 +9,16 @@ import {
   selectBackendUrl,
   selectCCTransactionId,
   selectFeeDeduct,
+  selectMode,
   selectServiceFee
 } from '@store/selectors'
 import { bigIntChangeDecimals } from 'src/helpers/functions'
 
+
 const useSubmitTransaction = () => {
   const dispatch = useDispatch()
   const backendUrl = useSelector(selectBackendUrl)
+  const mode = useSelector(selectMode)
 
   const [isSubmitting, setSubmitting] = useState(false)
   const { feeId, transactionValues, totalFee } = useSelector(selectServiceFee)
@@ -54,11 +57,12 @@ const useSubmitTransaction = () => {
           feeId,
           chargeFeeAtTarget: feeDeduct
         }),
-        ccTransactionIdSeed: ccTransactionId
+        ccTransactionIdSeed: ccTransactionId,
+        mode
       })
       log.debug('submitTransaction: params: ', params)
 
-      let transactionResult: any = await fetchWrapper.post(
+      const transactionResult: any = await fetchWrapper.post(
         `${backendUrl}/submit`,
         params
       )
