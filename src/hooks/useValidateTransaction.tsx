@@ -6,6 +6,8 @@ import { selectMode, selectNetworkOption } from '@store/selectors'
 import { ModeOptions, NetworkOptions } from '@interface'
 import { isAddressCompatible } from 'src/helpers/functions'
 import log from 'loglevel'
+import { useKimaContext } from 'src/KimaProvider'
+import { useGetEnvOptions } from './useGetEnvOptions'
 
 export enum ValidationError {
   Error = 'ValidationError',
@@ -60,6 +62,8 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
     initialSelection
   } = inputs
 
+  const { kimaBackendUrl } = useKimaContext()
+  const { data: envOptions } = useGetEnvOptions({ kimaBackendUrl })
   const mode = useSelector(selectMode)
   const networkOption = useSelector(selectNetworkOption)
   const maxValue = useMemo(() => {
@@ -122,7 +126,11 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
       }
     }
 
-    if (amount > parseUnits('100', decimals) && networkOption === NetworkOptions.testnet) {
+    if (
+      amount >
+        parseUnits(envOptions?.transferLimitMaxUSDT || '100', decimals) &&
+      networkOption === NetworkOptions.testnet
+    ) {
       return {
         error: ValidationError.Error,
         message:

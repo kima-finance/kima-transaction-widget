@@ -4585,7 +4585,9 @@ var formatBigInt = (inputs) => {
 };
 var toBigintAmount = (data) => {
   return {
-    value: BigInt(data.value),
+    // bigint values constructed from numbers can have rounding errors!
+    // so need to convert to string and then to bigint
+    value: BigInt(data.value.toString()),
     decimals: data.decimals
   };
 };
@@ -6495,6 +6497,8 @@ var useValidateTransaction = (inputs) => {
     totalFee,
     initialSelection
   } = inputs;
+  const { kimaBackendUrl } = useKimaContext();
+  const { data: envOptions } = useGetEnvOptions({ kimaBackendUrl });
   const mode = useSelector42(selectMode);
   const networkOption = useSelector42(selectNetworkOption);
   const maxValue = useMemo19(() => {
@@ -6543,7 +6547,7 @@ var useValidateTransaction = (inputs) => {
         message: "Amount must be greater than zero"
       };
     }
-    if (amount > parseUnits3("100", decimals) && networkOption === "testnet" /* testnet */) {
+    if (amount > parseUnits3(envOptions?.transferLimitMaxUSDT || "100", decimals) && networkOption === "testnet" /* testnet */) {
       return {
         error: "ValidationError" /* Error */,
         message: "Testnet transfers for USD stablecoins are capped to $100 per transaction"
@@ -6653,10 +6657,12 @@ var useSubmitTransaction = () => {
         ccTransactionIdSeed: ccTransactionId,
         mode
       });
+      logger_default.debug("submitTransaction: params: ", params);
       const transactionResult = await fetchWrapper.post(
         `${backendUrl}/submit`,
         params
       );
+      logger_default.debug("submitTransaction: response: ", transactionResult);
       if (transactionResult?.code !== 0) {
         setSubmitting(false);
         return { success: false, message: "Failed to submit transaction" };
