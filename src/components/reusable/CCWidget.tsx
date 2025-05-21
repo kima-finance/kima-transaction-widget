@@ -119,6 +119,7 @@ const CCWidget = () => {
         src={`${baseUrl}/widgets/kyc?partner=${partnerId}&user_uuid=${randomUserIdRef.current}&amount=${allowanceAmount}&currency=USD&trx_uuid=${data?.transactionId}&postmessage=true`}
         loading='lazy'
         title='Credit Card Widget'
+        allow='camera'
         onLoad={() => setIsLoading(false)}
         style={{
           border: 'none',
