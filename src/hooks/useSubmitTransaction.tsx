@@ -60,13 +60,14 @@ const useSubmitTransaction = () => {
         ccTransactionIdSeed: ccTransactionId,
         mode
       })
+      log.debug('submitTransaction: params: ', params)
 
       const transactionResult: any = await fetchWrapper.post(
         `${backendUrl}/submit`,
         params
       )
 
-      // console.log('transactionResult: ', transactionResult)
+      log.debug('submitTransaction: response: ', transactionResult)
       if (transactionResult?.code !== 0) {
         setSubmitting(false)
         return { success: false, message: 'Failed to submit transaction' }

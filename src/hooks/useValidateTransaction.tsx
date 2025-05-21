@@ -122,10 +122,7 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
       }
     }
 
-    if (
-      amount > parseUnits('100', decimals) &&
-      networkOption === NetworkOptions.testnet
-    ) {
+    if (amount > parseUnits('100', decimals) && networkOption === NetworkOptions.testnet) {
       return {
         error: ValidationError.Error,
         message:

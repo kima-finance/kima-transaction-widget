@@ -54,7 +54,9 @@ export const toBigintAmount = (
   data: BigintAmount<string>
 ): BigintAmount<bigint> => {
   return {
-    value: BigInt(data.value),
+    // bigint values constructed from numbers can have rounding errors!
+    // so need to convert to string and then to bigint
+    value: BigInt(data.value.toString()),
     decimals: data.decimals
   }
 }
