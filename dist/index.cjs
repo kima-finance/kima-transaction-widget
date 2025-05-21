@@ -6208,7 +6208,7 @@ var AccountDetailsModal = () => {
   const networkOption = (0, import_react_redux48.useSelector)(selectNetworkOption);
   const sourceChain = (0, import_react_redux48.useSelector)(selectSourceChain);
   const accountDetailsModal = (0, import_react_redux48.useSelector)(selectAccountDetailsModal);
-  const { walletAddress } = useIsWalletReady_default2();
+  const { connectedAddress: walletAddress } = useIsWalletReady_default2();
   const { disconnect: solanaWalletDisconnect } = (0, import_wallet_adapter_react8.useWallet)();
   const { balance: solBalance } = useGetSolBalance_default();
   const networkDetails = networkOptions2[0];

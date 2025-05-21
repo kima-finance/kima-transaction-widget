@@ -6246,7 +6246,7 @@ var AccountDetailsModal = () => {
   const networkOption = useSelector37(selectNetworkOption);
   const sourceChain = useSelector37(selectSourceChain);
   const accountDetailsModal = useSelector37(selectAccountDetailsModal);
-  const { walletAddress } = useIsWalletReady_default2();
+  const { connectedAddress: walletAddress } = useIsWalletReady_default2();
   const { disconnect: solanaWalletDisconnect } = useSolanaWallet3();
   const { balance: solBalance } = useGetSolBalance_default();
   const networkDetails = networkOptions2[0];

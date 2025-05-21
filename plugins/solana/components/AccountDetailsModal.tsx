@@ -26,7 +26,7 @@ const AccountDetailsModal = () => {
   const networkOption = useSelector(selectNetworkOption)
   const sourceChain = useSelector(selectSourceChain)
   const accountDetailsModal = useSelector(selectAccountDetailsModal)
-  const { walletAddress } = useIsWalletReady()
+  const { connectedAddress: walletAddress } = useIsWalletReady()
   const { disconnect: solanaWalletDisconnect } = useSolanaWallet()
   const { balance: solBalance } = useGetSolBalance()
 
