@@ -10,7 +10,7 @@ import {
   selectTheme,
   selectServiceFee,
   selectFeeDeduct,
-  selectAmount,
+  selectAmount
 } from '../../store/selectors'
 import { BankInput, CoinDropdown, WalletButton } from './'
 import { setAmount } from '../../store/optionSlice'
@@ -23,6 +23,8 @@ import { parseUnits } from 'viem'
 // import { formatBigInt } from 'src/helpers/functions'
 import { ChainCompatibility } from '@plugins/pluginTypes'
 import { formatBigInt } from 'src/helpers/functions'
+import { useKimaContext } from 'src/KimaProvider'
+import { useGetEnvOptions } from '../../hooks/useGetEnvOptions'
 
 const SingleForm = ({
   balance,
@@ -45,6 +47,8 @@ const SingleForm = ({
   const { isReady } = useIsWalletReady()
   const [amountValue, setAmountValue] = useState('')
   const amount = useSelector(selectAmount)
+  const { kimaBackendUrl } = useKimaContext()
+  const { data: envOptions } = useGetEnvOptions({ kimaBackendUrl })
 
   const errorMessage = useMemo(
     () =>
@@ -73,6 +77,39 @@ const SingleForm = ({
     if (amountValue && amount !== '') return
     setAmountValue(amount)
   }, [amount])
+
+  const onAmountChange = (value: string) => {
+    // Allow numbers and a single dot for decimals
+    let maskedValue = value
+      .replace(/[^0-9.]/g, '') // Remove non-numeric and non-dot characters
+      .replace(/(\..*?)\..*/g, '$1') // Allow only one dot
+      .replace(new RegExp(`(\\.\\d{${decimals}})\\d+`), '$1') // Limit decimal places
+
+    if (envOptions?.transferLimitMaxUSDT) {
+      // enforce max transfer limit
+      const txLimit = parseFloat(envOptions.transferLimitMaxUSDT)
+      const numericValue = parseFloat(maskedValue)
+      if (numericValue > txLimit) {
+        maskedValue = txLimit.toString()
+      }
+    }
+
+    setAmountValue(maskedValue)
+    dispatch(setAmount(maskedValue))
+  }
+
+  const onMaxClick = () => () => {
+    // the max amount the user can transfer is either
+    // their balance (minus fees) or the transfer limit
+    const txLimit = envOptions?.transferLimitMaxUSDT
+      ? parseFloat(envOptions.transferLimitMaxUSDT)
+      : Number.MAX_VALUE
+
+    const cappedValue = Math.min(Number(maxValue), txLimit).toString()
+
+    setAmountValue(cappedValue)
+    dispatch(setAmount(cappedValue))
+  }
 
   return (
     <div className='single-form'>
@@ -132,27 +169,10 @@ const SingleForm = ({
             type='text'
             placeholder='Enter amount'
             value={amountValue || ''}
-            onChange={(e) => {
-              const value = e.target.value
-
-              // Allow numbers and a single dot for decimals
-              const maskedValue = value
-                .replace(/[^0-9.]/g, '') // Remove non-numeric and non-dot characters
-                .replace(/(\..*?)\..*/g, '$1') // Allow only one dot
-                .replace(new RegExp(`(\\.\\d{${decimals}})\\d+`), '$1') // Limit decimal places
-
-              setAmountValue(maskedValue)
-              dispatch(setAmount(maskedValue))
-            }}
+            onChange={(e) => onAmountChange(e.target.value)}
           />
           <div className='max-disclaimer'>
-            <span
-              className='max-button'
-              onClick={() => {
-                setAmountValue(maxValue.toString())
-                dispatch(setAmount(maxValue.toString()))
-              }}
-            >
+            <span className='max-button' onClick={onMaxClick}>
               Max
             </span>
             {+totalFee !== -1 && (
