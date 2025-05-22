@@ -34,22 +34,24 @@ const FeeDeductionRadioButtons = ({ disabled }: { disabled: boolean }) => {
   return (
     <div className={`fee-deduction-radio-container ${theme.colorMode}`}>
       <div className='fee-options'>
-        <label className={`fee-option ${disabled ? 'disabled' : ''}`}>
-          <input
-            type='radio'
-            name='feeDeduction'
-            checked={feeDeduct}
-            disabled={disabled}
-            onChange={() => handleChange(true)}
-          />
-          <span className={`radio-label ${theme.colorMode}`}>
-            {`Pay $${formatterFloat.format(
-              Number(amount)
-            )} ${sourceCurrency} in ${sourceNetwork.name} to receive $${formatterFloat.format(
-              Number(amount) - totalFee
-            )} ${targetCurrency} in ${targetNetwork.name}`}
-          </span>
-        </label>
+        {Number(amount) - totalFee > 0 && (
+          <label className={`fee-option ${disabled ? 'disabled' : ''}`}>
+            <input
+              type='radio'
+              name='feeDeduction'
+              checked={feeDeduct}
+              disabled={disabled}
+              onChange={() => handleChange(true)}
+            />
+            <span className={`radio-label ${theme.colorMode}`}>
+              {`Pay $${formatterFloat.format(
+                Number(amount)
+              )} ${sourceCurrency} in ${sourceNetwork.name} to receive $${formatterFloat.format(
+                Number(amount) - totalFee
+              )} ${targetCurrency} in ${targetNetwork.name}`}
+            </span>
+          </label>
+        )}
 
         <label className={`fee-option ${disabled ? 'disabled' : ''}`}>
           <input
