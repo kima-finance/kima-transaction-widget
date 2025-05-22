@@ -3114,7 +3114,7 @@ function useGetSolBalance() {
   const result = (0, import_react_query7.useQuery)({
     queryKey: ["getSolBalance", publicKey ? publicKey.toBase58() : null],
     queryFn: async () => getSolBalance(connection, publicKey),
-    enabled: !!publicKey && !!connection && sourceNetwork === "SOL",
+    enabled: !!publicKey && !!connection && sourceNetwork.shortName === "SOL",
     refetchInterval: 6e4,
     // refetch every 60 sec
     staleTime: 1e4,
@@ -3523,7 +3523,7 @@ function useGetTronBalance() {
     queryKey: ["tronBalance", wallet?.adapter?.address, networkOption],
     // Query key
     queryFn: async () => getTrxBalance(wallet, tronWeb),
-    enabled: !!wallet?.adapter?.address && sourceNetwork === "TRX",
+    enabled: !!wallet?.adapter?.address && sourceNetwork.shortName === "TRX",
     // Fetch only if wallet address is available
     refetchInterval: 6e4,
     // Refetch every 10 seconds
@@ -6238,7 +6238,7 @@ var AccountDetailsModal = () => {
           fill: theme.colorMode === "light" ? "black" : "white"
         }
       )
-    )))), /* @__PURE__ */ import_react126.default.createElement("div", { className: "modal-content" }, /* @__PURE__ */ import_react126.default.createElement("div", { className: "summary" }, networkDetails && /* @__PURE__ */ import_react126.default.createElement(networkDetails.icon, { width: 60, height: 60 }), /* @__PURE__ */ import_react126.default.createElement("div", { className: "address" }, /* @__PURE__ */ import_react126.default.createElement("h2", null, getShortenedAddress(walletAddress || "")), /* @__PURE__ */ import_react126.default.createElement(CopyButton_default, { text: walletAddress })), /* @__PURE__ */ import_react126.default.createElement("h3", null, solBalance, " $SOL")), /* @__PURE__ */ import_react126.default.createElement(SecondaryButton_default, { className: "block-explorer" }, /* @__PURE__ */ import_react126.default.createElement(ExternalLink_default, { className: "link", to: explorerUrl }, /* @__PURE__ */ import_react126.default.createElement(Explorer_default, { fill: "#778DA3" }), /* @__PURE__ */ import_react126.default.createElement("p", null, "Block explorer"), /* @__PURE__ */ import_react126.default.createElement(ExternalUrl_default, { fill: "#778DA3" }))), /* @__PURE__ */ import_react126.default.createElement(PrimaryButton_default, { clickHandler: handleDisconnect }, "Discconect")))
+    )))), /* @__PURE__ */ import_react126.default.createElement("div", { className: "modal-content" }, /* @__PURE__ */ import_react126.default.createElement("div", { className: "summary" }, networkDetails && /* @__PURE__ */ import_react126.default.createElement(networkDetails.icon, { width: 60, height: 60 }), /* @__PURE__ */ import_react126.default.createElement("div", { className: "address" }, /* @__PURE__ */ import_react126.default.createElement("h2", null, getShortenedAddress(walletAddress || "")), /* @__PURE__ */ import_react126.default.createElement(CopyButton_default, { text: walletAddress })), /* @__PURE__ */ import_react126.default.createElement("h3", null, formatterFloat.format(Number(solBalance)), " $SOL")), /* @__PURE__ */ import_react126.default.createElement(SecondaryButton_default, { className: "block-explorer" }, /* @__PURE__ */ import_react126.default.createElement(ExternalLink_default, { className: "link", to: explorerUrl }, /* @__PURE__ */ import_react126.default.createElement(Explorer_default, { fill: "#778DA3" }), /* @__PURE__ */ import_react126.default.createElement("p", null, "Block explorer"), /* @__PURE__ */ import_react126.default.createElement(ExternalUrl_default, { fill: "#778DA3" }))), /* @__PURE__ */ import_react126.default.createElement(PrimaryButton_default, { clickHandler: handleDisconnect }, "Discconect")))
   );
 };
 var AccountDetailsModal_default = AccountDetailsModal;
@@ -6320,7 +6320,7 @@ var AccountDetailsModal2 = () => {
           fill: theme.colorMode === "light" ? "black" : "white"
         }
       )
-    )))), /* @__PURE__ */ import_react128.default.createElement("div", { className: "modal-content" }, /* @__PURE__ */ import_react128.default.createElement("div", { className: "summary" }, networkDetails && /* @__PURE__ */ import_react128.default.createElement(networkDetails.icon, { width: 60, height: 60 }), /* @__PURE__ */ import_react128.default.createElement("div", { className: "address" }, /* @__PURE__ */ import_react128.default.createElement("h2", null, getShortenedAddress(connectedAddress || "")), /* @__PURE__ */ import_react128.default.createElement(CopyButton_default, { text: connectedAddress })), /* @__PURE__ */ import_react128.default.createElement("h3", null, tronBalance, " ", selectedNetwork.shortName)), /* @__PURE__ */ import_react128.default.createElement(SecondaryButton_default, { className: "block-explorer" }, /* @__PURE__ */ import_react128.default.createElement(ExternalLink_default, { className: "link", to: explorerUrl }, /* @__PURE__ */ import_react128.default.createElement(Explorer_default, { fill: "#778DA3" }), /* @__PURE__ */ import_react128.default.createElement("p", null, "Block explorer"), /* @__PURE__ */ import_react128.default.createElement(ExternalUrl_default, { fill: "#778DA3" }))), /* @__PURE__ */ import_react128.default.createElement(PrimaryButton_default, { clickHandler: handleDisconnect }, "Disconnect")))
+    )))), /* @__PURE__ */ import_react128.default.createElement("div", { className: "modal-content" }, /* @__PURE__ */ import_react128.default.createElement("div", { className: "summary" }, networkDetails && /* @__PURE__ */ import_react128.default.createElement(networkDetails.icon, { width: 60, height: 60 }), /* @__PURE__ */ import_react128.default.createElement("div", { className: "address" }, /* @__PURE__ */ import_react128.default.createElement("h2", null, getShortenedAddress(connectedAddress || "")), /* @__PURE__ */ import_react128.default.createElement(CopyButton_default, { text: connectedAddress })), /* @__PURE__ */ import_react128.default.createElement("h3", null, formatterFloat.format(Number(tronBalance)), " ", selectedNetwork.shortName)), /* @__PURE__ */ import_react128.default.createElement(SecondaryButton_default, { className: "block-explorer" }, /* @__PURE__ */ import_react128.default.createElement(ExternalLink_default, { className: "link", to: explorerUrl }, /* @__PURE__ */ import_react128.default.createElement(Explorer_default, { fill: "#778DA3" }), /* @__PURE__ */ import_react128.default.createElement("p", null, "Block explorer"), /* @__PURE__ */ import_react128.default.createElement(ExternalUrl_default, { fill: "#778DA3" }))), /* @__PURE__ */ import_react128.default.createElement(PrimaryButton_default, { clickHandler: handleDisconnect }, "Disconnect")))
   );
 };
 var AccountDetailsModal_default2 = AccountDetailsModal2;

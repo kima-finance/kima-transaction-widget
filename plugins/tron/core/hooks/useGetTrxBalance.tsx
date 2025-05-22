@@ -25,7 +25,7 @@ function useGetTronBalance() {
   const result = useQuery({
     queryKey: ['tronBalance', wallet?.adapter?.address, networkOption], // Query key
     queryFn: async () => getTrxBalance(wallet as Wallet, tronWeb),
-    enabled: !!wallet?.adapter?.address && sourceNetwork === 'TRX', // Fetch only if wallet address is available
+    enabled: !!wallet?.adapter?.address && sourceNetwork.shortName === 'TRX', // Fetch only if wallet address is available
     refetchInterval: 60000, // Refetch every 10 seconds
     staleTime: 10000, // Mark data as stale after 10 seconds
     gcTime: 60000

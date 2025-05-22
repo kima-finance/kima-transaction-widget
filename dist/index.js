@@ -3145,7 +3145,7 @@ function useGetSolBalance() {
   const result = useQuery6({
     queryKey: ["getSolBalance", publicKey ? publicKey.toBase58() : null],
     queryFn: async () => getSolBalance(connection, publicKey),
-    enabled: !!publicKey && !!connection && sourceNetwork === "SOL",
+    enabled: !!publicKey && !!connection && sourceNetwork.shortName === "SOL",
     refetchInterval: 6e4,
     // refetch every 60 sec
     staleTime: 1e4,
@@ -3561,7 +3561,7 @@ function useGetTronBalance() {
     queryKey: ["tronBalance", wallet?.adapter?.address, networkOption],
     // Query key
     queryFn: async () => getTrxBalance(wallet, tronWeb),
-    enabled: !!wallet?.adapter?.address && sourceNetwork === "TRX",
+    enabled: !!wallet?.adapter?.address && sourceNetwork.shortName === "TRX",
     // Fetch only if wallet address is available
     refetchInterval: 6e4,
     // Refetch every 10 seconds
@@ -6276,7 +6276,7 @@ var AccountDetailsModal = () => {
           fill: theme.colorMode === "light" ? "black" : "white"
         }
       )
-    )))), /* @__PURE__ */ React109.createElement("div", { className: "modal-content" }, /* @__PURE__ */ React109.createElement("div", { className: "summary" }, networkDetails && /* @__PURE__ */ React109.createElement(networkDetails.icon, { width: 60, height: 60 }), /* @__PURE__ */ React109.createElement("div", { className: "address" }, /* @__PURE__ */ React109.createElement("h2", null, getShortenedAddress(walletAddress || "")), /* @__PURE__ */ React109.createElement(CopyButton_default, { text: walletAddress })), /* @__PURE__ */ React109.createElement("h3", null, solBalance, " $SOL")), /* @__PURE__ */ React109.createElement(SecondaryButton_default, { className: "block-explorer" }, /* @__PURE__ */ React109.createElement(ExternalLink_default, { className: "link", to: explorerUrl }, /* @__PURE__ */ React109.createElement(Explorer_default, { fill: "#778DA3" }), /* @__PURE__ */ React109.createElement("p", null, "Block explorer"), /* @__PURE__ */ React109.createElement(ExternalUrl_default, { fill: "#778DA3" }))), /* @__PURE__ */ React109.createElement(PrimaryButton_default, { clickHandler: handleDisconnect }, "Discconect")))
+    )))), /* @__PURE__ */ React109.createElement("div", { className: "modal-content" }, /* @__PURE__ */ React109.createElement("div", { className: "summary" }, networkDetails && /* @__PURE__ */ React109.createElement(networkDetails.icon, { width: 60, height: 60 }), /* @__PURE__ */ React109.createElement("div", { className: "address" }, /* @__PURE__ */ React109.createElement("h2", null, getShortenedAddress(walletAddress || "")), /* @__PURE__ */ React109.createElement(CopyButton_default, { text: walletAddress })), /* @__PURE__ */ React109.createElement("h3", null, formatterFloat.format(Number(solBalance)), " $SOL")), /* @__PURE__ */ React109.createElement(SecondaryButton_default, { className: "block-explorer" }, /* @__PURE__ */ React109.createElement(ExternalLink_default, { className: "link", to: explorerUrl }, /* @__PURE__ */ React109.createElement(Explorer_default, { fill: "#778DA3" }), /* @__PURE__ */ React109.createElement("p", null, "Block explorer"), /* @__PURE__ */ React109.createElement(ExternalUrl_default, { fill: "#778DA3" }))), /* @__PURE__ */ React109.createElement(PrimaryButton_default, { clickHandler: handleDisconnect }, "Discconect")))
   );
 };
 var AccountDetailsModal_default = AccountDetailsModal;
@@ -6358,7 +6358,7 @@ var AccountDetailsModal2 = () => {
           fill: theme.colorMode === "light" ? "black" : "white"
         }
       )
-    )))), /* @__PURE__ */ React111.createElement("div", { className: "modal-content" }, /* @__PURE__ */ React111.createElement("div", { className: "summary" }, networkDetails && /* @__PURE__ */ React111.createElement(networkDetails.icon, { width: 60, height: 60 }), /* @__PURE__ */ React111.createElement("div", { className: "address" }, /* @__PURE__ */ React111.createElement("h2", null, getShortenedAddress(connectedAddress || "")), /* @__PURE__ */ React111.createElement(CopyButton_default, { text: connectedAddress })), /* @__PURE__ */ React111.createElement("h3", null, tronBalance, " ", selectedNetwork.shortName)), /* @__PURE__ */ React111.createElement(SecondaryButton_default, { className: "block-explorer" }, /* @__PURE__ */ React111.createElement(ExternalLink_default, { className: "link", to: explorerUrl }, /* @__PURE__ */ React111.createElement(Explorer_default, { fill: "#778DA3" }), /* @__PURE__ */ React111.createElement("p", null, "Block explorer"), /* @__PURE__ */ React111.createElement(ExternalUrl_default, { fill: "#778DA3" }))), /* @__PURE__ */ React111.createElement(PrimaryButton_default, { clickHandler: handleDisconnect }, "Disconnect")))
+    )))), /* @__PURE__ */ React111.createElement("div", { className: "modal-content" }, /* @__PURE__ */ React111.createElement("div", { className: "summary" }, networkDetails && /* @__PURE__ */ React111.createElement(networkDetails.icon, { width: 60, height: 60 }), /* @__PURE__ */ React111.createElement("div", { className: "address" }, /* @__PURE__ */ React111.createElement("h2", null, getShortenedAddress(connectedAddress || "")), /* @__PURE__ */ React111.createElement(CopyButton_default, { text: connectedAddress })), /* @__PURE__ */ React111.createElement("h3", null, formatterFloat.format(Number(tronBalance)), " ", selectedNetwork.shortName)), /* @__PURE__ */ React111.createElement(SecondaryButton_default, { className: "block-explorer" }, /* @__PURE__ */ React111.createElement(ExternalLink_default, { className: "link", to: explorerUrl }, /* @__PURE__ */ React111.createElement(Explorer_default, { fill: "#778DA3" }), /* @__PURE__ */ React111.createElement("p", null, "Block explorer"), /* @__PURE__ */ React111.createElement(ExternalUrl_default, { fill: "#778DA3" }))), /* @__PURE__ */ React111.createElement(PrimaryButton_default, { clickHandler: handleDisconnect }, "Disconnect")))
   );
 };
 var AccountDetailsModal_default2 = AccountDetailsModal2;

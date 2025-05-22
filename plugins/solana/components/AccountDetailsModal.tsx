@@ -19,6 +19,7 @@ import { getShortenedAddress } from '@utils/functions'
 import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
 import useGetSolBalance from '../core/hooks/useGetSolBalance'
 import { networkOptions } from '../utils/constants'
+import { formatterFloat } from 'src/helpers/functions'
 
 const AccountDetailsModal = () => {
   const dispatch = useDispatch()
@@ -77,7 +78,7 @@ const AccountDetailsModal = () => {
               <h2>{getShortenedAddress(walletAddress || '')}</h2>
               <CopyButton text={walletAddress as string} />
             </div>
-            <h3>{solBalance} $SOL</h3>
+            <h3>{formatterFloat.format(Number(solBalance))} $SOL</h3>
           </div>
           <SecondaryButton className='block-explorer'>
             <ExternalLink className='link' to={explorerUrl}>

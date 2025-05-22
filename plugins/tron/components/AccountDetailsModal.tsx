@@ -19,6 +19,7 @@ import { getShortenedAddress } from '@utils/functions'
 import { networkOptions } from '@utils/constants'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import useGetTronBalance from '../core/hooks/useGetTrxBalance'
+import { formatterFloat } from 'src/helpers/functions'
 
 const AccountDetailsModal = () => {
   const dispatch = useDispatch()
@@ -82,7 +83,8 @@ const AccountDetailsModal = () => {
               <CopyButton text={connectedAddress as string} />
             </div>
             <h3>
-              {tronBalance} {selectedNetwork.shortName}
+              {formatterFloat.format(Number(tronBalance))}{' '}
+              {selectedNetwork.shortName}
             </h3>
           </div>
           <SecondaryButton className='block-explorer'>
