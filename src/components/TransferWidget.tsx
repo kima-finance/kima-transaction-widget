@@ -532,8 +532,6 @@ export const TransferWidget = ({
                   allowance?.toString() ?? '0',
                   decimals ?? 18
                 ),
-                balance: parseUnits(balance?.toString() ?? '0', decimals ?? 18),
-                decimals: 2,
                 isLoadingFees,
                 initialSelection,
                 setInitialSelection

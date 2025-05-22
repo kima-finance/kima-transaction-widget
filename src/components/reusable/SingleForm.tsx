@@ -27,20 +27,18 @@ import NetworkSelector from '@components/primary/NetworkSelector'
 import { parseUnits } from 'viem'
 // import { formatBigInt } from 'src/helpers/functions'
 import { ChainCompatibility } from '@plugins/pluginTypes'
-import { formatBigInt } from 'src/helpers/functions'
+import { bigIntToNumber, formatBigInt } from 'src/helpers/functions'
 import { useKimaContext } from 'src/KimaProvider'
 import { useGetEnvOptions } from '../../hooks/useGetEnvOptions'
 import useGetFees from '../../hooks/useGetFees'
+import useBalance from '../../hooks/useBalance'
+import { truncateToDecimals } from '@utils/functions'
 
 const SingleForm = ({
-  balance,
-  decimals,
   isLoadingFees,
   initialSelection,
   setInitialSelection
 }: {
-  balance: bigint | undefined
-  decimals: number | undefined
   isLoadingFees: boolean
   initialSelection: {
     sourceSelection: boolean
@@ -70,6 +68,7 @@ const SingleForm = ({
   const sourceCurrency = useSelector(selectSourceCurrency)
   const targetCurrency = useSelector(selectTargetCurrency)
   const backendUrl = useSelector(selectBackendUrl)
+  const { balance, decimals } = useBalance()
 
   const {
     data: fees,
@@ -105,9 +104,9 @@ const SingleForm = ({
   )
 
   const maxValue = useMemo(() => {
-    if (mode === ModeOptions.light) return 1000
+    if (mode === ModeOptions.light) return BigInt(1000)
 
-    if (!balance) return 0
+    if (!balance) return BigInt(0)
     if (totalFee.value === BigInt(0)) return balance
 
     const intAmount = parseUnits(amount, totalFee.decimals)
@@ -144,17 +143,23 @@ const SingleForm = ({
     dispatch(setAmount(maskedValue))
   }
 
-  const onMaxClick = () => () => {
+  const onMaxClick = () => {
+    if (initialSelection.sourceSelection) return
     // the max amount the user can transfer is either
     // their balance (minus fees) or the transfer limit
     const txLimit = envOptions?.transferLimitMaxUSDT
       ? parseFloat(envOptions.transferLimitMaxUSDT)
       : Number.MAX_VALUE
 
-    const cappedValue = Math.min(Number(maxValue), txLimit).toString()
+    const rawMax = bigIntToNumber({
+      value: maxValue,
+      decimals: decimals as number
+    })
+    const cappedValue = Math.min(rawMax, txLimit)
 
-    setAmountValue(cappedValue)
-    dispatch(setAmount(cappedValue))
+    const truncated = truncateToDecimals(cappedValue, 2).toString()
+    setAmountValue(truncated)
+    dispatch(setAmount(truncated))
   }
 
   const isConnected = useMemo(() => {
