@@ -248,9 +248,11 @@ const SingleForm = ({
             onChange={(e) => onAmountChange(e.target.value)}
           />
           <div className='max-disclaimer'>
-            <span className='max-button' onClick={onMaxClick}>
-              Max
-            </span>
+            {sourceNetwork.shortName !== 'CC' && (
+              <span className='max-button' onClick={onMaxClick}>
+                Max
+              </span>
+            )}
             {+totalFee !== -1 && (
               <p className='fee-amount'>
                 Est fees:{' '}
