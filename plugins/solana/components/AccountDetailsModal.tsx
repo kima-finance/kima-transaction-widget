@@ -19,7 +19,7 @@ import { getShortenedAddress } from '@utils/functions'
 import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
 import useGetSolBalance from '../core/hooks/useGetSolBalance'
 import { networkOptions } from '../utils/constants'
-import { formatterFloat } from 'src/helpers/functions'
+import { formatterFloat } from '../../../src/helpers/functions'
 
 const AccountDetailsModal = () => {
   const dispatch = useDispatch()

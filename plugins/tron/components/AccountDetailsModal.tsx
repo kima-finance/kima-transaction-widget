@@ -19,7 +19,7 @@ import { getShortenedAddress } from '@utils/functions'
 import { networkOptions } from '@utils/constants'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import useGetTronBalance from '../core/hooks/useGetTrxBalance'
-import { formatterFloat } from 'src/helpers/functions'
+import { formatterFloat } from '../../../src/helpers/functions'
 
 const AccountDetailsModal = () => {
   const dispatch = useDispatch()
