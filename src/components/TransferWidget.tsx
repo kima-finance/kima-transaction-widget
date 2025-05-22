@@ -12,6 +12,7 @@ import {
   ColorModeOptions,
   DAppOptions,
   ModeOptions,
+  NetworkOptions,
   PaymentTitleOption,
   ThemeOptions,
   TitleOption
@@ -101,6 +102,7 @@ export const TransferWidget = ({
   const [resetModalOpen, setResetModalOpen] = useState<boolean>(false) // State for reset modal
 
   // Redux variables
+  const networkOption = useSelector(selectNetworkOption)
   const dAppOption = useSelector(selectDappOption)
   const mode = useSelector(selectMode)
   const transactionOption = useSelector(selectTransactionOption)
@@ -492,14 +494,16 @@ export const TransferWidget = ({
                 to={
                   helpURL
                     ? helpURL
-                    : 'https://docs.kima.network/kima-network/try-kima-with-the-demo-app'
+                    : networkOption === NetworkOptions.testnet
+                      ? 'https://docs.kima.network/kima-network/try-kima-with-the-demo-app'
+                      : 'https://support.kima.network'
                 }
               >
                 <div className='menu-button'>I need help</div>
               </ExternalLink>
 
               {sourceChain.shortName === 'CC' && formStep > 0 && (
-                <ExternalLink to='https://docs.kima.network/kima-network/supported-fiat'>
+                <ExternalLink to='https://docs.kima.network/kima-network/supported-fiat#unsupported-countries-credit-cards'>
                   <div className='menu-button'>Unsupported Countries</div>
                 </ExternalLink>
               )}
