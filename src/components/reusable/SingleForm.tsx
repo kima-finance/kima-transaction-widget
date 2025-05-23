@@ -104,7 +104,12 @@ const SingleForm = ({
   )
 
   const maxValue = useMemo(() => {
-    if (mode === ModeOptions.light) return BigInt(1000)
+    if (mode === ModeOptions.light)
+      return BigInt(
+        envOptions?.transferLimitMaxUSDT
+          ? parseFloat(envOptions?.transferLimitMaxUSDT)
+          : 1000
+      )
 
     if (!balance) return BigInt(0)
     if (totalFee.value === BigInt(0)) return balance
