@@ -1,6 +1,6 @@
 {
   "name": "@kimafinance/kima-transaction-widget",
-  "version": "1.4.0-rc.2",
+  "version": "1.4.0-rc.9",
   "description": "Kima Transaction Widget",
   "author": "",
   "license": "MIT",
@@ -29,6 +29,7 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "sass": "sass src/styles/main.scss src/index.css -w",
+    "build:sass": "sass src/styles/main.scss src/index.css",
     "test": "react-scripts test --coverage --watchAll",
     "docs": "typedoc --options typedoc.json",
     "install:fonts": "cp -r src/fonts dist/fonts"

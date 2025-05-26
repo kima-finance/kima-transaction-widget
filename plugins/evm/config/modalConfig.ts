@@ -8,7 +8,7 @@ import {
   avalancheFuji,
   base,
   baseSepolia,
-  berachainTestnetbArtio,
+  berachainBepolia,
   bsc,
   bscTestnet,
   mainnet,
@@ -16,8 +16,6 @@ import {
   optimismSepolia,
   polygon,
   polygonAmoy,
-  polygonZkEvm,
-  polygonZkEvmCardona,
   sepolia
 } from '@reown/appkit/networks' // Adjust this import based on real networks you need to support
 import { NetworkOptions } from '@interface'
@@ -42,8 +40,7 @@ const appkitTestnetChains = [
   arbitrumSepolia,
   optimismSepolia,
   avalancheFuji,
-  polygonZkEvmCardona,
-  berachainTestnetbArtio
+  berachainBepolia
 ]
 
 const metadata = {

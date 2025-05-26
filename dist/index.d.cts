@@ -49,7 +49,8 @@ declare enum NetworkOptions {
 declare enum ModeOptions {
     payment = "payment",
     bridge = "bridge",
-    status = "status"
+    status = "status",
+    light = "light"
 }
 declare enum CurrencyOptions {
     USDK = "USDK",

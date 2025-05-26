@@ -19,6 +19,7 @@ import { getShortenedAddress } from '@utils/functions'
 import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
 import useGetSolBalance from '../core/hooks/useGetSolBalance'
 import { networkOptions } from '../utils/constants'
+import { formatterFloat } from '../../../src/helpers/functions'
 
 const AccountDetailsModal = () => {
   const dispatch = useDispatch()
@@ -26,7 +27,7 @@ const AccountDetailsModal = () => {
   const networkOption = useSelector(selectNetworkOption)
   const sourceChain = useSelector(selectSourceChain)
   const accountDetailsModal = useSelector(selectAccountDetailsModal)
-  const { walletAddress } = useIsWalletReady()
+  const { connectedAddress: walletAddress } = useIsWalletReady()
   const { disconnect: solanaWalletDisconnect } = useSolanaWallet()
   const { balance: solBalance } = useGetSolBalance()
 
@@ -36,7 +37,7 @@ const AccountDetailsModal = () => {
   // construct the explorer url based on network option
   // and the chain selected (sol or trx)
   const explorerUrl = useMemo(() => {
-    return `https://solscan.io/account/address/${walletAddress}?cluster=${networkOption === 'mainnet' ? 'mainnet' : 'devnet'}`
+    return `https://solscan.io/account/${walletAddress}?cluster=${networkOption === 'mainnet' ? 'mainnet' : 'devnet'}`
   }, [walletAddress, networkOption])
 
   // handle disconnection scenario
@@ -77,7 +78,7 @@ const AccountDetailsModal = () => {
               <h2>{getShortenedAddress(walletAddress || '')}</h2>
               <CopyButton text={walletAddress as string} />
             </div>
-            <h3>{solBalance} $SOL</h3>
+            <h3>{formatterFloat.format(Number(solBalance))} $SOL</h3>
           </div>
           <SecondaryButton className='block-explorer'>
             <ExternalLink className='link' to={explorerUrl}>

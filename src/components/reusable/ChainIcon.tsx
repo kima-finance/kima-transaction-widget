@@ -44,7 +44,7 @@ export default function ChainIcon({ symbol }: ChainIconProps) {
 
   if (!Icon) {
     log.warn(`Chain icon not found for symbol: ${symbol}`)
-    return <div className='icon'></div>
+    return <div></div>
   }
 
   return (

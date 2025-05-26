@@ -29,7 +29,7 @@ function useGetSolBalance() {
   const result = useQuery<number>({
     queryKey: ['getSolBalance', publicKey ? publicKey.toBase58() : null],
     queryFn: async () => getSolBalance(connection, publicKey as PublicKey),
-    enabled: !!publicKey && !!connection && sourceNetwork === 'SOL',
+    enabled: !!publicKey && !!connection && sourceNetwork.shortName === 'SOL',
     refetchInterval: 60000, // refetch every 60 sec
     staleTime: 10000,
     gcTime: 60000

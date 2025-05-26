@@ -11,9 +11,14 @@ import {
   selectServiceFee,
   selectFeeDeduct,
   selectAmount,
+  selectSourceAddress,
+  selectTargetAddress,
+  selectSourceCurrency,
+  selectTargetCurrency,
+  selectBackendUrl
 } from '../../store/selectors'
 import { BankInput, CoinDropdown, SecondaryButton, WalletButton } from './'
-import { setAmount } from '../../store/optionSlice'
+import { setAmount, setServiceFee } from '../../store/optionSlice'
 import { ModeOptions } from '../../interface'
 import AddressInput from './AddressInput'
 import { ChainName } from '../../utils/constants'
@@ -22,16 +27,29 @@ import NetworkSelector from '@components/primary/NetworkSelector'
 import { parseUnits } from 'viem'
 // import { formatBigInt } from 'src/helpers/functions'
 import { ChainCompatibility } from '@plugins/pluginTypes'
-import { formatBigInt } from 'src/helpers/functions'
+import { bigIntToNumber, formatBigInt } from 'src/helpers/functions'
+import { useKimaContext } from 'src/KimaProvider'
+import { useGetEnvOptions } from '../../hooks/useGetEnvOptions'
+import useGetFees from '../../hooks/useGetFees'
+import useBalance from '../../hooks/useBalance'
+import { truncateToDecimals } from '@utils/functions'
 
 const SingleForm = ({
-  balance,
-  decimals,
-  isLoadingFees
+  isLoadingFees,
+  initialSelection,
+  setInitialSelection
 }: {
-  balance: bigint | undefined
-  decimals: number | undefined
   isLoadingFees: boolean
+  initialSelection: {
+    sourceSelection: boolean
+    targetSelection: boolean
+  }
+  setInitialSelection: React.Dispatch<
+    React.SetStateAction<{
+      sourceSelection: boolean
+      targetSelection: boolean
+    }>
+  >
 }) => {
   const dispatch = useDispatch()
   const mode = useSelector(selectMode)
@@ -40,11 +58,40 @@ const SingleForm = ({
   const { totalFee } = useSelector(selectServiceFee)
   const compliantOption = useSelector(selectCompliantOption)
   const targetCompliant = useSelector(selectTargetCompliant)
+  const sourceAddress = useSelector(selectSourceAddress)
   const sourceNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
+  const targetAddress = useSelector(selectTargetAddress)
   const { isReady } = useIsWalletReady()
   const [amountValue, setAmountValue] = useState('')
   const amount = useSelector(selectAmount)
+  const sourceCurrency = useSelector(selectSourceCurrency)
+  const targetCurrency = useSelector(selectTargetCurrency)
+  const backendUrl = useSelector(selectBackendUrl)
+  const { balance, decimals } = useBalance()
+
+  const {
+    data: fees,
+    isLoading,
+    error
+  } = useGetFees({
+    amount: parseFloat(amount),
+    sourceNetwork: sourceNetwork.shortName,
+    sourceAddress,
+    sourceSymbol: sourceCurrency,
+    targetNetwork: targetNetwork.shortName,
+    targetAddress,
+    targetSymbol: targetCurrency,
+    backendUrl
+  })
+
+  useEffect(() => {
+    if (fees) {
+      dispatch(setServiceFee(fees))
+    }
+  }, [fees, dispatch])
+  const { kimaBackendUrl } = useKimaContext()
+  const { data: envOptions } = useGetEnvOptions({ kimaBackendUrl })
 
   const errorMessage = useMemo(
     () =>
@@ -57,7 +104,14 @@ const SingleForm = ({
   )
 
   const maxValue = useMemo(() => {
-    if (!balance) return 0
+    if (mode === ModeOptions.light)
+      return BigInt(
+        envOptions?.transferLimitMaxUSDT
+          ? parseFloat(envOptions?.transferLimitMaxUSDT)
+          : 1000
+      )
+
+    if (!balance) return BigInt(0)
     if (totalFee.value === BigInt(0)) return balance
 
     const intAmount = parseUnits(amount, totalFee.decimals)
@@ -74,12 +128,61 @@ const SingleForm = ({
     setAmountValue(amount)
   }, [amount])
 
+  const onAmountChange = (value: string) => {
+    // Allow numbers and a single dot for decimals
+    let maskedValue = value
+      .replace(/[^0-9.]/g, '') // Remove non-numeric and non-dot characters
+      .replace(/(\..*?)\..*/g, '$1') // Allow only one dot
+      .replace(new RegExp(`(\\.\\d{${decimals}})\\d+`), '$1') // Limit decimal places
+
+    if (envOptions?.transferLimitMaxUSDT) {
+      // enforce max transfer limit
+      const txLimit = parseFloat(envOptions.transferLimitMaxUSDT)
+      const numericValue = parseFloat(maskedValue)
+      if (numericValue > txLimit) {
+        maskedValue = txLimit.toString()
+      }
+    }
+
+    setAmountValue(maskedValue)
+    dispatch(setAmount(maskedValue))
+  }
+
+  const onMaxClick = () => {
+    if (initialSelection.sourceSelection) return
+    // the max amount the user can transfer is either
+    // their balance (minus fees) or the transfer limit
+    const txLimit = envOptions?.transferLimitMaxUSDT
+      ? parseFloat(envOptions.transferLimitMaxUSDT)
+      : Number.MAX_VALUE
+
+    const rawMax = bigIntToNumber({
+      value: maxValue,
+      decimals: decimals as number
+    })
+    const cappedValue = Math.min(rawMax, txLimit)
+
+    const truncated = truncateToDecimals(cappedValue, 2).toString()
+    setAmountValue(truncated)
+    dispatch(setAmount(truncated))
+  }
+
+  const isConnected = useMemo(() => {
+    return isReady && !initialSelection.sourceSelection
+  }, [isReady, initialSelection])
+
   return (
     <div className='single-form'>
       <div className='form-item'>
         <span className='label'>Source Network</span>
         <div className='items'>
-          <NetworkSelector type='origin' />
+          <NetworkSelector
+            type='origin'
+            {...{
+              initialSelection: initialSelection.sourceSelection,
+              setInitialSelection
+            }}
+          />
           <CoinDropdown />
         </div>
       </div>
@@ -91,18 +194,24 @@ const SingleForm = ({
       >
         {sourceNetwork.compatibility !== ChainCompatibility.CC && (
           <div
-            className={`form-item wallet-button-item ${isReady && 'connected'}`}
+            className={`form-item wallet-button-item ${isConnected && 'connected'}`}
           >
             <span className='label'>Wallet</span>
-            <WalletButton />
+            <WalletButton initialSelection={initialSelection.sourceSelection} />
           </div>
         )}
 
-        {mode === ModeOptions.bridge && (
+        {mode !== ModeOptions.payment && (
           <div className='form-item'>
             <span className='label'>Target Network</span>
             <div className='items'>
-              <NetworkSelector type='target' />
+              <NetworkSelector
+                type='target'
+                {...{
+                  initialSelection: initialSelection.targetSelection,
+                  setInitialSelection
+                }}
+              />
               <CoinDropdown isSourceChain={false} />
             </div>
           </div>
@@ -119,10 +228,24 @@ const SingleForm = ({
             <AddressInput
               theme={theme.colorMode as string}
               placeholder='Insert your Target address'
+              initialSelection={initialSelection}
             />
           </div>
         )
       ) : null}
+
+      {mode === ModeOptions.light && (
+        <div
+          className={`form-item wallet-button-item ${!initialSelection.targetSelection && 'connected'}`}
+          style={{ display: 'flex', alignItems: 'center' }}
+        >
+          <span className='label'>Target Wallet:</span>
+          <WalletButton
+            initialSelection={initialSelection.targetSelection}
+            placeholder={true}
+          />
+        </div>
+      )}
 
       <div className={`form-item ${theme.colorMode}`}>
         <span className='label'>Amount</span>
@@ -132,25 +255,13 @@ const SingleForm = ({
             type='text'
             placeholder='Amount'
             value={amountValue || ''}
-            onChange={(e) => {
-              const value = e.target.value
-            
-              // Allow only numbers and one dot, then cap to 2 decimals
-              const maskedValue = value
-                .replace(/[^0-9.]/g, '')            // Remove non-numeric and non-dot characters
-                .replace(/(\..*?)\..*/g, '$1')      // Allow only one dot
-                .replace(/(\.\d{2})\d+/, '$1')      // Limit to 2 decimal places
-            
-              setAmountValue(maskedValue)
-              dispatch(setAmount(maskedValue))
-            }}
+            onChange={(e) => onAmountChange(e.target.value)}
           />
           <div className='max-disclaimer'>
             <SecondaryButton
               className='max-button'
               clickHandler={() => {
-                setAmountValue(maxValue.toString())
-                dispatch(setAmount(maxValue.toString()))
+                onMaxClick()
               }}
             >
               MAX

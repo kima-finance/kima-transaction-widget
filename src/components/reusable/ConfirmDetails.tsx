@@ -19,15 +19,13 @@ import {
   selectNetworks,
   selectSourceAddress
 } from '@store/selectors'
-import { ChainName } from '../../utils/constants'
+import { ChainName, lightDemoAccounts } from '../../utils/constants'
 import { getShortenedAddress } from '../../utils/functions'
 import useWidth from '../../hooks/useWidth'
 import ChainIcon from './ChainIcon'
 import FeeDeductionRadioButtons from './FeeDeductionRadioButtons'
 import { MiniArrowIcon } from '@assets/icons'
 import { formatBigInt } from 'src/helpers/functions'
-
-// TODO: ALWAYS DISPLAY SHORTENED ADDRESS
 
 const ConfirmDetails = ({
   isApproved,
@@ -238,9 +236,15 @@ const ConfirmDetails = ({
               </span>
             </div>
             <p className={theme.colorMode}>
-              {dAppOption === DAppOptions.LPDrain
-                ? getShortenedAddress(connectedAddress as string)
-                : getShortenedAddress(targetAddress)}
+              {mode === ModeOptions.light
+                ? targetNetwork.shortName === 'SOL'
+                  ? getShortenedAddress(lightDemoAccounts.SOL)
+                  : targetNetwork.shortName === 'TRX'
+                    ? getShortenedAddress(lightDemoAccounts.TRX)
+                    : getShortenedAddress(lightDemoAccounts.EVM)
+                : dAppOption === DAppOptions.LPDrain
+                  ? getShortenedAddress(connectedAddress as string)
+                  : getShortenedAddress(targetAddress)}
             </p>
           </div>
         </div>

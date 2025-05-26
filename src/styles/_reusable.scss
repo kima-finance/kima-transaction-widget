@@ -2336,21 +2336,35 @@
         cursor: not-allowed;
       }
 
-      .fee-option input[type='radio']:disabled {
-        border-color: $financeGrey;
-        background-color: transparent;
-        cursor: not-allowed;
+    .transaction-status-message {
+      display: flex;
+      flex-direction: column;
+      margin-top: 20px;
+      font-family: 'Manrope';
+      font-weight: 600;
+      font-size: 14px;
+      text-align: justify;
+
+      h2 {
+        font-size: 14px;
       }
 
-      .fee-option input[type='radio']:checked:disabled::before {
-        background-color: $financeGrey;
-      }
+      .transaction-copy {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        font-weight: bolder;
+        font-size: 24px;
+        margin-top: 10px;
+        align-items: center;
+        gap: 10px;
 
-      .fee-option input[type='radio']:disabled + .radio-label {
-        color: $financeGrey;
-        cursor: not-allowed;
+        h3 {
+          margin: 0;
+        }
       }
     }
+  }
 
     .card-item {
       width: 100%;
@@ -2451,7 +2465,6 @@
       align-items: center;
       font-family: 'Roboto Mono', monospace;
 
-      color: var(--text-100, #fff);
       &.hex-button {
         position: relative;
         background: transparent;
@@ -2460,6 +2473,7 @@
         border: none;
         cursor: pointer;
         z-index: 1;
+        color: white;
 
         clip-path: polygon(
           10px 0%,

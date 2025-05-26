@@ -6,7 +6,9 @@ import {
   selectTokenOptions,
   selectNetworkOption,
   selectBackendUrl,
-  selectFeeDeduct
+  selectFeeDeduct,
+  selectSourceAddress,
+  selectMode
 } from '@store/selectors'
 
 import { useQueryClient } from '@tanstack/react-query'
@@ -16,9 +18,12 @@ import { PluginUseAllowanceResult, SignDataType } from '@plugins/pluginTypes'
 import { useTronProvider } from '../hooks/useTronProvider'
 import useBalance from './useBalance'
 import log from '@utils/logger'
+import { ModeOptions } from '@interface'
+import { lightDemoAccounts } from '@utils/constants'
 
 export default function useTronAllowance(): PluginUseAllowanceResult {
   const queryClient = useQueryClient()
+  const mode = useSelector(selectMode)
   const networkOption = useSelector(selectNetworkOption)
   const backendUrl = useSelector(selectBackendUrl)
   const { transactionValues } = useSelector(selectServiceFee)
@@ -32,9 +37,15 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
 
   const { pools } = useGetPools(backendUrl, networkOption)
 
-  const { tronWeb, userAddress, signTronTransaction, signMessage } =
-    useTronProvider()
+  const {
+    tronWeb,
+    userAddress: walletAddress,
+    signTronTransaction,
+    signMessage
+  } = useTronProvider()
   const allowanceData = useBalance()
+  const userAddress =
+    mode === ModeOptions.light ? lightDemoAccounts.TRX : walletAddress
 
   const signTronMessage = async (data: SignDataType) => {
     if (!tronWeb) {
@@ -42,7 +53,7 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
       return
     }
     try {
-      console.info('useTronAllowance: Signing message:', txValues.message)
+      log.debug('useTronAllowance: Signing message:', txValues.message)
       const signedMessage = await signMessage(txValues.message)
       return signedMessage
     } catch (error) {
@@ -90,7 +101,7 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
 
       const signedTx = await signTronTransaction(transaction.transaction as any)
       const tx = await tronWeb.trx.sendRawTransaction(signedTx)
-      console.log('useTronAllowance: Transaction sent', {
+      log.debug('useTronAllowance: Transaction sent', {
         hash: tx.txid,
         tx: JSON.stringify(tx, null, 2)
       })

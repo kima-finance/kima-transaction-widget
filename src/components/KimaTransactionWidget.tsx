@@ -21,6 +21,7 @@ import { useKimaContext } from 'src/KimaProvider'
 import { useChainData } from '../hooks/useChainData'
 import { useDispatch } from 'react-redux'
 import {
+  setAmount,
   setCCTransactionStatus,
   setSourceChain,
   setTargetChain,
@@ -96,20 +97,34 @@ const KimaTransactionWidget = ({
   }, [theme?.colorMode])
 
   // Don't render until hydrated and theme is defined
-  if (!hydrated || !theme?.colorMode)
-    return <Loading180Ring width={20} height={20} fill='#86b8ce' />
+  if (!hydrated || !theme?.colorMode) return <Loading180Ring width={20} height={20} fill='#86b8ce' />
 
   if (isLoadingEnvs || isLoadingChainData)
     return <SkeletonLoader theme={theme} />
 
-  if (ccTransactionStatus === 'fatal')
+  if (ccTransactionStatus === 'error-id')
     return (
       <ErrorWidget
         theme={theme}
-        title='Error getting CC transaction id'
+        title='Credit Card Transaction Id Generation Error'
         message="There was an error generating the transaction id and your transaction couldn't be generated. Please try again, if the error persists contact us."
         backButtonEnabled={true}
         backButtonFunction={() => {
+          dispatch(setAmount(''))
+          dispatch(setCCTransactionStatus('idle'));
+        }}
+      />
+    )
+
+    if (ccTransactionStatus === 'error-generic')
+    return (
+      <ErrorWidget
+        theme={theme}
+        title='Credit Card Transaction Error'
+        message="There was an error sending the transaction. Please verify that the amount, chains and target address are correct, if the error persists contact us."
+        backButtonEnabled={true}
+        backButtonFunction={() => {
+          dispatch(setAmount(''))
           dispatch(setCCTransactionStatus('idle'))
         }}
       />

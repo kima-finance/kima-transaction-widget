@@ -19,7 +19,7 @@ export const useCCTransactionId = (
       }
 
       const data = await res.json()
-      console.log('data from usecc tx id: ', data)
+      // console.log('data from usecc tx id: ', data)
       return {
         transactionId: data.transactionId
       }

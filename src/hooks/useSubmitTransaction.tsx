@@ -9,13 +9,16 @@ import {
   selectBackendUrl,
   selectCCTransactionId,
   selectFeeDeduct,
+  selectMode,
   selectServiceFee
 } from '@store/selectors'
 import { bigIntChangeDecimals } from 'src/helpers/functions'
 
+
 const useSubmitTransaction = () => {
   const dispatch = useDispatch()
   const backendUrl = useSelector(selectBackendUrl)
+  const mode = useSelector(selectMode)
 
   const [isSubmitting, setSubmitting] = useState(false)
   const { feeId, transactionValues, totalFee } = useSelector(selectServiceFee)
@@ -54,8 +57,10 @@ const useSubmitTransaction = () => {
           feeId,
           chargeFeeAtTarget: feeDeduct
         }),
-        ccTransactionIdSeed: ccTransactionId
+        ccTransactionIdSeed: ccTransactionId,
+        mode
       })
+      log.debug('submitTransaction: params: ', params)
 
       const token = localStorage.getItem(`access_token:${transactionValues.originAddress}`)
       const transactionResult: any = await fetchWrapper.post(
@@ -64,7 +69,7 @@ const useSubmitTransaction = () => {
         token || ''
       )
 
-      console.log('transactionResult: ', transactionResult)
+      log.debug('submitTransaction: response: ', transactionResult)
       if (transactionResult?.code !== 0) {
         setSubmitting(false)
         return { success: false, message: 'Failed to submit transaction' }

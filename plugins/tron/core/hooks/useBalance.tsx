@@ -5,7 +5,8 @@ import {
   selectTokenOptions,
   selectSourceCurrency,
   selectBackendUrl,
-  selectNetworkOption
+  selectNetworkOption,
+  selectMode
 } from '@store/selectors'
 import ERC20ABI from '../../utils/ethereum/erc20ABI.json'
 import { GetTokenAllowanceResult } from '../../../pluginTypes'
@@ -13,17 +14,23 @@ import { getTokenAllowance } from '../../utils/getTokenAllowance'
 import { useQuery } from '@tanstack/react-query'
 import { useTronProvider } from './useTronProvider'
 import useGetPools from '../../../../src/hooks/useGetPools'
+import { ModeOptions } from '@interface'
+import { lightDemoAccounts } from '@utils/constants'
 
 const emptyResult = {} as GetTokenAllowanceResult
 
 export default function useBalance(): GetTokenAllowanceResult {
+  const mode = useSelector(selectMode)
   const selectedCoin = useSelector(selectSourceCurrency)
   const sourceChain = useSelector(selectSourceChain)
   const networkOptions = useSelector(selectNetworkOption)
   const tokenOptions = useSelector(selectTokenOptions)
   const backendUrl = useSelector(selectBackendUrl)
   const { pools } = useGetPools(backendUrl, networkOptions)
-  const { tronWeb, userAddress } = useTronProvider()
+  const { tronWeb, userAddress: walletAddress } = useTronProvider()
+
+  const userAddress =
+    mode === ModeOptions.light ? lightDemoAccounts.TRX : walletAddress
 
   const { data: allowanceData } = useQuery({
     queryKey: ['tronAllowance', userAddress],

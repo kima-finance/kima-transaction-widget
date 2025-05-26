@@ -43,6 +43,58 @@ export interface ComplianceResult {
   }[]
 }
 
+const initialServiceFee = {
+  feeId: '',
+  sourceFee: {
+    value: BigInt(0),
+    decimals: 0
+  },
+  kimaFee: {
+    value: BigInt(0),
+    decimals: 0
+  },
+  targetFee: {
+    value: BigInt(0),
+    decimals: 0
+  },
+  totalFee: {
+    value: BigInt(0),
+    decimals: 0
+  },
+  transactionValues: {
+    originChain: '',
+    originAddress: '',
+    originSymbol: '',
+    targetChain: '',
+    targetAddress: '',
+    targetSymbol: '',
+    feeFromOrigin: {
+      allowanceAmount: {
+        value: BigInt(0),
+        decimals: 0
+      },
+      submitAmount: {
+        value: BigInt(0),
+        decimals: 0
+      },
+      message: ''
+    },
+    feeFromTarget: {
+      allowanceAmount: {
+        value: BigInt(0),
+        decimals: 0
+      },
+      submitAmount: {
+        value: BigInt(0),
+        decimals: 0
+      },
+      message: ''
+    }
+  },
+  peggedTo: '',
+  expiration: ''
+}
+
 export interface OptionState {
   theme: ThemeOptions // light or dark
   mode: ModeOptions // payment or bridge
@@ -74,7 +126,7 @@ export interface OptionState {
   kimaExplorerUrl: string // URL for kima explore (testnet, staging or demo)
   txId?: number | string // transaction id to monitor it's status
   ccTransactionId: string // transaction id generated for submitting a credit card transaction
-  ccTransactionStatus: 'initialized' | 'success' | 'failed' | 'idle' | 'fatal' // credit card transaction status
+  ccTransactionStatus: 'initialized' | 'success' | 'failed' | 'idle' | 'error-id' | 'error-generic' // credit card transaction status
   sourceCurrency: string // Currently selected token for source chain
   targetCurrency: string // Currently selected token for target chain
   expireTime: string // Bitcoi HTLC expiration time
@@ -135,57 +187,7 @@ const initialState: OptionState = {
   amount: '',
   feeDeduct: false,
   initChainFromProvider: false,
-  serviceFee: {
-    feeId: '',
-    sourceFee: {
-      value: BigInt(0),
-      decimals: 0
-    },
-    kimaFee: {
-      value: BigInt(0),
-      decimals: 0
-    },
-    targetFee: {
-      value: BigInt(0),
-      decimals: 0
-    },
-    totalFee: {
-      value: BigInt(0),
-      decimals: 0
-    },
-    transactionValues: {
-      originChain: '',
-      originAddress: '',
-      originSymbol: '',
-      targetChain: '',
-      targetAddress: '',
-      targetSymbol: '',
-      feeFromOrigin: {
-        allowanceAmount: {
-          value: BigInt(0),
-          decimals: 0
-        },
-        submitAmount: {
-          value: BigInt(0),
-          decimals: 0
-        },
-        message: ''
-      },
-      feeFromTarget: {
-        allowanceAmount: {
-          value: BigInt(0),
-          decimals: 0
-        },
-        submitAmount: {
-          value: BigInt(0),
-          decimals: 0
-        },
-        message: ''
-      }
-    },
-    peggedTo: '',
-    expiration: ''
-  },
+  serviceFee: initialServiceFee,
   backendUrl: '',
   txId: -1,
   ccTransactionId: '',
@@ -343,7 +345,7 @@ export const optionSlice = createSlice({
     setCCTransactionStatus: (
       state: OptionState,
       action: PayloadAction<
-        'initialized' | 'success' | 'failed' | 'idle' | 'fatal'
+        'initialized' | 'success' | 'failed' | 'idle' | 'error-id' | 'error-generic'
       >
     ) => {
       state.ccTransactionStatus = action.payload
@@ -398,6 +400,9 @@ export const optionSlice = createSlice({
     },
     setExpireTime: (state: OptionState, action: PayloadAction<string>) => {
       state.expireTime = action.payload
+    },
+    resetServiceFee: (state: OptionState) => {
+      state.serviceFee = initialServiceFee
     }
   }
 })
@@ -450,7 +455,8 @@ export const {
   setKYCStatus,
   setExpireTime,
   setPendingTxData,
-  setPendingTxs
+  setPendingTxs,
+  resetServiceFee
 } = optionSlice.actions
 
 export default optionSlice.reducer

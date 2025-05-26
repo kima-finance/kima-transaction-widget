@@ -5,12 +5,16 @@ import { CrossIcon } from '@assets/icons'
 
 interface WarningModalProps {
   message: string
+  cancelButtonText?: string
+  acknowledgeButtonText?: string
   onAcknowledge: () => void
   onCancel: () => void
 }
 
 const WarningModal: React.FC<WarningModalProps> = ({
   message,
+  cancelButtonText = 'Cancel',
+  acknowledgeButtonText = 'Acknowledge',
   onAcknowledge,
   onCancel
 }) => {
@@ -29,13 +33,13 @@ const WarningModal: React.FC<WarningModalProps> = ({
             className='warning-modal-cancel'
             clickHandler={onCancel}
           >
-            CANCEL
+            {cancelButtonText}
           </SecondaryButton>
           <PrimaryButton
             className='warning-modal-acknowledge'
             clickHandler={onAcknowledge}
           >
-            ACKNOWLEDGE
+            {acknowledgeButtonText}
           </PrimaryButton>
         </div>
       </div>

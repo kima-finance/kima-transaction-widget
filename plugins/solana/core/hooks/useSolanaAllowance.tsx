@@ -6,7 +6,9 @@ import {
   selectTokenOptions,
   selectBackendUrl,
   selectNetworkOption,
-  selectFeeDeduct
+  selectFeeDeduct,
+  selectSourceAddress,
+  selectMode
 } from '@store/selectors'
 import useBalance from './useBalance'
 import useGetPools from '../../../../src/hooks/useGetPools'
@@ -21,10 +23,14 @@ import { PluginUseAllowanceResult, SignDataType } from '@plugins/pluginTypes'
 import { useQueryClient } from '@tanstack/react-query'
 import { useSolanaProvider } from './useSolanaProvider'
 import log from '@utils/logger'
+import { ModeOptions } from '@interface'
+import { lightDemoAccounts } from '@utils/constants'
 
+// TODO: ADD LIGHT DEMO LOGIC
 export default function useSolanaAllowance(): PluginUseAllowanceResult {
   const queryClient = useQueryClient()
   const { transactionValues } = useSelector(selectServiceFee)
+  const mode = useSelector(selectMode)
   const feeDeduct = useSelector(selectFeeDeduct)
   const backendUrl = useSelector(selectBackendUrl)
   const networkOption = useSelector(selectNetworkOption)
@@ -39,6 +45,10 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
   const { userPublicKey, signTransaction, signMessage, connection } =
     useSolanaProvider()
   const allowanceData = useBalance()
+  const publicKey =
+    mode === ModeOptions.light
+      ? new PublicKey(lightDemoAccounts.SOL)
+      : userPublicKey
 
   const signSolanaMessage = async (data: SignDataType) => {
     if (!signMessage) {
@@ -47,7 +57,7 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
     }
 
     try {
-      console.info('useSolanaAllowance: Signing message:', txValues.message)
+      log.debug('useSolanaAllowance: Signing message:', txValues.message)
       const encodedMessage = new TextEncoder().encode(txValues.message)
       const signature = await signMessage(encodedMessage)
       return `0x${Buffer.from(signature).toString('hex')}`
@@ -66,7 +76,7 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
       // !isSolanaProvider ||
       !signTransaction ||
       !connection ||
-      !userPublicKey
+      !publicKey
     ) {
       log.warn('useSolanaAllowance: Missing Solana provider setup')
       return
@@ -78,22 +88,22 @@ export default function useSolanaAllowance(): PluginUseAllowanceResult {
     try {
       const tokenAccountAddress = await getAssociatedTokenAddress(
         new PublicKey(tokenAddress),
-        userPublicKey
+        publicKey
       )
       const amount = isCancel ? 0n : allowanceNumber
-      console.log('useSolanaAllowance: Approving amount:', amount)
+      log.debug('useSolanaAllowance: Approving amount:', amount)
 
       const approveInstruction = createApproveInstruction(
         tokenAccountAddress,
         new PublicKey(poolAddress),
-        userPublicKey,
+        publicKey,
         amount,
         [],
         TOKEN_PROGRAM_ID
       )
 
       const transaction = new Transaction().add(approveInstruction)
-      transaction.feePayer = userPublicKey
+      transaction.feePayer = publicKey
       transaction.recentBlockhash = (
         await connection.getLatestBlockhash()
       ).blockhash

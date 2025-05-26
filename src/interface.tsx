@@ -23,7 +23,8 @@ export enum NetworkOptions {
 export enum ModeOptions {
   payment = 'payment',
   bridge = 'bridge',
-  status = 'status'
+  status = 'status',
+  light = 'light'
 }
 
 export enum CurrencyOptions {
