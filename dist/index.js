@@ -2466,6 +2466,10 @@ var isSolProvider = (provider) => {
 var isTronProvider = (provider) => {
   return provider && provider.tronWeb instanceof TronWeb && typeof provider.signTransaction === "function";
 };
+var truncateToDecimals = (num, decimals) => {
+  const factor = Math.pow(10, decimals);
+  return Math.floor(num * factor) / factor;
+};
 
 // plugins/evm/utils/getTokenAllowance.tsx
 var getTokenAllowance = async ({
@@ -4964,7 +4968,7 @@ var FeeDeductionRadioButtons = ({ disabled }) => {
   const handleChange = (value) => {
     dispatch(setFeeDeduct(value));
   };
-  return /* @__PURE__ */ React96.createElement("div", { className: `fee-deduction-radio-container ${theme.colorMode}` }, /* @__PURE__ */ React96.createElement("div", { className: "fee-options" }, /* @__PURE__ */ React96.createElement("label", { className: `fee-option ${disabled ? "disabled" : ""}` }, /* @__PURE__ */ React96.createElement(
+  return /* @__PURE__ */ React96.createElement("div", { className: `fee-deduction-radio-container ${theme.colorMode}` }, /* @__PURE__ */ React96.createElement("div", { className: "fee-options" }, Number(amount) - totalFee > 0 && /* @__PURE__ */ React96.createElement("label", { className: `fee-option ${disabled ? "disabled" : ""}` }, /* @__PURE__ */ React96.createElement(
     "input",
     {
       type: "radio",
@@ -5943,8 +5947,6 @@ var useGetFees_default = useGetFees;
 
 // src/components/reusable/SingleForm.tsx
 var SingleForm = ({
-  balance,
-  decimals,
   isLoadingFees,
   initialSelection,
   setInitialSelection
@@ -5966,6 +5968,7 @@ var SingleForm = ({
   const sourceCurrency = useSelector35(selectSourceCurrency);
   const targetCurrency = useSelector35(selectTargetCurrency);
   const backendUrl = useSelector35(selectBackendUrl);
+  const { balance, decimals } = useBalance4();
   const {
     data: fees,
     isLoading,
@@ -5992,8 +5995,11 @@ var SingleForm = ({
     [compliantOption, targetCompliant]
   );
   const maxValue = useMemo14(() => {
-    if (mode === "light" /* light */) return 1e3;
-    if (!balance) return 0;
+    if (mode === "light" /* light */)
+      return BigInt(
+        envOptions?.transferLimitMaxUSDT ? parseFloat(envOptions?.transferLimitMaxUSDT) : 1e3
+      );
+    if (!balance) return BigInt(0);
     if (totalFee.value === BigInt(0)) return balance;
     const intAmount = parseUnits2(amount, totalFee.decimals);
     return balance - intAmount;
@@ -6018,11 +6024,17 @@ var SingleForm = ({
     setAmountValue(maskedValue);
     dispatch(setAmount(maskedValue));
   };
-  const onMaxClick = () => () => {
+  const onMaxClick = () => {
+    if (initialSelection.sourceSelection) return;
     const txLimit = envOptions?.transferLimitMaxUSDT ? parseFloat(envOptions.transferLimitMaxUSDT) : Number.MAX_VALUE;
-    const cappedValue = Math.min(Number(maxValue), txLimit).toString();
-    setAmountValue(cappedValue);
-    dispatch(setAmount(cappedValue));
+    const rawMax = bigIntToNumber({
+      value: maxValue,
+      decimals
+    });
+    const cappedValue = Math.min(rawMax, txLimit);
+    const truncated = truncateToDecimals(cappedValue, 2).toString();
+    setAmountValue(truncated);
+    dispatch(setAmount(truncated));
   };
   const isConnected = useMemo14(() => {
     return isReady && !initialSelection.sourceSelection;
@@ -6089,7 +6101,7 @@ var SingleForm = ({
       value: amountValue || "",
       onChange: (e) => onAmountChange(e.target.value)
     }
-  ), /* @__PURE__ */ React107.createElement("div", { className: "max-disclaimer" }, /* @__PURE__ */ React107.createElement("span", { className: "max-button", onClick: onMaxClick }, "Max"), +totalFee !== -1 && /* @__PURE__ */ React107.createElement("p", { className: "fee-amount" }, "Est fees:", " ", /* @__PURE__ */ React107.createElement("span", { className: `${isLoadingFees ? "loading" : ""}` }, " ", isLoadingFees ? "" : `$ ${formatBigInt(totalFee)} USD`))))));
+  ), /* @__PURE__ */ React107.createElement("div", { className: "max-disclaimer" }, sourceNetwork.shortName !== "CC" && /* @__PURE__ */ React107.createElement("span", { className: "max-button", onClick: onMaxClick }, "Max"), +totalFee !== -1 && /* @__PURE__ */ React107.createElement("p", { className: "fee-amount" }, "Est fees:", " ", /* @__PURE__ */ React107.createElement("span", { className: `${isLoadingFees ? "loading" : ""}` }, " ", isLoadingFees ? "" : `$ ${formatBigInt(totalFee)} USD`))))));
 };
 var SingleForm_default = SingleForm;
 
@@ -6898,6 +6910,7 @@ var TransferWidget = ({
   const [formStep, setFormStep] = useState16(0);
   const [warningModalOpen, setWarningModalOpen] = useState16(null);
   const [resetModalOpen, setResetModalOpen] = useState16(false);
+  const networkOption = useSelector45(selectNetworkOption);
   const dAppOption = useSelector45(selectDappOption);
   const mode = useSelector45(selectMode);
   const transactionOption = useSelector45(selectTransactionOption);
@@ -7180,10 +7193,10 @@ var TransferWidget = ({
     /* @__PURE__ */ React116.createElement("div", { className: "transfer-card" }, /* @__PURE__ */ React116.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React116.createElement("div", { className: "topbar" }, /* @__PURE__ */ React116.createElement("div", { className: "title" }, /* @__PURE__ */ React116.createElement("h3", { style: { marginRight: "5px" } }, formStep === 0 ? titleOption?.initialTitle ? titleOption.initialTitle : mode === "payment" /* payment */ ? "New Purchase" : "New Transfer" : titleOption?.confirmTitle ? titleOption.confirmTitle : mode === "payment" /* payment */ ? "Confirm Purchase" : "Transfer Details")), /* @__PURE__ */ React116.createElement("div", { className: "control-buttons" }, pendingTxs > 0 ? /* @__PURE__ */ React116.createElement(TxButton_default, { theme }) : null, /* @__PURE__ */ React116.createElement(
       ExternalLink_default,
       {
-        to: helpURL ? helpURL : "https://docs.kima.network/kima-network/try-kima-with-the-demo-app"
+        to: helpURL ? helpURL : networkOption === "testnet" /* testnet */ ? "https://docs.kima.network/kima-network/try-kima-with-the-demo-app" : "https://support.kima.network"
       },
       /* @__PURE__ */ React116.createElement("div", { className: "menu-button" }, "I need help")
-    ), sourceChain.shortName === "CC" && formStep > 0 && /* @__PURE__ */ React116.createElement(ExternalLink_default, { to: "https://docs.kima.network/kima-network/supported-fiat" }, /* @__PURE__ */ React116.createElement("div", { className: "menu-button" }, "Unsupported Countries")), formStep === 0 && mode !== "payment" /* payment */ && /* @__PURE__ */ React116.createElement(
+    ), sourceChain.shortName === "CC" && formStep > 0 && /* @__PURE__ */ React116.createElement(ExternalLink_default, { to: "https://docs.kima.network/kima-network/supported-fiat#unsupported-countries-credit-cards" }, /* @__PURE__ */ React116.createElement("div", { className: "menu-button" }, "Unsupported Countries")), formStep === 0 && mode !== "payment" /* payment */ && /* @__PURE__ */ React116.createElement(
       "button",
       {
         className: "reset-button",
@@ -7199,8 +7212,6 @@ var TransferWidget = ({
             allowance?.toString() ?? "0",
             decimals ?? 18
           ),
-          balance: parseUnits4(balance?.toString() ?? "0", decimals ?? 18),
-          decimals: 2,
           isLoadingFees,
           initialSelection,
           setInitialSelection

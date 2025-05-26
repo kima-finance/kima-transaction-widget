@@ -2458,6 +2458,10 @@ var isSolProvider = (provider) => {
 var isTronProvider = (provider) => {
   return provider && provider.tronWeb instanceof import_tronweb.TronWeb && typeof provider.signTransaction === "function";
 };
+var truncateToDecimals = (num, decimals) => {
+  const factor = Math.pow(10, decimals);
+  return Math.floor(num * factor) / factor;
+};
 
 // plugins/evm/utils/getTokenAllowance.tsx
 var getTokenAllowance = async ({
@@ -4926,7 +4930,7 @@ var FeeDeductionRadioButtons = ({ disabled }) => {
   const handleChange = (value) => {
     dispatch(setFeeDeduct(value));
   };
-  return /* @__PURE__ */ import_react112.default.createElement("div", { className: `fee-deduction-radio-container ${theme.colorMode}` }, /* @__PURE__ */ import_react112.default.createElement("div", { className: "fee-options" }, /* @__PURE__ */ import_react112.default.createElement("label", { className: `fee-option ${disabled ? "disabled" : ""}` }, /* @__PURE__ */ import_react112.default.createElement(
+  return /* @__PURE__ */ import_react112.default.createElement("div", { className: `fee-deduction-radio-container ${theme.colorMode}` }, /* @__PURE__ */ import_react112.default.createElement("div", { className: "fee-options" }, Number(amount) - totalFee > 0 && /* @__PURE__ */ import_react112.default.createElement("label", { className: `fee-option ${disabled ? "disabled" : ""}` }, /* @__PURE__ */ import_react112.default.createElement(
     "input",
     {
       type: "radio",
@@ -5905,8 +5909,6 @@ var useGetFees_default = useGetFees;
 
 // src/components/reusable/SingleForm.tsx
 var SingleForm = ({
-  balance,
-  decimals,
   isLoadingFees,
   initialSelection,
   setInitialSelection
@@ -5928,6 +5930,7 @@ var SingleForm = ({
   const sourceCurrency = (0, import_react_redux46.useSelector)(selectSourceCurrency);
   const targetCurrency = (0, import_react_redux46.useSelector)(selectTargetCurrency);
   const backendUrl = (0, import_react_redux46.useSelector)(selectBackendUrl);
+  const { balance, decimals } = useBalance4();
   const {
     data: fees,
     isLoading,
@@ -5954,8 +5957,11 @@ var SingleForm = ({
     [compliantOption, targetCompliant]
   );
   const maxValue = (0, import_react124.useMemo)(() => {
-    if (mode === "light" /* light */) return 1e3;
-    if (!balance) return 0;
+    if (mode === "light" /* light */)
+      return BigInt(
+        envOptions?.transferLimitMaxUSDT ? parseFloat(envOptions?.transferLimitMaxUSDT) : 1e3
+      );
+    if (!balance) return BigInt(0);
     if (totalFee.value === BigInt(0)) return balance;
     const intAmount = (0, import_viem6.parseUnits)(amount, totalFee.decimals);
     return balance - intAmount;
@@ -5980,11 +5986,17 @@ var SingleForm = ({
     setAmountValue(maskedValue);
     dispatch(setAmount(maskedValue));
   };
-  const onMaxClick = () => () => {
+  const onMaxClick = () => {
+    if (initialSelection.sourceSelection) return;
     const txLimit = envOptions?.transferLimitMaxUSDT ? parseFloat(envOptions.transferLimitMaxUSDT) : Number.MAX_VALUE;
-    const cappedValue = Math.min(Number(maxValue), txLimit).toString();
-    setAmountValue(cappedValue);
-    dispatch(setAmount(cappedValue));
+    const rawMax = bigIntToNumber({
+      value: maxValue,
+      decimals
+    });
+    const cappedValue = Math.min(rawMax, txLimit);
+    const truncated = truncateToDecimals(cappedValue, 2).toString();
+    setAmountValue(truncated);
+    dispatch(setAmount(truncated));
   };
   const isConnected = (0, import_react124.useMemo)(() => {
     return isReady && !initialSelection.sourceSelection;
@@ -6051,7 +6063,7 @@ var SingleForm = ({
       value: amountValue || "",
       onChange: (e) => onAmountChange(e.target.value)
     }
-  ), /* @__PURE__ */ import_react124.default.createElement("div", { className: "max-disclaimer" }, /* @__PURE__ */ import_react124.default.createElement("span", { className: "max-button", onClick: onMaxClick }, "Max"), +totalFee !== -1 && /* @__PURE__ */ import_react124.default.createElement("p", { className: "fee-amount" }, "Est fees:", " ", /* @__PURE__ */ import_react124.default.createElement("span", { className: `${isLoadingFees ? "loading" : ""}` }, " ", isLoadingFees ? "" : `$ ${formatBigInt(totalFee)} USD`))))));
+  ), /* @__PURE__ */ import_react124.default.createElement("div", { className: "max-disclaimer" }, sourceNetwork.shortName !== "CC" && /* @__PURE__ */ import_react124.default.createElement("span", { className: "max-button", onClick: onMaxClick }, "Max"), +totalFee !== -1 && /* @__PURE__ */ import_react124.default.createElement("p", { className: "fee-amount" }, "Est fees:", " ", /* @__PURE__ */ import_react124.default.createElement("span", { className: `${isLoadingFees ? "loading" : ""}` }, " ", isLoadingFees ? "" : `$ ${formatBigInt(totalFee)} USD`))))));
 };
 var SingleForm_default = SingleForm;
 
@@ -6860,6 +6872,7 @@ var TransferWidget = ({
   const [formStep, setFormStep] = (0, import_react135.useState)(0);
   const [warningModalOpen, setWarningModalOpen] = (0, import_react135.useState)(null);
   const [resetModalOpen, setResetModalOpen] = (0, import_react135.useState)(false);
+  const networkOption = (0, import_react_redux57.useSelector)(selectNetworkOption);
   const dAppOption = (0, import_react_redux57.useSelector)(selectDappOption);
   const mode = (0, import_react_redux57.useSelector)(selectMode);
   const transactionOption = (0, import_react_redux57.useSelector)(selectTransactionOption);
@@ -7142,10 +7155,10 @@ var TransferWidget = ({
     /* @__PURE__ */ import_react135.default.createElement("div", { className: "transfer-card" }, /* @__PURE__ */ import_react135.default.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ import_react135.default.createElement("div", { className: "topbar" }, /* @__PURE__ */ import_react135.default.createElement("div", { className: "title" }, /* @__PURE__ */ import_react135.default.createElement("h3", { style: { marginRight: "5px" } }, formStep === 0 ? titleOption?.initialTitle ? titleOption.initialTitle : mode === "payment" /* payment */ ? "New Purchase" : "New Transfer" : titleOption?.confirmTitle ? titleOption.confirmTitle : mode === "payment" /* payment */ ? "Confirm Purchase" : "Transfer Details")), /* @__PURE__ */ import_react135.default.createElement("div", { className: "control-buttons" }, pendingTxs > 0 ? /* @__PURE__ */ import_react135.default.createElement(TxButton_default, { theme }) : null, /* @__PURE__ */ import_react135.default.createElement(
       ExternalLink_default,
       {
-        to: helpURL ? helpURL : "https://docs.kima.network/kima-network/try-kima-with-the-demo-app"
+        to: helpURL ? helpURL : networkOption === "testnet" /* testnet */ ? "https://docs.kima.network/kima-network/try-kima-with-the-demo-app" : "https://support.kima.network"
       },
       /* @__PURE__ */ import_react135.default.createElement("div", { className: "menu-button" }, "I need help")
-    ), sourceChain.shortName === "CC" && formStep > 0 && /* @__PURE__ */ import_react135.default.createElement(ExternalLink_default, { to: "https://docs.kima.network/kima-network/supported-fiat" }, /* @__PURE__ */ import_react135.default.createElement("div", { className: "menu-button" }, "Unsupported Countries")), formStep === 0 && mode !== "payment" /* payment */ && /* @__PURE__ */ import_react135.default.createElement(
+    ), sourceChain.shortName === "CC" && formStep > 0 && /* @__PURE__ */ import_react135.default.createElement(ExternalLink_default, { to: "https://docs.kima.network/kima-network/supported-fiat#unsupported-countries-credit-cards" }, /* @__PURE__ */ import_react135.default.createElement("div", { className: "menu-button" }, "Unsupported Countries")), formStep === 0 && mode !== "payment" /* payment */ && /* @__PURE__ */ import_react135.default.createElement(
       "button",
       {
         className: "reset-button",
@@ -7161,8 +7174,6 @@ var TransferWidget = ({
             allowance?.toString() ?? "0",
             decimals ?? 18
           ),
-          balance: (0, import_viem8.parseUnits)(balance?.toString() ?? "0", decimals ?? 18),
-          decimals: 2,
           isLoadingFees,
           initialSelection,
           setInitialSelection
