@@ -160,3 +160,8 @@ const isTronProvider = (provider: TronProvider) => {
     typeof provider.signTransaction === 'function'
   )
 }
+
+export const truncateToDecimals = (num: number, decimals: number): number => {
+  const factor = Math.pow(10, decimals)
+  return Math.floor(num * factor) / factor
+}
