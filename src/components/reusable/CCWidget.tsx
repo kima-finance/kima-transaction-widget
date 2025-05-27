@@ -5,8 +5,7 @@ import {
   selectCCTransactionStatus,
   selectFeeDeduct,
   selectNetworkOption,
-  selectServiceFee,
-  selectTheme
+  selectServiceFee
 } from '@store/selectors'
 import { Loading180Ring } from '@assets/loading'
 import { setCCTransactionId, setCCTransactionStatus } from '@store/optionSlice'
@@ -16,11 +15,9 @@ import { useCCTransactionId } from '../../hooks/useCCTransactionId'
 import { NetworkOptions } from '@interface'
 import { useGetEnvOptions } from '../../hooks/useGetEnvOptions'
 import log from '@utils/logger'
-import ErrorWidget from '@components/ErrorWidget'
 
 const CCWidget = () => {
   const dispatch = useDispatch()
-  const theme = useSelector(selectTheme)
   const feeDeduct = useSelector(selectFeeDeduct)
   const backendUrl = useSelector(selectBackendUrl)
   const ccTransactionStatus = useSelector(selectCCTransactionStatus)
@@ -41,8 +38,8 @@ const CCWidget = () => {
   } = useCCTransactionId(backendUrl, ccTransactionIdSeedRef.current)
 
   useEffect(() => {
-    dispatch(setCCTransactionId(ccTransactionIdSeedRef.current))
-  }, [dispatch])
+    dispatch(setCCTransactionId(data?.transactionId))
+  }, [dispatch, data, isTransactionIdLoading])
 
   const txValues = feeDeduct
     ? transactionValues.feeFromTarget
