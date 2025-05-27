@@ -126,6 +126,7 @@ export interface OptionState {
   kimaExplorerUrl: string // URL for kima explore (testnet, staging or demo)
   txId?: number | string // transaction id to monitor it's status
   ccTransactionId: string // transaction id generated for submitting a credit card transaction
+  ccTransactionIdSeed: string // tx id seed
   ccTransactionStatus:
     | 'initialized'
     | 'success'
@@ -198,6 +199,7 @@ const initialState: OptionState = {
   backendUrl: '',
   txId: -1,
   ccTransactionId: '',
+  ccTransactionIdSeed: '',
   ccTransactionStatus: 'idle',
   ccTransactionRetrying: false,
   sourceCurrency: 'USDK',
@@ -350,6 +352,12 @@ export const optionSlice = createSlice({
     setCCTransactionId: (state: OptionState, action: PayloadAction<string>) => {
       state.ccTransactionId = action.payload
     },
+    setCCTransactionIdSeed: (
+      state: OptionState,
+      action: PayloadAction<string>
+    ) => {
+      state.ccTransactionIdSeed = action.payload
+    },
     setCCTransactionStatus: (
       state: OptionState,
       action: PayloadAction<
@@ -460,6 +468,7 @@ export const {
   setBackendUrl,
   setTxId,
   setCCTransactionId,
+  setCCTransactionIdSeed,
   setCCTransactionStatus,
   setCCTransactionRetrying,
   setSourceCurrency,

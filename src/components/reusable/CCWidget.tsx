@@ -8,7 +8,11 @@ import {
   selectServiceFee
 } from '@store/selectors'
 import { Loading180Ring } from '@assets/loading'
-import { setCCTransactionId, setCCTransactionStatus } from '@store/optionSlice'
+import {
+  setCCTransactionId,
+  setCCTransactionIdSeed,
+  setCCTransactionStatus
+} from '@store/optionSlice'
 import { formatBigInt } from 'src/helpers/functions'
 import { v4 as uuidv4 } from 'uuid'
 import { useCCTransactionId } from '../../hooks/useCCTransactionId'
@@ -38,6 +42,7 @@ const CCWidget = () => {
   } = useCCTransactionId(backendUrl, ccTransactionIdSeedRef.current)
 
   useEffect(() => {
+    dispatch(setCCTransactionIdSeed(ccTransactionIdSeedRef.current))
     dispatch(setCCTransactionId(data?.transactionId))
   }, [dispatch, data, isTransactionIdLoading])
 
