@@ -1681,6 +1681,7 @@ var initialState = {
   txId: -1,
   ccTransactionId: "",
   ccTransactionStatus: "idle",
+  ccTransactionRetrying: false,
   sourceCurrency: "USDK",
   targetCurrency: "USDK",
   compliantOption: true,
@@ -1809,6 +1810,9 @@ var optionSlice = createSlice({
     setCCTransactionStatus: (state, action) => {
       state.ccTransactionStatus = action.payload;
     },
+    setCCTransactionRetrying: (state, action) => {
+      state.ccTransactionRetrying = action.payload;
+    },
     setSourceCurrency: (state, action) => {
       state.sourceCurrency = action.payload;
     },
@@ -1885,6 +1889,7 @@ var {
   setTxId,
   setCCTransactionId,
   setCCTransactionStatus,
+  setCCTransactionRetrying,
   setSourceCurrency,
   setTargetCurrency,
   setCompliantOption,
@@ -2244,6 +2249,7 @@ var selectBankDetails = (state) => state.option.bankDetails;
 var selectSignature = (state) => state.option.signature;
 var selectCCTransactionId = (state) => state.option.ccTransactionId;
 var selectCCTransactionStatus = (state) => state.option.ccTransactionStatus;
+var selectCCTransactionRetrying = (state) => state.option.ccTransactionRetrying;
 
 // plugins/evm/utils/constants.tsx
 var import_web32 = require("@solana/web3.js");
@@ -4201,7 +4207,7 @@ var import_react141 = __toESM(require("react"), 1);
 
 // src/components/KimaWidgetWrapper.tsx
 var import_react137 = __toESM(require("react"), 1);
-var import_react_redux58 = require("react-redux");
+var import_react_redux57 = require("react-redux");
 
 // src/components/TransactionWidget.tsx
 var import_react122 = __toESM(require("react"), 1);
@@ -5664,7 +5670,7 @@ var TransactionWidget = ({ theme }) => {
 
 // src/components/TransferWidget.tsx
 var import_react135 = __toESM(require("react"), 1);
-var import_react_redux57 = require("react-redux");
+var import_react_redux56 = require("react-redux");
 
 // src/components/reusable/SingleForm.tsx
 var import_react124 = __toESM(require("react"), 1);
@@ -6590,21 +6596,21 @@ var useValidateTransaction = (inputs) => {
 var useValidateTransaction_default = useValidateTransaction;
 
 // src/hooks/useSubmitTransaction.tsx
-var import_react132 = require("react");
 var import_react_redux54 = require("react-redux");
-var import_react_redux55 = require("react-redux");
+var import_react_query16 = require("@tanstack/react-query");
+var import_react132 = require("react");
 var useSubmitTransaction = () => {
   const dispatch = (0, import_react_redux54.useDispatch)();
-  const backendUrl = (0, import_react_redux55.useSelector)(selectBackendUrl);
-  const mode = (0, import_react_redux55.useSelector)(selectMode);
-  const [isSubmitting, setSubmitting] = (0, import_react132.useState)(false);
-  const { feeId, transactionValues, totalFee } = (0, import_react_redux55.useSelector)(selectServiceFee);
-  const feeDeduct = (0, import_react_redux55.useSelector)(selectFeeDeduct);
+  const backendUrl = (0, import_react_redux54.useSelector)(selectBackendUrl);
+  const mode = (0, import_react_redux54.useSelector)(selectMode);
+  const { feeId, transactionValues, totalFee } = (0, import_react_redux54.useSelector)(selectServiceFee);
+  const feeDeduct = (0, import_react_redux54.useSelector)(selectFeeDeduct);
   const txValues = feeDeduct ? transactionValues.feeFromTarget : transactionValues.feeFromOrigin;
-  const ccTransactionId = (0, import_react_redux55.useSelector)(selectCCTransactionId);
-  const submitTransaction = async (signature) => {
-    try {
-      setSubmitting(true);
+  const ccTransactionId = (0, import_react_redux54.useSelector)(selectCCTransactionId);
+  const [isSubmitting, setIsSubmitting] = (0, import_react132.useState)(false);
+  const mutation = (0, import_react_query16.useMutation)({
+    mutationFn: async (signature) => {
+      setIsSubmitting(true);
       const params = JSON.stringify({
         originAddress: transactionValues.originChain === "CC" ? transactionValues.targetAddress : transactionValues.originAddress,
         originChain: transactionValues.originChain,
@@ -6632,32 +6638,51 @@ var useSubmitTransaction = () => {
         mode
       });
       logger_default.debug("submitTransaction: params: ", params);
-      const transactionResult = await fetchWrapper.post(
+      const response = await fetchWrapper.post(
         `${backendUrl}/submit`,
         params
       );
-      logger_default.debug("submitTransaction: response: ", transactionResult);
-      if (transactionResult?.code !== 0) {
-        setSubmitting(false);
-        return { success: false, message: "Failed to submit transaction" };
+      if (response?.code !== 0) {
+        throw new Error("Submit failed");
       }
-      const transactionId = getTransactionId(transactionResult.events);
+      return getTransactionId(response.events);
+    },
+    onSuccess: (transactionId) => {
       dispatch(setTxId(transactionId));
       dispatch(setSubmitted(true));
-      setSubmitting(false);
-      return { success: true, message: "Transaction submitted successfully." };
-    } catch (error) {
-      logger_default.error("Error submitting transaction:", error);
-      setSubmitting(false);
-      return { success: false, message: "Failed to submit transaction" };
-    }
+      dispatch(setCCTransactionRetrying(false));
+      setIsSubmitting(false);
+    },
+    onError: (err, signature, context) => {
+      logger_default.error("submitTransaction error:", err);
+      dispatch(setCCTransactionRetrying(false));
+      setIsSubmitting(false);
+    },
+    onSettled: () => {
+      dispatch(setCCTransactionRetrying(false));
+      setIsSubmitting(false);
+    },
+    retry: (failureCount, error) => {
+      const shouldRetry = transactionValues.originChain === "CC" && failureCount < 5;
+      if (shouldRetry) {
+        dispatch(setCCTransactionRetrying(true));
+        dispatch(setCCTransactionStatus("error-generic"));
+      } else {
+        dispatch(setCCTransactionRetrying(false));
+      }
+      return shouldRetry;
+    },
+    retryDelay: (attempt) => attempt * 1e3
+  });
+  return {
+    submitTransaction: mutation.mutateAsync,
+    isSubmitting
   };
-  return { submitTransaction, isSubmitting };
 };
 var useSubmitTransaction_default = useSubmitTransaction;
 
 // src/hooks/useComplianceCheck.tsx
-var import_react_query16 = require("@tanstack/react-query");
+var import_react_query17 = require("@tanstack/react-query");
 
 // src/services/complianceApi.ts
 var getCompliance = async (walletAddress, compliantOption, backendUrl) => {
@@ -6680,7 +6705,7 @@ var useComplianceCheck = (walletAddress, compliantOption, backendUrl) => {
     data: complianceData,
     error,
     isFetching
-  } = (0, import_react_query16.useQuery)({
+  } = (0, import_react_query17.useQuery)({
     queryKey: ["compliance", walletAddress, compliantOption],
     queryFn: async () => {
       return await getCompliance(walletAddress, compliantOption, backendUrl);
@@ -6760,13 +6785,13 @@ var WarningModal_default = WarningModal;
 
 // src/components/reusable/CCWidget.tsx
 var import_react134 = __toESM(require("react"), 1);
-var import_react_redux56 = require("react-redux");
+var import_react_redux55 = require("react-redux");
 var import_uuid = require("uuid");
 
 // src/hooks/useCCTransactionId.tsx
-var import_react_query17 = require("@tanstack/react-query");
+var import_react_query18 = require("@tanstack/react-query");
 var useCCTransactionId = (backendUrl, transactionIdSeed) => {
-  return (0, import_react_query17.useQuery)({
+  return (0, import_react_query18.useQuery)({
     queryKey: ["transactionId", transactionIdSeed],
     queryFn: async () => {
       const res = await fetch(
@@ -6788,13 +6813,12 @@ var useCCTransactionId = (backendUrl, transactionIdSeed) => {
 
 // src/components/reusable/CCWidget.tsx
 var CCWidget = () => {
-  const dispatch = (0, import_react_redux56.useDispatch)();
-  const theme = (0, import_react_redux56.useSelector)(selectTheme);
-  const feeDeduct = (0, import_react_redux56.useSelector)(selectFeeDeduct);
-  const backendUrl = (0, import_react_redux56.useSelector)(selectBackendUrl);
-  const ccTransactionStatus = (0, import_react_redux56.useSelector)(selectCCTransactionStatus);
-  const networkOption = (0, import_react_redux56.useSelector)(selectNetworkOption);
-  const { transactionValues } = (0, import_react_redux56.useSelector)(selectServiceFee);
+  const dispatch = (0, import_react_redux55.useDispatch)();
+  const feeDeduct = (0, import_react_redux55.useSelector)(selectFeeDeduct);
+  const backendUrl = (0, import_react_redux55.useSelector)(selectBackendUrl);
+  const ccTransactionStatus = (0, import_react_redux55.useSelector)(selectCCTransactionStatus);
+  const networkOption = (0, import_react_redux55.useSelector)(selectNetworkOption);
+  const { transactionValues } = (0, import_react_redux55.useSelector)(selectServiceFee);
   const randomUserIdRef = (0, import_react134.useRef)((0, import_uuid.v4)());
   const ccTransactionIdSeedRef = (0, import_react134.useRef)((0, import_uuid.v4)());
   const { data: envOptions, isLoading: isEnvLoading } = useGetEnvOptions({
@@ -6807,8 +6831,8 @@ var CCWidget = () => {
     error
   } = useCCTransactionId(backendUrl, ccTransactionIdSeedRef.current);
   (0, import_react134.useEffect)(() => {
-    dispatch(setCCTransactionId(ccTransactionIdSeedRef.current));
-  }, [dispatch]);
+    dispatch(setCCTransactionId(data?.transactionId));
+  }, [dispatch, data, isTransactionIdLoading]);
   const txValues = feeDeduct ? transactionValues.feeFromTarget : transactionValues.feeFromOrigin;
   const allowanceAmount = (0, import_react134.useMemo)(
     () => formatBigInt(txValues.allowanceAmount),
@@ -6866,28 +6890,28 @@ var TransferWidget = ({
   titleOption,
   paymentTitleOption
 }) => {
-  const dispatch = (0, import_react_redux57.useDispatch)();
+  const dispatch = (0, import_react_redux56.useDispatch)();
   const mainRef = (0, import_react135.useRef)(null);
   const [signature, setSignature2] = (0, import_react135.useState)("");
   const [formStep, setFormStep] = (0, import_react135.useState)(0);
   const [warningModalOpen, setWarningModalOpen] = (0, import_react135.useState)(null);
   const [resetModalOpen, setResetModalOpen] = (0, import_react135.useState)(false);
-  const networkOption = (0, import_react_redux57.useSelector)(selectNetworkOption);
-  const dAppOption = (0, import_react_redux57.useSelector)(selectDappOption);
-  const mode = (0, import_react_redux57.useSelector)(selectMode);
-  const transactionOption = (0, import_react_redux57.useSelector)(selectTransactionOption);
-  const backendUrl = (0, import_react_redux57.useSelector)(selectBackendUrl);
-  const sourceAddress = (0, import_react_redux57.useSelector)(selectSourceAddress);
-  const targetAddress = (0, import_react_redux57.useSelector)(selectTargetAddress);
-  const sourceChain = (0, import_react_redux57.useSelector)(selectSourceChain);
-  const targetChain = (0, import_react_redux57.useSelector)(selectTargetChain);
-  const sourceCurrency = (0, import_react_redux57.useSelector)(selectSourceCurrency);
-  const targetCurrency = (0, import_react_redux57.useSelector)(selectTargetCurrency);
-  const amount = (0, import_react_redux57.useSelector)(selectAmount);
-  const { totalFee, transactionValues } = (0, import_react_redux57.useSelector)(selectServiceFee);
-  const compliantOption = (0, import_react_redux57.useSelector)(selectCompliantOption);
-  const networkOptions3 = (0, import_react_redux57.useSelector)(selectNetworkOption);
-  const feeDeduct = (0, import_react_redux57.useSelector)(selectFeeDeduct);
+  const networkOption = (0, import_react_redux56.useSelector)(selectNetworkOption);
+  const dAppOption = (0, import_react_redux56.useSelector)(selectDappOption);
+  const mode = (0, import_react_redux56.useSelector)(selectMode);
+  const transactionOption = (0, import_react_redux56.useSelector)(selectTransactionOption);
+  const backendUrl = (0, import_react_redux56.useSelector)(selectBackendUrl);
+  const sourceAddress = (0, import_react_redux56.useSelector)(selectSourceAddress);
+  const targetAddress = (0, import_react_redux56.useSelector)(selectTargetAddress);
+  const sourceChain = (0, import_react_redux56.useSelector)(selectSourceChain);
+  const targetChain = (0, import_react_redux56.useSelector)(selectTargetChain);
+  const sourceCurrency = (0, import_react_redux56.useSelector)(selectSourceCurrency);
+  const targetCurrency = (0, import_react_redux56.useSelector)(selectTargetCurrency);
+  const amount = (0, import_react_redux56.useSelector)(selectAmount);
+  const { totalFee, transactionValues } = (0, import_react_redux56.useSelector)(selectServiceFee);
+  const compliantOption = (0, import_react_redux56.useSelector)(selectCompliantOption);
+  const networkOptions3 = (0, import_react_redux56.useSelector)(selectNetworkOption);
+  const feeDeduct = (0, import_react_redux56.useSelector)(selectFeeDeduct);
   const txValues = feeDeduct ? transactionValues.feeFromTarget : transactionValues.feeFromOrigin;
   const { keplrHandler, closeHandler } = useKimaContext();
   const [isCancellingApprove, setCancellingApprove] = (0, import_react135.useState)(false);
@@ -6898,10 +6922,10 @@ var TransferWidget = ({
     sourceSelection: true,
     targetSelection: true
   });
-  const pendingTxs = (0, import_react_redux57.useSelector)(selectPendingTxs);
-  const networks = (0, import_react_redux57.useSelector)(selectNetworks);
-  const submitted = (0, import_react_redux57.useSelector)(selectSubmitted);
-  const ccTransactionStatus = (0, import_react_redux57.useSelector)(selectCCTransactionStatus);
+  const pendingTxs = (0, import_react_redux56.useSelector)(selectPendingTxs);
+  const networks = (0, import_react_redux56.useSelector)(selectNetworks);
+  const submitted = (0, import_react_redux56.useSelector)(selectSubmitted);
+  const ccTransactionStatus = (0, import_react_redux56.useSelector)(selectCCTransactionStatus);
   const { width: windowWidth } = useWidth_default();
   const { disconnectWallet } = useDisconnectWallet5();
   const { allowance, balance, isApproved, approve, decimals, signMessage } = useAllowance2({
@@ -6981,9 +7005,10 @@ var TransferWidget = ({
   (0, import_react135.useEffect)(() => {
     const submit = async () => {
       if (ccTransactionStatus === "success") {
-        const { success, message: submitMessage } = await submitTransaction(signature);
-        if (!success) {
-          import_react_hot_toast5.toast.error(submitMessage, { icon: /* @__PURE__ */ import_react135.default.createElement(Error_default, null) });
+        try {
+          await submitTransaction(signature);
+        } catch (err) {
+          import_react_hot_toast5.toast.error("Failed to submit transaction", { icon: /* @__PURE__ */ import_react135.default.createElement(Error_default, null) });
           dispatch(setCCTransactionStatus("error-generic"));
         }
       }
@@ -6996,7 +7021,8 @@ var TransferWidget = ({
       return import_react_hot_toast5.toast.error(validationMessage, { icon: /* @__PURE__ */ import_react135.default.createElement(Error_default, null) });
     }
     if (sourceChain.shortName === "CC") {
-      return dispatch(setCCTransactionStatus("initialized"));
+      dispatch(setCCTransactionStatus("initialized"));
+      return;
     }
     if (error2 === "ApprovalNeeded" /* ApprovalNeeded */ && mode !== "light" /* light */) {
       if (!signature) {
@@ -7012,7 +7038,7 @@ var TransferWidget = ({
       return approve();
     }
     if (dAppOption === "LPDrain" /* LPDrain */ || dAppOption === "LPAdd" /* LPAdd */) {
-      keplrHandler && keplrHandler(sourceAddress);
+      keplrHandler?.(sourceAddress);
       return;
     }
     let sig = signature;
@@ -7026,8 +7052,7 @@ var TransferWidget = ({
       });
       setSignature2(sig);
     }
-    const { success, message: submitMessage } = await submitTransaction(sig);
-    if (!success) return import_react_hot_toast5.toast.error(submitMessage, { icon: /* @__PURE__ */ import_react135.default.createElement(Error_default, null) });
+    submitTransaction(sig);
   };
   const onNext = () => {
     const { error: error2, message: validationMessage } = validate();
@@ -7300,11 +7325,11 @@ var KimaWidgetWrapper = ({
 }) => {
   useDebugCode();
   const { kimaBackendUrl } = useKimaContext();
-  const submitted = (0, import_react_redux58.useSelector)(selectSubmitted);
-  const dispatch = (0, import_react_redux58.useDispatch)();
+  const submitted = (0, import_react_redux57.useSelector)(selectSubmitted);
+  const dispatch = (0, import_react_redux57.useDispatch)();
   const { setThemeMode, setThemeVariables } = (0, import_react138.useAppKitTheme)();
-  const sourceChain = (0, import_react_redux58.useSelector)(selectSourceChain);
-  const ccTransactionStatus = (0, import_react_redux58.useSelector)(selectCCTransactionStatus);
+  const sourceChain = (0, import_react_redux57.useSelector)(selectSourceChain);
+  const ccTransactionStatus = (0, import_react_redux57.useSelector)(selectCCTransactionStatus);
   const networkOption = envOptions?.env;
   const kimaExplorer = envOptions?.kimaExplorer || "https://explorer.sardis.kima.network";
   (0, import_react137.useEffect)(() => {
@@ -7400,6 +7425,7 @@ var SkeletonLoader_default = SkeletonLoader;
 
 // src/components/ErrorWidget.tsx
 var import_react140 = __toESM(require("react"), 1);
+var import_react_redux58 = require("react-redux");
 var ErrorWidget = ({
   theme,
   title,
@@ -7407,6 +7433,10 @@ var ErrorWidget = ({
   backButtonEnabled = false,
   backButtonFunction
 }) => {
+  const sourceChain = (0, import_react_redux58.useSelector)(selectSourceChain);
+  const ccTransactionId = (0, import_react_redux58.useSelector)(selectCCTransactionId);
+  const isCreditCardSource = sourceChain.shortName === "CC";
+  const isRetrying = (0, import_react_redux58.useSelector)(selectCCTransactionRetrying);
   return /* @__PURE__ */ import_react140.default.createElement(
     "div",
     {
@@ -7415,7 +7445,51 @@ var ErrorWidget = ({
         background: theme.colorMode === "light" /* light */ ? theme.backgroundColorLight : theme.backgroundColorDark
       }
     },
-    /* @__PURE__ */ import_react140.default.createElement("div", { className: "transfer-card" }, /* @__PURE__ */ import_react140.default.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ import_react140.default.createElement("div", { className: "topbar" }, /* @__PURE__ */ import_react140.default.createElement("div", { className: "title" }, /* @__PURE__ */ import_react140.default.createElement("h3", null, title))), /* @__PURE__ */ import_react140.default.createElement("h4", { className: "subtitle" })), /* @__PURE__ */ import_react140.default.createElement("div", { className: "kima-card-content error" }, /* @__PURE__ */ import_react140.default.createElement(Error_default, { width: 40, height: 40 }), /* @__PURE__ */ import_react140.default.createElement("h2", null, message)), backButtonEnabled && /* @__PURE__ */ import_react140.default.createElement("div", { style: { display: "flex", justifyContent: "flex-end" } }, /* @__PURE__ */ import_react140.default.createElement(PrimaryButton_default, { clickHandler: backButtonFunction }, "Back")), /* @__PURE__ */ import_react140.default.createElement("div", { className: `kima-card-footer` }), /* @__PURE__ */ import_react140.default.createElement("div", { className: "floating-footer" }, /* @__PURE__ */ import_react140.default.createElement("div", { className: `items ${theme.colorMode}` }, /* @__PURE__ */ import_react140.default.createElement("span", null, "Powered by"), /* @__PURE__ */ import_react140.default.createElement(FooterLogo_default, { width: 50, fill: "black" }), /* @__PURE__ */ import_react140.default.createElement("strong", null, "Network"))))
+    /* @__PURE__ */ import_react140.default.createElement("div", { className: "transfer-card" }, /* @__PURE__ */ import_react140.default.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ import_react140.default.createElement("div", { className: "topbar" }, /* @__PURE__ */ import_react140.default.createElement("div", { className: "title" }, /* @__PURE__ */ import_react140.default.createElement("h3", null, title))), /* @__PURE__ */ import_react140.default.createElement("h4", { className: "subtitle" })), /* @__PURE__ */ import_react140.default.createElement("div", { className: "kima-card-content error" }, /* @__PURE__ */ import_react140.default.createElement(Error_default, { width: 40, height: 40 }), /* @__PURE__ */ import_react140.default.createElement("h2", null, message), isCreditCardSource && /* @__PURE__ */ import_react140.default.createElement(
+      "div",
+      {
+        style: {
+          marginTop: 16,
+          display: "flex",
+          flexDirection: "column"
+        }
+      },
+      isRetrying ? /* @__PURE__ */ import_react140.default.createElement("p", null, "The transaction is being retried in the background. This may take a few moments. If the issue persists, please contact support and provide the transaction ID below for reference.") : /* @__PURE__ */ import_react140.default.createElement("p", null, "This credit card transaction has failed. Please check the details and try again. If the issue persists, please contact support and provide the transaction ID below for reference."),
+      ccTransactionId && /* @__PURE__ */ import_react140.default.createElement(
+        "div",
+        {
+          style: {
+            display: "flex",
+            alignItems: "center",
+            marginTop: 8,
+            justifyContent: "center"
+          }
+        },
+        /* @__PURE__ */ import_react140.default.createElement(
+          "code",
+          {
+            style: {
+              fontFamily: "monospace",
+              wordBreak: "break-all",
+              marginRight: 10
+            }
+          },
+          ccTransactionId
+        ),
+        /* @__PURE__ */ import_react140.default.createElement(CopyButton_default, { text: ccTransactionId })
+      ),
+      isRetrying && /* @__PURE__ */ import_react140.default.createElement(ring_default, { width: 30, height: 30, fill: "#86b8ce" })
+    )), backButtonEnabled && /* @__PURE__ */ import_react140.default.createElement(
+      "div",
+      {
+        style: {
+          display: "flex",
+          justifyContent: "flex-end",
+          marginTop: 16
+        }
+      },
+      /* @__PURE__ */ import_react140.default.createElement(PrimaryButton_default, { clickHandler: backButtonFunction }, "Back")
+    ), /* @__PURE__ */ import_react140.default.createElement("div", { className: "kima-card-footer" }), /* @__PURE__ */ import_react140.default.createElement("div", { className: "floating-footer" }, /* @__PURE__ */ import_react140.default.createElement("div", { className: `items ${theme.colorMode}` }, /* @__PURE__ */ import_react140.default.createElement("span", null, "Powered by"), /* @__PURE__ */ import_react140.default.createElement(FooterLogo_default, { width: 50, fill: "black" }), /* @__PURE__ */ import_react140.default.createElement("strong", null, "Network"))))
   );
 };
 var ErrorWidget_default = ErrorWidget;
@@ -7439,6 +7513,7 @@ var KimaTransactionWidget = ({
   const { kimaBackendUrl } = useKimaContext();
   const [hydrated, setHydrated] = (0, import_react141.useState)(false);
   const ccTransactionStatus = (0, import_react_redux60.useSelector)(selectCCTransactionStatus);
+  const ccTransactionRetrying = (0, import_react_redux60.useSelector)(selectCCTransactionRetrying);
   const {
     data: envOptions,
     error: envOptionsError,
@@ -7463,7 +7538,8 @@ var KimaTransactionWidget = ({
       dispatch(setTheme(theme));
     }
   }, [theme?.colorMode]);
-  if (!hydrated || !theme?.colorMode) return /* @__PURE__ */ import_react141.default.createElement(ring_default, { width: 20, height: 20, fill: "#86b8ce" });
+  if (!hydrated || !theme?.colorMode)
+    return /* @__PURE__ */ import_react141.default.createElement(ring_default, { width: 20, height: 20, fill: "#86b8ce" });
   if (isLoadingEnvs || isLoadingChainData)
     return /* @__PURE__ */ import_react141.default.createElement(SkeletonLoader_default, { theme });
   if (ccTransactionStatus === "error-id")
@@ -7486,8 +7562,8 @@ var KimaTransactionWidget = ({
       {
         theme,
         title: "Credit Card Transaction Error",
-        message: "There was an error sending the transaction. Please verify that the amount, chains and target address are correct, if the error persists contact us.",
-        backButtonEnabled: true,
+        message: "There was an error sending the transaction. Please verify that the amount, chains and target address are correct.",
+        backButtonEnabled: !ccTransactionRetrying,
         backButtonFunction: () => {
           dispatch(setAmount(""));
           dispatch(setCCTransactionStatus("idle"));
