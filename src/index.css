@@ -3017,7 +3017,6 @@
 .kima-card .transfer-card {
   min-width: 800px;
   padding: 30px 40px;
-  width: 100%;
 }
 @media (max-width: 900px) {
   .kima-card .transfer-card {

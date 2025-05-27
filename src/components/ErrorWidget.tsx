@@ -55,7 +55,13 @@ const ErrorWidget = ({
           <h2>{message}</h2>
 
           {isCreditCardSource && (
-            <div style={{ marginTop: 16 }}>
+            <div
+              style={{
+                marginTop: 16,
+                display: 'flex',
+                flexDirection: 'column'
+              }}
+            >
               {isRetrying ? (
                 <p>
                   The transaction is being retried in the background. This may
