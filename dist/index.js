@@ -1654,6 +1654,7 @@ var initialState = {
   backendUrl: "",
   txId: -1,
   ccTransactionId: "",
+  ccTransactionIdSeed: "",
   ccTransactionStatus: "idle",
   ccTransactionRetrying: false,
   sourceCurrency: "USDK",
@@ -1781,6 +1782,9 @@ var optionSlice = createSlice({
     setCCTransactionId: (state, action) => {
       state.ccTransactionId = action.payload;
     },
+    setCCTransactionIdSeed: (state, action) => {
+      state.ccTransactionIdSeed = action.payload;
+    },
     setCCTransactionStatus: (state, action) => {
       state.ccTransactionStatus = action.payload;
     },
@@ -1862,6 +1866,7 @@ var {
   setBackendUrl,
   setTxId,
   setCCTransactionId,
+  setCCTransactionIdSeed,
   setCCTransactionStatus,
   setCCTransactionRetrying,
   setSourceCurrency,
@@ -2238,6 +2243,7 @@ var selectAccountDetailsModal = (state) => state.option.accountDetailsModal;
 var selectBankDetails = (state) => state.option.bankDetails;
 var selectSignature = (state) => state.option.signature;
 var selectCCTransactionId = (state) => state.option.ccTransactionId;
+var selectCCTransactionIdSeed = (state) => state.option.ccTransactionIdSeed;
 var selectCCTransactionStatus = (state) => state.option.ccTransactionStatus;
 var selectCCTransactionRetrying = (state) => state.option.ccTransactionRetrying;
 
@@ -6644,7 +6650,7 @@ var useSubmitTransaction = () => {
   const { feeId, transactionValues, totalFee } = useSelector43(selectServiceFee);
   const feeDeduct = useSelector43(selectFeeDeduct);
   const txValues = feeDeduct ? transactionValues.feeFromTarget : transactionValues.feeFromOrigin;
-  const ccTransactionId = useSelector43(selectCCTransactionId);
+  const ccTransactionIdSeed = useSelector43(selectCCTransactionIdSeed);
   const [isSubmitting, setIsSubmitting] = useState14(false);
   const mutation = useMutation({
     mutationFn: async (signature) => {
@@ -6672,7 +6678,7 @@ var useSubmitTransaction = () => {
           feeId,
           chargeFeeAtTarget: feeDeduct
         }),
-        ccTransactionIdSeed: ccTransactionId,
+        ccTransactionIdSeed,
         mode
       });
       logger_default.debug("submitTransaction: params: ", params);
@@ -6869,6 +6875,7 @@ var CCWidget = () => {
     error
   } = useCCTransactionId(backendUrl, ccTransactionIdSeedRef.current);
   useEffect20(() => {
+    dispatch(setCCTransactionIdSeed(ccTransactionIdSeedRef.current));
     dispatch(setCCTransactionId(data?.transactionId));
   }, [dispatch, data, isTransactionIdLoading]);
   const txValues = feeDeduct ? transactionValues.feeFromTarget : transactionValues.feeFromOrigin;
