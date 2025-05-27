@@ -126,7 +126,14 @@ export interface OptionState {
   kimaExplorerUrl: string // URL for kima explore (testnet, staging or demo)
   txId?: number | string // transaction id to monitor it's status
   ccTransactionId: string // transaction id generated for submitting a credit card transaction
-  ccTransactionStatus: 'initialized' | 'success' | 'failed' | 'idle' | 'error-id' | 'error-generic' // credit card transaction status
+  ccTransactionStatus:
+    | 'initialized'
+    | 'success'
+    | 'failed'
+    | 'idle'
+    | 'error-id'
+    | 'error-generic' // credit card transaction status
+  ccTransactionRetrying: boolean // credit card tx retrying status
   sourceCurrency: string // Currently selected token for source chain
   targetCurrency: string // Currently selected token for target chain
   expireTime: string // Bitcoi HTLC expiration time
@@ -192,6 +199,7 @@ const initialState: OptionState = {
   txId: -1,
   ccTransactionId: '',
   ccTransactionStatus: 'idle',
+  ccTransactionRetrying: false,
   sourceCurrency: 'USDK',
   targetCurrency: 'USDK',
   compliantOption: true,
@@ -345,10 +353,21 @@ export const optionSlice = createSlice({
     setCCTransactionStatus: (
       state: OptionState,
       action: PayloadAction<
-        'initialized' | 'success' | 'failed' | 'idle' | 'error-id' | 'error-generic'
+        | 'initialized'
+        | 'success'
+        | 'failed'
+        | 'idle'
+        | 'error-id'
+        | 'error-generic'
       >
     ) => {
       state.ccTransactionStatus = action.payload
+    },
+    setCCTransactionRetrying: (
+      state: OptionState,
+      action: PayloadAction<boolean>
+    ) => {
+      state.ccTransactionRetrying = action.payload
     },
     setSourceCurrency: (state: OptionState, action: PayloadAction<string>) => {
       state.sourceCurrency = action.payload
@@ -442,6 +461,7 @@ export const {
   setTxId,
   setCCTransactionId,
   setCCTransactionStatus,
+  setCCTransactionRetrying,
   setSourceCurrency,
   setTargetCurrency,
   setCompliantOption,

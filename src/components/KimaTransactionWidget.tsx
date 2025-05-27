@@ -31,7 +31,10 @@ import SkeletonLoader from 'src/SkeletonLoader'
 import ErrorWidget from './ErrorWidget'
 import { Loading180Ring } from '@assets/loading'
 import { useSelector } from 'react-redux'
-import { selectCCTransactionStatus } from '@store/selectors'
+import {
+  selectCCTransactionRetrying,
+  selectCCTransactionStatus
+} from '@store/selectors'
 
 interface Props {
   theme: ThemeOptions
@@ -65,6 +68,7 @@ const KimaTransactionWidget = ({
 
   const [hydrated, setHydrated] = useState(false)
   const ccTransactionStatus = useSelector(selectCCTransactionStatus)
+  const ccTransactionRetrying = useSelector(selectCCTransactionRetrying)
 
   const {
     data: envOptions,
@@ -97,7 +101,8 @@ const KimaTransactionWidget = ({
   }, [theme?.colorMode])
 
   // Don't render until hydrated and theme is defined
-  if (!hydrated || !theme?.colorMode) return <Loading180Ring width={20} height={20} fill='#86b8ce' />
+  if (!hydrated || !theme?.colorMode)
+    return <Loading180Ring width={20} height={20} fill='#86b8ce' />
 
   if (isLoadingEnvs || isLoadingChainData)
     return <SkeletonLoader theme={theme} />
@@ -111,18 +116,18 @@ const KimaTransactionWidget = ({
         backButtonEnabled={true}
         backButtonFunction={() => {
           dispatch(setAmount(''))
-          dispatch(setCCTransactionStatus('idle'));
+          dispatch(setCCTransactionStatus('idle'))
         }}
       />
     )
 
-    if (ccTransactionStatus === 'error-generic')
+  if (ccTransactionStatus === 'error-generic')
     return (
       <ErrorWidget
         theme={theme}
         title='Credit Card Transaction Error'
-        message="There was an error sending the transaction. Please verify that the amount, chains and target address are correct, if the error persists contact us."
-        backButtonEnabled={true}
+        message='There was an error sending the transaction. Please verify that the amount, chains and target address are correct.'
+        backButtonEnabled={!ccTransactionRetrying}
         backButtonFunction={() => {
           dispatch(setAmount(''))
           dispatch(setCCTransactionStatus('idle'))

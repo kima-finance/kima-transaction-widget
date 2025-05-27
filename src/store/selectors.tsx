@@ -148,3 +148,5 @@ export const selectCCTransactionId = (state: RootState) =>
   state.option.ccTransactionId
 export const selectCCTransactionStatus = (state: RootState) =>
   state.option.ccTransactionStatus
+export const selectCCTransactionRetrying = (state: RootState) =>
+  state.option.ccTransactionRetrying
