@@ -12,6 +12,7 @@ import { useMutation } from '@tanstack/react-query'
 import {
   selectBackendUrl,
   selectCCTransactionId,
+  selectCCTransactionIdSeed,
   selectFeeDeduct,
   selectMode,
   selectServiceFee
@@ -28,7 +29,7 @@ const useSubmitTransaction = () => {
   const txValues = feeDeduct
     ? transactionValues.feeFromTarget
     : transactionValues.feeFromOrigin
-  const ccTransactionId = useSelector(selectCCTransactionId)
+  const ccTransactionIdSeed = useSelector(selectCCTransactionIdSeed)
 
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -62,7 +63,7 @@ const useSubmitTransaction = () => {
           feeId,
           chargeFeeAtTarget: feeDeduct
         }),
-        ccTransactionIdSeed: ccTransactionId,
+        ccTransactionIdSeed,
         mode
       })
 
