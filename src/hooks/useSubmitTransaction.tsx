@@ -1,10 +1,14 @@
-import { useState } from 'react'
-import { useDispatch } from 'react-redux'
-import { setTxId, setSubmitted, setCCTransactionId } from '@store/optionSlice'
+import { useDispatch, useSelector } from 'react-redux'
+import {
+  setTxId,
+  setSubmitted,
+  setCCTransactionRetrying,
+  setCCTransactionStatus
+} from '@store/optionSlice'
 import { getTransactionId } from '@utils/functions'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 import log from '@utils/logger'
-import { useSelector } from 'react-redux'
+import { useMutation } from '@tanstack/react-query'
 import {
   selectBackendUrl,
   selectCCTransactionId,
@@ -13,14 +17,12 @@ import {
   selectServiceFee
 } from '@store/selectors'
 import { bigIntChangeDecimals } from 'src/helpers/functions'
-
+import { useState } from 'react'
 
 const useSubmitTransaction = () => {
   const dispatch = useDispatch()
   const backendUrl = useSelector(selectBackendUrl)
   const mode = useSelector(selectMode)
-
-  const [isSubmitting, setSubmitting] = useState(false)
   const { feeId, transactionValues, totalFee } = useSelector(selectServiceFee)
   const feeDeduct = useSelector(selectFeeDeduct)
   const txValues = feeDeduct
@@ -28,9 +30,12 @@ const useSubmitTransaction = () => {
     : transactionValues.feeFromOrigin
   const ccTransactionId = useSelector(selectCCTransactionId)
 
-  const submitTransaction = async (signature: string) => {
-    try {
-      setSubmitting(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const mutation = useMutation({
+    mutationFn: async (signature: string) => {
+      setIsSubmitting(true)
+
       const params = JSON.stringify({
         originAddress:
           transactionValues.originChain === 'CC'
@@ -60,34 +65,52 @@ const useSubmitTransaction = () => {
         ccTransactionIdSeed: ccTransactionId,
         mode
       })
+
       log.debug('submitTransaction: params: ', params)
 
-      const transactionResult: any = await fetchWrapper.post(
+      const response: any = await fetchWrapper.post(
         `${backendUrl}/submit`,
         params
       )
-
-      log.debug('submitTransaction: response: ', transactionResult)
-      if (transactionResult?.code !== 0) {
-        setSubmitting(false)
-        return { success: false, message: 'Failed to submit transaction' }
+      if (response?.code !== 0) {
+        throw new Error('Submit failed')
       }
 
-      const transactionId = getTransactionId(transactionResult.events)
-
+      return getTransactionId(response.events)
+    },
+    onSuccess: (transactionId: string) => {
       dispatch(setTxId(transactionId))
       dispatch(setSubmitted(true))
-      setSubmitting(false)
+      dispatch(setCCTransactionRetrying(false))
+      setIsSubmitting(false)
+    },
+    onError: (err, signature, context) => {
+      log.error('submitTransaction error:', err)
+      dispatch(setCCTransactionRetrying(false))
+      setIsSubmitting(false)
+    },
+    onSettled: () => {
+      dispatch(setCCTransactionRetrying(false))
+      setIsSubmitting(false)
+    },
+    retry: (failureCount, error) => {
+      const shouldRetry =
+        transactionValues.originChain === 'CC' && failureCount < 5
+      if (shouldRetry) {
+        dispatch(setCCTransactionRetrying(true)) // optional
+        dispatch(setCCTransactionStatus('error-generic'))
+      } else {
+        dispatch(setCCTransactionRetrying(false))
+      }
+      return shouldRetry
+    },
+    retryDelay: (attempt) => attempt * 1000
+  })
 
-      return { success: true, message: 'Transaction submitted successfully.' }
-    } catch (error) {
-      log.error('Error submitting transaction:', error)
-      setSubmitting(false)
-      return { success: false, message: 'Failed to submit transaction' }
-    }
+  return {
+    submitTransaction: mutation.mutateAsync,
+    isSubmitting
   }
-
-  return { submitTransaction, isSubmitting }
 }
 
 export default useSubmitTransaction
