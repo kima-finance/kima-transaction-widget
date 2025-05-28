@@ -11,7 +11,6 @@ import log from '@utils/logger'
 import { useMutation } from '@tanstack/react-query'
 import {
   selectBackendUrl,
-  selectCCTransactionId,
   selectCCTransactionIdSeed,
   selectFeeDeduct,
   selectMode,
@@ -80,10 +79,10 @@ const useSubmitTransaction = () => {
       return getTransactionId(response.events)
     },
     onSuccess: (transactionId: string) => {
-      dispatch(setTxId(transactionId))
-      dispatch(setSubmitted(true))
       dispatch(setCCTransactionStatus('success'))
       dispatch(setCCTransactionRetrying(false))
+      dispatch(setTxId(transactionId))
+      dispatch(setSubmitted(true))
       setIsSubmitting(false)
     },
     onError: (err, signature, context) => {
@@ -91,13 +90,13 @@ const useSubmitTransaction = () => {
       dispatch(setCCTransactionRetrying(false))
       setIsSubmitting(false)
     },
-    onSettled: () => {
-      dispatch(setCCTransactionRetrying(false))
-      setIsSubmitting(false)
-    },
     retry: (failureCount, error) => {
+      if (mutation.isSuccess) {
+        dispatch(setCCTransactionRetrying(false))
+        return false // Disable retry if mutation is successful
+      }
       const shouldRetry =
-        transactionValues.originChain === 'CC' && failureCount < 10
+        transactionValues.originChain === 'CC' && failureCount < 5
       if (shouldRetry) {
         dispatch(setCCTransactionRetrying(true)) // optional
         dispatch(setCCTransactionStatus('error-generic'))
@@ -106,7 +105,7 @@ const useSubmitTransaction = () => {
       }
       return shouldRetry
     },
-    retryDelay: (attempt) => attempt * 5000 // sync with kima block time
+    retryDelay: (attempt) => (attempt + 1) * 5000 // sync with kima block time
   })
 
   return {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useMemo } from 'react'
+import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { ErrorIcon, FooterLogo } from '../assets/icons'
 import {
@@ -26,7 +26,6 @@ import {
   setCCTransactionStatus,
   setServiceFee,
   setSourceChain,
-  setSubmitted,
   setTargetAddress,
   setTargetChain,
   setTargetCurrency,
@@ -234,21 +233,14 @@ export const TransferWidget = ({
     return true
   }, [sourceChain, ccTransactionStatus])
 
-  // trigger submit effect when cc transaction succeeded
-  useEffect(() => {
-    const submit = async () => {
-      if (ccTransactionStatus === 'success') {
-        try {
-          await submitTransaction(signature)
-        } catch (err) {
-          toast.error('Failed to submit transaction', { icon: <ErrorIcon /> })
-          dispatch(setCCTransactionStatus('error-generic'))
-        }
-      }
+  const submit = useCallback(async () => {
+    try {
+      await submitTransaction(signature)
+    } catch (err) {
+      toast.error('Failed to submit transaction', { icon: <ErrorIcon /> })
+      dispatch(setCCTransactionStatus('error-generic'))
     }
-
-    submit()
-  }, [ccTransactionStatus])
+  }, [signature, submitTransaction])
 
   const handleSubmit = async () => {
     const { error, message: validationMessage } = validate(true)
@@ -523,7 +515,7 @@ export const TransferWidget = ({
               }}
             />
           ) : ccTransactionStatus !== 'idle' ? (
-            <CCWidget />
+            <CCWidget submitCallback={submit} />
           ) : (
             <ConfirmDetails
               {...{

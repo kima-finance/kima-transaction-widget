@@ -11,6 +11,7 @@ import { Loading180Ring } from '@assets/loading'
 import {
   setCCTransactionId,
   setCCTransactionIdSeed,
+  setCCTransactionRetrying,
   setCCTransactionStatus
 } from '@store/optionSlice'
 import { formatBigInt } from 'src/helpers/functions'
@@ -20,7 +21,7 @@ import { NetworkOptions } from '@interface'
 import { useGetEnvOptions } from '../../hooks/useGetEnvOptions'
 import log from '@utils/logger'
 
-const CCWidget = () => {
+const CCWidget = ({ submitCallback }: { submitCallback: () => void }) => {
   const dispatch = useDispatch()
   const feeDeduct = useSelector(selectFeeDeduct)
   const backendUrl = useSelector(selectBackendUrl)
@@ -73,6 +74,7 @@ const CCWidget = () => {
       log.info('postMessage: new message: ', event)
       if (event.data.type === 'isCompleted') {
         // set the transaction to success
+        submitCallback()
         dispatch(setCCTransactionStatus('success'))
       }
 

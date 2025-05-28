@@ -20,21 +20,10 @@ import { useGetEnvOptions } from '../hooks/useGetEnvOptions'
 import { useKimaContext } from 'src/KimaProvider'
 import { useChainData } from '../hooks/useChainData'
 import { useDispatch } from 'react-redux'
-import {
-  setAmount,
-  setCCTransactionStatus,
-  setSourceChain,
-  setTargetChain,
-  setTheme
-} from '@store/optionSlice'
+import { setSourceChain, setTargetChain, setTheme } from '@store/optionSlice'
 import SkeletonLoader from 'src/SkeletonLoader'
 import ErrorWidget from './ErrorWidget'
 import { Loading180Ring } from '@assets/loading'
-import { useSelector } from 'react-redux'
-import {
-  selectCCTransactionRetrying,
-  selectCCTransactionStatus
-} from '@store/selectors'
 
 interface Props {
   theme: ThemeOptions
@@ -65,10 +54,7 @@ const KimaTransactionWidget = ({
 }: Props) => {
   const dispatch = useDispatch()
   const { kimaBackendUrl } = useKimaContext()
-
   const [hydrated, setHydrated] = useState(false)
-  const ccTransactionStatus = useSelector(selectCCTransactionStatus)
-  const ccTransactionRetrying = useSelector(selectCCTransactionRetrying)
 
   const {
     data: envOptions,
@@ -106,34 +92,6 @@ const KimaTransactionWidget = ({
 
   if (isLoadingEnvs || isLoadingChainData)
     return <SkeletonLoader theme={theme} />
-
-  if (ccTransactionStatus === 'error-id')
-    return (
-      <ErrorWidget
-        theme={theme}
-        title='Credit Card Transaction Id Generation Error'
-        message="There was an error generating the transaction id and your transaction couldn't be generated. Please try again, if the error persists contact us."
-        backButtonEnabled={true}
-        backButtonFunction={() => {
-          dispatch(setAmount(''))
-          dispatch(setCCTransactionStatus('idle'))
-        }}
-      />
-    )
-
-  if (ccTransactionStatus === 'error-generic')
-    return (
-      <ErrorWidget
-        theme={theme}
-        title='Credit Card Transaction Error'
-        message='There was an error sending the transaction. Please verify that the amount, chains and target address are correct.'
-        backButtonEnabled={!ccTransactionRetrying}
-        backButtonFunction={() => {
-          dispatch(setAmount(''))
-          dispatch(setCCTransactionStatus('idle'))
-        }}
-      />
-    )
 
   if (envOptionsError || !envOptions)
     return (
