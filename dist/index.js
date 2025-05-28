@@ -6716,7 +6716,8 @@ var useSubmitTransaction = () => {
       }
       return shouldRetry;
     },
-    retryDelay: (attempt) => attempt * 1e3
+    retryDelay: (attempt) => attempt * 5e3
+    // sync with kima block time
   });
   return {
     submitTransaction: mutation.mutateAsync,

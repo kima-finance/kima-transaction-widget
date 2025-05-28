@@ -105,7 +105,7 @@ const useSubmitTransaction = () => {
       }
       return shouldRetry
     },
-    retryDelay: (attempt) => attempt * 1000
+    retryDelay: (attempt) => attempt * 5000 // sync with kima block time
   })
 
   return {
