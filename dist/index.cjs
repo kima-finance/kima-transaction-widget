@@ -6656,6 +6656,7 @@ var useSubmitTransaction = () => {
     onSuccess: (transactionId) => {
       dispatch(setTxId(transactionId));
       dispatch(setSubmitted(true));
+      dispatch(setCCTransactionStatus("success"));
       dispatch(setCCTransactionRetrying(false));
       setIsSubmitting(false);
     },
@@ -6669,7 +6670,7 @@ var useSubmitTransaction = () => {
       setIsSubmitting(false);
     },
     retry: (failureCount, error) => {
-      const shouldRetry = transactionValues.originChain === "CC" && failureCount < 5;
+      const shouldRetry = transactionValues.originChain === "CC" && failureCount < 10;
       if (shouldRetry) {
         dispatch(setCCTransactionRetrying(true));
         dispatch(setCCTransactionStatus("error-generic"));
