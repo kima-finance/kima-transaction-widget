@@ -6654,6 +6654,7 @@ var useSubmitTransaction = () => {
       return getTransactionId(response.events);
     },
     onSuccess: (transactionId) => {
+      console.log("cc success", transactionId);
       dispatch(setCCTransactionStatus("success"));
       dispatch(setCCTransactionRetrying(false));
       dispatch(setTxId(transactionId));
@@ -6662,10 +6663,12 @@ var useSubmitTransaction = () => {
     },
     onError: (err, signature, context) => {
       logger_default.error("submitTransaction error:", err);
+      console.log("cc error", err);
       dispatch(setCCTransactionRetrying(false));
       setIsSubmitting(false);
     },
     retry: (failureCount, error) => {
+      console.log("cc retry", failureCount, error, mutation.isSuccess);
       if (mutation.isSuccess) {
         dispatch(setCCTransactionRetrying(false));
         return false;
@@ -6859,8 +6862,9 @@ var CCWidget = ({ submitCallback }) => {
       }
       logger_default.info("postMessage: new message: ", event);
       if (event.data.type === "isCompleted") {
-        submitCallback();
+        console.log("cc widget isCompleted");
         dispatch(setCCTransactionStatus("success"));
+        submitCallback();
       }
       if (event.data.type === "isFailed") {
         dispatch(setCCTransactionStatus("failed"));
@@ -7457,8 +7461,11 @@ var KimaWidgetWrapper = ({
     indexPluginsByChain(chainData);
   }, [chainData]);
   if (sourceChain.shortName === "CC") {
-    console.log("kimaWrapper", submitted, ccTransactionStatus);
-    if (ccTransactionStatus === "error-id")
+    console.log("widget wrapper", submitted, ccTransactionStatus);
+    if (submitted) {
+      import_loglevel3.default.debug("will return transaction widget on cc success");
+      return /* @__PURE__ */ import_react138.default.createElement(TransactionWidget, { theme });
+    } else if (ccTransactionStatus === "error-id") {
       return /* @__PURE__ */ import_react138.default.createElement(
         ErrorWidget_default,
         {
@@ -7472,7 +7479,7 @@ var KimaWidgetWrapper = ({
           }
         }
       );
-    if (ccTransactionStatus === "error-generic")
+    } else if (ccTransactionStatus === "error-generic") {
       return /* @__PURE__ */ import_react138.default.createElement(
         ErrorWidget_default,
         {
@@ -7486,9 +7493,6 @@ var KimaWidgetWrapper = ({
           }
         }
       );
-    if (submitted && ccTransactionStatus === "success") {
-      import_loglevel3.default.debug("will return transaction widget on cc success");
-      return /* @__PURE__ */ import_react138.default.createElement(TransactionWidget, { theme });
     }
     return /* @__PURE__ */ import_react138.default.createElement(
       TransferWidget,

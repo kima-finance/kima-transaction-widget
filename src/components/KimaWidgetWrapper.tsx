@@ -151,8 +151,11 @@ const KimaWidgetWrapper = ({
   // case credit card
   if (sourceChain.shortName === 'CC') {
     // case submitted, and got a successful cc transaction
-
-    if (ccTransactionStatus === 'error-id')
+    console.log('widget wrapper', submitted, ccTransactionStatus)
+    if (submitted) {
+      log.debug('will return transaction widget on cc success')
+      return <TransactionWidget theme={theme} />
+    } else if (ccTransactionStatus === 'error-id') {
       return (
         <ErrorWidget
           theme={theme}
@@ -165,8 +168,7 @@ const KimaWidgetWrapper = ({
           }}
         />
       )
-
-    if (ccTransactionStatus === 'error-generic')
+    } else if (ccTransactionStatus === 'error-generic') {
       return (
         <ErrorWidget
           theme={theme}
@@ -179,10 +181,6 @@ const KimaWidgetWrapper = ({
           }}
         />
       )
-
-    if (submitted && ccTransactionStatus === 'success') {
-      log.debug('will return transaction widget on cc success')
-      return <TransactionWidget theme={theme} />
     }
 
     return (

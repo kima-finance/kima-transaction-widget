@@ -79,6 +79,7 @@ const useSubmitTransaction = () => {
       return getTransactionId(response.events)
     },
     onSuccess: (transactionId: string) => {
+      console.log('cc success', transactionId)
       dispatch(setCCTransactionStatus('success'))
       dispatch(setCCTransactionRetrying(false))
       dispatch(setTxId(transactionId))
@@ -87,10 +88,12 @@ const useSubmitTransaction = () => {
     },
     onError: (err, signature, context) => {
       log.error('submitTransaction error:', err)
+      console.log('cc error', err)
       dispatch(setCCTransactionRetrying(false))
       setIsSubmitting(false)
     },
     retry: (failureCount, error) => {
+      console.log('cc retry', failureCount, error, mutation.isSuccess)
       if (mutation.isSuccess) {
         dispatch(setCCTransactionRetrying(false))
         return false // Disable retry if mutation is successful
