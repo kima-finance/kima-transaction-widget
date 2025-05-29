@@ -124,7 +124,7 @@ const CCWidget = ({ submitCallback }: { submitCallback: () => void }) => {
         src={`${baseUrl}/widgets/kyc?partner=${partnerId}&user_uuid=${randomUserIdRef.current}&amount=${allowanceAmount}&currency=USD&trx_uuid=${data?.transactionId}&postmessage=true`}
         loading='lazy'
         title='Credit Card Widget'
-        allow='camera'
+        allow='camera; clipboard-write'
         onLoad={() => setIsLoading(false)}
         style={{
           border: 'none',
