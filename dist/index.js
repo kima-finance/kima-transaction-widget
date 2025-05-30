@@ -1669,7 +1669,9 @@ var initialState = {
   backendUrl: "",
   txId: -1,
   ccTransactionId: "",
+  ccTransactionIdSeed: "",
   ccTransactionStatus: "idle",
+  ccTransactionRetrying: false,
   sourceCurrency: "USDK",
   targetCurrency: "USDK",
   compliantOption: true,
@@ -1795,8 +1797,14 @@ var optionSlice = createSlice({
     setCCTransactionId: (state, action) => {
       state.ccTransactionId = action.payload;
     },
+    setCCTransactionIdSeed: (state, action) => {
+      state.ccTransactionIdSeed = action.payload;
+    },
     setCCTransactionStatus: (state, action) => {
       state.ccTransactionStatus = action.payload;
+    },
+    setCCTransactionRetrying: (state, action) => {
+      state.ccTransactionRetrying = action.payload;
     },
     setSourceCurrency: (state, action) => {
       state.sourceCurrency = action.payload;
@@ -1873,7 +1881,9 @@ var {
   setBackendUrl,
   setTxId,
   setCCTransactionId,
+  setCCTransactionIdSeed,
   setCCTransactionStatus,
+  setCCTransactionRetrying,
   setSourceCurrency,
   setTargetCurrency,
   setCompliantOption,
@@ -2248,7 +2258,9 @@ var selectAccountDetailsModal = (state) => state.option.accountDetailsModal;
 var selectBankDetails = (state) => state.option.bankDetails;
 var selectSignature = (state) => state.option.signature;
 var selectCCTransactionId = (state) => state.option.ccTransactionId;
+var selectCCTransactionIdSeed = (state) => state.option.ccTransactionIdSeed;
 var selectCCTransactionStatus = (state) => state.option.ccTransactionStatus;
+var selectCCTransactionRetrying = (state) => state.option.ccTransactionRetrying;
 
 // plugins/evm/utils/constants.tsx
 import { clusterApiUrl as clusterApiUrl2 } from "@solana/web3.js";
@@ -4253,8 +4265,8 @@ var KimaProvider_default = KimaProvider;
 import React121, { useEffect as useEffect24, useState as useState18 } from "react";
 
 // src/components/KimaWidgetWrapper.tsx
-import React118, { useEffect as useEffect23 } from "react";
-import { useDispatch as useDispatch27, useSelector as useSelector46 } from "react-redux";
+import React119, { useEffect as useEffect23 } from "react";
+import { useDispatch as useDispatch27, useSelector as useSelector47 } from "react-redux";
 
 // src/components/TransactionWidget.tsx
 import React106, { useEffect as useEffect15, useMemo as useMemo12, useState as useState11 } from "react";
@@ -5722,7 +5734,7 @@ var TransactionWidget = ({ theme }) => {
 };
 
 // src/components/TransferWidget.tsx
-import React117, { useEffect as useEffect21, useState as useState16, useRef as useRef8, useMemo as useMemo21 } from "react";
+import React117, { useEffect as useEffect21, useState as useState16, useRef as useRef8, useMemo as useMemo21, useCallback as useCallback3 } from "react";
 import { useDispatch as useDispatch26, useSelector as useSelector45 } from "react-redux";
 
 // src/components/reusable/SingleForm.tsx
@@ -6658,21 +6670,21 @@ var useValidateTransaction = (inputs) => {
 var useValidateTransaction_default = useValidateTransaction;
 
 // src/hooks/useSubmitTransaction.tsx
+import { useDispatch as useDispatch24, useSelector as useSelector43 } from "react-redux";
+import { useMutation } from "@tanstack/react-query";
 import { useState as useState14 } from "react";
-import { useDispatch as useDispatch24 } from "react-redux";
-import { useSelector as useSelector43 } from "react-redux";
 var useSubmitTransaction = () => {
   const dispatch = useDispatch24();
   const backendUrl = useSelector43(selectBackendUrl);
   const mode = useSelector43(selectMode);
-  const [isSubmitting, setSubmitting] = useState14(false);
   const { feeId, transactionValues, totalFee } = useSelector43(selectServiceFee);
   const feeDeduct = useSelector43(selectFeeDeduct);
   const txValues = feeDeduct ? transactionValues.feeFromTarget : transactionValues.feeFromOrigin;
-  const ccTransactionId = useSelector43(selectCCTransactionId);
-  const submitTransaction = async (signature) => {
-    try {
-      setSubmitting(true);
+  const ccTransactionIdSeed = useSelector43(selectCCTransactionIdSeed);
+  const [isSubmitting, setIsSubmitting] = useState14(false);
+  const mutation = useMutation({
+    mutationFn: async (signature) => {
+      setIsSubmitting(true);
       const params = JSON.stringify({
         originAddress: transactionValues.originChain === "CC" ? transactionValues.targetAddress : transactionValues.originAddress,
         originChain: transactionValues.originChain,
@@ -6696,33 +6708,57 @@ var useSubmitTransaction = () => {
           feeId,
           chargeFeeAtTarget: feeDeduct
         }),
-        ccTransactionIdSeed: ccTransactionId,
+        ccTransactionIdSeed,
         mode
       });
       logger_default.debug("submitTransaction: params: ", params);
       const token = localStorage.getItem(`access_token:${transactionValues.originAddress}`);
-      const transactionResult = await fetchWrapper.post(
+      const response = await fetchWrapper.post(
         `${backendUrl}/submit`,
         params,
         token || ""
       );
-      logger_default.debug("submitTransaction: response: ", transactionResult);
-      if (transactionResult?.code !== 0) {
-        setSubmitting(false);
-        return { success: false, message: "Failed to submit transaction" };
+      if (response?.code !== 0) {
+        throw new Error("Submit failed");
       }
-      const transactionId = getTransactionId(transactionResult.events);
+      return getTransactionId(response.events);
+    },
+    onSuccess: (transactionId) => {
+      console.log("cc success", transactionId);
+      dispatch(setCCTransactionStatus("success"));
+      dispatch(setCCTransactionRetrying(false));
       dispatch(setTxId(transactionId));
       dispatch(setSubmitted(true));
-      setSubmitting(false);
-      return { success: true, message: "Transaction submitted successfully." };
-    } catch (error) {
-      logger_default.error("Error submitting transaction:", error);
-      setSubmitting(false);
-      return { success: false, message: "Failed to submit transaction" };
-    }
+      setIsSubmitting(false);
+    },
+    onError: (err, signature, context) => {
+      logger_default.error("submitTransaction error:", err);
+      console.log("cc error", err);
+      dispatch(setCCTransactionRetrying(false));
+      setIsSubmitting(false);
+    },
+    retry: (failureCount, error) => {
+      console.log("cc retry", failureCount, error, mutation.isSuccess);
+      if (mutation.isSuccess) {
+        dispatch(setCCTransactionRetrying(false));
+        return false;
+      }
+      const shouldRetry = transactionValues.originChain === "CC" && failureCount < 5;
+      if (shouldRetry) {
+        dispatch(setCCTransactionRetrying(true));
+        dispatch(setCCTransactionStatus("error-generic"));
+      } else {
+        dispatch(setCCTransactionRetrying(false));
+      }
+      return shouldRetry;
+    },
+    retryDelay: (attempt) => (attempt + 1) * 5e3
+    // sync with kima block time
+  });
+  return {
+    submitTransaction: mutation.mutateAsync,
+    isSubmitting
   };
-  return { submitTransaction, isSubmitting };
 };
 var useSubmitTransaction_default = useSubmitTransaction;
 
@@ -6857,9 +6893,8 @@ var useCCTransactionId = (backendUrl, transactionIdSeed) => {
 };
 
 // src/components/reusable/CCWidget.tsx
-var CCWidget = () => {
+var CCWidget = ({ submitCallback }) => {
   const dispatch = useDispatch25();
-  const theme = useSelector44(selectTheme);
   const feeDeduct = useSelector44(selectFeeDeduct);
   const backendUrl = useSelector44(selectBackendUrl);
   const ccTransactionStatus = useSelector44(selectCCTransactionStatus);
@@ -6877,8 +6912,9 @@ var CCWidget = () => {
     error
   } = useCCTransactionId(backendUrl, ccTransactionIdSeedRef.current);
   useEffect20(() => {
-    dispatch(setCCTransactionId(ccTransactionIdSeedRef.current));
-  }, [dispatch]);
+    dispatch(setCCTransactionIdSeed(ccTransactionIdSeedRef.current));
+    dispatch(setCCTransactionId(data?.transactionId));
+  }, [dispatch, data, isTransactionIdLoading]);
   const txValues = feeDeduct ? transactionValues.feeFromTarget : transactionValues.feeFromOrigin;
   const allowanceAmount = useMemo20(
     () => formatBigInt(txValues.allowanceAmount),
@@ -6896,7 +6932,9 @@ var CCWidget = () => {
       }
       logger_default.info("postMessage: new message: ", event);
       if (event.data.type === "isCompleted") {
+        console.log("cc widget isCompleted");
         dispatch(setCCTransactionStatus("success"));
+        submitCallback();
       }
       if (event.data.type === "isFailed") {
         dispatch(setCCTransactionStatus("failed"));
@@ -6916,7 +6954,7 @@ var CCWidget = () => {
       src: `${baseUrl}/widgets/kyc?partner=${partnerId}&user_uuid=${randomUserIdRef.current}&amount=${allowanceAmount}&currency=USD&trx_uuid=${data?.transactionId}&postmessage=true`,
       loading: "lazy",
       title: "Credit Card Widget",
-      allow: "camera",
+      allow: "camera; clipboard-write",
       onLoad: () => setIsLoading(false),
       style: {
         border: "none",
@@ -7049,25 +7087,22 @@ var TransferWidget = ({
     }
     return true;
   }, [sourceChain, ccTransactionStatus]);
-  useEffect21(() => {
-    const submit = async () => {
-      if (ccTransactionStatus === "success") {
-        const { success, message: submitMessage } = await submitTransaction(signature);
-        if (!success) {
-          toast5.error(submitMessage, { icon: /* @__PURE__ */ React117.createElement(Error_default, null) });
-          dispatch(setCCTransactionStatus("error-generic"));
-        }
-      }
-    };
-    submit();
-  }, [ccTransactionStatus]);
+  const submit = useCallback3(async () => {
+    try {
+      await submitTransaction(signature);
+    } catch (err) {
+      toast5.error("Failed to submit transaction", { icon: /* @__PURE__ */ React117.createElement(Error_default, null) });
+      dispatch(setCCTransactionStatus("error-generic"));
+    }
+  }, [signature, submitTransaction]);
   const handleSubmit = async () => {
     const { error: error2, message: validationMessage } = validate(true);
     if (error2 === "ValidationError" /* Error */) {
       return toast5.error(validationMessage, { icon: /* @__PURE__ */ React117.createElement(Error_default, null) });
     }
     if (sourceChain.shortName === "CC") {
-      return dispatch(setCCTransactionStatus("initialized"));
+      dispatch(setCCTransactionStatus("initialized"));
+      return;
     }
     if (error2 === "ApprovalNeeded" /* ApprovalNeeded */ && mode !== "light" /* light */) {
       if (!signature) {
@@ -7083,7 +7118,7 @@ var TransferWidget = ({
       return approve();
     }
     if (dAppOption === "LPDrain" /* LPDrain */ || dAppOption === "LPAdd" /* LPAdd */) {
-      keplrHandler && keplrHandler(sourceAddress);
+      keplrHandler?.(sourceAddress);
       return;
     }
     let sig = signature;
@@ -7097,8 +7132,7 @@ var TransferWidget = ({
       });
       setSignature2(sig);
     }
-    const { success, message: submitMessage } = await submitTransaction(sig);
-    if (!success) return toast5.error(submitMessage, { icon: /* @__PURE__ */ React117.createElement(Error_default, null) });
+    submitTransaction(sig);
   };
   const onNext = () => {
     const { error: error2, message: validationMessage } = validate();
@@ -7255,7 +7289,7 @@ var TransferWidget = ({
           setInitialSelection
         }
       }
-    ) : ccTransactionStatus !== "idle" ? /* @__PURE__ */ React117.createElement(CCWidget_default, null) : /* @__PURE__ */ React117.createElement(
+    ) : ccTransactionStatus !== "idle" ? /* @__PURE__ */ React117.createElement(CCWidget_default, { submitCallback: submit }) : /* @__PURE__ */ React117.createElement(
       ConfirmDetails_default,
       {
         ...{
@@ -7360,6 +7394,80 @@ var useDebugCode = (sequence = ["D", "E", "B", "U", "G"]) => {
 
 // src/components/KimaWidgetWrapper.tsx
 import log3 from "loglevel";
+
+// src/components/ErrorWidget.tsx
+import React118 from "react";
+import { useSelector as useSelector46 } from "react-redux";
+var ErrorWidget = ({
+  theme,
+  title,
+  message,
+  backButtonEnabled = false,
+  backButtonFunction
+}) => {
+  const sourceChain = useSelector46(selectSourceChain);
+  const ccTransactionId = useSelector46(selectCCTransactionId);
+  const isCreditCardSource = sourceChain.shortName === "CC";
+  const isRetrying = useSelector46(selectCCTransactionRetrying);
+  return /* @__PURE__ */ React118.createElement(
+    "div",
+    {
+      className: `kima-card ${theme.colorMode}`,
+      style: {
+        background: theme.colorMode === "light" /* light */ ? theme.backgroundColorLight : theme.backgroundColorDark
+      }
+    },
+    /* @__PURE__ */ React118.createElement("div", { className: "transfer-card" }, /* @__PURE__ */ React118.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React118.createElement("div", { className: "topbar" }, /* @__PURE__ */ React118.createElement("div", { className: "title" }, /* @__PURE__ */ React118.createElement("h3", null, title))), /* @__PURE__ */ React118.createElement("h4", { className: "subtitle" })), /* @__PURE__ */ React118.createElement("div", { className: "kima-card-content error" }, /* @__PURE__ */ React118.createElement(Error_default, { width: 40, height: 40 }), /* @__PURE__ */ React118.createElement("h2", null, message), isCreditCardSource && /* @__PURE__ */ React118.createElement(
+      "div",
+      {
+        style: {
+          marginTop: 16,
+          display: "flex",
+          flexDirection: "column"
+        }
+      },
+      isRetrying ? /* @__PURE__ */ React118.createElement("p", null, "The transaction is being retried in the background. This may take a few moments. If the issue persists, please contact support and provide the transaction ID below for reference.") : /* @__PURE__ */ React118.createElement("p", null, "This credit card transaction has failed. Please check the details and try again. If the issue persists, please contact support and provide the transaction ID below for reference."),
+      ccTransactionId && /* @__PURE__ */ React118.createElement(
+        "div",
+        {
+          style: {
+            display: "flex",
+            alignItems: "center",
+            marginTop: 8,
+            justifyContent: "center"
+          }
+        },
+        /* @__PURE__ */ React118.createElement(
+          "code",
+          {
+            style: {
+              fontFamily: "monospace",
+              wordBreak: "break-all",
+              marginRight: 10
+            }
+          },
+          ccTransactionId
+        ),
+        /* @__PURE__ */ React118.createElement(CopyButton_default, { text: ccTransactionId })
+      ),
+      isRetrying && /* @__PURE__ */ React118.createElement(ring_default, { width: 30, height: 30, fill: "#86b8ce" })
+    ), backButtonEnabled && /* @__PURE__ */ React118.createElement(
+      "div",
+      {
+        className: "button-group",
+        style: {
+          display: "flex",
+          justifyContent: "flex-end",
+          marginTop: 16
+        }
+      },
+      /* @__PURE__ */ React118.createElement(PrimaryButton_default, { clickHandler: backButtonFunction }, "BACK")
+    )), /* @__PURE__ */ React118.createElement("div", { className: "kima-card-footer" }, /* @__PURE__ */ React118.createElement("div", { className: "kima-powered" }, /* @__PURE__ */ React118.createElement("span", null, "POWERED BY"), /* @__PURE__ */ React118.createElement("span", { className: "kima-logo" }, /* @__PURE__ */ React118.createElement(FooterLogo_default, { fill: "#666666" }), /* @__PURE__ */ React118.createElement("span", null, "Network")))))
+  );
+};
+var ErrorWidget_default = ErrorWidget;
+
+// src/components/KimaWidgetWrapper.tsx
 var KimaWidgetWrapper = ({
   mode,
   txId,
@@ -7377,11 +7485,12 @@ var KimaWidgetWrapper = ({
 }) => {
   useDebugCode();
   const { kimaBackendUrl } = useKimaContext();
-  const submitted = useSelector46(selectSubmitted);
+  const submitted = useSelector47(selectSubmitted);
   const dispatch = useDispatch27();
   const { setThemeMode, setThemeVariables } = useAppKitTheme();
-  const sourceChain = useSelector46(selectSourceChain);
-  const ccTransactionStatus = useSelector46(selectCCTransactionStatus);
+  const sourceChain = useSelector47(selectSourceChain);
+  const ccTransactionStatus = useSelector47(selectCCTransactionStatus);
+  const ccTransactionRetrying = useSelector47(selectCCTransactionRetrying);
   const networkOption = envOptions?.env;
   const kimaExplorer = envOptions?.kimaExplorer || "https://explorer.sardis.kima.network";
   useEffect23(() => {
@@ -7430,11 +7539,40 @@ var KimaWidgetWrapper = ({
     indexPluginsByChain(chainData);
   }, [chainData]);
   if (sourceChain.shortName === "CC") {
-    if (submitted && ccTransactionStatus === "success") {
+    console.log("widget wrapper", submitted, ccTransactionStatus);
+    if (submitted) {
       log3.debug("will return transaction widget on cc success");
-      return /* @__PURE__ */ React118.createElement(TransactionWidget, { theme });
+      return /* @__PURE__ */ React119.createElement(TransactionWidget, { theme });
+    } else if (ccTransactionStatus === "error-id") {
+      return /* @__PURE__ */ React119.createElement(
+        ErrorWidget_default,
+        {
+          theme,
+          title: "Credit Card Transaction Id Generation Error",
+          message: "There was an error generating the transaction id and your transaction couldn't be generated. Please try again, if the error persists contact us.",
+          backButtonEnabled: true,
+          backButtonFunction: () => {
+            dispatch(setAmount(""));
+            dispatch(setCCTransactionStatus("idle"));
+          }
+        }
+      );
+    } else if (ccTransactionStatus === "error-generic") {
+      return /* @__PURE__ */ React119.createElement(
+        ErrorWidget_default,
+        {
+          theme,
+          title: "Credit Card Transaction Error",
+          message: "There was an error sending the transaction. Please verify that the amount, chains and target address are correct.",
+          backButtonEnabled: !ccTransactionRetrying,
+          backButtonFunction: () => {
+            dispatch(setAmount(""));
+            dispatch(setCCTransactionStatus("idle"));
+          }
+        }
+      );
     }
-    return /* @__PURE__ */ React118.createElement(
+    return /* @__PURE__ */ React119.createElement(
       TransferWidget,
       {
         theme,
@@ -7444,7 +7582,7 @@ var KimaWidgetWrapper = ({
       }
     );
   }
-  return submitted ? /* @__PURE__ */ React118.createElement(TransactionWidget, { theme }) : /* @__PURE__ */ React118.createElement(
+  return submitted ? /* @__PURE__ */ React119.createElement(TransactionWidget, { theme }) : /* @__PURE__ */ React119.createElement(
     TransferWidget,
     {
       theme,
@@ -7460,30 +7598,8 @@ var KimaWidgetWrapper_default = KimaWidgetWrapper;
 import { useDispatch as useDispatch28 } from "react-redux";
 
 // src/SkeletonLoader.tsx
-import React119 from "react";
-var SkeletonLoader = ({ theme }) => {
-  return /* @__PURE__ */ React119.createElement(
-    "div",
-    {
-      className: `kima-card ${theme.colorMode}`,
-      style: {
-        background: theme.colorMode === "light" /* light */ ? theme.backgroundColorLight : theme.backgroundColorDark
-      }
-    },
-    /* @__PURE__ */ React119.createElement("div", { className: "transfer-card" }, /* @__PURE__ */ React119.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React119.createElement("div", { className: "topbar" }, /* @__PURE__ */ React119.createElement("div", { className: "title skeleton" }, /* @__PURE__ */ React119.createElement("h3", null))), /* @__PURE__ */ React119.createElement("h4", { className: "subtitle" })), /* @__PURE__ */ React119.createElement("div", { className: "kima-card-content skeleton" }, /* @__PURE__ */ React119.createElement("div", { className: "skeleton" }), /* @__PURE__ */ React119.createElement("div", { className: "skeleton" }), /* @__PURE__ */ React119.createElement("div", { className: "skeleton" }), /* @__PURE__ */ React119.createElement("div", { className: "skeleton" }), /* @__PURE__ */ React119.createElement("div", { className: "skeleton" })), /* @__PURE__ */ React119.createElement("div", { className: `kima-card-footer` }, /* @__PURE__ */ React119.createElement("div", { className: `button-group skeleton` }, /* @__PURE__ */ React119.createElement("div", { className: "skeleton" }))))
-  );
-};
-var SkeletonLoader_default = SkeletonLoader;
-
-// src/components/ErrorWidget.tsx
 import React120 from "react";
-var ErrorWidget = ({
-  theme,
-  title,
-  message,
-  backButtonEnabled = false,
-  backButtonFunction
-}) => {
+var SkeletonLoader = ({ theme }) => {
   return /* @__PURE__ */ React120.createElement(
     "div",
     {
@@ -7492,13 +7608,12 @@ var ErrorWidget = ({
         background: theme.colorMode === "light" /* light */ ? theme.backgroundColorLight : theme.backgroundColorDark
       }
     },
-    /* @__PURE__ */ React120.createElement("div", { className: "transfer-card" }, /* @__PURE__ */ React120.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React120.createElement("div", { className: "topbar" }, /* @__PURE__ */ React120.createElement("div", { className: "title" }, /* @__PURE__ */ React120.createElement("h3", null, title))), /* @__PURE__ */ React120.createElement("h4", { className: "subtitle" })), /* @__PURE__ */ React120.createElement("div", { className: "kima-card-content error" }, /* @__PURE__ */ React120.createElement(Error_default, { width: 40, height: 40 }), /* @__PURE__ */ React120.createElement("h2", null, message)), backButtonEnabled && /* @__PURE__ */ React120.createElement("div", { style: { display: "flex", justifyContent: "flex-end" } }, /* @__PURE__ */ React120.createElement(PrimaryButton_default, { clickHandler: backButtonFunction }, "Back")), /* @__PURE__ */ React120.createElement("div", { className: `kima-card-footer` }), /* @__PURE__ */ React120.createElement("div", { className: "floating-footer" }, /* @__PURE__ */ React120.createElement("div", { className: `items ${theme.colorMode}` }, /* @__PURE__ */ React120.createElement("span", null, "Powered by"), /* @__PURE__ */ React120.createElement(FooterLogo_default, { width: 50, fill: "black" }), /* @__PURE__ */ React120.createElement("strong", null, "Network"))))
+    /* @__PURE__ */ React120.createElement("div", { className: "transfer-card" }, /* @__PURE__ */ React120.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React120.createElement("div", { className: "topbar" }, /* @__PURE__ */ React120.createElement("div", { className: "title skeleton" }, /* @__PURE__ */ React120.createElement("h3", null))), /* @__PURE__ */ React120.createElement("h4", { className: "subtitle" })), /* @__PURE__ */ React120.createElement("div", { className: "kima-card-content skeleton" }, /* @__PURE__ */ React120.createElement("div", { className: "skeleton" }), /* @__PURE__ */ React120.createElement("div", { className: "skeleton" }), /* @__PURE__ */ React120.createElement("div", { className: "skeleton" }), /* @__PURE__ */ React120.createElement("div", { className: "skeleton" }), /* @__PURE__ */ React120.createElement("div", { className: "skeleton" })), /* @__PURE__ */ React120.createElement("div", { className: `kima-card-footer` }, /* @__PURE__ */ React120.createElement("div", { className: `button-group skeleton` }, /* @__PURE__ */ React120.createElement("div", { className: "skeleton" }))))
   );
 };
-var ErrorWidget_default = ErrorWidget;
+var SkeletonLoader_default = SkeletonLoader;
 
 // src/components/KimaTransactionWidget.tsx
-import { useSelector as useSelector47 } from "react-redux";
 var KimaTransactionWidget = ({
   mode,
   txId,
@@ -7515,7 +7630,6 @@ var KimaTransactionWidget = ({
   const dispatch = useDispatch28();
   const { kimaBackendUrl } = useKimaContext();
   const [hydrated, setHydrated] = useState18(false);
-  const ccTransactionStatus = useSelector47(selectCCTransactionStatus);
   const {
     data: envOptions,
     error: envOptionsError,
@@ -7540,37 +7654,10 @@ var KimaTransactionWidget = ({
       dispatch(setTheme(theme));
     }
   }, [theme?.colorMode]);
-  if (!hydrated || !theme?.colorMode) return /* @__PURE__ */ React121.createElement(ring_default, { width: 20, height: 20, fill: "#86b8ce" });
+  if (!hydrated || !theme?.colorMode)
+    return /* @__PURE__ */ React121.createElement(ring_default, { width: 20, height: 20, fill: "#86b8ce" });
   if (isLoadingEnvs || isLoadingChainData)
     return /* @__PURE__ */ React121.createElement(SkeletonLoader_default, { theme });
-  if (ccTransactionStatus === "error-id")
-    return /* @__PURE__ */ React121.createElement(
-      ErrorWidget_default,
-      {
-        theme,
-        title: "Credit Card Transaction Id Generation Error",
-        message: "There was an error generating the transaction id and your transaction couldn't be generated. Please try again, if the error persists contact us.",
-        backButtonEnabled: true,
-        backButtonFunction: () => {
-          dispatch(setAmount(""));
-          dispatch(setCCTransactionStatus("idle"));
-        }
-      }
-    );
-  if (ccTransactionStatus === "error-generic")
-    return /* @__PURE__ */ React121.createElement(
-      ErrorWidget_default,
-      {
-        theme,
-        title: "Credit Card Transaction Error",
-        message: "There was an error sending the transaction. Please verify that the amount, chains and target address are correct, if the error persists contact us.",
-        backButtonEnabled: true,
-        backButtonFunction: () => {
-          dispatch(setAmount(""));
-          dispatch(setCCTransactionStatus("idle"));
-        }
-      }
-    );
   if (envOptionsError || !envOptions)
     return /* @__PURE__ */ React121.createElement(
       ErrorWidget_default,

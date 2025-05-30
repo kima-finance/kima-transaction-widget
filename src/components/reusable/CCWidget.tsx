@@ -5,22 +5,24 @@ import {
   selectCCTransactionStatus,
   selectFeeDeduct,
   selectNetworkOption,
-  selectServiceFee,
-  selectTheme
+  selectServiceFee
 } from '@store/selectors'
 import { Loading180Ring } from '@assets/loading'
-import { setCCTransactionId, setCCTransactionStatus } from '@store/optionSlice'
+import {
+  setCCTransactionId,
+  setCCTransactionIdSeed,
+  setCCTransactionRetrying,
+  setCCTransactionStatus
+} from '@store/optionSlice'
 import { formatBigInt } from 'src/helpers/functions'
 import { v4 as uuidv4 } from 'uuid'
 import { useCCTransactionId } from '../../hooks/useCCTransactionId'
 import { NetworkOptions } from '@interface'
 import { useGetEnvOptions } from '../../hooks/useGetEnvOptions'
 import log from '@utils/logger'
-import ErrorWidget from '@components/ErrorWidget'
 
-const CCWidget = () => {
+const CCWidget = ({ submitCallback }: { submitCallback: () => void }) => {
   const dispatch = useDispatch()
-  const theme = useSelector(selectTheme)
   const feeDeduct = useSelector(selectFeeDeduct)
   const backendUrl = useSelector(selectBackendUrl)
   const ccTransactionStatus = useSelector(selectCCTransactionStatus)
@@ -41,8 +43,9 @@ const CCWidget = () => {
   } = useCCTransactionId(backendUrl, ccTransactionIdSeedRef.current)
 
   useEffect(() => {
-    dispatch(setCCTransactionId(ccTransactionIdSeedRef.current))
-  }, [dispatch])
+    dispatch(setCCTransactionIdSeed(ccTransactionIdSeedRef.current))
+    dispatch(setCCTransactionId(data?.transactionId))
+  }, [dispatch, data, isTransactionIdLoading])
 
   const txValues = feeDeduct
     ? transactionValues.feeFromTarget
@@ -71,7 +74,9 @@ const CCWidget = () => {
       log.info('postMessage: new message: ', event)
       if (event.data.type === 'isCompleted') {
         // set the transaction to success
+        console.log('cc widget isCompleted')
         dispatch(setCCTransactionStatus('success'))
+        submitCallback()
       }
 
       if (event.data.type === 'isFailed') {
@@ -119,7 +124,7 @@ const CCWidget = () => {
         src={`${baseUrl}/widgets/kyc?partner=${partnerId}&user_uuid=${randomUserIdRef.current}&amount=${allowanceAmount}&currency=USD&trx_uuid=${data?.transactionId}&postmessage=true`}
         loading='lazy'
         title='Credit Card Widget'
-        allow='camera'
+        allow='camera; clipboard-write'
         onLoad={() => setIsLoading(false)}
         style={{
           border: 'none',

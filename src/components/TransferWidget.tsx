@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useMemo } from 'react'
+import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { ErrorIcon, FooterLogo, HelpIcon } from '../assets/icons'
 import {
@@ -26,7 +26,6 @@ import {
   setCCTransactionStatus,
   setServiceFee,
   setSourceChain,
-  setSubmitted,
   setTargetAddress,
   setTargetChain,
   setTargetCurrency,
@@ -236,38 +235,27 @@ export const TransferWidget = ({
     return true
   }, [sourceChain, ccTransactionStatus])
 
-  // trigger submit effect when cc transaction succeeded
-  useEffect(() => {
-    const submit = async () => {
-      if (ccTransactionStatus === 'success') {
-        const { success, message: submitMessage } =
-          await submitTransaction(signature)
-
-        if (!success) {
-          toast.error(submitMessage, { icon: <ErrorIcon /> })
-          dispatch(setCCTransactionStatus('error-generic'))
-        }
-      }
+  const submit = useCallback(async () => {
+    try {
+      await submitTransaction(signature)
+    } catch (err) {
+      toast.error('Failed to submit transaction', { icon: <ErrorIcon /> })
+      dispatch(setCCTransactionStatus('error-generic'))
     }
-
-    submit()
-  }, [ccTransactionStatus])
+  }, [signature, submitTransaction])
 
   const handleSubmit = async () => {
     const { error, message: validationMessage } = validate(true)
 
-    // check for validation errors
     if (error === ValidationError.Error) {
       return toast.error(validationMessage, { icon: <ErrorIcon /> })
     }
 
-    // process fiat transaction
     if (sourceChain.shortName === 'CC') {
-      // return console.log("will process cc")
-      return dispatch(setCCTransactionStatus('initialized'))
+      dispatch(setCCTransactionStatus('initialized'))
+      return
     }
 
-    // if is missing approve, trigger approval
     if (
       error === ValidationError.ApprovalNeeded &&
       mode !== ModeOptions.light
@@ -280,25 +268,18 @@ export const TransferWidget = ({
           originSymbol: sourceCurrency,
           originChain: sourceChain.shortName
         })
-
         setSignature(sig)
       }
-
       return approve()
     }
 
-    // for liquidity tranasctions, invoke the callback
-    // TODO: either fully support LP in the widget, or
-    // refactor to use a separate component
     if (
       dAppOption === DAppOptions.LPDrain ||
       dAppOption === DAppOptions.LPAdd
     ) {
-      keplrHandler && keplrHandler(sourceAddress)
+      keplrHandler?.(sourceAddress)
       return
     }
-
-    // check signature before submit
 
     let sig = signature
     if (!sig && mode !== ModeOptions.light) {
@@ -309,14 +290,10 @@ export const TransferWidget = ({
         originSymbol: sourceCurrency,
         originChain: sourceChain.shortName
       })
-
       setSignature(sig)
     }
 
-    // submit the kima transaction
-    const { success, message: submitMessage } = await submitTransaction(sig)
-
-    if (!success) return toast.error(submitMessage, { icon: <ErrorIcon /> })
+    submitTransaction(sig) // No need to `await` or inspect return here
   }
 
   const onNext = () => {
@@ -547,7 +524,7 @@ export const TransferWidget = ({
               }}
             />
           ) : ccTransactionStatus !== 'idle' ? (
-            <CCWidget />
+            <CCWidget submitCallback={submit} />
           ) : (
             <ConfirmDetails
               {...{

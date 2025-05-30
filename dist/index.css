@@ -3340,7 +3340,6 @@
 .kima-card .transfer-card {
   min-width: 800px;
   padding: 30px 40px;
-  width: 100%;
 }
 @media (max-width: 900px) {
   .kima-card .transfer-card {
@@ -3415,10 +3414,6 @@
   .kima-card-content .cc-widget {
     height: 1100px;
   }
-}
-.kima-card-content .cc-widget.loading {
-  width: 70vw;
-  max-width: 700px;
 }
 .kima-card-content .cc-widget-loader {
   width: 100%;

@@ -27,10 +27,12 @@ import {
   setAmount,
   setTargetCurrency,
   setSourceChain,
-  setDappOption
+  setDappOption,
+  setCCTransactionStatus
 } from '../store/optionSlice'
 import '../index.css'
 import {
+  selectCCTransactionRetrying,
   selectCCTransactionStatus,
   selectSourceChain,
   selectSubmitted
@@ -45,6 +47,7 @@ import { EnvOptions } from '../hooks/useGetEnvOptions'
 import { ChainData } from '@plugins/pluginTypes'
 import { useDebugCode } from '../hooks/useDebugMode'
 import log from 'loglevel'
+import ErrorWidget from './ErrorWidget'
 
 interface Props {
   theme: ThemeOptions
@@ -84,7 +87,7 @@ const KimaWidgetWrapper = ({
   const { setThemeMode, setThemeVariables } = useAppKitTheme()
   const sourceChain = useSelector(selectSourceChain)
   const ccTransactionStatus = useSelector(selectCCTransactionStatus)
-
+  const ccTransactionRetrying = useSelector(selectCCTransactionRetrying)
   const networkOption = envOptions?.env
   const kimaExplorer =
     envOptions?.kimaExplorer || 'https://explorer.sardis.kima.network'
@@ -148,9 +151,36 @@ const KimaWidgetWrapper = ({
   // case credit card
   if (sourceChain.shortName === 'CC') {
     // case submitted, and got a successful cc transaction
-    if (submitted && ccTransactionStatus === 'success') {
-      log.debug("will return transaction widget on cc success")
+    console.log('widget wrapper', submitted, ccTransactionStatus)
+    if (submitted) {
+      log.debug('will return transaction widget on cc success')
       return <TransactionWidget theme={theme} />
+    } else if (ccTransactionStatus === 'error-id') {
+      return (
+        <ErrorWidget
+          theme={theme}
+          title='Credit Card Transaction Id Generation Error'
+          message="There was an error generating the transaction id and your transaction couldn't be generated. Please try again, if the error persists contact us."
+          backButtonEnabled={true}
+          backButtonFunction={() => {
+            dispatch(setAmount(''))
+            dispatch(setCCTransactionStatus('idle'))
+          }}
+        />
+      )
+    } else if (ccTransactionStatus === 'error-generic') {
+      return (
+        <ErrorWidget
+          theme={theme}
+          title='Credit Card Transaction Error'
+          message='There was an error sending the transaction. Please verify that the amount, chains and target address are correct.'
+          backButtonEnabled={!ccTransactionRetrying}
+          backButtonFunction={() => {
+            dispatch(setAmount(''))
+            dispatch(setCCTransactionStatus('idle'))
+          }}
+        />
+      )
     }
 
     return (
