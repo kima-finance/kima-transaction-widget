@@ -160,7 +160,7 @@ const KimaWidgetWrapper = ({
         <ErrorWidget
           theme={theme}
           title='Credit Card Transaction Id Generation Error'
-          message="There was an error generating the transaction id and your transaction couldn't be generated. Please try again, if the error persists contact us."
+          message=''
           backButtonEnabled={true}
           backButtonFunction={() => {
             dispatch(setAmount(''))
@@ -173,7 +173,7 @@ const KimaWidgetWrapper = ({
         <ErrorWidget
           theme={theme}
           title='Credit Card Transaction Error'
-          message='There was an error sending the transaction. Please verify that the amount, chains and target address are correct.'
+          message=''
           backButtonEnabled={!ccTransactionRetrying}
           backButtonFunction={() => {
             dispatch(setAmount(''))

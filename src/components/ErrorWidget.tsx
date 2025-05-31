@@ -51,8 +51,10 @@ const ErrorWidget = ({
         </div>
 
         <div className='kima-card-content error'>
-          <ErrorIcon width={40} height={40} />
-          <h2>{message}</h2>
+          {isCreditCardSource && !isRetrying && (
+            <ErrorIcon width={40} height={40} />
+          )}
+          {message && message !== '' && <h2>{message}</h2>}
 
           {isCreditCardSource && (
             <div
