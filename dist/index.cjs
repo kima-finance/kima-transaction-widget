@@ -7340,7 +7340,7 @@ var ErrorWidget = ({
         background: theme.colorMode === "light" /* light */ ? theme.backgroundColorLight : theme.backgroundColorDark
       }
     },
-    /* @__PURE__ */ import_react137.default.createElement("div", { className: "transfer-card" }, /* @__PURE__ */ import_react137.default.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ import_react137.default.createElement("div", { className: "topbar" }, /* @__PURE__ */ import_react137.default.createElement("div", { className: "title" }, /* @__PURE__ */ import_react137.default.createElement("h3", null, title))), /* @__PURE__ */ import_react137.default.createElement("h4", { className: "subtitle" })), /* @__PURE__ */ import_react137.default.createElement("div", { className: "kima-card-content error" }, /* @__PURE__ */ import_react137.default.createElement(Error_default, { width: 40, height: 40 }), /* @__PURE__ */ import_react137.default.createElement("h2", null, message), isCreditCardSource && /* @__PURE__ */ import_react137.default.createElement(
+    /* @__PURE__ */ import_react137.default.createElement("div", { className: "transfer-card" }, /* @__PURE__ */ import_react137.default.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ import_react137.default.createElement("div", { className: "topbar" }, /* @__PURE__ */ import_react137.default.createElement("div", { className: "title" }, /* @__PURE__ */ import_react137.default.createElement("h3", null, title))), /* @__PURE__ */ import_react137.default.createElement("h4", { className: "subtitle" })), /* @__PURE__ */ import_react137.default.createElement("div", { className: "kima-card-content error" }, isCreditCardSource && !isRetrying && /* @__PURE__ */ import_react137.default.createElement(Error_default, { width: 40, height: 40 }), message && message !== "" && /* @__PURE__ */ import_react137.default.createElement("h2", null, message), isCreditCardSource && /* @__PURE__ */ import_react137.default.createElement(
       "div",
       {
         style: {
@@ -7471,7 +7471,7 @@ var KimaWidgetWrapper = ({
         {
           theme,
           title: "Credit Card Transaction Id Generation Error",
-          message: "There was an error generating the transaction id and your transaction couldn't be generated. Please try again, if the error persists contact us.",
+          message: "",
           backButtonEnabled: true,
           backButtonFunction: () => {
             dispatch(setAmount(""));
@@ -7485,7 +7485,7 @@ var KimaWidgetWrapper = ({
         {
           theme,
           title: "Credit Card Transaction Error",
-          message: "There was an error sending the transaction. Please verify that the amount, chains and target address are correct.",
+          message: "",
           backButtonEnabled: !ccTransactionRetrying,
           backButtonFunction: () => {
             dispatch(setAmount(""));

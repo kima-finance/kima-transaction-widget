@@ -7378,7 +7378,7 @@ var ErrorWidget = ({
         background: theme.colorMode === "light" /* light */ ? theme.backgroundColorLight : theme.backgroundColorDark
       }
     },
-    /* @__PURE__ */ React117.createElement("div", { className: "transfer-card" }, /* @__PURE__ */ React117.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React117.createElement("div", { className: "topbar" }, /* @__PURE__ */ React117.createElement("div", { className: "title" }, /* @__PURE__ */ React117.createElement("h3", null, title))), /* @__PURE__ */ React117.createElement("h4", { className: "subtitle" })), /* @__PURE__ */ React117.createElement("div", { className: "kima-card-content error" }, /* @__PURE__ */ React117.createElement(Error_default, { width: 40, height: 40 }), /* @__PURE__ */ React117.createElement("h2", null, message), isCreditCardSource && /* @__PURE__ */ React117.createElement(
+    /* @__PURE__ */ React117.createElement("div", { className: "transfer-card" }, /* @__PURE__ */ React117.createElement("div", { className: "kima-card-header" }, /* @__PURE__ */ React117.createElement("div", { className: "topbar" }, /* @__PURE__ */ React117.createElement("div", { className: "title" }, /* @__PURE__ */ React117.createElement("h3", null, title))), /* @__PURE__ */ React117.createElement("h4", { className: "subtitle" })), /* @__PURE__ */ React117.createElement("div", { className: "kima-card-content error" }, isCreditCardSource && !isRetrying && /* @__PURE__ */ React117.createElement(Error_default, { width: 40, height: 40 }), message && message !== "" && /* @__PURE__ */ React117.createElement("h2", null, message), isCreditCardSource && /* @__PURE__ */ React117.createElement(
       "div",
       {
         style: {
@@ -7509,7 +7509,7 @@ var KimaWidgetWrapper = ({
         {
           theme,
           title: "Credit Card Transaction Id Generation Error",
-          message: "There was an error generating the transaction id and your transaction couldn't be generated. Please try again, if the error persists contact us.",
+          message: "",
           backButtonEnabled: true,
           backButtonFunction: () => {
             dispatch(setAmount(""));
@@ -7523,7 +7523,7 @@ var KimaWidgetWrapper = ({
         {
           theme,
           title: "Credit Card Transaction Error",
-          message: "There was an error sending the transaction. Please verify that the amount, chains and target address are correct.",
+          message: "",
           backButtonEnabled: !ccTransactionRetrying,
           backButtonFunction: () => {
             dispatch(setAmount(""));
