@@ -6,8 +6,8 @@
 .pnp.js
 
 # build
-# */build
-# **/dist
+*/build
+**/dist
 
 # testing
 /coverage

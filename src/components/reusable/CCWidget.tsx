@@ -11,7 +11,6 @@ import { Loading180Ring } from '@assets/loading'
 import {
   setCCTransactionId,
   setCCTransactionIdSeed,
-  setCCTransactionRetrying,
   setCCTransactionStatus
 } from '@store/optionSlice'
 import { formatBigInt } from 'src/helpers/functions'
