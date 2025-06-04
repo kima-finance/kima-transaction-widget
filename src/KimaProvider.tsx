@@ -1,10 +1,15 @@
 import * as React from 'react'
 import { createContext, ReactNode, useContext, useMemo } from 'react'
 import { Provider, useSelector } from 'react-redux'
+import * as Sentry from '@sentry/react'
 import { store } from '@store/index'
 import { selectAllPlugins } from '@store/pluginSlice'
 import { getPluginProvider } from '@pluginRegistry'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import {
+  QueryCache,
+  QueryClient,
+  QueryClientProvider
+} from '@tanstack/react-query'
 import { ExternalProvider } from '@interface'
 import { useGetEnvOptions } from './hooks/useGetEnvOptions'
 import log from './utils/logger'
@@ -14,6 +19,7 @@ import { isValidExternalProvider } from '@utils/functions'
 import { PublicKey } from '@solana/web3.js'
 import { JsonRpcSigner } from 'ethers'
 import { LogLevelDesc } from 'loglevel'
+import { initSentry } from '@utils/sentry'
 
 interface KimaContextProps {
   sourceAddress: string | undefined
@@ -40,7 +46,13 @@ interface KimaProviderProps {
 }
 
 // Create the QueryClient **only once**, outside the component
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: (error) => {
+      Sentry.captureException(error)
+    }
+  })
+})
 
 const KimaContext = createContext<KimaContextProps | undefined>(undefined)
 
@@ -61,6 +73,12 @@ const InternalKimaProvider: React.FC<KimaProviderProps> = React.memo(
     })
     log.debug('internalkimaprovider: networkoption: ', envOptions?.env)
     log.debug('internalkimaprovider: isLoading: ', isLoading)
+
+    if (envOptions?.sentry) {
+      initSentry(envOptions)
+    } else if (!isLoading) {
+      log.debug('No sentry config found')
+    }
 
     // Use a stable selector to avoid unnecessary re-renders
     const plugins = useSelector(selectAllPlugins, (prev, next) => prev === next)
@@ -143,18 +161,23 @@ const KimaProvider = ({
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <Provider store={store}>
-        <KimaContext.Provider value={kimaContext}>
-          <InternalKimaProvider
-            kimaBackendUrl={kimaBackendUrl}
-            walletConnectProjectId={walletConnectProjectId}
-          >
-            {children}
-          </InternalKimaProvider>
-        </KimaContext.Provider>
-      </Provider>
-    </QueryClientProvider>
+    <Sentry.ErrorBoundary
+      fallback={<div>Something went wrong.</div>}
+      showDialog
+    >
+      <QueryClientProvider client={queryClient}>
+        <Provider store={store}>
+          <KimaContext.Provider value={kimaContext}>
+            <InternalKimaProvider
+              kimaBackendUrl={kimaBackendUrl}
+              walletConnectProjectId={walletConnectProjectId}
+            >
+              {children}
+            </InternalKimaProvider>
+          </KimaContext.Provider>
+        </Provider>
+      </QueryClientProvider>
+    </Sentry.ErrorBoundary>
   )
 }
 

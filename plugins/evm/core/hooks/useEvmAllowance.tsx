@@ -14,7 +14,7 @@ import {
 } from '@store/selectors'
 import useGetPools from '../../../../src/hooks/useGetPools'
 import { getPoolAddress, getTokenAddress } from '@utils/functions'
-import { ModeOptions, NetworkOptions } from '@interface'
+import { ModeOptions } from '@interface'
 import {
   createPublicClient,
   createWalletClient,
@@ -26,6 +26,7 @@ import { PluginUseAllowanceResult, SignDataType } from '@plugins/pluginTypes'
 import log from '@utils/logger'
 import { useEvmProvider } from './useEvmProvider'
 import useBalance from './useBalance'
+import { captureError } from '@utils/sentry'
 
 export default function useEvmAllowance(): PluginUseAllowanceResult {
   const queryClient = useQueryClient()
@@ -73,7 +74,10 @@ export default function useEvmAllowance(): PluginUseAllowanceResult {
         message: txValues.message
       })
     } catch (error) {
-      log.error('useEvmAllowance: Error on signing message:', error)
+      captureError({
+        message: 'useEvmAllowance: Error on signing message:',
+        error
+      })
       throw new Error('Error on signing message')
     }
   }
