@@ -33,7 +33,7 @@ export default function useBalance(): GetTokenAllowanceResult {
     mode === ModeOptions.light ? lightDemoAccounts.TRX : walletAddress
 
   const { data: allowanceData } = useQuery({
-    queryKey: ['tronAllowance', userAddress],
+    queryKey: ['tronAllowance', userAddress, selectedCoin],
     queryFn: async () =>
       await getTokenAllowance({
         tokenOptions,
