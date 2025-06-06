@@ -1,5 +1,5 @@
 import { Wallet } from '@tronweb3/tronwallet-adapter-react-hooks'
-import log from '@utils/logger'
+import { errorHandler } from '@utils/error'
 
 // Fetch balance function
 export const getTrxBalance = async (
@@ -11,7 +11,10 @@ export const getTrxBalance = async (
       const balanceInSun = await tronWeb.trx.getBalance(wallet.adapter.address)
       return balanceInSun / 1e6 // Convert Sun to TRX
     } catch (error) {
-      log.error('Failed to fetch TRX balance:', error)
+      errorHandler.handleError({
+        error,
+        context: 'fetch TRX balance'
+      })
       throw new Error("Can't get tron balance")
     }
   } else {

@@ -1,5 +1,5 @@
+import { errorHandler } from '@utils/error'
 import { fetchWrapper } from 'src/helpers/fetch-wrapper'
-import log from '@utils/logger'
 
 export const getNetworkOption = async (kimaBackendUrl: string) => {
   try {
@@ -7,7 +7,10 @@ export const getNetworkOption = async (kimaBackendUrl: string) => {
 
     return response.env
   } catch (error) {
-    log.error(error)
+    errorHandler.handleError({
+      error,
+      context: 'fetch env'
+    })
     throw new Error('Error getting network option env variable')
   }
 }

@@ -8,7 +8,8 @@ import { setSignature } from '../store/optionSlice'
 import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
 import { useKimaContext } from '../KimaProvider'
 import { BrowserProvider, JsonRpcSigner } from 'ethers'
-import log from '@utils/logger'
+import { errorHandler } from '@utils/error'
+import { USER_REJECTED_TX } from '@utils/knownErrors'
 
 export default function useSign({
   setSigning
@@ -32,8 +33,9 @@ export default function useSign({
   const walletAddress = externalProvider?.signer?.address || appkitAddress
 
   const sign = useCallback(async () => {
-    if (sourceNetwork !== ChainName.FIAT || !walletAddress) return
+    if (sourceNetwork.shortName === ChainName.FIAT || !walletAddress) return
 
+    const message = `${amount} | ${walletAddress}`
     try {
       setSigning(true)
 
@@ -41,14 +43,18 @@ export default function useSign({
       const signer = (externalProvider?.signer ||
         (await appkitProvider.getSigner())) as JsonRpcSigner
 
-      const message = `${amount} | ${walletAddress}`
       const signature = await signer.signMessage(message)
       const hash = Base64.stringify(sha256(signature))
 
       setIsSigned(true)
       dispatch(setSignature(hash))
     } catch (error) {
-      log.error('Signing failed:', error)
+      errorHandler.handleError({
+        error,
+        context: 'signing message',
+        data: { message },
+        knownErrors: [{ regex: USER_REJECTED_TX, capture: false }]
+      })
     } finally {
       setSigning(false)
     }

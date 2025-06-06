@@ -9,7 +9,7 @@ import {
 } from '../store/optionSlice'
 import { Option } from '../interface'
 import log from '@utils/logger'
-import { captureError } from '@utils/sentry'
+import { errorHandler } from '@utils/error'
 
 export const useChainData = (
   backendURL: string,
@@ -34,7 +34,7 @@ export const useChainData = (
 
         return chains
       } catch (error) {
-        captureError({ error, message: 'Error fetching chain data' })
+        errorHandler.handleError({ error, context: 'fetch chain data' })
         return []
       }
     },

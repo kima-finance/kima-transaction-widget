@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/react'
+import { Extras } from '@sentry/core'
 import { EnvOptions } from '../hooks/useGetEnvOptions'
 import log from './logger'
 
@@ -37,20 +38,35 @@ export const initSentry = (config: EnvOptions) => {
 
 export interface CaptureErrorInputs {
   error: unknown
-  message?: string
-  throwError?: boolean
+  data?: Extras
 }
 
-export const captureError = ({
-  error,
-  message,
-  throwError = false
-}: CaptureErrorInputs) => {
-  log.error(`handleError: ${message}`, error)
+/**
+ * Sends an error to Sentry if enabled
+ * @param param0.error - The error object to capture
+ * @param param0.message - The message to log with the error
+ * @param param0.throwError - Whether to rethrow the error or not
+ */
+export const captureError = ({ error, data }: CaptureErrorInputs) => {
   if (sentryEnabled) {
-    Sentry.captureException(error)
+    log.error('captureError: sending error to Sentry', error, data)
+    Sentry.captureException(error, (scope) => {
+      if (data) scope.setExtras(data)
+      return scope
+    })
+  } else {
+    log.error('captureError: sentry disabled', error, data)
   }
-  if (throwError) {
-    throw error
+}
+
+export interface CaptureMessageInputs {
+  message: string
+  error?: unknown
+}
+
+export const captureMessage = (inputs: CaptureMessageInputs) => {
+  log.debug(`captureMessage: ${inputs.message}`, inputs.error)
+  if (sentryEnabled) {
+    Sentry.captureMessage(inputs.message)
   }
 }

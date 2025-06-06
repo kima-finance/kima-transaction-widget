@@ -1,3 +1,4 @@
+import { errorHandler } from '@utils/error'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 import log from '@utils/logger'
 
@@ -16,7 +17,10 @@ export const getCompliance = async (
     log.debug('compliance: ', response)
     return response
   } catch (error) {
-    log.error('compliance error: ', error)
+    errorHandler.handleError({
+      error,
+      context: 'fetching compliance'
+    })
     throw new Error('Cant get compliance')
   }
 }

@@ -18,6 +18,7 @@ import {
 } from '@store/selectors'
 import { bigIntChangeDecimals } from 'src/helpers/functions'
 import { useState } from 'react'
+import { errorHandler } from '@utils/error'
 
 const useSubmitTransaction = () => {
   const dispatch = useDispatch()
@@ -73,7 +74,16 @@ const useSubmitTransaction = () => {
         params
       )
       if (response?.code !== 0) {
-        throw new Error('Submit failed')
+        const error = new Error('Submit failed')
+        errorHandler.handleError({
+          error,
+          data: {
+            params,
+            response
+          },
+          knownErrors: [{ regex: /submit failed/i }]
+        })
+        throw error
       }
 
       return getTransactionId(response.events)

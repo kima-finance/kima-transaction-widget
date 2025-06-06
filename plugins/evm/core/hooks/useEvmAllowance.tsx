@@ -26,7 +26,8 @@ import { PluginUseAllowanceResult, SignDataType } from '@plugins/pluginTypes'
 import log from '@utils/logger'
 import { useEvmProvider } from './useEvmProvider'
 import useBalance from './useBalance'
-import { captureError } from '@utils/sentry'
+import { errorHandler } from '@utils/error'
+import { USER_REJECTED_TX } from '@utils/knownErrors'
 
 export default function useEvmAllowance(): PluginUseAllowanceResult {
   const queryClient = useQueryClient()
@@ -74,9 +75,11 @@ export default function useEvmAllowance(): PluginUseAllowanceResult {
         message: txValues.message
       })
     } catch (error) {
-      captureError({
-        message: 'useEvmAllowance: Error on signing message:',
-        error
+      errorHandler.handleError({
+        context: 'EVM sign message',
+        error,
+        data: { message: txValues.message },
+        knownErrors: [{ regex: USER_REJECTED_TX, capture: false }]
       })
       throw new Error('Error on signing message')
     }
@@ -150,13 +153,28 @@ export default function useEvmAllowance(): PluginUseAllowanceResult {
         log.debug('useEvmAllowance: Transaction successful:', receipt)
         // update allowance data
         await queryClient.invalidateQueries({ queryKey: ['evmAllowance'] })
-        // setApprovalsCount((prev: number) => prev + 1)
       } else {
-        log.error('useEvmAllowance: Transaction failed:', receipt)
-        throw new Error('Transaction failed')
+        const error = new Error('Transaction failed')
+        errorHandler.handleError({
+          error,
+          context: 'EVM approval',
+          data: {
+            receipt,
+            poolAddress,
+            txValues
+          },
+          knownErrors: [{ regex: /transaction failed/i }]
+        })
+        throw error
       }
     } catch (error) {
-      log.error('useEvmAllowance: Error on EVM approval:', error)
+      errorHandler.handleError({
+        context: 'EVM approval',
+        error,
+        data: { poolAddress, txValues },
+        knownErrors: [{ regex: USER_REJECTED_TX, capture: false }]
+      })
+      // log.error('useEvmAllowance: Error on EVM approval:', error)
       throw new Error('Error on EVM approval')
     }
   }

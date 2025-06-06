@@ -9,6 +9,7 @@ import { getTxData } from 'src/services/transactionApi'
 import { ErrorIcon } from '@assets/icons'
 import { ModeOptions } from '@interface'
 import log from '@utils/logger'
+import { errorHandler } from '@utils/error'
 
 const TransactionSearch = () => {
   const theme = useSelector(selectTheme)
@@ -37,11 +38,15 @@ const TransactionSearch = () => {
       dispatch(setMode(ModeOptions.status))
       dispatch(setSubmitted(true))
     } catch (error) {
-      log.error('Error searching transaction: ', error)
-      return toast.error(
-        'Transaction not found. Please check for the proper transaction id.',
-        { icon: <ErrorIcon /> }
-      )
+      errorHandler.handleError({
+        error,
+        context: 'transaction search by id',
+        data: { transactionId },
+        unknownErrorConfig: {
+          messageOverride: `Transaction ${transactionId} not found.  Please check for the proper transaction id.`,
+          toast: true
+        }
+      })
     }
   }
 
