@@ -7,6 +7,7 @@ import {
 } from '@utils/constants'
 import { GetTokenAllowanceResult } from '@plugins/pluginTypes'
 import log from '@utils/logger'
+import { errorHandler } from '@utils/error'
 
 export const getTokenAllowance = async ({
   tokenOptions,
@@ -91,7 +92,10 @@ export const getTokenAllowance = async ({
       decimals: Number(decimals)
     }
   } catch (error) {
-    log.error('Error getting EVM allowance: ', error)
+    errorHandler.handleError({
+      error,
+      context: 'fetch EVM allowance'
+    })
     throw new Error('Error getting EVM allowance')
   }
 }

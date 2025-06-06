@@ -1,7 +1,7 @@
 import { TransactionData } from '@interface'
 import { TransactionStatus } from '@utils/constants'
+import { errorHandler } from '@utils/error'
 import { fetchWrapper } from 'src/helpers/fetch-wrapper'
-import log from '@utils/logger'
 
 interface KimaTransactionDataResponse {
   data: {
@@ -144,7 +144,11 @@ export const getTxData = async ({
     refPollForUpdates.current = !isFinished(data)
     return data
   } catch (error) {
-    log.error(`Error fetching transaction ${txId} data:`, error)
+    errorHandler.handleError({
+      error,
+      context: 'fetch transaction status',
+      data: { txId }
+    })
     throw new Error(
       `Error fetching transaction ${txId} data: ${JSON.stringify(error)}`
     )

@@ -1,5 +1,6 @@
 import { GetTokenAllowanceResult } from '@plugins/pluginTypes'
 import { TokenOptions } from '@store/optionSlice'
+import { errorHandler } from '@utils/error'
 import { getTokenAddress, getPoolAddress } from '@utils/functions'
 import log from '@utils/logger'
 
@@ -39,7 +40,10 @@ export const getTokenAllowance = async ({
       decimals: Number(decimals)
     }
   } catch (error) {
-    log.error('Error getting allowance for tron token', error)
+    errorHandler.handleError({
+      error,
+      context: 'fetch tron token allowance'
+    })
     throw new Error('Error getting allowance for tron token')
   }
 }

@@ -20,6 +20,8 @@ export enum NetworkOptions {
   mainnet = 'mainnet'
 }
 
+export type NodeEnv = 'development' | 'production'
+
 export enum ModeOptions {
   payment = 'payment',
   bridge = 'bridge',

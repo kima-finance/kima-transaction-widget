@@ -4,6 +4,7 @@ import * as btc from '@kimafinance/btc-signer'
 import { BitcoinNetworkType } from 'sats-connect'
 import { fetchWrapper } from '../../helpers/fetch-wrapper'
 import log from '@utils/logger'
+import { errorHandler } from '@utils/error'
 
 export type UTXO = {
   txid: string
@@ -44,6 +45,10 @@ export async function broadcastTransaction(
     const response = await fetchWrapper.post(url, rawHex)
     return response
   } catch (error) {
+    errorHandler.handleError({
+      error,
+      context: 'BTC broadcast transaction'
+    })
     throw error
   }
 }

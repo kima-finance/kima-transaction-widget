@@ -2,8 +2,8 @@ import { GetTokenAllowanceResult } from '@plugins/pluginTypes'
 import { getAssociatedTokenAddress } from '@solana/spl-token'
 import { Connection, ParsedAccountData, PublicKey } from '@solana/web3.js'
 import { TokenOptions } from '@store/optionSlice'
+import { errorHandler } from '@utils/error'
 import { getTokenAddress, getPoolAddress } from '@utils/functions'
-import log from '@utils/logger'
 
 export const getTokenAllowance = async ({
   tokenOptions,
@@ -51,7 +51,10 @@ export const getTokenAllowance = async ({
       )
     }
   } catch (error) {
-    log.error('Error fetching token allowance:', error)
+    errorHandler.handleError({
+      error,
+      context: 'Sol fetch token allowance'
+    })
     throw error
   }
 }

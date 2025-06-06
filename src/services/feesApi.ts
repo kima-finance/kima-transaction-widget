@@ -1,6 +1,7 @@
 import type { FeeResponse, ServiceFee } from '@interface'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
 import { toBigintAmount } from 'src/helpers/functions'
+import { errorHandler } from '@utils/error'
 
 export const getFees = async (
   amount: number,
@@ -12,10 +13,9 @@ export const getFees = async (
   targetSymbol: string,
   backendUrl: string
 ): Promise<ServiceFee> => {
+  const url = `${backendUrl}/submit/fees?amount=${amount}&originChain=${originChain}&originAddress=${originChain === 'CC' ? targetAddress : originAddress}&originSymbol=${originSymbol}&targetChain=${targetChain}&targetAddress=${targetAddress}&targetSymbol=${targetSymbol}`
   try {
-    const response: any = await fetchWrapper.get(
-      `${backendUrl}/submit/fees?amount=${amount}&originChain=${originChain}&originAddress=${originChain === 'CC' ? targetAddress : originAddress}&originSymbol=${originSymbol}&targetChain=${targetChain}&targetAddress=${targetAddress}&targetSymbol=${targetSymbol}`
-    )
+    const response: any = await fetchWrapper.get(url)
     const result = response as FeeResponse
 
     // convert bigint string values to bigint
@@ -58,7 +58,11 @@ export const getFees = async (
 
     return output
   } catch (e) {
-    // log.error('Failed to fetch fees:', e)
+    errorHandler.handleError({
+      error: e,
+      context: 'fetch fees',
+      data: { url }
+    })
     throw new Error('Failed to fetch fees')
   }
 }

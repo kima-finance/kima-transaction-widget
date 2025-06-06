@@ -7,7 +7,6 @@ import {
   selectNetworkOption,
   selectBackendUrl,
   selectFeeDeduct,
-  selectSourceAddress,
   selectMode
 } from '@store/selectors'
 
@@ -20,6 +19,8 @@ import useBalance from './useBalance'
 import log from '@utils/logger'
 import { ModeOptions } from '@interface'
 import { lightDemoAccounts } from '@utils/constants'
+import { errorHandler } from '@utils/error'
+import { USER_REJECTED_TX_TRON } from '@utils/knownErrors'
 
 export default function useTronAllowance(): PluginUseAllowanceResult {
   const queryClient = useQueryClient()
@@ -57,7 +58,12 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
       const signedMessage = await signMessage(txValues.message)
       return signedMessage
     } catch (error) {
-      log.error('Error signing message:', error)
+      errorHandler.handleError({
+        error,
+        context: 'Tron sign message',
+        data: { message: txValues.message },
+        knownErrors: [{ regex: USER_REJECTED_TX_TRON, capture: false }]
+      })
       throw error
     }
   }
@@ -111,7 +117,12 @@ export default function useTronAllowance(): PluginUseAllowanceResult {
 
       return
     } catch (error) {
-      log.error('Error approving token: ', error)
+      errorHandler.handleError({
+        error,
+        context: 'Tron approval',
+        data: { poolAddress, tokenAddress, txValues },
+        knownErrors: [{ regex: USER_REJECTED_TX_TRON, capture: false }]
+      })
       throw error
     }
   }
