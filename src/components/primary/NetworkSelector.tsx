@@ -11,13 +11,11 @@ import {
   setSourceChain,
   setSourceCurrency,
   setTargetChain,
-  setTargetAddress,
-  setTargetCurrency
+  setTargetAddress
 } from '@store/optionSlice'
 import Arrow from '@assets/icons/Arrow'
 import ChainIcon from '../reusable/ChainIcon'
 import {
-  ChainName,
   isEVMChain,
   lightDemoAccounts,
   lightDemoNetworks
@@ -31,9 +29,7 @@ import {
 import { ModeOptions } from '@interface'
 import log from '@utils/logger'
 import { isSolana, isTron } from 'src/helpers/functions'
-
-// TODO: ADD LIGHT DEMO LOGIC
-
+import { WarningIcon } from '@assets/icons'
 interface NetworkSelectorProps {
   type: ChainLocation // Determines if this is a source or target selector
   initialSelection: boolean
@@ -66,22 +62,22 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
   const isOriginSelector = type === 'origin'
 
   const networks = useMemo(() => {
-  return networkOptions.filter((network: ChainData) => {
-    const isSameAsSource = isOriginSelector
-      ? false
-      : network.shortName === sourceNetwork.shortName;
+    return networkOptions.filter((network: ChainData) => {
+      const isSameAsSource = isOriginSelector
+        ? false
+        : network.shortName === sourceNetwork.shortName
 
-    const isAllowedInLightMode =
-      mode !== ModeOptions.light || lightDemoNetworks.includes(network.shortName);
+      const isAllowedInLightMode =
+        mode !== ModeOptions.light ||
+        lightDemoNetworks.includes(network.shortName)
 
-    return (
-      network.supportedLocations.includes(type) &&
-      !isSameAsSource &&
-      isAllowedInLightMode
-    );
-  });
-}, [networkOptions, sourceNetwork, type, mode]);
-
+      return (
+        network.supportedLocations.includes(type) &&
+        !isSameAsSource &&
+        isAllowedInLightMode
+      )
+    })
+  }, [networkOptions, sourceNetwork, type, mode])
 
   const selectedNetwork = useMemo(() => {
     if (initialSelection) {
@@ -169,7 +165,7 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
   }, [])
 
   useEffect(() => {
-    if(mode !== ModeOptions.light) return
+    if (mode !== ModeOptions.light) return
 
     if (isEVMChain(targetNetwork.shortName)) {
       dispatch(setTargetAddress(lightDemoAccounts.EVM))
@@ -202,14 +198,21 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
           .map((network) => (
             <div
               key={network.id}
-              className={`network-menu-item ${theme?.colorMode ?? ''}`}
+              className={`network-menu-item ${theme?.colorMode ?? ''} ${network.disabled ? 'disabled has-tooltip' : 'enabled'}`}
               onClick={(e) => {
-                e.stopPropagation() // Prevent the dropdown toggle click
-                handleNetworkChange(network)
+                e.stopPropagation()
+                if (!network.disabled) {
+                  handleNetworkChange(network)
+                }
               }}
             >
-              <ChainIcon symbol={network.shortName} />
+              {network.disabled ? (
+                <WarningIcon width={25} height={25} />
+              ) : (
+                <ChainIcon symbol={network.shortName} />
+              )}
               <p>{network.name}</p>
+              {network.disabled && <span className="tooltip">Temporarily unavailable</span>}
             </div>
           ))}
       </div>
