@@ -203,7 +203,13 @@ export const TransferWidget = ({
     if (fees) {
       dispatch(setServiceFee(fees))
     }
-  }, [fees, dispatch])
+    if (transactionOption?.sourceChain) {
+      setInitialSelection((prev) => ({ ...prev, sourceSelection: false }))
+    }
+    if (mode === ModeOptions.payment || transactionOption?.targetChain) {
+      setInitialSelection((prev) => ({ ...prev, targetSelection: false }))
+    }
+  }, [fees, mode, transactionOption, dispatch])
 
   const { submitTransaction, isSubmitting } = useSubmitTransaction()
 

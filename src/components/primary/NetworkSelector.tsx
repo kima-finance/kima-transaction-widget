@@ -11,13 +11,11 @@ import {
   setSourceChain,
   setSourceCurrency,
   setTargetChain,
-  setTargetAddress,
-  setTargetCurrency
+  setTargetAddress
 } from '@store/optionSlice'
 import Arrow from '@assets/icons/Arrow'
 import ChainIcon from '../reusable/ChainIcon'
 import {
-  ChainName,
   isEVMChain,
   lightDemoAccounts,
   lightDemoNetworks
@@ -66,22 +64,22 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
   const isOriginSelector = type === 'origin'
 
   const networks = useMemo(() => {
-  return networkOptions.filter((network: ChainData) => {
-    const isSameAsSource = isOriginSelector
-      ? false
-      : network.shortName === sourceNetwork.shortName;
+    return networkOptions.filter((network: ChainData) => {
+      const isSameAsSource = isOriginSelector
+        ? false
+        : network.shortName === sourceNetwork.shortName
 
-    const isAllowedInLightMode =
-      mode !== ModeOptions.light || lightDemoNetworks.includes(network.shortName);
+      const isAllowedInLightMode =
+        mode !== ModeOptions.light ||
+        lightDemoNetworks.includes(network.shortName)
 
-    return (
-      network.supportedLocations.includes(type) &&
-      !isSameAsSource &&
-      isAllowedInLightMode
-    );
-  });
-}, [networkOptions, sourceNetwork, type, mode]);
-
+      return (
+        network.supportedLocations.includes(type) &&
+        !isSameAsSource &&
+        isAllowedInLightMode
+      )
+    })
+  }, [networkOptions, sourceNetwork, type, mode])
 
   const selectedNetwork = useMemo(() => {
     if (initialSelection) {
@@ -149,7 +147,7 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
       }
     }
 
-    type === 'origin'
+    type === 'origin' && mode !== ModeOptions.payment
       ? setInitialSelection((prev) => ({ ...prev, sourceSelection: false }))
       : setInitialSelection((prev) => ({ ...prev, targetSelection: false }))
     setCollapsed(true) // Explicitly collapse the dropdown after selection
@@ -169,7 +167,7 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
   }, [])
 
   useEffect(() => {
-    if(mode !== ModeOptions.light) return
+    if (mode !== ModeOptions.light) return
 
     if (isEVMChain(targetNetwork.shortName)) {
       dispatch(setTargetAddress(lightDemoAccounts.EVM))
