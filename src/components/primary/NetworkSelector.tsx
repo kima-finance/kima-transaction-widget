@@ -29,9 +29,7 @@ import {
 import { ModeOptions } from '@interface'
 import log from '@utils/logger'
 import { isSolana, isTron } from 'src/helpers/functions'
-
-// TODO: ADD LIGHT DEMO LOGIC
-
+import { WarningIcon } from '@assets/icons'
 interface NetworkSelectorProps {
   type: ChainLocation // Determines if this is a source or target selector
   initialSelection: boolean
@@ -200,14 +198,21 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
           .map((network) => (
             <div
               key={network.id}
-              className={`network-menu-item ${theme?.colorMode ?? ''}`}
+              className={`network-menu-item ${theme?.colorMode ?? ''} ${network.disabled ? 'disabled has-tooltip' : 'enabled'}`}
               onClick={(e) => {
-                e.stopPropagation() // Prevent the dropdown toggle click
-                handleNetworkChange(network)
+                e.stopPropagation()
+                if (!network.disabled) {
+                  handleNetworkChange(network)
+                }
               }}
             >
-              <ChainIcon symbol={network.shortName} />
+              {network.disabled ? (
+                <WarningIcon width={25} height={25} />
+              ) : (
+                <ChainIcon symbol={network.shortName} />
+              )}
               <p>{network.name}</p>
+              {network.disabled && <span className="tooltip">Temporarily unavailable</span>}
             </div>
           ))}
       </div>
