@@ -247,34 +247,36 @@ const SingleForm = ({
         </div>
       )}
 
-      <div className={`form-item ${theme.colorMode}`}>
-        <span className='label'>Amount:</span>
-        <div className={`amount-label-container items ${theme.colorMode}`}>
-          <input
-            className={`${theme.colorMode}`}
-            type='text'
-            placeholder='Enter amount'
-            value={amountValue || ''}
-            onChange={(e) => onAmountChange(e.target.value)}
-          />
-          <div className='max-disclaimer'>
-            {sourceNetwork.shortName !== 'CC' && (
-              <span className='max-button' onClick={onMaxClick}>
-                Max
-              </span>
-            )}
-            {+totalFee !== -1 && (
-              <p className='fee-amount'>
-                Est fees:{' '}
-                <span className={`${isLoadingFees ? 'loading' : ''}`}>
-                  {' '}
-                  {isLoadingFees ? '' : `$ ${formatBigInt(totalFee)} USD`}
+      {mode === ModeOptions.bridge && (
+        <div className={`form-item ${theme.colorMode}`}>
+          <span className='label'>Amount:</span>
+          <div className={`amount-label-container items ${theme.colorMode}`}>
+            <input
+              className={`${theme.colorMode}`}
+              type='text'
+              placeholder='Enter amount'
+              value={amountValue || ''}
+              onChange={(e) => onAmountChange(e.target.value)}
+            />
+            <div className='max-disclaimer'>
+              {sourceNetwork.shortName !== 'CC' && (
+                <span className='max-button' onClick={onMaxClick}>
+                  Max
                 </span>
-              </p>
-            )}
+              )}
+              {+totalFee !== -1 && (
+                <p className='fee-amount'>
+                  Est fees:{' '}
+                  <span className={`${isLoadingFees ? 'loading' : ''}`}>
+                    {' '}
+                    {isLoadingFees ? '' : `$ ${formatBigInt(totalFee)} USD`}
+                  </span>
+                </p>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
