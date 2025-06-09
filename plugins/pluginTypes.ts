@@ -77,6 +77,7 @@ export interface ChainData extends Chain {
   shortName: string
   supportedTokens: ChainToken[]
   supportedLocations: ChainLocation[]
+  disabled: boolean
 }
 
 export interface ChainToken {
