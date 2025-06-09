@@ -1275,49 +1275,12 @@
             margin: 7px 14px;
             padding: 11px 7px;
             border-radius: 20px;
-            width: 220px;
+            width: 220x;
             @include transition;
             display: flex;
             justify-content: start;
             flex-direction: row;
             align-items: center;
-
-            &.disabled {
-              color: $financeGrey;
-              cursor: default;
-            }
-
-            &.has-tooltip {
-              position: relative;
-
-              .tooltip {
-                visibility: hidden;
-                background-color: $financeIcon;
-                font-family: 'Manrope';
-                color: #fff;
-                text-align: center;
-                font-size: 12px;
-                padding: 6px 8px;
-                border-radius: 4px;
-                position: absolute;
-                z-index: 10;
-                bottom: 120%;
-                left: 50%;
-                transform: translateX(-50%);
-                white-space: nowrap;
-                opacity: 0;
-                transition:
-                  opacity 0.3s ease,
-                  transform 0.3s ease;
-                pointer-events: none;
-              }
-
-              &:hover .tooltip {
-                visibility: visible;
-                opacity: 1;
-                transform: translateX(-50%) translateY(20px);
-              }
-            }
 
             .icon {
               display: flex;
@@ -1333,14 +1296,12 @@
               margin-bottom: 0;
             }
 
-            &.enabled {
-              &.light:hover {
-                background: $hover;
-              }
+            &.light:hover {
+              background: $hover;
+            }
 
-              &.dark:hover {
-                background: $financeDarker;
-              }
+            &.dark:hover {
+              background: $financeDarker;
             }
           }
 
