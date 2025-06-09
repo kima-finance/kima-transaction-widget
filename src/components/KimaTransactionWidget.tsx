@@ -10,11 +10,7 @@ import {
 
 import '../index.css'
 
-import {
-  ChainName,
-  LoadingErrorMessage,
-  LoadingErrorTitle
-} from '@utils/constants'
+import { LoadingErrorMessage, LoadingErrorTitle } from '@utils/constants'
 import KimaWidgetWrapper from './KimaWidgetWrapper'
 import { useGetEnvOptions } from '../hooks/useGetEnvOptions'
 import { useKimaContext } from 'src/KimaProvider'
@@ -35,8 +31,6 @@ interface Props {
   helpURL?: string
   transactionOption?: TransactionOption
   paymentTitleOption?: PaymentTitleOption
-  excludedSourceNetworks?: Array<ChainName>
-  excludedTargetNetworks?: Array<ChainName>
 }
 
 const KimaTransactionWidget = ({
@@ -48,9 +42,7 @@ const KimaTransactionWidget = ({
   paymentTitleOption,
   helpURL = '',
   compliantOption = false,
-  transactionOption,
-  excludedSourceNetworks = [],
-  excludedTargetNetworks = []
+  transactionOption
 }: Props) => {
   const dispatch = useDispatch()
   const { kimaBackendUrl } = useKimaContext()
@@ -123,8 +115,6 @@ const KimaTransactionWidget = ({
         helpURL,
         compliantOption,
         transactionOption,
-        excludedSourceNetworks,
-        excludedTargetNetworks,
         chainData,
         envOptions
       }}

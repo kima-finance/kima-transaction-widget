@@ -141,7 +141,6 @@ export interface OptionState {
   compliantOption: boolean // option to check compliant addresses
   sourceCompliant: ComplianceResult | null
   targetCompliant: ComplianceResult | null
-  useFIAT: boolean // use FIAT Payment mockup or not?
   bankDetails: BankDetails
   targetNetworkFetching: boolean // is fetching available chains according to current source network or not
   signature: string // off-chain proof of target address for on-ramping fiat transaction
@@ -207,7 +206,6 @@ const initialState: OptionState = {
   compliantOption: true,
   sourceCompliant: null,
   targetCompliant: null,
-  useFIAT: false,
   bankDetails: {
     iban: '',
     recipient: ''
@@ -401,9 +399,6 @@ export const optionSlice = createSlice({
     ) => {
       state.targetCompliant = action.payload
     },
-    setUseFIAT: (state: OptionState, action: PayloadAction<boolean>) => {
-      state.useFIAT = action.payload
-    },
     setBankDetails: (
       state: OptionState,
       action: PayloadAction<BankDetails>
@@ -476,7 +471,6 @@ export const {
   setCompliantOption,
   setSourceCompliant,
   setTargetCompliant,
-  setUseFIAT,
   setBankDetails,
   setTargetChainFetching,
   setSignature,

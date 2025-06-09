@@ -40,13 +40,12 @@ import {
 import { TransactionWidget } from './TransactionWidget'
 import { TransferWidget } from './TransferWidget'
 import { useAppKitTheme } from '@reown/appkit/react'
-import { ChainName } from '@utils/constants'
 import { indexPluginsByChain } from '../pluginRegistry'
 import { useKimaContext } from 'src/KimaProvider'
 import { EnvOptions } from '../hooks/useGetEnvOptions'
 import { ChainData } from '@plugins/pluginTypes'
 import { useDebugCode } from '../hooks/useDebugMode'
-import log from 'loglevel'
+import log from '@utils/logger'
 import ErrorWidget from './ErrorWidget'
 
 interface Props {
@@ -59,8 +58,6 @@ interface Props {
   helpURL?: string
   transactionOption?: TransactionOption
   paymentTitleOption?: PaymentTitleOption
-  excludedSourceNetworks?: Array<ChainName>
-  excludedTargetNetworks?: Array<ChainName>
   chainData: ChainData[]
   envOptions: EnvOptions
 }
@@ -75,8 +72,6 @@ const KimaWidgetWrapper = ({
   helpURL = '',
   compliantOption = true,
   transactionOption,
-  excludedSourceNetworks = [],
-  excludedTargetNetworks = [],
   chainData,
   envOptions
 }: Props) => {

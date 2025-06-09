@@ -8,7 +8,7 @@ import {
   KimaProvider,
   ModeOptions,
   ColorModeOptions,
-  NetworkOptions
+  SupportNetworks
 } from '@kimafinance/kima-transaction-widget'
 import '@kimafinance/kima-transaction-widget/index.css'
 
@@ -23,10 +23,8 @@ const Widget = () => {
           theme={{
             colorMode: ColorModeOptions.dark
           }}
-          mode={ModeOptions.bridge}
+          mode={ModeOptions.payment}
           txId={'4884'}
-          // autoSwitchChain={false}
-          // useFIAT={true}
           // titleOption={{
           //   initialTitle: 'New Purchase'
           // }}
@@ -38,12 +36,12 @@ const Widget = () => {
               fontWeight: '500'
             }
           }}
-          // transactionOption={{
-          //   targetChain: SupportNetworks.ETHEREUM,
-          //   targetAddress: "0x10c033E050e10510a951a56e4A14B4CD3de6CA67",
-          //   amount: 3,
-          //   currency: "USDK",
-          // }}
+          transactionOption={{
+            targetChain: SupportNetworks.ETHEREUM,
+            targetAddress: '0x10c033E050e10510a951a56e4A14B4CD3de6CA67',
+            amount: 3,
+            currency: 'USDT'
+          }}
         />
       </div>
     </KimaProvider>
