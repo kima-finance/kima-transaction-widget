@@ -144,8 +144,7 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
         dispatch(setTargetAddress(lightDemoAccounts[chainCompatibility]))
       }
     }
-
-    type === 'origin' && mode !== ModeOptions.payment
+    type === 'origin'
       ? setInitialSelection((prev) => ({ ...prev, sourceSelection: false }))
       : setInitialSelection((prev) => ({ ...prev, targetSelection: false }))
     setCollapsed(true) // Explicitly collapse the dropdown after selection
@@ -212,7 +211,9 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
                 <ChainIcon symbol={network.shortName} />
               )}
               <p>{network.name}</p>
-              {network.disabled && <span className="tooltip">Temporarily unavailable</span>}
+              {network.disabled && (
+                <span className='tooltip'>Temporarily unavailable</span>
+              )}
             </div>
           ))}
       </div>

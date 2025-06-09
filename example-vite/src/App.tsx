@@ -21,7 +21,6 @@ function App() {
           kimaBackendUrl='http://localhost:3001'
           kimaExplorer='https://explorer.sardis.kima.network'
           // autoSwitchChain={false}
-          // useFIAT={true}
           // titleOption={{
           //   initialTitle: 'New Purchase'
           // }}

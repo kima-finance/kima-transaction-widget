@@ -40,7 +40,6 @@ describe('TransferWidget test', function () {
             titleOption={{
               initialTitle: 'New Purchase'
             }}
-            useFIAT={true}
             paymentTitleOption={{
               title:
                 'You can now purchase our NFT on Polygon, using funds from other chains.',
