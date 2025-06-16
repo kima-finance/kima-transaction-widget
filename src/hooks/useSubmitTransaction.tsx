@@ -14,7 +14,8 @@ import {
   selectCCTransactionIdSeed,
   selectFeeDeduct,
   selectMode,
-  selectServiceFee
+  selectServiceFee,
+  selectSubmitted
 } from '@store/selectors'
 import { bigIntChangeDecimals } from 'src/helpers/functions'
 import { useState } from 'react'
@@ -29,6 +30,7 @@ const useSubmitTransaction = () => {
     ? transactionValues.feeFromTarget
     : transactionValues.feeFromOrigin
   const ccTransactionIdSeed = useSelector(selectCCTransactionIdSeed)
+  const submitted = useSelector(selectSubmitted)
 
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -94,12 +96,12 @@ const useSubmitTransaction = () => {
     },
     retry: (failureCount, error) => {
       console.log('cc retry', failureCount, error, mutation.isSuccess)
-      if (mutation.isSuccess) {
+      if (mutation.isSuccess || submitted) {
         dispatch(setCCTransactionRetrying(false))
         return false // Disable retry if mutation is successful
       }
       const shouldRetry =
-        transactionValues.originChain === 'CC' && failureCount < 5
+        transactionValues.originChain === 'CC' && failureCount < 10
       if (shouldRetry) {
         dispatch(setCCTransactionRetrying(true)) // optional
         dispatch(setCCTransactionStatus('error-generic'))

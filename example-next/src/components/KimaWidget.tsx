@@ -23,7 +23,7 @@ const Widget = () => {
           theme={{
             colorMode: ColorModeOptions.dark
           }}
-          mode={ModeOptions.payment}
+          mode={ModeOptions.bridge}
           txId={'4884'}
           // titleOption={{
           //   initialTitle: 'New Purchase'
@@ -36,12 +36,12 @@ const Widget = () => {
               fontWeight: '500'
             }
           }}
-          transactionOption={{
-            targetChain: SupportNetworks.ETHEREUM,
-            targetAddress: '0x10c033E050e10510a951a56e4A14B4CD3de6CA67',
-            amount: 3,
-            currency: 'USDT'
-          }}
+          // transactionOption={{
+          //   targetChain: SupportNetworks.ETHEREUM,
+          //   targetAddress: '0x10c033E050e10510a951a56e4A14B4CD3de6CA67',
+          //   amount: 3,
+          //   currency: 'USDT'
+          // }}
         />
       </div>
     </KimaProvider>

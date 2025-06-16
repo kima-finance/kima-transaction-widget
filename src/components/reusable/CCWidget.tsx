@@ -30,6 +30,7 @@ const CCWidget = ({ submitCallback }: { submitCallback: () => void }) => {
   const { transactionValues } = useSelector(selectServiceFee)
   const randomUserIdRef = useRef(uuidv4())
   const ccTransactionIdSeedRef = useRef(uuidv4())
+  const ccTransactionSubmittedRef = useRef(false)
   const { data: envOptions, isLoading: isEnvLoading } = useGetEnvOptions({
     kimaBackendUrl: backendUrl
   })
@@ -73,9 +74,13 @@ const CCWidget = ({ submitCallback }: { submitCallback: () => void }) => {
       log.info('postMessage: new message: ', event)
       if (event.data.type === 'isCompleted') {
         // set the transaction to success
-        console.log('cc widget isCompleted')
+        console.log('cc widget isCompleted', ccTransactionSubmittedRef.current)
         dispatch(setCCTransactionStatus('success'))
-        submitCallback()
+
+        if (!ccTransactionSubmittedRef.current) {
+          ccTransactionSubmittedRef.current = true
+          submitCallback()
+        }
       }
 
       if (event.data.type === 'isFailed') {
