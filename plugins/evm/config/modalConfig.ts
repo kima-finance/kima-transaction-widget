@@ -16,7 +16,9 @@ import {
   optimismSepolia,
   polygon,
   polygonAmoy,
-  sepolia
+  sepolia,
+  confluxESpace,
+  confluxESpaceTestnet
 } from '@reown/appkit/networks' // Adjust this import based on real networks you need to support
 import { NetworkOptions } from '@interface'
 import { EthersAdapter } from '@reown/appkit-adapter-ethers'
@@ -30,6 +32,7 @@ const appkitMainnetChains = [
   arbitrum,
   optimism,
   avalanche,
+  confluxESpace
 ]
 
 const appkitTestnetChains = [
@@ -40,7 +43,8 @@ const appkitTestnetChains = [
   arbitrumSepolia,
   optimismSepolia,
   avalancheFuji,
-  berachainBepolia
+  berachainBepolia,
+  confluxESpaceTestnet
 ]
 
 const metadata = {

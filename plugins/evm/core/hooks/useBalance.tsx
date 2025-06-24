@@ -10,7 +10,7 @@ import {
   selectSourceAddress,
   selectMode
 } from '@store/selectors'
-import { isEVMChain } from '../../utils/constants'
+import { isEVMChain } from '@utils/constants'
 import { ModeOptions, NetworkOptions } from '@interface'
 import { useEvmProvider } from './useEvmProvider'
 import { getTokenAllowance } from '@plugins/evm/utils/getTokenAllowance'
