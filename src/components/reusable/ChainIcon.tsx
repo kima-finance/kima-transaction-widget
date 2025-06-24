@@ -12,7 +12,8 @@ import {
   BTCIcon,
   BaseIcon,
   BeraIcon,
-  CreditCardIcon
+  CreditCardIcon,
+  CFXIcon
 } from '../../assets/icons'
 import log from '@utils/logger'
 
@@ -31,6 +32,7 @@ const chainIcons: Record<string, React.FC<IconProps>> = {
   SOL: SolanaIcon,
   FIAT: BankIcon,
   BERA: BeraIcon,
+  CFX: CFXIcon,
   CC: CreditCardIcon
 }
 
