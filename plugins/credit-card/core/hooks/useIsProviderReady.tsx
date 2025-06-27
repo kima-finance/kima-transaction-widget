@@ -1,12 +1,8 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { selectSourceChain } from '@store/selectors'
-import {
-  setSourceAddress,
-  setSourceCurrency,
-  setTargetAddress
-} from '@store/optionSlice'
+import { setSourceAddress, setSourceCurrency } from '@store/optionSlice'
 import { useEffect, useState } from 'react'
-import { ChainCompatibility } from '../../../pluginTypes'
+// import { ChainCompatibility } from '../../../pluginTypes'
 import log from '@utils/logger'
 
 const useIsProviderReady = () => {
@@ -18,14 +14,14 @@ const useIsProviderReady = () => {
   // resets source address, origin symbol and target
   // every time fiat is selected
   useEffect(() => {
-    if (sourceChain.compatibility === ChainCompatibility.CC) {
-      log.debug('CC:useIsProviderReady: dispatching changes from fiat...')
+    if (!sourceChain || sourceChain.shortName !== 'CC') return
 
-      dispatch(setSourceAddress(''))
-      dispatch(setSourceCurrency('USD'))
+    log.debug('CC:useIsProviderReady: dispatching changes from fiat...')
 
-      setIsReady(true)
-    }
+    dispatch(setSourceAddress(''))
+    dispatch(setSourceCurrency('USD'))
+
+    setIsReady(true)
   }, [sourceChain])
 
   return { isReady, statusMessage: '', walletAddres: '' }

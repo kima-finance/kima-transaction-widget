@@ -45,7 +45,7 @@ export default function ChainIcon({ symbol }: ChainIconProps) {
   const Icon = symbol === 'FIAT' ? chainIcons['CC'] : chainIcons[symbol]
 
   if (!Icon) {
-    log.warn(`Chain icon not found for symbol: ${symbol}`)
+    if (symbol) log.warn(`Chain icon not found for symbol: ${symbol}`)
     return <div></div>
   }
 

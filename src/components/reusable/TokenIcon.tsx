@@ -16,14 +16,16 @@ export interface TokenIconProps extends IconProps {
 }
 
 const COIN_LIST: Record<string, React.FC<IconProps>> = {
+  EUR: KEURICON,
+  EURK: KEURICON,
+  HONEY: HoneyIcon,
   KEUR: KEURICON,
   KIMAUSD: USDKIcon,
   USDC: USDCIcon,
   USDK: USDKIcon,
-  USDT: USDTIcon,
-  WBTC: BTCIcon,
   USD: USDIcon,
-  HONEY: HoneyIcon
+  USDT: USDTIcon,
+  WBTC: BTCIcon
 }
 
 export default function TokenIcon({
