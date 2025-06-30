@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { selectSourceChain } from '@store/selectors'
-import { setSourceAddress, setSourceCurrency } from '@store/optionSlice'
+import { setSourceAddress } from '@store/optionSlice'
 import { useEffect, useState } from 'react'
 // import { ChainCompatibility } from '../../../pluginTypes'
 import log from '@utils/logger'
@@ -19,7 +19,9 @@ const useIsProviderReady = () => {
     log.debug('CC:useIsProviderReady: dispatching changes from fiat...')
 
     dispatch(setSourceAddress(''))
-    dispatch(setSourceCurrency('USD'))
+    // do not set currency here as this will override the currency set in the widget
+    // when going to the next step
+    // default values are handled elsewhere
 
     setIsReady(true)
   }, [sourceChain])
