@@ -20,20 +20,21 @@ import log from '@utils/logger'
 type IconProps = { width?: number; height?: number }
 
 const chainIcons: Record<string, React.FC<IconProps>> = {
-  ETH: EthereumIcon,
-  POL: PolygonIcon,
+  ARB: ArbitrumIcon,
   AVX: AvalancheIcon,
+  BANK: BankIcon,
   BASE: BaseIcon,
+  BERA: BeraIcon,
   BSC: BSCIcon,
   BTC: BTCIcon,
-  ARB: ArbitrumIcon,
-  OPT: OptimismIcon,
-  TRX: TronIcon,
-  SOL: SolanaIcon,
-  FIAT: BankIcon,
-  BERA: BeraIcon,
+  CC: CreditCardIcon,
   CFX: CFXIcon,
-  CC: CreditCardIcon
+  ETH: EthereumIcon,
+  FIAT: BankIcon,
+  POL: PolygonIcon,
+  OPT: OptimismIcon,
+  SOL: SolanaIcon,
+  TRX: TronIcon
 }
 
 export interface ChainIconProps extends IconProps {

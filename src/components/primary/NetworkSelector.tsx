@@ -85,11 +85,6 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
         supportsSourceCurrency = network.supportedTokens.some(
           (token) => token.peggedTo === sourceToken?.peggedTo
         )
-        log.debug(`NetworkSelector(target): ${network.shortName}`, {
-          sourceToken,
-          network,
-          supportsSourceCurrency
-        })
       }
 
       return (

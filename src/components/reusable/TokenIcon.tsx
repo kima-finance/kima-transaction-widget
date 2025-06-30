@@ -1,5 +1,6 @@
 import React from 'react'
 import {
+  EURCIcon,
   USDKIcon,
   USDTIcon,
   USDCIcon,
@@ -17,6 +18,7 @@ export interface TokenIconProps extends IconProps {
 
 const COIN_LIST: Record<string, React.FC<IconProps>> = {
   EUR: KEURICON,
+  EURC: EURCIcon,
   EURK: KEURICON,
   HONEY: HoneyIcon,
   KEUR: KEURICON,
