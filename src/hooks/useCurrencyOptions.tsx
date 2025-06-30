@@ -1,9 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import {
-  // selectBackendUrl,
   selectMode,
-  // selectNetworks,
   selectSourceChain,
   selectSourceCurrency,
   selectTargetChain,
@@ -23,9 +21,7 @@ export default function useCurrencyOptions(isSourceChain: boolean) {
   const sourceChain = useSelector(selectSourceChain)
   const sourceSymbol = useSelector(selectSourceCurrency)
   const targetChain = useSelector(selectTargetChain)
-  // const chain = isSourceChain ? sourceChain : targetChain
   const transactionOption = useSelector(selectTransactionOption)
-  // const networks = useSelector(selectNetworks)
 
   const output = useMemo(() => {
     const chain = isSourceChain ? sourceChain : targetChain
@@ -76,16 +72,6 @@ export default function useCurrencyOptions(isSourceChain: boolean) {
     })
 
     return { tokenList }
-
-    // log.debug('useCurrencyOptions: networks: ', networks)
-    // const networkTokenList =
-    //   networks.find((network) => network.id === chain.id) || networks[0]
-
-    // log.debug('useCurrencyOptions: networkTokenList: ', networkTokenList, chain)
-
-    // return !!networks
-    //   ? { tokenList: networkTokenList?.supportedTokens as ChainToken[] }
-    //   : { tokenList: [] }
   }, [sourceChain, sourceSymbol, targetChain, isSourceChain])
   const { tokenList } = output
 

@@ -2,7 +2,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { selectSourceChain } from '@store/selectors'
 import { setSourceAddress } from '@store/optionSlice'
 import { useEffect, useState } from 'react'
-// import { ChainCompatibility } from '../../../pluginTypes'
 import log from '@utils/logger'
 
 const useIsProviderReady = () => {
