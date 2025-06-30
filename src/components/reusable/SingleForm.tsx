@@ -15,11 +15,12 @@ import {
   selectTargetAddress,
   selectSourceCurrency,
   selectTargetCurrency,
-  selectBackendUrl
+  selectBackendUrl,
+  selectDappOption
 } from '../../store/selectors'
 import { BankInput, CoinDropdown, WalletButton } from './'
 import { setAmount, setServiceFee } from '../../store/optionSlice'
-import { ModeOptions } from '../../interface'
+import { DAppOptions, ModeOptions } from '../../interface'
 import AddressInput from './AddressInput'
 import { ChainName } from '../../utils/constants'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
@@ -62,6 +63,7 @@ const SingleForm = ({
   const sourceNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
   const targetAddress = useSelector(selectTargetAddress)
+  const dappOption = useSelector(selectDappOption)
   const { isReady } = useIsWalletReady()
   const [amountValue, setAmountValue] = useState('')
   const amount = useSelector(selectAmount)
@@ -174,7 +176,11 @@ const SingleForm = ({
   return (
     <div className='single-form'>
       <div className='form-item'>
-        <span className='label'>Source Network:</span>
+        {dappOption === DAppOptions.LPDrain ? (
+          <span className='label'>Target Network:</span>
+        ) : (
+          <span className='label'>Source Network:</span>
+        )}
         <div className='items'>
           <NetworkSelector
             type='origin'

@@ -97,60 +97,29 @@ const ConfirmDetails = ({
     <div className={`confirm-details ${theme.colorMode}`}>
       <p>
         Step {isApproved ? '2' : '1'}&nbsp;of 2&nbsp;&nbsp;&nbsp;
-        {isApproved
-          ? 'Submit transaction'
-          : originNetwork.shortName === ChainName.FIAT
-            ? 'Bank Details'
-            : 'Approval'}
+        {isApproved ? 'Submit transaction' : 'Approval'}
       </p>
-      {originNetwork.shortName === ChainName.FIAT ? (
-        <div>
-          <div className='detail-item'>
-            <span className='label'>IBAN:</span>
+
+      <div className='detail-item'>
+        <span className='label'>
+          Source {originNetwork.shortName !== 'CC' && 'wallet'}:
+        </span>
+        <div className='network-details'>
+          <div className='kima-card-network-container'>
             <span className={`kima-card-network-label ${theme.colorMode}`}>
               <ChainIcon symbol={originNetworkOption?.shortName} />
-              {/* <div className='icon'>
-                <originNetworkOption.icon />
-              </div> */}
-              FIAT
+              {originNetworkOption.name}
             </span>
-            <p>ES6621000418401234567891</p>
           </div>
-          <div className='detail-item'>
-            <span className='label'>Recipient:</span>
-            <p>Kima Sandbox</p>
-          </div>
-          <div className='detail-item'>
-            <span className='label'>BIC:</span>
-            <p>CAIXESBBXXX</p>
-          </div>
-          <div className='detail-item'>
-            <span className='label'>Description:</span>
-            <p className='signature'>{signature}</p>
-          </div>
+          {originNetwork.shortName !== 'CC' && (
+            <p className={theme.colorMode}>
+              {dAppOption === DAppOptions.LPDrain
+                ? targetAddress
+                : connectedAddress}
+            </p>
+          )}
         </div>
-      ) : (
-        <div className='detail-item'>
-          <span className='label'>
-            Source {originNetwork.shortName !== 'CC' && 'wallet'}:
-          </span>
-          <div className='network-details'>
-            <div className='kima-card-network-container'>
-              <span className={`kima-card-network-label ${theme.colorMode}`}>
-                <ChainIcon symbol={originNetworkOption?.shortName} />
-                {originNetworkOption.name}
-              </span>
-            </div>
-            {originNetwork.shortName !== 'CC' && (
-              <p className={theme.colorMode}>
-                {dAppOption === DAppOptions.LPDrain
-                  ? targetAddress
-                  : connectedAddress}
-              </p>
-            )}
-          </div>
-        </div>
-      )}
+      </div>
       <div className='detail-item amount'>
         <span className='amount-container'>
           <div className='amount-details'>
@@ -212,45 +181,29 @@ const ConfirmDetails = ({
           </div>
         </span>
       </div>
-      {targetNetwork.shortName === ChainName.FIAT ? (
-        <div>
-          <div className='detail-item'>
-            <span className='label'>IBAN:</span>
-            <p>{bankDetails.iban}</p>
+
+      <div className='detail-item'>
+        <span className='label'>Target wallet:</span>
+        <div className='network-details'>
+          <div className='kima-card-network-container'>
             <span className={`kima-card-network-label ${theme.colorMode}`}>
               <ChainIcon symbol={targetNetworkOption?.shortName} />
-              FIAT
+              {targetNetworkOption?.name}
             </span>
           </div>
-          <div className='detail-item'>
-            <span className='label'>Recipient:</span>
-            <p>{bankDetails.recipient}</p>
-          </div>
+          <p className={theme.colorMode}>
+            {mode === ModeOptions.light
+              ? targetNetwork.shortName === 'SOL'
+                ? lightDemoAccounts.SOL
+                : targetNetwork.shortName === 'TRX'
+                  ? lightDemoAccounts.TRX
+                  : lightDemoAccounts.EVM
+              : dAppOption === DAppOptions.LPDrain
+                ? connectedAddress
+                : targetAddress}
+          </p>
         </div>
-      ) : (
-        <div className='detail-item'>
-          <span className='label'>Target wallet:</span>
-          <div className='network-details'>
-            <div className='kima-card-network-container'>
-              <span className={`kima-card-network-label ${theme.colorMode}`}>
-                <ChainIcon symbol={targetNetworkOption?.shortName} />
-                {targetNetworkOption?.name}
-              </span>
-            </div>
-            <p className={theme.colorMode}>
-              {mode === ModeOptions.light
-                ? targetNetwork.shortName === 'SOL'
-                  ? lightDemoAccounts.SOL
-                  : targetNetwork.shortName === 'TRX'
-                    ? lightDemoAccounts.TRX
-                    : lightDemoAccounts.EVM
-                : dAppOption === DAppOptions.LPDrain
-                  ? connectedAddress
-                  : targetAddress}
-            </p>
-          </div>
-        </div>
-      )}
+      </div>
 
       {/* checkbox shall only be displayed in transfer scenario */}
       {mode === ModeOptions.bridge && BigInt(totalFee.value) > BigInt(0) ? (

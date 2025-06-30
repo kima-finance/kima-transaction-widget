@@ -241,27 +241,22 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       return dispatch(setSubmitted(true))
     }
 
-    if (mode !== ModeOptions.payment) {
-      // reset to default values
-      if (transactionOption?.sourceChain) {
+    // reset to default values
+    if (mode === ModeOptions.payment) {
+      if (transactionOption?.targetChain) {
         const sourceChain = chainData?.find(
           (currentChain) =>
-            currentChain.shortName === transactionOption.sourceChain
+            currentChain.shortName !== transactionOption.targetChain
         )
         dispatch(setSourceChain(sourceChain as ChainData))
-      } else {
-        dispatch(setSourceChain(networks[0]))
-      }
 
-      if (transactionOption?.sourceChain) {
         const targetChain = chainData?.find(
           (currentChain) =>
             currentChain.shortName === transactionOption.targetChain
         )
         dispatch(setTargetChain(targetChain as ChainData))
-      } else {
-        dispatch(setTargetChain(networks[1]))
       }
+
       dispatch(setTargetAddress(transactionOption?.targetAddress || ''))
       dispatch(
         setTargetCurrency(
@@ -269,12 +264,19 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
         )
       )
       dispatch(setAmount(transactionOption?.amount.toString() || ''))
+    } else {
+      dispatch(setSourceChain(networks[0]))
+      dispatch(setTargetChain(networks[1]))
+      dispatch(setTargetAddress(''))
+      dispatch(setTargetCurrency(networks[1].supportedTokens[0].symbol))
+      dispatch(setAmount(''))
     }
+
     dispatch(
       setMode(transactionOption ? ModeOptions.payment : ModeOptions.bridge)
     )
+
     // disconnect wallet?
-    dispatch(setAmount(''))
     dispatch(setCCTransactionId(''))
     dispatch(setCCTransactionStatus('idle'))
     dispatch(setTxId(-1))

@@ -113,7 +113,7 @@ export const TransferWidget = ({
   const sourceCurrency = useSelector(selectSourceCurrency)
   const targetCurrency = useSelector(selectTargetCurrency)
   const amount = useSelector(selectAmount)
-  const { totalFee, transactionValues } = useSelector(selectServiceFee)
+  const { feeId, totalFee, transactionValues } = useSelector(selectServiceFee)
   const compliantOption = useSelector(selectCompliantOption)
   const networkOptions = useSelector(selectNetworkOption)
   const feeDeduct = useSelector(selectFeeDeduct)
@@ -277,14 +277,6 @@ export const TransferWidget = ({
       return approve()
     }
 
-    if (
-      dAppOption === DAppOptions.LPDrain ||
-      dAppOption === DAppOptions.LPAdd
-    ) {
-      keplrHandler?.(sourceAddress)
-      return
-    }
-
     let sig = signature
     if (!sig && mode !== ModeOptions.light) {
       setFeeOptionDisabled(true)
@@ -295,6 +287,28 @@ export const TransferWidget = ({
         originChain: sourceChain.shortName
       })
       setSignature(sig)
+    }
+
+    if (
+      dAppOption === DAppOptions.LPDrain ||
+      dAppOption === DAppOptions.LPAdd
+    ) {
+      const param = {
+        sourceAddress,
+        amount: txValues.submitAmount.value.toString(),
+        fee: bigIntChangeDecimals({
+          ...totalFee,
+          newDecimals: txValues.submitAmount.decimals
+        }).value.toString(),
+        decimals: txValues.submitAmount.decimals,
+        options: JSON.stringify({
+          signature: sig,
+          feeId,
+          chargeFeeAtTarget: feeDeduct
+        })
+      }
+      keplrHandler?.(param)
+      return
     }
 
     submitTransaction(sig) // No need to `await` or inspect return here
@@ -365,46 +379,46 @@ export const TransferWidget = ({
 
   const resetForm = async () => {
     if (isApproving || isSubmitting || isSigning) return
-    closeHandler && closeHandler(0)
 
+    closeHandler && closeHandler(0)
     setSignature('')
     setSigning(false)
     setFormStep(0)
-    dispatch(setAmount(transactionOption?.amount.toString() || ''))
     dispatch(resetServiceFee())
+    setInitialSelection({
+      sourceSelection: true,
+      targetSelection: true
+    })
 
-    if (mode !== ModeOptions.payment) {
-      setInitialSelection({
-        sourceSelection: true,
-        targetSelection: true
-      })
-
-      if (transactionOption?.sourceChain) {
+    if (mode === ModeOptions.payment) {
+      dispatch(setAmount(transactionOption?.amount.toString() || ''))
+      if (transactionOption?.targetChain) {
         const sourceChain = networks.find(
           (currentChain: ChainData) =>
-            currentChain.shortName === transactionOption.sourceChain
+            currentChain.shortName !== transactionOption.targetChain
         )
         dispatch(setSourceChain(sourceChain as ChainData))
-      } else {
-        dispatch(setSourceChain(networks[0]))
-      }
 
-      if (transactionOption?.sourceChain) {
         const targetChain = networks.find(
           (currentChain: ChainData) =>
             currentChain.shortName === transactionOption.targetChain
         )
         dispatch(setTargetChain(targetChain as ChainData))
-      } else {
-        dispatch(setTargetChain(networks[1]))
-      }
-      dispatch(setTargetAddress(transactionOption?.targetAddress || ''))
-      dispatch(
-        setTargetCurrency(
-          transactionOption?.currency || networks[1].supportedTokens[0].symbol
+        dispatch(setTargetAddress(transactionOption?.targetAddress || ''))
+        dispatch(
+          setTargetCurrency(
+            transactionOption?.currency || networks[1].supportedTokens[0].symbol
+          )
         )
-      )
+      }
+    } else {
+      dispatch(setAmount(''))
+      dispatch(setSourceChain(networks[0]))
+      dispatch(setTargetChain(networks[1]))
+      dispatch(setTargetAddress(''))
+      dispatch(setTargetCurrency(networks[1].supportedTokens[0].symbol))
     }
+
     await disconnectWallet()
   }
 

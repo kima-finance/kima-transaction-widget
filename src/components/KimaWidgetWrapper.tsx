@@ -28,7 +28,8 @@ import {
   setTargetCurrency,
   setSourceChain,
   setDappOption,
-  setCCTransactionStatus
+  setCCTransactionStatus,
+  setFeeDeduct
 } from '../store/optionSlice'
 import '../index.css'
 import {
@@ -107,11 +108,19 @@ const KimaWidgetWrapper = ({
 
     if (transactionOption) {
       // set default transaction values
-      if (transactionOption.sourceChain) {
-        const sourceChain = chainData?.find(
-          (currentChain: ChainData) =>
-            currentChain.shortName === transactionOption.sourceChain
-        )
+      if (transactionOption.targetChain) {
+        let sourceChain
+        if (dAppOption == DAppOptions.LPAdd || DAppOptions.LPDrain) {
+          sourceChain = chainData?.find(
+            (currentChain: ChainData) =>
+              currentChain.shortName === transactionOption.targetChain
+          )
+        } else {
+          sourceChain = chainData?.find(
+            (currentChain: ChainData) =>
+              currentChain.shortName !== transactionOption.targetChain
+          )
+        }
         dispatch(setSourceChain(sourceChain as ChainData))
       }
       const targetChain = chainData?.find(
@@ -122,6 +131,13 @@ const KimaWidgetWrapper = ({
       dispatch(setTargetAddress(transactionOption.targetAddress || ''))
       dispatch(setTargetCurrency(transactionOption.currency || ''))
       dispatch(setAmount(transactionOption.amount.toString() || ''))
+
+      if (dAppOption === DAppOptions.LPAdd) {
+        dispatch(setFeeDeduct(false))
+      }
+      if (dAppOption === DAppOptions.LPDrain) {
+        dispatch(setFeeDeduct(true))
+      }
     }
 
     if (mode === ModeOptions.payment && !transactionOption) {
@@ -135,7 +151,7 @@ const KimaWidgetWrapper = ({
       dispatch(setTxId(-1))
       dispatch(setSubmitted(false))
     }
-  }, [theme, transactionOption, mode, networkOption, chainData])
+  }, [theme, transactionOption, mode, networkOption, chainData, dAppOption])
 
   useEffect(() => {
     if (!chainData?.length) return

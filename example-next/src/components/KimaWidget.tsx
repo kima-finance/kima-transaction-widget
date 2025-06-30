@@ -8,7 +8,8 @@ import {
   KimaProvider,
   ModeOptions,
   ColorModeOptions,
-  SupportNetworks
+  SupportNetworks,
+  DAppOptions
 } from '@kimafinance/kima-transaction-widget'
 import '@kimafinance/kima-transaction-widget/index.css'
 
@@ -17,6 +18,9 @@ const Widget = () => {
     <KimaProvider
       walletConnectProjectId='e579511a495b5c312b572b036e60555a'
       kimaBackendUrl='http://localhost:3001'
+      keplrHandler={(e: any) => {
+        console.log(e)
+      }}
     >
       <div className='container'>
         <KimaTransactionWidget
@@ -24,7 +28,8 @@ const Widget = () => {
             colorMode: ColorModeOptions.dark
           }}
           mode={ModeOptions.bridge}
-          txId={'4884'}
+          // dAppOption={DAppOptions.LPDrain}
+          // txId={'4884'}
           // titleOption={{
           //   initialTitle: 'New Purchase'
           // }}
@@ -37,10 +42,10 @@ const Widget = () => {
             }
           }}
           // transactionOption={{
-          //   targetChain: SupportNetworks.ETHEREUM,
-          //   targetAddress: '0x10c033E050e10510a951a56e4A14B4CD3de6CA67',
+          //   targetChain: SupportNetworks.POLYGON,
+          //   targetAddress: '0x9a721c664f9d69e4da24f91386086fbd81da23c1',
           //   amount: 3,
-          //   currency: 'USDT'
+          //   currency: 'USDK'
           // }}
         />
       </div>

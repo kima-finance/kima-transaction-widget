@@ -7,7 +7,6 @@ import {
   selectServiceFee,
   selectSourceChain,
   selectSourceCurrency,
-  selectSubmitted,
   selectTargetChain,
   selectTargetCurrency,
   selectTheme
@@ -25,7 +24,6 @@ const FeeDeductionRadioButtons = ({ disabled }: { disabled: boolean }) => {
   const sourceCurrency = useSelector(selectSourceCurrency)
   const targetCurrency = useSelector(selectTargetCurrency)
   const theme = useSelector(selectTheme)
-  const isSubmitted = useSelector(selectSubmitted)
 
   const handleChange = (value: boolean) => {
     dispatch(setFeeDeduct(value))
