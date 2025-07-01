@@ -37,8 +37,17 @@ export const getTokenAllowance = async ({
     // Fetch the token account information
     const accountInfo =
       await connection.getParsedAccountInfo(tokenAccountAddress)
-
     const parsedAccountInfo = accountInfo?.value?.data as ParsedAccountData
+    if (!parsedAccountInfo) {
+      log.warn(
+        `Sol:getTokenAllowance: No token ${selectedCoin} account info found for ${userPublicKey.toBase58()}`
+      )
+      return {
+        allowance: BigInt(0),
+        balance: BigInt(0),
+        decimals: 0
+      }
+    }
 
     return {
       allowance:

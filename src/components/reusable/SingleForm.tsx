@@ -118,6 +118,15 @@ const SingleForm = ({
     return balance - intAmount
   }, [balance, totalFee, feeDeduct])
 
+  const feeCurrency = useMemo(() => {
+    // the fees should be denominated in the currency
+    // the source token is pegged to
+    const sourceToken = sourceNetwork.supportedTokens.find(
+      (t) => t.symbol === sourceCurrency
+    )
+    return sourceToken?.peggedTo ?? 'USD'
+  }, [sourceNetwork, sourceCurrency])
+
   useEffect(() => {
     if (!errorMessage) return
     toast.error(errorMessage)
@@ -269,7 +278,9 @@ const SingleForm = ({
                   Est fees:{' '}
                   <span className={`${isLoadingFees ? 'loading' : ''}`}>
                     {' '}
-                    {isLoadingFees ? '' : `$ ${formatBigInt(totalFee)} USD`}
+                    {isLoadingFees
+                      ? ''
+                      : `$ ${formatBigInt(totalFee)} ${feeCurrency}`}
                   </span>
                 </p>
               )}

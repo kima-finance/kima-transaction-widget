@@ -58,11 +58,7 @@ const ConfirmDetails = ({
 
   const transactionOption = useSelector(selectTransactionOption)
   const { connectedAddress } = useIsWalletReady()
-  const originNetworkOption = useMemo(
-    () =>
-      networkOptions.filter((network) => network.id === originNetwork.id)[0],
-    [networkOptions, originNetwork]
-  )
+
   const targetNetworkOption = useMemo(
     () =>
       networkOptions.filter(
@@ -108,7 +104,7 @@ const ConfirmDetails = ({
           <div className='detail-item'>
             <span className='label'>IBAN:</span>
             <span className={`kima-card-network-label ${theme.colorMode}`}>
-              <ChainIcon symbol={originNetworkOption?.shortName} />
+              <ChainIcon symbol={originNetwork?.shortName} />
               {/* <div className='icon'>
                 <originNetworkOption.icon />
               </div> */}
@@ -137,8 +133,8 @@ const ConfirmDetails = ({
           <div className='network-details'>
             <div className='kima-card-network-container'>
               <span className={`kima-card-network-label ${theme.colorMode}`}>
-                <ChainIcon symbol={originNetworkOption?.shortName} />
-                {originNetworkOption.name}
+                <ChainIcon symbol={originNetwork?.shortName} />
+                {originNetwork.name}
               </span>
             </div>
             {originNetwork.shortName !== 'CC' && (

@@ -4,6 +4,7 @@ import {
   selectMode,
   selectNetworks,
   selectSourceChain,
+  selectSourceCurrency,
   selectTargetChain,
   selectTheme
 } from '@store/selectors'
@@ -56,6 +57,7 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
   const networkOptions = useSelector(selectNetworks)
   const mode = useSelector(selectMode)
   const sourceNetwork = useSelector(selectSourceChain)
+  const sourceSymbol = useSelector(selectSourceCurrency)
   const targetNetwork = useSelector(selectTargetChain)
   const { switchChainHandler } = useKimaContext()
 
@@ -67,17 +69,32 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
         ? false
         : network.shortName === sourceNetwork.shortName
 
+      // TODO: use chain filter in the backend instead then burn this code with 🔥!
       const isAllowedInLightMode =
         mode !== ModeOptions.light ||
         lightDemoNetworks.includes(network.shortName)
 
+      const sourceToken = sourceNetwork.supportedTokens.find(
+        (t) => t.symbol === sourceSymbol
+      )
+      let supportsSourceCurrency = true
+      if (!isOriginSelector && !!sourceToken) {
+        // currently the source and target tokens must be demoninated in the same currency
+        // filter out chains in the target networks not pegged to the same currency
+        // as the selected source token
+        supportsSourceCurrency = network.supportedTokens.some(
+          (token) => token.peggedTo === sourceToken?.peggedTo
+        )
+      }
+
       return (
         network.supportedLocations.includes(type) &&
         !isSameAsSource &&
+        supportsSourceCurrency &&
         isAllowedInLightMode
       )
     })
-  }, [networkOptions, sourceNetwork, type, mode])
+  }, [networkOptions, sourceNetwork, sourceSymbol, type, mode])
 
   const selectedNetwork = useMemo(() => {
     if (initialSelection) {

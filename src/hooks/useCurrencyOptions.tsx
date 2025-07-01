@@ -1,10 +1,9 @@
 import { useEffect, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import {
-  selectBackendUrl,
   selectMode,
-  selectNetworks,
   selectSourceChain,
+  selectSourceCurrency,
   selectTargetChain,
   selectTransactionOption
 } from '../store/selectors'
@@ -14,26 +13,66 @@ import { setSourceCurrency, setTargetCurrency } from '../store/optionSlice'
 import { ChainToken } from '@plugins/pluginTypes'
 import log from '@utils/logger'
 
+const emptyTokenList = { tokenList: [] as ChainToken[] }
+
 export default function useCurrencyOptions(isSourceChain: boolean) {
   const dispatch = useDispatch()
   const mode = useSelector(selectMode)
   const sourceChain = useSelector(selectSourceChain)
+  const sourceSymbol = useSelector(selectSourceCurrency)
   const targetChain = useSelector(selectTargetChain)
-  const chain = isSourceChain ? sourceChain : targetChain
   const transactionOption = useSelector(selectTransactionOption)
-  const networks = useSelector(selectNetworks)
 
   const output = useMemo(() => {
-    log.debug('useCurrencyOptions: networks: ', networks)
-    const networkTokenList =
-      networks.find((network) => network.id === chain.id) || networks[0]
+    const chain = isSourceChain ? sourceChain : targetChain
+    const location = isSourceChain ? 'origin' : 'target'
 
-    log.debug('useCurrencyOptions: networkTokenList: ', networkTokenList, chain)
+    // nothing selected
+    if (!chain) {
+      log.debug(`useCurrencyOptions(${location}): no chain selected`, {
+        chain,
+        sourceSymbol
+      })
+      return emptyTokenList
+    }
 
-    return !!networks
-      ? { tokenList: networkTokenList?.supportedTokens as ChainToken[] }
-      : { tokenList: [] }
-  }, [networks, chain])
+    // source chain: always return all tokens for the source chain
+    if (isSourceChain) return { tokenList: chain.supportedTokens }
+
+    // target chain: no source chain selected, just return all tokens
+    if (!sourceSymbol) {
+      log.debug(`useCurrencyOptions(${location}): no sourceSymbol selected`, {
+        chain,
+        sourceSymbol
+      })
+      return { tokenList: chain.supportedTokens }
+    }
+
+    // filter the tokens for the target chain based on the selected source token
+    const sourceToken = sourceChain.supportedTokens.find(
+      (t) => t.symbol === sourceSymbol
+    )
+    if (!sourceToken) {
+      log.debug(
+        `useCurrencyOptions(${location}): source token ${sourceSymbol ?? 'undefined'} not found`,
+        { sourceChain, sourceSymbol }
+      )
+      return { tokenList: chain.supportedTokens }
+    }
+
+    // currently both source and target tokens must be pegged to the same currency
+    const tokenList = chain.supportedTokens.filter(
+      (token) => token.peggedTo === sourceToken.peggedTo
+    )
+    log.debug(`useCurrencyOptions(${location}): updated token list `, {
+      tokenList,
+      sourceSymbol,
+      sourceToken,
+      chain
+    })
+
+    return { tokenList }
+  }, [sourceChain, sourceSymbol, targetChain, isSourceChain])
   const { tokenList } = output
 
   useEffect(() => {
@@ -43,6 +82,9 @@ export default function useCurrencyOptions(isSourceChain: boolean) {
     if (mode === ModeOptions.payment && !isSourceChain) return
 
     const [firstToken] = tokenList
+    log.debug(
+      `useCurrencyOptions: seting default currency to ${firstToken.symbol}`
+    )
     if (isSourceChain) {
       dispatch(setSourceCurrency(firstToken.symbol))
     } else {

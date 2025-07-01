@@ -47,23 +47,23 @@ function useIsWalletReady(): {
   const [connectedAddress, setConnectedAddress] = useState<string>('')
 
   const switchNetwork = useCallback(async () => {
+    if (!sourceChain || !appKitModel) return
+    if (sourceChain.compatibility !== ChainCompatibility.EVM) return
+
     log.debug('useIsWalletReady:EVM:Attempting to switch network...', {
       hasProvider: !!appkitProvider,
       sourceChain,
       modalExists: appKitModel !== null,
       modal: appKitModel
     })
-    if (sourceChain && appKitModel !== null) {
-      log.debug('useIsWalletReady:EVM:switching network...')
-      try {
-        appKitModel.switchNetwork(sourceChain)
-        log.debug(
-          'useIsWalletReady:EVM:Network switch successful to:',
-          sourceChain.name
-        )
-      } catch (e) {
-        log.error('useIsWalletReady:EVM:Network switch failed:', e)
-      }
+    try {
+      appKitModel.switchNetwork(sourceChain)
+      log.debug(
+        'useIsWalletReady:EVM:Network switch successful to:',
+        sourceChain.name
+      )
+    } catch (e) {
+      log.warn('useIsWalletReady:EVM:Network switch failed:', e)
     }
   }, [appkitProvider, sourceChain])
 

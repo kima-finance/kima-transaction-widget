@@ -84,6 +84,7 @@ export interface ChainToken {
   address: string
   decimals: number
   symbol: string
+  peggedTo: string
 }
 
 export enum ChainCompatibility {
