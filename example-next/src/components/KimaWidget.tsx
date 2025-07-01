@@ -17,6 +17,7 @@ const Widget = () => {
     <KimaProvider
       walletConnectProjectId='e579511a495b5c312b572b036e60555a'
       kimaBackendUrl='http://localhost:3001'
+      logLevel='DEBUG'
     >
       <div className='container'>
         <KimaTransactionWidget
