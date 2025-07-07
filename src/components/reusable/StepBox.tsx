@@ -19,6 +19,7 @@ import { getShortenedAddress } from '../../utils/functions'
 import CopyButton from './CopyButton'
 import ExternalLink from './ExternalLink'
 import ChainIcon from './ChainIcon'
+import useWidth from '../../hooks/useWidth'
 
 interface Props {
   step: number
@@ -51,6 +52,8 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
   const networkOption = useSelector(selectNetworkOption)
   const networks = useSelector(selectNetworks)
 
+  const { width: windowWidth } = useWidth()
+
   const sourceChain = useMemo(() => {
     const sourceKey = data?.sourceChain === 'FIAT' ? 'CC' : data?.sourceChain
     return networks.find((network) => network.shortName === sourceKey)
@@ -71,17 +74,19 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                   ${step >= index ? (index === loadingStep ? 'active' : index === errorStep ? 'error' : 'completed') : ''} 
                   ${step < index && 'locked'} ${theme.colorMode}`}
             >
-              {step < index && <Lock />}
+              <div className='info-icon'>
+                {step < index && <Lock />}
 
-              {step >= index ? (
-                index === loadingStep ? (
-                  <Loader className='loader' />
-                ) : index === errorStep ? (
-                  <WarningIcon />
-                ) : (
-                  <CheckIcon />
-                )
-              ) : null}
+                {step >= index ? (
+                  index === loadingStep ? (
+                    <Loader className='loader' />
+                  ) : index === errorStep ? (
+                    <WarningIcon />
+                  ) : (
+                    <CheckIcon />
+                  )
+                ) : null}
+              </div>
               <p>{item.title}</p>
             </div>
             {index === 0 && data?.kimaTxHash ? (
@@ -107,7 +112,12 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                 className={`info-item ${theme.colorMode} source-chain ${step >= 3 ? 'paid' : ''}`}
               >
                 <ChainIcon symbol={data.sourceChain as string} />
-                <p className='chain-name'>{sourceChain?.name} TX Hash:</p>
+                <p className='chain-name'>
+                  {windowWidth >= 770
+                    ? sourceChain?.name
+                    : sourceChain?.shortName}{' '}
+                  TX Hash:
+                </p>
                 <p>
                   <ExternalLink
                     to={`${
@@ -128,7 +138,12 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
             {index === 3 && data?.tssRefundHash ? (
               <div className={`info-item ${theme.colorMode} target-chain`}>
                 <ChainIcon symbol={data.sourceChain as string} />
-                <p className='chain-name'>{sourceChain?.name} TX Hash:</p>
+                <p className='chain-name'>
+                  {windowWidth >= 770
+                    ? sourceChain?.name
+                    : sourceChain?.shortName}{' '}
+                  TX Hash:
+                </p>
                 <p>
                   <ExternalLink
                     to={`${
@@ -149,7 +164,12 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
             {index === 3 && data?.tssReleaseHash ? (
               <div className={`info-item ${theme.colorMode} target-chain`}>
                 <ChainIcon symbol={data.targetChain as string} />
-                <p className='chain-name'>{targetChain?.name} TX Hash:</p>
+                <p className='chain-name'>
+                  {windowWidth >= 770
+                    ? targetChain?.name
+                    : targetChain?.shortName}{' '}
+                  TX Hash:
+                </p>
                 <p>
                   <ExternalLink
                     to={`${

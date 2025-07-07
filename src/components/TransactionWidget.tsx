@@ -1,7 +1,18 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { ErrorIcon, FooterLogo, MinimizeIcon } from '@assets/icons'
+import {
+  ArrowIcon,
+  ArrowRightIcon,
+  ErrorIcon,
+  MinimizeIcon,
+  TransactionCompleteIcon
+} from '@assets/icons'
 import Progressbar from './reusable/Progressbar'
-import { StepBox } from './reusable'
+import {
+  ExternalLink,
+  PrimaryButton,
+  SecondaryButton,
+  StepBox
+} from './reusable'
 import '../index.css'
 import { ColorModeOptions, ModeOptions, ThemeOptions } from '@interface'
 import { Provider } from 'react-redux'
@@ -14,6 +25,7 @@ import {
   selectBackendUrl,
   selectDappOption,
   selectFeeDeduct,
+  selectKimaExplorer,
   selectMode,
   selectNetworks,
   selectServiceFee,
@@ -48,6 +60,7 @@ import { useChainData } from '../hooks/useChainData'
 import { ChainData } from '@plugins/pluginTypes'
 import log from '@utils/logger'
 import KimaNetwork from '@assets/icons/KimaNetwork'
+import useWidth from '../hooks/useWidth'
 
 export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [step, setStep] = useState(0)
@@ -56,7 +69,9 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [errorMessage, setErrorMessage] = useState('')
   const [loadingStep, setLoadingStep] = useState(-1)
   const [minimized, setMinimized] = useState(false)
+  const [isComplete, setIsComplete] = useState(false)
   const dispatch = useDispatch()
+  const explorerUrl = useSelector(selectKimaExplorer)
   const mode = useSelector(selectMode)
   const feeDeduct = useSelector(selectFeeDeduct)
   const amount = useSelector(selectAmount)
@@ -77,6 +92,8 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
 
   const backendUrl = useSelector(selectBackendUrl)
   const { data, error } = useGetTxData(txId, dAppOption, backendUrl)
+
+  const { width: windowWidth } = useWidth()
 
   const transactionSourceChain = useMemo(
     () =>
@@ -126,6 +143,14 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
         txId
       })
   }, [data])
+
+  useEffect(() => {
+    if (!data) return
+
+    if (data.status === TransactionStatus.COMPLETED) {
+      setIsComplete(true)
+    }
+  }, [data, setIsComplete])
 
   useEffect(() => {
     if (error)
@@ -225,6 +250,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const resetForm = () => {
     closeHandler && closeHandler()
 
+    setIsComplete(false)
     dispatch(resetServiceFee())
 
     if (mode === ModeOptions.light) {
@@ -284,7 +310,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   return (
     <Provider store={store}>
       <div
-        className={`kima-card transaction-card ${theme.colorMode} ${minimized ? 'minimized' : ''}`}
+        className={`kima-card transaction-card ${isComplete ? 'transaction-complete' : ''} ${theme.colorMode} ${minimized ? 'minimized' : ''}`}
         style={{
           background:
             theme.colorMode === ColorModeOptions.light
@@ -294,79 +320,75 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       >
         <div className='kima-card-header'>
           <div className='topbar'>
-            <div className='title'>
-              {isValidTxId && !error ? (
-                <div className='transaction-title'>
-                  {mode !== ModeOptions.status
-                    ? data?.status === TransactionStatus.COMPLETED
-                      ? 'Transferred '
-                      : 'Transfering '
-                    : isEmptyStatus
-                      ? 'Fetching transaction status '
-                      : data?.status === TransactionStatus.COMPLETED
-                        ? 'Transfered '
-                        : 'Transfering '}
-                  {/* if not in status mode, display the whole picture for better understanding */}
-                  {mode !== ModeOptions.status
-                    ? Number(amount) !== 0
-                      ? transactionSourceChain?.shortName === 'CC'
-                        ? bigIntToNumber(txValues.allowanceAmount).toFixed(2)
-                        : formatBigInt(txValues.allowanceAmount)
-                      : ''
-                    : data?.amount || ''}{' '}
-                  {mode !== ModeOptions.status
-                    ? `${sourceSymbol} `
-                    : isEmptyStatus
-                      ? ''
-                      : `(${data?.sourceSymbol})`}
-                  <div className='title-icon'>
-                    <ChainIcon
-                      symbol={transactionSourceChain?.shortName as string}
-                    />
-                  </div>{' '}
-                  {mode !== ModeOptions.status
-                    ? `${transactionSourceChain?.name}`
-                    : isEmptyStatus
-                      ? ''
-                      : `${data?.sourceChain === 'FIAT' ? 'CC' : data?.sourceChain}`}{' '}
-                  {mode !== ModeOptions.status
-                    ? `→ `
-                    : isEmptyStatus
-                      ? ''
-                      : `→ `}
-                  {/* if not in status mode, display the whole picture for better understanding */}
-                  {mode !== ModeOptions.status
-                    ? Number(amount) !== 0
-                      ? transactionSourceChain?.shortName === 'CC'
-                        ? bigIntToNumber(txValues.submitAmount).toFixed(2)
-                        : formatBigInt(txValues.submitAmount)
-                      : ''
-                    : data?.amount || ''}{' '}
-                  {mode !== ModeOptions.status
-                    ? `${targetSymbol}${' '}`
-                    : isEmptyStatus
-                      ? ''
-                      : `${data?.targetSymbol}${' '}`}
-                  <div className='title-icon'>
-                    <ChainIcon
-                      symbol={transactionTargetChain?.shortName as string}
-                    />
-                  </div>{' '}
-                  {mode !== ModeOptions.status
-                    ? `${transactionTargetChain?.name}${' '}`
-                    : isEmptyStatus
-                      ? ''
-                      : `${data?.targetChain} ${' '}`}
-                </div>
-              ) : (
-                <div>
-                  <h3 className='transaction'>Transaction Status</h3>
-                </div>
-              )}
-            </div>
+            {!isComplete && (
+              <div className='title'>
+                {isValidTxId && !error ? (
+                  <div className='transaction-title'>
+                    {mode !== ModeOptions.status
+                      ? data?.status === TransactionStatus.COMPLETED
+                        ? 'Transferred '
+                        : 'Transfering '
+                      : isEmptyStatus
+                        ? 'Fetching transaction status '
+                        : data?.status === TransactionStatus.COMPLETED
+                          ? 'Transferred '
+                          : 'Transfering '}
+                    {/* if not in status mode, display the whole picture for better understanding */}
+                    {mode !== ModeOptions.status
+                      ? Number(amount) !== 0
+                        ? transactionSourceChain?.shortName === 'CC'
+                          ? bigIntToNumber(txValues.allowanceAmount).toFixed(2)
+                          : formatBigInt(txValues.allowanceAmount)
+                        : ''
+                      : data?.amount || ''}{' '}
+                    {mode !== ModeOptions.status
+                      ? `${sourceSymbol} `
+                      : isEmptyStatus
+                        ? ''
+                        : `${data?.sourceSymbol}`}
+                    {mode !== ModeOptions.status
+                      ? `→ `
+                      : isEmptyStatus
+                        ? ''
+                        : `→ `}
+                    {/* if not in status mode, display the whole picture for better understanding */}
+                    {mode !== ModeOptions.status
+                      ? Number(amount) !== 0
+                        ? transactionSourceChain?.shortName === 'CC'
+                          ? bigIntToNumber(txValues.submitAmount).toFixed(2)
+                          : formatBigInt(txValues.submitAmount)
+                        : ''
+                      : data?.amount || ''}{' '}
+                    {mode !== ModeOptions.status
+                      ? `${targetSymbol}${' '}`
+                      : isEmptyStatus
+                        ? ''
+                        : `${data?.targetSymbol}${' '}`}
+                  </div>
+                ) : (
+                  <div>
+                    <h3 className='transaction'>Transaction Status</h3>
+                  </div>
+                )}
+              </div>
+            )}
 
             {!minimized ? (
-              <div className='control-buttons'>
+              <div
+                className={`control-buttons ${isComplete ? 'complete' : ''}`}
+              >
+                {isComplete && (
+                  <button
+                    className='menu-button'
+                    style={{ marginRight: 'auto' }}
+                    onClick={() => {
+                      setIsComplete(false)
+                    }}
+                  >
+                    {'< Back'}
+                  </button>
+                )}
+
                 <button
                   className='icon-button minimize'
                   onClick={() => {
@@ -389,33 +411,116 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
               </div>
             )}
           </div>
+          {data && !isComplete && (
+            <div className='header-network-labels'>
+              <div className={`kima-card-network-label ${theme.colorMode}`}>
+                <ChainIcon
+                  symbol={transactionSourceChain?.shortName as string}
+                />
+                {windowWidth > 450 && <h3>{transactionSourceChain?.name}</h3>}
+              </div>
+              <div
+                style={{ display: 'inline-block', transform: 'rotate(-90deg)' }}
+              >
+                <ArrowIcon width={25} height={25} />
+              </div>
+
+              <div className={`kima-card-network-label ${theme.colorMode}`}>
+                <ChainIcon
+                  symbol={transactionTargetChain?.shortName as string}
+                />
+                {windowWidth > 450 && <h3>{transactionTargetChain?.name}</h3>}
+              </div>
+            </div>
+          )}
         </div>
 
         {isValidTxId && !error ? (
           <div className='kima-card-content'>
-            <div className='transaction-content'>
-              <Progressbar
-                step={step}
-                focus={focus}
-                errorStep={errorStep}
-                setFocus={setFocus}
-                loadingStep={loadingStep}
-              />
-              {/* <Tooltip
+            {!isComplete ? (
+              <div className='transaction-content'>
+                <Progressbar
+                  step={step}
+                  focus={focus}
+                  errorStep={errorStep}
+                  setFocus={setFocus}
+                  loadingStep={loadingStep}
+                />
+                {/* <Tooltip
             step={step}
             focus={focus}
             errorStep={errorStep}
             loadingStep={loadingStep}
             data={data}
           /> */}
-              <StepBox
-                step={step}
-                errorStep={errorStep}
-                loadingStep={loadingStep}
-                data={data}
-              />
-            </div>
-            {!error && !isEmptyStatus && (
+                <StepBox
+                  step={step}
+                  errorStep={errorStep}
+                  loadingStep={loadingStep}
+                  data={data}
+                />
+              </div>
+            ) : (
+              <div className='transaction-content transaction-complete'>
+                <TransactionCompleteIcon />
+                <h2>Transaction Complete</h2>
+                <div className='kima-stepbox'>
+                  <div
+                    className={`content-wrapper transaction-complete ${theme.colorMode}`}
+                  >
+                    <p>
+                      You just transferred {data?.amount} {data?.sourceSymbol}
+                    </p>
+
+                    <div className='header-network-labels'>
+                      <div
+                        className={`kima-card-network-label ${theme.colorMode}`}
+                      >
+                        <ChainIcon
+                          symbol={transactionSourceChain?.shortName as string}
+                        />
+                        {windowWidth > 450 && (
+                          <h3>{transactionSourceChain?.name}</h3>
+                        )}
+                      </div>
+                      <div
+                        style={{
+                          display: 'inline-block',
+                          transform: 'rotate(-90deg)'
+                        }}
+                      >
+                        <ArrowIcon width={25} height={25} />
+                      </div>
+
+                      <div
+                        className={`kima-card-network-label ${theme.colorMode}`}
+                      >
+                        <ChainIcon
+                          symbol={transactionTargetChain?.shortName as string}
+                        />
+                        {windowWidth > 450 && (
+                          <h3>{transactionTargetChain?.name}</h3>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className='transaction-buttons'>
+                  <SecondaryButton
+                    clickHandler={resetForm}
+                    theme={theme.colorMode}
+                  >
+                    New Transaction
+                  </SecondaryButton>
+                  <ExternalLink
+                    to={`${explorerUrl}/transactions/?tx=${data?.kimaTxHash}`}
+                  >
+                    <PrimaryButton>View Details</PrimaryButton>
+                  </ExternalLink>
+                </div>
+              </div>
+            )}
+            {!error && !isEmptyStatus && !isComplete && (
               <TransactionStatusMessage
                 isCompleted={data?.status as TransactionStatus}
                 transactionId={txId.toString()}
@@ -462,7 +567,9 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
             }
           }}
         />
-        <div className='floating-footer status'>
+        <div
+          className={`floating-footer ${isComplete ? 'complete' : 'status'}`}
+        >
           <div className={`items ${theme.colorMode}`}>
             <span>Powered by</span>
             <KimaNetwork />
