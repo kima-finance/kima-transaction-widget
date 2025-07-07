@@ -146,7 +146,7 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
     }
 
     if (compliantOption) {
-      if (!sourceCompliant?.isCompliant) {
+      if (!sourceCompliant?.isCompliant && sourceChain !== 'CC') {
         return {
           error: ValidationError.Error,
           message: 'Source address compliance check failed'

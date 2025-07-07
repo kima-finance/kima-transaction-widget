@@ -70,7 +70,7 @@ const KimaWidgetWrapper = ({
   titleOption,
   paymentTitleOption,
   helpURL = '',
-  compliantOption = true,
+  compliantOption = false,
   transactionOption,
   chainData,
   envOptions
