@@ -100,6 +100,7 @@
 .kima-card .kima-card-header .topbar .control-buttons {
   display: flex;
   align-items: center;
+  gap: 8px;
 }
 @media (max-width: 768px) {
   .kima-card .kima-card-header .topbar .control-buttons {
@@ -110,7 +111,6 @@
   background: transparent;
   border: 1px solid rgba(119, 141, 163, 0.3019607843);
   border-radius: 40px;
-  padding: 2px 8px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1), color 0ms, background-color 0ms, border-color 0ms;
 }
@@ -145,22 +145,16 @@
   justify-content: center;
   align-items: center;
   padding: 4px;
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   border-radius: 9999px;
   background: transparent;
   cursor: pointer;
   border: 1px solid rgba(119, 141, 163, 0.3019607843);
 }
-@media (max-width: 768px) {
-  .kima-card .kima-card-header .topbar .control-buttons .cross-icon-button {
-    width: 50px;
-    height: 50px;
-  }
-}
 .kima-card .kima-card-header .topbar .control-buttons .cross-icon-button svg {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 25px;
 }
 @media (max-width: 768px) {
   .kima-card .kima-card-header .topbar .control-buttons .cross-icon-button svg {
@@ -179,7 +173,6 @@
   color: #778da3;
   text-decoration: none;
   cursor: pointer;
-  margin-right: 1em;
 }
 .kima-card .kima-card-header .topbar .control-buttons .menu-button {
   font-family: "Manrope";

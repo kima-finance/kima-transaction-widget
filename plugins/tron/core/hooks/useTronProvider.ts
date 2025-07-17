@@ -6,7 +6,7 @@ import {
   selectSourceChain
 } from '../../../../src/store/selectors'
 import { useKimaContext } from '../../../../src/KimaProvider'
-import { TronProvider } from '@interface'
+import { TronProvider } from '@widget/interface'
 import {
   TRON_USDK_OWNER_ADDRESS,
   tronWebMainnet,

@@ -1,7 +1,7 @@
-import { BigintAmount } from '@interface'
+import { BigintAmount } from '@widget/interface'
 import { formatUnits } from 'viem'
 
-import { ChainName } from "@utils/constants"
+import { ChainName } from "@widget/utils/constants"
 
 export const formatterInt = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 0

@@ -1,8 +1,8 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { CrossIcon } from '@assets/icons'
-import { setTronConnectModal } from '@store/optionSlice'
-import { selectTronConnectModal, selectTheme } from '@store/selectors'
+import { CrossIcon } from '@widget/assets/icons'
+import { setTronConnectModal } from '@widget/store/optionSlice'
+import { selectTronConnectModal, selectTheme } from '@widget/store/selectors'
 import AccountDetailsModal from './AccountDetailsModal'
 import TronWalletSelect from './TronWalletSelect'
 

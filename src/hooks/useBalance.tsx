@@ -1,6 +1,6 @@
-import { getAllPlugins } from '@pluginRegistry'
+import { getAllPlugins } from '@widget/pluginRegistry'
 import useGetCurrentPlugin from './useGetCurrentPlugin'
-import { PluginUseBalanceResult } from '@plugins/pluginTypes'
+import { PluginUseBalanceResult } from '@widget/plugins/pluginTypes'
 
 // Preload all plugins
 const allPlugins = getAllPlugins()

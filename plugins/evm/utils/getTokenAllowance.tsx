@@ -1,12 +1,12 @@
-import { TokenOptions } from '@store/optionSlice'
+import { TokenOptions } from '@widget/store/optionSlice'
 import { createPublicClient, http, getContract, erc20Abi } from 'viem'
-import { getTokenAddress, getPoolAddress } from '@utils/functions'
+import { getTokenAddress, getPoolAddress } from '@widget/utils/functions'
 import {
   CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET,
   CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET
-} from '@utils/constants'
-import { GetTokenAllowanceResult } from '@plugins/pluginTypes'
-import log from '@utils/logger'
+} from '@widget/utils/constants'
+import { GetTokenAllowanceResult } from '@widget/plugins/pluginTypes'
+import log from '@widget/utils/logger'
 
 export const getTokenAllowance = async ({
   tokenOptions,

@@ -1,6 +1,6 @@
-import type { FeeResponse, ServiceFee } from '@interface'
+import type { FeeResponse, ServiceFee } from '@widget/interface'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
-import { toBigintAmount } from 'src/helpers/functions'
+import { toBigintAmount } from '../helpers/functions'
 
 export const getFees = async (
   amount: number,

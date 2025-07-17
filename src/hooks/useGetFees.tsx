@@ -1,9 +1,9 @@
-import { ServiceFee } from '@interface'
 import { useQuery } from '@tanstack/react-query'
+import { ServiceFee } from '@widget/interface'
 import { useSelector } from 'react-redux'
-import { selectMode } from '@store/selectors'
+import { selectMode } from '@widget/store/selectors'
 import { getFees } from '../services/feesApi'
-import log from '@utils/logger'
+import log from '@widget/utils/logger'
 
 export interface UseGetFeesInputs {
   amount: number | null

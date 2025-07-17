@@ -1,6 +1,6 @@
-import { getAllPlugins } from '@pluginRegistry'
+import { getAllPlugins } from '@widget/pluginRegistry'
 import useGetCurrentPlugin from './useGetCurrentPlugin'
-import { PluginUseAllowanceResult } from '@plugins/pluginTypes'
+import { PluginUseAllowanceResult } from '@widget/plugins/pluginTypes'
 
 // assumption: all plugins are registed
 const allPlugins = getAllPlugins()

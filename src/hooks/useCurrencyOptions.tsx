@@ -10,8 +10,8 @@ import {
 import { useDispatch } from 'react-redux'
 import { ModeOptions } from '../interface'
 import { setSourceCurrency, setTargetCurrency } from '../store/optionSlice'
-import { ChainToken } from '@plugins/pluginTypes'
-import log from '@utils/logger'
+import { ChainToken } from '@widget/plugins/pluginTypes'
+import log from '@widget/utils/logger'
 
 const emptyTokenList = { tokenList: [] as ChainToken[] }
 

@@ -1,4 +1,4 @@
-import { NetworkOptions } from '@interface'
+import { NetworkOptions } from '@widget/interface'
 import { Chain } from 'viem'
 
 export interface Plugin {
