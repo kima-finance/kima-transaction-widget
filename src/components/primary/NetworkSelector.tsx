@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import {
+  selectDappOption,
   selectMode,
   selectNetworks,
   selectSourceChain,
@@ -26,11 +27,12 @@ import {
   ChainData,
   ChainLocation
 } from '@plugins/pluginTypes'
-import { ModeOptions } from '@interface'
+import { DAppOptions, ModeOptions } from '@interface'
 import log from '@utils/logger'
 import { isSolana, isTron } from 'src/helpers/functions'
 import { WarningIcon } from '@assets/icons'
 interface NetworkSelectorProps {
+  disabled?: boolean
   type: ChainLocation // Determines if this is a source or target selector
   initialSelection: boolean
   setInitialSelection: React.Dispatch<
@@ -45,6 +47,7 @@ type DemoChainKey = keyof typeof lightDemoAccounts
 
 const NetworkSelector: React.FC<NetworkSelectorProps> = ({
   type,
+  disabled = false,
   initialSelection,
   setInitialSelection
 }) => {
@@ -55,6 +58,7 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
   const theme = useSelector(selectTheme)
   const networkOptions = useSelector(selectNetworks)
   const mode = useSelector(selectMode)
+  const dAppOption = useSelector(selectDappOption)
   const sourceNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
   const { switchChainHandler } = useKimaContext()
@@ -63,6 +67,7 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
 
   const networks = useMemo(() => {
     return networkOptions.filter((network: ChainData) => {
+      if (dAppOption === DAppOptions.None) return true
       const isSameAsSource = isOriginSelector
         ? false
         : network.shortName === sourceNetwork.shortName
@@ -77,10 +82,14 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
         isAllowedInLightMode
       )
     })
-  }, [networkOptions, sourceNetwork, type, mode])
+  }, [networkOptions, sourceNetwork, type, mode, dAppOption])
 
   const selectedNetwork = useMemo(() => {
-    if (initialSelection) {
+    if (
+      initialSelection &&
+      dAppOption !== DAppOptions.LPAdd &&
+      dAppOption !== DAppOptions.LPDrain
+    ) {
       return {
         shortName: '',
         name: isOriginSelector
@@ -103,7 +112,8 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
     sourceNetwork,
     targetNetwork,
     isOriginSelector,
-    initialSelection
+    initialSelection,
+    dAppOption
   ])
 
   //
@@ -112,12 +122,15 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
 
     // Fallback to the first available network if none is selected
     const fallbackNetwork = networks[0]
+
+    if (dAppOption === DAppOptions.LPAdd || dAppOption === DAppOptions.LPDrain)
+      return
     if (isOriginSelector) {
       dispatch(setSourceChain(fallbackNetwork))
     } else {
       dispatch(setTargetChain(fallbackNetwork))
     }
-  }, [networks, selectedNetwork, isOriginSelector, dispatch])
+  }, [networks, selectedNetwork, isOriginSelector, dispatch, dAppOption])
 
   const handleNetworkChange = (chain: ChainData) => {
     log.debug('NetworkSelector: Handling network change', chain)
@@ -179,8 +192,8 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
     <div
       className={`network-dropdown ${theme?.colorMode ?? ''} ${
         collapsed ? 'collapsed' : 'toggled'
-      }`}
-      onClick={() => setCollapsed((prev) => !prev)}
+      } ${disabled ? 'disabled' : ''}`}
+      onClick={() => !disabled && setCollapsed((prev) => !prev)}
       ref={ref}
     >
       <div className='network-wrapper'>

@@ -114,6 +114,7 @@ const useSubmitTransaction = () => {
   })
 
   return {
+    setIsSubmitting,
     submitTransaction: mutation.mutateAsync,
     isSubmitting
   }

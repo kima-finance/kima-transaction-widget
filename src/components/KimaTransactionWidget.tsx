@@ -66,11 +66,16 @@ const KimaTransactionWidget = ({
   }, [])
 
   useEffect(() => {
-    if (!isLoadingChainData && chainData) {
+    if (
+      !isLoadingChainData &&
+      chainData &&
+      dAppOption !== DAppOptions.LPAdd &&
+      dAppOption !== DAppOptions.LPDrain
+    ) {
       dispatch(setSourceChain(chainData[0]))
       dispatch(setTargetChain(chainData[1]))
     }
-  }, [chainData])
+  }, [chainData, dAppOption])
 
   useEffect(() => {
     if (theme?.colorMode) {

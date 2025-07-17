@@ -184,12 +184,21 @@ const SingleForm = ({
         <div className='items'>
           <NetworkSelector
             type='origin'
+            disabled={
+              dappOption === DAppOptions.LPAdd ||
+              dappOption === DAppOptions.LPDrain
+            }
             {...{
               initialSelection: initialSelection.sourceSelection,
               setInitialSelection
             }}
           />
-          <CoinDropdown />
+          <CoinDropdown
+            disabled={
+              dappOption === DAppOptions.LPAdd ||
+              dappOption === DAppOptions.LPDrain
+            }
+          />
         </div>
       </div>
 

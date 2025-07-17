@@ -203,15 +203,28 @@ export const TransferWidget = ({
     if (fees) {
       dispatch(setServiceFee(fees))
     }
-    if (transactionOption?.sourceChain) {
-      setInitialSelection((prev) => ({ ...prev, sourceSelection: false }))
-    }
-    if (mode === ModeOptions.payment || transactionOption?.targetChain) {
-      setInitialSelection((prev) => ({ ...prev, targetSelection: false }))
-    }
-  }, [fees, mode, transactionOption, dispatch])
 
-  const { submitTransaction, isSubmitting } = useSubmitTransaction()
+    if (
+      dAppOption === DAppOptions.LPAdd ||
+      dAppOption === DAppOptions.LPDrain
+    ) {
+      setInitialSelection({
+        sourceSelection: false,
+        targetSelection: false
+      })
+    } else {
+      if (transactionOption?.sourceChain) {
+        setInitialSelection((prev) => ({ ...prev, sourceSelection: false }))
+      }
+
+      if (mode === ModeOptions.payment || transactionOption?.targetChain) {
+        setInitialSelection((prev) => ({ ...prev, targetSelection: false }))
+      }
+    }
+  }, [fees, mode, transactionOption, dispatch, dAppOption])
+
+  const { submitTransaction, isSubmitting, setIsSubmitting } =
+    useSubmitTransaction()
 
   const isBackButtonEnabled = useMemo(() => {
     if (formStep !== 0) {
@@ -261,6 +274,31 @@ export const TransferWidget = ({
     }
 
     if (
+      dAppOption === DAppOptions.LPDrain ||
+      dAppOption === DAppOptions.LPAdd
+    ) {
+      if (
+        error === ValidationError.ApprovalNeeded &&
+        dAppOption === DAppOptions.LPAdd
+      ) {
+        return approve()
+      }
+
+      setIsSubmitting(true)
+      const param = {
+        sourceAddress,
+        amount: txValues.submitAmount.value.toString(),
+        fee: bigIntChangeDecimals({
+          ...totalFee,
+          newDecimals: txValues.submitAmount.decimals
+        }).value.toString(),
+        decimals: txValues.submitAmount.decimals
+      }
+      keplrHandler?.(param)
+      return
+    }
+
+    if (
       error === ValidationError.ApprovalNeeded &&
       mode !== ModeOptions.light
     ) {
@@ -287,28 +325,6 @@ export const TransferWidget = ({
         originChain: sourceChain.shortName
       })
       setSignature(sig)
-    }
-
-    if (
-      dAppOption === DAppOptions.LPDrain ||
-      dAppOption === DAppOptions.LPAdd
-    ) {
-      const param = {
-        sourceAddress,
-        amount: txValues.submitAmount.value.toString(),
-        fee: bigIntChangeDecimals({
-          ...totalFee,
-          newDecimals: txValues.submitAmount.decimals
-        }).value.toString(),
-        decimals: txValues.submitAmount.decimals,
-        options: JSON.stringify({
-          signature: sig,
-          feeId,
-          chargeFeeAtTarget: feeDeduct
-        })
-      }
-      keplrHandler?.(param)
-      return
     }
 
     submitTransaction(sig) // No need to `await` or inspect return here
@@ -358,7 +374,7 @@ export const TransferWidget = ({
         return 'Next'
       }
 
-      if (isApproved) {
+      if (dAppOption === DAppOptions.LPDrain || isApproved) {
         return isSubmitting ? 'Submitting...' : 'Submit'
       } else {
         return isApproving ? 'Approving...' : 'Approve'

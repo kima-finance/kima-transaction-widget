@@ -21,15 +21,18 @@ const Widget = () => {
       keplrHandler={(e: any) => {
         console.log(e)
       }}
+      closeHandler={() => {
+        console.log('close')
+      }}
     >
       <div className='container'>
         <KimaTransactionWidget
           theme={{
             colorMode: ColorModeOptions.dark
           }}
-          mode={ModeOptions.bridge}
-          // dAppOption={DAppOptions.LPDrain}
-          // txId={'4884'}
+          mode={ModeOptions.status}
+          dAppOption={DAppOptions.LPDrain}
+          txId={'105'}
           // titleOption={{
           //   initialTitle: 'New Purchase'
           // }}
@@ -41,12 +44,12 @@ const Widget = () => {
               fontWeight: '500'
             }
           }}
-          // transactionOption={{
-          //   targetChain: SupportNetworks.POLYGON,
-          //   targetAddress: '0x9a721c664f9d69e4da24f91386086fbd81da23c1',
-          //   amount: 3,
-          //   currency: 'USDK'
-          // }}
+          transactionOption={{
+            targetChain: SupportNetworks.POLYGON,
+            targetAddress: '0x9a721c664f9d69e4da24f91386086fbd81da23c1',
+            amount: 3,
+            currency: 'USDK'
+          }}
         />
       </div>
     </KimaProvider>

@@ -12,9 +12,11 @@ import Arrow from '../../assets/icons/Arrow'
 import TokenIcon from './TokenIcon'
 
 const CoinDropdown = ({
-  isSourceChain = true
+  isSourceChain = true,
+  disabled = false
 }: {
   isSourceChain?: boolean
+  disabled?: boolean
 }) => {
   const ref = useRef<any>()
   const dispatch = useDispatch()
@@ -50,8 +52,8 @@ const CoinDropdown = ({
     <div
       className={`coin-dropdown ${theme.colorMode} ${
         collapsed ? 'collapsed' : 'toggled'
-      }`}
-      onClick={() => setCollapsed((prev) => !prev)}
+      } ${disabled ? 'disabled' : ''}`}
+      onClick={() => !disabled && setCollapsed((prev) => !prev)}
       ref={ref}
     >
       <div className='coin-wrapper'>

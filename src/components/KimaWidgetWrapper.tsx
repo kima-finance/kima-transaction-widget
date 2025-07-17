@@ -110,7 +110,10 @@ const KimaWidgetWrapper = ({
       // set default transaction values
       if (transactionOption.targetChain) {
         let sourceChain
-        if (dAppOption == DAppOptions.LPAdd || DAppOptions.LPDrain) {
+        if (
+          dAppOption == DAppOptions.LPAdd ||
+          dAppOption == DAppOptions.LPDrain
+        ) {
           sourceChain = chainData?.find(
             (currentChain: ChainData) =>
               currentChain.shortName === transactionOption.targetChain

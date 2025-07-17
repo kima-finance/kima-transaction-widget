@@ -1,4 +1,4 @@
-import { TransactionData } from '@interface'
+import { DAppOptions, TransactionData } from '@interface'
 import { TransactionStatus } from '@utils/constants'
 import { fetchWrapper } from 'src/helpers/fetch-wrapper'
 import log from '@utils/logger'
@@ -39,9 +39,11 @@ interface KimaLiquidityTransactionDataResponse {
       txstatus: string
       amount: number
       creator: string
-      chain: string
+      originchain: string
+      targetchain: string
       providerchainaddress: string
-      symbol: string
+      originsymbol: string
+      targetsymbol: string
       tx_id: string
       kimahash: string
     }
@@ -63,6 +65,7 @@ const emptyStatus = {
 } satisfies TransactionData
 
 const selectStatus = (
+  dAppOption: DAppOptions,
   response: KimaTransactionDataResponse | KimaLiquidityTransactionDataResponse
 ): TransactionData | null => {
   if ('liquidity_transaction_data' in response.data) {
@@ -71,15 +74,16 @@ const selectStatus = (
     if (!data) return emptyStatus
     return {
       status: data.txstatus as TransactionStatus,
-      sourceChain: data.chain,
-      targetChain: data.chain,
-      tssPullHash: data.releasehash,
-      tssReleaseHash: data.releasehash,
+      sourceChain: data.originchain,
+      targetChain: data.targetchain,
+      tssPullHash: dAppOption === DAppOptions.LPAdd ? data.releasehash : '',
+      tssReleaseHash:
+        dAppOption === DAppOptions.LPDrain ? data.releasehash : '',
       tssRefundHash: data.refundhash,
       failReason: data.failreason,
       amount: data.amount,
-      sourceSymbol: data.symbol,
-      targetSymbol: data.symbol,
+      sourceSymbol: data.originsymbol,
+      targetSymbol: data.targetsymbol,
       kimaTxHash: data.kimahash
     }
   }
@@ -122,12 +126,14 @@ export const getTxData = async ({
   txId,
   isLP,
   backendUrl,
-  refPollForUpdates
+  refPollForUpdates,
+  dAppOption
 }: {
   txId: number | string
   isLP: boolean
   backendUrl: string
   refPollForUpdates: React.MutableRefObject<boolean>
+  dAppOption: DAppOptions
 }) => {
   try {
     const path = isLP ? 'tx/lp' : 'tx'
@@ -137,6 +143,7 @@ export const getTxData = async ({
     if (typeof response === 'string') throw new Error(response)
 
     const data = selectStatus(
+      dAppOption,
       response as
         | KimaTransactionDataResponse
         | KimaLiquidityTransactionDataResponse

@@ -3,7 +3,12 @@ import { ErrorIcon, FooterLogo, MinimizeIcon } from '@assets/icons'
 import Progressbar from './reusable/Progressbar'
 import { StepBox } from './reusable'
 import '../index.css'
-import { ColorModeOptions, ModeOptions, ThemeOptions } from '@interface'
+import {
+  ColorModeOptions,
+  DAppOptions,
+  ModeOptions,
+  ThemeOptions
+} from '@interface'
 import { Provider } from 'react-redux'
 import { store } from '@store/index'
 import { TransactionStatus } from '../utils/constants'
@@ -113,6 +118,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   }, [txId])
 
   const isEmptyStatus = useMemo(() => {
+    console.log(data)
     if (!data) return true
 
     return data?.amount === ''
@@ -378,8 +384,19 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                   <MinimizeIcon />
                 </button>
                 {!isValidTxId || loadingStep < 0 || error ? (
-                  <button className='reset-button' onClick={resetForm}>
-                    Reset
+                  <button
+                    className='reset-button'
+                    onClick={
+                      dAppOption === DAppOptions.LPAdd ||
+                      dAppOption === DAppOptions.LPDrain
+                        ? closeHandler
+                        : resetForm
+                    }
+                  >
+                    {dAppOption === DAppOptions.LPAdd ||
+                    dAppOption === DAppOptions.LPDrain
+                      ? 'Close'
+                      : 'Reset'}
                   </button>
                 ) : null}
               </div>
