@@ -2073,6 +2073,7 @@
             @include breakpoint(mobile) {
               width: 210px;
               height: 40px;
+              align-items: center;
             }
 
             .icon {

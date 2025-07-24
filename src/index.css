@@ -2292,6 +2292,7 @@
   .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item {
     width: 210px;
     height: 40px;
+    align-items: center;
   }
 }
 .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item .icon {

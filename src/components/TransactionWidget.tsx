@@ -92,7 +92,11 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const backendUrl = useSelector(selectBackendUrl)
   const { data, error } = useGetTxData(txId, dAppOption, backendUrl)
 
-  const { width: windowWidth } = useWidth()
+  const { width: windowWidth, updateWidth } = useWidth()
+
+  useEffect(() => {
+    windowWidth === 0 && updateWidth(window.innerWidth)
+  }, [])
 
   const transactionSourceChain = useMemo(
     () =>
