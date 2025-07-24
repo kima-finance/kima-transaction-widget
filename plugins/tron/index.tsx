@@ -1,16 +1,16 @@
 // plugins/tron/index.tsx
 import React from 'react' // Explicitly import React
-import { store } from '@store/index'
-import WalletProvider from '@plugins/tron/features/walletConnect/WalletProvider'
-import { PluginBase } from '@plugins/PluginBase'
+import { store } from '@widget/store/index'
+import WalletProvider from '@widget/plugins/tron/features/walletConnect/WalletProvider'
+import { PluginBase } from '@widget/plugins/PluginBase'
 import {
   ChainCompatibility,
   ChainData,
   PluginProviderProps
-} from '@plugins/pluginTypes'
-import useBalanceTron from '@plugins/tron/core/hooks/useGetTrxBalance'
-import useTronAllowance from '@plugins/tron/core/hooks/useTronAllowance'
-import useIsWalletReadyTron from '@plugins/tron/core/hooks/useIsWalletReady'
+} from '@widget/plugins/pluginTypes'
+import useBalanceTron from '@widget/plugins/tron/core/hooks/useGetTrxBalance'
+import useTronAllowance from '@widget/plugins/tron/core/hooks/useTronAllowance'
+import useIsWalletReadyTron from '@widget/plugins/tron/core/hooks/useIsWalletReady'
 import useDisconnectWallet from './core/hooks/useDisconnectWallet'
 
 export class TronPlugin extends PluginBase {

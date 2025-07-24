@@ -1,5 +1,5 @@
-import { setFeeDeduct } from '@store/optionSlice'
-import { selectFeeDeduct } from '@store/selectors'
+import { setFeeDeduct } from '@widget/store/optionSlice'
+import { selectFeeDeduct } from '@widget/store/selectors'
 import React from 'react'
 import { useDispatch } from 'react-redux'
 import { useSelector } from 'react-redux'

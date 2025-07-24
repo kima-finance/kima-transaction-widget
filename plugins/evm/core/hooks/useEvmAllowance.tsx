@@ -10,11 +10,12 @@ import {
   selectBackendUrl,
   selectFeeDeduct,
   selectMode,
-  selectSourceAddress
-} from '@store/selectors'
+  selectSourceAddress,
+  selectDappOption
+} from '@widget/store/selectors'
 import useGetPools from '../../../../src/hooks/useGetPools'
-import { getPoolAddress, getTokenAddress } from '@utils/functions'
-import { ModeOptions, NetworkOptions } from '@interface'
+import { getPoolAddress, getTokenAddress } from '@widget/utils/functions'
+import { DAppOptions, ModeOptions, NetworkOptions } from '@widget/interface'
 import {
   createPublicClient,
   createWalletClient,
@@ -22,8 +23,11 @@ import {
   erc20Abi,
   http
 } from 'viem'
-import { PluginUseAllowanceResult, SignDataType } from '@plugins/pluginTypes'
-import log from '@utils/logger'
+import {
+  PluginUseAllowanceResult,
+  SignDataType
+} from '@widget/plugins/pluginTypes'
+import log from '@widget/utils/logger'
 import { useEvmProvider } from './useEvmProvider'
 import useBalance from './useBalance'
 
@@ -33,14 +37,16 @@ export default function useEvmAllowance(): PluginUseAllowanceResult {
   const sourceChain = useSelector(selectSourceChain)
   const sourceAddress = useSelector(selectSourceAddress)
   const networkOption = useSelector(selectNetworkOption)
+  const dAppOption = useSelector(selectDappOption)
   const { transactionValues } = useSelector(selectServiceFee)
   const selectedCoin = useSelector(selectSourceCurrency)
   const tokenOptions = useSelector(selectTokenOptions)
   const backendUrl = useSelector(selectBackendUrl)
   const feeDeduct = useSelector(selectFeeDeduct)
-  const txValues = feeDeduct
-    ? transactionValues.feeFromTarget
-    : transactionValues.feeFromOrigin
+  const txValues =
+    feeDeduct || dAppOption !== DAppOptions.None
+      ? transactionValues.feeFromTarget
+      : transactionValues.feeFromOrigin
   const allowanceNumber = BigInt(txValues.allowanceAmount.value)
 
   const { pools } = useGetPools(backendUrl, networkOption)

@@ -1,4 +1,4 @@
-import { Loading180Ring } from '@assets/loading'
+import { Loading180Ring } from '@widget/assets/loading'
 import React from 'react'
 
 interface Props {

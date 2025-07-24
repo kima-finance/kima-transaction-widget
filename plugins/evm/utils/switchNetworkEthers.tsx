@@ -1,6 +1,6 @@
 import { BrowserProvider, toBeHex } from 'ethers'
 import { toHex } from 'viem'
-import log from '@utils/logger'
+import log from '@widget/utils/logger'
 
 /**
  * Requests a network change or adds the network if it doesn't exist.

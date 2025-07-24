@@ -7,19 +7,19 @@ import {
   selectNetworkOption,
   selectServiceFee,
   selectSourceCurrency
-} from '@store/selectors'
-import { Loading180Ring } from '@assets/loading'
+} from '@widget/store/selectors'
+import { Loading180Ring } from '@widget/assets/loading'
 import {
   setCCTransactionId,
   setCCTransactionIdSeed,
   setCCTransactionStatus
-} from '@store/optionSlice'
-import { formatBigInt } from 'src/helpers/functions'
+} from '@widget/store/optionSlice'
+import { formatBigInt } from '../../helpers/functions'
 import { v4 as uuidv4 } from 'uuid'
 import { useCCTransactionId } from '../../hooks/useCCTransactionId'
-import { NetworkOptions } from '@interface'
+import { NetworkOptions } from '@widget/interface'
 import { useGetEnvOptions } from '../../hooks/useGetEnvOptions'
-import log from '@utils/logger'
+import log from '@widget/utils/logger'
 
 const CCWidget = ({ submitCallback }: { submitCallback: () => void }) => {
   const dispatch = useDispatch()

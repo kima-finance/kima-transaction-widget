@@ -12,9 +12,9 @@ import {
   SolongWalletAdapter,
   TorusWalletAdapter
 } from '@solana/wallet-adapter-wallets'
-import { getHostEndpoint } from '@plugins/solana/utils/constants'
-import { NetworkOptions } from '@interface'
-import log from '@utils/logger'
+import { getHostEndpoint } from '@widget/plugins/solana/utils/constants'
+import { NetworkOptions } from '@widget/interface'
+import log from '@widget/utils/logger'
 
 interface WalletProviderProps {
   children: ReactNode

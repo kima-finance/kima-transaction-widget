@@ -1,5 +1,5 @@
 import { Wallet } from '@tronweb3/tronwallet-adapter-react-hooks'
-import log from '@utils/logger'
+import log from '@widget/utils/logger'
 
 // Fetch balance function
 export const getTrxBalance = async (

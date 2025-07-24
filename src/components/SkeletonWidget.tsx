@@ -1,6 +1,6 @@
-import { FooterLogo } from '@assets/icons'
-import { ColorModeOptions } from '@interface'
-import { selectTheme } from '@store/selectors'
+import { FooterLogo } from '@widget/assets/icons'
+import { ColorModeOptions } from '@widget/interface'
+import { selectTheme } from '@widget/store/selectors'
 import React from 'react'
 import { useSelector } from 'react-redux'
 

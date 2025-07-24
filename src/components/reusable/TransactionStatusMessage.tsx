@@ -1,4 +1,4 @@
-import { TransactionStatus } from '@utils/constants'
+import { TransactionStatus } from '@widget/utils/constants'
 import React from 'react'
 import CopyButton from './CopyButton'
 

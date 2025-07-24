@@ -3,19 +3,19 @@ import {
   ArrowIcon,
   ErrorIcon,
   MinimizeIcon,
-  TransactionCompleteIcon
-} from '@assets/icons'
+  TransactionCompleteIcon,
+  CrossIcon,
+} from '@widget/assets/icons'
 import Progressbar from './reusable/Progressbar'
+import { ExternalLink, PrimaryButton, SecondaryButton, StepBox } from './reusable'
 import {
-  ExternalLink,
-  PrimaryButton,
-  SecondaryButton,
-  StepBox
-} from './reusable'
-import '../index.css'
-import { ColorModeOptions, ModeOptions, ThemeOptions } from '@interface'
+  ColorModeOptions,
+  DAppOptions,
+  ModeOptions,
+  ThemeOptions
+} from '@widget/interface'
 import { Provider } from 'react-redux'
-import { store } from '@store/index'
+import { store } from '@widget/store/index'
 import { TransactionStatus } from '../utils/constants'
 import { bigIntToNumber, formatBigInt } from '../helpers/functions'
 import { useSelector } from 'react-redux'
@@ -34,7 +34,7 @@ import {
   selectTargetCurrency,
   selectTransactionOption,
   selectTxId
-} from '@store/selectors'
+} from '@widget/store/selectors'
 import { useDispatch } from 'react-redux'
 import { toast, Toaster } from 'react-hot-toast'
 import {
@@ -49,16 +49,16 @@ import {
   setTargetChain,
   setTargetCurrency,
   setTxId
-} from '@store/optionSlice'
+} from '@widget/store/optionSlice'
 import useGetTxData from '../hooks/useGetTxData'
 import ChainIcon from './reusable/ChainIcon'
-import { useKimaContext } from 'src/KimaProvider'
+import { useKimaContext } from '../KimaProvider'
 import TransactionStatusMessage from './reusable/TransactionStatusMessage'
 import TransactionSearch from './reusable/TransactionSearch'
 import { useChainData } from '../hooks/useChainData'
-import { ChainData } from '@plugins/pluginTypes'
-import log from '@utils/logger'
-import KimaNetwork from '@assets/icons/KimaNetwork'
+import { ChainData } from '@widget/plugins/pluginTypes'
+import log from '@widget/utils/logger'
+import KimaNetwork from '@widget/assets/icons/KimaNetwork'
 import useWidth from '../hooks/useWidth'
 
 export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
@@ -251,8 +251,6 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   }, [data?.status])
 
   const resetForm = () => {
-    closeHandler && closeHandler()
-
     setIsComplete(false)
     dispatch(resetServiceFee())
 
@@ -303,7 +301,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setMode(transactionOption ? ModeOptions.payment : ModeOptions.bridge)
     )
     // disconnect wallet?
-    dispatch(setAmount(''))
+    dispatch(setAmount(transactionOption?.amount.toString() || ''))
     dispatch(setCCTransactionId(''))
     dispatch(setCCTransactionStatus('idle'))
     dispatch(setTxId(-1))
@@ -400,11 +398,25 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                 >
                   <MinimizeIcon />
                 </button>
-                {!isValidTxId || loadingStep < 0 || error ? (
+                {!isValidTxId ||
+                loadingStep < 0 ||
+                (error && dAppOption !== DAppOptions.None) ? (
                   <button className='reset-button' onClick={resetForm}>
                     Reset
                   </button>
                 ) : null}
+
+                {closeHandler && (
+                  <button
+                    className='cross-icon-button'
+                    onClick={() => {
+                      resetForm()
+                      closeHandler(0)
+                    }}
+                  >
+                    <CrossIcon />
+                  </button>
+                )}
               </div>
             ) : (
               <div className='control-buttons'>

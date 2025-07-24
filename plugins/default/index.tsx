@@ -4,9 +4,9 @@ import {
   ChainCompatibility,
   ChainData,
   PluginProviderProps
-} from '@plugins/pluginTypes'
-import { PluginBase } from '@plugins/PluginBase'
-import { store } from '@store/index'
+} from '@widget/plugins/pluginTypes'
+import { PluginBase } from '@widget/plugins/PluginBase'
+import { store } from '@widget/store/index'
 
 export class DefaultPlugin extends PluginBase {
   constructor(store: any) {

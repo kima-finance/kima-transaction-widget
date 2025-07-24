@@ -15,24 +15,25 @@ import {
   selectTargetAddress,
   selectSourceCurrency,
   selectTargetCurrency,
-  selectBackendUrl
+  selectBackendUrl,
+  selectDappOption
 } from '../../store/selectors'
 import { BankInput, CoinDropdown, WalletButton } from './'
 import { setAmount, setServiceFee } from '../../store/optionSlice'
-import { ModeOptions } from '../../interface'
+import { DAppOptions, ModeOptions } from '../../interface'
 import AddressInput from './AddressInput'
 import { ChainName } from '../../utils/constants'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
-import NetworkSelector from '@components/primary/NetworkSelector'
+import NetworkSelector from '@widget/components/primary/NetworkSelector'
 import { parseUnits } from 'viem'
 // import { formatBigInt } from 'src/helpers/functions'
-import { ChainCompatibility } from '@plugins/pluginTypes'
-import { bigIntToNumber, formatBigInt } from 'src/helpers/functions'
-import { useKimaContext } from 'src/KimaProvider'
+import { ChainCompatibility } from '@widget/plugins/pluginTypes'
+import { bigIntToNumber, formatBigInt } from '../../helpers/functions'
+import { useKimaContext } from '../../KimaProvider'
 import { useGetEnvOptions } from '../../hooks/useGetEnvOptions'
 import useGetFees from '../../hooks/useGetFees'
 import useBalance from '../../hooks/useBalance'
-import { truncateToDecimals } from '@utils/functions'
+import { truncateToDecimals } from '@widget/utils/functions'
 
 const SingleForm = ({
   isLoadingFees,
@@ -56,6 +57,7 @@ const SingleForm = ({
   const theme = useSelector(selectTheme)
   const feeDeduct = useSelector(selectFeeDeduct)
   const { totalFee } = useSelector(selectServiceFee)
+  const dAppOption = useSelector(selectDappOption)
   const compliantOption = useSelector(selectCompliantOption)
   const targetCompliant = useSelector(selectTargetCompliant)
   const sourceAddress = useSelector(selectSourceAddress)
@@ -177,13 +179,18 @@ const SingleForm = ({
   }
 
   const isConnected = useMemo(() => {
+    if (mode === ModeOptions.payment && dAppOption !== DAppOptions.None) {
+      return isReady
+    }
     return isReady && !initialSelection.sourceSelection
-  }, [isReady, initialSelection])
+  }, [isReady, initialSelection, mode, dAppOption])
 
   return (
     <div className='single-form'>
       <div className='form-item'>
-        <span className='label'>Source Network:</span>
+        <span className='label'>
+          {dAppOption === DAppOptions.None && 'Source'} Network:
+        </span>
         <div className='items'>
           <NetworkSelector
             type='origin'
@@ -256,24 +263,28 @@ const SingleForm = ({
         </div>
       )}
 
-      {mode === ModeOptions.bridge && (
-        <div className={`form-item ${theme.colorMode}`}>
-          <span className='label'>Amount:</span>
-          <div className={`amount-label-container items ${theme.colorMode}`}>
-            <input
-              className={`${theme.colorMode}`}
-              type='text'
-              placeholder='Enter amount'
-              value={amountValue || ''}
-              onChange={(e) => onAmountChange(e.target.value)}
-            />
-            <div className='max-disclaimer'>
-              {sourceNetwork.shortName !== 'CC' && (
+      <div className={`form-item ${theme.colorMode}`}>
+        <span className='label'>Amount:</span>
+        <div className={`amount-label-container items ${theme.colorMode}`}>
+          <input
+            className={`${theme.colorMode}`}
+            type='text'
+            placeholder='Enter amount'
+            value={amountValue || ''}
+            onChange={(e) => onAmountChange(e.target.value)}
+            disabled={mode === ModeOptions.payment}
+          />
+          <div className='max-disclaimer'>
+            {sourceNetwork.shortName !== 'CC' &&
+              mode !== ModeOptions.payment && (
                 <span className='max-button' onClick={onMaxClick}>
                   Max
                 </span>
               )}
-              {+totalFee !== -1 && (
+            {+totalFee !== -1 &&
+              dAppOption === DAppOptions.None &&
+              !initialSelection.sourceSelection &&
+              !initialSelection.targetSelection && (
                 <p className='fee-amount'>
                   Est fees:{' '}
                   <span className={`${isLoadingFees ? 'loading' : ''}`}>
@@ -284,10 +295,9 @@ const SingleForm = ({
                   </span>
                 </p>
               )}
-            </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   )
 }

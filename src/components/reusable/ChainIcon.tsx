@@ -15,7 +15,7 @@ import {
   CreditCardIcon,
   CFXIcon
 } from '../../assets/icons'
-import log from '@utils/logger'
+import log from '@widget/utils/logger'
 
 type IconProps = { width?: number; height?: number }
 
