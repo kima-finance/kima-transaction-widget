@@ -75,15 +75,15 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                   ${step < index && 'locked'} ${theme.colorMode}`}
             >
               <div className='info-icon'>
-                {step < index && <Lock />}
+                {step < index && <Lock width={24} height={24} />}
 
                 {step >= index ? (
                   index === loadingStep ? (
-                    <Loader className='loader' />
+                    <Loader width={24} height={24} className='loader' />
                   ) : index === errorStep ? (
-                    <WarningIcon />
+                    <WarningIcon width={24} height={24} />
                   ) : (
-                    <CheckIcon />
+                    <CheckIcon width={24} height={24} />
                   )
                 ) : null}
               </div>
