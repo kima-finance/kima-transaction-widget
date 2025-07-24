@@ -1,22 +1,22 @@
 import React, { useMemo } from 'react'
-import { CrossIcon, ExplorerIcon, ExternalUrlIcon } from '@assets/icons'
+import { CrossIcon, ExplorerIcon, ExternalUrlIcon } from '@widget/assets/icons'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   selectAccountDetailsModal,
   selectNetworkOption,
   selectSourceChain,
   selectTheme
-} from '@store/selectors'
-import { setAccountDetailsModal } from '@store/optionSlice'
+} from '@widget/store/selectors'
+import { setAccountDetailsModal } from '@widget/store/optionSlice'
 import {
   CopyButton,
   ExternalLink,
   PrimaryButton,
   SecondaryButton
-} from '@components/reusable'
+} from '@widget/components/reusable'
 import useIsWalletReady from '../core/hooks/useIsWalletReady'
-import { getShortenedAddress } from '@utils/functions'
-import { networkOptions } from '@utils/constants'
+import { getShortenedAddress } from '@widget/utils/functions'
+import { networkOptions } from '@widget/utils/constants'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import useGetTronBalance from '../core/hooks/useGetTrxBalance'
 import { formatterFloat } from '../../../src/helpers/functions'

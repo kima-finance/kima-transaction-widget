@@ -10,9 +10,9 @@ import {
   TransactionOption,
   ColorModeOptions
 } from '../interface'
-import { ChainName, PendingTxData } from '../utils/constants'
+import { PendingTxData } from '../utils/constants'
 import { arbitrumSepolia, sepolia } from 'viem/chains'
-import { ChainCompatibility, ChainData } from '@plugins/pluginTypes'
+import { ChainCompatibility, ChainData } from '@widget/plugins/pluginTypes'
 
 type BankDetails = {
   iban: string

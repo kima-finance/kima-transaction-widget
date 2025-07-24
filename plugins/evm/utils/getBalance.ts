@@ -6,8 +6,8 @@ import {
 import {
   CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET,
   CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET
-} from '@utils/constants'
-import log from '@utils/logger'
+} from '@widget/utils/constants'
+import log from '@widget/utils/logger'
 
 export const getEvmBalance = async (input: {
   walletAddress: string

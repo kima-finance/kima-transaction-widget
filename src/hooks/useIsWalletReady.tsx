@@ -1,7 +1,7 @@
-import { getAllPlugins } from '@pluginRegistry'
-import { PluginUseWalletIsReadyResult } from '@plugins/pluginTypes'
+import { getAllPlugins } from '@widget/pluginRegistry'
+import { PluginUseWalletIsReadyResult } from '@widget/plugins/pluginTypes'
 import useGetCurrentPlugin from './useGetCurrentPlugin'
-import log from '@utils/logger'
+import log from '@widget/utils/logger'
 
 // Preload all plugins
 const allPlugins = getAllPlugins()

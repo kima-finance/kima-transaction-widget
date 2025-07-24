@@ -86,6 +86,11 @@
       .control-buttons {
         display: flex;
         align-items: center;
+        gap: 8px;
+
+        &.complete {
+          width: 100%;
+        }
 
         @include breakpoint(phablet) {
           margin-left: auto;
@@ -95,7 +100,6 @@
           background: transparent;
           border: 1px solid $financeGrey;
           border-radius: 40px;
-          padding: 2px 8px;
           cursor: pointer;
           @include transition;
 
@@ -137,21 +141,16 @@
           justify-content: center;
           align-items: center;
           padding: 4px;
-          width: 60px;
-          height: 60px;
+          width: 50px;
+          height: 50px;
           border-radius: 9999px;
           background: transparent;
           cursor: pointer;
           border: 1px solid $financeGrey;
 
-          @include breakpoint(phablet) {
-            width: 50px;
-            height: 50px;
-          }
-
           svg {
-            width: 24px;
-            height: 24px;
+            width: 20px;
+            height: 25px;
 
             @include breakpoint(phablet) {
               width: 20px;
@@ -174,7 +173,6 @@
           color: $finance;
           text-decoration: none;
           cursor: pointer;
-          margin-right: 1em;
         }
 
         .menu-button {
@@ -225,21 +223,12 @@
       display: flex;
       flex-direction: row;
       align-items: center;
-      gap: 16px;
+      gap: 12px;
       margin-top: 20px;
+      margin-bottom: 10px;
 
       p {
         padding: 0;
-      }
-
-      @include breakpoint('max-width: 390px') {
-        p {
-          display: none;
-        }
-
-        .arrow {
-          transform: rotate(-180deg);
-        }
       }
 
       .arrow {
@@ -247,19 +236,16 @@
       }
     }
 
-    h4 {
-      font-weight: 300;
-      font-size: 14px;
-      margin-top: 20px;
-      margin-bottom: 30px;
-    }
-
     .kima-card-network-label {
       display: flex;
-      padding: 13px 18px;
+      padding: 10px 14px;
       // width: 190px;
+      font-weight: 600;
       border-radius: 50px;
-      margin-right: 12px;
+
+      h3 {
+        font-size: 12px;
+      }
 
       .icon {
         border-radius: 9999px;
@@ -410,7 +396,12 @@
     right: 0;
     margin-top: 10px;
     height: 35px;
-    
+
+    &.complete {
+      @include breakpoint(phablet) {
+        margin-top: 10px;
+      }
+    }
 
     @include breakpoint(phablet) {
       margin-top: 35px;

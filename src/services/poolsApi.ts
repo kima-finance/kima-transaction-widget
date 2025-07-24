@@ -1,5 +1,5 @@
 import { fetchWrapper } from '../helpers/fetch-wrapper'
-import log from '@utils/logger'
+import log from '@widget/utils/logger'
 
 export const getPools = async (backenUrl: string): Promise<any> => {
   const poolsData: any = await fetchWrapper.get(`${backenUrl}/chains/pool`)

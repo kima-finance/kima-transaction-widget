@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { getSolBalance } from '../../utils/getSolBalance'
 import { PublicKey } from '@solana/web3.js'
 import { useSelector } from 'react-redux'
-import { selectSourceChain } from '@store/selectors'
+import { selectSourceChain } from '@widget/store/selectors'
 import { useKimaContext } from '../../../../src/KimaProvider'
 
 function useGetSolBalance() {

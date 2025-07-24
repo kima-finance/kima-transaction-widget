@@ -1,7 +1,7 @@
 // solana/constants.tsx
 
 import { clusterApiUrl } from '@solana/web3.js'
-import { SolanaIcon } from '@assets/icons'
+import { SolanaIcon } from '@widget/assets/icons'
 
 // Choose endpoint based on network option
 export function getHostEndpoint(networkOption: string): String {

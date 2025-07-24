@@ -2,9 +2,9 @@ import { BrowserProvider, formatUnits } from 'ethers'
 import {
   CHAIN_NAMES_TO_APPKIT_NETWORK_MAINNET,
   CHAIN_NAMES_TO_APPKIT_NETWORK_TESTNET
-} from '@utils/constants'
+} from '@widget/utils/constants'
 import { createPublicClient, erc20Abi, getContract, http } from 'viem'
-import { PluginUseBalanceResult } from '@plugins/pluginTypes'
+import { PluginUseBalanceResult } from '@widget/plugins/pluginTypes'
 
 export const getEvmTokenBalance = async (input: {
   address: string

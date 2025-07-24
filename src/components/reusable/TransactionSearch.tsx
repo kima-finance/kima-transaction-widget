@@ -1,14 +1,14 @@
 import React, { useRef, useState } from 'react'
 import SecondaryButton from './SecondaryButton'
 import { useSelector } from 'react-redux'
-import { selectBackendUrl, selectTheme } from '@store/selectors'
+import { selectBackendUrl, selectTheme } from '@widget/store/selectors'
 import { useDispatch } from 'react-redux'
-import { setMode, setSubmitted, setTxId } from '@store/optionSlice'
+import { setMode, setSubmitted, setTxId } from '@widget/store/optionSlice'
 import toast from 'react-hot-toast'
-import { getTxData } from 'src/services/transactionApi'
-import { ErrorIcon } from '@assets/icons'
-import { ModeOptions } from '@interface'
-import log from '@utils/logger'
+import { getTxData } from '../../services/transactionApi'
+import { ErrorIcon } from '@widget/assets/icons'
+import { ModeOptions } from '@widget/interface'
+import log from '@widget/utils/logger'
 
 const TransactionSearch = () => {
   const theme = useSelector(selectTheme)

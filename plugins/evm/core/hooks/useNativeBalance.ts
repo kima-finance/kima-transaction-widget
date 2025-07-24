@@ -2,10 +2,10 @@ import { useQuery } from '@tanstack/react-query'
 import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
 import { getEvmBalance } from '../../utils/getBalance'
 import { useKimaContext } from '../../../../src/KimaProvider'
-import { selectNetworkOption, selectSourceChain } from '@store/selectors'
+import { selectNetworkOption, selectSourceChain } from '@widget/store/selectors'
 import { useSelector } from 'react-redux'
-import { NetworkOptions } from '@interface'
-import log from '@utils/logger'
+import { NetworkOptions } from '@widget/interface'
+import log from '@widget/utils/logger'
 
 const useNativeEvmBalance = () => {
   const { externalProvider } = useKimaContext()

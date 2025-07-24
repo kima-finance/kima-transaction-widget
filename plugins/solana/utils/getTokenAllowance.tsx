@@ -1,9 +1,9 @@
-import { GetTokenAllowanceResult } from '@plugins/pluginTypes'
-import { getAssociatedTokenAddress } from '@solana/spl-token'
 import { Connection, ParsedAccountData, PublicKey } from '@solana/web3.js'
-import { TokenOptions } from '@store/optionSlice'
-import { getTokenAddress, getPoolAddress } from '@utils/functions'
-import log from '@utils/logger'
+import { getAssociatedTokenAddress } from '@solana/spl-token'
+import { GetTokenAllowanceResult } from '@widget/plugins/pluginTypes'
+import { TokenOptions } from '@widget/store/optionSlice'
+import { getTokenAddress, getPoolAddress } from '@widget/utils/functions'
+import log from '@widget/utils/logger'
 
 export const getTokenAllowance = async ({
   tokenOptions,

@@ -1,4 +1,4 @@
-import { NetworkOptions } from '@interface'
+import { NetworkOptions } from '@widget/interface'
 import { useQuery } from '@tanstack/react-query'
 import { getPools } from '../services/poolsApi'
 

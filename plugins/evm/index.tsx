@@ -4,14 +4,14 @@ import {
   ChainCompatibility,
   ChainData,
   PluginProviderProps
-} from '@plugins/pluginTypes'
-import { PluginBase } from '@plugins/PluginBase'
-import { store } from '@store/index'
-import WalletProvider from '@plugins/evm/features/walletConnect/WalletProvider'
-import useBalanceEvm from '@plugins/evm/core/hooks/useBalance'
-import useNativeEvmBalance from '@plugins/evm/core/hooks/useNativeBalance'
-import useIsWalletReadyEvm from '@plugins/evm/core/hooks/useIsWalletReady'
-import useEvmAllowance from '@plugins/evm/core/hooks/useEvmAllowance'
+} from '@widget/plugins/pluginTypes'
+import { PluginBase } from '@widget/plugins/PluginBase'
+import { store } from '@widget/store/index'
+import WalletProvider from '@widget/plugins/evm/features/walletConnect/WalletProvider'
+import useBalanceEvm from '@widget/plugins/evm/core/hooks/useBalance'
+import useNativeEvmBalance from '@widget/plugins/evm/core/hooks/useNativeBalance'
+import useIsWalletReadyEvm from '@widget/plugins/evm/core/hooks/useIsWalletReady'
+import useEvmAllowance from '@widget/plugins/evm/core/hooks/useEvmAllowance'
 import useDisconnectWallet from './core/hooks/useDisconnectWallet'
 
 export class EvmPlugin extends PluginBase {

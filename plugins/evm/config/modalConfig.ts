@@ -20,9 +20,9 @@ import {
   confluxESpace,
   confluxESpaceTestnet
 } from '@reown/appkit/networks' // Adjust this import based on real networks you need to support
-import { NetworkOptions } from '@interface'
 import { EthersAdapter } from '@reown/appkit-adapter-ethers'
-import log from '@utils/logger'
+import { NetworkOptions } from '@widget/interface'
+import log from '@widget/utils/logger'
 
 const appkitMainnetChains = [
   mainnet,

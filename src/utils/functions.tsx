@@ -1,13 +1,13 @@
 // Return shortened address for EVM, Solana wallet address
 import { BrowserProvider, formatUnits, JsonRpcSigner, parseUnits } from 'ethers'
+import { Connection, PublicKey } from '@solana/web3.js'
 import {
   CHAIN_NAMES_TO_STRING,
   ExternalProvider,
   SolProvider,
   TronProvider
-} from '@interface'
-import { Connection, PublicKey } from '@solana/web3.js'
-import { TokenOptions } from '@store/optionSlice'
+} from '@widget/interface'
+import { TokenOptions } from '@widget/store/optionSlice'
 import { TronWeb } from 'tronweb'
 
 export const getShortenedAddress = (address: string) => {

@@ -1,6 +1,6 @@
-import { NetworkOptions } from '@interface'
+import { NetworkOptions } from '@widget/interface'
 import { useQuery } from '@tanstack/react-query'
-import { fetchWrapper } from 'src/helpers/fetch-wrapper'
+import { fetchWrapper } from '../helpers/fetch-wrapper'
 
 export interface EnvOptions {
   env: NetworkOptions

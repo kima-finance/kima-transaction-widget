@@ -1,4 +1,6 @@
 import { useSelector } from 'react-redux'
+import { useQuery } from '@tanstack/react-query'
+import { PublicKey } from '@solana/web3.js'
 import {
   selectSourceChain,
   selectTokenOptions,
@@ -6,15 +8,13 @@ import {
   selectNetworkOption,
   selectSourceCurrency,
   selectMode
-} from '@store/selectors'
+} from '@widget/store/selectors'
 import { getTokenAllowance } from '../../utils/getTokenAllowance'
 import useGetPools from '../../../../src/hooks/useGetPools'
 import { GetTokenAllowanceResult } from '../../../pluginTypes'
-import { useQuery } from '@tanstack/react-query'
 import { useSolanaProvider } from './useSolanaProvider'
-import { PublicKey } from '@solana/web3.js'
-import { ModeOptions } from '@interface'
-import { lightDemoAccounts } from '@utils/constants'
+import { ModeOptions } from '@widget/interface'
+import { lightDemoAccounts } from '@widget/utils/constants'
 
 const emptyResult = {} as GetTokenAllowanceResult
 

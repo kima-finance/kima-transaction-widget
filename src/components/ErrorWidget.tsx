@@ -1,15 +1,15 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
 
-import { ErrorIcon, FooterLogo } from '@assets/icons'
+import { ErrorIcon, FooterLogo } from '@widget/assets/icons'
 import { CopyButton, PrimaryButton } from './reusable'
-import { ColorModeOptions, ThemeOptions } from '@interface'
+import { ColorModeOptions, ThemeOptions } from '@widget/interface'
 import {
   selectCCTransactionId,
   selectCCTransactionRetrying,
   selectSourceChain
-} from '@store/selectors'
-import { Loading180Ring } from '@assets/loading'
+} from '@widget/store/selectors'
+import { Loading180Ring } from '@widget/assets/loading'
 
 const ErrorWidget = ({
   theme,

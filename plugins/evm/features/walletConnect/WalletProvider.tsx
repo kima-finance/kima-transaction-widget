@@ -1,6 +1,6 @@
 import React, { ReactNode, useEffect, useState } from 'react'
 import { setupAppKit } from '../../config/modalConfig'
-import { NetworkOptions } from '@interface'
+import { NetworkOptions } from '@widget/interface'
 
 export interface WalletProviderProps {
   children: ReactNode

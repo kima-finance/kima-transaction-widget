@@ -1,12 +1,14 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { setSourceCurrency, setTargetCurrency } from '@store/optionSlice'
+import { setSourceCurrency, setTargetCurrency } from '@widget/store/optionSlice'
 import {
+  selectDappOption,
+  selectMode,
   selectSourceChain,
   selectSourceCurrency,
   selectTheme
-} from '@store/selectors'
-import Arrow from '@assets/icons/Arrow'
+} from '@widget/store/selectors'
+import Arrow from '@widget/assets/icons/Arrow'
 import TokenBadge from './TokenBadge'
 import TokenIcon from '../reusable/TokenIcon'
 import { useSingleChainData } from '../../hooks/useSingleChainData'
@@ -29,12 +31,14 @@ const SourceTokenSelectorComponent = () => {
 
   const dispatch = useDispatch()
   const theme = useSelector(selectTheme)
+  const dAppOption = useSelector(selectDappOption)
+  const mode = useSelector(selectMode)
 
   // Get the selected network and token from Redux
   const originNetwork = useSelector(selectSourceChain)
   const sourceCurrency = useSelector(selectSourceCurrency)
 
-  const chain = useSingleChainData(originNetwork)
+  const chain = useSingleChainData(originNetwork.shortName)
 
   useEffect(() => {
     if (!chain) return

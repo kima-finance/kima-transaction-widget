@@ -5,7 +5,7 @@ import { base64 } from '@scure/base'
 import * as btc from '@kimafinance/btc-signer'
 import { UTXO } from './utils'
 import { sha256 } from '@noble/hashes/sha256'
-import log from '@utils/logger'
+import log from '@widget/utils/logger'
 
 // Compute HASH160 of a public key
 function hash160(publicKey: string): Buffer {

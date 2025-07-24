@@ -2,10 +2,10 @@ import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { WalletReadyState } from '@solana/wallet-adapter-base'
-import { selectTheme, selectSourceChain } from '@store/selectors'
-import ExternalLink from '@components/reusable/ExternalLink'
-import { setSolanaConnectModal } from '@store/optionSlice'
-import log from '@utils/logger'
+import { selectTheme, selectSourceChain } from '@widget/store/selectors'
+import ExternalLink from '@widget/components/reusable/ExternalLink'
+import { setSolanaConnectModal } from '@widget/store/optionSlice'
+import log from '@widget/utils/logger'
 
 const SolanaWalletSelect = () => {
   const theme = useSelector(selectTheme)

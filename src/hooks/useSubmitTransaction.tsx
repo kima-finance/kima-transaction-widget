@@ -1,14 +1,14 @@
 import { useDispatch, useSelector } from 'react-redux'
+import { useMutation } from '@tanstack/react-query'
 import {
   setTxId,
   setSubmitted,
   setCCTransactionRetrying,
   setCCTransactionStatus
-} from '@store/optionSlice'
-import { getTransactionId } from '@utils/functions'
+} from '@widget/store/optionSlice'
+import { getTransactionId } from '@widget/utils/functions'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
-import log from '@utils/logger'
-import { useMutation } from '@tanstack/react-query'
+import log from '@widget/utils/logger'
 import {
   selectBackendUrl,
   selectCCTransactionIdSeed,
@@ -16,11 +16,14 @@ import {
   selectMode,
   selectServiceFee,
   selectSubmitted
-} from '@store/selectors'
-import { bigIntChangeDecimals } from 'src/helpers/functions'
+} from '@widget/store/selectors'
+import { bigIntChangeDecimals } from '../helpers/functions'
 import { useState } from 'react'
 
-const useSubmitTransaction = () => {
+const useSubmitTransaction = (
+  isSubmitting: boolean,
+  setIsSubmitting: React.Dispatch<React.SetStateAction<boolean>>
+) => {
   const dispatch = useDispatch()
   const backendUrl = useSelector(selectBackendUrl)
   const mode = useSelector(selectMode)
@@ -31,8 +34,6 @@ const useSubmitTransaction = () => {
     : transactionValues.feeFromOrigin
   const ccTransactionIdSeed = useSelector(selectCCTransactionIdSeed)
   const submitted = useSelector(selectSubmitted)
-
-  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const mutation = useMutation({
     mutationFn: async (signature: string) => {

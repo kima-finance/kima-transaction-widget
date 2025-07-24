@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
 import { useSelector } from 'react-redux'
-import { selectMode, selectSourceChain } from '@store/selectors'
+import { selectMode, selectSourceChain } from '@widget/store/selectors'
 import { useDispatch } from 'react-redux'
-import { setSourceAddress } from '@store/optionSlice'
+import { setSourceAddress } from '@widget/store/optionSlice'
 import { useKimaContext } from '../../../../src/KimaProvider'
-import { ModeOptions } from '@interface'
-import { lightDemoAccounts } from '@utils/constants'
+import { ModeOptions } from '@widget/interface'
+import { lightDemoAccounts } from '@widget/utils/constants'
 
 const createWalletStatus = (
   isReady: boolean,

@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
 import { DAppOptions, ModeOptions } from '../../interface'
 import {
-  selectAmount,
   selectBankDetails,
   selectFeeDeduct,
   selectMode,
@@ -19,16 +18,13 @@ import {
   selectTargetCurrency,
   selectNetworks,
   selectSourceAddress
-} from '@store/selectors'
+} from '@widget/store/selectors'
 import { ChainName, lightDemoAccounts } from '../../utils/constants'
-import { getShortenedAddress } from '../../utils/functions'
 import useWidth from '../../hooks/useWidth'
 import ChainIcon from './ChainIcon'
 import FeeDeductionRadioButtons from './FeeDeductionRadioButtons'
-import { MiniArrowIcon } from '@assets/icons'
-import { formatBigInt } from 'src/helpers/functions'
-
-// TODO: ADD LIGHT DEMO LOGIC AND FIXES
+import { MiniArrowIcon } from '@widget/assets/icons'
+import { formatBigInt } from '../../helpers/functions'
 
 const ConfirmDetails = ({
   isApproved,
@@ -77,17 +73,6 @@ const ConfirmDetails = ({
   useEffect(() => {
     width === 0 && updateWidth(window.innerWidth)
   }, [])
-
-  // const amountToShow = useMemo(() => {
-  //   if (
-  //     originNetwork.shortName === ChainName.BTC ||
-  //     targetNetwork.shortName === ChainName.BTC
-  //   ) {
-  //     return (feeDeduct ? +amount : +amount + +totalFee).toFixed(8)
-  //   }
-
-  //   return formatterFloat.format(feeDeduct ? +amount : +amount + +totalFee)
-  // }, [amount, totalFee, originNetwork, targetNetwork, feeDeduct])
 
   return (
     <div className={`confirm-details ${theme.colorMode}`}>
@@ -149,33 +134,37 @@ const ConfirmDetails = ({
       )}
       <div className='detail-item amount'>
         <span className='amount-container'>
-          <div className='amount-details'>
-            <span>Amount to Transfer </span>
-            <div className='coin-details'>
-              <p>
-                {formatBigInt(txValues.allowanceAmount)} {sourceCurrency}
-              </p>
+          {dAppOption === DAppOptions.None && (
+            <div className='amount-details'>
+              <span>Amount to Transfer </span>
+              <div className='coin-details'>
+                <p>
+                  {formatBigInt(txValues.allowanceAmount)} {sourceCurrency}
+                </p>
+              </div>
             </div>
-          </div>
-          <div className='amount-details'>
-            <span>Total Fees</span>
-            <div
-              className='fee-collapse'
-              onClick={() => setFeeCollapsed(!feeCollapsed)}
-            >
-              <MiniArrowIcon
-                width={15}
-                height={8}
-                style={{
-                  transform: `rotate(${feeCollapsed ? '0deg' : '180deg'})`,
-                  transition: 'transform 0.3s ease'
-                }}
-              />
-              <span className='service-fee'>
-                {formatBigInt(totalFee)} {sourceCurrency}
-              </span>
+          )}
+          {dAppOption === DAppOptions.None && (
+            <div className='amount-details'>
+              <span>Total Fees</span>
+              <div
+                className='fee-collapse'
+                onClick={() => setFeeCollapsed(!feeCollapsed)}
+              >
+                <MiniArrowIcon
+                  width={15}
+                  height={8}
+                  style={{
+                    transform: `rotate(${feeCollapsed ? '0deg' : '180deg'})`,
+                    transition: 'transform 0.3s ease'
+                  }}
+                />
+                <span className='service-fee'>
+                  {formatBigInt(totalFee)} {sourceCurrency}
+                </span>
+              </div>
             </div>
-          </div>
+          )}
           <div className={`fee-breakdown ${feeCollapsed ? 'collapsed' : ''}`}>
             <div className='amount-details'>
               <span>

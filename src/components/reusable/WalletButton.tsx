@@ -13,7 +13,8 @@ import {
   selectSourceCompliant,
   selectTheme,
   selectMode,
-  selectTargetAddress
+  selectTargetAddress,
+  selectDappOption
 } from '../../store/selectors'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
 import { ChainName } from '../../utils/constants'
@@ -29,8 +30,8 @@ import { bigIntToNumber, formatUSD } from '../../helpers/functions'
 import useHideWuiListItem from '../../hooks/useHideActivityTab'
 import { useKimaContext } from '../../KimaProvider'
 import { useGetEnvOptions } from '../../hooks/useGetEnvOptions'
-import { ModeOptions, NetworkOptions } from '@interface'
-import log from '@utils/logger'
+import { DAppOptions, ModeOptions, NetworkOptions } from '@widget/interface'
+import log from '@widget/utils/logger'
 
 const WalletButton = ({
   errorBelow = false,
@@ -49,11 +50,15 @@ const WalletButton = ({
   const compliantOption = useSelector(selectCompliantOption)
   const selectedNetwork = useSelector(selectSourceChain)
   const targetAddress = useSelector(selectTargetAddress)
+  const dAppOption = useSelector(selectDappOption)
   const { externalProvider } = useKimaContext()
   const { connected: isSolanaConnected } = useSolanaWallet()
   const { connected: isTronConnected } = useTronWallet()
-  const { isReady, statusMessage, connectedAddress /*, connectBitcoinWallet*/ } =
-    useIsWalletReady()
+  const {
+    isReady,
+    statusMessage,
+    connectedAddress /*, connectBitcoinWallet*/
+  } = useIsWalletReady()
   const { balance, decimals } = useBalance()
   const { open } = useAppKit()
   const { open: isModalOpen } = useAppKitState()
@@ -144,8 +149,11 @@ const WalletButton = ({
   //   toast.error(errorMessage)
   // }, [errorMessage])
   const isConnected = useMemo(() => {
+    if (mode === ModeOptions.payment && dAppOption !== DAppOptions.None) {
+      return isReady // connected address is available → mark as connected
+    }
     return isReady && !initialSelection
-  }, [isReady, initialSelection])
+  }, [isReady, initialSelection, mode, dAppOption])
 
   useEffect(() => {
     if (!isReady) {
@@ -203,7 +211,10 @@ const WalletButton = ({
         )}
       </div>
 
-      {isConnected && !placeholder && balance !== undefined && decimals !== undefined ? (
+      {isConnected &&
+      !placeholder &&
+      balance !== undefined &&
+      decimals !== undefined ? (
         <p className='balance-info'>
           {formatUSD(bigIntToNumber({ value: balance, decimals }))}{' '}
           {selectedCoin} available

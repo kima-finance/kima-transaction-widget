@@ -9,17 +9,17 @@ import {
   selectFeeDeduct,
   selectSourceAddress,
   selectMode
-} from '@store/selectors'
+} from '@widget/store/selectors'
 
 import { useQueryClient } from '@tanstack/react-query'
 import useGetPools from '../../../../src/hooks/useGetPools'
-import { getPoolAddress, getTokenAddress } from '@utils/functions'
-import { PluginUseAllowanceResult, SignDataType } from '@plugins/pluginTypes'
+import { getPoolAddress, getTokenAddress } from '@widget/utils/functions'
+import { PluginUseAllowanceResult, SignDataType } from '@widget/plugins/pluginTypes'
 import { useTronProvider } from '../hooks/useTronProvider'
 import useBalance from './useBalance'
-import log from '@utils/logger'
-import { ModeOptions } from '@interface'
-import { lightDemoAccounts } from '@utils/constants'
+import log from '@widget/utils/logger'
+import { ModeOptions } from '@widget/interface'
+import { lightDemoAccounts } from '@widget/utils/constants'
 
 export default function useTronAllowance(): PluginUseAllowanceResult {
   const queryClient = useQueryClient()

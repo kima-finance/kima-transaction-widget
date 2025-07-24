@@ -6,6 +6,13 @@ const useComplianceCheck = (
   compliantOption: boolean,
   backendUrl: string
 ) => {
+  const enabled =
+    !!walletAddress &&
+    walletAddress.length >= 34 && // debounce for a minimum of characters (tron length)
+    !!compliantOption &&
+    compliantOption &&
+    !!backendUrl // Only fetch when valid inputs exist
+
   const {
     data: complianceData,
     error,
@@ -15,13 +22,7 @@ const useComplianceCheck = (
     queryFn: async () => {
       return await getCompliance(walletAddress, compliantOption, backendUrl)
     },
-
-    enabled:
-      !!walletAddress &&
-      walletAddress.length >= 34 && // debounce for a minimum of characters (tron length)
-      !!compliantOption &&
-      compliantOption &&
-      !!backendUrl, // Only fetch when valid inputs exist
+    enabled,
     retry: 1 // Retry once on failure
   })
 

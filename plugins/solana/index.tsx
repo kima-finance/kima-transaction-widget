@@ -1,16 +1,16 @@
 // plugins/solana/index.tsx
 import React from 'react' // Import React explicitly
-import { store } from '@store/index'
-import WalletProvider from '@plugins/solana/features/walletConnect/WalletProvider'
-import { PluginBase } from '@plugins/PluginBase'
+import { store } from '@widget/store/index'
+import WalletProvider from '@widget/plugins/solana/features/walletConnect/WalletProvider'
+import { PluginBase } from '@widget/plugins/PluginBase'
 import {
   ChainCompatibility,
   ChainData,
   PluginProviderProps
-} from '@plugins/pluginTypes'
-import useGetSolBalance from '@plugins/solana/core/hooks/useGetSolBalance'
-import useSolanaAllowance from '@plugins/solana/core/hooks/useSolanaAllowance'
-import useSolIsWalletReady from '@plugins/solana/core/hooks/useIsWalletReady'
+} from '@widget/plugins/pluginTypes'
+import useGetSolBalance from '@widget/plugins/solana/core/hooks/useGetSolBalance'
+import useSolanaAllowance from '@widget/plugins/solana/core/hooks/useSolanaAllowance'
+import useSolIsWalletReady from '@widget/plugins/solana/core/hooks/useIsWalletReady'
 import useDisconnectWallet from './core/hooks/useDisconnectWallet'
 
 export class SolanaPlugin extends PluginBase {

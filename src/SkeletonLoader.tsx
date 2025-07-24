@@ -1,5 +1,5 @@
-import { FooterLogo } from '@assets/icons'
-import { ColorModeOptions, ThemeOptions } from '@interface'
+import { FooterLogo } from '@widget/assets/icons'
+import { ColorModeOptions, ThemeOptions } from '@widget/interface'
 import React from 'react'
 
 const SkeletonLoader = ({ theme }: { theme: ThemeOptions }) => {

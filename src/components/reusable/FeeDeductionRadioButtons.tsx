@@ -1,6 +1,6 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { setFeeDeduct } from '@store/optionSlice'
+import { setFeeDeduct } from '@widget/store/optionSlice'
 import {
   selectAmount,
   selectFeeDeduct,
@@ -11,8 +11,8 @@ import {
   selectTargetChain,
   selectTargetCurrency,
   selectTheme
-} from '@store/selectors'
-import { bigIntToNumber, formatterFloat } from 'src/helpers/functions'
+} from '@widget/store/selectors'
+import { bigIntToNumber, formatterFloat } from '../../helpers/functions'
 
 const FeeDeductionRadioButtons = ({ disabled }: { disabled: boolean }) => {
   const dispatch = useDispatch()

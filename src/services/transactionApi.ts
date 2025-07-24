@@ -1,54 +1,36 @@
-import { TransactionData } from '@interface'
-import { TransactionStatus } from '@utils/constants'
-import { fetchWrapper } from 'src/helpers/fetch-wrapper'
-import log from '@utils/logger'
+import { TransactionData } from '@widget/interface'
+import { TransactionStatus } from '@widget/utils/constants'
+import { fetchWrapper } from '../helpers/fetch-wrapper'
+import log from '@widget/utils/logger'
 
-interface KimaTransactionDataResponse {
+interface KimaTransactionRaw {
+  failreason: string
+  pullfailcount: number
+  pullhash: string
+  releasefailcount: number
+  releasehash: string
+  refundhash: string
+  txstatus: string
+  amount: number
+  creator: string
+  originaddress: string
+  originchain: string
+  originsymbol: string
+  targetsymbol: string
+  targetaddress: string
+  targetchain: string
+  tx_id: string
+  kimahash: string
+}
+
+interface KimaTransactionResponse {
   data: {
-    transaction_data: {
-      failreason: string
-      pullfailcount: number
-      pullhash: string
-      releasefailcount: number
-      releasehash: string
-      refundhash: string
-      txstatus: string
-      amount: number
-      creator: string
-      originaddress: string
-      originchain: string
-      originsymbol: string
-      targetsymbol: string
-      targetaddress: string
-      targetchain: string
-      tx_id: string
-      kimahash: string
-    }
+    transaction_data?: KimaTransactionRaw
+    liquidity_transaction_data?: KimaTransactionRaw
   }
 }
 
-interface KimaLiquidityTransactionDataResponse {
-  data: {
-    liquidity_transaction_data: {
-      failreason: string
-      pullfailcount: number
-      pullhash: string
-      releasefailcount: number
-      releasehash: string
-      refundhash: string
-      txstatus: string
-      amount: number
-      creator: string
-      chain: string
-      providerchainaddress: string
-      symbol: string
-      tx_id: string
-      kimahash: string
-    }
-  }
-}
-
-const emptyStatus = {
+const emptyStatus: TransactionData = {
   status: TransactionStatus.AVAILABLE,
   sourceChain: '',
   targetChain: '',
@@ -60,62 +42,37 @@ const emptyStatus = {
   amount: '',
   kimaTxHash: '',
   failReason: ''
-} satisfies TransactionData
+}
 
-const selectStatus = (
-  response: KimaTransactionDataResponse | KimaLiquidityTransactionDataResponse
-): TransactionData | null => {
-  if ('liquidity_transaction_data' in response.data) {
-    const data = response.data.liquidity_transaction_data
-    // the response could be empty if the transaction hasn't been processed yet
-    if (!data) return emptyStatus
-    return {
-      status: data.txstatus as TransactionStatus,
-      sourceChain: data.chain,
-      targetChain: data.chain,
-      tssPullHash: data.releasehash,
-      tssReleaseHash: data.releasehash,
-      tssRefundHash: data.refundhash,
-      failReason: data.failreason,
-      amount: data.amount,
-      sourceSymbol: data.symbol,
-      targetSymbol: data.symbol,
-      kimaTxHash: data.kimahash
-    }
-  }
+const parseTxData = (raw?: KimaTransactionRaw): TransactionData => {
+  if (!raw) return emptyStatus
 
-  const data = response.data.transaction_data
-  // the response could be empty if the transaction hasn't been processed yet
-  if (!data) return emptyStatus
   return {
-    status: data.txstatus as TransactionStatus,
-    sourceChain: data.originchain,
-    targetChain: data.targetchain,
-    tssPullHash: data.pullhash,
-    tssReleaseHash: data.releasehash,
-    tssRefundHash: data.refundhash,
-    failReason: data.failreason,
-    amount: data.amount,
-    sourceSymbol: data.originsymbol,
-    targetSymbol: data.targetsymbol,
-    kimaTxHash: data.kimahash
+    status: raw.txstatus as TransactionStatus,
+    sourceChain: raw.originchain,
+    targetChain: raw.targetchain,
+    tssPullHash: raw.pullhash,
+    tssReleaseHash: raw.releasehash,
+    tssRefundHash: raw.refundhash,
+    failReason: raw.failreason,
+    amount: raw.amount,
+    sourceSymbol: raw.originsymbol,
+    targetSymbol: raw.targetsymbol,
+    kimaTxHash: raw.kimahash
   }
 }
 
 const isFinished = (data: TransactionData | null) => {
   if (!data) return false
-  return (
-    !!data.status &&
-    [
-      TransactionStatus.COMPLETED,
-      TransactionStatus.FAILEDTOPULL,
-      TransactionStatus.FAILEDTOPAY,
-      TransactionStatus.UNAVAILABLE,
-      TransactionStatus.REFUNDFAILED,
-      TransactionStatus.REFUNDCOMPLETED,
-      TransactionStatus.DECLINEDINVALID
-    ].includes(data.status)
-  )
+  return [
+    TransactionStatus.COMPLETED,
+    TransactionStatus.FAILEDTOPULL,
+    TransactionStatus.FAILEDTOPAY,
+    TransactionStatus.UNAVAILABLE,
+    TransactionStatus.REFUNDFAILED,
+    TransactionStatus.REFUNDCOMPLETED,
+    TransactionStatus.DECLINEDINVALID
+  ].includes(data.status)
 }
 
 export const getTxData = async ({
@@ -128,7 +85,7 @@ export const getTxData = async ({
   isLP: boolean
   backendUrl: string
   refPollForUpdates: React.MutableRefObject<boolean>
-}) => {
+}): Promise<TransactionData> => {
   try {
     const path = isLP ? 'tx/lp' : 'tx'
     const response = await fetchWrapper.get(
@@ -136,13 +93,14 @@ export const getTxData = async ({
     )
     if (typeof response === 'string') throw new Error(response)
 
-    const data = selectStatus(
-      response as
-        | KimaTransactionDataResponse
-        | KimaLiquidityTransactionDataResponse
-    )
-    refPollForUpdates.current = !isFinished(data)
-    return data
+    const res = response as KimaTransactionResponse
+    const raw = isLP
+      ? res.data.liquidity_transaction_data
+      : res.data.transaction_data
+    const parsed = parseTxData(raw)
+
+    refPollForUpdates.current = !isFinished(parsed)
+    return parsed
   } catch (error) {
     log.error(`Error fetching transaction ${txId} data:`, error)
     throw new Error(

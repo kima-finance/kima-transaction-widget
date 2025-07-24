@@ -2,9 +2,9 @@ import React, { useEffect, useMemo, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import { AdapterState } from '@tronweb3/tronwallet-abstract-adapter'
-import { selectTheme } from '@store/selectors'
-import ExternalLink from '@components/reusable/ExternalLink'
-import { setTronConnectModal } from '@store/optionSlice'
+import { selectTheme } from '@widget/store/selectors'
+import ExternalLink from '@widget/components/reusable/ExternalLink'
+import { setTronConnectModal } from '@widget/store/optionSlice'
 
 const TronWalletSelect = () => {
   const theme = useSelector(selectTheme)

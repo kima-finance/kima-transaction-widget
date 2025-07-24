@@ -9,10 +9,8 @@ import {
 } from '../../store/selectors'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
 import { ModeOptions } from '../../interface'
-import { ChainCompatibility, ChainData } from '@plugins/pluginTypes'
-import log from '@utils/logger'
-import { isEVMChain, lightDemoAccounts } from '@utils/constants'
-import { isSolana, isTron } from 'src/helpers/functions'
+import { isEVMChain, lightDemoAccounts } from '@widget/utils/constants'
+import { isSolana, isTron } from '../../helpers/functions'
 
 const AddressInput = ({
   theme,

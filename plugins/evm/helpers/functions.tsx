@@ -1,4 +1,4 @@
-import { ChainData } from '@plugins/pluginTypes'
+import { ChainData } from '@widget/plugins/pluginTypes'
 import { AppKitNetwork } from '@reown/appkit/networks'
 import { Chain } from 'viem'
 

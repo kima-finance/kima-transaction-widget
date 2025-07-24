@@ -1,5 +1,5 @@
 import { fetchWrapper } from '../helpers/fetch-wrapper'
-import log from '@utils/logger'
+import log from '@widget/utils/logger'
 
 export const getCompliance = async (
   walletAddress: string,

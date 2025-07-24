@@ -3,7 +3,7 @@ import * as hex64 from 'hex64'
 import * as btc from '@kimafinance/btc-signer'
 import { BitcoinNetworkType } from 'sats-connect'
 import { fetchWrapper } from '../../helpers/fetch-wrapper'
-import log from '@utils/logger'
+import log from '@widget/utils/logger'
 
 export type UTXO = {
   txid: string

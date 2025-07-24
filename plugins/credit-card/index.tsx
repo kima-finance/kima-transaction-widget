@@ -9,7 +9,7 @@ import {
   PluginUseDisconnectWalletResult
 } from '../pluginTypes'
 import useIsProviderReady from './core/hooks/useIsProviderReady'
-import { store } from '@store/index'
+import { store } from '@widget/store/index'
 
 const useAllowance = (): PluginUseAllowanceResult => ({
   isApproved: true,

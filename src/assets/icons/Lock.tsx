@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Lock = ({ width = 24, height = 27, fill = 'none', ...rest }) => {
+const Lock = ({ width = 24, height = 24, fill = 'none', ...rest }) => {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'

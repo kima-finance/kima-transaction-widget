@@ -1,8 +1,8 @@
 import { useDispatch, useSelector } from 'react-redux'
-import { selectSourceChain } from '@store/selectors'
-import { setSourceAddress } from '@store/optionSlice'
+import { selectSourceChain } from '@widget/store/selectors'
+import { setSourceAddress } from '@widget/store/optionSlice'
 import { useEffect, useState } from 'react'
-import log from '@utils/logger'
+import log from '@widget/utils/logger'
 
 const useIsProviderReady = () => {
   const [isReady, setIsReady] = useState<boolean>(false)

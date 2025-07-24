@@ -1,8 +1,8 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { CrossIcon } from '@assets/icons'
-import { setSolanaConnectModal } from '@store/optionSlice'
-import { selectSolanaConnectModal, selectTheme } from '@store/selectors'
+import { CrossIcon } from '@widget/assets/icons'
+import { setSolanaConnectModal } from '@widget/store/optionSlice'
+import { selectSolanaConnectModal, selectTheme } from '@widget/store/selectors'
 
 import SolanaWalletSelect from './SolanaWalletSelect'
 import AccountDetailsModal from './AccountDetailsModal'

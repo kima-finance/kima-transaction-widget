@@ -1,7 +1,7 @@
 import { useRef } from 'react'
-import { DAppOptions } from '@interface'
+import { DAppOptions } from '@widget/interface'
 import { useQuery } from '@tanstack/react-query'
-import { getTxData } from 'src/services/transactionApi'
+import { getTxData } from '../services/transactionApi'
 
 const POLLING_INTERVAL_MS = 1000 * 10 // 10 sec
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import log, { DEFAULT_LOG_LEVEL } from '@utils/logger'
+import log, { DEFAULT_LOG_LEVEL } from '@widget/utils/logger'
 
 /**
  * This hook is used to enable debug mode for the widget.

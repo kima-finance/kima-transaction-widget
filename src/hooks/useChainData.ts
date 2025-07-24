@@ -8,7 +8,7 @@ import {
   TokenOptions
 } from '../store/optionSlice'
 import { Option } from '../interface'
-import log from '@utils/logger'
+import log from '@widget/utils/logger'
 
 export const useChainData = (
   backendURL: string,
