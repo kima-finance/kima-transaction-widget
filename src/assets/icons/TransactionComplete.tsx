@@ -70,7 +70,7 @@ const TransactionComplete = ({ width = 140, height = 120, ...rest }) => {
           cy='57.9308'
           r='36.0021'
           stroke='url(#paint6_linear_1838_5769)'
-          stroke-width='3.85736'
+          strokeWidth='3.85736'
         />
       </g>
       <path
@@ -85,9 +85,9 @@ const TransactionComplete = ({ width = 140, height = 120, ...rest }) => {
           width='114.435'
           height='114.435'
           filterUnits='userSpaceOnUse'
-          color-interpolation-filters='sRGB'
+          colorInterpolationFilters='sRGB'
         >
-          <feFlood flood-opacity='0' result='BackgroundImageFix' />
+          <feFlood floodOpacity='0' result='BackgroundImageFix' />
           <feColorMatrix
             in='SourceAlpha'
             type='matrix'
@@ -121,9 +121,9 @@ const TransactionComplete = ({ width = 140, height = 120, ...rest }) => {
           y2='64.3599'
           gradientUnits='userSpaceOnUse'
         >
-          <stop stop-color='#ADF4A6' />
-          <stop offset='0.315' stop-color='#80D7F5' />
-          <stop offset='0.775' stop-color='#9990D5' />
+          <stop stopColor='#ADF4A6' />
+          <stop offset='0.315' stopColor='#80D7F5' />
+          <stop offset='0.775' stopColor='#9990D5' />
         </linearGradient>
         <linearGradient
           id='paint1_linear_1838_5769'
@@ -133,9 +133,9 @@ const TransactionComplete = ({ width = 140, height = 120, ...rest }) => {
           y2='39.9302'
           gradientUnits='userSpaceOnUse'
         >
-          <stop stop-color='#ADF4A6' />
-          <stop offset='0.315' stop-color='#80D7F5' />
-          <stop offset='0.775' stop-color='#9990D5' />
+          <stop stopColor='#ADF4A6' />
+          <stop offset='0.315' stopColor='#80D7F5' />
+          <stop offset='0.775' stopColor='#9990D5' />
         </linearGradient>
         <linearGradient
           id='paint2_linear_1838_5769'
@@ -145,9 +145,9 @@ const TransactionComplete = ({ width = 140, height = 120, ...rest }) => {
           y2='89.4331'
           gradientUnits='userSpaceOnUse'
         >
-          <stop stop-color='#ADF4A6' />
-          <stop offset='0.315' stop-color='#80D7F5' />
-          <stop offset='0.775' stop-color='#9990D5' />
+          <stop stopColor='#ADF4A6' />
+          <stop offset='0.315' stopColor='#80D7F5' />
+          <stop offset='0.775' stopColor='#9990D5' />
         </linearGradient>
         <linearGradient
           id='paint3_linear_1838_5769'
@@ -157,9 +157,9 @@ const TransactionComplete = ({ width = 140, height = 120, ...rest }) => {
           y2='72.7974'
           gradientUnits='userSpaceOnUse'
         >
-          <stop stop-color='#ADF4A6' />
-          <stop offset='0.315' stop-color='#80D7F5' />
-          <stop offset='0.775' stop-color='#9990D5' />
+          <stop stopColor='#ADF4A6' />
+          <stop offset='0.315' stopColor='#80D7F5' />
+          <stop offset='0.775' stopColor='#9990D5' />
         </linearGradient>
         <linearGradient
           id='paint4_linear_1838_5769'
@@ -169,9 +169,9 @@ const TransactionComplete = ({ width = 140, height = 120, ...rest }) => {
           y2='97.2271'
           gradientUnits='userSpaceOnUse'
         >
-          <stop stop-color='#ADF4A6' />
-          <stop offset='0.315' stop-color='#80D7F5' />
-          <stop offset='0.775' stop-color='#9990D5' />
+          <stop stopColor='#ADF4A6' />
+          <stop offset='0.315' stopColor='#80D7F5' />
+          <stop offset='0.775' stopColor='#9990D5' />
         </linearGradient>
         <linearGradient
           id='paint5_linear_1838_5769'
@@ -181,9 +181,9 @@ const TransactionComplete = ({ width = 140, height = 120, ...rest }) => {
           y2='47.7251'
           gradientUnits='userSpaceOnUse'
         >
-          <stop stop-color='#ADF4A6' />
-          <stop offset='0.315' stop-color='#80D7F5' />
-          <stop offset='0.775' stop-color='#9990D5' />
+          <stop stopColor='#ADF4A6' />
+          <stop offset='0.315' stopColor='#80D7F5' />
+          <stop offset='0.775' stopColor='#9990D5' />
         </linearGradient>
         <linearGradient
           id='paint6_linear_1838_5769'
@@ -193,9 +193,9 @@ const TransactionComplete = ({ width = 140, height = 120, ...rest }) => {
           y2='57.9308'
           gradientUnits='userSpaceOnUse'
         >
-          <stop stop-color='#ADF4A6' />
-          <stop offset='0.315' stop-color='#80D7F5' />
-          <stop offset='0.775' stop-color='#9990D5' />
+          <stop stopColor='#ADF4A6' />
+          <stop offset='0.315' stopColor='#80D7F5' />
+          <stop offset='0.775' stopColor='#9990D5' />
         </linearGradient>
         <linearGradient
           id='paint7_linear_1838_5769'
@@ -205,9 +205,9 @@ const TransactionComplete = ({ width = 140, height = 120, ...rest }) => {
           y2='56.8389'
           gradientUnits='userSpaceOnUse'
         >
-          <stop stop-color='#ADF4A6' />
-          <stop offset='0.315' stop-color='#80D7F5' />
-          <stop offset='0.775' stop-color='#9990D5' />
+          <stop stopColor='#ADF4A6' />
+          <stop offset='0.315' stopColor='#80D7F5' />
+          <stop offset='0.775' stopColor='#9990D5' />
         </linearGradient>
       </defs>
     </svg>
