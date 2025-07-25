@@ -1,6 +1,6 @@
 {
   "name": "@kimafinance/kima-transaction-widget",
-  "version": "1.4.11",
+  "version": "1.4.12",
   "description": "Kima Transaction Widget",
   "author": "",
   "license": "MIT",
@@ -26,10 +26,10 @@
     }
   },
   "scripts": {
-    "build": "run-s build:sass build:tsup move:fonts",
+    "build": "npm run build:tsup && npm run build:sass && npm run move:fonts",
     "build:sass": "sass src/styles/main.scss dist/index.css",
     "build:tsup": "tsup",
-    "move:fonts": "mkdir -p dist/fonts && mv dist/*.{woff,woff2,eot,ttf,otf} dist/fonts/ 2>/dev/null || true",
+    "move:fonts": "mkdir -p dist/fonts && echo Moving fonts... && ls dist && mv dist/*.{woff,woff2,eot,ttf,otf} dist/fonts/ 2>/dev/null || true && ls dist/fonts",
     "dev": "tsup --watch",
     "sass": "sass src/styles/main.scss src/index.css -w",
     "test": "react-scripts test --coverage --watchAll",
