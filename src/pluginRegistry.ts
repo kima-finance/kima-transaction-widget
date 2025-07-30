@@ -1,6 +1,6 @@
 import store from './store'
-import { registerPlugin, setPluginIsIndexed } from '@store/pluginSlice'
-import { ChainData, Plugin } from '@plugins/pluginTypes'
+import { registerPlugin, setPluginIsIndexed } from '@widget/store/pluginSlice'
+import { ChainData, Plugin } from '@widget/plugins/pluginTypes'
 import log from './utils/logger'
 
 // Registry to hold plugin provider components

@@ -100,6 +100,10 @@
 .kima-card .kima-card-header .topbar .control-buttons {
   display: flex;
   align-items: center;
+  gap: 8px;
+}
+.kima-card .kima-card-header .topbar .control-buttons.complete {
+  width: 100%;
 }
 @media (max-width: 768px) {
   .kima-card .kima-card-header .topbar .control-buttons {
@@ -110,7 +114,6 @@
   background: transparent;
   border: 1px solid rgba(119, 141, 163, 0.3019607843);
   border-radius: 40px;
-  padding: 2px 8px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1), color 0ms, background-color 0ms, border-color 0ms;
 }
@@ -145,22 +148,16 @@
   justify-content: center;
   align-items: center;
   padding: 4px;
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   border-radius: 9999px;
   background: transparent;
   cursor: pointer;
   border: 1px solid rgba(119, 141, 163, 0.3019607843);
 }
-@media (max-width: 768px) {
-  .kima-card .kima-card-header .topbar .control-buttons .cross-icon-button {
-    width: 50px;
-    height: 50px;
-  }
-}
 .kima-card .kima-card-header .topbar .control-buttons .cross-icon-button svg {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 25px;
 }
 @media (max-width: 768px) {
   .kima-card .kima-card-header .topbar .control-buttons .cross-icon-button svg {
@@ -179,7 +176,6 @@
   color: #778da3;
   text-decoration: none;
   cursor: pointer;
-  margin-right: 1em;
 }
 .kima-card .kima-card-header .topbar .control-buttons .menu-button {
   font-family: "Manrope";
@@ -224,34 +220,24 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   margin-top: 20px;
+  margin-bottom: 10px;
 }
 .kima-card .kima-card-header .header-network-labels p {
   padding: 0;
 }
-@media (max-width: 390px) {
-  .kima-card .kima-card-header .header-network-labels p {
-    display: none;
-  }
-  .kima-card .kima-card-header .header-network-labels .arrow {
-    transform: rotate(-180deg);
-  }
-}
 .kima-card .kima-card-header .header-network-labels .arrow {
   transform: rotate(-90deg);
 }
-.kima-card .kima-card-header h4 {
-  font-weight: 300;
-  font-size: 14px;
-  margin-top: 20px;
-  margin-bottom: 30px;
-}
 .kima-card .kima-card-header .kima-card-network-label {
   display: flex;
-  padding: 13px 18px;
+  padding: 10px 14px;
+  font-weight: 600;
   border-radius: 50px;
-  margin-right: 12px;
+}
+.kima-card .kima-card-header .kima-card-network-label h3 {
+  font-size: 12px;
 }
 .kima-card .kima-card-header .kima-card-network-label .icon {
   border-radius: 9999px;
@@ -395,6 +381,11 @@
   height: 35px;
 }
 @media (max-width: 768px) {
+  .kima-card .floating-footer.complete {
+    margin-top: 10px;
+  }
+}
+@media (max-width: 768px) {
   .kima-card .floating-footer {
     margin-top: 35px;
   }
@@ -521,6 +512,7 @@
   margin-top: -21px;
   position: relative;
   border-radius: 40px;
+  filter: drop-shadow(0px 0px 22.105px rgba(134, 184, 206, 0.5));
 }
 @media (max-width: 768px) {
   .kima-card .kima-card-content .kima-progressbar .step-indicators .step {
@@ -822,6 +814,10 @@
 }
 .kima-card .kima-card-content .kima-tooltip > div .content-wrapper .info-item {
   position: relative;
+}
+.kima-card .kima-card-content .kima-tooltip > div .content-wrapper .info-item .info-icon {
+  background: white;
+  padding: 4px;
 }
 .kima-card .kima-card-content .kima-tooltip > div .content-wrapper .info-item:not(:first-of-type) {
   margin-top: 0.8em;
@@ -2156,16 +2152,93 @@
 .kima-card .kima-card-content .kima-stepbox .content-wrapper {
   display: flex;
   flex-direction: column;
-  border: 1px solid #86b8ce;
+  border: 1.5px solid #86b8ce;
   border-radius: 30px;
   padding: 12px 24px;
+  gap: 5px;
+}
+.kima-card .kima-card-content .kima-stepbox .content-wrapper.transaction-complete {
+  padding: 20px 60px;
+  border: 1.5px solid #86b8ce;
+}
+@media (max-width: 600px) {
+  .kima-card .kima-card-content .kima-stepbox .content-wrapper.transaction-complete {
+    padding: 10px 20px;
+  }
+}
+.kima-card .kima-card-content .kima-stepbox .content-wrapper.transaction-complete p {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: "Manrope";
+}
+.kima-card .kima-card-content .kima-stepbox .content-wrapper.transaction-complete .header-network-labels {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+.kima-card .kima-card-content .kima-stepbox .content-wrapper.transaction-complete .header-network-labels p {
+  padding: 0;
+}
+.kima-card .kima-card-content .kima-stepbox .content-wrapper.transaction-complete .header-network-labels .arrow {
+  transform: rotate(-90deg);
+}
+.kima-card .kima-card-content .kima-stepbox .content-wrapper.transaction-complete .header-network-labels.light {
+  background-color: #edf2f5 !important;
+}
+.kima-card .kima-card-content .kima-stepbox .content-wrapper.transaction-complete .header-network-labels.dark {
+  background-color: #4a5068 !important;
+  color: white;
+}
+.kima-card .kima-card-content .kima-stepbox .content-wrapper.transaction-complete .kima-card-network-label {
+  display: flex;
+  padding: 10px 14px;
+  font-weight: 600;
+  border-radius: 50px;
+}
+.kima-card .kima-card-content .kima-stepbox .content-wrapper.transaction-complete .kima-card-network-label h3 {
+  font-size: 12px;
+}
+.kima-card .kima-card-content .kima-stepbox .content-wrapper.transaction-complete .kima-card-network-label .icon {
+  border-radius: 9999px;
+  background-color: white;
+  padding: 4px;
+  display: flex;
+  justify-content: center;
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .kima-stepbox .content-wrapper.transaction-complete .kima-card-network-label {
+    font-size: 14px;
+  }
+}
+.kima-card .kima-card-content .kima-stepbox .content-wrapper.transaction-complete .kima-card-network-label.light {
+  background-color: #d6e4ea;
+  color: black;
+}
+.kima-card .kima-card-content .kima-stepbox .content-wrapper.transaction-complete .kima-card-network-label.dark {
+  background-color: #4a5068;
+  color: white;
 }
 .kima-card .kima-card-content .kima-stepbox .content-wrapper.light {
   background-color: #edf2f5;
 }
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .kima-stepbox .content-wrapper.light:not(.transaction-complete) {
+    background-color: transparent;
+  }
+}
 .kima-card .kima-card-content .kima-stepbox .content-wrapper.dark {
   background-color: #4a5068;
   color: white;
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .kima-stepbox .content-wrapper.dark:not(.transaction-complete) {
+    background-color: transparent;
+  }
 }
 @media (min-width: 500px) {
   .kima-card .kima-card-content .kima-stepbox .content-wrapper {
@@ -2178,7 +2251,7 @@
     gap: 5px;
     justify-content: space-between;
     border: none;
-    background-color: transparent !important;
+    background-color: transparent;
   }
 }
 .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item {
@@ -2197,12 +2270,22 @@
 }
 .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item {
   position: relative;
-  align-items: center;
+  align-items: start;
+  display: flex;
+  gap: 10px;
+}
+.kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item .info-icon svg {
+  background: white;
+  padding: 4px;
+  border-radius: 9999px;
+  margin-right: 10px;
+  filter: drop-shadow(0px 0px 22.105px rgba(134, 184, 206, 0.5));
 }
 @media (max-width: 500px) {
   .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item {
     width: 210px;
     height: 40px;
+    align-items: center;
   }
 }
 .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item .icon {
@@ -2271,16 +2354,16 @@
   margin-left: 7px;
 }
 .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item.locked svg {
-  margin-top: 0.5px;
-  width: 17px;
-  height: 17px;
-  left: 0;
+  margin-top: -2.5px;
+  width: 28px;
+  height: 28px;
+  left: -4px;
+  padding: 6px;
 }
 .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item.active svg {
-  margin-top: -8.5px;
-  width: 35px;
-  height: 35px;
-  left: -8.5px;
+  margin-top: -4.5px;
+  left: -4.5px;
+  padding: 2px;
 }
 .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item.error svg {
   margin-top: -4.5px;
@@ -3045,6 +3128,11 @@
   /* Button container */
   /* Responsive behavior for small screens (bottom sheet style) */
 }
+@media (min-width: 1000px) {
+  .kima-card {
+    min-width: 900px;
+  }
+}
 .kima-card .transfer-card {
   min-width: 800px;
   padding: 30px 40px;
@@ -3165,6 +3253,23 @@
 .kima-card.transaction-card .kima-card-content .transaction-content {
   display: flex;
   flex-direction: column;
+}
+.kima-card.transaction-card .kima-card-content .transaction-content.transaction-complete {
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.kima-card.transaction-card .kima-card-content .transaction-content.transaction-complete .transaction-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+.kima-card.transaction-card .kima-card-content .transaction-content.transaction-complete h2 {
+  font-family: "Sohne";
+  font-size: 26px;
+  margin: 20px 0px;
+  margin-bottom: 30px;
+  text-align: center;
 }
 @media (max-width: 500px) {
   .kima-card.transaction-card .kima-card-content .transaction-content {

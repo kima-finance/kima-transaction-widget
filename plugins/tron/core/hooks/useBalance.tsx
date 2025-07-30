@@ -1,5 +1,5 @@
 import { useSelector } from 'react-redux'
-
+import { useQuery } from '@tanstack/react-query'
 import {
   selectSourceChain,
   selectTokenOptions,
@@ -7,15 +7,14 @@ import {
   selectBackendUrl,
   selectNetworkOption,
   selectMode
-} from '@store/selectors'
+} from '@widget/store/selectors'
 import ERC20ABI from '../../utils/ethereum/erc20ABI.json'
 import { GetTokenAllowanceResult } from '../../../pluginTypes'
 import { getTokenAllowance } from '../../utils/getTokenAllowance'
-import { useQuery } from '@tanstack/react-query'
 import { useTronProvider } from './useTronProvider'
 import useGetPools from '../../../../src/hooks/useGetPools'
-import { ModeOptions } from '@interface'
-import { lightDemoAccounts } from '@utils/constants'
+import { ModeOptions } from '@widget/interface'
+import { lightDemoAccounts } from '@widget/utils/constants'
 
 const emptyResult = {} as GetTokenAllowanceResult
 

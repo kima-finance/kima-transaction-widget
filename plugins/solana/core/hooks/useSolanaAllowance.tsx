@@ -9,7 +9,7 @@ import {
   selectFeeDeduct,
   selectSourceAddress,
   selectMode
-} from '@store/selectors'
+} from '@widget/store/selectors'
 import useBalance from './useBalance'
 import useGetPools from '../../../../src/hooks/useGetPools'
 import {
@@ -17,14 +17,14 @@ import {
   getAssociatedTokenAddress,
   TOKEN_PROGRAM_ID
 } from '@solana/spl-token'
-import { getPoolAddress, getTokenAddress } from '@utils/functions'
+import { getPoolAddress, getTokenAddress } from '@widget/utils/functions'
 import { PublicKey, Transaction } from '@solana/web3.js'
-import { PluginUseAllowanceResult, SignDataType } from '@plugins/pluginTypes'
+import { PluginUseAllowanceResult, SignDataType } from '@widget/plugins/pluginTypes'
 import { useQueryClient } from '@tanstack/react-query'
 import { useSolanaProvider } from './useSolanaProvider'
-import log from '@utils/logger'
-import { ModeOptions } from '@interface'
-import { lightDemoAccounts } from '@utils/constants'
+import log from '@widget/utils/logger'
+import { ModeOptions } from '@widget/interface'
+import { lightDemoAccounts } from '@widget/utils/constants'
 
 // TODO: ADD LIGHT DEMO LOGIC
 export default function useSolanaAllowance(): PluginUseAllowanceResult {

@@ -5,7 +5,7 @@ import {
   KEURICON,
   BTCIcon
 } from '../assets/icons'
-import log from '@utils/logger'
+import log from '@widget/utils/logger'
 
 const COIN_LIST: Record<string, { symbol: string; icon: React.FC }> = {
   USDK: {

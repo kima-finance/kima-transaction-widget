@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { fetchWrapper } from '../helpers/fetch-wrapper'
-import log from '@utils/logger'
+import log from '@widget/utils/logger'
 
 export interface KYCResult {
   id: string

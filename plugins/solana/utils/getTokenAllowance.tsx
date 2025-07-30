@@ -1,9 +1,9 @@
-import { GetTokenAllowanceResult } from '@plugins/pluginTypes'
-import { getAssociatedTokenAddress } from '@solana/spl-token'
 import { Connection, ParsedAccountData, PublicKey } from '@solana/web3.js'
-import { TokenOptions } from '@store/optionSlice'
-import { getTokenAddress, getPoolAddress } from '@utils/functions'
-import log from '@utils/logger'
+import { getAssociatedTokenAddress } from '@solana/spl-token'
+import { GetTokenAllowanceResult } from '@widget/plugins/pluginTypes'
+import { TokenOptions } from '@widget/store/optionSlice'
+import { getTokenAddress, getPoolAddress } from '@widget/utils/functions'
+import log from '@widget/utils/logger'
 
 export const getTokenAllowance = async ({
   tokenOptions,
@@ -37,8 +37,17 @@ export const getTokenAllowance = async ({
     // Fetch the token account information
     const accountInfo =
       await connection.getParsedAccountInfo(tokenAccountAddress)
-
     const parsedAccountInfo = accountInfo?.value?.data as ParsedAccountData
+    if (!parsedAccountInfo) {
+      log.warn(
+        `Sol:getTokenAllowance: No token ${selectedCoin} account info found for ${userPublicKey.toBase58()}`
+      )
+      return {
+        allowance: BigInt(0),
+        balance: BigInt(0),
+        decimals: 0
+      }
+    }
 
     return {
       allowance:

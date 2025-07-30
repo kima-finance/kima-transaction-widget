@@ -1,5 +1,6 @@
 import React from 'react'
 import {
+  EURCIcon,
   USDKIcon,
   USDTIcon,
   USDCIcon,
@@ -8,7 +9,7 @@ import {
   USDIcon,
   HoneyIcon
 } from '../../assets/icons'
-import log from '@utils/logger'
+import log from '@widget/utils/logger'
 
 type IconProps = { width?: number; height?: number }
 export interface TokenIconProps extends IconProps {
@@ -16,14 +17,17 @@ export interface TokenIconProps extends IconProps {
 }
 
 const COIN_LIST: Record<string, React.FC<IconProps>> = {
+  EUR: KEURICON,
+  EURC: EURCIcon,
+  EURK: KEURICON,
+  HONEY: HoneyIcon,
   KEUR: KEURICON,
   KIMAUSD: USDKIcon,
   USDC: USDCIcon,
   USDK: USDKIcon,
-  USDT: USDTIcon,
-  WBTC: BTCIcon,
   USD: USDIcon,
-  HONEY: HoneyIcon
+  USDT: USDTIcon,
+  WBTC: BTCIcon
 }
 
 export default function TokenIcon({

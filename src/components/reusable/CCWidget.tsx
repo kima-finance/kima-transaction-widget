@@ -5,20 +5,21 @@ import {
   selectCCTransactionStatus,
   selectFeeDeduct,
   selectNetworkOption,
-  selectServiceFee
-} from '@store/selectors'
-import { Loading180Ring } from '@assets/loading'
+  selectServiceFee,
+  selectSourceCurrency
+} from '@widget/store/selectors'
+import { Loading180Ring } from '@widget/assets/loading'
 import {
   setCCTransactionId,
   setCCTransactionIdSeed,
   setCCTransactionStatus
-} from '@store/optionSlice'
-import { formatBigInt } from 'src/helpers/functions'
+} from '@widget/store/optionSlice'
+import { formatBigInt } from '../../helpers/functions'
 import { v4 as uuidv4 } from 'uuid'
 import { useCCTransactionId } from '../../hooks/useCCTransactionId'
-import { NetworkOptions } from '@interface'
+import { NetworkOptions } from '@widget/interface'
 import { useGetEnvOptions } from '../../hooks/useGetEnvOptions'
-import log from '@utils/logger'
+import log from '@widget/utils/logger'
 
 const CCWidget = ({ submitCallback }: { submitCallback: () => void }) => {
   const dispatch = useDispatch()
@@ -26,6 +27,7 @@ const CCWidget = ({ submitCallback }: { submitCallback: () => void }) => {
   const backendUrl = useSelector(selectBackendUrl)
   const ccTransactionStatus = useSelector(selectCCTransactionStatus)
   const networkOption = useSelector(selectNetworkOption)
+  const sourceCurrency = useSelector(selectSourceCurrency)
 
   const { transactionValues } = useSelector(selectServiceFee)
   const randomUserIdRef = useRef(uuidv4())
@@ -125,7 +127,7 @@ const CCWidget = ({ submitCallback }: { submitCallback: () => void }) => {
             ? 0
             : '100%'
         }
-        src={`${baseUrl}/widgets/kyc?partner=${partnerId}&user_uuid=${randomUserIdRef.current}&amount=${allowanceAmount}&currency=USD&trx_uuid=${data?.transactionId}&postmessage=true`}
+        src={`${baseUrl}/widgets/kyc?partner=${partnerId}&user_uuid=${randomUserIdRef.current}&amount=${allowanceAmount}&currency=${sourceCurrency}&trx_uuid=${data?.transactionId}&postmessage=true`}
         loading='lazy'
         title='Credit Card Widget'
         allow='camera; clipboard-write'

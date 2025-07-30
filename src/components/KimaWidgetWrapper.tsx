@@ -30,7 +30,7 @@ import {
   setDappOption,
   setCCTransactionStatus
 } from '../store/optionSlice'
-import '../index.css'
+// import '../index.css'
 import {
   selectCCTransactionRetrying,
   selectCCTransactionStatus,
@@ -41,11 +41,11 @@ import { TransactionWidget } from './TransactionWidget'
 import { TransferWidget } from './TransferWidget'
 import { useAppKitTheme } from '@reown/appkit/react'
 import { indexPluginsByChain } from '../pluginRegistry'
-import { useKimaContext } from 'src/KimaProvider'
+import { useKimaContext } from '../KimaProvider'
 import { EnvOptions } from '../hooks/useGetEnvOptions'
-import { ChainData } from '@plugins/pluginTypes'
+import { ChainData } from '@widget/plugins/pluginTypes'
 import { useDebugCode } from '../hooks/useDebugMode'
-import log from '@utils/logger'
+import log from '@widget/utils/logger'
 import ErrorWidget from './ErrorWidget'
 
 interface Props {
@@ -70,7 +70,7 @@ const KimaWidgetWrapper = ({
   titleOption,
   paymentTitleOption,
   helpURL = '',
-  compliantOption = true,
+  compliantOption = false,
   transactionOption,
   chainData,
   envOptions

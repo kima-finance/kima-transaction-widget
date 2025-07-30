@@ -1,4 +1,4 @@
-import { NetworkOptions } from '@interface'
+import { NetworkOptions } from '@widget/interface'
 import { Chain } from 'viem'
 
 export interface Plugin {
@@ -84,6 +84,7 @@ export interface ChainToken {
   address: string
   decimals: number
   symbol: string
+  peggedTo: string
 }
 
 export enum ChainCompatibility {

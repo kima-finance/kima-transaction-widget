@@ -9,14 +9,14 @@ import {
   selectBackendUrl,
   selectSourceAddress,
   selectMode
-} from '@store/selectors'
-import { isEVMChain } from '../../utils/constants'
-import { ModeOptions, NetworkOptions } from '@interface'
+} from '@widget/store/selectors'
+import { isEVMChain } from '@widget/utils/constants'
+import { ModeOptions, NetworkOptions } from '@widget/interface'
 import { useEvmProvider } from './useEvmProvider'
-import { getTokenAllowance } from '@plugins/evm/utils/getTokenAllowance'
+import { getTokenAllowance } from '@widget/plugins/evm/utils/getTokenAllowance'
 import useGetPools from '../../../../src/hooks/useGetPools'
-import { GetTokenAllowanceResult } from '@plugins/pluginTypes'
-import { lightDemoAccounts } from '@utils/constants'
+import { GetTokenAllowanceResult } from '@widget/plugins/pluginTypes'
+import { lightDemoAccounts } from '@widget/utils/constants'
 
 const emptyResult = {} as GetTokenAllowanceResult
 

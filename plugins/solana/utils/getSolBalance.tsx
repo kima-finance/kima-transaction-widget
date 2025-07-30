@@ -1,5 +1,5 @@
 import { Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js'
-import log from '@utils/logger'
+import log from '@widget/utils/logger'
 
 export const getSolBalance = async (
   connection: Connection,

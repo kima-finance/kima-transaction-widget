@@ -8,7 +8,7 @@ import { setSignature } from '../store/optionSlice'
 import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
 import { useKimaContext } from '../KimaProvider'
 import { BrowserProvider, JsonRpcSigner } from 'ethers'
-import log from '@utils/logger'
+import log from '@widget/utils/logger'
 
 export default function useSign({
   setSigning

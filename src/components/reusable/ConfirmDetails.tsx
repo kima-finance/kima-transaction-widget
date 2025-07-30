@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux'
 import useIsWalletReady from '../../hooks/useIsWalletReady'
 import { DAppOptions, ModeOptions } from '../../interface'
 import {
-  selectAmount,
   selectBankDetails,
   selectFeeDeduct,
   selectMode,
@@ -19,15 +18,13 @@ import {
   selectTargetCurrency,
   selectNetworks,
   selectSourceAddress
-} from '@store/selectors'
+} from '@widget/store/selectors'
 import { ChainName, lightDemoAccounts } from '../../utils/constants'
 import useWidth from '../../hooks/useWidth'
 import ChainIcon from './ChainIcon'
 import FeeDeductionRadioButtons from './FeeDeductionRadioButtons'
-import { MiniArrowIcon } from '@assets/icons'
-import { formatBigInt } from 'src/helpers/functions'
-
-// TODO: ADD LIGHT DEMO LOGIC AND FIXES
+import { MiniArrowIcon } from '@widget/assets/icons'
+import { formatBigInt } from '../../helpers/functions'
 
 const ConfirmDetails = ({
   isApproved,
@@ -57,11 +54,7 @@ const ConfirmDetails = ({
 
   const transactionOption = useSelector(selectTransactionOption)
   const { connectedAddress } = useIsWalletReady()
-  const originNetworkOption = useMemo(
-    () =>
-      networkOptions.filter((network) => network.id === originNetwork.id)[0],
-    [networkOptions, originNetwork]
-  )
+
   const targetNetworkOption = useMemo(
     () =>
       networkOptions.filter(
@@ -81,17 +74,6 @@ const ConfirmDetails = ({
     width === 0 && updateWidth(window.innerWidth)
   }, [])
 
-  // const amountToShow = useMemo(() => {
-  //   if (
-  //     originNetwork.shortName === ChainName.BTC ||
-  //     targetNetwork.shortName === ChainName.BTC
-  //   ) {
-  //     return (feeDeduct ? +amount : +amount + +totalFee).toFixed(8)
-  //   }
-
-  //   return formatterFloat.format(feeDeduct ? +amount : +amount + +totalFee)
-  // }, [amount, totalFee, originNetwork, targetNetwork, feeDeduct])
-
   return (
     <div className={`confirm-details ${theme.colorMode}`}>
       <p>
@@ -107,7 +89,7 @@ const ConfirmDetails = ({
           <div className='detail-item'>
             <span className='label'>IBAN:</span>
             <span className={`kima-card-network-label ${theme.colorMode}`}>
-              <ChainIcon symbol={originNetworkOption?.shortName} />
+              <ChainIcon symbol={originNetwork?.shortName} />
               {/* <div className='icon'>
                 <originNetworkOption.icon />
               </div> */}
@@ -136,8 +118,8 @@ const ConfirmDetails = ({
           <div className='network-details'>
             <div className='kima-card-network-container'>
               <span className={`kima-card-network-label ${theme.colorMode}`}>
-                <ChainIcon symbol={originNetworkOption?.shortName} />
-                {originNetworkOption.name}
+                <ChainIcon symbol={originNetwork?.shortName} />
+                {originNetwork.name}
               </span>
             </div>
             {!['CC', 'BANK'].includes(originNetwork.shortName) && (
@@ -152,33 +134,37 @@ const ConfirmDetails = ({
       )}
       <div className='detail-item amount'>
         <span className='amount-container'>
-          <div className='amount-details'>
-            <span>Amount to Transfer </span>
-            <div className='coin-details'>
-              <p>
-                {formatBigInt(txValues.allowanceAmount)} {sourceCurrency}
-              </p>
+          {dAppOption === DAppOptions.None && (
+            <div className='amount-details'>
+              <span>Amount to Transfer </span>
+              <div className='coin-details'>
+                <p>
+                  {formatBigInt(txValues.allowanceAmount)} {sourceCurrency}
+                </p>
+              </div>
             </div>
-          </div>
-          <div className='amount-details'>
-            <span>Total Fees</span>
-            <div
-              className='fee-collapse'
-              onClick={() => setFeeCollapsed(!feeCollapsed)}
-            >
-              <MiniArrowIcon
-                width={15}
-                height={8}
-                style={{
-                  transform: `rotate(${feeCollapsed ? '0deg' : '180deg'})`,
-                  transition: 'transform 0.3s ease'
-                }}
-              />
-              <span className='service-fee'>
-                {formatBigInt(totalFee)} {sourceCurrency}
-              </span>
+          )}
+          {dAppOption === DAppOptions.None && (
+            <div className='amount-details'>
+              <span>Total Fees</span>
+              <div
+                className='fee-collapse'
+                onClick={() => setFeeCollapsed(!feeCollapsed)}
+              >
+                <MiniArrowIcon
+                  width={15}
+                  height={8}
+                  style={{
+                    transform: `rotate(${feeCollapsed ? '0deg' : '180deg'})`,
+                    transition: 'transform 0.3s ease'
+                  }}
+                />
+                <span className='service-fee'>
+                  {formatBigInt(totalFee)} {sourceCurrency}
+                </span>
+              </div>
             </div>
-          </div>
+          )}
           <div className={`fee-breakdown ${feeCollapsed ? 'collapsed' : ''}`}>
             <div className='amount-details'>
               <span>

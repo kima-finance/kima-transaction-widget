@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { getPlugin } from '@pluginRegistry'
-import { selectSourceChain } from '@store/selectors'
-import { selectPluginIsIndexed } from '@store/pluginSlice'
-import defaultPlugin from '@plugins/default'
-import { Plugin } from '@plugins/pluginTypes'
+import { getPlugin } from '@widget/pluginRegistry'
+import { selectSourceChain } from '@widget/store/selectors'
+import { selectPluginIsIndexed } from '@widget/store/pluginSlice'
+import defaultPlugin from '@widget/plugins/default'
+import { Plugin } from '@widget/plugins/pluginTypes'
 
 const useGetCurrentPlugin = () => {
   const [currentPlugin, setCurrentPlugin] = useState<Plugin>(defaultPlugin)

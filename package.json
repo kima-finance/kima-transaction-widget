@@ -1,6 +1,6 @@
 {
   "name": "@kimafinance/kima-transaction-widget",
-  "version": "1.4.6",
+  "version": "1.4.13",
   "description": "Kima Transaction Widget",
   "author": "",
   "license": "MIT",
@@ -26,13 +26,14 @@
     }
   },
   "scripts": {
-    "build": "tsup",
+    "build": "npm run build:tsup && npm run build:sass && npm run move:fonts",
+    "build:sass": "sass src/styles/main.scss dist/index.css",
+    "build:tsup": "tsup",
+    "move:fonts": "mkdir -p dist/fonts && find dist -maxdepth 1 -type f \\( -iname '*.woff' -o -iname '*.woff2' -o -iname '*.eot' -o -iname '*.ttf' -o -iname '*.otf' \\) -exec mv {} dist/fonts/ \\;",
     "dev": "tsup --watch",
     "sass": "sass src/styles/main.scss src/index.css -w",
-    "build:sass": "sass src/styles/main.scss src/index.css",
     "test": "react-scripts test --coverage --watchAll",
-    "docs": "typedoc --options typedoc.json",
-    "install:fonts": "cp -r src/fonts dist/fonts"
+    "docs": "typedoc --options typedoc.json"
   },
   "peerDependencies": {
     "react": ">=17.0.0",

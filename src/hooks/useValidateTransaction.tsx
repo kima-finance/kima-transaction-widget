@@ -1,12 +1,12 @@
-import { checkPoolBalance } from '@utils/functions'
+import { checkPoolBalance } from '@widget/utils/functions'
 import { useMemo } from 'react'
 import { formatUnits, parseUnits } from 'viem'
 import { useSelector } from 'react-redux'
-import { selectMode, selectNetworkOption } from '@store/selectors'
-import { ModeOptions, NetworkOptions } from '@interface'
-import { isAddressCompatible } from 'src/helpers/functions'
+import { selectMode, selectNetworkOption } from '@widget/store/selectors'
+import { DAppOptions, ModeOptions, NetworkOptions } from '@widget/interface'
+import { isAddressCompatible } from '../helpers/functions'
 import log from 'loglevel'
-import { useKimaContext } from 'src/KimaProvider'
+import { useKimaContext } from '../KimaProvider'
 import { useGetEnvOptions } from './useGetEnvOptions'
 
 export enum ValidationError {
@@ -146,7 +146,7 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
     }
 
     if (compliantOption) {
-      if (!sourceCompliant?.isCompliant) {
+      if (!sourceCompliant?.isCompliant && sourceChain !== 'CC') {
         return {
           error: ValidationError.Error,
           message: 'Source address compliance check failed'

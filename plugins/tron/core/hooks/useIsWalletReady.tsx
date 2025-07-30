@@ -2,11 +2,11 @@ import { useEffect, useMemo } from 'react'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import { useDispatch } from 'react-redux'
 import { useSelector } from 'react-redux'
-import { selectMode, selectSourceChain } from '@store/selectors'
-import { setSourceAddress } from '@store/optionSlice'
+import { selectMode, selectSourceChain } from '@widget/store/selectors'
+import { setSourceAddress } from '@widget/store/optionSlice'
 import { useKimaContext } from '../../../../src/KimaProvider'
-import { ModeOptions } from '@interface'
-import { lightDemoAccounts } from '@utils/constants'
+import { ModeOptions } from '@widget/interface'
+import { lightDemoAccounts } from '@widget/utils/constants'
 
 const createWalletStatus = (
   isReady: boolean,

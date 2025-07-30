@@ -18,16 +18,20 @@
     "allowSyntheticDefaultImports": true,
     "baseUrl": "./",
     "paths": {
-      "@interface": ["./src/interface.tsx"], // Path alias for interfaces
-      "@utils/*": ["./src/utils/*"],
-      "@components/*": ["./src/components/*"],
-      "@plugins/*": ["./plugins/*"],
-      "@store/*": ["./src/store/*"],
-      "@assets/*": ["./src/assets/*"],
-      "@pluginRegistry": ["./src/pluginRegistry.ts"],
-      "@css": ["./src/index.css"],
-      "@primary": ["./src/components/primary/*"],
-      "@hooks": ["./src/hooks/*"]
+      "@widget/interface": ["../kima-transaction-widget/src/interface.tsx"],
+      "@widget/utils/*": ["../kima-transaction-widget/src/utils/*"],
+      "@widget/components/*": ["../kima-transaction-widget/src/components/*"],
+      "@widget/plugins/*": ["../kima-transaction-widget/plugins/*"],
+      "@widget/store/*": ["../kima-transaction-widget/src/store/*"],
+      "@widget/assets/*": ["../kima-transaction-widget/src/assets/*"],
+      "@widget/pluginRegistry": [
+        "../kima-transaction-widget/src/pluginRegistry.ts"
+      ],
+      "@widget/css": ["../kima-transaction-widget/src/index.css"],
+      "@widget/primary": [
+        "../kima-transaction-widget/src/components/primary/*"
+      ],
+      "@widget/hooks/*": ["../kima-transaction-widget/src/hooks/*"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"], // Include all TypeScript files

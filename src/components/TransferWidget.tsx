@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { ErrorIcon, FooterLogo } from '../assets/icons'
+import { CrossIcon, ErrorIcon, FooterLogo } from '../assets/icons'
 import {
   ConfirmDetails,
   ExternalLink,
@@ -30,7 +30,7 @@ import {
   setTargetChain,
   setTargetCurrency,
   setTheme
-} from '@store/optionSlice'
+} from '@widget/store/optionSlice'
 import {
   selectAmount,
   selectBackendUrl,
@@ -51,12 +51,12 @@ import {
   selectTargetChain,
   selectTargetCurrency,
   selectTransactionOption
-} from '@store/selectors'
+} from '@widget/store/selectors'
 import useAllowance from '../hooks/useAllowance'
 import { toast, Toaster } from 'react-hot-toast'
 import useWidth from '../hooks/useWidth'
-import SolanaWalletConnectModal from '@plugins/solana/components/SolanaWalletConnectModal'
-import TronWalletConnectModal from '@plugins/tron/components/TronWalletConnectModal'
+import SolanaWalletConnectModal from '@widget/plugins/solana/components/SolanaWalletConnectModal'
+import TronWalletConnectModal from '@widget/plugins/tron/components/TronWalletConnectModal'
 import useValidateTransaction, {
   ValidationError
 } from '../hooks/useValidateTransaction'
@@ -64,16 +64,16 @@ import useSubmitTransaction from '../hooks/useSubmitTransaction'
 import useComplianceCheck from '../hooks/useComplianceCheck'
 import useGetPools from '../hooks/useGetPools'
 import useDisconnectWallet from '../hooks/useDisconnectWallet'
-import { useKimaContext } from 'src/KimaProvider'
-import { ChainData } from '@plugins/pluginTypes'
+import { useKimaContext } from '../KimaProvider'
+import { ChainData } from '@widget/plugins/pluginTypes'
 import WarningModal from './reusable/WarningModal'
-import log from '@utils/logger'
+import log from '@widget/utils/logger'
 import CCWidget from './reusable/CCWidget'
 // import { parseUnits } from 'ethers'
 import { parseUnits } from 'viem'
-import { bigIntChangeDecimals } from 'src/helpers/functions'
+import { bigIntChangeDecimals } from '../helpers/functions'
 import useGetFees from '../hooks/useGetFees'
-import KimaNetwork from '@assets/icons/KimaNetwork'
+import KimaNetwork from '@widget/assets/icons/KimaNetwork'
 
 interface Props {
   theme: ThemeOptions
@@ -93,6 +93,7 @@ export const TransferWidget = ({
 
   // State variables for UI
   const [signature, setSignature] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [formStep, setFormStep] = useState(0)
   const [warningModalOpen, setWarningModalOpen] = useState<{
     message: string
@@ -139,6 +140,11 @@ export const TransferWidget = ({
   const { width: windowWidth } = useWidth()
 
   const { disconnectWallet } = useDisconnectWallet()
+
+  const { submitTransaction } = useSubmitTransaction(
+    isSubmitting,
+    setIsSubmitting
+  )
 
   const { allowance, balance, isApproved, approve, decimals, signMessage } =
     useAllowance({
@@ -211,8 +217,6 @@ export const TransferWidget = ({
     }
   }, [fees, mode, transactionOption, dispatch])
 
-  const { submitTransaction, isSubmitting } = useSubmitTransaction()
-
   const isBackButtonEnabled = useMemo(() => {
     if (formStep !== 0) {
       /* enable if cc transaction is initialized or failed */
@@ -262,9 +266,11 @@ export const TransferWidget = ({
 
     if (
       error === ValidationError.ApprovalNeeded &&
-      mode !== ModeOptions.light
+      mode !== ModeOptions.light &&
+      dAppOption === DAppOptions.None
     ) {
       if (!signature) {
+        setApproving(true)
         setFeeOptionDisabled(true)
         const sig = await signMessage?.({
           targetAddress,
@@ -273,20 +279,22 @@ export const TransferWidget = ({
           originChain: sourceChain.shortName
         })
         setSignature(sig)
+        setApproving(false)
       }
       return approve()
     }
 
+    setIsSubmitting(true)
     if (
       dAppOption === DAppOptions.LPDrain ||
       dAppOption === DAppOptions.LPAdd
     ) {
-      keplrHandler?.(sourceAddress)
+      await keplrHandler?.(sourceAddress)
       return
     }
 
     let sig = signature
-    if (!sig && mode !== ModeOptions.light) {
+    if (!sig && mode !== ModeOptions.light && dAppOption === DAppOptions.None) {
       setFeeOptionDisabled(true)
       sig = await signMessage?.({
         targetAddress,
@@ -297,7 +305,7 @@ export const TransferWidget = ({
       setSignature(sig)
     }
 
-    submitTransaction(sig) // No need to `await` or inspect return here
+    submitTransaction(sig)
   }
 
   const onNext = () => {
@@ -345,9 +353,19 @@ export const TransferWidget = ({
       }
 
       if (isApproved) {
-        return isSubmitting ? 'Submitting...' : 'Submit'
+        return isSubmitting
+          ? !signature && dAppOption === DAppOptions.None
+            ? 'Signing...'
+            : 'Submitting...'
+          : 'Submit'
       } else {
-        return isApproving ? 'Approving...' : 'Approve'
+        return isApproving
+          ? !signature && dAppOption === DAppOptions.None
+            ? 'Signing...'
+            : 'Approving...'
+          : !signature && dAppOption === DAppOptions.None
+            ? 'Sign'
+            : 'Approve'
       }
     }
 
@@ -365,7 +383,6 @@ export const TransferWidget = ({
 
   const resetForm = async () => {
     if (isApproving || isSubmitting || isSigning) return
-    closeHandler && closeHandler(0)
 
     setSignature('')
     setSigning(false)
@@ -500,6 +517,18 @@ export const TransferWidget = ({
                   Reset
                 </button>
               )}
+
+              {closeHandler && (
+                <button
+                  className='cross-icon-button'
+                  onClick={() => {
+                    resetForm()
+                    closeHandler(0)
+                  }}
+                >
+                  <CrossIcon />
+                </button>
+              )}
             </div>
           </div>
           {mode === ModeOptions.payment && paymentTitleOption?.title && (
@@ -551,7 +580,8 @@ export const TransferWidget = ({
             allowance > 0 &&
             formStep !== 0 &&
             ['BANK', 'CC'].includes(sourceChain.shortName) &&
-            mode !== ModeOptions.light ? (
+            mode !== ModeOptions.light &&
+            dAppOption !== DAppOptions.LPDrain ? (
               <SecondaryButton
                 clickHandler={onCancelApprove}
                 isLoading={isCancellingApprove}

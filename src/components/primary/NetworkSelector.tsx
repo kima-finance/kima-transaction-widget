@@ -1,35 +1,38 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import {
+  selectDappOption,
   selectMode,
   selectNetworks,
   selectSourceChain,
+  selectSourceCurrency,
   selectTargetChain,
-  selectTheme
-} from '@store/selectors'
+  selectTheme,
+  selectTransactionOption
+} from '@widget/store/selectors'
 import {
   setSourceChain,
   setSourceCurrency,
   setTargetChain,
   setTargetAddress
-} from '@store/optionSlice'
-import Arrow from '@assets/icons/Arrow'
+} from '@widget/store/optionSlice'
+import Arrow from '@widget/assets/icons/Arrow'
 import ChainIcon from '../reusable/ChainIcon'
 import {
   isEVMChain,
   lightDemoAccounts,
   lightDemoNetworks
-} from '@utils/constants'
-import { useKimaContext } from 'src/KimaProvider'
+} from '@widget/utils/constants'
+import { useKimaContext } from '../../KimaProvider'
 import {
   ChainCompatibility,
   ChainData,
   ChainLocation
-} from '@plugins/pluginTypes'
-import { ModeOptions } from '@interface'
-import log from '@utils/logger'
-import { isSolana, isTron } from 'src/helpers/functions'
-import { WarningIcon } from '@assets/icons'
+} from '@widget/plugins/pluginTypes'
+import { DAppOptions, ModeOptions } from '@widget/interface'
+import log from '@widget/utils/logger'
+import { isSolana, isTron } from '../../helpers/functions'
+import { WarningIcon } from '@widget/assets/icons'
 interface NetworkSelectorProps {
   type: ChainLocation // Determines if this is a source or target selector
   initialSelection: boolean
@@ -54,8 +57,11 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
   const dispatch = useDispatch()
   const theme = useSelector(selectTheme)
   const networkOptions = useSelector(selectNetworks)
+  const transactionOption = useSelector(selectTransactionOption)
+  const dAppOption = useSelector(selectDappOption)
   const mode = useSelector(selectMode)
   const sourceNetwork = useSelector(selectSourceChain)
+  const sourceSymbol = useSelector(selectSourceCurrency)
   const targetNetwork = useSelector(selectTargetChain)
   const { switchChainHandler } = useKimaContext()
 
@@ -63,6 +69,9 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
 
   const networks = useMemo(() => {
     return networkOptions.filter((network: ChainData) => {
+      if (dAppOption !== DAppOptions.None && network.shortName === 'CC')
+        return false
+
       const isSameAsSource = isOriginSelector
         ? false
         : network.shortName === sourceNetwork.shortName
@@ -71,15 +80,44 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
         mode !== ModeOptions.light ||
         lightDemoNetworks.includes(network.shortName)
 
+      const sourceToken = sourceNetwork.supportedTokens.find(
+        (t) => t.symbol === sourceSymbol
+      )
+      let supportsSourceCurrency = true
+      if (!isOriginSelector && !!sourceToken) {
+        supportsSourceCurrency = network.supportedTokens.some(
+          (token) => token.peggedTo === sourceToken?.peggedTo
+        )
+      }
+
       return (
         network.supportedLocations.includes(type) &&
         !isSameAsSource &&
+        supportsSourceCurrency &&
         isAllowedInLightMode
       )
     })
-  }, [networkOptions, sourceNetwork, type, mode])
+  }, [networkOptions, sourceNetwork, sourceSymbol, type, mode, dAppOption])
+
+  const shouldLockSourceNetwork =
+    isOriginSelector &&
+    mode === ModeOptions.payment &&
+    dAppOption !== DAppOptions.None &&
+    !!transactionOption?.targetChain
 
   const selectedNetwork = useMemo(() => {
+    if (shouldLockSourceNetwork) {
+      const forcedNetwork = networks.find(
+        (n) => n.shortName === transactionOption.targetChain
+      )
+      return (
+        forcedNetwork || {
+          shortName: '',
+          name: 'Invalid Source Network'
+        }
+      )
+    }
+
     if (initialSelection) {
       return {
         shortName: '',
@@ -103,7 +141,39 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
     sourceNetwork,
     targetNetwork,
     isOriginSelector,
-    initialSelection
+    initialSelection,
+    shouldLockSourceNetwork,
+    transactionOption?.targetChain
+  ])
+
+  useEffect(() => {
+    if (
+      shouldLockSourceNetwork &&
+      isOriginSelector &&
+      transactionOption?.targetChain
+    ) {
+      const forcedNetwork = networks.find(
+        (n) => n.shortName === transactionOption.targetChain
+      )
+      if (forcedNetwork && forcedNetwork.id !== sourceNetwork.id) {
+        dispatch(setSourceChain(forcedNetwork))
+        setInitialSelection({
+          sourceSelection: false,
+          targetSelection: false
+        })
+
+        // If using EVM or other handlers:
+        switchChainHandler && switchChainHandler(forcedNetwork)
+      }
+    }
+  }, [
+    shouldLockSourceNetwork,
+    transactionOption?.targetChain,
+    sourceNetwork.id,
+    isOriginSelector,
+    networks,
+    dispatch,
+    switchChainHandler
   ])
 
   //
@@ -179,8 +249,12 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
     <div
       className={`network-dropdown ${theme?.colorMode ?? ''} ${
         collapsed ? 'collapsed' : 'toggled'
-      }`}
-      onClick={() => setCollapsed((prev) => !prev)}
+      } ${shouldLockSourceNetwork ? 'disabled' : ''}`}
+      onClick={() => {
+        if (!shouldLockSourceNetwork) {
+          setCollapsed((prev) => !prev)
+        }
+      }}
       ref={ref}
     >
       <div className='network-wrapper'>
@@ -217,9 +291,11 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
             </div>
           ))}
       </div>
-      <div className={`dropdown-icon ${collapsed ? 'toggled' : 'collapsed'}`}>
-        <Arrow fill='none' />
-      </div>
+      {!shouldLockSourceNetwork && (
+        <div className={`dropdown-icon ${collapsed ? 'toggled' : 'collapsed'}`}>
+          <Arrow fill='none' />
+        </div>
+      )}
     </div>
   )
 }

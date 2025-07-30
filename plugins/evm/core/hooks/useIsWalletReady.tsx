@@ -9,17 +9,17 @@ import {
   selectBackendUrl,
   selectMode,
   selectSourceChain
-} from '@store/selectors'
-import { setSourceAddress } from '@store/optionSlice'
-import { appKitModel } from '@plugins/evm/config/modalConfig'
+} from '@widget/store/selectors'
+import { setSourceAddress } from '@widget/store/optionSlice'
+import { appKitModel } from '@widget/plugins/evm/config/modalConfig'
 import { switchNetworkEthers } from '../../utils/switchNetworkEthers'
 import { useKimaContext } from '../../../../src/KimaProvider'
 import { useChainData } from '../../../../src/hooks/useChainData'
-import { ChainCompatibility, ChainData } from '@plugins/pluginTypes'
+import { ChainCompatibility, ChainData } from '@widget/plugins/pluginTypes'
 import { BrowserProvider } from 'ethers'
-import log from '@utils/logger'
-import { ModeOptions } from '@interface'
-import { lightDemoAccounts } from '@utils/constants'
+import log from '@widget/utils/logger'
+import { ModeOptions } from '@widget/interface'
+import { lightDemoAccounts } from '@widget/utils/constants'
 
 function useIsWalletReady(): {
   isReady: boolean
@@ -47,23 +47,23 @@ function useIsWalletReady(): {
   const [connectedAddress, setConnectedAddress] = useState<string>('')
 
   const switchNetwork = useCallback(async () => {
+    if (!sourceChain || !appKitModel) return
+    if (sourceChain.compatibility !== ChainCompatibility.EVM) return
+
     log.debug('useIsWalletReady:EVM:Attempting to switch network...', {
       hasProvider: !!appkitProvider,
       sourceChain,
       modalExists: appKitModel !== null,
       modal: appKitModel
     })
-    if (sourceChain && appKitModel !== null) {
-      log.debug('useIsWalletReady:EVM:switching network...')
-      try {
-        appKitModel.switchNetwork(sourceChain)
-        log.debug(
-          'useIsWalletReady:EVM:Network switch successful to:',
-          sourceChain.name
-        )
-      } catch (e) {
-        log.error('useIsWalletReady:EVM:Network switch failed:', e)
-      }
+    try {
+      appKitModel.switchNetwork(sourceChain)
+      log.debug(
+        'useIsWalletReady:EVM:Network switch successful to:',
+        sourceChain.name
+      )
+    } catch (e) {
+      log.warn('useIsWalletReady:EVM:Network switch failed:', e)
     }
   }, [appkitProvider, sourceChain])
 

@@ -1,6 +1,6 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
-import { selectTheme } from '@store/selectors'
+import { selectTheme } from '@widget/store/selectors'
 import TokenIcon from '../reusable/TokenIcon'
 
 export interface TokenBadge {
