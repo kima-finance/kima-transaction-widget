@@ -46,9 +46,9 @@ const FeeDeductionRadioButtons = ({ disabled }: { disabled: boolean }) => {
             <span className={`radio-label ${theme.colorMode}`}>
               {`Pay $${formatterFloat.format(
                 Number(amount)
-              )} ${sourceCurrency} in ${sourceNetwork.name} to receive $${formatterFloat.format(
+              )} ${sourceCurrency} ${['BANK', 'CC'].includes(sourceNetwork.shortName) ? 'with' : 'in'} ${sourceNetwork.name} to receive $${formatterFloat.format(
                 Number(amount) - totalFee
-              )} ${targetCurrency} in ${targetNetwork.name}`}
+              )} ${targetCurrency} ${['BANK', 'CC'].includes(targetNetwork.shortName) ? 'with' : 'in'} ${targetNetwork.name}`}
             </span>
           </label>
         )}
@@ -64,9 +64,9 @@ const FeeDeductionRadioButtons = ({ disabled }: { disabled: boolean }) => {
           <span className={`radio-label ${theme.colorMode}`}>
             {`Pay $${formatterFloat.format(
               Number(amount) + totalFee
-            )} ${sourceCurrency} in ${sourceNetwork.name} to receive $${formatterFloat.format(
+            )} ${sourceCurrency} ${['BANK', 'CC'].includes(sourceNetwork.shortName) ? 'with' : 'in'} ${sourceNetwork.name} to receive $${formatterFloat.format(
               Number(amount)
-            )} ${targetCurrency} in ${targetNetwork.name}`}
+            )} ${targetCurrency} ${['BANK', 'CC'].includes(targetNetwork.shortName) ? 'with' : 'in'} ${targetNetwork.name}`}
           </span>
         </label>
       </div>
