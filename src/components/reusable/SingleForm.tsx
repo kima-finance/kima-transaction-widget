@@ -192,7 +192,7 @@ const SingleForm = ({
           sourceNetwork.shortName === ChainName.FIAT ? 'reverse' : '1'
         }`}
       >
-        {sourceNetwork.compatibility !== ChainCompatibility.CC && (
+        {![ChainCompatibility.CC, ChainCompatibility.BANK].includes(sourceNetwork.compatibility) && (
           <div
             className={`form-item wallet-button-item ${isConnected && 'connected'}`}
           >

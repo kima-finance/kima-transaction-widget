@@ -216,7 +216,7 @@ export const TransferWidget = ({
   const isBackButtonEnabled = useMemo(() => {
     if (formStep !== 0) {
       /* enable if cc transaction is initialized or failed */
-      if (sourceChain.shortName === 'CC') {
+      if (['BANK', 'CC'].includes(sourceChain.shortName)) {
         return (
           ccTransactionStatus === 'idle' || ccTransactionStatus === 'failed'
         )
@@ -232,7 +232,7 @@ export const TransferWidget = ({
     if (submitted) return false
 
     /* case cc transaction initialized */
-    if (sourceChain.shortName === 'CC') {
+    if (['BANK', 'CC'].includes(sourceChain.shortName)) {
       return ccTransactionStatus === 'idle'
     }
 
@@ -255,7 +255,7 @@ export const TransferWidget = ({
       return toast.error(validationMessage, { icon: <ErrorIcon /> })
     }
 
-    if (sourceChain.shortName === 'CC') {
+    if (['BANK', 'CC'].includes(sourceChain.shortName)) {
       dispatch(setCCTransactionStatus('initialized'))
       return
     }
@@ -340,7 +340,7 @@ export const TransferWidget = ({
 
   const getButtonLabel = () => {
     if (formStep === 1) {
-      if (sourceChain.shortName === 'CC' && ccTransactionStatus === 'idle') {
+      if (['BANK', 'CC'].includes(sourceChain.shortName) && ccTransactionStatus === 'idle') {
         return 'Next'
       }
 
@@ -485,7 +485,7 @@ export const TransferWidget = ({
                 <div className='menu-button'>I need help</div>
               </ExternalLink>
 
-              {sourceChain.shortName === 'CC' && formStep > 0 && (
+              {['BANK', 'CC'].includes(sourceChain.shortName) && formStep > 0 && (
                 <ExternalLink to='https://docs.kima.network/kima-network/supported-fiat#unsupported-countries-credit-cards'>
                   <div className='menu-button'>Unsupported Countries</div>
                 </ExternalLink>
@@ -550,7 +550,7 @@ export const TransferWidget = ({
             {!!allowance &&
             allowance > 0 &&
             formStep !== 0 &&
-            sourceChain.shortName !== 'CC' &&
+            ['BANK', 'CC'].includes(sourceChain.shortName) &&
             mode !== ModeOptions.light ? (
               <SecondaryButton
                 clickHandler={onCancelApprove}

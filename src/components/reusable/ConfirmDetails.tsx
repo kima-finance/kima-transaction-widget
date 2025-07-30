@@ -21,7 +21,6 @@ import {
   selectSourceAddress
 } from '@store/selectors'
 import { ChainName, lightDemoAccounts } from '../../utils/constants'
-import { getShortenedAddress } from '../../utils/functions'
 import useWidth from '../../hooks/useWidth'
 import ChainIcon from './ChainIcon'
 import FeeDeductionRadioButtons from './FeeDeductionRadioButtons'
@@ -132,7 +131,7 @@ const ConfirmDetails = ({
       ) : (
         <div className='detail-item'>
           <span className='label'>
-            Source {originNetwork.shortName !== 'CC' && 'wallet'}:
+            Source{!['BANK', 'CC'].includes(originNetwork.shortName) && 'wallet'}:
           </span>
           <div className='network-details'>
             <div className='kima-card-network-container'>
@@ -141,7 +140,7 @@ const ConfirmDetails = ({
                 {originNetworkOption.name}
               </span>
             </div>
-            {originNetwork.shortName !== 'CC' && (
+            {!['CC', 'BANK'].includes(originNetwork.shortName) && (
               <p className={theme.colorMode}>
                 {dAppOption === DAppOptions.LPDrain
                   ? targetAddress
@@ -183,8 +182,8 @@ const ConfirmDetails = ({
           <div className={`fee-breakdown ${feeCollapsed ? 'collapsed' : ''}`}>
             <div className='amount-details'>
               <span>
-                {originNetwork.shortName === 'CC'
-                  ? 'Credit Card Processing Fee'
+                {['BANK', 'CC'].includes(originNetwork.shortName)
+                  ? `${originNetwork.name} Processing Fee`
                   : `Source Network Fee (${originNetwork.shortName})`}
               </span>
               <span className='service-fee'>

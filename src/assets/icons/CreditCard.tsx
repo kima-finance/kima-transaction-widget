@@ -1,8 +1,8 @@
 import React from 'react'
 
 const CreditCard = ({
-  width = 35,
-  height = 35,
+  width = 32,
+  height = 32,
   stroke = '#86B8CE',
   ...rest
 }) => {

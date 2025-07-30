@@ -92,5 +92,6 @@ export enum ChainCompatibility {
   FIAT = 'FIAT',
   COSMOS = 'COSMOS',
   SELF = 'SELF',
-  CC = 'CC'
+  CC = 'CC',
+  BANK = 'BANK'
 }

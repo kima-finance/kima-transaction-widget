@@ -31,7 +31,8 @@ const chainIcons: Record<string, React.FC<IconProps>> = {
   SOL: SolanaIcon,
   FIAT: BankIcon,
   BERA: BeraIcon,
-  CC: CreditCardIcon
+  CC: CreditCardIcon,
+  BANK: BankIcon
 }
 
 export interface ChainIconProps extends IconProps {
