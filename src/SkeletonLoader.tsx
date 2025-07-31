@@ -1,8 +1,11 @@
-import { FooterLogo } from '@widget/assets/icons'
+import { CrossIcon, FooterLogo } from '@widget/assets/icons'
 import { ColorModeOptions, ThemeOptions } from '@widget/interface'
 import React from 'react'
+import { useKimaContext } from './KimaProvider'
 
 const SkeletonLoader = ({ theme }: { theme: ThemeOptions }) => {
+  const { closeHandler } = useKimaContext()
+
   return (
     <div
       className={`kima-card ${theme.colorMode}`}
@@ -18,6 +21,19 @@ const SkeletonLoader = ({ theme }: { theme: ThemeOptions }) => {
           <div className='topbar'>
             <div className='title skeleton'>
               <h3></h3>
+            </div>
+
+            <div className='control-buttons'>
+              {closeHandler && (
+                <button
+                  className='cross-icon-button'
+                  onClick={() => {
+                    closeHandler(0)
+                  }}
+                >
+                  <CrossIcon />
+                </button>
+              )}
             </div>
           </div>
 

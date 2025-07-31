@@ -45,6 +45,7 @@
           height: 25px;
           width: 60%;
           @include pulse-loader();
+          margin-bottom: 20px;
         }
 
         .transaction-title {

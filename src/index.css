@@ -73,6 +73,7 @@
   height: 25px;
   width: 60%;
   animation: pulse 1.5s ease-in-out infinite;
+  margin-bottom: 20px;
 }
 .kima-card .kima-card-header .topbar .title .transaction-title {
   margin-right: 10px;
@@ -3229,6 +3230,7 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  margin-top: 20px;
 }
 .kima-card-content .skeleton {
   background: #778da3;

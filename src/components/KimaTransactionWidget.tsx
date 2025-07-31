@@ -16,7 +16,11 @@ import { useGetEnvOptions } from '../hooks/useGetEnvOptions'
 import { useKimaContext } from '../KimaProvider'
 import { useChainData } from '../hooks/useChainData'
 import { useDispatch } from 'react-redux'
-import { setSourceChain, setTargetChain, setTheme } from '@widget/store/optionSlice'
+import {
+  setSourceChain,
+  setTargetChain,
+  setTheme
+} from '@widget/store/optionSlice'
 import SkeletonLoader from '../SkeletonLoader'
 import ErrorWidget from './ErrorWidget'
 import { Loading180Ring } from '@widget/assets/loading'
@@ -77,6 +81,8 @@ const KimaTransactionWidget = ({
       dispatch(setTheme(theme))
     }
   }, [theme?.colorMode])
+
+  return <SkeletonLoader theme={theme} />
 
   // Don't render until hydrated and theme is defined
   if (!hydrated || !theme?.colorMode)
