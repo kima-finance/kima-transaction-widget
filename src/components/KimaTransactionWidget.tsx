@@ -16,7 +16,11 @@ import { useGetEnvOptions } from '../hooks/useGetEnvOptions'
 import { useKimaContext } from '../KimaProvider'
 import { useChainData } from '../hooks/useChainData'
 import { useDispatch } from 'react-redux'
-import { setSourceChain, setTargetChain, setTheme } from '@widget/store/optionSlice'
+import {
+  setSourceChain,
+  setTargetChain,
+  setTheme
+} from '@widget/store/optionSlice'
 import SkeletonLoader from '../SkeletonLoader'
 import ErrorWidget from './ErrorWidget'
 import { Loading180Ring } from '@widget/assets/loading'
