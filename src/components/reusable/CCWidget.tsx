@@ -86,7 +86,7 @@ const CCWidget = ({ submitCallback }: { submitCallback: () => void }) => {
       log.info('postMessage: new message: ', event)
       if (event.data.type === 'isCompleted') {
         // set the transaction to success
-        console.log('cc widget isCompleted', ccTransactionSubmittedRef.current)
+        log.info('cc widget isCompleted', ccTransactionSubmittedRef.current)
         dispatch(setCCTransactionStatus('success'))
 
         if (!ccTransactionSubmittedRef.current) {
