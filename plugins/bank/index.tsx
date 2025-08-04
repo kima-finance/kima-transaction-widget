@@ -9,7 +9,7 @@ import {
   PluginUseDisconnectWalletResult
 } from '../pluginTypes'
 import useIsProviderReady from './core/hooks/useIsProviderReady'
-import { store } from '@store/index'
+import { store } from '@widget/store/index'
 
 const useAllowance = (): PluginUseAllowanceResult => ({
   isApproved: true,
@@ -47,7 +47,7 @@ export class CreditCardPlugin extends PluginBase {
   }
 
   isCompatible = (chain: ChainData): boolean => {
-    return chain.compatibility === 'CC'
+    return chain.compatibility === 'BANK'
   }
 
   Provider: React.FC<PluginProviderProps> = ({ children }) => {
