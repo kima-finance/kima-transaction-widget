@@ -6,6 +6,7 @@ import {
   selectFeeDeduct,
   selectNetworkOption,
   selectServiceFee,
+  selectSourceChain,
   selectSourceCurrency
 } from '@widget/store/selectors'
 import { Loading180Ring } from '@widget/assets/loading'
@@ -28,6 +29,7 @@ const CCWidget = ({ submitCallback }: { submitCallback: () => void }) => {
   const ccTransactionStatus = useSelector(selectCCTransactionStatus)
   const networkOption = useSelector(selectNetworkOption)
   const sourceCurrency = useSelector(selectSourceCurrency)
+  const sourceChain = useSelector(selectSourceChain)
 
   const { transactionValues } = useSelector(selectServiceFee)
   const randomUserIdRef = useRef(uuidv4())
@@ -76,13 +78,29 @@ const CCWidget = ({ submitCallback }: { submitCallback: () => void }) => {
       log.info('postMessage: new message: ', event)
       if (event.data.type === 'isCompleted') {
         // set the transaction to success
-        console.log('cc widget isCompleted', ccTransactionSubmittedRef.current)
+        log.info('cc widget isCompleted', ccTransactionSubmittedRef.current)
         dispatch(setCCTransactionStatus('success'))
 
         if (!ccTransactionSubmittedRef.current) {
           ccTransactionSubmittedRef.current = true
           submitCallback()
         }
+      }
+
+      if (
+        event.data.type === 'isAwaiting' &&
+        sourceChain.shortName === 'BANK'
+      ) {
+        setTimeout(() => {
+          // set the transaction to success
+          log.info('bank widget isCompleted', ccTransactionSubmittedRef.current)
+          dispatch(setCCTransactionStatus('success'))
+
+          if (!ccTransactionSubmittedRef.current) {
+            ccTransactionSubmittedRef.current = true
+            submitCallback()
+          }
+        }, 3000)
       }
 
       if (event.data.type === 'isFailed') {

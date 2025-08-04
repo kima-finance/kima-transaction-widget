@@ -98,7 +98,7 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
     }
 
     // Validation logic
-    if (!sourceAddress && sourceChain !== 'CC' && mode !== ModeOptions.light) {
+    if (!sourceAddress && !['BANK', 'CC'].includes(sourceChain) && mode !== ModeOptions.light) {
       return {
         error: ValidationError.Error,
         message: 'Wallet is not connected'
@@ -162,7 +162,7 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
     }
 
     // Check if the amount exceeds the max value
-    if (amount > balance && formStep === 0 && sourceChain !== 'CC') {
+    if (amount > balance && formStep === 0 && !['BANK', 'CC'].includes(sourceChain)) {
       return {
         error: ValidationError.Warning,
         message:
@@ -170,7 +170,7 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
       }
     }
 
-    if (amount > maxValue && formStep === 0 && sourceChain !== 'CC') {
+    if (amount > maxValue && formStep === 0 && !['BANK', 'CC'].includes(sourceChain)) {
       return {
         error: ValidationError.Warning,
         message:

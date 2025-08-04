@@ -68,7 +68,7 @@ const useGetFees = ({
       !!targetNetwork &&
       !!targetAddress &&
       !!targetSymbol &&
-      (sourceNetwork === 'CC'
+      (['BANK', 'CC'].includes(sourceNetwork)
         ? sourceAddress === '' || sourceAddress === null // fiat → allow empty address
         : !!sourceAddress), // non-fiat → address must be present
     staleTime: 60000, // Cache for 60 seconds
