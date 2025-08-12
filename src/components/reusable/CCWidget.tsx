@@ -32,7 +32,6 @@ const CCWidget = ({ submitCallback }: { submitCallback: () => void }) => {
   const sourceChain = useSelector(selectSourceChain)
 
   const { transactionValues } = useSelector(selectServiceFee)
-  const randomUserIdRef = useRef(uuidv4())
   const ccTransactionIdSeedRef = useRef(uuidv4())
   const ccTransactionSubmittedRef = useRef(false)
   const { data: envOptions, isLoading: isEnvLoading } = useGetEnvOptions({
@@ -145,7 +144,7 @@ const CCWidget = ({ submitCallback }: { submitCallback: () => void }) => {
             ? 0
             : '100%'
         }
-        src={`${baseUrl}/widgets/kyc?partner=${partnerId}&user_uuid=${randomUserIdRef.current}&amount=${allowanceAmount}&currency=${sourceCurrency}&trx_uuid=${data?.transactionId}&postmessage=true`}
+        src={`${baseUrl}/widgets/kyc?partner=${partnerId}&amount=${allowanceAmount}&currency=${sourceCurrency}&trx_uuid=${data?.transactionId}&postmessage=true`}
         loading='lazy'
         title='Credit Card Widget'
         allow='camera; clipboard-write'
