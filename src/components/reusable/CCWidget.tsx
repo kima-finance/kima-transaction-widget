@@ -6,6 +6,7 @@ import {
   selectFeeDeduct,
   selectNetworkOption,
   selectServiceFee,
+  selectSourceChain,
   selectSourceCurrency
 } from '@widget/store/selectors'
 import { Loading180Ring } from '@widget/assets/loading'
@@ -28,6 +29,7 @@ const CCWidget = ({ submitCallback }: { submitCallback: () => void }) => {
   const ccTransactionStatus = useSelector(selectCCTransactionStatus)
   const networkOption = useSelector(selectNetworkOption)
   const sourceCurrency = useSelector(selectSourceCurrency)
+  const sourceChain = useSelector(selectSourceChain)
 
   const { transactionValues } = useSelector(selectServiceFee)
   const ccTransactionIdSeedRef = useRef(uuidv4())
@@ -61,12 +63,21 @@ const CCWidget = ({ submitCallback }: { submitCallback: () => void }) => {
   // IMPORTANT: for staging use the same as mainnet
   const baseUrl = useMemo(
     () =>
-      `https://widget${networkOption === NetworkOptions.testnet ? '-sandbox' : ''}.depasify.com`,
+      `https://widget2${networkOption === NetworkOptions.testnet ? '-sandbox' : ''}.depa.wtf`,
     [networkOption]
+  )
+
+  const scenario = useMemo(
+    () =>
+      sourceChain.shortName === 'CC'
+        ? 'direct_card_payment'
+        : 'direct_bank_payment',
+    [sourceChain]
   )
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
+      // console.log('new message: ', event)
       if (event.origin !== baseUrl) {
         // log.debug("event origin missmatch: ", event.origin)
         // log.debug("event: ", event)
@@ -76,6 +87,20 @@ const CCWidget = ({ submitCallback }: { submitCallback: () => void }) => {
       if (event.data.type === 'isCompleted') {
         // set the transaction to success
         console.log('cc widget isCompleted', ccTransactionSubmittedRef.current)
+        dispatch(setCCTransactionStatus('success'))
+
+        if (!ccTransactionSubmittedRef.current) {
+          ccTransactionSubmittedRef.current = true
+          submitCallback()
+        }
+      }
+
+      if (
+        event.data.type === 'isAwaiting' &&
+        sourceChain.shortName === 'BANK'
+      ) {
+        // set the transaction to success
+        log.info('bank widget isCompleted', ccTransactionSubmittedRef.current)
         dispatch(setCCTransactionStatus('success'))
 
         if (!ccTransactionSubmittedRef.current) {
@@ -126,7 +151,7 @@ const CCWidget = ({ submitCallback }: { submitCallback: () => void }) => {
             ? 0
             : '100%'
         }
-        src={`${baseUrl}/widgets/kyc?partner=${partnerId}&amount=${allowanceAmount}&currency=${sourceCurrency}&trx_uuid=${data?.transactionId}&postmessage=true`}
+        src={`${baseUrl}/widgets/kyc?partner=${partnerId}&amount=${allowanceAmount}&currency=${sourceCurrency}&trx_uuid=${data?.transactionId}&scenario=${scenario}&postmessage=true`}
         loading='lazy'
         title='Credit Card Widget'
         allow='camera; clipboard-write'
