@@ -7366,7 +7366,6 @@ var CCWidget = ({ submitCallback }) => {
   const sourceCurrency = (0, import_react_redux56.useSelector)(selectSourceCurrency);
   const sourceChain = (0, import_react_redux56.useSelector)(selectSourceChain);
   const { transactionValues } = (0, import_react_redux56.useSelector)(selectServiceFee);
-  const randomUserIdRef = (0, import_react104.useRef)((0, import_uuid.v4)());
   const ccTransactionIdSeedRef = (0, import_react104.useRef)((0, import_uuid.v4)());
   const ccTransactionSubmittedRef = (0, import_react104.useRef)(false);
   const { data: envOptions, isLoading: isEnvLoading } = useGetEnvOptions({
@@ -7389,8 +7388,12 @@ var CCWidget = ({ submitCallback }) => {
   );
   const [isLoading, setIsLoading] = (0, import_react104.useState)(true);
   const baseUrl = (0, import_react104.useMemo)(
-    () => `https://widget${networkOption === "testnet" /* testnet */ ? "-sandbox" : ""}.depasify.com`,
+    () => `https://widget2${networkOption === "testnet" /* testnet */ ? "-sandbox" : ""}.depa.wtf`,
     [networkOption]
+  );
+  const scenario = (0, import_react104.useMemo)(
+    () => sourceChain.shortName === "CC" ? "direct_card_payment" : "direct_bank_payment",
+    [sourceChain]
   );
   (0, import_react104.useEffect)(() => {
     const handleMessage = (event) => {
@@ -7407,14 +7410,12 @@ var CCWidget = ({ submitCallback }) => {
         }
       }
       if (event.data.type === "isAwaiting" && sourceChain.shortName === "BANK") {
-        setTimeout(() => {
-          logger_default.info("bank widget isCompleted", ccTransactionSubmittedRef.current);
-          dispatch(setCCTransactionStatus("success"));
-          if (!ccTransactionSubmittedRef.current) {
-            ccTransactionSubmittedRef.current = true;
-            submitCallback();
-          }
-        }, 3e3);
+        logger_default.info("bank widget isCompleted", ccTransactionSubmittedRef.current);
+        dispatch(setCCTransactionStatus("success"));
+        if (!ccTransactionSubmittedRef.current) {
+          ccTransactionSubmittedRef.current = true;
+          submitCallback();
+        }
       }
       if (event.data.type === "isFailed") {
         dispatch(setCCTransactionStatus("failed"));
@@ -7431,7 +7432,7 @@ var CCWidget = ({ submitCallback }) => {
     {
       width: isLoading || isTransactionIdLoading || ccTransactionStatus === "success" || error ? 0 : "100%",
       height: isLoading || isTransactionIdLoading || ccTransactionStatus === "success" || error ? 0 : "100%",
-      src: `${baseUrl}/widgets/kyc?partner=${partnerId}&user_uuid=${randomUserIdRef.current}&amount=${allowanceAmount}&currency=${sourceCurrency}&trx_uuid=${data?.transactionId}&postmessage=true`,
+      src: `${baseUrl}/widgets/kyc?partner=${partnerId}&amount=${allowanceAmount}&currency=${sourceCurrency}&trx_uuid=${data?.transactionId}&scenario=${scenario}&postmessage=true`,
       loading: "lazy",
       title: "Credit Card Widget",
       allow: "camera; clipboard-write",

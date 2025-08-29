@@ -7391,7 +7391,6 @@ var CCWidget = ({ submitCallback }) => {
   const sourceCurrency = useSelector45(selectSourceCurrency);
   const sourceChain = useSelector45(selectSourceChain);
   const { transactionValues } = useSelector45(selectServiceFee);
-  const randomUserIdRef = useRef7(uuidv4());
   const ccTransactionIdSeedRef = useRef7(uuidv4());
   const ccTransactionSubmittedRef = useRef7(false);
   const { data: envOptions, isLoading: isEnvLoading } = useGetEnvOptions({
@@ -7414,8 +7413,12 @@ var CCWidget = ({ submitCallback }) => {
   );
   const [isLoading, setIsLoading] = useState15(true);
   const baseUrl = useMemo20(
-    () => `https://widget${networkOption === "testnet" /* testnet */ ? "-sandbox" : ""}.depasify.com`,
+    () => `https://widget2${networkOption === "testnet" /* testnet */ ? "-sandbox" : ""}.depa.wtf`,
     [networkOption]
+  );
+  const scenario = useMemo20(
+    () => sourceChain.shortName === "CC" ? "direct_card_payment" : "direct_bank_payment",
+    [sourceChain]
   );
   useEffect21(() => {
     const handleMessage = (event) => {
@@ -7432,14 +7435,12 @@ var CCWidget = ({ submitCallback }) => {
         }
       }
       if (event.data.type === "isAwaiting" && sourceChain.shortName === "BANK") {
-        setTimeout(() => {
-          logger_default.info("bank widget isCompleted", ccTransactionSubmittedRef.current);
-          dispatch(setCCTransactionStatus("success"));
-          if (!ccTransactionSubmittedRef.current) {
-            ccTransactionSubmittedRef.current = true;
-            submitCallback();
-          }
-        }, 3e3);
+        logger_default.info("bank widget isCompleted", ccTransactionSubmittedRef.current);
+        dispatch(setCCTransactionStatus("success"));
+        if (!ccTransactionSubmittedRef.current) {
+          ccTransactionSubmittedRef.current = true;
+          submitCallback();
+        }
       }
       if (event.data.type === "isFailed") {
         dispatch(setCCTransactionStatus("failed"));
@@ -7456,7 +7457,7 @@ var CCWidget = ({ submitCallback }) => {
     {
       width: isLoading || isTransactionIdLoading || ccTransactionStatus === "success" || error ? 0 : "100%",
       height: isLoading || isTransactionIdLoading || ccTransactionStatus === "success" || error ? 0 : "100%",
-      src: `${baseUrl}/widgets/kyc?partner=${partnerId}&user_uuid=${randomUserIdRef.current}&amount=${allowanceAmount}&currency=${sourceCurrency}&trx_uuid=${data?.transactionId}&postmessage=true`,
+      src: `${baseUrl}/widgets/kyc?partner=${partnerId}&amount=${allowanceAmount}&currency=${sourceCurrency}&trx_uuid=${data?.transactionId}&scenario=${scenario}&postmessage=true`,
       loading: "lazy",
       title: "Credit Card Widget",
       allow: "camera; clipboard-write",
