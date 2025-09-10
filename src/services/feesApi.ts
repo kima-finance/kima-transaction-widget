@@ -52,7 +52,8 @@ export const getFees = async (
           ),
           message: result.transactionValues.feeFromTarget.message
         }
-      }
+      },
+      options: result.options
     } satisfies ServiceFee
     // console.log('getFees: ', output, response)
 

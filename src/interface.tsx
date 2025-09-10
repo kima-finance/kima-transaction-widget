@@ -119,6 +119,9 @@ export interface FeeResult<TBigInt extends BigintAmount<bigint | string>> {
   peggedTo: string
   expiration: string
   transactionValues: FeeTransactionValues<TBigInt>
+  options?: {
+    payment_method: '' | 'sepa_eur' | 'credit_card' | 'swift_usd'
+  }
 }
 
 export interface FeeTransactionValues<TBigInt = BigintAmount<bigint | string>> {
@@ -150,6 +153,9 @@ export interface ServiceFee {
   targetFee: BigintAmount<bigint>
   kimaFee: BigintAmount<bigint>
   totalFee: BigintAmount<bigint>
+  options?: {
+    payment_method: '' | 'sepa_eur' | 'credit_card' | 'swift_usd'
+  }
 }
 
 export interface TronProvider {

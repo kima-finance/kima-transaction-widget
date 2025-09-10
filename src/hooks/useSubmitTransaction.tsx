@@ -18,7 +18,6 @@ import {
   selectSubmitted
 } from '@widget/store/selectors'
 import { bigIntChangeDecimals } from '../helpers/functions'
-import { useState } from 'react'
 
 const useSubmitTransaction = (
   isSubmitting: boolean,
@@ -27,7 +26,12 @@ const useSubmitTransaction = (
   const dispatch = useDispatch()
   const backendUrl = useSelector(selectBackendUrl)
   const mode = useSelector(selectMode)
-  const { feeId, transactionValues, totalFee } = useSelector(selectServiceFee)
+  const {
+    feeId,
+    transactionValues,
+    totalFee,
+    options: feeOptions
+  } = useSelector(selectServiceFee)
   const feeDeduct = useSelector(selectFeeDeduct)
   const txValues = feeDeduct
     ? transactionValues.feeFromTarget
@@ -63,7 +67,8 @@ const useSubmitTransaction = (
         options: JSON.stringify({
           signature: transactionValues.originChain === 'CC' ? '' : signature,
           feeId,
-          chargeFeeAtTarget: feeDeduct
+          chargeFeeAtTarget: feeDeduct,
+          ...feeOptions
         }),
         ccTransactionIdSeed,
         mode
@@ -72,7 +77,7 @@ const useSubmitTransaction = (
       log.debug('submitTransaction: params: ', params)
 
       const response: any = await fetchWrapper.post(
-        `${backendUrl}/submit`,
+        `${backendUrl}/submit/transfer`,
         params
       )
       if (response?.code !== 0) {

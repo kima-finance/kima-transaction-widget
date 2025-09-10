@@ -87,9 +87,8 @@ export const getTxData = async ({
   refPollForUpdates: React.MutableRefObject<boolean>
 }): Promise<TransactionData> => {
   try {
-    const path = isLP ? 'tx/lp' : 'tx'
     const response = await fetchWrapper.get(
-      `${backendUrl}/${path}/${txId}/status`
+      `${backendUrl}/transfer_tx${isLP ? '/lp/' : ''}/${txId}/status`
     )
     if (typeof response === 'string') throw new Error(response)
 
