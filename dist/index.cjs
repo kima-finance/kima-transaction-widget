@@ -5667,9 +5667,8 @@ var getTxData = async ({
   refPollForUpdates
 }) => {
   try {
-    const path = isLP ? "tx/lp" : "tx";
     const response = await fetchWrapper.get(
-      `${backendUrl}/${path}/${txId}/status`
+      `${backendUrl}/transfer_tx${isLP ? "/lp/" : ""}/${txId}/status`
     );
     if (typeof response === "string") throw new Error(response);
     const res = response;
@@ -6381,7 +6380,8 @@ var getFees = async (amount, originChain, originAddress, originSymbol, targetCha
           ),
           message: result.transactionValues.feeFromTarget.message
         }
-      }
+      },
+      options: result.options
     };
     return output;
   } catch (e) {
@@ -7143,7 +7143,12 @@ var useSubmitTransaction = (isSubmitting, setIsSubmitting) => {
   const dispatch = (0, import_react_redux55.useDispatch)();
   const backendUrl = (0, import_react_redux55.useSelector)(selectBackendUrl);
   const mode = (0, import_react_redux55.useSelector)(selectMode);
-  const { feeId, transactionValues, totalFee } = (0, import_react_redux55.useSelector)(selectServiceFee);
+  const {
+    feeId,
+    transactionValues,
+    totalFee,
+    options: feeOptions
+  } = (0, import_react_redux55.useSelector)(selectServiceFee);
   const feeDeduct = (0, import_react_redux55.useSelector)(selectFeeDeduct);
   const txValues = feeDeduct ? transactionValues.feeFromTarget : transactionValues.feeFromOrigin;
   const ccTransactionIdSeed = (0, import_react_redux55.useSelector)(selectCCTransactionIdSeed);
@@ -7172,14 +7177,15 @@ var useSubmitTransaction = (isSubmitting, setIsSubmitting) => {
         options: JSON.stringify({
           signature: transactionValues.originChain === "CC" ? "" : signature,
           feeId,
-          chargeFeeAtTarget: feeDeduct
+          chargeFeeAtTarget: feeDeduct,
+          ...feeOptions
         }),
         ccTransactionIdSeed,
         mode
       });
       logger_default.debug("submitTransaction: params: ", params);
       const response = await fetchWrapper.post(
-        `${backendUrl}/submit`,
+        `${backendUrl}/submit/transfer`,
         params
       );
       if (response?.code !== 0) {

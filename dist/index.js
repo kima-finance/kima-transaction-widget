@@ -5692,9 +5692,8 @@ var getTxData = async ({
   refPollForUpdates
 }) => {
   try {
-    const path = isLP ? "tx/lp" : "tx";
     const response = await fetchWrapper.get(
-      `${backendUrl}/${path}/${txId}/status`
+      `${backendUrl}/transfer_tx${isLP ? "/lp/" : ""}/${txId}/status`
     );
     if (typeof response === "string") throw new Error(response);
     const res = response;
@@ -6406,7 +6405,8 @@ var getFees = async (amount, originChain, originAddress, originSymbol, targetCha
           ),
           message: result.transactionValues.feeFromTarget.message
         }
-      }
+      },
+      options: result.options
     };
     return output;
   } catch (e) {
@@ -7168,7 +7168,12 @@ var useSubmitTransaction = (isSubmitting, setIsSubmitting) => {
   const dispatch = useDispatch25();
   const backendUrl = useSelector44(selectBackendUrl);
   const mode = useSelector44(selectMode);
-  const { feeId, transactionValues, totalFee } = useSelector44(selectServiceFee);
+  const {
+    feeId,
+    transactionValues,
+    totalFee,
+    options: feeOptions
+  } = useSelector44(selectServiceFee);
   const feeDeduct = useSelector44(selectFeeDeduct);
   const txValues = feeDeduct ? transactionValues.feeFromTarget : transactionValues.feeFromOrigin;
   const ccTransactionIdSeed = useSelector44(selectCCTransactionIdSeed);
@@ -7197,14 +7202,15 @@ var useSubmitTransaction = (isSubmitting, setIsSubmitting) => {
         options: JSON.stringify({
           signature: transactionValues.originChain === "CC" ? "" : signature,
           feeId,
-          chargeFeeAtTarget: feeDeduct
+          chargeFeeAtTarget: feeDeduct,
+          ...feeOptions
         }),
         ccTransactionIdSeed,
         mode
       });
       logger_default.debug("submitTransaction: params: ", params);
       const response = await fetchWrapper.post(
-        `${backendUrl}/submit`,
+        `${backendUrl}/submit/transfer`,
         params
       );
       if (response?.code !== 0) {
