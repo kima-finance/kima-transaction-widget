@@ -47,7 +47,7 @@ import log from '@kima-widget/shared/logger'
 import useGetCurrentPlugin from '@kima-widget/shared/lib/hooks/useGetCurrentPlugin'
 import SkeletonLoader from './SkeletonLoader'
 
-// ---- small helpers
+// small helpers
 const deepEqual = (a: any, b: any) => {
   try {
     if (a === b) return true
@@ -100,7 +100,7 @@ const KimaWidgetWrapper = ({
 
   const { currentPlugin } = useGetCurrentPlugin()
 
-  // ---- 1) Theme effect: only when colorMode changes
+  // 1) Theme effect: only when colorMode changes
   const prevColorMode = useRef<ColorModeOptions | undefined>(undefined)
   useEffect(() => {
     // setTheme in store only if changed
@@ -118,7 +118,7 @@ const KimaWidgetWrapper = ({
     }
   }, [theme?.colorMode, dispatch, setThemeMode, setThemeVariables, theme])
 
-  // ---- 2) Config/env effect: only dispatch when values actually change
+  // 2) Config/env effect: only dispatch when values actually change
   const prevConfigRef = useRef({
     compliantOption: undefined as boolean | undefined,
     backendUrl: undefined as string | undefined,
@@ -177,7 +177,7 @@ const KimaWidgetWrapper = ({
     dispatch
   ])
 
-  // ---- 3) transactionOption prefill: deep-equal guard
+  // 3) transactionOption prefill: deep-equal guard
   const prevTxOptJson = useRef<string | null>(null)
   useEffect(() => {
     const nextJson = transactionOption
@@ -223,7 +223,7 @@ const KimaWidgetWrapper = ({
     prevTxOptJson.current = nextJson
   }, [transactionOption, chainData, dispatch])
 
-  // ---- 4) Mode → submitted/txId: only when mode or txId change
+  // 4) Mode → submitted/txId: only when mode or txId change
   const prevModeRef = useRef<ModeOptions | undefined>(undefined)
   const prevTxIdRef = useRef<number | string | undefined>(undefined)
   useEffect(() => {
@@ -261,7 +261,7 @@ const KimaWidgetWrapper = ({
     }
   }, [mode, txId, transactionOption, dispatch])
 
-  // ---- 5) Index plugins once per mount after chains arrive
+  // 5) Index plugins once per mount after chains arrive
   const didIndex = useRef(false)
   useEffect(() => {
     if (!chainData?.length || didIndex.current) return
@@ -273,7 +273,7 @@ const KimaWidgetWrapper = ({
     didIndex.current = true
   }, [chainData])
 
-  // ---- Debug (safe — no deps, runs after paint)
+  // Debug (safe — no deps, runs after paint)
   useEffect(() => {
     log.debug('[KimaWidgetWrapper] render', {
       mode,
@@ -285,14 +285,19 @@ const KimaWidgetWrapper = ({
     })
   })
 
-  // ---- Stable key: once plugin exists, remount once per chain/plugin switch
+  // Stable key: once plugin exists, remount once per chain/plugin switch
   const pluginKey = useMemo(() => {
     if (!currentPlugin?.id) return null
     return `transfer-${currentPlugin.id}-${sourceChain?.shortName ?? 'unknown'}`
   }, [currentPlugin?.id, sourceChain?.shortName])
 
-  // ---- Render gating
+  // Render gating
   const content = useMemo(() => {
+    // STATUS MODE: bypass plugin/source-chain gating completely
+    if (mode === ModeOptions.status) {
+      return <TransactionWidget theme={theme} />
+    }
+
     // No source chosen yet → allow user to pick networks (no plugin needed yet)
     if (!currentPlugin && !sourceChain?.shortName) {
       return (
@@ -375,9 +380,10 @@ const KimaWidgetWrapper = ({
       />
     )
   }, [
+    mode,
+    theme,
     currentPlugin,
     pluginKey,
-    theme,
     sourceChain?.shortName,
     submitted,
     ccTransactionStatus,

@@ -168,6 +168,8 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
     return (data as any)?.amount === '' // amount is number for fetched statuses; '' for empty
   }, [data])
 
+  const showFetchingTitle = isValidTxId && isEmptyStatus
+
   useEffect(() => {
     if (!data || data.status !== TransactionStatus.COMPLETED) return
     successHandler &&
@@ -194,38 +196,50 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   }, [error])
 
   useEffect(() => {
-    if (!data) {
+    // Normalize like: "Refund Start" | "refund_start" -> "REFUNDSTART"
+    const norm = (s?: string) =>
+      (s ?? '').toString().trim().toUpperCase().replace(/[\s_]/g, '')
+
+    const s = norm(data?.status)
+
+    if (!data || !s) {
       setStep(0)
       setLoadingStep(0)
       return
     }
 
-    log.debug('tx status:', data.status, data.failReason, errorMessage)
+    log.debug('tx status (normalized):', s, data?.failReason, errorMessage)
     setErrorStep(-1)
 
-    // Case-insensitive normalization so "Pulled" works like PULLED
-    const statusUpper = (data.status as string)?.toUpperCase?.() || ''
-
-    if (
-      statusUpper === TransactionStatus.AVAILABLE ||
-      statusUpper === TransactionStatus.PULLED
-    ) {
+    if (s === 'AVAILABLE' || s === 'PULLED') {
       setStep(1)
       setLoadingStep(1)
-    } else if (statusUpper === TransactionStatus.CONFIRMED) {
+      return
+    }
+
+    if (s === 'CONFIRMED') {
       setStep(2)
       setLoadingStep(2)
-    } else if (statusUpper.startsWith(TransactionStatus.UNAVAILABLE)) {
+      return
+    }
+
+    if (s.startsWith('UNAVAILABLE')) {
       setStep(1)
       setErrorStep(1)
       setLoadingStep(-1)
-      log.error('transaction failed:', data.failReason)
+      log.error('transaction failed:', data?.failReason)
       toast.error('Unavailable', { icon: <ErrorIcon /> })
       setErrorMessage('Unavailable')
-    } else if (statusUpper === TransactionStatus.PAID) {
+      return
+    }
+
+    if (s === 'PAID') {
       setStep(3)
       setLoadingStep(3)
-    } else if (statusUpper === TransactionStatus.REFUNDSTART) {
+      return
+    }
+
+    if (s === 'REFUNDSTART' || s === 'REFUNDSTARTED') {
       setStep(3)
       setLoadingStep(3)
       toast.error(
@@ -237,50 +251,65 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setErrorMessage(
         'Failed to release tokens to target! Starting refund process.'
       )
-    } else if (statusUpper === TransactionStatus.REFUNDFAILED) {
+      return
+    }
+
+    if (s === 'REFUNDFAILED') {
       setStep(3)
       setErrorStep(3)
       setLoadingStep(-1)
-      toast.error('Failed to refund tokens to source!', {
-        icon: <ErrorIcon />
-      })
+      toast.error('Failed to refund tokens to source!', { icon: <ErrorIcon /> })
       setErrorMessage('Failed to refund tokens to source!')
-    } else if (statusUpper === TransactionStatus.REFUNDCOMPLETED) {
+      return
+    }
+
+    if (s === 'REFUNDCOMPLETED') {
       setStep(4)
       setErrorStep(3)
       setLoadingStep(-1)
-      toast.success('Refund completed!', {
-        icon: <ErrorIcon />
-      })
+      toast.success('Refund completed!', { icon: <ErrorIcon /> })
       setErrorMessage('Refund completed!')
-    } else if (statusUpper === TransactionStatus.FAILEDTOPAY) {
+      return
+    }
+
+    if (s === 'FAILEDTOPAY') {
       setStep(3)
       setErrorStep(3)
       setLoadingStep(-1)
-      log.error('transaction failed:', data.failReason)
+      log.error('transaction failed:', data?.failReason)
       toast.error('Failed to release tokens to target!', {
         icon: <ErrorIcon />
       })
       setErrorMessage('Failed to release tokens to target!')
-    } else if (statusUpper === TransactionStatus.FAILEDTOPULL) {
+      return
+    }
+
+    if (s === 'FAILEDTOPULL') {
       setStep(1)
       setErrorStep(1)
       setLoadingStep(-1)
-      log.error('transaction failed:', data.failReason)
+      log.error('transaction failed:', data?.failReason)
       toast.error('Failed to pull tokens from source!', { icon: <ErrorIcon /> })
       setErrorMessage('Failed to pull tokens from source!')
-    } else if (statusUpper === TransactionStatus.COMPLETED) {
+      return
+    }
+
+    if (s === 'COMPLETED') {
       setStep(4)
       setLoadingStep(-1)
-    } else if (statusUpper === TransactionStatus.DECLINEDINVALID) {
+      return
+    }
+
+    if (s === 'DECLINEDINVALID') {
       setStep(0)
       setErrorStep(0)
       setLoadingStep(-1)
       toast.error('Invalid signature!')
+      return
     }
-  }, [data, errorMessage])
+  }, [data?.status])
 
-  // ----- Header computed text (verb + amounts) -----
+  // Header computed text (verb + amounts)
   const verb = useMemo(() => {
     if (mode === ModeOptions.status) {
       if (isEmptyStatus) return 'Fetching transaction status '
@@ -306,19 +335,21 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   // amounts & symbols shown in the title line
   const { leftAmt, rightAmt, leftSym, rightSym } = useMemo(() => {
     if (mode === ModeOptions.status) {
-      // STATUS / SEARCH — show blockchain-fetched amounts
       if (widgetIsSwap) {
-        // Prefer explicit amountIn if backend exposes it, else use amountOut for both sides as fallback
         const amountIn = (data as any)?.amountIn
         const amountOut = (data as any)?.amount ?? ''
         return {
-          leftAmt: amountIn ?? amountOut ?? '',
-          rightAmt: amountOut ?? '',
+          leftAmt:
+            amountIn != null
+              ? fmt3(amountIn)
+              : amountOut !== ''
+                ? fmt3(amountOut)
+                : '',
+          rightAmt: amountOut !== '' ? fmt3(amountOut) : '',
           leftSym: data?.sourceSymbol ?? '',
           rightSym: data?.targetSymbol ?? ''
         }
       }
-      // transfer status: same amount both sides
       const amt = (data as any)?.amount ?? ''
       return {
         leftAmt: amt,
@@ -344,18 +375,17 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
     let leftSymbol = sourceSymbol
     let rightSymbol = targetSymbol
 
-    // If it's a SWAP and backend already returned an amount, prefer amountOut on the RIGHT side
+    // If it's a SWAP and backend already returned an amount, prefer amountOut (RIGHT) and format to 3 decimals
     if (
       widgetIsSwap &&
       data &&
-      (data as any)?.amount !== '' &&
-      (data as any)?.amount != null
+      (data as any)?.amount != null &&
+      (data as any)?.amount !== ''
     ) {
-      right = (data as any).amount // this is amountOut from parseSwapTxData
+      right = fmt3((data as any).amount)
       rightSymbol = data?.targetSymbol ?? rightSymbol
-      // If amountIn is explicitly provided by backend, prefer it on the LEFT too
       if ((data as any)?.amountIn != null) {
-        left = (data as any).amountIn
+        left = fmt3((data as any).amountIn)
         leftSymbol = data?.sourceSymbol ?? leftSymbol
       }
     }
@@ -439,9 +469,8 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const swapSrcAmt = (data as any)?.amountIn ?? amount
   // parseSwapTxData stores amountOut into `data.amount`
   const swapDstAmt = (data as any)?.amount
-  // cap to 2 decimals using the existing formatter
-  const fmt2 = (v: unknown) =>
-    formatterFloat.format(Number(Number(v ?? 0).toFixed(2)))
+  const fmt3 = (v: unknown) =>
+    formatterFloat.format(Number(Number(v ?? 0).toFixed(3)))
 
   return (
     <Provider store={store}>
@@ -460,8 +489,14 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
               <div className='title'>
                 {isValidTxId && !error ? (
                   <div className='transaction-title'>
-                    {verb}
-                    {leftAmt} {leftSym} → {rightAmt} {rightSym}
+                    {showFetchingTitle ? (
+                      <>Getting transaction details…</>
+                    ) : (
+                      <>
+                        {verb}
+                        {leftAmt} {leftSym} → {rightAmt} {rightSym}
+                      </>
+                    )}
                   </div>
                 ) : (
                   <div>
@@ -495,9 +530,10 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                 >
                   <MinimizeIcon />
                 </button>
-                {!isValidTxId ||
-                loadingStep < 0 ||
-                (error && dAppOption !== DAppOptions.None) ? (
+                {!isComplete &&
+                (!isValidTxId ||
+                  loadingStep < 0 ||
+                  (error && dAppOption !== DAppOptions.None)) ? (
                   <button className='reset-button' onClick={resetForm}>
                     Reset
                   </button>
@@ -585,8 +621,8 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                     <p>
                       {widgetIsSwap ? (
                         <>
-                          You just swapped {fmt2(swapSrcAmt)}{' '}
-                          {data?.sourceSymbol} for {fmt2(swapDstAmt)}{' '}
+                          You just swapped {fmt3(swapSrcAmt)}{' '}
+                          {data?.sourceSymbol} for {fmt3(swapDstAmt)}{' '}
                           {data?.targetSymbol}
                         </>
                       ) : (
