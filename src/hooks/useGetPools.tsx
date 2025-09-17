@@ -1,6 +1,6 @@
-import { NetworkOptions } from '@widget/interface'
 import { useQuery } from '@tanstack/react-query'
 import { getPools } from '../services/poolsApi'
+import { NetworkOptions } from '@kima-widget/shared/types'
 
 const useGetPools = (backendUrl: string, networkOption: NetworkOptions) => {
   const { data, error, isLoading } = useQuery<Array<any>>({

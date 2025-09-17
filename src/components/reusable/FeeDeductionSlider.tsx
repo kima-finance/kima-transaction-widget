@@ -1,6 +1,5 @@
-import { setFeeDeduct } from '@widget/store/optionSlice'
-import { selectFeeDeduct } from '@widget/store/selectors'
-import React from 'react'
+import { setFeeDeduct } from '@kima-widget/shared/store/optionSlice'
+import { selectFeeDeduct } from '@kima-widget/shared/store/selectors'
 import { useDispatch } from 'react-redux'
 import { useSelector } from 'react-redux'
 

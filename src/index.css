@@ -423,6 +423,8 @@
 
 .kima-card {
   font-family: "Manrope";
+  /* Pulse for the button overlay */
+  /* Three-dot loader */
 }
 .kima-card .kima-card-content {
   font-family: "Manrope";
@@ -1312,6 +1314,9 @@
   padding: 2.5px;
   padding-right: 6px;
 }
+.kima-card .kima-card-content .single-form .coin-dropdown .coin-wrapper .placeholder {
+  margin-left: 10px;
+}
 .kima-card .kima-card-content .single-form .coin-dropdown .coin-wrapper .icon-wrapper {
   display: flex;
   justify-content: center;
@@ -1681,6 +1686,60 @@
 .kima-card .kima-card-content .wallet-button {
   display: flex;
   flex-direction: column;
+}
+.kima-card .kima-card-content .wallet-button .loading {
+  animation: pulse 1.5s ease-in-out infinite;
+  margin-top: 10px;
+  display: inline-block;
+  width: 150px;
+  height: 25px;
+  background-color: rgba(119, 141, 163, 0.3019607843);
+  border-radius: 4px;
+  color: transparent;
+  pointer-events: none;
+  user-select: none;
+}
+.kima-card .kima-card-content .wallet-button button.network-switching {
+  position: relative;
+  pointer-events: none;
+  cursor: default;
+  opacity: 0.85;
+}
+.kima-card .kima-card-content .wallet-button button.network-switching::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50px;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.25) 40%, rgba(255, 255, 255, 0) 80%);
+  background-size: 200% 100%;
+  animation: kima-sheen 1.4s ease-in-out infinite;
+}
+.kima-card .kima-card-content .wallet-button button[aria-busy=true] {
+  pointer-events: none;
+  cursor: default;
+}
+.kima-card .kima-card-content .wallet-button .loading-indicator-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+}
+.kima-card .kima-card-content .wallet-button .loading-indicator-inline .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.55;
+  animation: kima-dot 1s infinite ease-in-out;
+}
+.kima-card .kima-card-content .wallet-button .loading-indicator-inline .dot:nth-child(1) {
+  animation-delay: 0s;
+}
+.kima-card .kima-card-content .wallet-button .loading-indicator-inline .dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.kima-card .kima-card-content .wallet-button .loading-indicator-inline .dot:nth-child(3) {
+  animation-delay: 0.3s;
 }
 @media (max-width: 768px) {
   .kima-card .kima-card-content .wallet-button {
@@ -2802,6 +2861,24 @@
 .kima-card .popup-tooltip.dark {
   color: black;
   background-color: white;
+}
+@keyframes kima-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+@keyframes kima-dot {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateY(-2px);
+    opacity: 1;
+  }
 }
 
 .kima-modal {

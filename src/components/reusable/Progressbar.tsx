@@ -1,7 +1,7 @@
-import React, { Dispatch, SetStateAction } from 'react'
+import { CheckIcon, Loader, Lock, WarningIcon } from '@kima-widget/assets/icons'
+import { selectTheme } from '@kima-widget/shared/store/selectors'
+import { Dispatch, SetStateAction } from 'react'
 import { useSelector } from 'react-redux'
-import { selectTheme } from '../../store/selectors'
-import { CheckIcon, Loader, Lock, WarningIcon } from '../../assets/icons'
 
 interface Props {
   step: number
@@ -34,17 +34,7 @@ const Progressbar = ({ step, errorStep, setFocus, loadingStep }: Props) => {
 
   return (
     <div className='kima-progressbar'>
-      <div
-        className={`value step-${step*100 / 4}`}
-        // style={{
-        //   width: `calc(${(step * 100) / 4}% + ${
-        //     step > 0 && step < 3 ? 0.5 : 0
-        //   }em)`,
-        //   height: `calc(${(step * 100) / 4}% + ${
-        //     step > 0 && step < 3 ? 0.5 : 0
-        //   }em)`
-        // }}
-      />
+      <div className={`value step-${(step * 100) / 4}`} />
       <div className='step-indicators'>
         {stepInfo.map((item, index) => (
           <div

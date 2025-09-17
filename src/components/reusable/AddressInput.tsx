@@ -1,25 +1,22 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { setTargetAddress } from '../../store/optionSlice'
+import { isEVMChain, isSolana, isTron } from '@kima-widget/shared/lib/addresses'
+import { setTargetAddress } from '@kima-widget/shared/store/optionSlice'
 import {
   selectMode,
   selectSourceChain,
   selectTargetAddress,
   selectTargetChain
-} from '../../store/selectors'
-import useIsWalletReady from '../../hooks/useIsWalletReady'
-import { ModeOptions } from '../../interface'
-import { isEVMChain, lightDemoAccounts } from '@widget/utils/constants'
-import { isSolana, isTron } from '../../helpers/functions'
+} from '@kima-widget/shared/store/selectors'
+import { lightDemoAccounts, ModeOptions } from '@kima-widget/shared/types'
+import useIsWalletReady from '@kima-widget/widgets/transfer/hooks/useIsWalletReady'
 
 const AddressInput = ({
   theme,
-  placeholder,
-  initialSelection
+  placeholder
 }: {
   theme: string
   placeholder: string
-  initialSelection: { sourceSelection: boolean; targetSelection: boolean }
 }) => {
   const dispatch = useDispatch()
   const mode = useSelector(selectMode)
@@ -28,37 +25,51 @@ const AddressInput = ({
   const { connectedAddress: sourceAddress, isReady } = useIsWalletReady()
   const targetAddress = useSelector(selectTargetAddress)
 
+  // Guard so auto-fill happens at most once per target-network change
+  const didAutofill = useRef<string | null>(null) // tracks last targetChain.shortName we autofilled for
+
+  // Reset the autofill guard whenever target network changes
   useEffect(() => {
-    if (mode === ModeOptions.payment) return
+    didAutofill.current = null
+  }, [targetChain.shortName])
 
-    // In LIGHT mode, do nothing
-    if (mode === ModeOptions.light && !initialSelection) {
-      if (isEVMChain(targetChain.shortName))
-        dispatch(setTargetAddress(lightDemoAccounts.EVM))
-      if (isSolana(targetChain.shortName))
-        dispatch(setTargetAddress(lightDemoAccounts.SOL))
-      if (isTron(targetChain.shortName))
-        dispatch(setTargetAddress(lightDemoAccounts.TRX))
+  // LIGHT mode: set demo target address once when target network is chosen & input empty
+  useEffect(() => {
+    if (mode !== ModeOptions.light) return
+    if (targetAddress) return
 
-      return
-    }
+    let demo = ''
+    if (isEVMChain(targetChain.shortName)) demo = lightDemoAccounts.EVM
+    else if (isSolana(targetChain.shortName)) demo = lightDemoAccounts.SOL
+    else if (isTron(targetChain.shortName)) demo = lightDemoAccounts.TRX
 
-    const bothEVM =
+    if (demo) dispatch(setTargetAddress(demo))
+  }, [mode, targetChain.shortName, targetAddress, dispatch])
+
+  // ADVANCED: first time both sides are EVM & wallet ready & target is empty → mirror source into target
+  useEffect(() => {
+    if (mode === ModeOptions.light) return
+
+    const bothEvm =
       isEVMChain(sourceChain.shortName) && isEVMChain(targetChain.shortName)
 
-    if (bothEVM && isReady) {
-      if (targetAddress !== '') return
-      dispatch(setTargetAddress(sourceAddress ?? ''))
-    } else {
-      // console.log('dispatching target address from address input')
-      dispatch(setTargetAddress(''))
+    if (
+      bothEvm &&
+      isReady &&
+      sourceAddress &&
+      !targetAddress &&
+      didAutofill.current !== targetChain.shortName
+    ) {
+      dispatch(setTargetAddress(sourceAddress))
+      didAutofill.current = targetChain.shortName
     }
   }, [
+    mode,
+    isReady,
+    sourceAddress,
+    targetAddress,
     sourceChain.shortName,
     targetChain.shortName,
-    sourceAddress,
-    isReady,
-    mode,
     dispatch
   ])
 
@@ -67,11 +78,7 @@ const AddressInput = ({
       className={`kima-address-input ${theme}`}
       type='text'
       placeholder={placeholder}
-      value={
-        initialSelection.sourceSelection || initialSelection.targetSelection
-          ? ''
-          : targetAddress
-      }
+      value={targetAddress}
       onChange={(e) => dispatch(setTargetAddress(e.target.value))}
       spellCheck={false}
     />

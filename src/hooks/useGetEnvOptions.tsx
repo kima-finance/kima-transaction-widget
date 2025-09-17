@@ -1,6 +1,6 @@
-import { NetworkOptions } from '@widget/interface'
 import { useQuery } from '@tanstack/react-query'
-import { fetchWrapper } from '../helpers/fetch-wrapper'
+import { NetworkOptions } from '@kima-widget/shared/types'
+import { fetchWrapper } from '@kima-widget/shared/api/fetcher'
 
 export interface EnvOptions {
   env: NetworkOptions

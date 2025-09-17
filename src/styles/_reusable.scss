@@ -966,6 +966,10 @@
           padding: 2.5px;
           padding-right: 6px;
 
+          .placeholder {
+            margin-left: 10px;
+          }
+
           .icon-wrapper {
             display: flex;
             justify-content: center;
@@ -1412,6 +1416,77 @@
     .wallet-button {
       display: flex;
       flex-direction: column;
+
+      .loading {
+        @include pulse-loader;
+
+        margin-top: 10px;
+        display: inline-block;
+        width: 150px;
+        height: 25px;
+        background-color: $financeGrey;
+        border-radius: 4px;
+        color: transparent;
+        pointer-events: none;
+        user-select: none;
+      }
+
+      button.network-switching {
+        position: relative;
+        pointer-events: none; // block clicks while switching
+        cursor: default;
+        opacity: 0.85; // subtle feedback without hiding label
+      }
+
+      // Optional: visual pulse overlay while switching
+      button.network-switching::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 50px;
+        // soft moving sheen
+        background: linear-gradient(
+          120deg,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.25) 40%,
+          rgba(255, 255, 255, 0) 80%
+        );
+        background-size: 200% 100%;
+        animation: kima-sheen 1.4s ease-in-out infinite;
+      }
+
+      // Ensure busy state looks consistent even without the class
+      button[aria-busy='true'] {
+        pointer-events: none;
+        cursor: default;
+      }
+
+      // Inline three-dot loader placed after the label
+      .loading-indicator-inline {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-left: 8px; // spacing from text
+      }
+
+      .loading-indicator-inline .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor; // inherits from button text (white on dark)
+        opacity: 0.55;
+        animation: kima-dot 1s infinite ease-in-out;
+      }
+
+      .loading-indicator-inline .dot:nth-child(1) {
+        animation-delay: 0s;
+      }
+      .loading-indicator-inline .dot:nth-child(2) {
+        animation-delay: 0.15s;
+      }
+      .loading-indicator-inline .dot:nth-child(3) {
+        animation-delay: 0.3s;
+      }
 
       @include breakpoint(phablet) {
         width: 430px;
@@ -2688,6 +2763,30 @@
     &.dark {
       color: black;
       background-color: white;
+    }
+  }
+
+  /* Pulse for the button overlay */
+  @keyframes kima-pulse {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.02);
+    }
+  }
+
+  /* Three-dot loader */
+  @keyframes kima-dot {
+    0%,
+    100% {
+      transform: translateY(0);
+      opacity: 0.4;
+    }
+    50% {
+      transform: translateY(-2px);
+      opacity: 1;
     }
   }
 }

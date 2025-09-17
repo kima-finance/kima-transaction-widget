@@ -1,14 +1,21 @@
-import React, { useRef, useState } from 'react'
-import SecondaryButton from './SecondaryButton'
+import { useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { selectBackendUrl, selectTheme } from '@widget/store/selectors'
 import { useDispatch } from 'react-redux'
-import { setMode, setSubmitted, setTxId } from '@widget/store/optionSlice'
 import toast from 'react-hot-toast'
-import { getTxData } from '../../services/transactionApi'
-import { ErrorIcon } from '@widget/assets/icons'
-import { ModeOptions } from '@widget/interface'
-import log from '@widget/utils/logger'
+import log from '@kima-widget/shared/logger'
+import {
+  selectBackendUrl,
+  selectTheme
+} from '@kima-widget/shared/store/selectors'
+import { ErrorIcon } from '@kima-widget/assets/icons'
+import { getTxData } from '@kima-widget/services/transactionApi'
+import {
+  setMode,
+  setSubmitted,
+  setTxId
+} from '@kima-widget/shared/store/optionSlice'
+import { ModeOptions } from '@kima-widget/shared/types'
+import SecondaryButton from './SecondaryButton'
 
 const TransactionSearch = () => {
   const theme = useSelector(selectTheme)
@@ -28,6 +35,7 @@ const TransactionSearch = () => {
         txId: transactionId,
         backendUrl,
         refPollForUpdates,
+        isSwap: false,
         isLP: false
       })
       log.debug('transaction data: ', data)

@@ -1,6 +1,8 @@
-import type { FeeResponse, ServiceFee } from '@widget/interface'
-import { fetchWrapper } from '../helpers/fetch-wrapper'
-import { toBigintAmount } from '../helpers/functions'
+// services/feesApi.ts
+import { fetchWrapper } from '@kima-widget/shared/api/fetcher'
+import { toBigintAmount } from '@kima-widget/shared/lib/bigint'
+import { FeeResponse, ServiceFee } from '@kima-widget/shared/types'
+import log from '@kima-widget/shared/logger'
 
 export const getFees = async (
   amount: number,
@@ -12,14 +14,70 @@ export const getFees = async (
   targetSymbol: string,
   backendUrl: string
 ): Promise<ServiceFee> => {
+  // For BANK/CC, backend expects the beneficiary address as originAddress.
+  const originAddrParam = ['BANK', 'CC'].includes(originChain)
+    ? targetAddress
+    : originAddress
+
+  const url =
+    `${backendUrl}/submit/fees?` +
+    `amount=${amount}` +
+    `&originChain=${originChain}` +
+    `&originAddress=${originAddrParam}` +
+    `&originSymbol=${originSymbol}` +
+    `&targetChain=${targetChain}` +
+    `&targetAddress=${targetAddress}` +
+    `&targetSymbol=${targetSymbol}`
+
   try {
-    const response: any = await fetchWrapper.get(
-      `${backendUrl}/submit/fees?amount=${amount}&originChain=${originChain}&originAddress=${['BANK', 'CC'].includes(originChain) ? targetAddress : originAddress}&originSymbol=${originSymbol}&targetChain=${targetChain}&targetAddress=${targetAddress}&targetSymbol=${targetSymbol}`
-    )
+    log.debug('[getFees] request', {
+      amount,
+      originChain,
+      originSymbol,
+      originAddrParam,
+      targetChain,
+      targetSymbol,
+      targetAddress
+    })
+
+    const response: any = await fetchWrapper.get(url)
     const result = response as FeeResponse
 
-    // convert bigint string values to bigint
-    const output = {
+    const tv = result.transactionValues ?? ({} as any)
+    const fromOrigin = tv.feeFromOrigin
+    const fromTarget = tv.feeFromTarget // may be undefined on swap
+
+    if (!fromOrigin) {
+      throw new Error('Malformed fee response: missing feeFromOrigin')
+    }
+
+    const originAllowance = toBigintAmount(fromOrigin.allowanceAmount)
+    const originSubmit = toBigintAmount(fromOrigin.submitAmount)
+
+    // Fill target with zeros if absent (swap: fees always from origin)
+    const zeroLike = { value: '0', decimals: originAllowance.decimals }
+    const targetAllowance = toBigintAmount(
+      fromTarget?.allowanceAmount ?? zeroLike
+    )
+    const targetSubmit = toBigintAmount(fromTarget?.submitAmount ?? zeroLike)
+
+    // Optional fields for swap
+    const swapFee = (result as any).feeSwapBigInt
+      ? toBigintAmount((result as any).feeSwapBigInt)
+      : { value: 0n, decimals: 0 }
+
+    const swapInfo = (result as any).swapInfo
+      ? {
+          amountOutFiat: (result as any).swapInfo.amountOutFiat,
+          amountOutBigInt: toBigintAmount(
+            (result as any).swapInfo.amountOutBigInt
+          ),
+          dex: (result as any).swapInfo.dex,
+          slippage: (result as any).swapInfo.slippage
+        }
+      : undefined
+
+    const output: ServiceFee = {
       feeId: result.feeId,
       peggedTo: result.peggedTo,
       expiration: result.expiration,
@@ -27,6 +85,9 @@ export const getFees = async (
       targetFee: toBigintAmount(result.feeTargetGasBigInt),
       kimaFee: toBigintAmount(result.feeKimaProcessingBigInt),
       totalFee: toBigintAmount(result.feeTotalBigInt),
+      // NEW
+      swapFee,
+      swapInfo,
       transactionValues: {
         originChain,
         originAddress,
@@ -35,31 +96,29 @@ export const getFees = async (
         targetAddress,
         targetSymbol,
         feeFromOrigin: {
-          allowanceAmount: toBigintAmount(
-            result.transactionValues.feeFromOrigin.allowanceAmount
-          ),
-          submitAmount: toBigintAmount(
-            result.transactionValues.feeFromOrigin.submitAmount
-          ),
-          message: result.transactionValues.feeFromOrigin.message
+          allowanceAmount: originAllowance,
+          submitAmount: originSubmit,
+          message: fromOrigin.message
         },
         feeFromTarget: {
-          allowanceAmount: toBigintAmount(
-            result.transactionValues.feeFromTarget.allowanceAmount
-          ),
-          submitAmount: toBigintAmount(
-            result.transactionValues.feeFromTarget.submitAmount
-          ),
-          message: result.transactionValues.feeFromTarget.message
+          allowanceAmount: targetAllowance,
+          submitAmount: targetSubmit,
+          message: fromTarget?.message ?? ''
         }
       },
       options: result.options
-    } satisfies ServiceFee
-    // console.log('getFees: ', output, response)
+    }
+
+    log.debug('[getFees] response', {
+      feeId: output.feeId,
+      totalFiat: (result as any).feeTotalFiat,
+      hasTargetSide: !!fromTarget,
+      hasSwapInfo: !!swapInfo
+    })
 
     return output
   } catch (e) {
-    // log.error('Failed to fetch fees:', e)
+    log.error('[getFees] failed', e)
     throw new Error('Failed to fetch fees')
   }
 }

@@ -1,25 +1,28 @@
-import React, { useMemo } from 'react'
-import { useSelector } from 'react-redux'
 import {
   CheckIcon,
   Loader,
   Lock,
   USDKIcon,
   WarningIcon
-} from '../../assets/icons'
-import { NetworkOptions, TransactionData } from '../../interface'
+} from '@kima-widget/assets/icons'
+import useWidth from '@kima-widget/shared/lib/hooks/useWidth'
 import {
   selectKimaExplorer,
   selectNetworkOption,
   selectNetworks,
   selectTheme
-} from '../../store/selectors'
-import { ChainName } from '../../utils/constants'
-import { getShortenedAddress } from '../../utils/functions'
-import CopyButton from './CopyButton'
+} from '@kima-widget/shared/store/selectors'
+import {
+  ChainName,
+  NetworkOptions,
+  TransactionData
+} from '@kima-widget/shared/types'
+import { useMemo } from 'react'
+import { useSelector } from 'react-redux'
 import ExternalLink from './ExternalLink'
+import { getShortenedAddress } from '@kima-widget/shared/lib/misc'
+import CopyButton from './CopyButton'
 import ChainIcon from './ChainIcon'
-import useWidth from '../../hooks/useWidth'
 
 interface Props {
   step: number

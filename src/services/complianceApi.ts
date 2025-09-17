@@ -1,5 +1,5 @@
-import { fetchWrapper } from '../helpers/fetch-wrapper'
-import log from '@widget/utils/logger'
+import { fetchWrapper } from '@kima-widget/shared/api/fetcher'
+import log from '@kima-widget/shared/logger'
 
 export const getCompliance = async (
   walletAddress: string,

@@ -1,5 +1,5 @@
-import { fetchWrapper } from 'src/helpers/fetch-wrapper'
-import log from '@widget/utils/logger'
+import { fetchWrapper } from '@kima-widget/shared/api/fetcher'
+import log from '@kima-widget/shared/logger'
 
 export const getNetworkOption = async (kimaBackendUrl: string) => {
   try {

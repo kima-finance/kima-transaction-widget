@@ -1,5 +1,5 @@
+import { CheckIcon, CopyIcon } from '@kima-widget/assets/icons'
 import React, { useEffect, useState } from 'react'
-import { CheckIcon, CopyIcon } from '../../assets/icons'
 
 interface Props {
   text: string

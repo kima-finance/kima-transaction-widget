@@ -1,39 +1,49 @@
+import { useGetEnvOptions } from '@kima-widget/hooks/useGetEnvOptions'
+import { bigIntToNumber, formatBigInt } from '@kima-widget/shared/lib/bigint'
+import { truncateToDecimals } from '@kima-widget/shared/lib/misc'
+import { setAmount } from '@kima-widget/shared/store/optionSlice'
+import {
+  selectAmount,
+  selectBackendUrl,
+  selectCompliantOption,
+  selectDappOption,
+  selectFeeDeduct,
+  selectMode,
+  selectServiceFee,
+  selectSourceAddress,
+  selectSourceChain,
+  selectSourceCurrency,
+  selectTargetAddress,
+  selectTargetChain,
+  selectTargetCompliant,
+  selectTargetCurrency,
+  selectTheme
+} from '@kima-widget/shared/store/selectors'
+import {
+  ChainCompatibility,
+  ChainName,
+  DAppOptions,
+  ModeOptions,
+  lightDemoAccounts,
+  lightDemoNetworks
+} from '@kima-widget/shared/types'
+import useBalance from '@kima-widget/widgets/transfer/hooks/useBalance'
+import useIsWalletReady from '@kima-widget/widgets/transfer/hooks/useIsWalletReady'
+import { parseUnits } from 'viem'
 import React, { useEffect, useMemo, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { useDispatch, useSelector } from 'react-redux'
-import {
-  selectCompliantOption,
-  selectMode,
-  selectSourceChain,
-  selectTargetCompliant,
-  selectTargetChain,
-  selectTheme,
-  selectServiceFee,
-  selectFeeDeduct,
-  selectAmount,
-  selectSourceAddress,
-  selectTargetAddress,
-  selectSourceCurrency,
-  selectTargetCurrency,
-  selectBackendUrl,
-  selectDappOption
-} from '../../store/selectors'
-import { BankInput, CoinDropdown, WalletButton } from './'
-import { setAmount, setServiceFee } from '../../store/optionSlice'
-import { DAppOptions, ModeOptions } from '../../interface'
+import NetworkSelector from '../primary/NetworkSelector'
+import CoinDropdown from './CoinDropdown'
+import WalletButton from './WalletButton'
 import AddressInput from './AddressInput'
-import { ChainName } from '../../utils/constants'
-import useIsWalletReady from '../../hooks/useIsWalletReady'
-import NetworkSelector from '@widget/components/primary/NetworkSelector'
-import { parseUnits } from 'viem'
-// import { formatBigInt } from 'src/helpers/functions'
-import { ChainCompatibility } from '@widget/plugins/pluginTypes'
-import { bigIntToNumber, formatBigInt } from '../../helpers/functions'
-import { useKimaContext } from '../../KimaProvider'
-import { useGetEnvOptions } from '../../hooks/useGetEnvOptions'
-import useGetFees from '../../hooks/useGetFees'
-import useBalance from '../../hooks/useBalance'
-import { truncateToDecimals } from '@widget/utils/functions'
+import { useKimaContext } from '@kima-widget/app/providers'
+import log from '@kima-widget/shared/logger'
+
+type InitialSelection = {
+  sourceSelection: boolean
+  targetSelection: boolean
+}
 
 const SingleForm = ({
   isLoadingFees,
@@ -41,16 +51,8 @@ const SingleForm = ({
   setInitialSelection
 }: {
   isLoadingFees: boolean
-  initialSelection: {
-    sourceSelection: boolean
-    targetSelection: boolean
-  }
-  setInitialSelection: React.Dispatch<
-    React.SetStateAction<{
-      sourceSelection: boolean
-      targetSelection: boolean
-    }>
-  >
+  initialSelection: InitialSelection
+  setInitialSelection: React.Dispatch<React.SetStateAction<InitialSelection>>
 }) => {
   const dispatch = useDispatch()
   const mode = useSelector(selectMode)
@@ -72,29 +74,11 @@ const SingleForm = ({
   const backendUrl = useSelector(selectBackendUrl)
   const { balance, decimals } = useBalance()
 
-  const {
-    data: fees,
-    isLoading,
-    error
-  } = useGetFees({
-    amount: parseFloat(amount),
-    sourceNetwork: sourceNetwork.shortName,
-    sourceAddress,
-    sourceSymbol: sourceCurrency,
-    targetNetwork: targetNetwork.shortName,
-    targetAddress,
-    targetSymbol: targetCurrency,
-    backendUrl
-  })
-
-  useEffect(() => {
-    if (fees) {
-      dispatch(setServiceFee(fees))
-    }
-  }, [fees, dispatch])
+  // Limits and environment options
   const { kimaBackendUrl } = useKimaContext()
   const { data: envOptions } = useGetEnvOptions({ kimaBackendUrl })
 
+  // Compliance warning surfaced early for better UX
   const errorMessage = useMemo(
     () =>
       compliantOption &&
@@ -105,79 +89,190 @@ const SingleForm = ({
     [compliantOption, targetCompliant]
   )
 
+  // Compute a conservative maximum spendable — balances minus current fee
   const maxValue = useMemo(() => {
-    if (mode === ModeOptions.light)
-      return BigInt(
-        envOptions?.transferLimitMaxUSDT
-          ? parseFloat(envOptions?.transferLimitMaxUSDT)
-          : 1000
-      )
+    if (mode === ModeOptions.light) {
+      const limit = envOptions?.transferLimitMaxUSDT
+        ? parseFloat(envOptions.transferLimitMaxUSDT)
+        : 1000
+      return BigInt(limit)
+    }
 
-    if (!balance) return BigInt(0)
-    if (totalFee.value === BigInt(0)) return balance
+    if (!balance) return 0n
+    if (totalFee.value === 0n) return balance
 
-    const intAmount = parseUnits(amount, totalFee.decimals)
+    // Note: amount can be empty string on first render
+    const intAmount = parseUnits(amount || '0', totalFee.decimals)
     return balance - intAmount
-  }, [balance, totalFee, feeDeduct])
+  }, [mode, envOptions?.transferLimitMaxUSDT, balance, totalFee, amount])
 
+  // Currency for displaying fee (source token may be pegged)
   const feeCurrency = useMemo(() => {
-    // the fees should be denominated in the currency
-    // the source token is pegged to
-    const sourceToken = sourceNetwork.supportedTokens.find(
+    const srcToken = sourceNetwork.supportedTokens.find(
       (t) => t.symbol === sourceCurrency
     )
-    return sourceToken?.peggedTo ?? 'USD'
+    return srcToken?.peggedTo ?? 'USD'
   }, [sourceNetwork, sourceCurrency])
+
+  // Gate the fee quote region to show the skeleton only when the query can actually run
+  // This mirrors the `enabled` logic used in useGetFees.
+  const canQuoteFees = useMemo(() => {
+    const haveBasics =
+      !!backendUrl &&
+      !!amount &&
+      !!sourceNetwork?.shortName &&
+      !!sourceCurrency &&
+      !!targetNetwork?.shortName &&
+      !!targetCurrency
+
+    if (!haveBasics) return false
+
+    const requiresSourceAddress = !['BANK', 'CC'].includes(
+      sourceNetwork.shortName
+    )
+
+    const hasSource = requiresSourceAddress ? !!sourceAddress : true
+    const hasTarget = !!targetAddress
+
+    return hasSource && hasTarget
+  }, [
+    backendUrl,
+    amount,
+    sourceNetwork?.shortName,
+    sourceCurrency,
+    targetNetwork?.shortName,
+    targetCurrency,
+    sourceAddress,
+    targetAddress
+  ])
 
   useEffect(() => {
     if (!errorMessage) return
     toast.error(errorMessage)
   }, [errorMessage])
 
+  // Keep controlled input aligned with store value on first mount/reset
   useEffect(() => {
     if (amountValue && amount !== '') return
     setAmountValue(amount)
-  }, [amount])
+  }, [amount, amountValue])
 
+  // Input masking: enforce numeric, single dot, max decimals and environment cap
   const onAmountChange = (value: string) => {
-    // Allow numbers and a single dot for decimals
-    let maskedValue = value
-      .replace(/[^0-9.]/g, '') // Remove non-numeric and non-dot characters
-      .replace(/(\..*?)\..*/g, '$1') // Allow only one dot
-      .replace(new RegExp(`(\\.\\d{${decimals}})\\d+`), '$1') // Limit decimal places
+    try {
+      const safeDecimals = Math.min(decimals ?? 6, 18)
+      let masked = value
+        .replace(/[^0-9.]/g, '')
+        .replace(/(\..*?)\..*/g, '$1')
+        .replace(new RegExp(`(\\.\\d{${safeDecimals}})\\d+`), '$1')
 
-    if (envOptions?.transferLimitMaxUSDT) {
-      // enforce max transfer limit
-      const txLimit = parseFloat(envOptions.transferLimitMaxUSDT)
-      const numericValue = parseFloat(maskedValue)
-      if (numericValue > txLimit) {
-        maskedValue = txLimit.toString()
+      if (envOptions?.transferLimitMaxUSDT) {
+        const txLimit = parseFloat(envOptions.transferLimitMaxUSDT)
+        const numeric = parseFloat(masked || '0')
+        if (numeric > txLimit) masked = txLimit.toString()
       }
+
+      setAmountValue(masked)
+      dispatch(setAmount(masked))
+    } catch (e) {
+      log.error('[SingleForm] onAmountChange failed', e)
+      toast.error(
+        'Invalid amount entered. Please contact support for assistance.',
+        {}
+      )
+    }
+  }
+
+  // Max helper: cap by network limit and available balance
+  const onMaxClick = () => {
+    try {
+      // Need a real balance to compute max
+      if (!balance || decimals == null) return
+
+      // Cap by environment limit (if any)
+      const envCap =
+        envOptions?.transferLimitMaxUSDT != null
+          ? parseFloat(envOptions.transferLimitMaxUSDT)
+          : Number.POSITIVE_INFINITY
+
+      // Convert on-chain balance -> display number
+      const raw = bigIntToNumber({ value: balance, decimals })
+      const capped = Math.min(raw, envCap)
+
+      // Keep UX-friendly precision
+      const truncated = truncateToDecimals(capped, 2).toString()
+
+      setAmountValue(truncated)
+      dispatch(setAmount(truncated))
+    } catch (e) {
+      log.error('[SingleForm] onMaxClick failed', e)
+      toast.error(
+        'Unable to calculate the maximum amount. Please contact support for assistance.'
+      )
+    }
+  }
+
+  // LIGHT mode: set placeholder addresses so wrappers expand correctly
+  const demoSourceAddress = useMemo(() => {
+    if (mode !== ModeOptions.light) return ''
+    const short = sourceNetwork?.shortName
+    if (!short) return ''
+    if (short === ChainName.SOLANA) return lightDemoAccounts.SOL
+    if (short === ChainName.TRON) return lightDemoAccounts.TRX
+    if (lightDemoNetworks.includes(short)) return lightDemoAccounts.EVM
+    return ''
+  }, [mode, sourceNetwork?.shortName])
+
+  // Decide whether the “Wallet” wrapper shows as connected (source)
+  const isConnectedSourceWrapper = useMemo(() => {
+    if (mode === ModeOptions.light) {
+      const on = !!demoSourceAddress
+      log.debug('[SingleForm] source wrapper connected (LIGHT)?', {
+        on,
+        demoSourceAddress,
+        srcShort: sourceNetwork?.shortName
+      })
+      return on
     }
 
-    setAmountValue(maskedValue)
-    dispatch(setAmount(maskedValue))
-  }
+    if (mode === ModeOptions.payment && dAppOption !== DAppOptions.None) {
+      const on = isReady
+      log.debug('[SingleForm] source wrapper connected (PAYMENT dApp)?', {
+        on,
+        isReady
+      })
+      return on
+    }
 
-  const onMaxClick = () => {
-    if (initialSelection.sourceSelection) return
-    // the max amount the user can transfer is either
-    // their balance (minus fees) or the transfer limit
-    const txLimit = envOptions?.transferLimitMaxUSDT
-      ? parseFloat(envOptions.transferLimitMaxUSDT)
-      : Number.MAX_VALUE
-
-    const rawMax = bigIntToNumber({
-      value: maxValue,
-      decimals: decimals as number
+    const on = isReady
+    log.debug('[SingleForm] source wrapper connected (ADVANCED)?', {
+      on,
+      isReady,
+      initial: initialSelection.sourceSelection
     })
-    const cappedValue = Math.min(rawMax, txLimit)
+    return on
+  }, [
+    mode,
+    dAppOption,
+    isReady,
+    initialSelection.sourceSelection,
+    demoSourceAddress,
+    sourceNetwork?.shortName
+  ])
 
-    const truncated = truncateToDecimals(cappedValue, 2).toString()
-    setAmountValue(truncated)
-    dispatch(setAmount(truncated))
-  }
+  // Decide whether the “Target Wallet” wrapper shows as connected (only relevant in LIGHT)
+  const isConnectedTargetWrapper = useMemo(() => {
+    if (mode !== ModeOptions.light) return false
+    const on = !!targetAddress
+    log.debug('[SingleForm] target wrapper connected (LIGHT)?', {
+      on,
+      targetAddress,
+      tgtShort: targetNetwork?.shortName
+    })
+    return on
+  }, [mode, targetAddress, targetNetwork?.shortName])
 
+  // Inner WalletButton (advanced/payment) still needs a boolean
   const isConnected = useMemo(() => {
     if (mode === ModeOptions.payment && dAppOption !== DAppOptions.None) {
       return isReady
@@ -185,8 +280,37 @@ const SingleForm = ({
     return isReady && !initialSelection.sourceSelection
   }, [isReady, initialSelection, mode, dAppOption])
 
+  useEffect(() => {
+    log.debug('[SingleForm] snapshot', {
+      mode,
+      srcShort: sourceNetwork?.shortName,
+      tgtShort: targetNetwork?.shortName,
+      initialSelection,
+      isReady,
+      sourceAddress,
+      targetAddress,
+      isConnectedSourceWrapper,
+      isConnectedTargetWrapper,
+      demoSourceAddress,
+      feeDeduct
+    })
+  }, [
+    mode,
+    sourceNetwork?.shortName,
+    targetNetwork?.shortName,
+    initialSelection,
+    isReady,
+    sourceAddress,
+    targetAddress,
+    isConnectedSourceWrapper,
+    isConnectedTargetWrapper,
+    demoSourceAddress,
+    feeDeduct
+  ])
+
   return (
     <div className='single-form'>
+      {/* Source network and coin pickers */}
       <div className='form-item'>
         <span className='label'>
           {dAppOption === DAppOptions.None && 'Source'} Network:
@@ -203,6 +327,7 @@ const SingleForm = ({
         </div>
       </div>
 
+      {/* Wallet + Target network area: order depends on FIAT */}
       <div
         className={`dynamic-area ${
           sourceNetwork.shortName === ChainName.FIAT ? 'reverse' : '1'
@@ -212,7 +337,7 @@ const SingleForm = ({
           sourceNetwork.compatibility
         ) && (
           <div
-            className={`form-item wallet-button-item ${isConnected && 'connected'}`}
+            className={`form-item wallet-button-item ${isConnectedSourceWrapper ? 'connected' : ''}`}
           >
             <span className='label'>Wallet:</span>
             <WalletButton initialSelection={initialSelection.sourceSelection} />
@@ -236,25 +361,21 @@ const SingleForm = ({
         )}
       </div>
 
-      {mode === ModeOptions.bridge &&
-      sourceNetwork.shortName !== ChainName.FIAT ? (
-        targetNetwork.shortName === ChainName.FIAT ? (
-          <BankInput />
-        ) : (
-          <div className={`form-item ${theme.colorMode}`}>
-            <span className='label'>Target Address:</span>
-            <AddressInput
-              theme={theme.colorMode as string}
-              placeholder='Target address'
-              initialSelection={initialSelection}
-            />
-          </div>
-        )
-      ) : null}
+      {/* Target address (Bridge) */}
+      {mode === ModeOptions.bridge && (
+        <div className={`form-item ${theme.colorMode}`}>
+          <span className='label'>Target Address:</span>
+          <AddressInput
+            theme={theme.colorMode as string}
+            placeholder='Target address'
+          />
+        </div>
+      )}
 
+      {/* LIGHT mode target wallet placeholder */}
       {mode === ModeOptions.light && (
         <div
-          className={`form-item wallet-button-item ${!initialSelection.targetSelection && 'connected'}`}
+          className={`form-item wallet-button-item ${isConnectedTargetWrapper ? 'connected' : ''}`}
           style={{ display: 'flex', alignItems: 'center' }}
         >
           <span className='label'>Target Wallet:</span>
@@ -265,6 +386,7 @@ const SingleForm = ({
         </div>
       )}
 
+      {/* Amount + Max + Estimated fees (with proper gating/skeleton) */}
       <div className={`form-item ${theme.colorMode}`}>
         <span className='label'>Amount:</span>
         <div className={`amount-label-container items ${theme.colorMode}`}>
@@ -276,6 +398,7 @@ const SingleForm = ({
             onChange={(e) => onAmountChange(e.target.value)}
             disabled={mode === ModeOptions.payment}
           />
+
           <div className='max-disclaimer'>
             {sourceNetwork.shortName !== 'CC' &&
               mode !== ModeOptions.payment && (
@@ -283,20 +406,25 @@ const SingleForm = ({
                   Max
                 </span>
               )}
-            {+totalFee !== -1 &&
-              dAppOption === DAppOptions.None &&
-              !initialSelection.sourceSelection &&
-              !initialSelection.targetSelection && (
-                <p className='fee-amount'>
-                  Est fees:{' '}
-                  <span className={`${isLoadingFees ? 'loading' : ''}`}>
-                    {' '}
-                    {isLoadingFees
-                      ? ''
-                      : `$ ${formatBigInt(totalFee)} ${feeCurrency}`}
+
+            {dAppOption === DAppOptions.None && canQuoteFees && (
+              <p className='fee-amount'>
+                Est fees:{' '}
+                {isLoadingFees ? (
+                  <span className='inline-spinner loading' aria-live='polite'>
+                    <span className='dot' />
+                    <span className='dot' />
+                    <span className='dot' />
                   </span>
-                </p>
-              )}
+                ) : totalFee.value >= 0n ? (
+                  <span className='fee-value'>
+                    $ {formatBigInt(totalFee)} {feeCurrency}
+                  </span>
+                ) : (
+                  <span className='fee-value'>—</span>
+                )}
+              </p>
+            )}
           </div>
         </div>
       </div>

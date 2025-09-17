@@ -1,7 +1,7 @@
-import { TransactionData } from '@widget/interface'
-import { TransactionStatus } from '@widget/utils/constants'
-import { fetchWrapper } from '../helpers/fetch-wrapper'
-import log from '@widget/utils/logger'
+import * as React from 'react'
+import { fetchWrapper } from '@kima-widget/shared/api/fetcher'
+import log from '@kima-widget/shared/logger'
+import { TransactionData, TransactionStatus } from '@kima-widget/shared/types'
 
 interface KimaTransactionRaw {
   failreason: string
@@ -23,10 +23,28 @@ interface KimaTransactionRaw {
   kimahash: string
 }
 
-interface KimaTransactionResponse {
+interface KimaSwapTransactionRaw extends KimaTransactionRaw {
+  amountIn?: number
+  amountOut?: number
+  dex?: string
+  slippage?: string
+}
+
+interface KimaTransferResponse {
   data: {
     transaction_data?: KimaTransactionRaw
+  }
+}
+
+interface KimaLPResponse {
+  data: {
     liquidity_transaction_data?: KimaTransactionRaw
+  }
+}
+
+interface KimaSwapResponse {
+  data: {
+    swap_data?: KimaSwapTransactionRaw
   }
 }
 
@@ -55,11 +73,32 @@ const parseTxData = (raw?: KimaTransactionRaw): TransactionData => {
     tssReleaseHash: raw.releasehash,
     tssRefundHash: raw.refundhash,
     failReason: raw.failreason,
-    amount: raw.amount,
+    amount: raw.amount, // keep same shape as your rollback
     sourceSymbol: raw.originsymbol,
     targetSymbol: raw.targetsymbol,
     kimaTxHash: raw.kimahash
   }
+}
+
+const parseSwapTxData = (raw?: KimaSwapTransactionRaw): TransactionData => {
+  if (!raw) return emptyStatus
+  const amountOut =
+    typeof raw.amountOut === 'number' ? raw.amountOut : (raw.amount ?? 0)
+
+  return {
+    status: raw.txstatus as TransactionStatus,
+    sourceChain: raw.originchain,
+    targetChain: raw.targetchain,
+    tssPullHash: raw.pullhash,
+    tssReleaseHash: raw.releasehash,
+    tssRefundHash: raw.refundhash,
+    failReason: raw.failreason,
+    amount: amountOut,
+    amountIn: raw.amountIn,
+    sourceSymbol: raw.originsymbol,
+    targetSymbol: raw.targetsymbol,
+    kimaTxHash: raw.kimahash
+  } as any
 }
 
 const isFinished = (data: TransactionData | null) => {
@@ -78,25 +117,39 @@ const isFinished = (data: TransactionData | null) => {
 export const getTxData = async ({
   txId,
   isLP,
+  isSwap,
   backendUrl,
   refPollForUpdates
 }: {
   txId: number | string
   isLP: boolean
+  isSwap: boolean
   backendUrl: string
   refPollForUpdates: React.MutableRefObject<boolean>
 }): Promise<TransactionData> => {
   try {
-    const response = await fetchWrapper.get(
-      `${backendUrl}/transfer_tx${isLP ? '/lp/' : ''}/${txId}/status`
-    )
+    // Choose exactly one endpoint based on flags
+    const path = isLP
+      ? `tx/lp/${txId}/status`
+      : isSwap
+        ? `swap_tx/${txId}/status`
+        : `tx/${txId}/status`
+
+    const response = await fetchWrapper.get(`${backendUrl}/${path}`)
     if (typeof response === 'string') throw new Error(response)
 
-    const res = response as KimaTransactionResponse
-    const raw = isLP
-      ? res.data.liquidity_transaction_data
-      : res.data.transaction_data
-    const parsed = parseTxData(raw)
+    let parsed: TransactionData
+
+    if (isLP) {
+      const res = response as KimaLPResponse
+      parsed = parseTxData(res.data.liquidity_transaction_data)
+    } else if (isSwap) {
+      const res = response as KimaSwapResponse
+      parsed = parseSwapTxData(res.data.swap_data)
+    } else {
+      const res = response as KimaTransferResponse
+      parsed = parseTxData(res.data.transaction_data)
+    }
 
     refPollForUpdates.current = !isFinished(parsed)
     return parsed

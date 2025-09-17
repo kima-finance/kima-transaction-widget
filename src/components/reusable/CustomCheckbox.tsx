@@ -1,7 +1,6 @@
-import React from 'react'
+import { CheckIcon } from '@kima-widget/assets/icons'
+import { selectTheme } from '@kima-widget/shared/store/selectors'
 import { useSelector } from 'react-redux'
-import { CheckIcon } from '../../assets/icons'
-import { selectTheme } from '../../store/selectors'
 
 interface Props {
   text: string

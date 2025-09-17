@@ -1,39 +1,64 @@
 {
   "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": ".", // Ensure correct source-to-dist mapping
-    "module": "esnext",
-    "lib": ["dom", "esnext"],
-    "moduleResolution": "node",
     "target": "ES2022",
-    "jsx": "react",
-    "allowJs": true,
-    "sourceMap": true, // Generate source maps
-    "declaration": true, // Emit `.d.ts` files
-    "declarationMap": true, // Map declarations to sources
-    "esModuleInterop": true,
+    "module": "ESNext",
+    "lib": ["DOM", "ESNext"],
+    "moduleResolution": "Node",
+    "jsx": "react-jsx",
+
+    "rootDir": ".",
+    "outDir": "dist",
+
     "strict": true,
-    "skipLibCheck": true,
-    "resolveJsonModule": true,
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "baseUrl": "./",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "allowJs": false,
+
+    "baseUrl": ".",
     "paths": {
-      "@widget/interface": ["../kima-transaction-widget/src/interface.tsx"],
-      "@widget/utils/*": ["../kima-transaction-widget/src/utils/*"],
-      "@widget/components/*": ["../kima-transaction-widget/src/components/*"],
-      "@widget/plugins/*": ["../kima-transaction-widget/plugins/*"],
-      "@widget/store/*": ["../kima-transaction-widget/src/store/*"],
-      "@widget/assets/*": ["../kima-transaction-widget/src/assets/*"],
-      "@widget/pluginRegistry": [
-        "../kima-transaction-widget/src/pluginRegistry.ts"
-      ],
-      "@widget/css": ["../kima-transaction-widget/src/index.css"],
-      "@widget/primary": [
-        "../kima-transaction-widget/src/components/primary/*"
-      ],
-      "@widget/hooks/*": ["../kima-transaction-widget/src/hooks/*"]
+      "@kima-widget/*": ["src/*"],
+
+      "@kima-widget/shared/types": ["src/shared/types/index.ts"],
+      "@kima-widget/shared/types/*": ["src/shared/types/*"],
+      "@kima-widget/shared/lib/*": ["src/shared/lib/*"],
+      "@kima-widget/shared/api/*": ["src/shared/api/*"],
+      "@kima-widget/shared/crypto/*": ["src/shared/crypto/*"],
+      "@kima-widget/shared/config/*": ["src/shared/config/*"],
+      "@kima-widget/shared/plugins/*": ["src/shared/plugins/*"],
+      "@kima-widget/shared/store/*": ["src/shared/store/*"],
+
+      "@kima-widget/components/*": ["src/components/*"],
+      "@kima-widget/widgets/*": ["src/widgets/*"],
+      "@kima-widget/hooks/*": ["src/hooks/*"],
+      "@kima-widget/services/*": ["src/services/*"],
+      "@kima-widget/assets/*": ["src/assets/*"],
+      "@kima-widget/app/*": ["src/app/*"],
+      "@kima-widget/plugins/*": ["plugins/*"],
+      "@kima-widget/pluginRegistry": ["src/pluginRegistry.ts"],
+      "@kima-widget/styles": ["src/index.css"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"], // Include all TypeScript files
-  "exclude": ["node_modules", "dist", "**/*.test.tsx", "**/*.snap"] // Exclude tests and build files
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "plugins/**/*.ts",
+    "plugins/**/*.tsx"
+, "src/shared/crypto/tron/tronweb.tsx"  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "coverage",
+    ".turbo",
+    ".vercel",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/__snapshots__/**",
+    "example-next/**",
+    "example-vite/**"
+  ]
 }

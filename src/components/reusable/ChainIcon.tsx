@@ -15,7 +15,7 @@ import {
   CreditCardIcon,
   CFXIcon
 } from '../../assets/icons'
-import log from '@widget/utils/logger'
+import log from '@kima-widget/shared/logger'
 
 type IconProps = { width?: number; height?: number }
 

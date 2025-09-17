@@ -1,8 +1,6 @@
-import React from 'react'
+import { getNetworkOption } from '@kima-widget/services/envsApi'
+import { selectTheme } from '@kima-widget/shared/store/selectors'
 import { useSelector } from 'react-redux'
-import { selectTheme } from '../../store/selectors'
-import { getNetworkOption } from '../../utils/constants'
-import Arrow from '../../assets/icons/Arrow'
 
 interface Props {
   sourceChain: string

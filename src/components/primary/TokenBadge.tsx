@@ -1,6 +1,6 @@
+import { selectTheme } from '@kima-widget/shared/store/selectors'
 import React from 'react'
 import { useSelector } from 'react-redux'
-import { selectTheme } from '@widget/store/selectors'
 import TokenIcon from '../reusable/TokenIcon'
 
 export interface TokenBadge {

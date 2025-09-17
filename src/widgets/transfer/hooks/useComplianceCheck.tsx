@@ -1,0 +1,36 @@
+import { getCompliance } from '@kima-widget/services/complianceApi'
+import { useQuery } from '@tanstack/react-query'
+
+const useComplianceCheck = (
+  walletAddress: string,
+  compliantOption: boolean,
+  backendUrl: string
+) => {
+  const enabled =
+    !!walletAddress &&
+    walletAddress.length >= 34 && // debounce for a minimum of characters (tron length)
+    !!compliantOption &&
+    compliantOption &&
+    !!backendUrl // Only fetch when valid inputs exist
+
+  const {
+    data: complianceData,
+    error,
+    isFetching
+  } = useQuery({
+    queryKey: ['compliance', walletAddress, compliantOption],
+    queryFn: async () => {
+      return await getCompliance(walletAddress, compliantOption, backendUrl)
+    },
+    enabled,
+    retry: 1 // Retry once on failure
+  })
+
+  return {
+    complianceData,
+    error,
+    isFetching
+  }
+}
+
+export default useComplianceCheck

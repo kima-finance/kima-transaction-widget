@@ -1,30 +1,45 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { useSelector } from 'react-redux'
-import useIsWalletReady from '../../hooks/useIsWalletReady'
-import { DAppOptions, ModeOptions } from '../../interface'
+// components/ConfirmDetails.tsx
+import useWidth from '@kima-widget/shared/lib/hooks/useWidth'
 import {
-  selectBankDetails,
+  selectDappOption,
   selectFeeDeduct,
   selectMode,
-  selectSourceChain,
+  selectNetworks,
   selectServiceFee,
-  selectSignature,
+  selectSourceChain,
+  selectSourceCurrency,
   selectTargetAddress,
   selectTargetChain,
-  selectTheme,
-  selectTransactionOption,
-  selectDappOption,
-  selectSourceCurrency,
   selectTargetCurrency,
-  selectNetworks,
-  selectSourceAddress
-} from '@widget/store/selectors'
-import { ChainName, lightDemoAccounts } from '../../utils/constants'
-import useWidth from '../../hooks/useWidth'
+  selectTheme,
+  selectTransactionOption
+} from '@kima-widget/shared/store/selectors'
+import { ChainName, DAppOptions, ModeOptions } from '@kima-widget/shared/types'
+import useIsWalletReady from '@kima-widget/widgets/transfer/hooks/useIsWalletReady'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useSelector } from 'react-redux'
 import ChainIcon from './ChainIcon'
+import { formatBigInt } from '@kima-widget/shared/lib/bigint'
+import { MiniArrowIcon } from '@kima-widget/assets/icons'
 import FeeDeductionRadioButtons from './FeeDeductionRadioButtons'
-import { MiniArrowIcon } from '@widget/assets/icons'
-import { formatBigInt } from '../../helpers/functions'
+import { isSamePeggedToken } from '@kima-widget/shared/lib/misc'
+import log from '@kima-widget/shared/logger'
+
+type BigAmt = { value: bigint; decimals: number }
+
+const scaleUp = (value: bigint, diff: number) =>
+  diff <= 0 ? value : value * 10n ** BigInt(diff)
+
+const sumBigAmts = (amts: BigAmt[]): BigAmt => {
+  const present = amts.filter(Boolean) as BigAmt[]
+  if (present.length === 0) return { value: 0n, decimals: 0 }
+  const maxDec = present.reduce((m, a) => Math.max(m, a.decimals), 0)
+  const total = present.reduce(
+    (acc, a) => acc + scaleUp(a.value, maxDec - a.decimals),
+    0n
+  )
+  return { value: total, decimals: maxDec }
+}
 
 const ConfirmDetails = ({
   isApproved,
@@ -37,17 +52,20 @@ const ConfirmDetails = ({
   const mode = useSelector(selectMode)
   const dAppOption = useSelector(selectDappOption)
   const theme = useSelector(selectTheme)
-  const { transactionValues, sourceFee, targetFee, kimaFee, totalFee } =
-    useSelector(selectServiceFee)
-  const txValues = feeDeduct
-    ? transactionValues.feeFromTarget
-    : transactionValues.feeFromOrigin
+
+  const {
+    transactionValues,
+    sourceFee,
+    targetFee,
+    kimaFee,
+    totalFee,
+    swapFee,
+    swapInfo
+  } = useSelector(selectServiceFee)
+
   const originNetwork = useSelector(selectSourceChain)
   const targetNetwork = useSelector(selectTargetChain)
-  const sourceAddress = useSelector(selectSourceAddress)
   const targetAddress = useSelector(selectTargetAddress)
-  const bankDetails = useSelector(selectBankDetails)
-  const signature = useSelector(selectSignature)
   const networkOptions = useSelector(selectNetworks)
 
   const [feeCollapsed, setFeeCollapsed] = useState(true)
@@ -64,15 +82,62 @@ const ConfirmDetails = ({
             ? transactionOption?.targetChain
             : targetNetwork.shortName)
       )[0],
-    [networkOptions, originNetwork]
+    [
+      networkOptions,
+      originNetwork,
+      mode,
+      transactionOption,
+      targetNetwork.shortName
+    ]
   )
+
   const sourceCurrency = useSelector(selectSourceCurrency)
   const targetCurrency = useSelector(selectTargetCurrency)
   const { width, updateWidth } = useWidth()
 
+  const isSwap = useMemo(
+    () =>
+      !!swapInfo ||
+      !isSamePeggedToken(
+        originNetwork,
+        sourceCurrency,
+        targetNetwork,
+        targetCurrency
+      ),
+    [swapInfo, originNetwork, sourceCurrency, targetNetwork, targetCurrency]
+  )
+
+  const txValues = useMemo(() => {
+    if (isSwap) return transactionValues.feeFromOrigin
+    return feeDeduct
+      ? transactionValues.feeFromTarget
+      : transactionValues.feeFromOrigin
+  }, [isSwap, feeDeduct, transactionValues])
+
+  const targetDisplayAmount = useMemo(() => {
+    if (isSwap && swapInfo?.amountOutBigInt) return swapInfo.amountOutBigInt
+    return txValues.submitAmount
+  }, [isSwap, swapInfo, txValues.submitAmount])
+
+  const combinedSwapFees = useMemo(
+    () =>
+      sumBigAmts([sourceFee, targetFee, swapFee ?? { value: 0n, decimals: 0 }]),
+    [sourceFee, targetFee, swapFee]
+  )
+
   useEffect(() => {
     width === 0 && updateWidth(window.innerWidth)
-  }, [])
+  }, [width, updateWidth])
+
+  useEffect(() => {
+    log.debug('[ConfirmDetails] render', {
+      isSwap,
+      sourceCurrency,
+      targetCurrency,
+      totalFee,
+      hasSwapInfo: !!swapInfo
+    })
+  }, [isSwap, sourceCurrency, targetCurrency, totalFee, swapInfo])
 
   return (
     <div className={`confirm-details ${theme.colorMode}`}>
@@ -84,59 +149,34 @@ const ConfirmDetails = ({
             ? 'Bank Details'
             : 'Approval'}
       </p>
-      {originNetwork.shortName === ChainName.FIAT ? (
-        <div>
-          <div className='detail-item'>
-            <span className='label'>IBAN:</span>
+
+      <div className='detail-item'>
+        <span className='label'>
+          Source{!['BANK', 'CC'].includes(originNetwork.shortName) && ' wallet'}
+          :
+        </span>
+        <div className='network-details'>
+          <div className='kima-card-network-container'>
             <span className={`kima-card-network-label ${theme.colorMode}`}>
               <ChainIcon symbol={originNetwork?.shortName} />
-              {/* <div className='icon'>
-                <originNetworkOption.icon />
-              </div> */}
-              FIAT
+              {originNetwork.name}
             </span>
-            <p>ES6621000418401234567891</p>
           </div>
-          <div className='detail-item'>
-            <span className='label'>Recipient:</span>
-            <p>Kima Sandbox</p>
-          </div>
-          <div className='detail-item'>
-            <span className='label'>BIC:</span>
-            <p>CAIXESBBXXX</p>
-          </div>
-          <div className='detail-item'>
-            <span className='label'>Description:</span>
-            <p className='signature'>{signature}</p>
-          </div>
+          {!['CC', 'BANK'].includes(originNetwork.shortName) && (
+            <p className={theme.colorMode}>
+              {dAppOption === DAppOptions.LPDrain
+                ? targetAddress
+                : connectedAddress}
+            </p>
+          )}
         </div>
-      ) : (
-        <div className='detail-item'>
-          <span className='label'>
-            Source{!['BANK', 'CC'].includes(originNetwork.shortName) && 'wallet'}:
-          </span>
-          <div className='network-details'>
-            <div className='kima-card-network-container'>
-              <span className={`kima-card-network-label ${theme.colorMode}`}>
-                <ChainIcon symbol={originNetwork?.shortName} />
-                {originNetwork.name}
-              </span>
-            </div>
-            {!['CC', 'BANK'].includes(originNetwork.shortName) && (
-              <p className={theme.colorMode}>
-                {dAppOption === DAppOptions.LPDrain
-                  ? targetAddress
-                  : connectedAddress}
-              </p>
-            )}
-          </div>
-        </div>
-      )}
+      </div>
+
       <div className='detail-item amount'>
         <span className='amount-container'>
           {dAppOption === DAppOptions.None && (
             <div className='amount-details'>
-              <span>Amount to Transfer </span>
+              <span>Amount to Transfer</span>
               <div className='coin-details'>
                 <p>
                   {formatBigInt(txValues.allowanceAmount)} {sourceCurrency}
@@ -144,6 +184,7 @@ const ConfirmDetails = ({
               </div>
             </div>
           )}
+
           {dAppOption === DAppOptions.None && (
             <div className='amount-details'>
               <span>Total Fees</span>
@@ -159,97 +200,97 @@ const ConfirmDetails = ({
                     transition: 'transform 0.3s ease'
                   }}
                 />
+                {/* Fees displayed in SOURCE token (deducted from source) */}
                 <span className='service-fee'>
                   {formatBigInt(totalFee)} {sourceCurrency}
                 </span>
               </div>
             </div>
           )}
+
+          {/* Fee breakdown */}
           <div className={`fee-breakdown ${feeCollapsed ? 'collapsed' : ''}`}>
-            <div className='amount-details'>
-              <span>
-                {['BANK', 'CC'].includes(originNetwork.shortName)
-                  ? `${originNetwork.name} Processing Fee`
-                  : `Source Network Fee (${originNetwork.shortName})`}
-              </span>
-              <span className='service-fee'>
-                {formatBigInt(sourceFee)} {sourceCurrency}
-              </span>
-            </div>
-            <div className='amount-details'>
-              <span>Target Network Fee ({targetNetwork.shortName})</span>
-              <span className='service-fee'>
-                {formatBigInt(targetFee)} {targetCurrency}
-              </span>
-            </div>
-            <div className='amount-details'>
-              <span>KIMA Service Fee</span>
-              <span className='service-fee'>
-                {formatBigInt(kimaFee)} {sourceCurrency}
-              </span>
-            </div>
+            {isSwap ? (
+              <>
+                <div className='amount-details'>
+                  <span>Swap Fees</span>
+                  <span className='service-fee'>
+                    {formatBigInt(combinedSwapFees)} {sourceCurrency}
+                  </span>
+                </div>
+                <div className='amount-details'>
+                  <span>Kima Processing Fees</span>
+                  <span className='service-fee'>
+                    {formatBigInt(kimaFee)} {sourceCurrency}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className='amount-details'>
+                  <span>
+                    {['BANK', 'CC'].includes(originNetwork.shortName)
+                      ? `${originNetwork.name} Processing Fee`
+                      : `Source Network Fee (${originNetwork.shortName})`}
+                  </span>
+                  <span className='service-fee'>
+                    {formatBigInt(sourceFee)} {sourceCurrency}
+                  </span>
+                </div>
+                <div className='amount-details'>
+                  <span>Target Network Fee ({targetNetwork.shortName})</span>
+                  <span className='service-fee'>
+                    {formatBigInt(targetFee)} {targetCurrency}
+                  </span>
+                </div>
+                <div className='amount-details'>
+                  <span>KIMA Service Fee</span>
+                  <span className='service-fee'>
+                    {formatBigInt(kimaFee)} {sourceCurrency}
+                  </span>
+                </div>
+              </>
+            )}
           </div>
+
           <div className='amount-details'>
             <span>Target Transfer Amount</span>
             <span className='service-fee'>
-              {formatBigInt(txValues.submitAmount)} {targetCurrency}
+              {formatBigInt(targetDisplayAmount)} {targetCurrency}
             </span>
           </div>
         </span>
       </div>
-      {targetNetwork.shortName === ChainName.FIAT ? (
-        <div>
-          <div className='detail-item'>
-            <span className='label'>IBAN:</span>
-            <p>{bankDetails.iban}</p>
+
+      <div className='detail-item'>
+        <span className='label'>Target wallet:</span>
+        <div className='network-details'>
+          <div className='kima-card-network-container'>
             <span className={`kima-card-network-label ${theme.colorMode}`}>
               <ChainIcon symbol={targetNetworkOption?.shortName} />
-              FIAT
+              {targetNetworkOption?.name}
             </span>
           </div>
-          <div className='detail-item'>
-            <span className='label'>Recipient:</span>
-            <p>{bankDetails.recipient}</p>
-          </div>
+          <p className={theme.colorMode}>
+            {mode === ModeOptions.light
+              ? targetNetwork.shortName === 'SOL'
+                ? 'Ff6z...demoSol'
+                : targetNetwork.shortName === 'TRX'
+                  ? 'TQx...demoTrx'
+                  : '0xDEMO...EVM'
+              : dAppOption === DAppOptions.LPDrain
+                ? connectedAddress
+                : targetAddress}
+          </p>
         </div>
-      ) : (
-        <div className='detail-item'>
-          <span className='label'>Target wallet:</span>
-          <div className='network-details'>
-            <div className='kima-card-network-container'>
-              <span className={`kima-card-network-label ${theme.colorMode}`}>
-                <ChainIcon symbol={targetNetworkOption?.shortName} />
-                {targetNetworkOption?.name}
-              </span>
-            </div>
-            <p className={theme.colorMode}>
-              {mode === ModeOptions.light
-                ? targetNetwork.shortName === 'SOL'
-                  ? lightDemoAccounts.SOL
-                  : targetNetwork.shortName === 'TRX'
-                    ? lightDemoAccounts.TRX
-                    : lightDemoAccounts.EVM
-                : dAppOption === DAppOptions.LPDrain
-                  ? connectedAddress
-                  : targetAddress}
-            </p>
-          </div>
-        </div>
-      )}
+      </div>
 
-      {/* checkbox shall only be displayed in transfer scenario */}
-      {mode === ModeOptions.bridge && BigInt(totalFee.value) > BigInt(0) ? (
-        // <FeeDeductionSlider />
-        <FeeDeductionRadioButtons disabled={feeOptionDisabled} />
-      ) : null}
-
-      {/* {mode === ModeOptions.bridge && totalFeeUsd > 0 && (
-        <span className='transfer-notice'>
-          {feeDeduct
-            ? `You will transfer exactly $${amount} ${sourceCurrency} from ${originNetwork}, and the fee of $${totalFeeUsd} will be deducted on the target network (${targetNetwork}) receiving $${Number(amount) - totalFeeUsd} ${targetCurrency}.`
-            : `You will send $${Number(amount) + totalFeeUsd} ${sourceCurrency} from ${originNetwork}, ensuring ${amount} ${targetCurrency} arrives in the target network (${targetNetwork}).`}
-        </span>
-      )} */}
+      {/* Fee deduction choice is ONLY for TRANSFERS, not swaps */}
+      {!isSwap &&
+        mode === ModeOptions.bridge &&
+        BigInt(totalFee.value) > 0n && (
+          <FeeDeductionRadioButtons disabled={feeOptionDisabled} />
+        )}
     </div>
   )
 }

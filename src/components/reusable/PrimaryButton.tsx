@@ -1,5 +1,4 @@
-import React from 'react'
-import { Loading180Ring } from '../../assets/loading'
+import { Loading180Ring } from '@kima-widget/assets/loading'
 
 interface Props {
   clickHandler?: any

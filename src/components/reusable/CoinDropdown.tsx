@@ -1,5 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import {
+  setSourceCurrency,
+  setTargetCurrency
+} from '@kima-widget/shared/store/optionSlice'
 import {
   selectDappOption,
   selectMode,
@@ -7,67 +11,88 @@ import {
   selectTargetCurrency,
   selectTheme,
   selectTransactionOption
-} from '../../store/selectors'
-import { useDispatch } from 'react-redux'
-import useCurrencyOptions from '../../hooks/useCurrencyOptions'
-import { setSourceCurrency, setTargetCurrency } from '../../store/optionSlice'
-import Arrow from '../../assets/icons/Arrow'
+} from '@kima-widget/shared/store/selectors'
+import { DAppOptions, ModeOptions } from '@kima-widget/shared/types'
+import useCurrencyOptions from '@kima-widget/widgets/transfer/hooks/useCurrencyOptions'
 import TokenIcon from './TokenIcon'
-import { DAppOptions, ModeOptions } from '@widget/interface'
+import Arrow from '@kima-widget/assets/icons/Arrow'
 
 const CoinDropdown = ({
   isSourceChain = true
 }: {
   isSourceChain?: boolean
 }) => {
-  const ref = useRef<any>()
+  const ref = useRef<HTMLDivElement | null>(null)
   const dispatch = useDispatch()
+
   const [collapsed, setCollapsed] = useState(true)
-  const sourceCurrency = useSelector(selectSourceCurrency)
+
+  const theme = useSelector(selectTheme)
   const mode = useSelector(selectMode)
   const dAppOption = useSelector(selectDappOption)
   const transactionOption = useSelector(selectTransactionOption)
+
+  const sourceCurrency = useSelector(selectSourceCurrency)
   const targetCurrency = useSelector(selectTargetCurrency)
+
   const { tokenList } = useCurrencyOptions(isSourceChain)
-  const theme = useSelector(selectTheme)
+
   const tokenSymbol = isSourceChain ? sourceCurrency : targetCurrency
 
+  // Lock token when payment mode + dApp set + txOption has currency (SOURCE only)
   const shouldLockToken =
     isSourceChain &&
     mode === ModeOptions.payment &&
     dAppOption !== DAppOptions.None &&
     !!transactionOption?.currency
 
+  // One-shot lock application
+  const appliedLockRef = useRef<string | null>(null)
   useEffect(() => {
     if (!shouldLockToken) return
-    const matched = tokenList.find(
-      (token) => token.symbol === transactionOption.currency
-    )
-    if (matched) {
-      dispatch(setSourceCurrency(transactionOption.currency))
-      dispatch(setTargetCurrency(transactionOption.currency))
-    }
-  }, [shouldLockToken, transactionOption?.currency, tokenList])
+    const desired = transactionOption?.currency
+    if (!desired) return
+    if (appliedLockRef.current === desired) return
 
+    const existsHere = tokenList.some((t) => t.symbol === desired)
+    if (!existsHere) return
+
+    if (isSourceChain && sourceCurrency !== desired) {
+      dispatch(setSourceCurrency(desired))
+      appliedLockRef.current = desired
+    }
+  }, [
+    shouldLockToken,
+    transactionOption?.currency,
+    tokenList,
+    isSourceChain,
+    sourceCurrency,
+    dispatch
+  ])
+
+  // Collapse when clicking outside
   useEffect(() => {
-    const bodyMouseDowntHandler = (e: any) => {
-      if (ref?.current && !ref.current.contains(e.target)) {
+    const onMouseDown = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
         setCollapsed(true)
       }
     }
-
-    document.addEventListener('mousedown', bodyMouseDowntHandler)
-    return () => {
-      document.removeEventListener('mousedown', bodyMouseDowntHandler)
-    }
-  }, [setCollapsed])
+    document.addEventListener('mousedown', onMouseDown)
+    return () => document.removeEventListener('mousedown', onMouseDown)
+  }, [])
 
   const handleDropdownItemClick = (symbol: string) => {
+    if (shouldLockToken) return
+    if (symbol === tokenSymbol) {
+      setCollapsed(true)
+      return
+    }
     if (isSourceChain) {
       dispatch(setSourceCurrency(symbol))
     } else {
       dispatch(setTargetCurrency(symbol))
     }
+    setCollapsed(true)
   }
 
   return (
@@ -81,23 +106,36 @@ const CoinDropdown = ({
       ref={ref}
     >
       <div className='coin-wrapper'>
-        <TokenIcon symbol={tokenSymbol} width={24} height={24} />
-        <span className='coin'>{tokenSymbol}</span>
+        {tokenSymbol ? (
+          <>
+            <TokenIcon symbol={tokenSymbol} width={24} height={24} />
+            <span className='coin'>{tokenSymbol}</span>
+          </>
+        ) : (
+          <span className='coin placeholder'>Select token</span>
+        )}
       </div>
+
       <div
-        className={`coin-menu ${theme.colorMode} ${collapsed ? 'collapsed' : 'toggled'}`}
+        className={`coin-menu ${theme.colorMode} ${
+          collapsed ? 'collapsed' : 'toggled'
+        }`}
       >
         {tokenList.map((token) => (
           <div
             className={`coin-item ${theme.colorMode}`}
             key={token.symbol}
-            onClick={() => handleDropdownItemClick(token.symbol)}
+            onClick={(e) => {
+              e.stopPropagation()
+              handleDropdownItemClick(token.symbol)
+            }}
           >
             <TokenIcon symbol={token.symbol} width={24} height={24} />
             <p>{token.symbol}</p>
           </div>
         ))}
       </div>
+
       {!shouldLockToken && (
         <div className={`dropdown-icon ${collapsed ? 'toggled' : 'collapsed'}`}>
           <Arrow fill='none' />

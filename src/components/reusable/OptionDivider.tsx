@@ -1,5 +1,3 @@
-import React from 'react'
-
 const OptionDivider = ({ text }: { text: string }) => {
   return (
     <div className='option-divider'>

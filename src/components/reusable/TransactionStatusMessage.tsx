@@ -1,5 +1,4 @@
-import { TransactionStatus } from '@widget/utils/constants'
-import React from 'react'
+import { TransactionStatus } from '@kima-widget/shared/types'
 import CopyButton from './CopyButton'
 
 const TransactionStatusMessage = ({

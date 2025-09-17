@@ -1,6 +1,6 @@
-import React from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { setFeeDeduct } from '@widget/store/optionSlice'
+import { bigIntToNumber } from '@kima-widget/shared/lib/bigint'
+import { formatterFloat } from '@kima-widget/shared/lib/format'
+import { setFeeDeduct } from '@kima-widget/shared/store/optionSlice'
 import {
   selectAmount,
   selectFeeDeduct,
@@ -11,8 +11,8 @@ import {
   selectTargetChain,
   selectTargetCurrency,
   selectTheme
-} from '@widget/store/selectors'
-import { bigIntToNumber, formatterFloat } from '../../helpers/functions'
+} from '@kima-widget/shared/store/selectors'
+import { useDispatch, useSelector } from 'react-redux'
 
 const FeeDeductionRadioButtons = ({ disabled }: { disabled: boolean }) => {
   const dispatch = useDispatch()
