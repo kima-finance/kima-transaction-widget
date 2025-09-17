@@ -6863,6 +6863,7 @@ var TransactionWidget = ({ theme }) => {
     if (!data) return true;
     return data?.amount === "";
   }, [data]);
+  const showFetchingTitle = isValidTxId && isEmptyStatus;
   (0, import_react53.useEffect)(() => {
     if (!data || data.status !== "Completed" /* COMPLETED */) return;
     successHandler && successHandler({
@@ -6885,31 +6886,40 @@ var TransactionWidget = ({ theme }) => {
       );
   }, [error]);
   (0, import_react53.useEffect)(() => {
-    if (!data) {
+    const norm = (s2) => (s2 ?? "").toString().trim().toUpperCase().replace(/[\s_]/g, "");
+    const s = norm(data?.status);
+    if (!data || !s) {
       setStep(0);
       setLoadingStep(0);
       return;
     }
-    logger_default.debug("tx status:", data.status, data.failReason, errorMessage);
+    logger_default.debug("tx status (normalized):", s, data?.failReason, errorMessage);
     setErrorStep(-1);
-    const statusUpper = data.status?.toUpperCase?.() || "";
-    if (statusUpper === "Available" /* AVAILABLE */ || statusUpper === "Pulled" /* PULLED */) {
+    if (s === "AVAILABLE" || s === "PULLED") {
       setStep(1);
       setLoadingStep(1);
-    } else if (statusUpper === "Pull_Confirmed" /* CONFIRMED */) {
+      return;
+    }
+    if (s === "CONFIRMED") {
       setStep(2);
       setLoadingStep(2);
-    } else if (statusUpper.startsWith("UnAvailable" /* UNAVAILABLE */)) {
+      return;
+    }
+    if (s.startsWith("UNAVAILABLE")) {
       setStep(1);
       setErrorStep(1);
       setLoadingStep(-1);
-      logger_default.error("transaction failed:", data.failReason);
+      logger_default.error("transaction failed:", data?.failReason);
       import_react_hot_toast2.toast.error("Unavailable", { icon: /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(Error_default, {}) });
       setErrorMessage("Unavailable");
-    } else if (statusUpper === "Paid" /* PAID */) {
+      return;
+    }
+    if (s === "PAID") {
       setStep(3);
       setLoadingStep(3);
-    } else if (statusUpper === "RefundStart" /* REFUNDSTART */) {
+      return;
+    }
+    if (s === "REFUNDSTART" || s === "REFUNDSTARTED") {
       setStep(3);
       setLoadingStep(3);
       import_react_hot_toast2.toast.error(
@@ -6921,48 +6931,57 @@ var TransactionWidget = ({ theme }) => {
       setErrorMessage(
         "Failed to release tokens to target! Starting refund process."
       );
-    } else if (statusUpper === "RefundFailed" /* REFUNDFAILED */) {
+      return;
+    }
+    if (s === "REFUNDFAILED") {
       setStep(3);
       setErrorStep(3);
       setLoadingStep(-1);
-      import_react_hot_toast2.toast.error("Failed to refund tokens to source!", {
-        icon: /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(Error_default, {})
-      });
+      import_react_hot_toast2.toast.error("Failed to refund tokens to source!", { icon: /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(Error_default, {}) });
       setErrorMessage("Failed to refund tokens to source!");
-    } else if (statusUpper === "RefundCompleted" /* REFUNDCOMPLETED */) {
+      return;
+    }
+    if (s === "REFUNDCOMPLETED") {
       setStep(4);
       setErrorStep(3);
       setLoadingStep(-1);
-      import_react_hot_toast2.toast.success("Refund completed!", {
-        icon: /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(Error_default, {})
-      });
+      import_react_hot_toast2.toast.success("Refund completed!", { icon: /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(Error_default, {}) });
       setErrorMessage("Refund completed!");
-    } else if (statusUpper === "FailedToPay" /* FAILEDTOPAY */) {
+      return;
+    }
+    if (s === "FAILEDTOPAY") {
       setStep(3);
       setErrorStep(3);
       setLoadingStep(-1);
-      logger_default.error("transaction failed:", data.failReason);
+      logger_default.error("transaction failed:", data?.failReason);
       import_react_hot_toast2.toast.error("Failed to release tokens to target!", {
         icon: /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(Error_default, {})
       });
       setErrorMessage("Failed to release tokens to target!");
-    } else if (statusUpper === "FailedToPull" /* FAILEDTOPULL */) {
+      return;
+    }
+    if (s === "FAILEDTOPULL") {
       setStep(1);
       setErrorStep(1);
       setLoadingStep(-1);
-      logger_default.error("transaction failed:", data.failReason);
+      logger_default.error("transaction failed:", data?.failReason);
       import_react_hot_toast2.toast.error("Failed to pull tokens from source!", { icon: /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(Error_default, {}) });
       setErrorMessage("Failed to pull tokens from source!");
-    } else if (statusUpper === "Completed" /* COMPLETED */) {
+      return;
+    }
+    if (s === "COMPLETED") {
       setStep(4);
       setLoadingStep(-1);
-    } else if (statusUpper === "DeclinedInvalid" /* DECLINEDINVALID */) {
+      return;
+    }
+    if (s === "DECLINEDINVALID") {
       setStep(0);
       setErrorStep(0);
       setLoadingStep(-1);
       import_react_hot_toast2.toast.error("Invalid signature!");
+      return;
     }
-  }, [data, errorMessage]);
+  }, [data?.status]);
   const verb = (0, import_react53.useMemo)(() => {
     if (mode === "status" /* status */) {
       if (isEmptyStatus) return "Fetching transaction status ";
@@ -6976,8 +6995,8 @@ var TransactionWidget = ({ theme }) => {
         const amountIn = data?.amountIn;
         const amountOut = data?.amount ?? "";
         return {
-          leftAmt: amountIn ?? amountOut ?? "",
-          rightAmt: amountOut ?? "",
+          leftAmt: amountIn != null ? fmt3(amountIn) : amountOut !== "" ? fmt3(amountOut) : "",
+          rightAmt: amountOut !== "" ? fmt3(amountOut) : "",
           leftSym: data?.sourceSymbol ?? "",
           rightSym: data?.targetSymbol ?? ""
         };
@@ -6994,11 +7013,11 @@ var TransactionWidget = ({ theme }) => {
     let right = Number(amount) !== 0 ? transactionSourceChain?.shortName === "CC" ? bigIntToNumber(txValues.submitAmount).toFixed(2) : formatBigInt(txValues.submitAmount) : "";
     let leftSymbol = sourceSymbol;
     let rightSymbol = targetSymbol;
-    if (widgetIsSwap && data && data?.amount !== "" && data?.amount != null) {
-      right = data.amount;
+    if (widgetIsSwap && data && data?.amount != null && data?.amount !== "") {
+      right = fmt3(data.amount);
       rightSymbol = data?.targetSymbol ?? rightSymbol;
       if (data?.amountIn != null) {
-        left = data.amountIn;
+        left = fmt3(data.amountIn);
         leftSymbol = data?.sourceSymbol ?? leftSymbol;
       }
     }
@@ -7066,7 +7085,7 @@ var TransactionWidget = ({ theme }) => {
   };
   const swapSrcAmt = data?.amountIn ?? amount;
   const swapDstAmt = data?.amount;
-  const fmt2 = (v) => formatterFloat.format(Number(Number(v ?? 0).toFixed(2)));
+  const fmt3 = (v) => formatterFloat.format(Number(Number(v ?? 0).toFixed(3)));
   return /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(import_react_redux41.Provider, { store: store_default, children: /* @__PURE__ */ (0, import_jsx_runtime74.jsxs)(
     "div",
     {
@@ -7077,7 +7096,7 @@ var TransactionWidget = ({ theme }) => {
       children: [
         /* @__PURE__ */ (0, import_jsx_runtime74.jsxs)("div", { className: "kima-card-header", children: [
           /* @__PURE__ */ (0, import_jsx_runtime74.jsxs)("div", { className: "topbar", children: [
-            !isComplete && /* @__PURE__ */ (0, import_jsx_runtime74.jsx)("div", { className: "title", children: isValidTxId && !error ? /* @__PURE__ */ (0, import_jsx_runtime74.jsxs)("div", { className: "transaction-title", children: [
+            !isComplete && /* @__PURE__ */ (0, import_jsx_runtime74.jsx)("div", { className: "title", children: isValidTxId && !error ? /* @__PURE__ */ (0, import_jsx_runtime74.jsx)("div", { className: "transaction-title", children: showFetchingTitle ? /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(import_jsx_runtime74.Fragment, { children: "Getting transaction details\u2026" }) : /* @__PURE__ */ (0, import_jsx_runtime74.jsxs)(import_jsx_runtime74.Fragment, { children: [
               verb,
               leftAmt,
               " ",
@@ -7086,7 +7105,7 @@ var TransactionWidget = ({ theme }) => {
               rightAmt,
               " ",
               rightSym
-            ] }) : /* @__PURE__ */ (0, import_jsx_runtime74.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime74.jsx)("h3", { className: "transaction", children: "Transaction Status" }) }) }),
+            ] }) }) : /* @__PURE__ */ (0, import_jsx_runtime74.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime74.jsx)("h3", { className: "transaction", children: "Transaction Status" }) }) }),
             !minimized ? /* @__PURE__ */ (0, import_jsx_runtime74.jsxs)(
               "div",
               {
@@ -7113,7 +7132,7 @@ var TransactionWidget = ({ theme }) => {
                       children: /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(Minimize_default, {})
                     }
                   ),
-                  !isValidTxId || loadingStep < 0 || error && dAppOption !== "none" /* None */ ? /* @__PURE__ */ (0, import_jsx_runtime74.jsx)("button", { className: "reset-button", onClick: resetForm, children: "Reset" }) : null,
+                  !isComplete && (!isValidTxId || loadingStep < 0 || error && dAppOption !== "none" /* None */) ? /* @__PURE__ */ (0, import_jsx_runtime74.jsx)("button", { className: "reset-button", onClick: resetForm, children: "Reset" }) : null,
                   closeHandler && /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
                     "button",
                     {
@@ -7188,11 +7207,11 @@ var TransactionWidget = ({ theme }) => {
                 children: [
                   /* @__PURE__ */ (0, import_jsx_runtime74.jsx)("p", { children: widgetIsSwap ? /* @__PURE__ */ (0, import_jsx_runtime74.jsxs)(import_jsx_runtime74.Fragment, { children: [
                     "You just swapped ",
-                    fmt2(swapSrcAmt),
+                    fmt3(swapSrcAmt),
                     " ",
                     data?.sourceSymbol,
                     " for ",
-                    fmt2(swapDstAmt),
+                    fmt3(swapDstAmt),
                     " ",
                     data?.targetSymbol
                   ] }) : /* @__PURE__ */ (0, import_jsx_runtime74.jsxs)(import_jsx_runtime74.Fragment, { children: [
@@ -9806,6 +9825,9 @@ var KimaWidgetWrapper = ({
     return `transfer-${currentPlugin.id}-${sourceChain?.shortName ?? "unknown"}`;
   }, [currentPlugin?.id, sourceChain?.shortName]);
   const content = (0, import_react66.useMemo)(() => {
+    if (mode === "status" /* status */) {
+      return /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(TransactionWidget, { theme });
+    }
     if (!currentPlugin && !sourceChain?.shortName) {
       return /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(
         TransferWidget,
@@ -9882,9 +9904,10 @@ var KimaWidgetWrapper = ({
       pluginKey ?? "transfer-generic"
     );
   }, [
+    mode,
+    theme,
     currentPlugin,
     pluginKey,
-    theme,
     sourceChain?.shortName,
     submitted,
     ccTransactionStatus,
