@@ -5,9 +5,6 @@
 /.pnp
 .pnp.js
 
-# build
-/dist
-
 # testing
 /coverage
 
@@ -30,8 +27,3 @@ yarn-error.log*
 .package-lock.json
 example-next/.next
 **/node-modules
-
-# build output
-dist/
-
-/dist/
