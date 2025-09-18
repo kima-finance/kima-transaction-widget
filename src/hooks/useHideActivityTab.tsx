@@ -1,78 +1,71 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react'
 
-function useHideWuiListItem(isModalOpen:boolean) {
+function useHideWuiListItem(isModalOpen: boolean) {
+  const observerRef = useRef<MutationObserver | null>(null)
+
   useEffect(() => {
-    const modalSelector = 'w3m-modal';
-    let observer: MutationObserver;
+    const modalSelector = 'w3m-modal'
 
-    const hideFirstWuiListItem = (parent:any) => {
-      const stack = [parent];
+    const hideFirstWuiListItem = (parent: Node) => {
+      const stack: Node[] = [parent]
 
-      while (stack.length > 0) {
-        const current = stack.shift();
-
-        if (!current) continue;
-
-        // Check if the current element is the target
-        if (current.tagName === 'WUI-LIST-ITEM') {
-          current.style.display = 'none';
-          break;
+      while (stack.length) {
+        const current = stack.shift()!
+        // Only Elements have tagName/children
+        if (current instanceof Element) {
+          if (current.tagName === 'WUI-LIST-ITEM') {
+            ;(current as HTMLElement).style.display = 'none'
+            break
+          }
+          // dive into shadowRoot if present
+          const sr = (current as HTMLElement & { shadowRoot?: ShadowRoot })
+            .shadowRoot
+          if (sr) stack.push(sr)
+          stack.push(...Array.from(current.children ?? []))
+        } else if (current instanceof ShadowRoot) {
+          stack.push(...Array.from(current.children))
         }
-
-        // If the current element has a shadowRoot, traverse into it
-        if (current.shadowRoot) {
-          stack.push(current.shadowRoot);
-        }
-
-        // Otherwise, traverse its children
-        stack.push(...Array.from(current.children));
-      }
-    };
-
-    const observeModal = () => {
-      const modal = document.querySelector(modalSelector);
-
-      if (modal?.shadowRoot) {
-        const shadowRoot = modal.shadowRoot;
-
-        // Select the container where `wui-list-item` might be
-        const wuiFlex = shadowRoot.querySelector('wui-flex');
-        if (wuiFlex) {
-          hideFirstWuiListItem(wuiFlex);
-        }
-      }
-    };
-
-    const setupObserver = () => {
-      observer = new MutationObserver(() => {
-        const modal = document.querySelector(modalSelector);
-        if (modal) {
-          observeModal();
-        }
-      });
-
-      // Observe the body for modal re-rendering
-      observer.observe(document.body, { childList: true, subtree: true });
-    };
-
-    if (isModalOpen) {
-      // Start observing and check if the modal is already loaded
-      setupObserver();
-      observeModal();
-    } else {
-      // Disconnect observer when the modal is closed
-      if (observer) {
-        observer.disconnect();
       }
     }
 
-    // Clean up when the component unmounts
+    const observeModal = () => {
+      const modal = document.querySelector(modalSelector) as
+        | (HTMLElement & { shadowRoot?: ShadowRoot })
+        | null
+
+      const sr = modal?.shadowRoot
+      if (!sr) return
+
+      const wuiFlex = sr.querySelector('wui-flex')
+      if (wuiFlex) hideFirstWuiListItem(wuiFlex)
+    }
+
+    const startObserver = () => {
+      // clean any existing observer first
+      observerRef.current?.disconnect()
+      observerRef.current = new MutationObserver(() => {
+        const modal = document.querySelector(modalSelector)
+        if (modal) observeModal()
+      })
+      observerRef.current.observe(document.body, {
+        childList: true,
+        subtree: true
+      })
+    }
+
+    if (isModalOpen) {
+      startObserver()
+      observeModal()
+    } else {
+      observerRef.current?.disconnect()
+      observerRef.current = null
+    }
+
     return () => {
-      if (observer) {
-        observer.disconnect();
-      }
-    };
-  }, [isModalOpen]);
+      observerRef.current?.disconnect()
+      observerRef.current = null
+    }
+  }, [isModalOpen])
 }
 
-export default useHideWuiListItem;
+export default useHideWuiListItem

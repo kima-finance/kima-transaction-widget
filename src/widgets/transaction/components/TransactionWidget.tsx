@@ -120,14 +120,21 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const widgetIsSwap =
     mode === ModeOptions.status ? isSwapBy3Letters : isSwapByPegged
 
-  // IMPORTANT: correct arg order: (txId, dAppOption, backendUrl, isSwap)
-  const { data, error } = useTxData(txId, dAppOption, backendUrl, widgetIsSwap)
-
   const { width: windowWidth, updateWidth } = useWidth()
-
   useEffect(() => {
     windowWidth === 0 && updateWidth(window.innerWidth)
   }, [windowWidth, updateWidth])
+
+  // ---------- SAFE TX ID + SINGLE DATA FETCH ----------
+  const safeTxId: string | number =
+    typeof txId === 'string' || typeof txId === 'number' ? txId : -1
+
+  const { data, error } = useTxData(
+    safeTxId,
+    dAppOption,
+    backendUrl,
+    widgetIsSwap
+  )
 
   const transactionSourceChain = useMemo(
     () =>
@@ -157,11 +164,10 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
 
   const isValidTxId = useMemo(() => {
     return !(
-      !txId ||
-      (typeof txId === 'string' && txId.length === 0) ||
-      (typeof txId === 'number' && txId < 0)
+      safeTxId === -1 ||
+      (typeof safeTxId === 'string' && safeTxId.length === 0)
     )
-  }, [txId])
+  }, [safeTxId])
 
   const isEmptyStatus = useMemo(() => {
     if (!data) return true
@@ -174,9 +180,9 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
     if (!data || data.status !== TransactionStatus.COMPLETED) return
     successHandler &&
       successHandler({
-        txId
+        txId: safeTxId
       })
-  }, [data, successHandler, txId])
+  }, [data, successHandler, safeTxId])
 
   useEffect(() => {
     if (!data) return
@@ -189,14 +195,12 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
     if (error)
       toast.error(
         'The provided transaction id is not valid, please use a different one or contact support for further assistance',
-        {
-          icon: <ErrorIcon />
-        }
+        { icon: <ErrorIcon /> }
       )
   }, [error])
 
+  // ---------- STATUS → STEP MACHINE (normalized) ----------
   useEffect(() => {
-    // Normalize like: "Refund Start" | "refund_start" -> "REFUNDSTART"
     const norm = (s?: string) =>
       (s ?? '').toString().trim().toUpperCase().replace(/[\s_]/g, '')
 
@@ -216,13 +220,11 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setLoadingStep(1)
       return
     }
-
     if (s === 'CONFIRMED') {
       setStep(2)
       setLoadingStep(2)
       return
     }
-
     if (s.startsWith('UNAVAILABLE')) {
       setStep(1)
       setErrorStep(1)
@@ -232,28 +234,23 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setErrorMessage('Unavailable')
       return
     }
-
     if (s === 'PAID') {
       setStep(3)
       setLoadingStep(3)
       return
     }
-
     if (s === 'REFUNDSTART' || s === 'REFUNDSTARTED') {
       setStep(3)
       setLoadingStep(3)
       toast.error(
         'Failed to release tokens to target! Starting refund process.',
-        {
-          icon: <ErrorIcon />
-        }
+        { icon: <ErrorIcon /> }
       )
       setErrorMessage(
         'Failed to release tokens to target! Starting refund process.'
       )
       return
     }
-
     if (s === 'REFUNDFAILED') {
       setStep(3)
       setErrorStep(3)
@@ -262,7 +259,6 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setErrorMessage('Failed to refund tokens to source!')
       return
     }
-
     if (s === 'REFUNDCOMPLETED') {
       setStep(4)
       setErrorStep(3)
@@ -271,7 +267,6 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setErrorMessage('Refund completed!')
       return
     }
-
     if (s === 'FAILEDTOPAY') {
       setStep(3)
       setErrorStep(3)
@@ -283,7 +278,6 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setErrorMessage('Failed to release tokens to target!')
       return
     }
-
     if (s === 'FAILEDTOPULL') {
       setStep(1)
       setErrorStep(1)
@@ -293,13 +287,11 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setErrorMessage('Failed to pull tokens from source!')
       return
     }
-
     if (s === 'COMPLETED') {
       setStep(4)
       setLoadingStep(-1)
       return
     }
-
     if (s === 'DECLINEDINVALID') {
       setStep(0)
       setErrorStep(0)
@@ -308,6 +300,10 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       return
     }
   }, [data?.status])
+
+  // ---------- helpers used below ----------
+  const fmt3 = (v: unknown) =>
+    formatterFloat.format(Number(Number(v ?? 0).toFixed(3)))
 
   // Header computed text (verb + amounts)
   const verb = useMemo(() => {
@@ -413,7 +409,6 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setIsComplete(false)
       dispatch(resetServiceFee())
 
-      // 1) LIGHT mode: keep behavior exactly as before
       if (mode === ModeOptions.light) {
         dispatch(setMode(ModeOptions.light))
         dispatch(setTxId(-1))
@@ -422,7 +417,6 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
         return
       }
 
-      // 2) STATUS mode + no amount: keep behavior exactly as before
       if (mode === ModeOptions.status && amount === '') {
         dispatch(setMode(ModeOptions.status))
         dispatch(setTxId(-1))
@@ -430,17 +424,14 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
         return
       }
 
-      // 3) Decide if we’re returning to a Payment or Bridge flow
       const isPaymentFlow = !!transactionOption
 
       if (isPaymentFlow) {
-        // PAYMENT MODE:
         dispatch(setMode(ModeOptions.payment))
         dispatch(setAmount(transactionOption?.amount?.toString() || ''))
         dispatch(setTargetAddress(transactionOption?.targetAddress || ''))
         dispatch(setTargetCurrency(transactionOption?.currency || ''))
       } else {
-        // BRIDGE MODE:
         dispatch(setMode(ModeOptions.bridge))
         dispatch(setSourceChain(INITIAL_SOURCE_CHAIN))
         dispatch(setTargetChain(INITIAL_TARGET_CHAIN))
@@ -451,7 +442,6 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
         dispatch(setAmount(''))
       }
 
-      // 4) Always clear CC/tx state and unmount the transaction view
       dispatch(setCCTransactionId(''))
       dispatch(setCCTransactionStatus('idle'))
       dispatch(setTxId(-1))
@@ -467,10 +457,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
 
   // use amountIn if present, otherwise fall back to amountOut for the left side
   const swapSrcAmt = (data as any)?.amountIn ?? amount
-  // parseSwapTxData stores amountOut into `data.amount`
   const swapDstAmt = (data as any)?.amount
-  const fmt3 = (v: unknown) =>
-    formatterFloat.format(Number(Number(v ?? 0).toFixed(3)))
 
   return (
     <Provider store={store}>
@@ -514,9 +501,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                   <button
                     className='menu-button'
                     style={{ marginRight: 'auto' }}
-                    onClick={() => {
-                      setIsComplete(false)
-                    }}
+                    onClick={() => setIsComplete(false)}
                   >
                     {'< Back'}
                   </button>
@@ -524,9 +509,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
 
                 <button
                   className='icon-button minimize'
-                  onClick={() => {
-                    setMinimized(true)
-                  }}
+                  onClick={() => setMinimized(true)}
                 >
                   <MinimizeIcon />
                 </button>
@@ -594,13 +577,6 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                   setFocus={setFocus}
                   loadingStep={loadingStep}
                 />
-                {/* <Tooltip
-            step={step}
-            focus={focus}
-            errorStep={errorStep}
-            loadingStep={loadingStep}
-            data={data}
-          /> */}
                 <StepBox
                   step={step}
                   errorStep={errorStep}
@@ -684,7 +660,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
             {!error && !isEmptyStatus && !isComplete && (
               <TransactionStatusMessage
                 isCompleted={data?.status as TransactionStatus}
-                transactionId={txId.toString()}
+                transactionId={String(safeTxId)}
               />
             )}
           </div>
@@ -703,9 +679,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
         <Toaster
           position='top-right'
           reverseOrder={false}
-          containerStyle={{
-            position: 'absolute'
-          }}
+          containerStyle={{ position: 'absolute' }}
           toastOptions={{
             duration: 5 * 1000,
             style: {

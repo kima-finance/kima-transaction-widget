@@ -1,5 +1,4 @@
 export { default as ExternalLink } from './ExternalLink'
-export { default as NetworkLabel } from './NetworkLabel'
 export { default as PrimaryButton } from './PrimaryButton'
 export { default as SecondaryButton } from './SecondaryButton'
 export { default as WalletButton } from './WalletButton'

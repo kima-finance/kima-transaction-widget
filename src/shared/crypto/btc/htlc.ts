@@ -31,8 +31,9 @@ export function createHTLCScript(
   let recipientAddressCheck
   try {
     recipientAddressCheck = bitcoin.address.fromBech32(recipientAddress)
-  } catch (error) {
-    throw new Error(`Failed to decode recipient address: ${error.message}`)
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error)
+    throw new Error(`Failed to decode recipient address: ${message}`)
   }
   if (!recipientAddressCheck) {
     throw new Error('Failed to decode recipient address')
