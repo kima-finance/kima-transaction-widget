@@ -11,8 +11,8 @@ import log from '@kima-widget/shared/logger'
 
 export const useSolProvider = (): SolProviderShape => {
   const net = useSelector(selectNetworkOption)
-  const { externalProvider } = useKimaContext()
-  const wallet = useWallet() // <-- pull from wallet-adapter
+  const { externalProvider, solRPC } = useKimaContext()
+  const wallet = useWallet()
 
   return useMemo(() => {
     // 1) External provider path (keeps current behavior)
@@ -45,7 +45,7 @@ export const useSolProvider = (): SolProviderShape => {
     const endpoint =
       net === NetworkOptions.testnet
         ? clusterApiUrl('devnet')
-        : clusterApiUrl('mainnet-beta')
+        : (solRPC ?? 'https://go.getblock.us/86aac42ad4484f3c813079afc201451c')
 
     const connection = new Connection(endpoint, 'confirmed')
 

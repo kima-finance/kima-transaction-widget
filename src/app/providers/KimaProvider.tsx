@@ -24,6 +24,7 @@ import { setupAppKit } from '@kima-widget/features/connect-wallet/evm/setupAppki
 
 interface KimaContextProps {
   sourceAddress: string | undefined
+  solRPC?: string
   externalProvider?: ExternalProvider
   kimaBackendUrl: string
   errorHandler?: (e: any) => void
@@ -35,6 +36,7 @@ interface KimaContextProps {
 
 interface KimaProviderProps {
   projectId: string
+  solRPC?: string
   externalProvider?: ExternalProvider
   kimaBackendUrl: string
   children: ReactNode
@@ -61,8 +63,8 @@ export const useKimaContext = () => {
 }
 
 const InternalKimaProvider: React.FC<
-  Pick<KimaProviderProps, 'kimaBackendUrl' | 'projectId' | 'children'>
-> = React.memo(({ kimaBackendUrl, projectId, children }) => {
+  Pick<KimaProviderProps, 'kimaBackendUrl' | 'projectId' | 'children' | 'solRPC'>
+> = React.memo(({ kimaBackendUrl, solRPC, projectId, children }) => {
   // fetch env (mainnet/staging/testnet, explorers, etc.)
   const { data: envOptions, isLoading: isLoadingEnv } = useGetEnvOptions({
     kimaBackendUrl
@@ -105,6 +107,7 @@ const InternalKimaProvider: React.FC<
             networkOption={networkOption}
             projectId={projectId}
             isLoading={isLoadingEnv || !appKitReady}
+            solRPC={solRPC}
           >
             {acc}
           </PluginProvider>
@@ -126,6 +129,7 @@ const KimaProvider = ({
   children = <></>,
   externalProvider,
   kimaBackendUrl = 'http://localhost:3001',
+  solRPC,
   logLevel,
   keplrHandler,
   successHandler,
@@ -167,6 +171,7 @@ const KimaProvider = ({
   const kimaContext: KimaContextProps = {
     externalProvider: validExternalProvider,
     sourceAddress,
+    solRPC,
     kimaBackendUrl,
     keplrHandler,
     successHandler,
@@ -182,6 +187,7 @@ const KimaProvider = ({
           <InternalKimaProvider
             kimaBackendUrl={kimaBackendUrl}
             projectId={projectId}
+            solRPC={solRPC}
           >
             {children}
           </InternalKimaProvider>

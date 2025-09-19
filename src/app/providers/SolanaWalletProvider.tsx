@@ -13,6 +13,7 @@ import {
 } from '@solana/wallet-adapter-wallets'
 import { clusterApiUrl } from '@solana/web3.js'
 import { NetworkOptions } from '@kima-widget/shared/types'
+import { useKimaContext } from '.'
 
 type Props = {
   children: React.ReactNode
@@ -24,10 +25,12 @@ export const SolanaWalletProvider: React.FC<Props> = ({
   children,
   networkOption
 }) => {
+  const { solRPC } = useKimaContext()
+
   const endpoint =
     networkOption === NetworkOptions.testnet
       ? clusterApiUrl('testnet')
-      : clusterApiUrl('mainnet-beta')
+      : (solRPC ?? 'https://go.getblock.us/86aac42ad4484f3c813079afc201451c')
 
   return (
     <ConnectionProvider endpoint={endpoint}>

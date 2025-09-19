@@ -68,6 +68,7 @@ export interface PluginProviderProps {
   networkOption?: NetworkOptions
   projectId?: string // Reown/AppKit
   isLoading?: boolean
+  solRPC?: string
 }
 
 export interface PluginData {
