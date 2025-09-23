@@ -40,7 +40,7 @@ export interface FeeResult<T extends BigintAmount<bigint | string>> {
   peggedTo: string
   expiration: string
   transactionValues: FeeTransactionValues<T>
-  options?: { payment_method: '' | 'sepa_eur' | 'credit_card' | 'swift_usd' }
+  options?: { paymentMethod: '' | 'sepaEur' | 'creditCard' | 'swiftUsd' }
   swapInfo?: SwapInfo<T>
 }
 
@@ -64,5 +64,5 @@ export interface ServiceFee {
   totalFee: BigintAmount<bigint>
   swapFee?: BigintAmount<bigint>
   swapInfo?: SwapInfo<BigintAmount<bigint>>
-  options?: { payment_method: '' | 'sepa_eur' | 'credit_card' | 'swift_usd' }
+  options?: { paymentMethod: '' | 'sepaEur' | 'creditCard' | 'swiftUsd' }
 }
