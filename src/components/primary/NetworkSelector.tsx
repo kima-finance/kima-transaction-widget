@@ -4,7 +4,7 @@ import log from '@kima-widget/shared/logger'
 import {
   ChainCompatibility,
   ChainData,
-  ChainLocation,
+  Location,
   DAppOptions,
   lightDemoAccounts,
   lightDemoNetworks,
@@ -27,7 +27,8 @@ import {
   setSourceCurrency,
   setTargetAddress,
   setTargetChain,
-  setSourceAddress
+  setSourceAddress,
+  setTargetCurrency
 } from '@kima-widget/shared/store/optionSlice'
 import { isEVMChain, isSolana, isTron } from '@kima-widget/shared/lib/addresses'
 import ChainIcon from '../reusable/ChainIcon'
@@ -35,7 +36,7 @@ import { ArrowIcon, WarningIcon } from '@kima-widget/assets/icons'
 import { useKimaContext } from '@kima-widget/app/providers'
 
 interface NetworkSelectorProps {
-  type: ChainLocation // 'origin' | 'destination'
+  type: Location // 'origin' | 'destination'
   initialSelection: boolean
   setInitialSelection: React.Dispatch<
     React.SetStateAction<{
@@ -233,7 +234,13 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
       oldTarget: targetNetwork.shortName
     })
 
-    const newCurrency = chain.supportedTokens[0]?.symbol ?? ''
+    const location: Location = isOriginSelector ? 'origin' : 'target'
+    const isTokenAllowedHere = (t: ChainData['supportedTokens'][number]) => {
+      const allowed = t.supportedLocations ?? ['origin', 'target']
+      return allowed.includes(location)
+    }
+    const newCurrency =
+      chain.supportedTokens.find(isTokenAllowedHere)?.symbol ?? ''
 
     if (isOriginSelector) {
       if (chain.shortName !== sourceNetwork.shortName) {
@@ -243,6 +250,13 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
         })
         dispatch(setSourceChain(chain))
         dispatch(setSourceCurrency(newCurrency))
+
+        if (targetNetwork?.shortName === chain.shortName) {
+          dispatch(setTargetChain({ shortName: '', name: '' } as any))
+          dispatch(setTargetCurrency(''))
+          // (optional) if keep demo addresses for target, clear/reset here as well
+          dispatch(setTargetAddress(''))
+        }
 
         // Light mode: set DEMO SOURCE address (guarded)
         if (mode === ModeOptions.light) {
