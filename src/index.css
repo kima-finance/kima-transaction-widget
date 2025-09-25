@@ -1393,9 +1393,17 @@
   color: white;
   background: #4a5068;
 }
+.kima-card .kima-card-content .single-form .coin-dropdown .coin-menu.toggled {
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  opacity: 1;
+}
 .kima-card .kima-card-content .single-form .coin-dropdown .coin-menu.collapsed {
   max-height: 0;
   opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 .kima-card .kima-card-content .single-form .coin-dropdown.light {
   background: #edf2f5 !important;

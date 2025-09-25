@@ -76,14 +76,14 @@ export interface PluginData {
   pluginData: { [key: string]: any }
 }
 
-export type ChainLocation = 'origin' | 'target'
+export type Location = 'origin' | 'target'
 
 export interface ChainData extends Chain {
   compatibility: ChainCompatibility
   name: string
   shortName: string
   supportedTokens: ChainToken[]
-  supportedLocations: ChainLocation[]
+  supportedLocations: Location[]
   disabled: boolean
 }
 
@@ -92,6 +92,7 @@ export interface ChainToken {
   decimals: number
   symbol: string
   peggedTo: string
+  supportedLocations?: Location[]
 }
 
 export enum ChainCompatibility {

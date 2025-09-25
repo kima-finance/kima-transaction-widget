@@ -1059,9 +1059,18 @@
             background: $financeDark;
           }
 
+          &.toggled {
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            opacity: 1;
+          }
+
           &.collapsed {
             max-height: 0;
             opacity: 0;
+            overflow: hidden;
+            pointer-events: none;
           }
         }
 

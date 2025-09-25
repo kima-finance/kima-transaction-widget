@@ -7,7 +7,8 @@ import {
   KEURICON,
   BTCIcon,
   USDIcon,
-  HoneyIcon
+  HoneyIcon,
+  USD1Icon
 } from '@kima-widget/assets/icons'
 import log from '@kima-widget/shared/logger'
 
@@ -27,6 +28,7 @@ const COIN_LIST: Record<string, React.FC<IconProps>> = {
   USDK: USDKIcon,
   USD: USDIcon,
   USDT: USDTIcon,
+  USD1: USD1Icon,
   WBTC: BTCIcon
 }
 

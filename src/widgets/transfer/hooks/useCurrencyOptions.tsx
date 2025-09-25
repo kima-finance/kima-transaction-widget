@@ -19,10 +19,11 @@ const emptyTokenList = { tokenList: [] as ChainToken[] }
 /**
  * useCurrencyOptions
  *
- * - Shows ALL supported tokens for the chosen chain (no peggedTo gating).
+ * - Shows ONLY the tokens valid for the current location (origin or target).
+ * - If a token lacks `supportedLocations`, it is treated as valid for BOTH.
  * - Only assigns a default if:
  *   a) current symbol is empty, or
- *   b) current symbol is not in the latest tokenList (e.g., chain changed).
+ *   b) current symbol is not in the latest tokenList (e.g., chain or location constraints changed).
  * - Never overwrites an explicit user selection.
  */
 export default function useCurrencyOptions(isSourceChain: boolean) {
@@ -46,14 +47,19 @@ export default function useCurrencyOptions(isSourceChain: boolean) {
       return emptyTokenList
     }
 
-    const tokenList = chain.supportedTokens
+    // Filter by allowed locations; default to both when field is missing.
+    const tokenList = (chain.supportedTokens ?? []).filter((t) => {
+      const allowed = t.supportedLocations ?? ['origin', 'target']
+      return allowed.includes(location)
+    })
+
     log.debug(`useCurrencyOptions(${location}): token list`, {
       chainShortName: chain.shortName,
       tokenList
     })
 
     return { tokenList }
-  }, [sourceChain, targetChain, isSourceChain])
+  }, [sourceChain, targetChain, isSourceChain, sourceSymbol, targetSymbol])
 
   const { tokenList } = output
 
@@ -69,10 +75,9 @@ export default function useCurrencyOptions(isSourceChain: boolean) {
       ? tokenList.some((t) => t.symbol === current)
       : false
 
-    // If user already has a valid selection, do nothing.
     if (stillValid) return
 
-    // If empty or invalid for this chain, set a sane default (first token).
+    // If empty or invalid for this chain/location, set a sane default (first token).
     const next = tokenList[0]?.symbol
     if (!next) return
 
@@ -84,7 +89,7 @@ export default function useCurrencyOptions(isSourceChain: boolean) {
         dispatch(setSourceCurrency(next))
       } else {
         log.debug(
-          `useCurrencyOptions: SOURCE currency "${current}" not on this chain; switching -> ${next}`
+          `useCurrencyOptions: SOURCE currency "${current}" not valid here; switching -> ${next}`
         )
         dispatch(setSourceCurrency(next))
       }
@@ -96,7 +101,7 @@ export default function useCurrencyOptions(isSourceChain: boolean) {
         dispatch(setTargetCurrency(next))
       } else {
         log.debug(
-          `useCurrencyOptions: TARGET currency "${current}" not on this chain; switching -> ${next}`
+          `useCurrencyOptions: TARGET currency "${current}" not valid here; switching -> ${next}`
         )
         dispatch(setTargetCurrency(next))
       }
