@@ -1,4 +1,3 @@
-// widgets/transfer/hooks/useSubmitTransaction.tsx
 import { useDispatch, useSelector } from 'react-redux'
 import { useMutation } from '@tanstack/react-query'
 import log from '@kima-widget/shared/logger'
@@ -73,12 +72,25 @@ const useSubmitTransaction = (
       const endpoint = doSwap ? '/submit/swap' : '/submit/transfer'
 
       if (doSwap) {
+        setIsSubmitting(true)
+
+        const baseOptions = {
+          signature: transactionValues.originChain === 'CC' ? '' : signature,
+          feeId,
+          chargeFeeAtTarget: feeDeduct,
+          ...feeOptions
+        }
+
+        const endpoint = '/submit/swap'
+
         const amountIn = txValues.submitAmount.value.toString()
-        const decimals = txValues.submitAmount.decimals
+        const amountInDecimals = txValues.submitAmount.decimals
 
         const amountOut = (
           swapInfo?.amountOutBigInt?.value ?? txValues.submitAmount.value
         ).toString()
+        const amountOutDecimals =
+          swapInfo?.amountOutBigInt?.decimals ?? amountInDecimals
 
         const params = JSON.stringify({
           originAddress:
@@ -94,23 +106,29 @@ const useSubmitTransaction = (
           amountIn,
           amountOut,
 
+          // send BOTH decimals explicitly
+          amountInDecimals,
+          amountOutDecimals,
+
+          // keep 'decimals' for backwards compat (origin/input decimals)
+          decimals: amountInDecimals,
+
+          // fee in the same decimals as amountIn
           fee: bigIntChangeDecimals({
             ...totalFee,
-            newDecimals: decimals
+            newDecimals: amountInDecimals
           }).value.toString(),
-          decimals,
 
           dex: (baseOptions as any)?.dex ?? 'auto',
           slippage: (baseOptions as any)?.slippage ?? '0.005',
 
-          options: JSON.stringify({
-            ...baseOptions
-          }),
+          options: JSON.stringify({ ...baseOptions }),
           fiatTransactionIdSeed: ccTransactionIdSeed,
           mode
         })
 
         log.debug('submitTransaction (SWAP): params:', params)
+
         const response: any = await fetchWrapper.post(
           `${backendUrl}${endpoint}`,
           params
