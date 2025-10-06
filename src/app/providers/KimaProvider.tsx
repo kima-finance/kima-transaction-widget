@@ -125,7 +125,7 @@ const InternalKimaProvider: React.FC<
 })
 
 const KimaProvider = ({
-  projectId,
+  projectId = 'e579511a495b5c312b572b036e60555a',
   children = <></>,
   externalProvider,
   kimaBackendUrl = 'http://localhost:3001',
