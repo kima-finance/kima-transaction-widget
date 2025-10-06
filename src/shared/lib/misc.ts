@@ -12,23 +12,34 @@ export const truncateToDecimals = (num: number, decimals: number): number => {
   return Math.floor(num * factor) / factor
 }
 
+type TokenMeta = {
+  symbol: string
+  peggedTo?: string
+  decimals: number
+  address?: string
+}
+
+const findToken = (
+  chain: ChainData | undefined,
+  symbol: string
+): TokenMeta | undefined => {
+  if (!chain || !symbol) return undefined
+  return chain.supportedTokens?.find((t) => t.symbol === symbol)
+}
+
+/**
+ * Returns true if the origin & target tokens are pegged to the same underlying (e.g. both 'USD'),
+ * regardless of symbol (USDT vs USD1).
+ */
 export const isSamePeggedToken = (
-  sourceChain: ChainData,
-  sourceTokenId: string,
-  targetChain: ChainData,
-  targetTokenId: string
+  originChain: ChainData | undefined,
+  originSymbol: string | undefined,
+  targetChain: ChainData | undefined,
+  targetSymbol: string | undefined
 ): boolean => {
-  const sourceToken = sourceChain.supportedTokens.find(
-    (token) => token.symbol === sourceTokenId
-  )
-  const targetToken = targetChain.supportedTokens.find(
-    (token) => token.symbol === targetTokenId
-  )
-
-  // Prefer peggedTo; fall back to symbol/id if missing
-  const sPeg = sourceToken?.peggedTo ?? sourceToken?.symbol ?? sourceTokenId
-  const tPeg = targetToken?.peggedTo ?? targetToken?.symbol ?? targetTokenId
-
-  // SAME pegged if these match
-  return sPeg === tPeg
+  const src = findToken(originChain, originSymbol ?? '')
+  const dst = findToken(targetChain, targetSymbol ?? '')
+  if (!src || !dst) return false
+  if (!src.peggedTo || !dst.peggedTo) return false
+  return src.peggedTo === dst.peggedTo
 }

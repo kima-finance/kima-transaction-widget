@@ -1,4 +1,3 @@
-// components/ConfirmDetails.tsx
 import useWidth from '@kima-widget/shared/lib/hooks/useWidth'
 import {
   selectDappOption,
@@ -97,14 +96,13 @@ const ConfirmDetails = ({
 
   const isSwap = useMemo(
     () =>
-      !!swapInfo ||
       !isSamePeggedToken(
         originNetwork,
         sourceCurrency,
         targetNetwork,
         targetCurrency
       ),
-    [swapInfo, originNetwork, sourceCurrency, targetNetwork, targetCurrency]
+    [originNetwork, sourceCurrency, targetNetwork, targetCurrency]
   )
 
   const txValues = useMemo(() => {
