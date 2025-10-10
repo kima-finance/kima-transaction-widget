@@ -33,16 +33,12 @@ export const bigIntChangeDecimals = (inputs: {
   if (decimals === newDecimals) return { value: valBigInt, decimals }
 
   if (decimals > newDecimals) {
-    return {
-      value: valBigInt / BigInt(10 ** (decimals - newDecimals)),
-      decimals: newDecimals
-    }
+    const diff = decimals - newDecimals
+    return { value: valBigInt / 10n ** BigInt(diff), decimals: newDecimals }
   }
 
-  return {
-    value: valBigInt * BigInt(10 ** (newDecimals - decimals)),
-    decimals: newDecimals
-  }
+  const diff = newDecimals - decimals
+  return { value: valBigInt * 10n ** BigInt(diff), decimals: newDecimals }
 }
 
 export const formatBigInt = (inputs: BigintAmount<bigint | string>): string => {

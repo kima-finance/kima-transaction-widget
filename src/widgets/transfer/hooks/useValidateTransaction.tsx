@@ -146,7 +146,8 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
       }
     }
 
-    if (totalFee <= 0n) {
+    const isFiatSrc = sourceChain === 'BANK' || sourceChain === 'CC'
+    if (totalFee <= 0n && !isFiatSrc) {
       return {
         error: ValidationError.Error,
         message: 'Fee calculation error'

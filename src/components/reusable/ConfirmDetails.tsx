@@ -18,7 +18,10 @@ import useIsWalletReady from '@kima-widget/widgets/transfer/hooks/useIsWalletRea
 import React, { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import ChainIcon from './ChainIcon'
-import { formatBigInt } from '@kima-widget/shared/lib/bigint'
+import {
+  formatBigInt,
+  bigIntChangeDecimals
+} from '@kima-widget/shared/lib/bigint'
 import { MiniArrowIcon } from '@kima-widget/assets/icons'
 import FeeDeductionRadioButtons from './FeeDeductionRadioButtons'
 import { isSamePeggedToken } from '@kima-widget/shared/lib/misc'
@@ -94,6 +97,7 @@ const ConfirmDetails = ({
   const targetCurrency = useSelector(selectTargetCurrency)
   const { width, updateWidth } = useWidth()
 
+  // IMPORTANT: “swap” should be based on peggedTo, not symbol equality
   const isSwap = useMemo(
     () =>
       !isSamePeggedToken(
@@ -122,6 +126,28 @@ const ConfirmDetails = ({
       sumBigAmts([sourceFee, targetFee, swapFee ?? { value: 0n, decimals: 0 }]),
     [sourceFee, targetFee, swapFee]
   )
+
+  // For FIAT (CC/BANK) we must show the amount that will actually be charged:
+  // submitAmount (+ totalFee if fee is charged at origin)
+  const originChargeAmount = useMemo(() => {
+    if (['CC', 'BANK'].includes(originNetwork.shortName)) {
+      const submit = txValues.submitAmount
+      const feeInSubmitDec = bigIntChangeDecimals({
+        ...totalFee,
+        newDecimals: submit.decimals
+      })
+      const val = feeDeduct ? submit.value : submit.value + feeInSubmitDec.value
+      return { value: val, decimals: submit.decimals }
+    }
+    // EVM/Self chains keep using allowanceAmount for approvals
+    return txValues.allowanceAmount
+  }, [
+    originNetwork.shortName,
+    txValues.submitAmount,
+    txValues.allowanceAmount,
+    totalFee,
+    feeDeduct
+  ])
 
   useEffect(() => {
     width === 0 && updateWidth(window.innerWidth)
@@ -177,7 +203,7 @@ const ConfirmDetails = ({
               <span>Amount to Transfer</span>
               <div className='coin-details'>
                 <p>
-                  {formatBigInt(txValues.allowanceAmount)} {sourceCurrency}
+                  {formatBigInt(originChargeAmount)} {sourceCurrency}
                 </p>
               </div>
             </div>

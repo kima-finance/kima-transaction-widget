@@ -1,4 +1,3 @@
-// services/feesApi.ts
 import { fetchWrapper } from '@kima-widget/shared/api/fetcher'
 import { toBigintAmount } from '@kima-widget/shared/lib/bigint'
 import { FeeResponse, ServiceFee } from '@kima-widget/shared/types'
@@ -77,15 +76,37 @@ export const getFees = async (
         }
       : undefined
 
+    // compute totalFee locally (don’t trust feeTotalBigInt while it’s 0)
+    const sourceFee = toBigintAmount(result.feeOriginGasBigInt)
+    const targetFee = toBigintAmount(result.feeTargetGasBigInt)
+    const kimaFee = toBigintAmount(result.feeKimaProcessingBigInt)
+
+    const parts = [
+      sourceFee,
+      targetFee,
+      kimaFee,
+      swapFee?.decimals ? swapFee : { value: 0n, decimals: 0 }
+    ].filter((p) => p.decimals !== 0 || p.value !== 0n) as {
+      value: bigint
+      decimals: number
+    }[]
+
+    const maxDec = parts.reduce((m, a) => Math.max(m, a.decimals), 0)
+    const scaleUp = (v: bigint, from: number, to: number) =>
+      to <= from ? v : v * 10n ** BigInt(to - from)
+    const totalScaled = parts.reduce(
+      (acc, a) => acc + scaleUp(a.value, a.decimals, maxDec),
+      0n
+    )
+
     const output: ServiceFee = {
       feeId: result.feeId,
       peggedTo: result.peggedTo,
       expiration: result.expiration,
-      sourceFee: toBigintAmount(result.feeOriginGasBigInt),
-      targetFee: toBigintAmount(result.feeTargetGasBigInt),
-      kimaFee: toBigintAmount(result.feeKimaProcessingBigInt),
-      totalFee: toBigintAmount(result.feeTotalBigInt),
-      // NEW
+      sourceFee,
+      targetFee,
+      kimaFee,
+      totalFee: { value: totalScaled, decimals: maxDec },
       swapFee,
       swapInfo,
       transactionValues: {
@@ -111,7 +132,7 @@ export const getFees = async (
 
     log.debug('[getFees] response', {
       feeId: output.feeId,
-      totalFiat: (result as any).feeTotalFiat,
+      totalFee: `${output.totalFee.value} @ ${output.totalFee.decimals}dp`,
       hasTargetSide: !!fromTarget,
       hasSwapInfo: !!swapInfo
     })

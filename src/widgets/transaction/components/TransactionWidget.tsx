@@ -61,7 +61,11 @@ import {
   setTxId
 } from '@kima-widget/shared/store/optionSlice'
 import store from '@kima-widget/shared/store'
-import { bigIntToNumber, formatBigInt } from '@kima-widget/shared/lib/bigint'
+import {
+  bigIntToNumber,
+  formatBigInt,
+  bigIntChangeDecimals
+} from '@kima-widget/shared/lib/bigint'
 import KimaNetwork from '@kima-widget/assets/icons/KimaNetwork'
 import { useKimaContext } from '@kima-widget/app/providers'
 import useTxData from '../hooks/useTxData'
@@ -87,10 +91,14 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const amount = useSelector(selectAmount)
   const txId = useSelector(selectTxId)
   const dAppOption = useSelector(selectDappOption)
-  const { transactionValues } = useSelector(selectServiceFee)
+
+  // pull totalFee as well (needed for FIAT charge-at-origin)
+  const { transactionValues, totalFee } = useSelector(selectServiceFee)
+
   const txValues = feeDeduct
     ? transactionValues.feeFromTarget
     : transactionValues.feeFromOrigin
+
   const transactionOption = useSelector(selectTransactionOption)
   const sourceChain = useSelector(selectSourceChain)
   const targetChain = useSelector(selectTargetChain)
@@ -125,7 +133,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
     windowWidth === 0 && updateWidth(window.innerWidth)
   }, [windowWidth, updateWidth])
 
-  // ---------- SAFE TX ID + SINGLE DATA FETCH ----------
+  //---- SAFE TX ID + SINGLE DATA FETCH----
   const safeTxId: string | number =
     typeof txId === 'string' || typeof txId === 'number' ? txId : -1
 
@@ -199,7 +207,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       )
   }, [error])
 
-  // ---------- STATUS → STEP MACHINE (normalized) ----------
+  //---- STATUS → STEP MACHINE (normalized)----
   useEffect(() => {
     const norm = (s?: string) =>
       (s ?? '').toString().trim().toUpperCase().replace(/[\s_]/g, '')
@@ -301,11 +309,11 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
     }
   }, [data?.status])
 
-  // ---------- helpers used below ----------
+  //---- helpers used below----
   const fmt3 = (v: unknown) =>
     formatterFloat.format(Number(Number(v ?? 0).toFixed(3)))
 
-  // Header computed text (verb + amounts)
+  // Header verb
   const verb = useMemo(() => {
     if (mode === ModeOptions.status) {
       if (isEmptyStatus) return 'Fetching transaction status '
@@ -327,6 +335,17 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
         ? 'Swapping '
         : 'Transfering '
   }, [mode, data?.status, isEmptyStatus, widgetIsSwap])
+
+  // FIAT charge-at-origin amount (submit + totalFee when fee at origin)
+  const originChargeAmount = useMemo(() => {
+    const submit = txValues.submitAmount
+    const feeInSubmitDec = bigIntChangeDecimals({
+      ...totalFee,
+      newDecimals: submit.decimals
+    })
+    const val = feeDeduct ? submit.value : submit.value + feeInSubmitDec.value
+    return { value: val, decimals: submit.decimals }
+  }, [txValues.submitAmount, totalFee, feeDeduct])
 
   // amounts & symbols shown in the title line
   const { leftAmt, rightAmt, leftSym, rightSym } = useMemo(() => {
@@ -356,22 +375,30 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
     }
 
     // NON-STATUS — start with form/confirm values
+    // For FIAT (CC/BANK) show the actual charge amount on the LEFT
+    const isFiatSrc =
+      (transactionSourceChain?.shortName ?? '') === 'CC' ||
+      (transactionSourceChain?.shortName ?? '') === 'BANK'
+
     let left =
       Number(amount) !== 0
-        ? transactionSourceChain?.shortName === 'CC'
-          ? bigIntToNumber(txValues.allowanceAmount).toFixed(2)
+        ? isFiatSrc
+          ? bigIntToNumber(originChargeAmount).toFixed(2)
           : formatBigInt(txValues.allowanceAmount)
         : ''
+
+    // RIGHT shows the target submit amount
     let right =
       Number(amount) !== 0
-        ? transactionSourceChain?.shortName === 'CC'
+        ? isFiatSrc
           ? bigIntToNumber(txValues.submitAmount).toFixed(2)
           : formatBigInt(txValues.submitAmount)
         : ''
+
     let leftSymbol = sourceSymbol
     let rightSymbol = targetSymbol
 
-    // If it's a SWAP and backend already returned an amount, prefer amountOut (RIGHT) and format to 3 decimals
+    // If it's a SWAP and backend already returned an amount, prefer amountOut (RIGHT)
     if (
       widgetIsSwap &&
       data &&
@@ -401,7 +428,8 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
     txValues.allowanceAmount,
     txValues.submitAmount,
     sourceSymbol,
-    targetSymbol
+    targetSymbol,
+    originChargeAmount
   ])
 
   const resetForm = () => {

@@ -18,7 +18,7 @@ import {
   setCCTransactionIdSeed,
   setCCTransactionStatus
 } from '@kima-widget/shared/store/optionSlice'
-import { formatBigInt } from '@kima-widget/shared/lib/bigint'
+import { formatBigInt, bigIntChangeDecimals } from '@kima-widget/shared/lib/bigint'
 import { NetworkOptions } from '@kima-widget/shared/types'
 import { Loading180Ring } from '@kima-widget/assets/loading'
 
@@ -31,7 +31,7 @@ const FiatWidget = ({ submitCallback }: { submitCallback: () => void }) => {
   const sourceCurrency = useSelector(selectSourceCurrency)
   const sourceChain = useSelector(selectSourceChain)
 
-  const { transactionValues } = useSelector(selectServiceFee)
+  const { transactionValues, totalFee } = useSelector(selectServiceFee)
   const ccTransactionIdSeedRef = useRef(uuidv4())
   const ccTransactionSubmittedRef = useRef(false)
   const { data: envOptions, isLoading: isEnvLoading } = useGetEnvOptions({
@@ -54,13 +54,25 @@ const FiatWidget = ({ submitCallback }: { submitCallback: () => void }) => {
     ? transactionValues.feeFromTarget
     : transactionValues.feeFromOrigin
 
-  const allowanceAmount = useMemo(
-    () => formatBigInt(txValues.allowanceAmount),
-    [txValues]
+  // Amount the PSP should charge (FIAT):
+  // submitAmount (+ totalFee if fee is charged at origin)
+  const chargeAmountBig = useMemo(() => {
+    const submit = txValues.submitAmount
+    const feeInSubmitDec = bigIntChangeDecimals({
+      ...totalFee,
+      newDecimals: submit.decimals
+    })
+    const val = feeDeduct ? submit.value : submit.value + feeInSubmitDec.value
+    return { value: val, decimals: submit.decimals }
+  }, [txValues.submitAmount, totalFee, feeDeduct])
+
+  const chargeAmount = useMemo(
+    () => formatBigInt(chargeAmountBig),
+    [chargeAmountBig]
   )
+
   const [isLoading, setIsLoading] = useState(true)
 
-  // IMPORTANT: for staging use the same as mainnet
   const baseUrl = useMemo(
     () =>
       `https://widget2${networkOption === NetworkOptions.testnet ? '-sandbox' : ''}.depa.wtf`,
@@ -77,15 +89,9 @@ const FiatWidget = ({ submitCallback }: { submitCallback: () => void }) => {
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      // console.log('new message: ', event)
-      if (event.origin !== baseUrl) {
-        // log.debug("event origin missmatch: ", event.origin)
-        // log.debug("event: ", event)
-        return
-      }
+      if (event.origin !== baseUrl) return
       log.info('postMessage: new message: ', event)
       if (event.data.type === 'isCompleted') {
-        // set the transaction to success
         log.info('cc widget isCompleted', ccTransactionSubmittedRef.current)
         dispatch(setCCTransactionStatus('success'))
 
@@ -99,7 +105,6 @@ const FiatWidget = ({ submitCallback }: { submitCallback: () => void }) => {
         event.data.type === 'isAwaiting' &&
         sourceChain.shortName === 'BANK'
       ) {
-        // set the transaction to success
         log.info('bank widget isCompleted', ccTransactionSubmittedRef.current)
         dispatch(setCCTransactionStatus('success'))
 
@@ -110,7 +115,6 @@ const FiatWidget = ({ submitCallback }: { submitCallback: () => void }) => {
       }
 
       if (event.data.type === 'isFailed') {
-        // set the transaction to success
         dispatch(setCCTransactionStatus('failed'))
       }
     }
@@ -151,7 +155,7 @@ const FiatWidget = ({ submitCallback }: { submitCallback: () => void }) => {
             ? 0
             : '100%'
         }
-        src={`${baseUrl}/widgets/kyc?partner=${partnerId}&amount=${allowanceAmount}&currency=${sourceCurrency}&trx_uuid=${data?.transactionId}&scenario=${scenario}&postmessage=true`}
+        src={`${baseUrl}/widgets/kyc?partner=${partnerId}&amount=${chargeAmount}&currency=${sourceCurrency}&trx_uuid=${data?.transactionId}&scenario=${scenario}&postmessage=true`}
         loading='lazy'
         title='Credit Card Widget'
         allow='camera; clipboard-write'
