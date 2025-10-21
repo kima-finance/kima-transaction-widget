@@ -97,7 +97,7 @@ const ConfirmDetails = ({
   const targetCurrency = useSelector(selectTargetCurrency)
   const { width, updateWidth } = useWidth()
 
-  // IMPORTANT: “swap” should be based on peggedTo, not symbol equality
+  // Swap detection by peggedTo
   const isSwap = useMemo(
     () =>
       !isSamePeggedToken(
@@ -109,45 +109,59 @@ const ConfirmDetails = ({
     [originNetwork, sourceCurrency, targetNetwork, targetCurrency]
   )
 
-  const txValues = useMemo(() => {
-    if (isSwap) return transactionValues.feeFromOrigin
-    return feeDeduct
-      ? transactionValues.feeFromTarget
-      : transactionValues.feeFromOrigin
-  }, [isSwap, feeDeduct, transactionValues])
+  // Treat "amount" as the base submit value returned by backend
+  // (backend returns the same 'amount' on both feeFromOrigin/feeFromTarget for transfers)
+  const baseSubmit = useMemo(
+    () => transactionValues.feeFromOrigin.submitAmount,
+    [transactionValues.feeFromOrigin.submitAmount]
+  )
 
-  const targetDisplayAmount = useMemo(() => {
-    if (isSwap && swapInfo?.amountOutBigInt) return swapInfo.amountOutBigInt
-    return txValues.submitAmount
-  }, [isSwap, swapInfo, txValues.submitAmount])
+  // Convert totalFee into base submit decimals once
+  const totalFeeInSubmitDec = useMemo(
+    () =>
+      bigIntChangeDecimals({
+        ...totalFee,
+        newDecimals: baseSubmit.decimals
+      }),
+    [totalFee, baseSubmit.decimals]
+  )
+
+  // Amount to Transfer (payer debit on source)
+  const amountToTransferBig = useMemo(() => {
+    const val = feeDeduct
+      ? baseSubmit.value // deduct at origin → amount
+      : baseSubmit.value + totalFeeInSubmitDec.value // deduct at target → amount + fees
+    return { value: val, decimals: baseSubmit.decimals }
+  }, [feeDeduct, baseSubmit, totalFeeInSubmitDec])
+
+  // Target Transfer Amount (what receiver gets)
+  const targetTransferBig = useMemo(() => {
+    if (isSwap) {
+      if (swapInfo?.amountOutBigInt) return swapInfo.amountOutBigInt
+      return transactionValues.feeFromOrigin.submitAmount
+    }
+    const minus = baseSubmit.value - totalFeeInSubmitDec.value
+    const val = feeDeduct
+      ? minus > 0n
+        ? minus
+        : 0n // deduct at origin → amount - fees
+      : baseSubmit.value // deduct at target → amount
+    return { value: val, decimals: baseSubmit.decimals }
+  }, [
+    isSwap,
+    swapInfo?.amountOutBigInt,
+    transactionValues.feeFromOrigin.submitAmount,
+    baseSubmit.value,
+    baseSubmit.decimals,
+    totalFeeInSubmitDec.value,
+    feeDeduct
+  ])
 
   const combinedSwapFees = useMemo(
     () =>
       sumBigAmts([sourceFee, targetFee, swapFee ?? { value: 0n, decimals: 0 }]),
     [sourceFee, targetFee, swapFee]
   )
-
-  // For FIAT (CC/BANK) we must show the amount that will actually be charged:
-  // submitAmount (+ totalFee if fee is charged at origin)
-  const originChargeAmount = useMemo(() => {
-    if (['CC', 'BANK'].includes(originNetwork.shortName)) {
-      const submit = txValues.submitAmount
-      const feeInSubmitDec = bigIntChangeDecimals({
-        ...totalFee,
-        newDecimals: submit.decimals
-      })
-      const val = feeDeduct ? submit.value : submit.value + feeInSubmitDec.value
-      return { value: val, decimals: submit.decimals }
-    }
-    // EVM/Self chains keep using allowanceAmount for approvals
-    return txValues.allowanceAmount
-  }, [
-    originNetwork.shortName,
-    txValues.submitAmount,
-    txValues.allowanceAmount,
-    totalFee,
-    feeDeduct
-  ])
 
   useEffect(() => {
     width === 0 && updateWidth(window.innerWidth)
@@ -198,41 +212,35 @@ const ConfirmDetails = ({
 
       <div className='detail-item amount'>
         <span className='amount-container'>
-          {dAppOption === DAppOptions.None && (
-            <div className='amount-details'>
-              <span>Amount to Transfer</span>
-              <div className='coin-details'>
-                <p>
-                  {formatBigInt(originChargeAmount)} {sourceCurrency}
-                </p>
-              </div>
+          <div className='amount-details'>
+            <span>Amount to Transfer</span>
+            <div className='coin-details'>
+              <p>
+                {formatBigInt(amountToTransferBig)} {sourceCurrency}
+              </p>
             </div>
-          )}
+          </div>
 
-          {dAppOption === DAppOptions.None && (
-            <div className='amount-details'>
-              <span>Total Fees</span>
-              <div
-                className='fee-collapse'
-                onClick={() => setFeeCollapsed(!feeCollapsed)}
-              >
-                <MiniArrowIcon
-                  width={15}
-                  height={8}
-                  style={{
-                    transform: `rotate(${feeCollapsed ? '0deg' : '180deg'})`,
-                    transition: 'transform 0.3s ease'
-                  }}
-                />
-                {/* Fees displayed in SOURCE token (deducted from source) */}
-                <span className='service-fee'>
-                  {formatBigInt(totalFee)} {sourceCurrency}
-                </span>
-              </div>
+          <div className='amount-details'>
+            <span>Total Fees</span>
+            <div
+              className='fee-collapse'
+              onClick={() => setFeeCollapsed(!feeCollapsed)}
+            >
+              <MiniArrowIcon
+                width={15}
+                height={8}
+                style={{
+                  transform: `rotate(${feeCollapsed ? '0deg' : '180deg'})`,
+                  transition: 'transform 0.3s ease'
+                }}
+              />
+              <span className='service-fee'>
+                {formatBigInt(totalFee)} {sourceCurrency}
+              </span>
             </div>
-          )}
+          </div>
 
-          {/* Fee breakdown */}
           <div className={`fee-breakdown ${feeCollapsed ? 'collapsed' : ''}`}>
             {isSwap ? (
               <>
@@ -280,7 +288,7 @@ const ConfirmDetails = ({
           <div className='amount-details'>
             <span>Target Transfer Amount</span>
             <span className='service-fee'>
-              {formatBigInt(targetDisplayAmount)} {targetCurrency}
+              {formatBigInt(targetTransferBig)} {targetCurrency}
             </span>
           </div>
         </span>
@@ -309,7 +317,6 @@ const ConfirmDetails = ({
         </div>
       </div>
 
-      {/* Fee deduction choice is ONLY for TRANSFERS, not swaps */}
       {!isSwap &&
         mode === ModeOptions.bridge &&
         BigInt(totalFee.value) > 0n && (
