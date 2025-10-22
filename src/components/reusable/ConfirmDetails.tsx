@@ -109,6 +109,8 @@ const ConfirmDetails = ({
     [originNetwork, sourceCurrency, targetNetwork, targetCurrency]
   )
 
+  const chargeFeeAtOrigin = !isSwap && feeDeduct
+
   // Treat "amount" as the base submit value returned by backend
   // (backend returns the same 'amount' on both feeFromOrigin/feeFromTarget for transfers)
   const baseSubmit = useMemo(
@@ -128,11 +130,13 @@ const ConfirmDetails = ({
 
   // Amount to Transfer (payer debit on source)
   const amountToTransferBig = useMemo(() => {
-    const val = feeDeduct
-      ? baseSubmit.value // deduct at origin → amount
-      : baseSubmit.value + totalFeeInSubmitDec.value // deduct at target → amount + fees
+    if (isSwap)
+      return { value: baseSubmit.value, decimals: baseSubmit.decimals }
+    const val = chargeFeeAtOrigin
+      ? baseSubmit.value
+      : baseSubmit.value + totalFeeInSubmitDec.value
     return { value: val, decimals: baseSubmit.decimals }
-  }, [feeDeduct, baseSubmit, totalFeeInSubmitDec])
+  }, [isSwap, chargeFeeAtOrigin, baseSubmit, totalFeeInSubmitDec])
 
   // Target Transfer Amount (what receiver gets)
   const targetTransferBig = useMemo(() => {
@@ -141,11 +145,7 @@ const ConfirmDetails = ({
       return transactionValues.feeFromOrigin.submitAmount
     }
     const minus = baseSubmit.value - totalFeeInSubmitDec.value
-    const val = feeDeduct
-      ? minus > 0n
-        ? minus
-        : 0n // deduct at origin → amount - fees
-      : baseSubmit.value // deduct at target → amount
+    const val = chargeFeeAtOrigin ? (minus > 0n ? minus : 0n) : baseSubmit.value
     return { value: val, decimals: baseSubmit.decimals }
   }, [
     isSwap,
@@ -154,7 +154,7 @@ const ConfirmDetails = ({
     baseSubmit.value,
     baseSubmit.decimals,
     totalFeeInSubmitDec.value,
-    feeDeduct
+    chargeFeeAtOrigin
   ])
 
   const combinedSwapFees = useMemo(
