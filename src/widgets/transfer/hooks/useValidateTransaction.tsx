@@ -5,7 +5,11 @@ import { useKimaContext } from '@kima-widget/app/providers'
 import { useGetEnvOptions } from '@kima-widget/hooks/useGetEnvOptions'
 import {
   selectMode,
-  selectNetworkOption
+  selectNetworkOption,
+  selectSourceChain as selSourceChain,
+  selectTargetChain as selTargetChain,
+  selectSourceCurrency as selSourceCurrency,
+  selectTargetCurrency as selTargetCurrency
 } from '@kima-widget/shared/store/selectors'
 import log from '@kima-widget/shared/logger'
 import { ModeOptions, NetworkOptions } from '@kima-widget/shared/types'
@@ -13,6 +17,7 @@ import {
   checkPoolBalance,
   isAddressCompatible
 } from '@kima-widget/shared/lib/addresses'
+import { isSamePeggedToken } from '@kima-widget/shared/lib/misc'
 
 export enum ValidationError {
   Error = 'ValidationError',
@@ -71,20 +76,27 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
   const mode = useSelector(selectMode)
   const networkOption = useSelector(selectNetworkOption)
 
+  const srcNet = useSelector(selSourceChain)
+  const tgtNet = useSelector(selTargetChain)
+  const srcCur = useSelector(selSourceCurrency)
+  const tgtCur = useSelector(selTargetCurrency)
+
+  const isSwap = useMemo(
+    () => !isSamePeggedToken(srcNet, srcCur, tgtNet, tgtCur),
+    [srcNet, srcCur, tgtNet, tgtCur]
+  )
+
   const maxValue = useMemo(() => {
     log.debug('useValidateTransaction: maxValue: ', inputs)
     if (!balance) return 0n
     if (totalFee <= 0n) return balance
-
     const amountMinusFees = balance - totalFee
     const maxVal = amountMinusFees > 0n ? amountMinusFees : 0n
     log.debug('maxValue: ', { maxVal, amountMinusFees })
-
     return maxVal
   }, [balance, totalFee, feeDeduct])
 
   const validate = (isSubmitting: boolean = false) => {
-    // 1) Require networks from Redux, not UI flags
     if (!sourceChain) {
       return {
         error: ValidationError.Error,
@@ -92,7 +104,6 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
       }
     }
 
-    // In payment mode there may be no explicit target network step; otherwise require it.
     if (mode !== ModeOptions.payment && !targetChain) {
       return {
         error: ValidationError.Error,
@@ -100,7 +111,6 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
       }
     }
 
-    // 2) Wallet / target address checks
     if (
       !sourceAddress &&
       !['BANK', 'CC'].includes(sourceChain) &&
@@ -126,7 +136,6 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
       }
     }
 
-    // 3) Amount / limits / fees
     if (amount <= 0n) {
       return {
         error: ValidationError.Error,
@@ -148,13 +157,9 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
 
     const isFiatSrc = sourceChain === 'BANK' || sourceChain === 'CC'
     if (totalFee <= 0n && !isFiatSrc) {
-      return {
-        error: ValidationError.Error,
-        message: 'Fee calculation error'
-      }
+      return { error: ValidationError.Error, message: 'Fee calculation error' }
     }
 
-    // 4) Compliance
     if (compliantOption) {
       if (!sourceCompliant?.isCompliant && sourceChain !== 'CC') {
         return {
@@ -162,7 +167,6 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
           message: 'Source address compliance check failed'
         }
       }
-
       if (!targetCompliant?.isCompliant) {
         return {
           error: ValidationError.Error,
@@ -171,7 +175,6 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
       }
     }
 
-    // 5) Balance-related warnings (form step 0 only; not for BANK/CC)
     if (
       amount > balance &&
       formStep === 0 &&
@@ -204,7 +207,6 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
       }
     }
 
-    // 6) Allowance gate only when submitting
     if (!isApproved && isSubmitting) {
       return {
         error: ValidationError.ApprovalNeeded,
@@ -212,18 +214,18 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
       }
     }
 
-    // 7) Pool balance check
-    const { isPoolAvailable, error } = checkPoolBalance({
-      pools,
-      targetChain,
-      targetCurrency,
-      amount: formatUnits(amount, decimals)
-    })
-
-    if (!isPoolAvailable) {
-      return {
-        error: ValidationError.Error,
-        message: error || 'Pool balance check failed'
+    if (!isSwap) {
+      const { isPoolAvailable, error } = checkPoolBalance({
+        pools,
+        targetChain,
+        targetCurrency,
+        amount: formatUnits(amount, decimals)
+      })
+      if (!isPoolAvailable) {
+        return {
+          error: ValidationError.Error,
+          message: error || 'Pool balance check failed'
+        }
       }
     }
 
