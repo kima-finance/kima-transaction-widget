@@ -8,7 +8,9 @@ import {
   BTCIcon,
   USDIcon,
   HoneyIcon,
-  USD1Icon
+  USD1Icon,
+  EthereumIcon,
+  SolanaIcon
 } from '@kima-widget/assets/icons'
 import log from '@kima-widget/shared/logger'
 
@@ -29,7 +31,9 @@ const COIN_LIST: Record<string, React.FC<IconProps>> = {
   USD: USDIcon,
   USDT: USDTIcon,
   USD1: USD1Icon,
-  WBTC: BTCIcon
+  WBTC: BTCIcon,
+  WETH: EthereumIcon,
+  WSOL: SolanaIcon
 }
 
 export default function TokenIcon({
