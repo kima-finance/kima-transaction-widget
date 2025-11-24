@@ -362,18 +362,18 @@ export const TransferWidget = ({
 
     // From here: either already approved or approval isn’t needed
     try {
-      setIsSubmitting(true)
-
       // Some dApps trigger Keplr path
       if (
         dAppOption === DAppOptions.LPDrain ||
         dAppOption === DAppOptions.LPAdd
       ) {
+        setIsSubmitting(true)
         await keplrHandler?.(sourceAddress)
         return
       }
 
       // If signature is required and missing, acquire it now (single sign before submit)
+      // Note: we STOP after signing; user must click again to submit (no auto-submit).
       if (
         !signature &&
         mode !== ModeOptions.light &&
@@ -394,11 +394,11 @@ export const TransferWidget = ({
           return
         }
         setSignature(sig)
-        await submitTransaction(sig)
         return
       }
 
-      // Signature already present or not needed
+      // Signature already present or not needed -> explicit submit on this click
+      setIsSubmitting(true)
       await submitTransaction(signature)
     } catch (err) {
       log.error('[TransferWidget] handleSubmit failed', err)
@@ -489,23 +489,21 @@ export const TransferWidget = ({
         return 'Next'
       }
 
-      if (isApproved) {
-        // Fully approved: submit path
-        return isSubmitting
-          ? !signature && dAppOption === DAppOptions.None
-            ? 'Signing...'
-            : 'Submitting...'
-          : 'Submit'
+      // If we need a signature and don't have one yet → always show Sign (and never auto-submit after signing)
+      if (
+        mode !== ModeOptions.light &&
+        dAppOption === DAppOptions.None &&
+        !signature
+      ) {
+        return isSigning ? 'Signing...' : 'Sign'
       }
 
-      // Not approved yet: distinguish Signing vs Approving vs idle
-      return isApproving
-        ? !signature && dAppOption === DAppOptions.None
-          ? 'Signing...'
-          : 'Approving...'
-        : !signature && dAppOption === DAppOptions.None
-          ? 'Sign'
-          : 'Approve'
+      // Already signed; if approved, we submit; otherwise we approve.
+      if (isApproved) {
+        return isSubmitting ? 'Submitting...' : 'Submit'
+      }
+
+      return isApproving ? 'Approving...' : 'Approve'
     }
 
     // Step 0
