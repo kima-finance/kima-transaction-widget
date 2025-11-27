@@ -13,7 +13,8 @@ import {
   BaseIcon,
   BeraIcon,
   CreditCardIcon,
-  CFXIcon
+  CFXIcon,
+  WorldIcon
 } from '../../assets/icons'
 import log from '@kima-widget/shared/logger'
 
@@ -34,7 +35,8 @@ const chainIcons: Record<string, React.FC<IconProps>> = {
   POL: PolygonIcon,
   OPT: OptimismIcon,
   SOL: SolanaIcon,
-  TRX: TronIcon
+  TRX: TronIcon,
+  WLD: WorldIcon
 }
 
 export interface ChainIconProps extends IconProps {
