@@ -22,7 +22,8 @@ export enum ChainName {
   FIAT = 'FIAT',
   BTC = 'BTC',
   BERA = 'BERA',
-  CFX = 'CFX'
+  CFX = 'CFX',
+  WLD = 'WLD'
 }
 
 export const CHAIN_NAMES_TO_STRING: { [chainName: string]: string } = {
@@ -39,7 +40,8 @@ export const CHAIN_NAMES_TO_STRING: { [chainName: string]: string } = {
   [ChainName.BTC]: 'Bitcoin',
   [ChainName.BASE]: 'Base',
   [ChainName.BERA]: 'Bera',
-  [ChainName.CFX]: 'Conflux'
+  [ChainName.CFX]: 'Conflux',
+  [ChainName.WLD]: 'WorldChain'
 }
 
 export const CHAIN_STRING_TO_NAME: { [chainName: string]: ChainName } = {
@@ -56,7 +58,8 @@ export const CHAIN_STRING_TO_NAME: { [chainName: string]: ChainName } = {
   ['Bitcoin']: ChainName.BTC,
   ['Base']: ChainName.BASE,
   ['Bera']: ChainName.BERA,
-  ['Conflux']: ChainName.CFX
+  ['Conflux']: ChainName.CFX,
+  ['WorldChain']: ChainName.WLD
 }
 
 export const CHAIN_NAMES_TO_EXPLORER_TESTNET: { [chainName: string]: string } =
@@ -73,7 +76,8 @@ export const CHAIN_NAMES_TO_EXPLORER_TESTNET: { [chainName: string]: string } =
     [ChainName.BTC]: 'mempool.space/testnet',
     [ChainName.BASE]: 'sepolia.basescan.org',
     [ChainName.BERA]: 'bartio.beratrail.io',
-    [ChainName.CFX]: 'evmtestnet.confluxscan.org'
+    [ChainName.CFX]: 'evmtestnet.confluxscan.org',
+    [ChainName.WLD]: 'sepolia.worldscan.org'
   }
 
 export const CHAIN_NAMES_TO_EXPLORER_MAINNET: { [chainName: string]: string } =
@@ -89,7 +93,8 @@ export const CHAIN_NAMES_TO_EXPLORER_MAINNET: { [chainName: string]: string } =
     [ChainName.TRON]: 'tronscan.org/#',
     [ChainName.BTC]: 'mempool.space',
     [ChainName.BASE]: 'basescan.org',
-    [ChainName.CFX]: 'evm.confluxscan.net'
+    [ChainName.CFX]: 'evm.confluxscan.net',
+    [ChainName.WLD]: 'worldscan.org'
   }
 
 export type Cluster = 'devnet' | 'testnet' | 'mainnet'
