@@ -108,7 +108,8 @@ export const isEVMChain = (chainId: string) =>
   chainId === ChainName.POLYGON_ZKEVM ||
   chainId === ChainName.BASE ||
   chainId === ChainName.BERA ||
-  chainId === ChainName.CFX
+  chainId === ChainName.CFX ||
+  chainId === ChainName.WLD
 
 export const isSolana = (shortName: string) => shortName === ChainName.SOLANA
 export const isTron = (shortName: string) => shortName === ChainName.TRON
