@@ -3,7 +3,6 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useSelector } from 'react-redux'
 import { PublicKey, Transaction } from '@solana/web3.js'
 import {
-  TOKEN_PROGRAM_ID,
   getAssociatedTokenAddress,
   createApproveInstruction,
   createRevokeInstruction
@@ -21,16 +20,13 @@ import {
 } from '@kima-widget/shared/store/selectors'
 import { lightDemoAccounts, ModeOptions } from '@kima-widget/shared/types'
 import useGetPools from '@kima-widget/hooks/useGetPools'
-import log from 'loglevel'
+import log from '@kima-widget/shared/logger'
 import {
   getPoolAddress,
   getTokenAddress
 } from '@kima-widget/shared/lib/addresses'
+import { getTokenProgramForMint } from '@kima-widget/shared/crypto/solana/getTokenProgramForMint'
 
-/**
- * Approves (or revokes when isCancel=true) SPL token allowance to the pool.
- * Mirrors your previous single-hook behavior but isolated to approval only.
- */
 export const useApproveSPL = () => {
   const qc = useQueryClient()
   const { connection, publicKey, signTransaction } = useSolProvider()
@@ -43,7 +39,6 @@ export const useApproveSPL = () => {
   const { transactionValues } = useSelector(selectServiceFee)
   const feeDeduct = useSelector(selectFeeDeduct)
 
-  // allowance number from fee calc
   const { allowanceAmount } = feeDeduct
     ? transactionValues.feeFromTarget
     : transactionValues.feeFromOrigin
@@ -61,26 +56,47 @@ export const useApproveSPL = () => {
   const approve = useCallback(
     async (isCancel: boolean = false) => {
       if (!connection || !signTransaction || !ownerPk) {
-        log.warn('useApproveSPL: missing provider or owner')
+        log.debug('[useApproveSPL] missing provider or owner')
         return
       }
+
       try {
         const poolAddress = getPoolAddress(pools, 'SOL')
         const tokenAddress = getTokenAddress(tokenOptions, selectedCoin, 'SOL')
         if (!poolAddress || !tokenAddress) return
 
         const mint = new PublicKey(tokenAddress)
-        const ata = await getAssociatedTokenAddress(mint, ownerPk)
 
+        // Key change: detect which token program this mint uses
+        const { programId, isToken2022 } = await getTokenProgramForMint(
+          connection,
+          mint
+        )
+        log.debug('[useApproveSPL] token program', {
+          symbol: selectedCoin,
+          tokenProgram: isToken2022
+            ? 'TOKEN_2022_PROGRAM_ID'
+            : 'TOKEN_PROGRAM_ID'
+        })
+
+        // Key change: ATA derivation must use that programId
+        const ata = await getAssociatedTokenAddress(
+          mint,
+          ownerPk,
+          false,
+          programId
+        )
+
+        // Key change: instruction must use the same programId
         const ix = isCancel
-          ? createRevokeInstruction(ata, ownerPk, [], TOKEN_PROGRAM_ID)
+          ? createRevokeInstruction(ata, ownerPk, [], programId)
           : createApproveInstruction(
               ata,
               new PublicKey(poolAddress),
               ownerPk,
               allowanceNumber,
               [],
-              TOKEN_PROGRAM_ID
+              programId
             )
 
         const recent = await connection.getLatestBlockhash('finalized')
@@ -93,18 +109,17 @@ export const useApproveSPL = () => {
           skipPreflight: false,
           preflightCommitment: 'confirmed'
         })
-        log.debug('useApproveSPL: sent', sig)
+        log.debug('[useApproveSPL] sent', { sig })
 
         const conf = await connection.confirmTransaction(
           { signature: sig, ...recent },
           'finalized'
         )
         if (conf.value.err) {
-          log.error('useApproveSPL: confirmation error', conf.value.err)
+          log.debug('[useApproveSPL] confirmation error', conf.value.err)
           return
         }
 
-        // refresh allowance/balance
         await qc.invalidateQueries({
           queryKey: [
             'solanaAllowance',
@@ -114,7 +129,7 @@ export const useApproveSPL = () => {
           ]
         })
       } catch (err) {
-        log.error('useApproveSPL: tx error', err)
+        log.debug('[useApproveSPL] tx error', err)
         throw err
       }
     },

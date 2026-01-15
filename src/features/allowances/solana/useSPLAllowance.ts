@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useSelector } from 'react-redux'
 import { PublicKey, ParsedAccountData } from '@solana/web3.js'
-import { getAssociatedTokenAddress } from '@solana/spl-token'
+import { getAssociatedTokenAddress, getMint } from '@solana/spl-token'
 import { useSolProvider } from '@kima-widget/features/connect-wallet/solana'
 import {
   selectBackendUrl,
@@ -22,6 +22,10 @@ import {
   getPoolAddress,
   getTokenAddress
 } from '@kima-widget/shared/lib/addresses'
+import {
+  getTokenProgramForMint,
+  isSolanaRateLimitError
+} from '@kima-widget/shared/crypto/solana/getTokenProgramForMint'
 
 export const useSPLAllowance = (): GetTokenAllowanceResult => {
   const { connection, publicKey } = useSolProvider()
@@ -57,6 +61,10 @@ export const useSPLAllowance = (): GetTokenAllowanceResult => {
     ],
     enabled,
     staleTime: 60_000,
+    gcTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+
     queryFn: async () => {
       try {
         log.debug('[useSPLAllowance] start', {
@@ -74,44 +82,60 @@ export const useSPLAllowance = (): GetTokenAllowanceResult => {
         const mintAddr = getTokenAddress(tokenOptions, selectedCoin, 'SOL')
         const poolAddr = getPoolAddress(pools, 'SOL')
         if (!mintAddr || !poolAddr) {
-          log.warn('[useSPLAllowance] missing mint or pool', {
+          log.debug('[useSPLAllowance] missing mint or pool', {
             mintAddr,
-            poolAddr
+            poolAddr,
+            selectedCoin
           })
           return { allowance: 0n, decimals: 0 }
         }
 
         const mint = new PublicKey(mintAddr)
-        const ata = await getAssociatedTokenAddress(mint, ownerPk!)
 
-        const accInfo = await connection.getParsedAccountInfo(ata)
+        const { programId, isToken2022 } = await getTokenProgramForMint(
+          connection!,
+          mint
+        )
+
+        const mintInfo = await getMint(connection!, mint, undefined, programId)
+        const ata = await getAssociatedTokenAddress(
+          mint,
+          ownerPk!,
+          false,
+          programId
+        )
+
+        const accInfo = await connection!.getParsedAccountInfo(ata)
         const parsed = accInfo?.value?.data as ParsedAccountData | null
         if (!parsed) {
-          log.warn('[useSPLAllowance] no ATA', {
+          log.debug('[useSPLAllowance] no ATA', {
             owner: ownerPk?.toBase58(),
             ata: ata.toBase58(),
-            mint: mint.toBase58()
+            mint: mint.toBase58(),
+            tokenProgram: isToken2022
+              ? 'TOKEN_2022_PROGRAM_ID'
+              : 'TOKEN_PROGRAM_ID'
           })
-          return { allowance: 0n, decimals: 0 }
+          return { allowance: 0n, decimals: mintInfo.decimals }
         }
 
         const info = (parsed.parsed as any)?.info
         const delegate = info?.delegate as string | undefined
         const delegatedAmount = BigInt(info?.delegatedAmount?.amount ?? 0)
-        const decimals = Number(info?.tokenAmount?.decimals ?? 0)
         const isPoolDelegate = !!delegate && delegate === poolAddr
         const allowance = isPoolDelegate ? delegatedAmount : 0n
 
-        const res = { allowance, decimals }
         log.debug('[useSPLAllowance] result', {
           delegate,
           isPoolDelegate,
           delegatedAmount: delegatedAmount.toString(),
-          decimals
+          decimals: mintInfo.decimals
         })
-        return res
+
+        return { allowance, decimals: mintInfo.decimals }
       } catch (e) {
-        log.error('[useSPLAllowance] error', e)
+        if (isSolanaRateLimitError(e)) throw e
+        log.debug('[useSPLAllowance] error', e)
         return { allowance: 0n, decimals: 0 }
       }
     }

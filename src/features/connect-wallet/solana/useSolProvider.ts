@@ -45,7 +45,7 @@ export const useSolProvider = (): SolProviderShape => {
     const endpoint =
       net === NetworkOptions.testnet
         ? clusterApiUrl('devnet')
-        : (solRPC ?? 'https://go.getblock.us/86aac42ad4484f3c813079afc201451c')
+        : (solRPC ?? 'https://solana-rpc.publicnode.com')
 
     const connection = new Connection(endpoint, 'confirmed')
 
