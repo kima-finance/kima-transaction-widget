@@ -1,5 +1,4 @@
 import {
-  TOKEN_PROGRAM_ID,
   ASSOCIATED_TOKEN_PROGRAM_ID
 } from '@solana/spl-token'
 // import { SignerWalletAdapterProps } from '@solana/wallet-adapter-base'
@@ -7,6 +6,7 @@ import { Connection, PublicKey, Commitment, Transaction } from '@solana/web3.js'
 import { createAssociatedTokenAccountInstruction } from './createAssociatedTokenAccountInstruction'
 import { getAccountInfo } from './getAccountInfo'
 import { getAssociatedTokenAddress } from './getAssociatedTokenAddress'
+import { identifyTokenProgram } from './getAssociatedTokenAddress'
 
 export async function getOrCreateAssociatedTokenAccount(
   connection: Connection,
@@ -16,14 +16,17 @@ export async function getOrCreateAssociatedTokenAccount(
   signTransaction: /*SignerWalletAdapterProps['signTransaction']*/ any,
   allowOwnerOffCurve = false,
   commitment?: Commitment,
-  programId = TOKEN_PROGRAM_ID,
+  programId?: PublicKey,
   associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID
 ) {
+  // Auto-detect token program if not provided
+  const detectedProgramId = programId || (await identifyTokenProgram(connection, mint, commitment))
+
   const associatedToken = await getAssociatedTokenAddress(
     mint,
     owner,
     allowOwnerOffCurve,
-    programId,
+    detectedProgramId,
     associatedTokenProgramId
   )
 
@@ -35,7 +38,7 @@ export async function getOrCreateAssociatedTokenAccount(
       connection,
       associatedToken,
       commitment,
-      programId
+      detectedProgramId
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error) {
@@ -55,7 +58,7 @@ export async function getOrCreateAssociatedTokenAccount(
             associatedToken,
             owner,
             mint,
-            programId,
+            detectedProgramId,
             associatedTokenProgramId
           )
         )
@@ -80,7 +83,7 @@ export async function getOrCreateAssociatedTokenAccount(
         connection,
         associatedToken,
         commitment,
-        programId
+        detectedProgramId
       )
     } else {
       throw error

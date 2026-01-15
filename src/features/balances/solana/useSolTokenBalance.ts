@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux'
 import { useQuery } from '@tanstack/react-query'
 import { PublicKey, ParsedAccountData } from '@solana/web3.js'
-import { getAssociatedTokenAddress, getMint } from '@solana/spl-token'
+import { getMint } from '@solana/spl-token'
 import {
   selectSourceCurrency,
   selectTokenOptions,
@@ -15,6 +15,7 @@ import {
 import { useSolNativeBalance } from './useSolNativeBalance'
 import { PluginUseBalanceResult as BalanceResult } from '@kima-widget/shared/types'
 import log from '@kima-widget/shared/logger'
+import { identifyTokenProgram, getAssociatedTokenAddress } from '@kima-widget/shared/crypto/solana/getAssociatedTokenAddress'
 
 const getMintAddressForSymbol = (tokenOptions: TokenOptions, symbol: string) =>
   tokenOptions?.[symbol]?.SOL || ''
@@ -56,7 +57,9 @@ export const useSolTokenBalance = (): BalanceResult => {
 
         const mint = new PublicKey(mintAddr)
         const ownerPk = new PublicKey(owner)
-        const ata = await getAssociatedTokenAddress(mint, ownerPk, false)
+
+        const programId = await identifyTokenProgram(connection, mint, ownerPk)
+        const ata = await getAssociatedTokenAddress(mint, ownerPk, false, programId)
 
         const mintInfo = await getMint(connection, mint)
         log.debug('[useSolTokenBalance] mint/ata', {

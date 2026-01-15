@@ -3,11 +3,10 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useSelector } from 'react-redux'
 import { PublicKey, Transaction } from '@solana/web3.js'
 import {
-  TOKEN_PROGRAM_ID,
-  getAssociatedTokenAddress,
   createApproveInstruction,
   createRevokeInstruction
 } from '@solana/spl-token'
+import { identifyTokenProgram, getAssociatedTokenAddress } from '@kima-widget/shared/crypto/solana/getAssociatedTokenAddress'
 
 import { useSolProvider } from '@kima-widget/features/connect-wallet/solana'
 import {
@@ -70,17 +69,18 @@ export const useApproveSPL = () => {
         if (!poolAddress || !tokenAddress) return
 
         const mint = new PublicKey(tokenAddress)
-        const ata = await getAssociatedTokenAddress(mint, ownerPk)
+        const programId = await identifyTokenProgram(connection, mint, ownerPk)
+        const ata = await getAssociatedTokenAddress(mint, ownerPk, false, programId)
 
         const ix = isCancel
-          ? createRevokeInstruction(ata, ownerPk, [], TOKEN_PROGRAM_ID)
+          ? createRevokeInstruction(ata, ownerPk, [], programId)
           : createApproveInstruction(
               ata,
               new PublicKey(poolAddress),
               ownerPk,
               allowanceNumber,
               [],
-              TOKEN_PROGRAM_ID
+              programId
             )
 
         const recent = await connection.getLatestBlockhash('finalized')

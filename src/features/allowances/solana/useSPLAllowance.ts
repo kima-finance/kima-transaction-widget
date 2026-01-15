@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useSelector } from 'react-redux'
 import { PublicKey, ParsedAccountData } from '@solana/web3.js'
-import { getAssociatedTokenAddress } from '@solana/spl-token'
+import { identifyTokenProgram, getAssociatedTokenAddress } from '@kima-widget/shared/crypto/solana/getAssociatedTokenAddress'
 import { useSolProvider } from '@kima-widget/features/connect-wallet/solana'
 import {
   selectBackendUrl,
@@ -82,7 +82,8 @@ export const useSPLAllowance = (): GetTokenAllowanceResult => {
         }
 
         const mint = new PublicKey(mintAddr)
-        const ata = await getAssociatedTokenAddress(mint, ownerPk!)
+        const programId = await identifyTokenProgram(connection, mint, ownerPk)
+        const ata = await getAssociatedTokenAddress(mint, ownerPk!, false, programId)
 
         const accInfo = await connection.getParsedAccountInfo(ata)
         const parsed = accInfo?.value?.data as ParsedAccountData | null
