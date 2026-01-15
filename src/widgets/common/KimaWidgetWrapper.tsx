@@ -47,16 +47,6 @@ import log from '@kima-widget/shared/logger'
 import useGetCurrentPlugin from '@kima-widget/shared/lib/hooks/useGetCurrentPlugin'
 import SkeletonLoader from './SkeletonLoader'
 
-// small helpers
-const deepEqual = (a: any, b: any) => {
-  try {
-    if (a === b) return true
-    return JSON.stringify(a) === JSON.stringify(b)
-  } catch {
-    return false
-  }
-}
-
 type Props = {
   theme: ThemeOptions
   mode: ModeOptions
@@ -197,7 +187,6 @@ const KimaWidgetWrapper = ({
         if (src) dispatch(setSourceChain(src))
       }
 
-      // target chain (required by your config contract)
       if (transactionOption.targetChain) {
         const tgt = chainData?.find(
           (c) => c.shortName === transactionOption.targetChain
