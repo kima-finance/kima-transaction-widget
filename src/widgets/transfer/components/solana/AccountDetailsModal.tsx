@@ -15,6 +15,9 @@ import { useSolNativeBalance } from '@kima-widget/features/balances/solana'
 import log from '@kima-widget/shared/logger'
 import { getSolanaAccountExplorerUrl } from '@kima-widget/shared/lib/explorers'
 import AccountDetailsModalBase from '../AccountDetailsModalBase'
+import toast from 'react-hot-toast'
+import { ErrorIcon } from '@kima-widget/assets/icons'
+import { isUserRejected } from '@kima-widget/shared/lib/wallet'
 
 const AccountDetailsModal = () => {
   const dispatch = useDispatch()
@@ -45,8 +48,13 @@ const AccountDetailsModal = () => {
     }
     try {
       await solanaWalletDisconnect()
+      toast('Wallet disconnected.')
     } catch (e) {
-      /* noop */
+      if (isUserRejected(e)) {
+        toast('Wallet disconnect was cancelled.')
+      } else {
+        toast.error('Failed to disconnect wallet.', { icon: <ErrorIcon /> })
+      }
     } finally {
       close()
     }

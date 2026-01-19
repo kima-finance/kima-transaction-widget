@@ -7,6 +7,8 @@ import { setSolanaConnectModal } from '@kima-widget/shared/store/optionSlice'
 import { ExternalLink } from '@kima-widget/components/reusable'
 import log from '@kima-widget/shared/logger'
 import { useHorizontalDragScroll } from '@kima-widget/shared/lib/hooks/useHorizontalDragScroll'
+import toast from 'react-hot-toast'
+import { isUserRejected } from '@kima-widget/shared/lib/wallet'
 
 const SolanaWalletSelect = () => {
   const theme = useSelector(selectTheme)
@@ -54,7 +56,14 @@ const SolanaWalletSelect = () => {
         'SolanaWalletSelect: Wallet exists but not connected, connecting wallet:',
         wallet
       )
-      connect().catch((err) => log.error('Solana connect error:', err))
+      connect().catch((err) => {
+        if (isUserRejected(err)) {
+          toast('Wallet connection was cancelled.')
+        } else {
+          toast.error('Failed to connect wallet.')
+        }
+        log.error('Solana connect error:', err)
+      })
     }
 
     dispatch(setSolanaConnectModal(false))

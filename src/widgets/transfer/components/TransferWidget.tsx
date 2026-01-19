@@ -75,6 +75,7 @@ import useDisconnectWallet from '../hooks/useDisconnectWallet'
 import SolanaWalletConnectModal from './solana/SolanaConnectModal'
 import TronWalletConnectModal from './tron/TronWalletConnectModal'
 import { isSamePeggedToken } from '@kima-widget/shared/lib/misc'
+import { isUserRejected } from '@kima-widget/shared/lib/wallet'
 
 interface Props {
   theme: ThemeOptions
@@ -291,6 +292,46 @@ export const TransferWidget = ({
     }
   }, [signature, submitTransaction, dispatch])
 
+  const requestSignature = useCallback(async (): Promise<string | undefined> => {
+    let sig: string | undefined
+    setSigning(true)
+    setFeeOptionDisabled(true)
+    try {
+      sig = await signMessage?.({
+        targetAddress,
+        targetChain: targetChain.shortName,
+        originSymbol: sourceCurrency,
+        originChain: sourceChain.shortName
+      })
+      if (!sig) {
+        toast('Signature request was cancelled.', { icon: 'ℹ️' })
+        return undefined
+      }
+      setSignature(sig)
+      return sig
+    } catch (err: any) {
+      if (isUserRejected(err)) {
+        toast('Signature request was cancelled.', { icon: 'ℹ️' })
+      } else {
+        log.error('[TransferWidget] signing failed', err)
+        toast.error(
+          'Failed to sign the message. Please contact support for assistance.',
+          { icon: <ErrorIcon /> }
+        )
+      }
+      return undefined
+    } finally {
+      setSigning(false)
+      if (!sig) setFeeOptionDisabled(false)
+    }
+  }, [
+    signMessage,
+    targetAddress,
+    targetChain.shortName,
+    sourceCurrency,
+    sourceChain.shortName
+  ])
+
   // Core click handler when user confirms the details
   const handleSubmit = async () => {
     const { error, message: validationMessage } = validate(true)
@@ -316,21 +357,11 @@ export const TransferWidget = ({
       try {
         // 1) Sign — only sign on this click if we don’t have a signature yet.
         if (!signature) {
-          setSigning(true)
-          setFeeOptionDisabled(true)
-          const sig = await signMessage?.({
-            targetAddress,
-            targetChain: targetChain.shortName,
-            originSymbol: sourceCurrency,
-            originChain: sourceChain.shortName
-          })
-          setSigning(false)
+          const sig = await requestSignature()
           if (!sig) {
             // Signature rejected or missing. Keep UI in “Approve” state but do not proceed.
-            toast('Signature request was cancelled.', { icon: 'ℹ️' })
             return
           }
-          setSignature(sig)
           // 2) Do NOT auto-approve here; wait for the user’s next click.
           //    The next click (still ApprovalNeeded) will trigger the actual approve call below.
           return
@@ -339,16 +370,13 @@ export const TransferWidget = ({
         // 3) At this point, we have a signature already -> now run Approve on this click.
         setApproving(true)
         await approve()
-        setApproving(false)
 
         // When approve is confirmed, the allowance query invalidates in the hook,
         // which flips `isApproved` based on on-chain allowance vs required allowance.
         // The button then becomes “Submit” automatically.
       } catch (err: any) {
-        setApproving(false)
-
         // Common wallet cancellation error
-        if (err?.code === 4001) {
+        if (isUserRejected(err)) {
           toast('Approval request was cancelled.', { icon: 'ℹ️' })
           return
         }
@@ -368,6 +396,8 @@ export const TransferWidget = ({
           'Failed to approve the token allowance. Please contact support for assistance.',
           { icon: <ErrorIcon /> }
         )
+      } finally {
+        setApproving(false)
       }
       return
     }
@@ -391,21 +421,11 @@ export const TransferWidget = ({
         mode !== ModeOptions.light &&
         dAppOption === DAppOptions.None
       ) {
-        setSigning(true)
-        setFeeOptionDisabled(true)
-        const sig = await signMessage?.({
-          targetAddress,
-          targetChain: targetChain.shortName,
-          originSymbol: sourceCurrency,
-          originChain: sourceChain.shortName
-        })
-        setSigning(false)
+        const sig = await requestSignature()
         if (!sig) {
-          toast('Signature request was cancelled.', { icon: 'ℹ️' })
           setIsSubmitting(false)
           return
         }
-        setSignature(sig)
         return
       }
 
@@ -475,7 +495,7 @@ export const TransferWidget = ({
       toast('Approval successfully cancelled.', { icon: 'ℹ️' })
     } catch (err: any) {
       // Wallet rejection is fine; keep it informational
-      if (err?.code === 4001) {
+      if (isUserRejected(err)) {
         toast('Cancel-approval request was cancelled.', { icon: 'ℹ️' })
       } else {
         log.error('[TransferWidget] cancel approve failed', err)

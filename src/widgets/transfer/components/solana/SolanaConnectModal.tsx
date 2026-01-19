@@ -16,8 +16,10 @@ import {
   ModeOptions,
   lightDemoAccounts
 } from '@kima-widget/shared/types'
-import { CrossIcon } from '@kima-widget/assets/icons'
+import { CrossIcon, ErrorIcon } from '@kima-widget/assets/icons'
 import log from '@kima-widget/shared/logger'
+import toast from 'react-hot-toast'
+import { isUserRejected } from '@kima-widget/shared/lib/wallet'
 
 import SolanaWalletSelect from './SolanaWalletSelect'
 import AccountDetailsModal from './AccountDetailsModal'
@@ -57,7 +59,13 @@ const SolanaWalletConnectModal = () => {
       await connect()
       dispatch(setSolanaConnectModal(false))
       dispatch(setAccountDetailsModal(true))
+      toast('Wallet connected.')
     } catch (e) {
+      if (isUserRejected(e)) {
+        toast('Wallet connection was cancelled.')
+      } else {
+        toast.error('Failed to connect wallet.', { icon: <ErrorIcon /> })
+      }
       log.error('[SolanaConnectModal] connect error', e)
     }
   }, [isSol, mode, connect, dispatch])

@@ -6,6 +6,8 @@ import { selectTheme } from '@kima-widget/shared/store/selectors'
 import { setTronConnectModal } from '@kima-widget/shared/store/optionSlice'
 import { ExternalLink } from '@kima-widget/components/reusable'
 import { useHorizontalDragScroll } from '@kima-widget/shared/lib/hooks/useHorizontalDragScroll'
+import toast from 'react-hot-toast'
+import { isUserRejected } from '@kima-widget/shared/lib/wallet'
 
 const TronWalletSelect = () => {
   const theme = useSelector(selectTheme)
@@ -43,9 +45,19 @@ const TronWalletSelect = () => {
   }, [connected])
 
   const connectWallet = async (walletName: any) => {
-    currentWallet?.adapter.name === walletName
-      ? await connect()
-      : select(walletName)
+    try {
+      if (currentWallet?.adapter.name === walletName) {
+        await connect()
+      } else {
+        select(walletName)
+      }
+    } catch (err) {
+      if (isUserRejected(err)) {
+        toast('Wallet connection was cancelled.')
+      } else {
+        toast.error('Failed to connect wallet.')
+      }
+    }
   }
 
   return (

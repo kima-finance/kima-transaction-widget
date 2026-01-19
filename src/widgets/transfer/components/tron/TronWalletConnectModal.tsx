@@ -16,8 +16,10 @@ import {
   lightDemoAccounts
 } from '@kima-widget/shared/types'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
-import { CrossIcon } from '@kima-widget/assets/icons'
+import { CrossIcon, ErrorIcon } from '@kima-widget/assets/icons'
 import log from '@kima-widget/shared/logger'
+import toast from 'react-hot-toast'
+import { isUserRejected } from '@kima-widget/shared/lib/wallet'
 
 import AccountDetailsModal from './AccountDetailsModal'
 import TronWalletSelect from './TronWalletSelect'
@@ -49,7 +51,13 @@ const TronWalletConnectModal = () => {
       await connect()
       dispatch(setTronConnectModal(false))
       dispatch(setAccountDetailsModal(true))
+      toast('Wallet connected.')
     } catch (e) {
+      if (isUserRejected(e)) {
+        toast('Wallet connection was cancelled.')
+      } else {
+        toast.error('Failed to connect wallet.', { icon: <ErrorIcon /> })
+      }
       log.error('[TronConnectModal] connect error', e)
     }
   }, [isTrx, mode, connect, dispatch])
