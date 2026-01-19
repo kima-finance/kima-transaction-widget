@@ -74,6 +74,7 @@ import useBalance from '../hooks/useBalance'
 import useDisconnectWallet from '../hooks/useDisconnectWallet'
 import SolanaWalletConnectModal from './solana/SolanaConnectModal'
 import TronWalletConnectModal from './tron/TronWalletConnectModal'
+import { isSamePeggedToken } from '@kima-widget/shared/lib/misc'
 
 interface Props {
   theme: ThemeOptions
@@ -167,6 +168,17 @@ export const TransferWidget = ({
     targetSymbol: targetCurrency,
     backendUrl
   })
+
+  const isSwap = useMemo(
+    () =>
+      !isSamePeggedToken(
+        sourceChain,
+        sourceCurrency,
+        targetChain,
+        targetCurrency
+      ),
+    [sourceChain, sourceCurrency, targetChain, targetCurrency]
+  )
 
   useEffect(() => {
     // reset cross-network artifacts
@@ -319,7 +331,7 @@ export const TransferWidget = ({
             return
           }
           setSignature(sig)
-          // 2) Do NOT auto-approve here; wait for the user’s next click as requested.
+          // 2) Do NOT auto-approve here; wait for the user’s next click.
           //    The next click (still ApprovalNeeded) will trigger the actual approve call below.
           return
         }
@@ -610,7 +622,9 @@ export const TransferWidget = ({
                   : (titleOption?.confirmTitle ??
                     (mode === ModeOptions.payment
                       ? 'Confirm Purchase'
-                      : 'Transfer Details'))}
+                      : isSwap
+                        ? 'Swap Details'
+                        : 'Transfer Details'))}
               </h3>
             </div>
             <div className='control-buttons'>

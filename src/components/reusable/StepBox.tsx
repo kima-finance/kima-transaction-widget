@@ -29,33 +29,26 @@ interface Props {
   errorStep: number
   loadingStep: number
   data?: TransactionData | null
+  steps?: { title: string }[]
 }
 
-const stepInfo = [
-  {
-    title: 'Initialize'
-  },
-  {
-    title: 'Source Transfer'
-  },
-  {
-    title: 'Validation'
-  },
-  {
-    title: 'Target Transfer'
-  },
-  {
-    title: 'Finalize'
-  }
+const DEFAULT_STEPS = [
+  { title: 'Initialize' },
+  { title: 'Source Transfer' },
+  { title: 'Validation' },
+  { title: 'Target Transfer' },
+  { title: 'Finalize' }
 ]
 
-const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
+const StepBox = ({ step, errorStep, loadingStep, data, steps }: Props) => {
   const theme = useSelector(selectTheme)
   const explorerUrl = useSelector(selectKimaExplorer)
   const networkOption = useSelector(selectNetworkOption)
   const networks = useSelector(selectNetworks)
 
   const { width: windowWidth } = useWidth()
+
+  const stepInfo = steps ?? DEFAULT_STEPS
 
   const sourceChain = useMemo(() => {
     const sourceKey = data?.sourceChain === 'FIAT' ? 'CC' : data?.sourceChain
@@ -71,7 +64,7 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
     <div className='kima-stepbox'>
       <div className={`content-wrapper ${theme.colorMode}`}>
         {stepInfo.map((item, index) => (
-          <div key={item.title} className='step-item'>
+          <div key={`${item.title}-${index}`} className='step-item'>
             <div
               className={`info-item
                   ${step >= index ? (index === loadingStep ? 'active' : index === errorStep ? 'error' : 'completed') : ''} 
@@ -92,6 +85,7 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
               </div>
               <p>{item.title}</p>
             </div>
+
             {index === 0 && data?.kimaTxHash ? (
               <div className={`info-item ${theme.colorMode}`}>
                 <div className='icon'>
@@ -108,6 +102,8 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                 </p>
               </div>
             ) : null}
+
+            {/* Step 1: Source Transfer => show pull hash */}
             {index === 1 &&
             data?.tssPullHash &&
             sourceChain?.shortName !== 'CC' ? (
@@ -138,6 +134,8 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                 </p>
               </div>
             ) : null}
+
+            {/* Step 3: Target Transfer => show refund/release hashes */}
             {index === 3 && data?.tssRefundHash ? (
               <div className={`info-item ${theme.colorMode} target-chain`}>
                 <ChainIcon symbol={data.sourceChain as string} />
@@ -164,6 +162,7 @@ const StepBox = ({ step, errorStep, loadingStep, data }: Props) => {
                 </p>
               </div>
             ) : null}
+
             {index === 3 && data?.tssReleaseHash ? (
               <div className={`info-item ${theme.colorMode} target-chain`}>
                 <ChainIcon symbol={data.targetChain as string} />

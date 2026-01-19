@@ -74,7 +74,86 @@ import ChainIcon from '@kima-widget/components/reusable/ChainIcon'
 import TransactionStatusMessage from '@kima-widget/components/reusable/TransactionStatusMessage'
 import TransactionSearch from '@kima-widget/components/reusable/TransactionSearch'
 import { isSamePeggedToken } from '@kima-widget/shared/lib/misc'
-import { formatterFloat } from '@kima-widget/shared/lib/format'
+
+type StepDef = { title: string }
+
+const TRANSFER_STEPS: StepDef[] = [
+  { title: 'Initialize' },
+  { title: 'Source Transfer' },
+  { title: 'Validation' },
+  { title: 'Target Transfer' },
+  { title: 'Finalize' }
+]
+
+const SWAP_STEPS: StepDef[] = [
+  { title: 'Initialize' },
+  { title: 'Source Transfer' },
+  { title: 'Swap' },
+  { title: 'Target Transfer' },
+  { title: 'Finalize' }
+]
+
+const normalizeStatus = (s?: string) =>
+  (s ?? '')
+    .toString()
+    .trim()
+    .toUpperCase()
+    .replace(/[\s-]+/g, '_')
+
+const compact = (s: string) => s.replace(/_/g, '')
+
+/**
+ * UI-only symbol normalization
+ */
+const displaySymbol = (sym?: string) => {
+  const s = (sym ?? '').toString().trim()
+  const up = s.toUpperCase()
+  if (up === 'WETH') return 'ETH'
+  if (up === 'WSOL') return 'SOL'
+  return s
+}
+
+const formatTruncMaxDecimals = (
+  value: unknown,
+  maxDecimals = 4,
+  maxExtraDecimals = 12 // safety cap: maxDecimals + maxExtraDecimals
+): string => {
+  const n = Number(value)
+  if (!Number.isFinite(n)) return ''
+
+  const abs = Math.abs(n)
+
+  // Normal path: truncate to maxDecimals
+  const baseFactor = 10 ** maxDecimals
+  const baseTrunc = Math.trunc(n * baseFactor) / baseFactor
+
+  // If it's truly zero (or exactly truncs to non-zero), format normally
+  if (abs === 0 || baseTrunc !== 0) {
+    const fixed = baseTrunc.toFixed(maxDecimals)
+    return fixed.replace(/\.?0+$/, '')
+  }
+
+  // Here: n != 0 but truncating to maxDecimals becomes 0.0000
+  // Increase decimals until we hit a non-zero trunc, but cap it.
+  let d = maxDecimals + 1
+  const maxD = maxDecimals + maxExtraDecimals
+
+  while (d <= maxD) {
+    const factor = 10 ** d
+    const trunc = Math.trunc(n * factor) / factor
+    if (trunc !== 0) {
+      const fixed = trunc.toFixed(d)
+      return fixed.replace(/\.?0+$/, '')
+    }
+    d += 1
+  }
+
+  // Fallback (extremely tiny values): show the smallest representable at cap
+  const capFactor = 10 ** maxD
+  const capTrunc = Math.trunc(n * capFactor) / capFactor
+  const fixed = capTrunc.toFixed(maxD)
+  return fixed.replace(/\.?0+$/, '')
+}
 
 export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [step, setStep] = useState(0)
@@ -84,6 +163,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [loadingStep, setLoadingStep] = useState(-1)
   const [minimized, setMinimized] = useState(false)
   const [isComplete, setIsComplete] = useState(false)
+
   const dispatch = useDispatch()
   const explorerUrl = useSelector(selectKimaExplorer)
   const mode = useSelector(selectMode)
@@ -92,7 +172,6 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const txId = useSelector(selectTxId)
   const dAppOption = useSelector(selectDappOption)
 
-  // pull totalFee as well (needed for FIAT charge-at-origin)
   const { transactionValues, totalFee } = useSelector(selectServiceFee)
 
   const txValues = feeDeduct
@@ -107,13 +186,10 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const networks = useSelector(selectNetworks)
 
   const { successHandler, closeHandler } = useKimaContext()
-
   const backendUrl = useSelector(selectBackendUrl)
 
-  // 3-letter prefix helper (status/search mode only)
   const three = (s?: string) => (s ?? '').trim().toLowerCase().slice(0, 3)
 
-  // peggedTo-based (normal flows) -> swap when pegs differ
   const isSwapByPegged = !isSamePeggedToken(
     sourceChain,
     sourceSymbol,
@@ -121,19 +197,21 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
     targetSymbol
   )
 
-  // 3-letter based (STATUS / SEARCH mode only)
   const isSwapBy3Letters = three(sourceSymbol) !== three(targetSymbol)
 
-  // final decision for the widget:
   const widgetIsSwap =
     mode === ModeOptions.status ? isSwapBy3Letters : isSwapByPegged
+
+  const steps: StepDef[] = useMemo(
+    () => (widgetIsSwap ? SWAP_STEPS : TRANSFER_STEPS),
+    [widgetIsSwap]
+  )
 
   const { width: windowWidth, updateWidth } = useWidth()
   useEffect(() => {
     windowWidth === 0 && updateWidth(window.innerWidth)
   }, [windowWidth, updateWidth])
 
-  //---- SAFE TX ID + SINGLE DATA FETCH----
   const safeTxId: string | number =
     typeof txId === 'string' || typeof txId === 'number' ? txId : -1
 
@@ -179,7 +257,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
 
   const isEmptyStatus = useMemo(() => {
     if (!data) return true
-    return (data as any)?.amount === '' // amount is number for fetched statuses; '' for empty
+    return (data as any)?.amount === ''
   }, [data])
 
   const showFetchingTitle = isValidTxId && isEmptyStatus
@@ -207,47 +285,67 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       )
   }, [error])
 
-  //---- STATUS → STEP MACHINE (normalized)----
   useEffect(() => {
-    const norm = (s?: string) =>
-      (s ?? '').toString().trim().toUpperCase().replace(/[\s_]/g, '')
+    const raw = normalizeStatus(data?.status as any)
+    const s = compact(raw)
 
-    const s = norm(data?.status)
+    const is = (candidate: string) => {
+      const cRaw = normalizeStatus(candidate)
+      return raw === cRaw || s === compact(cRaw)
+    }
 
-    if (!data || !s) {
+    if (!data || !raw) {
       setStep(0)
       setLoadingStep(0)
       return
     }
 
-    log.debug('tx status (normalized):', s, data?.failReason, errorMessage)
+    log.debug('[TransactionWidget] status', { raw, widgetIsSwap, errorMessage })
     setErrorStep(-1)
 
-    if (s === 'AVAILABLE' || s === 'PULLED') {
-      setStep(1)
-      setLoadingStep(1)
+    if (is('DECLINED_INVALID') || is('DECLINEDINVALID')) {
+      setStep(0)
+      setErrorStep(0)
+      setLoadingStep(-1)
+      toast.error('Invalid signature!')
       return
     }
-    if (s === 'CONFIRMED') {
-      setStep(2)
-      setLoadingStep(2)
-      return
-    }
-    if (s.startsWith('UNAVAILABLE')) {
+
+    if (raw.startsWith('UNAVAILABLE')) {
       setStep(1)
       setErrorStep(1)
       setLoadingStep(-1)
-      log.error('transaction failed:', data?.failReason)
       toast.error('Unavailable', { icon: <ErrorIcon /> })
       setErrorMessage('Unavailable')
       return
     }
-    if (s === 'PAID') {
-      setStep(3)
-      setLoadingStep(3)
+
+    if (is('FAILED_TO_PULL') || is('FAILEDTOPULL')) {
+      setStep(1)
+      setErrorStep(1)
+      setLoadingStep(-1)
+      toast.error('Failed to pull tokens from source!', { icon: <ErrorIcon /> })
+      setErrorMessage('Failed to pull tokens from source!')
       return
     }
-    if (s === 'REFUNDSTART' || s === 'REFUNDSTARTED') {
+
+    if (is('FAILED_TO_PAY') || is('FAILEDTOPAY')) {
+      setStep(3)
+      setErrorStep(3)
+      setLoadingStep(-1)
+      toast.error('Failed to release tokens to target!', {
+        icon: <ErrorIcon />
+      })
+      setErrorMessage('Failed to release tokens to target!')
+      return
+    }
+
+    if (
+      is('REFUND_START') ||
+      is('REFUND_STARTED') ||
+      is('REFUNDSTART') ||
+      is('REFUNDSTARTED')
+    ) {
       setStep(3)
       setLoadingStep(3)
       toast.error(
@@ -259,7 +357,8 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       )
       return
     }
-    if (s === 'REFUNDFAILED') {
+
+    if (is('REFUND_FAILED') || is('REFUNDFAILED')) {
       setStep(3)
       setErrorStep(3)
       setLoadingStep(-1)
@@ -267,7 +366,8 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setErrorMessage('Failed to refund tokens to source!')
       return
     }
-    if (s === 'REFUNDCOMPLETED') {
+
+    if (is('REFUND_COMPLETED') || is('REFUNDCOMPLETED')) {
       setStep(4)
       setErrorStep(3)
       setLoadingStep(-1)
@@ -275,45 +375,69 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setErrorMessage('Refund completed!')
       return
     }
-    if (s === 'FAILEDTOPAY') {
-      setStep(3)
-      setErrorStep(3)
-      setLoadingStep(-1)
-      log.error('transaction failed:', data?.failReason)
-      toast.error('Failed to release tokens to target!', {
-        icon: <ErrorIcon />
-      })
-      setErrorMessage('Failed to release tokens to target!')
+
+    if (widgetIsSwap) {
+      if (
+        is('AVAILABLE') ||
+        is('PULLED') ||
+        is('PULL_CONFIRMED') ||
+        is('CONFIRMED')
+      ) {
+        setStep(1)
+        setLoadingStep(1)
+        return
+      }
+
+      if (
+        is('SWAP_APPROVED') ||
+        is('SWAP_APPROVE_CONFIRMED') ||
+        is('SWAPPED') ||
+        is('SWAP_CONFIRMED')
+      ) {
+        setStep(2)
+        setLoadingStep(2)
+        return
+      }
+
+      if (is('PAID')) {
+        setStep(3)
+        setLoadingStep(3)
+        return
+      }
+
+      if (is('COMPLETED')) {
+        setStep(4)
+        setLoadingStep(-1)
+        return
+      }
+
+      setStep((prev) => Math.max(prev, 1))
+      setLoadingStep((prev) => Math.max(prev, 1))
       return
     }
-    if (s === 'FAILEDTOPULL') {
+
+    if (is('AVAILABLE') || is('PULLED')) {
       setStep(1)
-      setErrorStep(1)
-      setLoadingStep(-1)
-      log.error('transaction failed:', data?.failReason)
-      toast.error('Failed to pull tokens from source!', { icon: <ErrorIcon /> })
-      setErrorMessage('Failed to pull tokens from source!')
+      setLoadingStep(1)
       return
     }
-    if (s === 'COMPLETED') {
+    if (is('CONFIRMED')) {
+      setStep(2)
+      setLoadingStep(2)
+      return
+    }
+    if (is('PAID')) {
+      setStep(3)
+      setLoadingStep(3)
+      return
+    }
+    if (is('COMPLETED')) {
       setStep(4)
       setLoadingStep(-1)
       return
     }
-    if (s === 'DECLINEDINVALID') {
-      setStep(0)
-      setErrorStep(0)
-      setLoadingStep(-1)
-      toast.error('Invalid signature!')
-      return
-    }
-  }, [data?.status])
+  }, [data?.status, widgetIsSwap, errorMessage])
 
-  //---- helpers used below----
-  const fmt3 = (v: unknown) =>
-    formatterFloat.format(Number(Number(v ?? 0).toFixed(3)))
-
-  // Header verb
   const verb = useMemo(() => {
     if (mode === ModeOptions.status) {
       if (isEmptyStatus) return 'Fetching transaction status '
@@ -336,7 +460,6 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
         : 'Transfering '
   }, [mode, data?.status, isEmptyStatus, widgetIsSwap])
 
-  // FIAT charge-at-origin amount (submit + totalFee when fee at origin)
   const originChargeAmount = useMemo(() => {
     const submit = txValues.submitAmount
     const feeInSubmitDec = bigIntChangeDecimals({
@@ -347,35 +470,33 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
     return { value: val, decimals: submit.decimals }
   }, [txValues.submitAmount, totalFee, feeDeduct])
 
-  // amounts & symbols shown in the title line
   const { leftAmt, rightAmt, leftSym, rightSym } = useMemo(() => {
     if (mode === ModeOptions.status) {
       if (widgetIsSwap) {
         const amountIn = (data as any)?.amountIn
         const amountOut = (data as any)?.amount ?? ''
+
+        const left =
+          amountIn != null ? amountIn : amountOut !== '' ? amountOut : ''
+        const right = amountOut !== '' ? amountOut : ''
+
         return {
-          leftAmt:
-            amountIn != null
-              ? fmt3(amountIn)
-              : amountOut !== ''
-                ? fmt3(amountOut)
-                : '',
-          rightAmt: amountOut !== '' ? fmt3(amountOut) : '',
-          leftSym: data?.sourceSymbol ?? '',
-          rightSym: data?.targetSymbol ?? ''
+          leftAmt: left !== '' ? formatTruncMaxDecimals(left, 4) : '',
+          rightAmt: right !== '' ? formatTruncMaxDecimals(right, 4) : '',
+          leftSym: displaySymbol(data?.sourceSymbol ?? ''),
+          rightSym: displaySymbol(data?.targetSymbol ?? '')
         }
       }
+
       const amt = (data as any)?.amount ?? ''
       return {
         leftAmt: amt,
         rightAmt: amt,
-        leftSym: data?.sourceSymbol ?? '',
-        rightSym: data?.targetSymbol ?? ''
+        leftSym: displaySymbol(data?.sourceSymbol ?? ''),
+        rightSym: displaySymbol(data?.targetSymbol ?? '')
       }
     }
 
-    // NON-STATUS — start with form/confirm values
-    // For FIAT (CC/BANK) show the actual charge amount on the LEFT
     const isFiatSrc =
       (transactionSourceChain?.shortName ?? '') === 'CC' ||
       (transactionSourceChain?.shortName ?? '') === 'BANK'
@@ -387,7 +508,6 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
           : formatBigInt(txValues.allowanceAmount)
         : ''
 
-    // RIGHT shows the target submit amount
     let right =
       Number(amount) !== 0
         ? isFiatSrc
@@ -395,21 +515,21 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
           : formatBigInt(txValues.submitAmount)
         : ''
 
-    let leftSymbol = sourceSymbol
-    let rightSymbol = targetSymbol
+    let leftSymbol = displaySymbol(sourceSymbol)
+    let rightSymbol = displaySymbol(targetSymbol)
 
-    // If it's a SWAP and backend already returned an amount, prefer amountOut (RIGHT)
     if (
       widgetIsSwap &&
       data &&
       (data as any)?.amount != null &&
       (data as any)?.amount !== ''
     ) {
-      right = fmt3((data as any).amount)
-      rightSymbol = data?.targetSymbol ?? rightSymbol
+      right = formatTruncMaxDecimals((data as any).amount, 4)
+      rightSymbol = displaySymbol(data?.targetSymbol ?? rightSymbol)
+
       if ((data as any)?.amountIn != null) {
-        left = fmt3((data as any).amountIn)
-        leftSymbol = data?.sourceSymbol ?? leftSymbol
+        left = formatTruncMaxDecimals((data as any).amountIn, 4)
+        leftSymbol = displaySymbol(data?.sourceSymbol ?? leftSymbol)
       }
     }
 
@@ -475,7 +595,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       dispatch(setTxId(-1))
       dispatch(setSubmitted(false))
     } catch (e) {
-      log.error('[TransactionWidget] reset failed', e)
+      log.debug('[TransactionWidget] reset failed', e)
       toast.error(
         'Unable to reset the transaction view. Please contact support for assistance.',
         { icon: <ErrorIcon /> }
@@ -483,9 +603,14 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
     }
   }
 
-  // use amountIn if present, otherwise fall back to amountOut for the left side
   const swapSrcAmt = (data as any)?.amountIn ?? amount
   const swapDstAmt = (data as any)?.amount
+
+  const swapSrcAmtLabel = formatTruncMaxDecimals(swapSrcAmt, 4)
+  const swapDstAmtLabel = formatTruncMaxDecimals(swapDstAmt, 4)
+
+  const swapSrcSymLabel = displaySymbol(data?.sourceSymbol ?? sourceSymbol)
+  const swapDstSymLabel = displaySymbol(data?.targetSymbol ?? targetSymbol)
 
   return (
     <Provider store={store}>
@@ -541,6 +666,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                 >
                   <MinimizeIcon />
                 </button>
+
                 {!isComplete &&
                 (!isValidTxId ||
                   loadingStep < 0 ||
@@ -570,6 +696,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
               </div>
             )}
           </div>
+
           {data && !isComplete && (
             <div className='header-network-labels'>
               <div className={`kima-card-network-label ${theme.colorMode}`}>
@@ -604,12 +731,14 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                   errorStep={errorStep}
                   setFocus={setFocus}
                   loadingStep={loadingStep}
+                  steps={steps}
                 />
                 <StepBox
                   step={step}
                   errorStep={errorStep}
                   loadingStep={loadingStep}
                   data={data}
+                  steps={steps}
                 />
               </div>
             ) : (
@@ -625,14 +754,13 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                     <p>
                       {widgetIsSwap ? (
                         <>
-                          You just swapped {fmt3(swapSrcAmt)}{' '}
-                          {data?.sourceSymbol} for {fmt3(swapDstAmt)}{' '}
-                          {data?.targetSymbol}
+                          You just swapped {swapSrcAmtLabel} {swapSrcSymLabel}{' '}
+                          for {swapDstAmtLabel} {swapDstSymLabel}
                         </>
                       ) : (
                         <>
                           You just transferred {data?.amount}{' '}
-                          {data?.sourceSymbol}
+                          {displaySymbol(data?.sourceSymbol)}
                         </>
                       )}
                     </p>
@@ -685,6 +813,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                 </div>
               </div>
             )}
+
             {!error && !isEmptyStatus && !isComplete && (
               <TransactionStatusMessage
                 isCompleted={data?.status as TransactionStatus}
@@ -730,6 +859,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
             }
           }}
         />
+
         <div
           className={`floating-footer ${isComplete ? 'complete' : 'status'}`}
         >

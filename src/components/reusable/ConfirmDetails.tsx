@@ -43,6 +43,15 @@ const sumBigAmts = (amts: BigAmt[]): BigAmt => {
   return { value: total, decimals: maxDec }
 }
 
+// UI-only symbol mapping (do not affect logic / requests)
+const uiSymbol = (symbol?: string) => {
+  if (!symbol) return symbol ?? ''
+  const s = symbol.toUpperCase()
+  if (s === 'WETH') return 'ETH'
+  if (s === 'WSOL') return 'SOL'
+  return symbol
+}
+
 const ConfirmDetails = ({
   isApproved,
   feeOptionDisabled
@@ -95,9 +104,20 @@ const ConfirmDetails = ({
 
   const sourceCurrency = useSelector(selectSourceCurrency)
   const targetCurrency = useSelector(selectTargetCurrency)
+
+  // UI-mapped symbols (display only)
+  const uiSourceCurrency = useMemo(
+    () => uiSymbol(sourceCurrency),
+    [sourceCurrency]
+  )
+  const uiTargetCurrency = useMemo(
+    () => uiSymbol(targetCurrency),
+    [targetCurrency]
+  )
+
   const { width, updateWidth } = useWidth()
 
-  // Swap detection by peggedTo
+  // Swap detection by peggedTo (must use original symbols)
   const isSwap = useMemo(
     () =>
       !isSamePeggedToken(
@@ -111,14 +131,11 @@ const ConfirmDetails = ({
 
   const chargeFeeAtOrigin = !isSwap && feeDeduct
 
-  // Treat "amount" as the base submit value returned by backend
-  // (backend returns the same 'amount' on both feeFromOrigin/feeFromTarget for transfers)
   const baseSubmit = useMemo(
     () => transactionValues.feeFromOrigin.submitAmount,
     [transactionValues.feeFromOrigin.submitAmount]
   )
 
-  // Convert totalFee into base submit decimals once
   const totalFeeInSubmitDec = useMemo(
     () =>
       bigIntChangeDecimals({
@@ -128,7 +145,6 @@ const ConfirmDetails = ({
     [totalFee, baseSubmit.decimals]
   )
 
-  // Amount to Transfer (payer debit on source)
   const amountToTransferBig = useMemo(() => {
     if (isSwap)
       return { value: baseSubmit.value, decimals: baseSubmit.decimals }
@@ -138,7 +154,6 @@ const ConfirmDetails = ({
     return { value: val, decimals: baseSubmit.decimals }
   }, [isSwap, chargeFeeAtOrigin, baseSubmit, totalFeeInSubmitDec])
 
-  // Target Transfer Amount (what receiver gets)
   const targetTransferBig = useMemo(() => {
     if (isSwap) {
       if (swapInfo?.amountOutBigInt) return swapInfo.amountOutBigInt
@@ -180,9 +195,11 @@ const ConfirmDetails = ({
   return (
     <div className={`confirm-details ${theme.colorMode}`}>
       <p>
-        Step {isApproved ? '2' : '1'}&nbsp;of 2&nbsp;&nbsp;&nbsp;
+        Step {isApproved ? '2' : '1'}&nbsp;of 2:&nbsp;&nbsp;&nbsp;
         {isApproved
-          ? 'Submit transaction'
+          ? isSwap
+            ? 'Submit Swap Transaction'
+            : 'Submit Transfer Transaction'
           : originNetwork.shortName === ChainName.FIAT
             ? 'Bank Details'
             : 'Approval'}
@@ -216,7 +233,7 @@ const ConfirmDetails = ({
             <span>Amount to Transfer</span>
             <div className='coin-details'>
               <p>
-                {formatBigInt(amountToTransferBig)} {sourceCurrency}
+                {formatBigInt(amountToTransferBig)} {uiSourceCurrency}
               </p>
             </div>
           </div>
@@ -236,7 +253,7 @@ const ConfirmDetails = ({
                 }}
               />
               <span className='service-fee'>
-                {formatBigInt(totalFee)} {sourceCurrency}
+                {formatBigInt(totalFee)} {uiSourceCurrency}
               </span>
             </div>
           </div>
@@ -247,13 +264,13 @@ const ConfirmDetails = ({
                 <div className='amount-details'>
                   <span>Swap Fees</span>
                   <span className='service-fee'>
-                    {formatBigInt(combinedSwapFees)} {sourceCurrency}
+                    {formatBigInt(combinedSwapFees)} {uiSourceCurrency}
                   </span>
                 </div>
                 <div className='amount-details'>
                   <span>Kima Processing Fees</span>
                   <span className='service-fee'>
-                    {formatBigInt(kimaFee)} {sourceCurrency}
+                    {formatBigInt(kimaFee)} {uiSourceCurrency}
                   </span>
                 </div>
               </>
@@ -266,19 +283,19 @@ const ConfirmDetails = ({
                       : `Source Network Fee (${originNetwork.shortName})`}
                   </span>
                   <span className='service-fee'>
-                    {formatBigInt(sourceFee)} {sourceCurrency}
+                    {formatBigInt(sourceFee)} {uiSourceCurrency}
                   </span>
                 </div>
                 <div className='amount-details'>
                   <span>Target Network Fee ({targetNetwork.shortName})</span>
                   <span className='service-fee'>
-                    {formatBigInt(targetFee)} {targetCurrency}
+                    {formatBigInt(targetFee)} {uiTargetCurrency}
                   </span>
                 </div>
                 <div className='amount-details'>
                   <span>KIMA Service Fee</span>
                   <span className='service-fee'>
-                    {formatBigInt(kimaFee)} {sourceCurrency}
+                    {formatBigInt(kimaFee)} {uiSourceCurrency}
                   </span>
                 </div>
               </>
@@ -288,7 +305,7 @@ const ConfirmDetails = ({
           <div className='amount-details'>
             <span>Target Transfer Amount</span>
             <span className='service-fee'>
-              {formatBigInt(targetTransferBig)} {targetCurrency}
+              {formatBigInt(targetTransferBig)} {uiTargetCurrency}
             </span>
           </div>
         </span>
