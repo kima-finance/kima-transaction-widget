@@ -5,10 +5,11 @@ import { AdapterState } from '@tronweb3/tronwallet-abstract-adapter'
 import { selectTheme } from '@kima-widget/shared/store/selectors'
 import { setTronConnectModal } from '@kima-widget/shared/store/optionSlice'
 import { ExternalLink } from '@kima-widget/components/reusable'
+import { useHorizontalDragScroll } from '@kima-widget/shared/lib/hooks/useHorizontalDragScroll'
 
 const TronWalletSelect = () => {
   const theme = useSelector(selectTheme)
-  const sliderRef = useRef<any>()
+  const sliderRef = useRef<HTMLDivElement | null>(null)
 
   const dispatch = useDispatch()
   const {
@@ -35,33 +36,7 @@ const TronWalletSelect = () => {
     return [detected, undetected]
   }, [wallets])
 
-  useEffect(() => {
-    let isDown = false
-    let startX: number
-    let scrollLeft: number
-
-    sliderRef.current?.addEventListener('mousedown', (e: any) => {
-      isDown = true
-      sliderRef.current?.classList.add('active')
-      startX = e.pageX - sliderRef.current?.offsetLeft
-      scrollLeft = sliderRef.current?.scrollLeft
-    })
-    sliderRef.current?.addEventListener('mouseleave', () => {
-      isDown = false
-      sliderRef.current.classList.remove('active')
-    })
-    sliderRef.current?.addEventListener('mouseup', () => {
-      isDown = false
-      sliderRef.current.classList.remove('active')
-    })
-    sliderRef.current?.addEventListener('mousemove', (e: any) => {
-      if (!isDown) return
-      e.preventDefault()
-      const x = e.pageX - sliderRef.current.offsetLeft
-      const walk = (x - startX) * 1 //scroll-fast
-      sliderRef.current.scrollLeft = scrollLeft - walk
-    })
-  }, [])
+  useHorizontalDragScroll(sliderRef)
 
   useEffect(() => {
     connected && dispatch(setTronConnectModal(false))

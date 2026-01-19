@@ -6,12 +6,13 @@ import { selectSourceChain, selectTheme } from '@kima-widget/shared/store/select
 import { setSolanaConnectModal } from '@kima-widget/shared/store/optionSlice'
 import { ExternalLink } from '@kima-widget/components/reusable'
 import log from '@kima-widget/shared/logger'
+import { useHorizontalDragScroll } from '@kima-widget/shared/lib/hooks/useHorizontalDragScroll'
 
 const SolanaWalletSelect = () => {
   const theme = useSelector(selectTheme)
   const sourceChain = useSelector(selectSourceChain)
   const dispatch = useDispatch()
-  const sliderRef = useRef<any>()
+  const sliderRef = useRef<HTMLDivElement | null>(null)
 
   const { wallet, wallets, select, connect, connected } = useWallet()
   const [detected, undetected] = useMemo(() => {
@@ -30,33 +31,7 @@ const SolanaWalletSelect = () => {
     return [detected, undetected]
   }, [wallets])
 
-  useEffect(() => {
-    let isDown = false
-    let startX: number
-    let scrollLeft: number
-
-    sliderRef.current?.addEventListener('mousedown', (e: any) => {
-      isDown = true
-      sliderRef.current?.classList.add('active')
-      startX = e.pageX - sliderRef.current?.offsetLeft
-      scrollLeft = sliderRef.current?.scrollLeft
-    })
-    sliderRef.current?.addEventListener('mouseleave', () => {
-      isDown = false
-      sliderRef.current.classList.remove('active')
-    })
-    sliderRef.current?.addEventListener('mouseup', () => {
-      isDown = false
-      sliderRef.current.classList.remove('active')
-    })
-    sliderRef.current?.addEventListener('mousemove', (e: any) => {
-      if (!isDown) return
-      e.preventDefault()
-      const x = e.pageX - sliderRef.current.offsetLeft
-      const walk = (x - startX) * 1 //scroll-fast
-      sliderRef.current.scrollLeft = scrollLeft - walk
-    })
-  }, [])
+  useHorizontalDragScroll(sliderRef)
 
   const handleWalletClick = useCallback(
     (walletName: any) => {
