@@ -8,6 +8,7 @@ import {
   GetTokenAllowanceResult,
   PluginUseAllowanceResult
 } from '@kima-widget/shared/types'
+import { getFeeSideValues } from '@kima-widget/shared/lib/fees'
 import { useTrc20Allowance } from './useTrc20Allowance'
 import { useApproveTrc20 } from './useApproveTrc20'
 import { useTronSignMessage } from './useTronSignMessage'
@@ -19,9 +20,7 @@ export const useAllowance = (): PluginUseAllowanceResult => {
 
   const { transactionValues } = useSelector(selectServiceFee)
   const feeDeduct = useSelector(selectFeeDeduct)
-  const txValues = feeDeduct
-    ? transactionValues.feeFromTarget
-    : transactionValues.feeFromOrigin
+  const txValues = getFeeSideValues(feeDeduct, transactionValues)
 
   const allowanceNeeded = useMemo(
     () => BigInt(txValues.allowanceAmount.value),

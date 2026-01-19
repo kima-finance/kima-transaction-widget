@@ -3,6 +3,7 @@ import {
   GetTokenAllowanceResult,
   PluginUseAllowanceResult
 } from '@kima-widget/shared/types'
+import { getFeeSideValues } from '@kima-widget/shared/lib/fees'
 import { useSPLAllowance } from './useSPLAllowance'
 import { useApproveSPL } from './useApproveSPL'
 import { useSolSignMessage } from './useSolSignMessage'
@@ -20,10 +21,7 @@ export const useAllowance = (): PluginUseAllowanceResult => {
   const { transactionValues } = useSelector(selectServiceFee)
   const feeDeduct = useSelector(selectFeeDeduct)
   const needed = BigInt(
-    (feeDeduct
-      ? transactionValues.feeFromTarget
-      : transactionValues.feeFromOrigin
-    ).allowanceAmount.value
+    getFeeSideValues(feeDeduct, transactionValues).allowanceAmount.value
   )
 
   const current = read?.allowance ?? 0n

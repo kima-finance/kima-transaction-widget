@@ -11,6 +11,7 @@ import { useEvmAddress } from '@kima-widget/features/connect-wallet/evm/useEvmAd
 import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
 import { createWalletClient, custom } from 'viem'
 import log from '@kima-widget/shared/logger'
+import { getFeeSideValues } from '@kima-widget/shared/lib/fees'
 
 /**
  * Sign using viem:
@@ -29,9 +30,7 @@ export const useEvmSignMessage = () => {
   // source address (advanced) or demo address (light)
   const userAddress = useEvmAddress(mode)
 
-  const { message } = feeDeduct
-    ? transactionValues.feeFromTarget
-    : transactionValues.feeFromOrigin
+  const { message } = getFeeSideValues(feeDeduct, transactionValues)
 
   const signMessage = useCallback(async (): Promise<string | undefined> => {
     try {

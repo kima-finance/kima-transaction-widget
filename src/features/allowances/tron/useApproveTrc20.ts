@@ -19,6 +19,7 @@ import {
   getPoolAddress,
   getTokenAddress
 } from '@kima-widget/shared/lib/addresses'
+import { getFeeSideValues } from '@kima-widget/shared/lib/fees'
 import log from '@kima-widget/shared/logger'
 
 export const useApproveTrc20 = () => {
@@ -29,9 +30,7 @@ export const useApproveTrc20 = () => {
   const tokenOptions = useSelector(selectTokenOptions)
   const { transactionValues } = useSelector(selectServiceFee)
   const feeDeduct = useSelector(selectFeeDeduct)
-  const txValues = feeDeduct
-    ? transactionValues.feeFromTarget
-    : transactionValues.feeFromOrigin
+  const txValues = getFeeSideValues(feeDeduct, transactionValues)
   const allowanceNeeded = BigInt(txValues.allowanceAmount.value)
 
   const { tronWeb, signTransaction } = useTronProvider()

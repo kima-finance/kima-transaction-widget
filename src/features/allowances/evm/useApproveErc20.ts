@@ -16,6 +16,7 @@ import {
   getPoolAddress,
   getTokenAddress
 } from '@kima-widget/shared/lib/addresses'
+import { getFeeSideValues } from '@kima-widget/shared/lib/fees'
 
 import {
   createPublicClient,
@@ -37,9 +38,7 @@ export const useApproveErc20 = () => {
   const tokenOptions = useSelector(selectTokenOptions)
   const { transactionValues } = useSelector(selectServiceFee)
   const feeDeduct = useSelector(selectFeeDeduct)
-  const txValues = feeDeduct
-    ? transactionValues.feeFromTarget
-    : transactionValues.feeFromOrigin
+  const txValues = getFeeSideValues(feeDeduct, transactionValues)
   const allowanceNeeded = BigInt(txValues.allowanceAmount.value)
 
   const { pools } = useGetPools(

@@ -7,6 +7,7 @@ import {
   selectServiceFee
 } from '@kima-widget/shared/store/selectors'
 import log from '@kima-widget/shared/logger'
+import { getFeeSideValues } from '@kima-widget/shared/lib/fees'
 
 /**
  * Signs the fee message (same contract as your EVM split).
@@ -17,9 +18,7 @@ export const useSolSignMessage = () => {
   const { transactionValues } = useSelector(selectServiceFee)
   const feeDeduct = useSelector(selectFeeDeduct)
 
-  const { message } = feeDeduct
-    ? transactionValues.feeFromTarget
-    : transactionValues.feeFromOrigin
+  const { message } = getFeeSideValues(feeDeduct, transactionValues)
 
   const sign = useCallback(async (): Promise<string | undefined> => {
     if (!signMessage) {

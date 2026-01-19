@@ -25,6 +25,7 @@ import {
   getPoolAddress,
   getTokenAddress
 } from '@kima-widget/shared/lib/addresses'
+import { getFeeSideValues } from '@kima-widget/shared/lib/fees'
 import { getTokenProgramForMint } from '@kima-widget/shared/crypto/solana/getTokenProgramForMint'
 
 export const useApproveSPL = () => {
@@ -39,9 +40,7 @@ export const useApproveSPL = () => {
   const { transactionValues } = useSelector(selectServiceFee)
   const feeDeduct = useSelector(selectFeeDeduct)
 
-  const { allowanceAmount } = feeDeduct
-    ? transactionValues.feeFromTarget
-    : transactionValues.feeFromOrigin
+  const { allowanceAmount } = getFeeSideValues(feeDeduct, transactionValues)
   const allowanceNumber = BigInt(allowanceAmount.value)
 
   const ownerPk =
