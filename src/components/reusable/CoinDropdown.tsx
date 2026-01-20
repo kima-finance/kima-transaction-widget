@@ -16,9 +16,7 @@ import { DAppOptions, ModeOptions } from '@kima-widget/shared/types'
 import useCurrencyOptions from '@kima-widget/widgets/transfer/hooks/useCurrencyOptions'
 import TokenIcon from './TokenIcon'
 import Arrow from '@kima-widget/assets/icons/Arrow'
-
-const displaySymbol = (sym?: string) =>
-  sym === 'WETH' ? 'ETH' : sym === 'WSOL' ? 'SOL' : (sym ?? '')
+import { uiTokenSymbol } from '@kima-widget/shared/lib/misc'
 
 const CoinDropdown = ({
   isSourceChain = true
@@ -112,8 +110,7 @@ const CoinDropdown = ({
         {tokenSymbol ? (
           <>
             <TokenIcon symbol={tokenSymbol} width={24} height={24} />
-            {/* UI-only: show ETH/SOL instead of WETH/WSOL */}
-            <span className='coin'>{displaySymbol(tokenSymbol)}</span>
+            <span className='coin'>{uiTokenSymbol(tokenSymbol)}</span>
           </>
         ) : (
           <span className='coin placeholder'>Select token</span>
@@ -135,8 +132,7 @@ const CoinDropdown = ({
             }}
           >
             <TokenIcon symbol={token.symbol} width={24} height={24} />
-            {/* UI-only: show ETH/SOL instead of WETH/WSOL */}
-            <p>{displaySymbol(token.symbol)}</p>
+            <p>{uiTokenSymbol(token.symbol)}</p>
           </div>
         ))}
       </div>

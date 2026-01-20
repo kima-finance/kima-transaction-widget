@@ -24,7 +24,7 @@ import {
 } from '@kima-widget/shared/lib/bigint'
 import { MiniArrowIcon } from '@kima-widget/assets/icons'
 import FeeDeductionRadioButtons from './FeeDeductionRadioButtons'
-import { isSamePeggedToken } from '@kima-widget/shared/lib/misc'
+import { isSamePeggedToken, uiTokenSymbol } from '@kima-widget/shared/lib/misc'
 import log from '@kima-widget/shared/logger'
 
 type BigAmt = { value: bigint; decimals: number }
@@ -41,15 +41,6 @@ const sumBigAmts = (amts: BigAmt[]): BigAmt => {
     0n
   )
   return { value: total, decimals: maxDec }
-}
-
-// UI-only symbol mapping (do not affect logic / requests)
-const uiSymbol = (symbol?: string) => {
-  if (!symbol) return symbol ?? ''
-  const s = symbol.toUpperCase()
-  if (s === 'WETH') return 'ETH'
-  if (s === 'WSOL') return 'SOL'
-  return symbol
 }
 
 const ConfirmDetails = ({
@@ -107,11 +98,11 @@ const ConfirmDetails = ({
 
   // UI-mapped symbols (display only)
   const uiSourceCurrency = useMemo(
-    () => uiSymbol(sourceCurrency),
+    () => uiTokenSymbol(sourceCurrency),
     [sourceCurrency]
   )
   const uiTargetCurrency = useMemo(
-    () => uiSymbol(targetCurrency),
+    () => uiTokenSymbol(targetCurrency),
     [targetCurrency]
   )
 

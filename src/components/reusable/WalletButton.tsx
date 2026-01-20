@@ -29,7 +29,7 @@ import {
 import useBalance from '@kima-widget/widgets/transfer/hooks/useBalance'
 import { WalletIcon } from '@kima-widget/assets/icons'
 import useWidth from '@kima-widget/shared/lib/hooks/useWidth'
-import { getShortenedAddress } from '@kima-widget/shared/lib/misc'
+import { getShortenedAddress, uiTokenSymbol } from '@kima-widget/shared/lib/misc'
 import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import { useAppKit, useAppKitState } from '@reown/appkit/react'
@@ -322,7 +322,7 @@ const WalletButton = ({
           {balance !== undefined && decimals !== undefined ? (
             <p className='balance-info'>
               {formatUSD(bigIntToNumber({ value: balance, decimals }))}{' '}
-              {selectedCoin} available
+              {uiTokenSymbol(selectedCoin)} available
             </p>
           ) : (
             <div className='loading' aria-label='balance-loading'></div>

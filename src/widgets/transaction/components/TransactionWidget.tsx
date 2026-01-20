@@ -73,7 +73,7 @@ import useWidth from '@kima-widget/shared/lib/hooks/useWidth'
 import ChainIcon from '@kima-widget/components/reusable/ChainIcon'
 import TransactionStatusMessage from '@kima-widget/components/reusable/TransactionStatusMessage'
 import TransactionSearch from '@kima-widget/components/reusable/TransactionSearch'
-import { isSamePeggedToken } from '@kima-widget/shared/lib/misc'
+import { isSamePeggedToken, uiTokenSymbol } from '@kima-widget/shared/lib/misc'
 
 type StepDef = { title: string }
 
@@ -105,13 +105,7 @@ const compact = (s: string) => s.replace(/_/g, '')
 /**
  * UI-only symbol normalization
  */
-const displaySymbol = (sym?: string) => {
-  const s = (sym ?? '').toString().trim()
-  const up = s.toUpperCase()
-  if (up === 'WETH') return 'ETH'
-  if (up === 'WSOL') return 'SOL'
-  return s
-}
+const displaySymbol = (sym?: string) => uiTokenSymbol(sym)
 
 const formatTruncMaxDecimals = (
   value: unknown,

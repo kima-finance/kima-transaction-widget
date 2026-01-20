@@ -43,3 +43,13 @@ export const isSamePeggedToken = (
   if (!src.peggedTo || !dst.peggedTo) return false
   return src.peggedTo === dst.peggedTo
 }
+
+export const uiTokenSymbol = (symbol?: string) => {
+  if (!symbol) return symbol ?? ''
+  const s = symbol.toString().trim()
+  const up = s.toUpperCase()
+  if (up === 'WETH') return 'ETH'
+  if (up === 'WSOL') return 'SOL'
+  if (up === 'WBTC') return 'BTC'
+  return s
+}

@@ -32,6 +32,7 @@ const COIN_LIST: Record<string, React.FC<IconProps>> = {
   USD: USDIcon,
   USDT: USDTIcon,
   USD1: USD1Icon,
+  BTC: BTCIcon,
   WBTC: BTCIcon,
   WETH: EthereumIcon,
   WSOL: SolanaIcon,

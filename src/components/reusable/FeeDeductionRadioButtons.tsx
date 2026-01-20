@@ -1,5 +1,6 @@
 import { bigIntToNumber } from '@kima-widget/shared/lib/bigint'
 import { formatterFloat } from '@kima-widget/shared/lib/format'
+import { uiTokenSymbol } from '@kima-widget/shared/lib/misc'
 import { setFeeDeduct } from '@kima-widget/shared/store/optionSlice'
 import {
   selectAmount,
@@ -26,6 +27,8 @@ const FeeDeductionRadioButtons = ({ disabled }: { disabled: boolean }) => {
   const targetCurrency = useSelector(selectTargetCurrency)
   const theme = useSelector(selectTheme)
   const isSubmitted = useSelector(selectSubmitted)
+  const uiSourceCurrency = uiTokenSymbol(sourceCurrency)
+  const uiTargetCurrency = uiTokenSymbol(targetCurrency)
 
   const handleChange = (value: boolean) => {
     dispatch(setFeeDeduct(value))
@@ -46,9 +49,9 @@ const FeeDeductionRadioButtons = ({ disabled }: { disabled: boolean }) => {
             <span className={`radio-label ${theme.colorMode}`}>
               {`Pay $${formatterFloat.format(
                 Number(amount)
-              )} ${sourceCurrency} ${['BANK', 'CC'].includes(sourceNetwork.shortName) ? 'with' : 'in'} ${sourceNetwork.name} to receive $${formatterFloat.format(
+              )} ${uiSourceCurrency} ${['BANK', 'CC'].includes(sourceNetwork.shortName) ? 'with' : 'in'} ${sourceNetwork.name} to receive $${formatterFloat.format(
                 Number(amount) - totalFee
-              )} ${targetCurrency} ${['BANK', 'CC'].includes(targetNetwork.shortName) ? 'with' : 'in'} ${targetNetwork.name}`}
+              )} ${uiTargetCurrency} ${['BANK', 'CC'].includes(targetNetwork.shortName) ? 'with' : 'in'} ${targetNetwork.name}`}
             </span>
           </label>
         )}
@@ -64,9 +67,9 @@ const FeeDeductionRadioButtons = ({ disabled }: { disabled: boolean }) => {
           <span className={`radio-label ${theme.colorMode}`}>
             {`Pay $${formatterFloat.format(
               Number(amount) + totalFee
-            )} ${sourceCurrency} ${['BANK', 'CC'].includes(sourceNetwork.shortName) ? 'with' : 'in'} ${sourceNetwork.name} to receive $${formatterFloat.format(
+            )} ${uiSourceCurrency} ${['BANK', 'CC'].includes(sourceNetwork.shortName) ? 'with' : 'in'} ${sourceNetwork.name} to receive $${formatterFloat.format(
               Number(amount)
-            )} ${targetCurrency} ${['BANK', 'CC'].includes(targetNetwork.shortName) ? 'with' : 'in'} ${targetNetwork.name}`}
+            )} ${uiTargetCurrency} ${['BANK', 'CC'].includes(targetNetwork.shortName) ? 'with' : 'in'} ${targetNetwork.name}`}
           </span>
         </label>
       </div>
