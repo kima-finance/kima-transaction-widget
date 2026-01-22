@@ -2,24 +2,22 @@ import {
   KimaTransactionWidget,
   KimaProvider,
   ModeOptions,
-  ColorModeOptions,
-  NetworkOptions
+  ColorModeOptions
 } from '@kimafinance/kima-transaction-widget'
 import '@kimafinance/kima-transaction-widget/index.css'
 
 function App() {
   return (
-    <KimaProvider walletConnectProjectId='e579511a495b5c312b572b036e60555a'>
+    <KimaProvider
+      projectId='e579511a495b5c312b572b036e60555a'
+      kimaBackendUrl='http://localhost:4000'
+    >
       <div className='container'>
         <KimaTransactionWidget
           theme={{
             colorMode: ColorModeOptions.light
           }}
-          networkOption={NetworkOptions.testnet}
           mode={ModeOptions.bridge}
-          // txId={'26903'}
-          kimaBackendUrl='http://localhost:3001'
-          kimaExplorer='https://explorer.sardis.kima.network'
           // autoSwitchChain={false}
           // titleOption={{
           //   initialTitle: 'New Purchase'

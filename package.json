@@ -25,6 +25,7 @@
     "build:sass": "sass src/styles/main.scss dist/index.css",
     "build:tsup": "tsup",
     "move:fonts": "mkdir -p dist/fonts && find dist -maxdepth 1 -type f \\( -iname '*.woff' -o -iname '*.woff2' -o -iname '*.eot' -o -iname '*.ttf' -o -iname '*.otf' \\) -exec mv {} dist/fonts/ \\;",
+    "prepare": "npm run build",
     "dev": "tsup --watch",
     "sass": "sass src/styles/main.scss src/index.css -w",
     "test": "react-scripts test --coverage --watchAll",

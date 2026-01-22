@@ -7,16 +7,14 @@ import {
   KimaTransactionWidget,
   KimaProvider,
   ModeOptions,
-  ColorModeOptions,
-  SupportNetworks
+  ColorModeOptions
 } from '@kimafinance/kima-transaction-widget'
-import '@kimafinance/kima-transaction-widget/index.css'
 
 const Widget = () => {
   return (
     <KimaProvider
-      walletConnectProjectId='e579511a495b5c312b572b036e60555a'
-      kimaBackendUrl='http://localhost:3001'
+      projectId='e579511a495b5c312b572b036e60555a'
+      kimaBackendUrl='http://localhost:4000'
       logLevel='DEBUG'
     >
       <div className='container'>
@@ -25,7 +23,6 @@ const Widget = () => {
             colorMode: ColorModeOptions.dark
           }}
           mode={ModeOptions.bridge}
-          txId={'4884'}
           // titleOption={{
           //   initialTitle: 'New Purchase'
           // }}

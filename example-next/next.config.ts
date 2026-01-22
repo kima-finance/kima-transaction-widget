@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  transpilePackages: ["@kimafinance/kima-transaction-widget"],
+  experimental: {
+    externalDir: true,
+  },
 };
 
 export default nextConfig;
