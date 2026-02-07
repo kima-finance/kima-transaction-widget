@@ -43,11 +43,24 @@ export const useTrc20Allowance = () => {
   )
   const poolAddress = useMemo(() => getPoolAddress(pools, 'TRX'), [pools])
 
+  const tokenAddressTrimmed = useMemo(
+    () => tokenAddress?.trim(),
+    [tokenAddress]
+  )
+  const poolAddressTrimmed = useMemo(
+    () => poolAddress?.trim(),
+    [poolAddress]
+  )
+
   const isOwnerValid = !!address && !!tronWeb?.isAddress?.(address)
+  const isTokenValid =
+    !!tokenAddressTrimmed && !!tronWeb?.isAddress?.(tokenAddressTrimmed)
+  const isPoolValid =
+    !!poolAddressTrimmed && !!tronWeb?.isAddress?.(poolAddressTrimmed)
   const enabled =
     isOwnerValid &&
-    !!tokenAddress &&
-    !!poolAddress &&
+    isTokenValid &&
+    isPoolValid &&
     !!tronWeb &&
     sourceChain.shortName === 'TRX'
 
@@ -56,38 +69,49 @@ export const useTrc20Allowance = () => {
       mode,
       sourceChain: sourceChain?.shortName,
       address,
-      tokenAddress,
-      poolAddress,
+      tokenAddress: tokenAddressTrimmed,
+      poolAddress: poolAddressTrimmed,
       hasTronWeb: !!tronWeb,
       isOwnerValid,
+      isTokenValid,
+      isPoolValid,
       enabled
     })
   }, [
     mode,
     sourceChain?.shortName,
     address,
-    tokenAddress,
-    poolAddress,
+    tokenAddressTrimmed,
+    poolAddressTrimmed,
     tronWeb,
     isOwnerValid,
+    isTokenValid,
+    isPoolValid,
     enabled
   ])
 
   const q = useQuery<GetTokenAllowanceResult>({
-    queryKey: ['tronAllowance', address, tokenAddress, poolAddress],
+    queryKey: [
+      'tronAllowance',
+      address,
+      tokenAddressTrimmed,
+      poolAddressTrimmed
+    ],
     enabled,
     staleTime: 60_000,
     refetchInterval: 60_000,
     queryFn: async () => {
       log.debug('[useTrc20Allowance] queryFn:start', {
         owner: address,
-        tokenAddress,
-        poolAddress,
+        tokenAddress: tokenAddressTrimmed,
+        poolAddress: poolAddressTrimmed,
         defaultAddress: tronWeb?.defaultAddress
       })
 
       try {
         const ownerBase58 = address!
+        const tokenBase58 = tokenAddressTrimmed!
+        const poolBase58 = poolAddressTrimmed!
 
         // keep tronWeb owner synced (read clients often start unset)
         try {
@@ -105,27 +129,30 @@ export const useTrc20Allowance = () => {
 
         // pre-flight validation (logs only; behavior unchanged)
         const isOwner = tronWeb!.isAddress(ownerBase58)
-        const isToken = tronWeb!.isAddress(tokenAddress!)
-        const isPool = tronWeb!.isAddress(poolAddress!)
+        const isToken = tronWeb!.isAddress(tokenBase58)
+        const isPool = tronWeb!.isAddress(poolBase58)
         log.debug('[useTrc20Allowance] address checks', {
           isOwner,
           isToken,
           isPool
         })
+        if (!isOwner || !isToken || !isPool) {
+          throw new Error('Invalid Tron address for allowance lookup')
+        }
 
         // toHex conversions
         let tokenHex: string
         let ownerHex: string
         let poolHex: string
         try {
-          tokenHex = tronWeb!.address.toHex(tokenAddress!)
+          tokenHex = tronWeb!.address.toHex(tokenBase58)
           ownerHex = tronWeb!.address.toHex(ownerBase58)
-          poolHex = tronWeb!.address.toHex(poolAddress!)
+          poolHex = tronWeb!.address.toHex(poolBase58)
         } catch (hexErr) {
           log.error('[useTrc20Allowance] toHex error', {
             ownerBase58,
-            tokenAddress,
-            poolAddress,
+            tokenAddress: tokenBase58,
+            poolAddress: poolBase58,
             hexErr
           })
           throw hexErr

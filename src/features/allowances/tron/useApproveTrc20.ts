@@ -47,6 +47,15 @@ export const useApproveTrc20 = () => {
   )
   const poolAddress = useMemo(() => getPoolAddress(pools, 'TRX'), [pools])
 
+  const tokenAddressTrimmed = useMemo(
+    () => tokenAddress?.trim(),
+    [tokenAddress]
+  )
+  const poolAddressTrimmed = useMemo(
+    () => poolAddress?.trim(),
+    [poolAddress]
+  )
+
   const { data } = useTrc20Allowance()
 
   const approve = useCallback(
@@ -65,15 +74,15 @@ export const useApproveTrc20 = () => {
         if (
           !tronWeb ||
           !address ||
-          !tokenAddress ||
-          !poolAddress ||
+          !tokenAddressTrimmed ||
+          !poolAddressTrimmed ||
           sourceChain.shortName !== 'TRX'
         ) {
           log.warn('[useApproveTrc20] missing prerequisites', {
             hasTronWeb: !!tronWeb,
             address,
-            tokenAddress,
-            poolAddress,
+            tokenAddress: tokenAddressTrimmed,
+            poolAddress: poolAddressTrimmed,
             source: sourceChain?.shortName
           })
           return
@@ -84,13 +93,27 @@ export const useApproveTrc20 = () => {
           log.error('[useApproveTrc20] ' + msg, { address })
           throw new Error(msg)
         }
+        if (!tronWeb.isAddress(tokenAddressTrimmed)) {
+          const msg = 'Invalid Tron token address'
+          log.error('[useApproveTrc20] ' + msg, {
+            tokenAddress: tokenAddressTrimmed
+          })
+          throw new Error(msg)
+        }
+        if (!tronWeb.isAddress(poolAddressTrimmed)) {
+          const msg = 'Invalid Tron pool address'
+          log.error('[useApproveTrc20] ' + msg, {
+            poolAddress: poolAddressTrimmed
+          })
+          throw new Error(msg)
+        }
 
         const amount = isCancel ? '0' : allowanceNeeded.toString()
         log.info('[useApproveTrc20] approve amount', { amount })
 
         const ownerHex = tronWeb.address.toHex(address)
-        const tokenHex = tronWeb.address.toHex(tokenAddress)
-        const poolHex = tronWeb.address.toHex(poolAddress)
+        const tokenHex = tronWeb.address.toHex(tokenAddressTrimmed)
+        const poolHex = tronWeb.address.toHex(poolAddressTrimmed)
         log.debug('[useApproveTrc20] hex', { ownerHex, tokenHex, poolHex })
 
         const txResp = await tronWeb.transactionBuilder.triggerSmartContract(
@@ -151,8 +174,8 @@ export const useApproveTrc20 = () => {
       tronWeb,
       signTransaction,
       address,
-      tokenAddress,
-      poolAddress,
+      tokenAddressTrimmed,
+      poolAddressTrimmed,
       allowanceNeeded,
       sourceChain?.shortName,
       qc
