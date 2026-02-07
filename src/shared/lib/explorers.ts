@@ -16,3 +16,11 @@ export const getTronAccountExplorerUrl = (
   const sub = networkOption === NetworkOptions.testnet ? 'nile.' : ''
   return `https://${sub}tronscan.io/#/address/${address}`
 }
+
+export const getBtcAccountExplorerUrl = (
+  address: string,
+  networkOption: NetworkOptions
+) => {
+  const sub = networkOption === NetworkOptions.testnet ? '/testnet' : ''
+  return `https://mempool.space${sub}/address/${address}`
+}

@@ -31,12 +31,14 @@ export class DefaultPlugin extends PluginBase {
 
       useNativeBalance: (): PluginUseBalanceResult => ({
         balance: BigInt(0),
-        decimals: 0
+        decimals: 0,
+        isLoading: false
       }),
 
       useTokenBalance: (): PluginUseBalanceResult => ({
         balance: BigInt(0),
-        decimals: 0
+        decimals: 0,
+        isLoading: false
       }),
 
       useIsWalletReady: (): PluginUseIsWalletReadyResult =>

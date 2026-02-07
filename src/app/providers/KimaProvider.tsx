@@ -166,6 +166,13 @@ const KimaProvider = ({
     ) {
       sourceAddress = externalProvider.signer
     }
+    if (externalProvider.type === 'btc') {
+      const btcSigner = externalProvider.signer as
+        | string
+        | { address?: string }
+      sourceAddress =
+        typeof btcSigner === 'string' ? btcSigner : btcSigner?.address
+    }
   }
 
   const kimaContext: KimaContextProps = {

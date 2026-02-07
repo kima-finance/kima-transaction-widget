@@ -147,12 +147,13 @@ export interface OptionState {
   targetChain: ChainData // target network on UI
   sourceAddress: string // source address on UI
   targetAddress: string // target address on UI
-  bitcoinAddress: string // bitcoin address from xverse wallet
-  bitcoinPubkey: string // bitcoin pubkey from xverse wallet
+  bitcoinAddress: string // bitcoin address from wallet
+  bitcoinPubkey: string // bitcoin pubkey from wallet
   tokenOptions: TokenOptions // token options from blockchain endpoint
   solanaConnectModal: boolean // solana wallet connection modal state
   tronConnectModal: boolean // tron wallet connection modal state
-  accountDetailsModal: boolean // account details with information from solana and tron wallets
+  btcConnectModal: boolean // bitcoin wallet connection modal state
+  accountDetailsModal: boolean // account details with information from wallets
   helpPopup: boolean
   hashPopup: boolean
   bankPopup: boolean
@@ -196,6 +197,18 @@ export interface OptionState {
   networkOption: NetworkOptions
   networks: ChainData[]
   uiError: UiError | null
+  btcApprovalRetrying: boolean
+  btcApprovalStopRequested: boolean
+  btcApprovalResumeAllowed: boolean
+  btcSubmitRetrying: boolean
+  btcSubmitStopRequested: boolean
+  btcWalletType: '' | 'unisat'
+  htlcCreationHash: string
+  htlcCreationVout: number
+  htlcExpirationTimestamp: string
+  htlcVersion: string
+  htlcSenderPubKey: string
+  htlcLockId: string
 }
 
 const initialState: OptionState = {
@@ -205,6 +218,12 @@ const initialState: OptionState = {
   tokenOptions: {},
   pendingTxs: 0,
   pendingTxData: [],
+  btcApprovalRetrying: false,
+  btcApprovalStopRequested: false,
+  btcApprovalResumeAllowed: false,
+  btcSubmitRetrying: false,
+  btcSubmitStopRequested: false,
+  btcWalletType: '',
   kimaExplorerUrl: 'https://explorer.sardis.kima.network',
   mode: ModeOptions.bridge,
   sourceChain: SOURCE_PLACEHOLDER,
@@ -215,6 +234,7 @@ const initialState: OptionState = {
   bitcoinPubkey: '',
   solanaConnectModal: false,
   tronConnectModal: false,
+  btcConnectModal: false,
   accountDetailsModal: false,
   helpPopup: false,
   hashPopup: false,
@@ -246,7 +266,13 @@ const initialState: OptionState = {
   uuid: '',
   kycStatus: '',
   expireTime: '1 hour',
-  uiError: null
+  uiError: null,
+  htlcCreationHash: '',
+  htlcCreationVout: 0,
+  htlcExpirationTimestamp: '',
+  htlcVersion: '',
+  htlcSenderPubKey: '',
+  htlcLockId: ''
 }
 
 export const optionSlice = createSlice({
@@ -274,6 +300,68 @@ export const optionSlice = createSlice({
       action: PayloadAction<Array<PendingTxData>>
     ) => {
       state.pendingTxData = action.payload
+    },
+    setBtcApprovalRetrying: (
+      state: OptionState,
+      action: PayloadAction<boolean>
+    ) => {
+      state.btcApprovalRetrying = action.payload
+    },
+    setBtcApprovalStopRequested: (
+      state: OptionState,
+      action: PayloadAction<boolean>
+    ) => {
+      state.btcApprovalStopRequested = action.payload
+    },
+    setBtcApprovalResumeAllowed: (
+      state: OptionState,
+      action: PayloadAction<boolean>
+    ) => {
+      state.btcApprovalResumeAllowed = action.payload
+    },
+    setBtcSubmitRetrying: (
+      state: OptionState,
+      action: PayloadAction<boolean>
+    ) => {
+      state.btcSubmitRetrying = action.payload
+    },
+    setBtcSubmitStopRequested: (
+      state: OptionState,
+      action: PayloadAction<boolean>
+    ) => {
+      state.btcSubmitStopRequested = action.payload
+    },
+    setBtcWalletType: (
+      state: OptionState,
+      action: PayloadAction<OptionState['btcWalletType']>
+    ) => {
+      state.btcWalletType = action.payload
+    },
+    setHtlcData: (
+      state: OptionState,
+      action: PayloadAction<{
+        htlcCreationHash: string
+        htlcCreationVout: number
+        htlcExpirationTimestamp: string
+        htlcVersion: string
+        htlcSenderPubKey: string
+        htlcLockId: string
+      }>
+    ) => {
+      state.htlcCreationHash = action.payload.htlcCreationHash
+      state.htlcCreationVout = action.payload.htlcCreationVout
+      state.htlcExpirationTimestamp = action.payload.htlcExpirationTimestamp
+      state.htlcVersion = action.payload.htlcVersion
+      state.htlcSenderPubKey = action.payload.htlcSenderPubKey
+      state.htlcLockId = action.payload.htlcLockId
+    },
+    resetHtlcData: (state: OptionState) => {
+      state.htlcCreationHash = ''
+      state.htlcCreationVout = 0
+      state.htlcExpirationTimestamp = ''
+      state.htlcVersion = ''
+      state.htlcSenderPubKey = ''
+      state.htlcLockId = ''
     },
     setTokenOptions: (
       state: OptionState,
@@ -316,6 +404,12 @@ export const optionSlice = createSlice({
       action: PayloadAction<boolean>
     ) => {
       state.tronConnectModal = action.payload
+    },
+    setBtcConnectModal: (
+      state: OptionState,
+      action: PayloadAction<boolean>
+    ) => {
+      state.btcConnectModal = action.payload
     },
     setAccountDetailsModal: (
       state: OptionState,
@@ -486,6 +580,7 @@ export const {
   setBitcoinPubkey,
   setSolanaConnectModal,
   setTronConnectModal,
+  setBtcConnectModal,
   setAccountDetailsModal,
   setHelpPopup,
   setHashPopup,
@@ -521,6 +616,14 @@ export const {
   setExpireTime,
   setPendingTxData,
   setPendingTxs,
+  setBtcApprovalRetrying,
+  setBtcApprovalStopRequested,
+  setBtcApprovalResumeAllowed,
+  setBtcSubmitRetrying,
+  setBtcSubmitStopRequested,
+  setBtcWalletType,
+  setHtlcData,
+  resetHtlcData,
   resetServiceFee,
   setUiError,
   clearUiError

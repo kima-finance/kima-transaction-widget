@@ -22,7 +22,7 @@ export const getUTXOs = async (
   address: string
 ): Promise<UTXO[]> => {
   const networkSubpath =
-    network === BitcoinNetworkType.Testnet ? '/testnet' : ''
+    network === BitcoinNetworkType.Testnet ? '/testnet4' : ''
 
   const url = `https://mempool.space${networkSubpath}/api/address/${address}/utxo`
   const response = await fetch(url)

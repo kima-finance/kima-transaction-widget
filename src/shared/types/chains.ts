@@ -73,7 +73,7 @@ export const CHAIN_NAMES_TO_EXPLORER_TESTNET: { [chainName: string]: string } =
     [ChainName.ARBITRUM]: 'sepolia.arbiscan.io',
     [ChainName.POLYGON_ZKEVM]: 'cardona-zkevm.polygonscan.com',
     [ChainName.TRON]: 'nile.tronscan.org/#',
-    [ChainName.BTC]: 'mempool.space/testnet',
+    [ChainName.BTC]: 'mempool.space/testnet4',
     [ChainName.BASE]: 'sepolia.basescan.org',
     [ChainName.BERA]: 'bartio.beratrail.io',
     [ChainName.CFX]: 'evmtestnet.confluxscan.org',

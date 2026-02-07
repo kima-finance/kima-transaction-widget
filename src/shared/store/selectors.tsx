@@ -54,10 +54,26 @@ export const selectSolanaConnectModal = (state: RootState) =>
 export const selectTronConnectModal = (state: RootState) =>
   state.option.tronConnectModal
 
+// Bitcoin
+export const selectBtcConnectModal = (state: RootState) =>
+  state.option.btcConnectModal
+
 // Core
 export const selectPendingTxs = (state: RootState) => state.option.pendingTxs
 export const selectPendingTxData = (state: RootState) =>
   state.option.pendingTxData
+export const selectBtcApprovalRetrying = (state: RootState) =>
+  state.option.btcApprovalRetrying
+export const selectBtcApprovalStopRequested = (state: RootState) =>
+  state.option.btcApprovalStopRequested
+export const selectBtcApprovalResumeAllowed = (state: RootState) =>
+  state.option.btcApprovalResumeAllowed
+export const selectBtcSubmitRetrying = (state: RootState) =>
+  state.option.btcSubmitRetrying
+export const selectBtcSubmitStopRequested = (state: RootState) =>
+  state.option.btcSubmitStopRequested
+export const selectBtcWalletType = (state: RootState) =>
+  state.option.btcWalletType
 
 // Core
 export const selectHelpPopup = (state: RootState) => state.option.helpPopup
@@ -153,3 +169,14 @@ export const selectCCTransactionRetrying = (state: RootState) =>
   state.option.ccTransactionRetrying
 
 export const selectUiError = (state: any) => state.options.uiError
+
+export const selectHtlcCreationHash = (state: RootState) =>
+  state.option.htlcCreationHash
+export const selectHtlcCreationVout = (state: RootState) =>
+  state.option.htlcCreationVout
+export const selectHtlcExpirationTimestamp = (state: RootState) =>
+  state.option.htlcExpirationTimestamp
+export const selectHtlcVersion = (state: RootState) => state.option.htlcVersion
+export const selectHtlcSenderPubKey = (state: RootState) =>
+  state.option.htlcSenderPubKey
+export const selectHtlcLockId = (state: RootState) => state.option.htlcLockId

@@ -46,6 +46,7 @@ export interface PluginUseAllowanceResult extends GetTokenAllowanceResult {
 export interface PluginUseBalanceResult {
   balance?: bigint | undefined
   decimals?: number | undefined
+  isLoading?: boolean
 }
 
 export interface PluginUseIsWalletReadyResult {

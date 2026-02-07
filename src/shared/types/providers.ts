@@ -8,6 +8,13 @@ import { TronWeb } from 'tronweb'
 import { SignedTransaction } from '@tronweb3/tronwallet-abstract-adapter'
 import { BrowserProvider, JsonRpcSigner } from 'ethers'
 
+export interface BtcProvider {
+  publicKey?: string
+  disconnect?: () => Promise<void>
+}
+
+export type BtcSigner = string | { address: string; publicKey?: string }
+
 export interface TronProvider {
   tronWeb: TronWeb
   signTransaction: (
@@ -29,6 +36,7 @@ export type ExternalProvider =
   | { type: 'evm'; provider: BrowserProvider; signer: JsonRpcSigner }
   | { type: 'solana'; provider: SolProvider; signer: PublicKey }
   | { type: 'tron'; provider: TronProvider; signer: string }
+  | { type: 'btc'; provider?: BtcProvider; signer: BtcSigner }
 
 export const isSolProvider = (provider: SolProvider) => {
   // TODO: refactor to a class or check the right function signature
