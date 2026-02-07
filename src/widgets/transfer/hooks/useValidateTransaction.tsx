@@ -15,7 +15,8 @@ import log from '@kima-widget/shared/logger'
 import { ModeOptions, NetworkOptions } from '@kima-widget/shared/types'
 import {
   checkPoolBalance,
-  isAddressCompatible
+  isAddressCompatible,
+  isBtc
 } from '@kima-widget/shared/lib/addresses'
 import { isSamePeggedToken } from '@kima-widget/shared/lib/misc'
 
@@ -75,6 +76,8 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
   const { data: envOptions } = useGetEnvOptions({ kimaBackendUrl })
   const mode = useSelector(selectMode)
   const networkOption = useSelector(selectNetworkOption)
+  const isBtcOrigin = isBtc(sourceChain)
+  const isBtcFlow = isBtcOrigin || isBtc(targetChain)
 
   const srcNet = useSelector(selSourceChain)
   const tgtNet = useSelector(selTargetChain)
@@ -82,7 +85,8 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
   const tgtCur = useSelector(selTargetCurrency)
 
   const isSwap = useMemo(
-    () => !isSamePeggedToken(srcNet, srcCur, tgtNet, tgtCur),
+    () =>
+      srcCur !== tgtCur && !isSamePeggedToken(srcNet, srcCur, tgtNet, tgtCur),
     [srcNet, srcCur, tgtNet, tgtCur]
   )
 
@@ -144,6 +148,7 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
     }
 
     if (
+      !isBtcFlow &&
       amount >
         parseUnits(envOptions?.transferLimitMaxUSDT || '100', decimals) &&
       networkOption === NetworkOptions.testnet
@@ -156,7 +161,7 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
     }
 
     const isFiatSrc = sourceChain === 'BANK' || sourceChain === 'CC'
-    if (totalFee <= 0n && !isFiatSrc) {
+    if (totalFee <= 0n && !isFiatSrc && !isBtcFlow) {
       return { error: ValidationError.Error, message: 'Fee calculation error' }
     }
 
@@ -214,7 +219,7 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
       }
     }
 
-    if (!isSwap) {
+    if (!isSwap && !isBtcFlow) {
       const { isPoolAvailable, error } = checkPoolBalance({
         pools,
         targetChain,

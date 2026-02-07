@@ -30,7 +30,12 @@ import {
   setSourceAddress,
   setTargetCurrency
 } from '@kima-widget/shared/store/optionSlice'
-import { isEVMChain, isSolana, isTron } from '@kima-widget/shared/lib/addresses'
+import {
+  isBtc,
+  isEVMChain,
+  isSolana,
+  isTron
+} from '@kima-widget/shared/lib/addresses'
 import ChainIcon from '../reusable/ChainIcon'
 import { ArrowIcon, WarningIcon } from '@kima-widget/assets/icons'
 import { useKimaContext } from '@kima-widget/app/providers'
@@ -357,6 +362,7 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
     if (isEVMChain(sourceNetwork.shortName)) srcDemo = lightDemoAccounts.EVM
     else if (isSolana(sourceNetwork.shortName)) srcDemo = lightDemoAccounts.SOL
     else if (isTron(sourceNetwork.shortName)) srcDemo = lightDemoAccounts.TRX
+    else if (isBtc(sourceNetwork.shortName)) srcDemo = lightDemoAccounts.BTC
 
     if (srcDemo && currentSourceAddr !== srcDemo) {
       log.debug('[NetworkSelector] sync demo SOURCE address', {
@@ -371,6 +377,7 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
     if (isEVMChain(targetNetwork.shortName)) tgtDemo = lightDemoAccounts.EVM
     else if (isSolana(targetNetwork.shortName)) tgtDemo = lightDemoAccounts.SOL
     else if (isTron(targetNetwork.shortName)) tgtDemo = lightDemoAccounts.TRX
+    else if (isBtc(targetNetwork.shortName)) tgtDemo = lightDemoAccounts.BTC
 
     if (tgtDemo && currentTargetAddr !== tgtDemo) {
       log.debug('[NetworkSelector] sync demo TARGET address', {
@@ -411,7 +418,7 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
           .filter((network) => network.shortName !== selectedNetwork.shortName)
           .map((network) => (
             <div
-              key={network.id ?? network.shortName}
+              key={`${network.shortName}-${network.name}`}
               className={`network-menu-item ${theme?.colorMode ?? ''} ${network.disabled ? 'disabled has-tooltip' : 'enabled'}`}
               onClick={(e) => {
                 e.stopPropagation()

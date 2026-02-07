@@ -4,6 +4,7 @@ import {
   selectFeeDeduct,
   selectMode,
   selectNetworks,
+  selectAmount,
   selectServiceFee,
   selectSourceChain,
   selectSourceCurrency,
@@ -17,6 +18,7 @@ import { ChainName, DAppOptions, ModeOptions } from '@kima-widget/shared/types'
 import useIsWalletReady from '@kima-widget/widgets/transfer/hooks/useIsWalletReady'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
+import { formatUnits, parseUnits } from 'viem'
 import ChainIcon from './ChainIcon'
 import {
   formatBigInt,
@@ -24,7 +26,11 @@ import {
 } from '@kima-widget/shared/lib/bigint'
 import { MiniArrowIcon } from '@kima-widget/assets/icons'
 import FeeDeductionRadioButtons from './FeeDeductionRadioButtons'
-import { isSamePeggedToken, uiTokenSymbol } from '@kima-widget/shared/lib/misc'
+import {
+  isSamePeggedToken,
+  truncateToDecimals,
+  uiTokenSymbol
+} from '@kima-widget/shared/lib/misc'
 import log from '@kima-widget/shared/logger'
 
 type BigAmt = { value: bigint; decimals: number }
@@ -43,6 +49,17 @@ const sumBigAmts = (amts: BigAmt[]): BigAmt => {
   return { value: total, decimals: maxDec }
 }
 
+const formatFeeAmount = (amt: BigAmt, maxDecimals: number): string => {
+  if (!amt) return '0'
+  if (amt.value === 0n) return '0'
+  const raw = formatUnits(amt.value, amt.decimals)
+  const numeric = Number(raw)
+  if (!Number.isFinite(numeric)) return raw
+  if (numeric === 0) return '0'
+  const truncated = truncateToDecimals(numeric, maxDecimals)
+  return truncated.toFixed(maxDecimals)
+}
+
 const ConfirmDetails = ({
   isApproved,
   feeOptionDisabled
@@ -54,6 +71,7 @@ const ConfirmDetails = ({
   const mode = useSelector(selectMode)
   const dAppOption = useSelector(selectDappOption)
   const theme = useSelector(selectTheme)
+  const amount = useSelector(selectAmount)
 
   const {
     transactionValues,
@@ -95,6 +113,32 @@ const ConfirmDetails = ({
 
   const sourceCurrency = useSelector(selectSourceCurrency)
   const targetCurrency = useSelector(selectTargetCurrency)
+  const sourceToken = useMemo(
+    () =>
+      originNetwork.supportedTokens?.find((t) => t.symbol === sourceCurrency),
+    [originNetwork, sourceCurrency]
+  )
+  const targetToken = useMemo(
+    () =>
+      targetNetwork.supportedTokens?.find((t) => t.symbol === targetCurrency),
+    [targetNetwork, targetCurrency]
+  )
+
+  const sourceDecimals =
+    sourceToken?.decimals ??
+    (originNetwork.shortName === ChainName.BTC ? 8 : 18)
+  const targetDecimals =
+    targetToken?.decimals ??
+    (targetNetwork.shortName === ChainName.BTC ? 8 : 18)
+
+  const inputAmountBig = useMemo(() => {
+    if (!amount) return undefined
+    try {
+      return { value: parseUnits(amount, sourceDecimals), decimals: sourceDecimals }
+    } catch {
+      return undefined
+    }
+  }, [amount, sourceDecimals])
 
   // UI-mapped symbols (display only)
   const uiSourceCurrency = useMemo(
@@ -111,6 +155,7 @@ const ConfirmDetails = ({
   // Swap detection by peggedTo (must use original symbols)
   const isSwap = useMemo(
     () =>
+      sourceCurrency !== targetCurrency &&
       !isSamePeggedToken(
         originNetwork,
         sourceCurrency,
@@ -119,13 +164,21 @@ const ConfirmDetails = ({
       ),
     [originNetwork, sourceCurrency, targetNetwork, targetCurrency]
   )
+  const isBtcFlow = useMemo(
+    () =>
+      originNetwork.shortName === ChainName.BTC ||
+      targetNetwork.shortName === ChainName.BTC,
+    [originNetwork.shortName, targetNetwork.shortName]
+  )
 
   const chargeFeeAtOrigin = !isSwap && feeDeduct
 
-  const baseSubmit = useMemo(
-    () => transactionValues.feeFromOrigin.submitAmount,
-    [transactionValues.feeFromOrigin.submitAmount]
-  )
+  const baseSubmit = useMemo(() => {
+    const submit = transactionValues.feeFromOrigin.submitAmount
+    if (submit.value > 0n) return submit
+    if (!isBtcFlow) return inputAmountBig ?? submit
+    return submit
+  }, [transactionValues.feeFromOrigin.submitAmount, inputAmountBig, isBtcFlow])
 
   const totalFeeInSubmitDec = useMemo(
     () =>
@@ -147,8 +200,8 @@ const ConfirmDetails = ({
 
   const targetTransferBig = useMemo(() => {
     if (isSwap) {
-      if (swapInfo?.amountOutBigInt) return swapInfo.amountOutBigInt
-      return transactionValues.feeFromOrigin.submitAmount
+      if (swapInfo?.amountOutBigInt?.value) return swapInfo.amountOutBigInt
+      return baseSubmit
     }
     const minus = baseSubmit.value - totalFeeInSubmitDec.value
     const val = chargeFeeAtOrigin ? (minus > 0n ? minus : 0n) : baseSubmit.value
@@ -168,6 +221,20 @@ const ConfirmDetails = ({
       sumBigAmts([sourceFee, targetFee, swapFee ?? { value: 0n, decimals: 0 }]),
     [sourceFee, targetFee, swapFee]
   )
+  const totalFeeBreakdown = useMemo(
+    () =>
+      isSwap
+        ? sumBigAmts([
+            sourceFee,
+            targetFee,
+            swapFee ?? { value: 0n, decimals: 0 },
+            kimaFee
+          ])
+        : sumBigAmts([sourceFee, targetFee, kimaFee]),
+    [isSwap, sourceFee, targetFee, swapFee, kimaFee]
+  )
+
+  const feeDecimals = originNetwork.shortName === ChainName.BTC ? 8 : 6
 
   useEffect(() => {
     width === 0 && updateWidth(window.innerWidth)
@@ -244,7 +311,8 @@ const ConfirmDetails = ({
                 }}
               />
               <span className='service-fee'>
-                {formatBigInt(totalFee)} {uiSourceCurrency}
+                {formatFeeAmount(totalFeeBreakdown, feeDecimals)}{' '}
+                {uiSourceCurrency}
               </span>
             </div>
           </div>
@@ -255,13 +323,14 @@ const ConfirmDetails = ({
                 <div className='amount-details'>
                   <span>Swap Fees</span>
                   <span className='service-fee'>
-                    {formatBigInt(combinedSwapFees)} {uiSourceCurrency}
+                    {formatFeeAmount(combinedSwapFees, feeDecimals)}{' '}
+                    {uiSourceCurrency}
                   </span>
                 </div>
                 <div className='amount-details'>
                   <span>Kima Processing Fees</span>
                   <span className='service-fee'>
-                    {formatBigInt(kimaFee)} {uiSourceCurrency}
+                    {formatFeeAmount(kimaFee, feeDecimals)} {uiSourceCurrency}
                   </span>
                 </div>
               </>
@@ -274,19 +343,20 @@ const ConfirmDetails = ({
                       : `Source Network Fee (${originNetwork.shortName})`}
                   </span>
                   <span className='service-fee'>
-                    {formatBigInt(sourceFee)} {uiSourceCurrency}
+                    {formatFeeAmount(sourceFee, feeDecimals)} {uiSourceCurrency}
                   </span>
                 </div>
                 <div className='amount-details'>
                   <span>Target Network Fee ({targetNetwork.shortName})</span>
                   <span className='service-fee'>
-                    {formatBigInt(targetFee)} {uiTargetCurrency}
+                    {formatFeeAmount(targetFee, feeDecimals)}{' '}
+                    {uiTargetCurrency}
                   </span>
                 </div>
                 <div className='amount-details'>
                   <span>KIMA Service Fee</span>
                   <span className='service-fee'>
-                    {formatBigInt(kimaFee)} {uiSourceCurrency}
+                    {formatFeeAmount(kimaFee, feeDecimals)} {uiSourceCurrency}
                   </span>
                 </div>
               </>

@@ -2,6 +2,7 @@ import React, { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   setAccountDetailsModal,
+  setBtcConnectModal,
   setSolanaConnectModal,
   setSourceAddress,
   setTronConnectModal
@@ -34,8 +35,7 @@ import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
 import { useWallet as useTronWallet } from '@tronweb3/tronwallet-adapter-react-hooks'
 import { useAppKit, useAppKitState } from '@reown/appkit/react'
 import CopyButton from './CopyButton'
-import { bigIntToNumber } from '@kima-widget/shared/lib/bigint'
-import { formatUSD } from '@kima-widget/shared/lib/format'
+import { formatBigInt } from '@kima-widget/shared/lib/bigint'
 import useHideWuiListItem from '@kima-widget/hooks/useHideActivityTab'
 import { useKimaContext } from '@kima-widget/app/providers'
 import { useGetEnvOptions } from '@kima-widget/hooks/useGetEnvOptions'
@@ -73,7 +73,7 @@ const WalletButton = ({
   const { connected: isSolanaConnected } = useSolanaWallet()
   const { connected: isTronConnected } = useTronWallet()
   const { isReady, statusMessage, connectedAddress } = useIsWalletReady()
-  const { balance, decimals } = useBalance()
+  const { balance, decimals, isLoading: isBalanceLoading } = useBalance()
   const { open } = useAppKit()
   const { open: isModalOpen } = useAppKitState()
   const { width, updateWidth } = useWidth()
@@ -133,6 +133,7 @@ const WalletButton = ({
     if (!short) return ''
     if (short === ChainName.SOLANA) return lightDemoAccounts.SOL
     if (short === ChainName.TRON) return lightDemoAccounts.TRX
+    if (short === ChainName.BTC) return lightDemoAccounts.BTC
     if (isEVMChain(short)) return lightDemoAccounts.EVM
     return ''
   }, [mode, sourceNetwork?.shortName])
@@ -164,12 +165,26 @@ const WalletButton = ({
     return /switch/i.test(statusMessage || '')
   }, [mode, sourceNetwork?.shortName, statusMessage])
 
+  const showStatusMessage = useMemo(() => {
+    if (mode === ModeOptions.light) return false
+    if (isReady) return false
+    if (!statusMessage) return false
+    if (isEvmSwitching) return false
+    return /network|switch/i.test(statusMessage)
+  }, [mode, isReady, statusMessage, isEvmSwitching])
+
   // ADVANCED-ONLY click handler
   const handleClick = async () => {
     if (mode === ModeOptions.light) return
     if (placeholder) return
     if (!hasSelectedSourceNetwork || !isWalletApplicable) return
     if (isEvmSwitching) return // ignore clicks while switching
+
+    if (sourceNetwork?.shortName === ChainName.BTC) {
+      return isConnected
+        ? dispatch(setAccountDetailsModal(true))
+        : dispatch(setBtcConnectModal(true))
+    }
 
     if (sourceNetwork?.shortName === ChainName.SOLANA) {
       return isSolanaConnected
@@ -316,16 +331,20 @@ const WalletButton = ({
         )}
       </div>
 
+      {showStatusMessage && (
+        <p className='provider-error'>{statusMessage}</p>
+      )}
+
       {/* Balance only for SOURCE button in advanced mode */}
       {isConnected && mode !== ModeOptions.light && !placeholder && (
         <>
-          {balance !== undefined && decimals !== undefined ? (
+          {isBalanceLoading ? (
+            <div className='loading' aria-label='balance-loading'></div>
+          ) : (
             <p className='balance-info'>
-              {formatUSD(bigIntToNumber({ value: balance, decimals }))}{' '}
+              {formatBigInt({ value: balance, decimals })}{' '}
               {uiTokenSymbol(selectedCoin)} available
             </p>
-          ) : (
-            <div className='loading' aria-label='balance-loading'></div>
           )}
         </>
       )}

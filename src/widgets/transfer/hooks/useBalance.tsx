@@ -4,7 +4,11 @@ import { PluginUseBalanceResult } from '@kima-widget/shared/types'
 import log from '@kima-widget/shared/logger'
 
 type BalanceHook = () => PluginUseBalanceResult | undefined
-const EMPTY: PluginUseBalanceResult = { balance: BigInt(0), decimals: 0 }
+const EMPTY: PluginUseBalanceResult = {
+  balance: BigInt(0),
+  decimals: 0,
+  isLoading: false
+}
 
 const useBalance = (): PluginUseBalanceResult => {
   const { currentPlugin } = useGetCurrentPlugin()

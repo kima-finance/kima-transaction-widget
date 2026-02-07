@@ -43,7 +43,7 @@ export interface ChainIconProps extends IconProps {
   symbol: string
 }
 
-export default function ChainIcon({ symbol }: ChainIconProps) {
+export default function ChainIcon({ symbol, width, height }: ChainIconProps) {
   // return an empty icon if no symbol found
   const Icon = symbol === 'FIAT' ? chainIcons['CC'] : chainIcons[symbol]
 
@@ -54,7 +54,7 @@ export default function ChainIcon({ symbol }: ChainIconProps) {
 
   return (
     <div className='icon'>
-      <Icon />
+      <Icon width={width} height={height} />
     </div>
   )
 }
