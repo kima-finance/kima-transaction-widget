@@ -101,5 +101,10 @@ export const useTrc20Balance = (): BalanceResult => {
     sourceChain.shortName
   ])
 
-  return { balance: q.data?.balance, decimals: q.data?.decimals }
+  const isLoading = q.isLoading || (q.isFetching && !q.data)
+  return {
+    balance: q.data?.balance,
+    decimals: q.data?.decimals,
+    isLoading
+  }
 }

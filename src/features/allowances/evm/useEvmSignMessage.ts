@@ -9,7 +9,7 @@ import {
 import { ModeOptions } from '@kima-widget/shared/types'
 import { useEvmAddress } from '@kima-widget/features/connect-wallet/evm/useEvmAddress'
 import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
-import { createWalletClient, custom } from 'viem'
+import { createWalletClient, custom, isAddress } from 'viem'
 import log from '@kima-widget/shared/logger'
 import { getFeeSideValues } from '@kima-widget/shared/lib/fees'
 
@@ -42,23 +42,87 @@ export const useEvmSignMessage = () => {
         return undefined
       }
 
-      const account =
-        (userAddress as `0x${string}`) ?? (appkitAddress as `0x${string}`)
+      const preferredAccount = (userAddress && userAddress !== ''
+        ? userAddress
+        : appkitAddress) as `0x${string}` | undefined
 
-      if (!account) {
-        log.warn('[useEvmSignMessage] Missing account')
-        return undefined
-      }
+      log.debug('[useEvmSignMessage] inputs', {
+        hasProvider: !!eip1193,
+        userAddress,
+        appkitAddress,
+        preferredAccount,
+        chain: sourceChain
+      })
 
       const walletClient = createWalletClient({
-        account,
+        account: preferredAccount,
         chain: sourceChain as any,
         transport: custom(eip1193)
       })
 
+      const fallbackAccount = (await walletClient.getAddresses())?.[0]
+      const account = (preferredAccount || fallbackAccount) as
+        | `0x${string}`
+        | undefined
+
+      log.debug('[useEvmSignMessage] resolved account', {
+        preferredAccount,
+        fallbackAccount,
+        account,
+        walletClientAccount: (walletClient as any)?.account
+      })
+
+      if (!account || !isAddress(account)) {
+        log.warn('[useEvmSignMessage] Missing or invalid account', {
+          preferredAccount,
+          fallbackAccount
+        })
+        return undefined
+      }
+
+      log.debug('[useEvmSignMessage] signMessage params', {
+        account,
+        messageType: typeof message,
+        messageLength: typeof message === 'string' ? message.length : undefined
+      })
+
       log.debug('[useEvmSignMessage] signing via viem walletClient')
-      const sig = await walletClient.signMessage({ account, message })
-      return sig
+      try {
+        const sig = await walletClient.signMessage({ account, message })
+        return sig
+      } catch (err) {
+        log.warn('[useEvmSignMessage] walletClient sign failed, retrying', err)
+        if (eip1193?.request) {
+          try {
+            const sig = await eip1193.request({
+              method: 'personal_sign',
+              params: [message, account]
+            })
+            return sig as string
+          } catch (fallbackErr) {
+            log.warn('[useEvmSignMessage] personal_sign [message, account] failed', fallbackErr)
+          }
+          try {
+            const sig = await eip1193.request({
+              method: 'personal_sign',
+              params: [account, message]
+            })
+            return sig as string
+          } catch (fallbackErr) {
+            log.warn('[useEvmSignMessage] personal_sign [account, message] failed', fallbackErr)
+          }
+          try {
+            const sig = await eip1193.request({
+              method: 'eth_sign',
+              params: [account, message]
+            })
+            return sig as string
+          } catch (fallbackErr) {
+            log.warn('[useEvmSignMessage] eth_sign failed', fallbackErr)
+          }
+        }
+        throw err
+      }
     } catch (err) {
       log.error('[useEvmSignMessage] failed to sign', err)
       throw err

@@ -56,17 +56,20 @@ const SolanaWalletSelect = () => {
         'SolanaWalletSelect: Wallet exists but not connected, connecting wallet:',
         wallet
       )
-      connect().catch((err) => {
-        if (isUserRejected(err)) {
-          toast('Wallet connection was cancelled.')
-        } else {
-          toast.error('Failed to connect wallet.')
-        }
-        log.error('Solana connect error:', err)
-      })
+      connect()
+        .then(() => {
+          dispatch(setSolanaConnectModal(false))
+        })
+        .catch((err) => {
+          if (isUserRejected(err)) {
+            toast('Wallet connection was cancelled.')
+          } else {
+            toast.error('Failed to connect wallet.')
+          }
+          log.error('Solana connect error:', err)
+        })
     }
 
-    dispatch(setSolanaConnectModal(false))
   }, [wallet, sourceChain])
   return (
     <div className={`wallet-select`}>

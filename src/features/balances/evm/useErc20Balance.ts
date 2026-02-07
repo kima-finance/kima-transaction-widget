@@ -84,5 +84,10 @@ export const useErc20Balance = (): BalanceResult => {
     }
   })
 
-  return { balance: query.data?.balance, decimals: query.data?.decimals }
+  const isLoading = query.isLoading || (query.isFetching && !query.data)
+  return {
+    balance: query.data?.balance,
+    decimals: query.data?.decimals,
+    isLoading
+  }
 }

@@ -50,5 +50,10 @@ export const useTronNativeBalance = (): BalanceResult => {
     if (q.isError) log.error('[useTronNativeBalance] error', q.error)
   }, [enabled, q.isSuccess, q.isError, q.data, q.error, address])
 
-  return { balance: q.data?.balance, decimals: q.data?.decimals }
+  const isLoading = q.isLoading || (q.isFetching && !q.data)
+  return {
+    balance: q.data?.balance,
+    decimals: q.data?.decimals,
+    isLoading
+  }
 }

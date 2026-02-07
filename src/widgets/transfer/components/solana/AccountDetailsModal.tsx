@@ -28,7 +28,11 @@ const AccountDetailsModal = () => {
   const sourceChain = useSelector(selectSourceChain)
   const isOpen = useSelector(selectAccountDetailsModal)
   const { disconnect: solanaWalletDisconnect } = useSolanaWallet()
-  const { balance: solBalance } = useSolNativeBalance()
+  const {
+    balance: solBalance,
+    decimals: solDecimals,
+    isLoading: isSolBalanceLoading
+  } = useSolNativeBalance()
 
   const isSol = sourceChain.shortName === ChainName.SOLANA
   if (!isSol) return null
@@ -67,7 +71,10 @@ const AccountDetailsModal = () => {
       themeMode={theme.colorMode}
       address={sourceAddress}
       balance={solBalance}
+      decimals={solDecimals}
+      isBalanceLoading={isSolBalanceLoading}
       symbol='SOL'
+      iconSymbol='SOL'
       explorerUrl={explorerUrl}
       onDisconnect={handleDisconnect}
       disableDisconnect={mode === ModeOptions.light}

@@ -29,6 +29,70 @@
 }
 .kima-card {
   position: relative;
+  overflow: visible;
+}
+.kima-card .toast-history {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-right: 8px;
+  z-index: 10;
+}
+.kima-card .toast-history .toast-history-button {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.kima-card .toast-history .toast-history-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 9999;
+  width: 260px;
+  max-height: 220px;
+  overflow: auto;
+  border-radius: 14px;
+  border: 1px solid rgba(119, 141, 163, 0.3019607843);
+  padding: 10px 12px;
+  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.15);
+}
+.kima-card .toast-history .toast-history-panel.light {
+  background: #f7f8f9;
+  color: black;
+}
+.kima-card .toast-history .toast-history-panel.dark {
+  background: #242732;
+  color: white;
+}
+.kima-card .toast-history .toast-history-header {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.kima-card .toast-history .toast-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.kima-card .toast-history .toast-history-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+}
+.kima-card .toast-history .toast-history-message {
+  flex: 1;
+  line-height: 1.3;
+}
+.kima-card .toast-history .toast-history-time {
+  opacity: 0.7;
+  white-space: nowrap;
 }
 .kima-card .invalid-option-banner {
   font-size: 14px;
@@ -42,6 +106,8 @@
 .kima-card .kima-card-header {
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: 5;
 }
 .kima-card .kima-card-header .topbar {
   display: flex;
@@ -102,6 +168,9 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  position: relative;
+  z-index: 5;
+  overflow: visible;
 }
 .kima-card .kima-card-header .topbar .control-buttons.complete {
   width: 100%;
@@ -141,8 +210,9 @@
     width: 25px;
   }
 }
-.kima-card .kima-card-header .topbar .control-buttons .icon-button:first-of-type svg {
-  margin-top: 7px;
+.kima-card .kima-card-header .topbar .control-buttons .toast-history-button {
+  margin-left: 0;
+  padding: 0;
 }
 .kima-card .kima-card-header .topbar .control-buttons .cross-icon-button {
   display: flex;
@@ -273,6 +343,10 @@
   background-color: #778da3;
   color: white;
 }
+.kima-card .kima-card-content {
+  position: relative;
+  z-index: 1;
+}
 .kima-card .kima-card-footer {
   display: flex;
   align-items: center;
@@ -351,6 +425,55 @@
   .kima-card .kima-card-footer .button-group button {
     width: 140px;
   }
+}
+.kima-card .kima-card-footer .button-group .stop-retry-button {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 9999px;
+  border: 1px solid rgba(119, 141, 163, 0.3019607843);
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  color: #4a5068;
+}
+.kima-card .kima-card-footer .button-group .stop-retry-button svg {
+  width: 18px;
+  height: 18px;
+}
+.kima-card .kima-card-footer .button-group .stop-retry-button:hover .tooltip {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -6px);
+}
+.kima-card .kima-card-footer .button-group .stop-retry-button .tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: 110%;
+  transform: translate(-50%, 0);
+  background: #4a5068;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 10;
+}
+.kima-card .kima-card-footer .button-group .stop-retry-button.dark {
+  color: white;
+}
+.kima-card .kima-card-footer .button-group .stop-retry-button.dark .tooltip {
+  background: rgba(119, 141, 163, 0.3019607843);
+}
+.kima-card .kima-card-footer .button-group .stop-retry-button:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 .kima-card .kima-card-footer p {
   font-size: 0.8em;
@@ -1039,6 +1162,10 @@
   display: flex;
   align-items: center;
 }
+.kima-card .kima-card-content .single-form .form-item .max-disclaimer .fee-amount .fee-value.fee-error {
+  color: #b90000;
+  font-weight: 600;
+}
 .kima-card .kima-card-content .single-form .form-item .max-disclaimer .fee-amount .loading {
   animation: pulse 1.5s ease-in-out infinite;
   margin-top: auto;
@@ -1195,6 +1322,45 @@
   .kima-card .kima-card-content .single-form .form-item.transaction-search .transaction-input input {
     width: 100%;
   }
+}
+.kima-card .kima-card-content .single-form .form-item.transaction-search .tx-type-toggle {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 12px;
+}
+@media (max-width: 500px) {
+  .kima-card .kima-card-content .single-form .form-item.transaction-search .tx-type-toggle {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+.kima-card .kima-card-content .single-form .form-item.transaction-search .tx-type-toggle .toggle-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.kima-card .kima-card-content .single-form .form-item.transaction-search .tx-type-toggle .toggle-button {
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 0.95em;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+.kima-card .kima-card-content .single-form .form-item.transaction-search .tx-type-toggle .toggle-button.light {
+  background: #edf2f5;
+  color: #4a5068;
+  border-color: #86b8ce;
+}
+.kima-card .kima-card-content .single-form .form-item.transaction-search .tx-type-toggle .toggle-button.dark {
+  background: #4a5068;
+  color: #edf2f5;
+  border-color: #778da3;
+}
+.kima-card .kima-card-content .single-form .form-item.transaction-search .tx-type-toggle .toggle-button.active {
+  background: #778da3;
+  color: white;
+  border-color: #778da3;
 }
 .kima-card .kima-card-content .single-form .form-item input {
   border-radius: 50px;
@@ -2434,10 +2600,10 @@
   padding: 2px;
 }
 .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item.error svg {
-  margin-top: -4.5px;
-  width: 17px;
-  height: 28px;
-  left: 0;
+  margin-top: -2.5px;
+  width: 27px;
+  height: 27px;
+  left: -3;
 }
 @media (max-width: 768px) {
   .kima-card .kima-card-content .kima-stepbox .content-wrapper .step-item .info-item:first-of-type {
@@ -2679,25 +2845,126 @@
     height: 40px;
   }
 }
-.kima-card .card-item span {
-  font-weight: 500;
-  font-family: "Manrope";
-  text-align: center;
-  font-size: 18px;
-}
-@media (max-width: 500px) {
-  .kima-card .card-item span {
-    font-size: 14px;
-  }
-}
 .kima-card .card-item.light {
   background: #edf2f5;
 }
 .kima-card .card-item.dark {
   background: #242732;
 }
-.kima-card .card-item:hover {
-  opacity: 0.7;
+.kima-card .card-item.htlc-recovery-card {
+  height: auto;
+  cursor: default;
+  padding: 16px;
+  align-items: stretch;
+  flex-direction: column;
+  gap: 12px;
+}
+.kima-card .card-item.htlc-recovery-card .wallet-item {
+  padding: 0;
+  width: 100%;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+.kima-card .card-item.selected {
+  border-color: #86b8ce;
+}
+.kima-card .htlc-recovery {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.kima-card .htlc-fee {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.kima-card .htlc-fee input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+.kima-card .htlc-manual {
+  border: 1px solid rgba(119, 141, 163, 0.3019607843);
+  border-radius: 16px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.kima-card .htlc-manual-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.kima-card .htlc-manual-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 12px;
+}
+.kima-card .htlc-manual-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.kima-card .htlc-manual-field label {
+  font-size: 12px;
+  font-weight: 600;
+}
+.kima-card .htlc-manual-field input {
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+.kima-card .htlc-manual-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+.kima-card .htlc-recovery-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 48vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.kima-card .htlc-row {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+@media (max-width: 900px) {
+  .kima-card .htlc-row {
+    flex-direction: column;
+    justify-content: sta;
+  }
+}
+.kima-card .htlc-label {
+  font-weight: 700;
+  font-family: "Manrope";
+  font-size: 18px;
+}
+.kima-card .htlc-value {
+  font-family: "Manrope";
+  font-size: 14px;
+  text-align: left;
+  word-break: break-all;
+}
+.kima-card .htlc-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+  width: 100%;
+}
+@media (max-width: 500px) {
+  .kima-card .htlc-manual-grid {
+    grid-template-columns: 1fr;
+  }
+  .kima-card .htlc-value {
+    text-align: left;
+  }
 }
 .kima-card .kima-card-network-label {
   display: flex;
@@ -2907,6 +3174,16 @@
 .kima-modal .cross-icon-button svg {
   padding: 8px;
 }
+.kima-modal .help-icon-button {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  background: transparent;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
 .kima-modal .modal-content-container {
   position: relative;
   width: 500px;
@@ -3000,6 +3277,29 @@
   width: 25px;
   height: 25px;
 }
+.kima-modal .modal-content .summary .summary-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  margin-bottom: 16px;
+}
+.kima-modal .modal-content .summary .summary-icon .icon {
+  display: flex;
+  align-items: center;
+}
+.kima-modal .modal-content .summary .summary-icon svg {
+  width: 48px;
+  height: 48px;
+}
+.kima-modal .modal-content .summary .balance-skeleton {
+  animation: pulse 1.5s ease-in-out infinite;
+  margin-top: 8px;
+  width: 140px;
+  height: 20px;
+  border-radius: 6px;
+  background-color: rgba(119, 141, 163, 0.3019607843);
+}
 .kima-modal .modal-content .secondary-button {
   margin-bottom: 20px;
   width: fit-content !important;
@@ -3035,6 +3335,24 @@
   align-items: center;
   justify-content: center;
   margin-top: 2em;
+}
+.kima-modal.htlc-recovery-modal .modal-content-container {
+  width: 80vw;
+  max-width: 1100px;
+  max-height: 80vh;
+}
+.kima-modal.htlc-recovery-modal .modal-content {
+  align-items: stretch;
+  justify-content: flex-start;
+  overflow-y: auto;
+  max-height: calc(80vh - 120px);
+  min-height: 0;
+  padding-right: 4px;
+}
+@media (max-width: 500px) {
+  .kima-modal.htlc-recovery-modal .modal-content-container {
+    width: 95vw;
+  }
 }
 .kima-modal.help-popup .modal-content-container {
   width: 30em;
@@ -3182,6 +3500,23 @@
 .kima-modal.bank-popup .modal-content .bank-simulation button {
   margin: 2em auto 0;
   width: 16em;
+}
+.kima-modal.htlc-recovery-help .modal-content {
+  align-items: stretch;
+}
+.kima-modal.htlc-recovery-help .htlc-help {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.kima-modal.htlc-recovery-help .htlc-help ol {
+  padding-left: 18px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 @font-face {

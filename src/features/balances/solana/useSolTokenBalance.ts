@@ -113,5 +113,10 @@ export const useSolTokenBalance = (): BalanceResult => {
     }
   })
 
-  return { balance: query.data?.amount, decimals: query.data?.decimals }
+  const isLoading = query.isLoading || (query.isFetching && !query.data)
+  return {
+    balance: query.data?.amount,
+    decimals: query.data?.decimals,
+    isLoading
+  }
 }

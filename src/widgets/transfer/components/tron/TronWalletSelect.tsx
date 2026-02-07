@@ -46,11 +46,11 @@ const TronWalletSelect = () => {
 
   const connectWallet = async (walletName: any) => {
     try {
-      if (currentWallet?.adapter.name === walletName) {
-        await connect()
-      } else {
+      if (currentWallet?.adapter.name !== walletName) {
         select(walletName)
       }
+      await connect()
+      dispatch(setTronConnectModal(false))
     } catch (err) {
       if (isUserRejected(err)) {
         toast('Wallet connection was cancelled.')

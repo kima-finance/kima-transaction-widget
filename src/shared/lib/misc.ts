@@ -37,6 +37,11 @@ export const isSamePeggedToken = (
   targetChain: ChainData | undefined,
   targetSymbol: string | undefined
 ): boolean => {
+  if (!originSymbol || !targetSymbol) return false
+  const uiOrigin = uiTokenSymbol(originSymbol).toUpperCase()
+  const uiTarget = uiTokenSymbol(targetSymbol).toUpperCase()
+  if (uiOrigin && uiTarget && uiOrigin === uiTarget) return true
+
   const src = findToken(originChain, originSymbol ?? '')
   const dst = findToken(targetChain, targetSymbol ?? '')
   if (!src || !dst) return false

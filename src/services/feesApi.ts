@@ -1,5 +1,6 @@
 import { fetchWrapper } from '@kima-widget/shared/api/fetcher'
-import { toBigintAmount } from '@kima-widget/shared/lib/bigint'
+import { bigIntChangeDecimals, toBigintAmount } from '@kima-widget/shared/lib/bigint'
+import { formatUnits } from 'viem'
 import { FeeResponse, ServiceFee } from '@kima-widget/shared/types'
 import log from '@kima-widget/shared/logger'
 
@@ -76,6 +77,8 @@ export const getFees = async (
         }
       : undefined
 
+    const feeTotal = toBigintAmount(result.feeTotalBigInt)
+
     // compute totalFee locally (don’t trust feeTotalBigInt while it’s 0)
     const sourceFee = toBigintAmount(result.feeOriginGasBigInt)
     const targetFee = toBigintAmount(result.feeTargetGasBigInt)
@@ -98,6 +101,70 @@ export const getFees = async (
       (acc, a) => acc + scaleUp(a.value, a.decimals, maxDec),
       0n
     )
+    const totalFee =
+      feeTotal.value !== 0n
+        ? feeTotal
+        : { value: totalScaled, decimals: maxDec }
+
+    const originDecimals =
+      originChain === 'BTC'
+        ? 8
+        : fromOrigin.submitAmount?.decimals ??
+          fromOrigin.allowanceAmount?.decimals ??
+          totalFee.decimals ??
+          sourceFee.decimals ??
+          18
+
+    const normalizedOriginAllowance = bigIntChangeDecimals({
+      ...originAllowance,
+      newDecimals: originDecimals
+    })
+    const normalizedOriginSubmit = bigIntChangeDecimals({
+      ...originSubmit,
+      newDecimals: originDecimals
+    })
+    const normalizedTargetAllowance = bigIntChangeDecimals({
+      ...targetAllowance,
+      newDecimals: originDecimals
+    })
+    const normalizedTargetSubmit = bigIntChangeDecimals({
+      ...targetSubmit,
+      newDecimals: originDecimals
+    })
+    const normalizedTotalFee = bigIntChangeDecimals({
+      ...totalFee,
+      newDecimals: originDecimals
+    })
+
+    const btcFeeFromOrigin =
+      originChain === 'BTC'
+        ? {
+            allowanceAmount: {
+              value:
+                normalizedOriginSubmit.value + normalizedTotalFee.value,
+              decimals: originDecimals
+            },
+            submitAmount: normalizedOriginSubmit,
+            message:
+              `I approve the transfer of ${formatUnits(
+                normalizedOriginSubmit.value + normalizedTotalFee.value,
+                originDecimals
+              )} ${originSymbol} from ${originChain} to ${targetAddress} on ${targetChain}.`
+          }
+        : undefined
+
+    const btcFeeFromTarget =
+      originChain === 'BTC'
+        ? {
+            allowanceAmount: normalizedOriginSubmit,
+            submitAmount: normalizedOriginSubmit,
+            message:
+              `I approve the transfer of ${formatUnits(
+                normalizedOriginSubmit.value,
+                originDecimals
+              )} ${originSymbol} from ${originChain} to ${targetAddress} on ${targetChain}.`
+          }
+        : undefined
 
     const output: ServiceFee = {
       feeId: result.feeId,
@@ -106,7 +173,7 @@ export const getFees = async (
       sourceFee,
       targetFee,
       kimaFee,
-      totalFee: { value: totalScaled, decimals: maxDec },
+      totalFee: normalizedTotalFee,
       swapFee,
       swapInfo,
       transactionValues: {
@@ -116,20 +183,23 @@ export const getFees = async (
         targetChain,
         targetAddress,
         targetSymbol,
-        feeFromOrigin: {
-          allowanceAmount: originAllowance,
-          submitAmount: originSubmit,
-          message: fromOrigin.message
-        },
-        feeFromTarget: {
-          allowanceAmount: targetAllowance,
-          submitAmount: targetSubmit,
-          message: fromTarget?.message ?? ''
-        }
+        feeFromOrigin:
+          btcFeeFromOrigin ?? {
+            allowanceAmount: normalizedOriginAllowance,
+            submitAmount: normalizedOriginSubmit,
+            message: fromOrigin.message
+          },
+        feeFromTarget:
+          btcFeeFromTarget ?? {
+            allowanceAmount: normalizedTargetAllowance,
+            submitAmount: normalizedTargetSubmit,
+            message: fromTarget?.message ?? ''
+          }
       },
       options: result.options
     }
 
+    log.debug('[getFees] response:raw', result)
     log.debug('[getFees] response', {
       feeId: output.feeId,
       totalFee: `${output.totalFee.value} @ ${output.totalFee.decimals}dp`,

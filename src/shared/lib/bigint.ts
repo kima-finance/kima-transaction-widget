@@ -1,6 +1,7 @@
 import { formatUnits, parseUnits } from 'viem'
 import {
   BigintAmount,
+  BtcSigner,
   ExternalProvider,
   isSolProvider,
   isTronProvider,
@@ -91,6 +92,15 @@ export const isValidExternalProvider = (externalProvider: ExternalProvider) => {
   if (type === 'tron') {
     if (!isTronProvider(provider as TronProvider) || typeof signer !== 'string')
       return false
+  }
+
+  if (type === 'btc') {
+    const btcSigner = signer as BtcSigner
+    const hasAddress =
+      typeof btcSigner === 'string' ||
+      (typeof btcSigner === 'object' && typeof btcSigner.address === 'string')
+    if (!hasAddress) return false
+    if (provider && typeof provider !== 'object') return false
   }
 
   return true

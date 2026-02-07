@@ -38,5 +38,10 @@ export const useSolNativeBalance = (): BalanceResult => {
   })
 
   log.debug('[useSolNativeBalance] enabled?', { enabled, owner })
-  return { balance: query.data?.balance, decimals: query.data?.decimals }
+  const isLoading = query.isLoading || (query.isFetching && !query.data)
+  return {
+    balance: query.data?.balance,
+    decimals: query.data?.decimals,
+    isLoading
+  }
 }

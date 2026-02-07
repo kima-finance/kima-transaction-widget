@@ -1,6 +1,6 @@
 import { useGetEnvOptions } from '@kima-widget/hooks/useGetEnvOptions'
 import { bigIntToNumber, formatBigInt } from '@kima-widget/shared/lib/bigint'
-import { truncateToDecimals } from '@kima-widget/shared/lib/misc'
+import { truncateToDecimals, uiTokenSymbol } from '@kima-widget/shared/lib/misc'
 import { setAmount } from '@kima-widget/shared/store/optionSlice'
 import {
   selectAmount,
@@ -47,10 +47,12 @@ type InitialSelection = {
 
 const SingleForm = ({
   isLoadingFees,
+  feeError,
   initialSelection,
   setInitialSelection
 }: {
   isLoadingFees: boolean
+  feeError?: boolean
   initialSelection: InitialSelection
   setInitialSelection: React.Dispatch<React.SetStateAction<InitialSelection>>
 }) => {
@@ -107,12 +109,10 @@ const SingleForm = ({
   }, [mode, envOptions?.transferLimitMaxUSDT, balance, totalFee, amount])
 
   // Currency for displaying fee (source token may be pegged)
-  const feeCurrency = useMemo(() => {
-    const srcToken = sourceNetwork.supportedTokens.find(
-      (t) => t.symbol === sourceCurrency
-    )
-    return srcToken?.peggedTo ?? 'USD'
-  }, [sourceNetwork, sourceCurrency])
+  const feeTokenSymbol = useMemo(() => {
+    if (!sourceCurrency) return 'USD'
+    return uiTokenSymbol(sourceCurrency)
+  }, [sourceCurrency])
 
   // Gate the fee quote region to show the skeleton only when the query can actually run
   // This mirrors the `enabled` logic used in useGetFees.
@@ -416,9 +416,11 @@ const SingleForm = ({
                     <span className='dot' />
                     <span className='dot' />
                   </span>
+                ) : feeError ? (
+                  <span className='fee-value fee-error'>Fee unavailable</span>
                 ) : totalFee.value >= 0n ? (
                   <span className='fee-value'>
-                    $ {formatBigInt(totalFee)} {feeCurrency}
+                    {formatBigInt(totalFee)} {feeTokenSymbol}
                   </span>
                 ) : (
                   <span className='fee-value'>—</span>

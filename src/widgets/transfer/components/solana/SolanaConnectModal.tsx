@@ -4,22 +4,15 @@ import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
 import {
   selectMode,
   selectSolanaConnectModal,
-  selectSourceChain,
   selectTheme
 } from '@kima-widget/shared/store/selectors'
 import {
   setAccountDetailsModal,
   setSolanaConnectModal
 } from '@kima-widget/shared/store/optionSlice'
-import {
-  ChainName,
-  ModeOptions,
-  lightDemoAccounts
-} from '@kima-widget/shared/types'
-import { CrossIcon, ErrorIcon } from '@kima-widget/assets/icons'
+import { ModeOptions, lightDemoAccounts } from '@kima-widget/shared/types'
+import { CrossIcon } from '@kima-widget/assets/icons'
 import log from '@kima-widget/shared/logger'
-import toast from 'react-hot-toast'
-import { isUserRejected } from '@kima-widget/shared/lib/wallet'
 
 import SolanaWalletSelect from './SolanaWalletSelect'
 import AccountDetailsModal from './AccountDetailsModal'
@@ -30,10 +23,7 @@ const SolanaWalletConnectModal = () => {
   const theme = useSelector(selectTheme)
   const isOpen = useSelector(selectSolanaConnectModal)
   const mode = useSelector(selectMode)
-  const sourceChain = useSelector(selectSourceChain)
-  const { connect, connecting, connected, publicKey } = useSolanaWallet()
-
-  const isSol = sourceChain.shortName === ChainName.SOLANA
+  const { connecting, connected, publicKey } = useSolanaWallet()
 
   const close = useCallback(() => {
     dispatch(setSolanaConnectModal(false))
@@ -46,29 +36,6 @@ const SolanaWalletConnectModal = () => {
       publicKey: publicKey?.toBase58?.()
     })
   }, [connecting, connected, publicKey])
-
-  const onConnect = useCallback(async () => {
-    if (!isSol) return
-    if (mode === ModeOptions.light) {
-      log.debug('[SolanaConnectModal] LIGHT mode → skip connect, open details')
-      dispatch(setSolanaConnectModal(false))
-      dispatch(setAccountDetailsModal(true))
-      return
-    }
-    try {
-      await connect()
-      dispatch(setSolanaConnectModal(false))
-      dispatch(setAccountDetailsModal(true))
-      toast('Wallet connected.')
-    } catch (e) {
-      if (isUserRejected(e)) {
-        toast('Wallet connection was cancelled.')
-      } else {
-        toast.error('Failed to connect wallet.', { icon: <ErrorIcon /> })
-      }
-      log.error('[SolanaConnectModal] connect error', e)
-    }
-  }, [isSol, mode, connect, dispatch])
 
   const demoMsg = useMemo(
     () =>
@@ -99,22 +66,7 @@ const SolanaWalletConnectModal = () => {
         {demoMsg && <p className='muted'>{demoMsg}</p>}
 
         {mode !== ModeOptions.light ? (
-          <>
-            <SolanaWalletSelect />
-            <div style={{ marginTop: 12 }}>
-              <button
-                className='primary'
-                onClick={onConnect}
-                disabled={!isSol || connecting || connected}
-              >
-                {connecting
-                  ? 'Connecting…'
-                  : connected
-                    ? 'Connected'
-                    : 'Connect'}
-              </button>
-            </div>
-          </>
+          <SolanaWalletSelect />
         ) : (
           <div style={{ display: 'flex', gap: 8 }}>
             <button

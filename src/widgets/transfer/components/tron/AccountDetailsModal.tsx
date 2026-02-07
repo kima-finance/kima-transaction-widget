@@ -28,7 +28,11 @@ const AccountDetailsModal = () => {
   const sourceAddress = useSelector(selectSourceAddress)
   const isOpen = useSelector(selectAccountDetailsModal)
   const { disconnect: tronWalletDisconnect } = useTronWallet()
-  const { balance: tronBalance } = useTronNativeBalance()
+  const {
+    balance: tronBalance,
+    decimals: tronDecimals,
+    isLoading: isTronBalanceLoading
+  } = useTronNativeBalance()
 
   const isTrx = sourceChain.shortName === ChainName.TRON
   if (!isTrx) return null
@@ -67,7 +71,10 @@ const AccountDetailsModal = () => {
       themeMode={theme.colorMode}
       address={sourceAddress}
       balance={tronBalance}
+      decimals={tronDecimals}
+      isBalanceLoading={isTronBalanceLoading}
       symbol='TRX'
+      iconSymbol='TRX'
       explorerUrl={explorerUrl}
       onDisconnect={handleDisconnect}
       disableDisconnect={mode === ModeOptions.light}
