@@ -127,6 +127,12 @@ export const getTxData = async ({
   backendUrl: string
   refPollForUpdates: React.MutableRefObject<boolean>
 }): Promise<TransactionData> => {
+  const fetchStatus = async (path: string) => {
+    const response = await fetchWrapper.get(`${backendUrl}/${path}`)
+    if (typeof response === 'string') throw new Error(response)
+    return response
+  }
+
   try {
     // Choose exactly one endpoint based on flags
     const path = isLP
@@ -135,20 +141,42 @@ export const getTxData = async ({
         ? `swap_tx/${txId}/status`
         : `tx/${txId}/status`
 
-    const response = await fetchWrapper.get(`${backendUrl}/${path}`)
-    if (typeof response === 'string') throw new Error(response)
-
     let parsed: TransactionData
 
-    if (isLP) {
-      const res = response as KimaLPResponse
-      parsed = parseTxData(res.data.liquidity_transaction_data)
-    } else if (isSwap) {
-      const res = response as KimaSwapResponse
-      parsed = parseSwapTxData(res.data.swap_data)
-    } else {
-      const res = response as KimaTransferResponse
-      parsed = parseTxData(res.data.transaction_data)
+    try {
+      const response = await fetchStatus(path)
+
+      if (isLP) {
+        const res = response as KimaLPResponse
+        parsed = parseTxData(res.data.liquidity_transaction_data)
+      } else if (isSwap) {
+        const res = response as KimaSwapResponse
+        parsed = parseSwapTxData(res.data.swap_data)
+      } else {
+        const res = response as KimaTransferResponse
+        parsed = parseTxData(res.data.transaction_data)
+      }
+    } catch (error) {
+      if (isLP) throw error
+
+      const fallbackIsSwap = !isSwap
+      const fallbackPath = fallbackIsSwap
+        ? `swap_tx/${txId}/status`
+        : `tx/${txId}/status`
+
+      log.warn(
+        `Primary status lookup failed, retrying via ${fallbackIsSwap ? 'swap' : 'transfer'} endpoint`,
+        error
+      )
+
+      const response = await fetchStatus(fallbackPath)
+      if (fallbackIsSwap) {
+        const res = response as KimaSwapResponse
+        parsed = parseSwapTxData(res.data.swap_data)
+      } else {
+        const res = response as KimaTransferResponse
+        parsed = parseTxData(res.data.transaction_data)
+      }
     }
 
     refPollForUpdates.current = !isFinished(parsed)

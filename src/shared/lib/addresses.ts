@@ -88,7 +88,10 @@ export const getPoolAddress = (
 // get tx id from the tx status response
 export const getTransactionId = (transactionEvents: any) => {
   for (const event of transactionEvents) {
-    if (event.type === 'transaction_requested') {
+    if (
+      event.type === 'transaction_requested' ||
+      event.type === 'swap_transaction_requested'
+    ) {
       for (const attr of event.attributes) {
         if (attr.key === 'txId') {
           return attr.value
@@ -113,6 +116,11 @@ export const isEVMChain = (chainId: string) =>
 
 export const isSolana = (shortName: string) => shortName === ChainName.SOLANA
 export const isTron = (shortName: string) => shortName === ChainName.TRON
+export const isBtc = (shortName: string) => shortName === ChainName.BTC
+
+const BTC_BECH32_RE = /^(bc1|tb1)[a-z0-9]{25,90}$/i
+const BTC_BASE58_MAINNET_RE = /^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$/
+const BTC_BASE58_TESTNET_RE = /^[mn2][a-km-zA-HJ-NP-Z1-9]{25,34}$/
 
 export const isAddressCompatible = (
   address: string,
@@ -126,6 +134,13 @@ export const isAddressCompatible = (
   }
   if (isTron(shortName)) {
     return /^T[a-zA-Z0-9]{33}$/.test(address)
+  }
+  if (isBtc(shortName)) {
+    return (
+      BTC_BECH32_RE.test(address) ||
+      BTC_BASE58_MAINNET_RE.test(address) ||
+      BTC_BASE58_TESTNET_RE.test(address)
+    )
   }
   return false
 }

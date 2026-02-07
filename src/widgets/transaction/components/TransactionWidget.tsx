@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+  useCallback
+} from 'react'
 
 import Progressbar from '../../../components/reusable/Progressbar'
 import {
@@ -11,7 +17,7 @@ import {
 import { Provider } from 'react-redux'
 import { useSelector } from 'react-redux'
 import { useDispatch } from 'react-redux'
-import { toast, Toaster } from 'react-hot-toast'
+import { toast, Toaster, useToasterStore } from 'react-hot-toast'
 import log from '@kima-widget/shared/logger'
 import {
   ColorModeOptions,
@@ -41,6 +47,7 @@ import {
   CrossIcon,
   ErrorIcon,
   MinimizeIcon,
+  NotificationIcon,
   TransactionCompleteIcon
 } from '@kima-widget/assets/icons'
 import {
@@ -157,6 +164,15 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [loadingStep, setLoadingStep] = useState(-1)
   const [minimized, setMinimized] = useState(false)
   const [isComplete, setIsComplete] = useState(false)
+  const [statusTxType, setStatusTxType] = useState<'transfer' | 'swap'>(
+    'transfer'
+  )
+  const [toastPanelOpen, setToastPanelOpen] = useState(false)
+  const [toastHistory, setToastHistory] = useState<
+    { id: string; message: string; time: number }[]
+  >([])
+  const toastIds = useRef(new Set<string>())
+  const toastPanelRef = useRef<HTMLDivElement>(null)
 
   const dispatch = useDispatch()
   const explorerUrl = useSelector(selectKimaExplorer)
@@ -182,19 +198,12 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const { successHandler, closeHandler } = useKimaContext()
   const backendUrl = useSelector(selectBackendUrl)
 
-  const three = (s?: string) => (s ?? '').trim().toLowerCase().slice(0, 3)
-
-  const isSwapByPegged = !isSamePeggedToken(
-    sourceChain,
-    sourceSymbol,
-    targetChain,
-    targetSymbol
-  )
-
-  const isSwapBy3Letters = three(sourceSymbol) !== three(targetSymbol)
+  const isSwapByPegged =
+    sourceSymbol !== targetSymbol &&
+    !isSamePeggedToken(sourceChain, sourceSymbol, targetChain, targetSymbol)
 
   const widgetIsSwap =
-    mode === ModeOptions.status ? isSwapBy3Letters : isSwapByPegged
+    mode === ModeOptions.status ? statusTxType === 'swap' : isSwapByPegged
 
   const steps: StepDef[] = useMemo(
     () => (widgetIsSwap ? SWAP_STEPS : TRANSFER_STEPS),
@@ -202,9 +211,54 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   )
 
   const { width: windowWidth, updateWidth } = useWidth()
+  const { toasts } = useToasterStore()
   useEffect(() => {
     windowWidth === 0 && updateWidth(window.innerWidth)
   }, [windowWidth, updateWidth])
+
+  useEffect(() => {
+    if (!toasts?.length) return
+    const nextItems: { id: string; message: string; time: number }[] = []
+    toasts.forEach((item) => {
+      if (toastIds.current.has(item.id)) return
+      toastIds.current.add(item.id)
+      const message =
+        typeof item.message === 'string'
+          ? item.message
+          : typeof (item.message as any)?.props?.children === 'string'
+            ? (item.message as any).props.children
+            : 'Notification'
+      nextItems.push({
+        id: item.id,
+        message,
+        time: item.createdAt ?? Date.now()
+      })
+    })
+    if (nextItems.length) {
+      setToastHistory((prev) => [...nextItems, ...prev])
+    }
+  }, [toasts])
+
+  useEffect(() => {
+    if (!toastPanelOpen) return
+    const handler = (event: MouseEvent) => {
+      const target = event.target as Node
+      if (toastPanelRef.current && !toastPanelRef.current.contains(target)) {
+        setToastPanelOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => {
+      document.removeEventListener('mousedown', handler)
+    }
+  }, [toastPanelOpen])
+
+  const formatToastTime = useCallback((timestamp: number) => {
+    return new Date(timestamp).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }, [])
 
   const safeTxId: string | number =
     typeof txId === 'string' || typeof txId === 'number' ? txId : -1
@@ -670,6 +724,40 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
                   </button>
                 ) : null}
 
+                {toastHistory.length > 0 && (
+                  <div
+                    ref={toastPanelRef}
+                    className={`toast-history ${theme.colorMode}`}
+                  >
+                    <button
+                      className='toast-history-button'
+                      onClick={() => setToastPanelOpen(true)}
+                      aria-label='Notifications'
+                    >
+                      <NotificationIcon />
+                    </button>
+                    {toastPanelOpen && (
+                      <div className={`toast-history-panel ${theme.colorMode}`}>
+                        <div className='toast-history-header'>
+                          <span>Notifications</span>
+                        </div>
+                        <div className='toast-history-list'>
+                          {toastHistory.map((item) => (
+                            <div key={item.id} className='toast-history-item'>
+                              <span className='toast-history-message'>
+                                {item.message}
+                              </span>
+                              <span className='toast-history-time'>
+                                {formatToastTime(item.time)}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {closeHandler && (
                   <button
                     className='cross-icon-button'
@@ -715,7 +803,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
           )}
         </div>
 
-        {isValidTxId && !error ? (
+        {isValidTxId && (mode !== ModeOptions.status || !error) ? (
           <div className='kima-card-content'>
             {!isComplete ? (
               <div className='transaction-content'>
@@ -822,7 +910,10 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
               entering the provided transaction id
             </h4>
             <div className='single-form'>
-              <TransactionSearch />
+              <TransactionSearch
+                isSwap={statusTxType === 'swap'}
+                onTypeChange={setStatusTxType}
+              />
             </div>
           </div>
         )}

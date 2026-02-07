@@ -17,7 +17,13 @@ import {
 import { ModeOptions } from '@kima-widget/shared/types'
 import SecondaryButton from './SecondaryButton'
 
-const TransactionSearch = () => {
+const TransactionSearch = ({
+  isSwap,
+  onTypeChange
+}: {
+  isSwap: boolean
+  onTypeChange: (value: 'transfer' | 'swap') => void
+}) => {
   const theme = useSelector(selectTheme)
   const backendUrl = useSelector(selectBackendUrl)
   const dispatch = useDispatch()
@@ -35,7 +41,7 @@ const TransactionSearch = () => {
         txId: transactionId,
         backendUrl,
         refPollForUpdates,
-        isSwap: false,
+        isSwap,
         isLP: false
       })
       log.debug('transaction data: ', data)
@@ -65,6 +71,29 @@ const TransactionSearch = () => {
           onChange={(e) => setTransactionId(e.target.value)}
           spellCheck={false}
         />
+      </div>
+      <div className='tx-type-toggle'>
+        <span className='label'>Type:</span>
+        <div className='toggle-buttons'>
+          <button
+            type='button'
+            className={`toggle-button ${!isSwap ? 'active' : ''} ${
+              theme.colorMode
+            }`}
+            onClick={() => onTypeChange('transfer')}
+          >
+            Transfer
+          </button>
+          <button
+            type='button'
+            className={`toggle-button ${isSwap ? 'active' : ''} ${
+              theme.colorMode
+            }`}
+            onClick={() => onTypeChange('swap')}
+          >
+            Swap
+          </button>
+        </div>
       </div>
       <SecondaryButton clickHandler={handleSearch}>Search</SecondaryButton>
     </div>

@@ -680,6 +680,11 @@
             display: flex;
             align-items: center;
 
+            .fee-value.fee-error {
+              color: #b90000;
+              font-weight: 600;
+            }
+
             .loading {
               @include pulse-loader;
 
@@ -842,6 +847,50 @@
 
               @include breakpoint(mobile) {
                 width: 100%;
+              }
+            }
+          }
+
+          .tx-type-toggle {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            gap: 12px;
+
+            @include breakpoint(mobile) {
+              flex-direction: column;
+              align-items: flex-start;
+            }
+
+            .toggle-buttons {
+              display: flex;
+              gap: 8px;
+              flex-wrap: wrap;
+            }
+
+            .toggle-button {
+              border-radius: 999px;
+              padding: 8px 14px;
+              font-size: 0.95em;
+              border: 1px solid transparent;
+              cursor: pointer;
+
+              &.light {
+                background: $financeLighter;
+                color: $financeDark;
+                border-color: $financeIcon;
+              }
+
+              &.dark {
+                background: $financeDark;
+                color: $financeLighter;
+                border-color: $finance;
+              }
+
+              &.active {
+                background: $finance;
+                color: white;
+                border-color: $finance;
               }
             }
           }
@@ -2549,17 +2598,6 @@
       }
     }
 
-    span {
-      font-weight: 500;
-      font-family: 'Manrope';
-      text-align: center;
-      font-size: 18px;
-
-      @include breakpoint(mobile) {
-        font-size: 14px;
-      }
-    }
-
     &.light {
       background: $financeLighter;
     }
@@ -2568,8 +2606,143 @@
       background: $financeDarkest;
     }
 
-    &:hover {
-      opacity: 0.7;
+    &.htlc-recovery-card {
+      height: auto;
+      cursor: default;
+      padding: 16px;
+      align-items: stretch;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    &.htlc-recovery-card .wallet-item {
+      padding: 0;
+      width: 100%;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+    }
+
+    &.selected {
+      border-color: $financeIcon;
+    }
+  }
+
+  .htlc-recovery {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .htlc-fee {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    input {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+  }
+
+  .htlc-manual {
+    border: 1px solid $financeGrey;
+    border-radius: 16px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .htlc-manual-header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .htlc-manual-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 12px;
+  }
+
+  .htlc-manual-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    label {
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    input {
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+  }
+
+  .htlc-manual-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .htlc-recovery-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 48vh;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .htlc-row {
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    @include breakpoint(tablet){
+      flex-direction: column;
+      justify-content: sta
+    }
+  }
+
+  .htlc-label {
+    font-weight: 700;
+    font-family: 'Manrope';
+    font-size: 18px;
+  }
+
+  .htlc-value {
+    font-family: 'Manrope';
+    font-size: 14px;
+    text-align: left;
+    word-break: break-all;
+  }
+
+  .htlc-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+    width: 100%;
+  }
+
+  @include breakpoint(mobile) {
+    .htlc-manual-grid {
+      grid-template-columns: 1fr;
+    }
+
+    // .htlc-row {
+    //   flex-direction: column;
+    //   align-items: flex-start;
+    // }
+
+    .htlc-value {
+      text-align: left;
     }
   }
 
