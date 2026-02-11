@@ -1,5 +1,4 @@
-// utils/switchNetwork.ts
-import { BrowserProvider, toBeHex } from 'ethers'
+import { BrowserProvider } from 'ethers'
 import { toHex } from 'viem'
 import log from '@kima-widget/shared/logger'
 import type { ChainData } from '@kima-widget/shared/types'
@@ -76,7 +75,7 @@ export const switchNetworkSmart = async ({
     }
 
     const payload = {
-      chainId: toBeHex(net.id),
+      chainId: toHex(net.id),
       chainName: net.name,
       rpcUrls: rpcUrls.length ? rpcUrls : undefined,
       blockExplorerUrls: blockExplorerUrls.length
