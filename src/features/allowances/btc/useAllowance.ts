@@ -320,15 +320,152 @@ export const useAllowance = (): PluginUseAllowanceResult => {
         }
       }
 
-      const sendBitcoinWithProvider = async () => {
-        if (provider?.sendBitcoin) {
-          return await provider.sendBitcoin(
-            lockIntent.htlcAddress,
-            Number(amountSats)
-          )
+      const extractFeeRates = (value: any): number[] => {
+        if (value == null) return []
+        if (typeof value === 'number' && Number.isFinite(value)) return [value]
+        if (typeof value === 'string') {
+          const num = Number(value)
+          return Number.isFinite(num) ? [num] : []
+        }
+        if (typeof value === 'bigint') {
+          const num = Number(value)
+          return Number.isFinite(num) ? [num] : []
+        }
+        if (Array.isArray(value)) {
+          return value.flatMap(extractFeeRates).filter((n) => n > 0)
+        }
+        if (typeof value === 'object') {
+          return Object.values(value).flatMap(extractFeeRates).filter((n) => n > 0)
+        }
+        return []
+      }
+
+      const fetchMempoolFeeRate = async (): Promise<{
+        rate?: number
+        source?: string
+      }> => {
+        try {
+          const networkSubpath = networkOption === 'testnet' ? '/testnet4' : ''
+          const url = `https://mempool.space${networkSubpath}/api/v1/fees/recommended`
+          log.debug('[btc.useAllowance] approve:feeRate fetch', { url })
+          const res = await fetch(url)
+          if (!res.ok) {
+            return { rate: undefined, source: 'mempool:status' }
+          }
+          const data: any = await res.json()
+          const rates = extractFeeRates(data)
+          if (!rates.length) {
+            return { rate: undefined, source: 'mempool:empty' }
+          }
+          const rate = Math.max(...rates)
+          log.debug('[btc.useAllowance] approve:feeRate mempool', {
+            rate,
+            data
+          })
+          return { rate, source: 'mempool' }
+        } catch (error) {
+          log.debug('[btc.useAllowance] approve:feeRate mempool error', {
+            error
+          })
+          return { rate: undefined, source: 'mempool:error' }
+        }
+      }
+
+      const resolveFeeRate = async (): Promise<{
+        rate?: number
+        count: number
+        source?: string
+      }> => {
+        if (!provider) return { rate: undefined, count: 0 }
+        try {
+          if (typeof provider.getFeeRate === 'function') {
+            const res = await provider.getFeeRate()
+            const rates = extractFeeRates(res)
+            return {
+              rate: rates.length ? Math.max(...rates) : undefined,
+              count: rates.length,
+              source: 'getFeeRate'
+            }
+          }
+        } catch {
+          /* noop */
         }
 
-        const payloads = [
+        if (provider.request) {
+          try {
+            const res = await requestWithFallback('getFeeRates', [])
+            const rates = extractFeeRates(res)
+            if (rates.length) {
+              return {
+                rate: Math.max(...rates),
+                count: rates.length,
+                source: 'request:getFeeRates'
+              }
+            }
+          } catch {
+            /* noop */
+          }
+          try {
+            const res = await requestWithFallback('getFeeRate', [])
+            const rates = extractFeeRates(res)
+            if (rates.length) {
+              return {
+                rate: Math.max(...rates),
+                count: rates.length,
+                source: 'request:getFeeRate'
+              }
+            }
+          } catch {
+            /* noop */
+          }
+        }
+
+        const mempool = await fetchMempoolFeeRate()
+        if (mempool.rate) {
+          return {
+            rate: mempool.rate,
+            count: 1,
+            source: mempool.source
+          }
+        }
+
+        return { rate: undefined, count: 0, source: 'none' }
+      }
+
+      const sendBitcoinWithProvider = async (
+        feeRate?: number,
+        isBoosted?: boolean
+      ) => {
+        if (provider?.sendBitcoin) {
+          if (feeRate && Number.isFinite(feeRate)) {
+            log.debug('[btc.useAllowance] approve:sendBitcoin fee', {
+              feeRate,
+              boosted: !!isBoosted,
+              method: 'sendBitcoin'
+            })
+            try {
+              return await provider.sendBitcoin(
+                lockIntent.htlcAddress,
+                Number(amountSats),
+                feeRate
+              )
+            } catch {
+              /* noop */
+            }
+            try {
+              return await provider.sendBitcoin(
+                lockIntent.htlcAddress,
+                Number(amountSats),
+                { feeRate }
+              )
+            } catch {
+              /* noop */
+            }
+          }
+          return await provider.sendBitcoin(lockIntent.htlcAddress, Number(amountSats))
+        }
+
+        const payloads: Array<{ method: string; params: any }> = [
           {
             method: 'sendBitcoin',
             params: [lockIntent.htlcAddress, Number(amountSats)]
@@ -351,6 +488,40 @@ export const useAllowance = (): PluginUseAllowanceResult => {
           }
         ]
 
+        if (feeRate && Number.isFinite(feeRate)) {
+          log.debug('[btc.useAllowance] approve:sendTransfer fee', {
+            feeRate,
+            boosted: !!isBoosted,
+            method: 'sendTransfer'
+          })
+          payloads.unshift(
+            {
+              method: 'sendBitcoin',
+              params: [lockIntent.htlcAddress, Number(amountSats), feeRate]
+            },
+            {
+              method: 'sendBitcoin',
+              params: {
+                address: lockIntent.htlcAddress,
+                amount: Number(amountSats),
+                feeRate
+              }
+            },
+            {
+              method: 'sendTransfer',
+              params: {
+                recipients: [
+                  {
+                    address: lockIntent.htlcAddress,
+                    amountSats: Number(amountSats)
+                  }
+                ],
+                feeRate
+              }
+            }
+          )
+        }
+
         for (const payload of payloads) {
           const result = await requestWithFallback(payload.method, payload.params)
           if (result != null) return result
@@ -367,7 +538,21 @@ export const useAllowance = (): PluginUseAllowanceResult => {
         amountSats: amountSats.toString()
       })
       const rawTxid =
-        await sendBitcoinWithProvider()
+        await (async () => {
+          const { rate, count, source } = await resolveFeeRate()
+          const boosted =
+            rate && Number.isFinite(rate)
+              ? Math.ceil(rate * 2)
+              : undefined
+          log.debug('[btc.useAllowance] approve:feeRate', {
+            base: rate,
+            boosted,
+            count,
+            source,
+            applied: boosted ?? 'default'
+          })
+          return sendBitcoinWithProvider(boosted, !!boosted)
+        })()
       const txid =
         typeof rawTxid === 'string'
           ? rawTxid
