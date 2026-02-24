@@ -1,4 +1,5 @@
 export * from './useApproveErc20'
 export * from './useErc20Allowance'
 export * from './useEvmSignMessage'
+export * from './useEvmSignPermit2'
 export { useAllowance } from './useAllowance'

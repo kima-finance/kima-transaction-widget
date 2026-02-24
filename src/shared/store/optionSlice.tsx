@@ -8,6 +8,7 @@ import {
   ModeOptions,
   NetworkOptions,
   PendingTxData,
+  Permit2Payload,
   ServiceFee,
   ThemeOptions,
   TransactionOption
@@ -190,6 +191,7 @@ export interface OptionState {
   bankDetails: BankDetails
   targetNetworkFetching: boolean
   signature: string
+  permit2Signature: Permit2Payload | null
   uuid: string
   kycStatus: string
   pendingTxs: number
@@ -263,6 +265,7 @@ const initialState: OptionState = {
   bankDetails: { iban: '', recipient: '' },
   targetNetworkFetching: false,
   signature: '',
+  permit2Signature: null,
   uuid: '',
   kycStatus: '',
   expireTime: '1 hour',
@@ -541,6 +544,15 @@ export const optionSlice = createSlice({
     setSignature: (state: OptionState, action: PayloadAction<string>) => {
       state.signature = action.payload
     },
+    setPermit2Signature: (
+      state: OptionState,
+      action: PayloadAction<Permit2Payload | null>
+    ) => {
+      state.permit2Signature = action.payload
+    },
+    clearPermit2Signature: (state: OptionState) => {
+      state.permit2Signature = null
+    },
     setUuid: (state: OptionState, action: PayloadAction<string>) => {
       state.uuid = action.payload
     },
@@ -611,6 +623,8 @@ export const {
   setBankDetails,
   setTargetChainFetching,
   setSignature,
+  setPermit2Signature,
+  clearPermit2Signature,
   setUuid,
   setKYCStatus,
   setExpireTime,

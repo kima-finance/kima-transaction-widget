@@ -129,6 +129,14 @@ export const COIN_LIST: CoinOptions = {
     symbol: 'USDK',
     icon: USDKIcon
   },
+  USDK2: {
+    symbol: 'USDK2',
+    icon: USDKIcon
+  },
+  usdk2: {
+    symbol: 'USDK2',
+    icon: USDKIcon
+  },
   USDT: {
     symbol: 'USDT',
     icon: USDTIcon

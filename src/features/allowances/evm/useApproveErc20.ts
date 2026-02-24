@@ -1,9 +1,10 @@
 import { useCallback, useMemo } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import {
   selectBackendUrl,
   selectFeeDeduct,
+  selectIsPermit2Required,
   selectNetworkOption,
   selectServiceFee,
   selectSourceChain,
@@ -28,8 +29,11 @@ import {
 import { useEvmAddress } from '@kima-widget/features/connect-wallet/evm/useEvmAddress'
 import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
 import log from '@kima-widget/shared/logger'
+import { clearPermit2Signature } from '@kima-widget/shared/store/optionSlice'
+import { useEvmSignPermit2 } from './useEvmSignPermit2'
 
 export const useApproveErc20 = () => {
+  const dispatch = useDispatch()
   const qc = useQueryClient()
 
   const mode = useSelector(selectMode)
@@ -40,6 +44,8 @@ export const useApproveErc20 = () => {
   const feeDeduct = useSelector(selectFeeDeduct)
   const txValues = getFeeSideValues(feeDeduct, transactionValues)
   const allowanceNeeded = BigInt(txValues.allowanceAmount.value)
+  const isPermit2Required = useSelector(selectIsPermit2Required)
+  const { signPermit2 } = useEvmSignPermit2()
 
   const { pools } = useGetPools(
     useSelector(selectBackendUrl),
@@ -63,6 +69,15 @@ export const useApproveErc20 = () => {
   const approve = useCallback(
     async (isCancel = false) => {
       try {
+        if (isPermit2Required) {
+          if (isCancel) {
+            dispatch(clearPermit2Signature())
+            return
+          }
+          await signPermit2()
+          return
+        }
+
         if (!tokenAddress || !poolAddress || !sourceChain) {
           log.warn('[useApproveErc20] missing data', {
             tokenAddress,
@@ -136,6 +151,9 @@ export const useApproveErc20 = () => {
       poolAddress,
       sourceChain,
       allowanceNeeded,
+      isPermit2Required,
+      signPermit2,
+      dispatch,
       appkitProvider,
       userAddress,
       appkitAddress,

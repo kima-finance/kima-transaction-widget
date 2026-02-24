@@ -157,6 +157,8 @@ export const selectAccountDetailsModal = (state: RootState) =>
 // Fiat
 export const selectBankDetails = (state: RootState) => state.option.bankDetails
 export const selectSignature = (state: RootState) => state.option.signature
+export const selectPermit2Signature = (state: RootState) =>
+  state.option.permit2Signature
 export const selectUuid = (state: RootState) => state.option.uuid
 export const selectKycStatus = (state: RootState) => state.option.kycStatus
 export const selectCCTransactionId = (state: RootState) =>
@@ -180,3 +182,11 @@ export const selectHtlcVersion = (state: RootState) => state.option.htlcVersion
 export const selectHtlcSenderPubKey = (state: RootState) =>
   state.option.htlcSenderPubKey
 export const selectHtlcLockId = (state: RootState) => state.option.htlcLockId
+
+export const selectSourceToken = (state: RootState) =>
+  state.option.sourceChain.supportedTokens?.find(
+    (token) => token.symbol === state.option.sourceCurrency
+  )
+
+export const selectIsPermit2Required = (state: RootState) =>
+  (selectSourceToken(state)?.isPermit2 ?? false) && state.option.mode !== 'light'

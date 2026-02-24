@@ -89,6 +89,11 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
       srcCur !== tgtCur && !isSamePeggedToken(srcNet, srcCur, tgtNet, tgtCur),
     [srcNet, srcCur, tgtNet, tgtCur]
   )
+  const sourceToken = useMemo(
+    () => srcNet.supportedTokens?.find((token) => token.symbol === srcCur),
+    [srcNet, srcCur]
+  )
+  const isPermit2TokenEnabled = sourceToken?.isPermit2 === true
 
   const maxValue = useMemo(() => {
     log.debug('useValidateTransaction: maxValue: ', inputs)
@@ -112,6 +117,14 @@ const useValidateTransaction = (inputs: UseValidateTransactionInputs) => {
       return {
         error: ValidationError.Error,
         message: 'Select a target network to proceed'
+      }
+    }
+
+    if (mode === ModeOptions.light && isPermit2TokenEnabled) {
+      return {
+        error: ValidationError.Error,
+        message:
+          'Permit2 tokens are not supported in light mode. Please switch to bridge mode.'
       }
     }
 

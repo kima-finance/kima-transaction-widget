@@ -33,7 +33,7 @@ export const useGetEnvOptions = ({
   kimaBackendUrl: string
 }) => {
   return useQuery({
-    queryKey: ['envOptions'],
+    queryKey: ['envOptions', kimaBackendUrl],
     queryFn: async () => await getEnvOptions({ kimaBackendUrl })
   })
 }
