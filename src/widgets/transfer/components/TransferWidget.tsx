@@ -15,6 +15,7 @@ import { bigIntChangeDecimals } from '@kima-widget/shared/lib/bigint'
 import {
   INITIAL_SOURCE_CHAIN,
   INITIAL_TARGET_CHAIN,
+  clearPermit2Signature,
   resetHtlcData,
   resetServiceFee,
   setAmount,
@@ -45,6 +46,7 @@ import {
   selectNetworkOption,
   selectNetworks,
   selectPendingTxs,
+  selectPermit2Signature,
   selectServiceFee,
   selectSourceAddress,
   selectSourceChain,
@@ -222,7 +224,9 @@ export const TransferWidget = ({
   }, [])
 
   // Allowance/sign hooks (plug-in routed)
-  const { allowance, isApproved, approve, signMessage } = useAllowance()
+  const { allowance, isApproved, isPermit2Required, approve, signMessage } =
+    useAllowance()
+  const permit2Signature = useSelector(selectPermit2Signature)
 
   // Balances and compliance
   const { balance, decimals } = useBalance()
@@ -276,7 +280,9 @@ export const TransferWidget = ({
     setFeeOptionDisabled(false)
     setApproving(false)
     setSigning(false)
+    dispatch(clearPermit2Signature())
   }, [
+    dispatch,
     sourceChain.shortName,
     sourceCurrency,
     targetChain.shortName,
@@ -285,14 +291,21 @@ export const TransferWidget = ({
 
   useEffect(() => {
     const prevAmount = prevAmountRef.current
-    if (prevAmount !== '' && amount !== prevAmount && isBtcOrigin) {
-      dispatch(resetHtlcData())
-      dispatch(setBtcApprovalResumeAllowed(false))
-      dispatch(setBtcApprovalStopRequested(true))
-      dispatch(setBtcSubmitStopRequested(true))
+    if (prevAmount !== '' && amount !== prevAmount) {
+      dispatch(clearPermit2Signature())
+      if (isBtcOrigin) {
+        dispatch(resetHtlcData())
+        dispatch(setBtcApprovalResumeAllowed(false))
+        dispatch(setBtcApprovalStopRequested(true))
+        dispatch(setBtcSubmitStopRequested(true))
+      }
     }
     prevAmountRef.current = amount
   }, [amount, dispatch, isBtcOrigin])
+
+  useEffect(() => {
+    dispatch(clearPermit2Signature())
+  }, [dispatch, feeDeduct])
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -715,6 +728,7 @@ export const TransferWidget = ({
 
       // redux state back to the same “initial chains” as slice
       dispatch(resetServiceFee())
+      dispatch(clearPermit2Signature())
       dispatch(resetHtlcData())
       dispatch(setAmount(''))
       dispatch(setCCTransactionStatus('idle'))
@@ -956,8 +970,8 @@ export const TransferWidget = ({
             )}
 
             {/* Cancel Approve — visible on confirm step when we actually have an allowance > 0 and supports revoke */}
-            {!!allowance &&
-              allowance > 0n &&
+            {((!!allowance && allowance > 0n) ||
+              (isPermit2Required && !!permit2Signature)) &&
               formStep !== 0 &&
               !['BANK', 'CC', 'BTC'].includes(sourceChain.shortName) &&
               mode !== ModeOptions.light && (

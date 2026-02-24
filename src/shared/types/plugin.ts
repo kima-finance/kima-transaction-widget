@@ -32,6 +32,13 @@ export interface SignDataType {
   originSymbol: string
 }
 
+export interface Permit2Payload {
+  r: string
+  s: string
+  v: number
+  deadline: number
+}
+
 export interface GetTokenAllowanceResult {
   allowance?: bigint | undefined
   decimals?: number | undefined
@@ -39,6 +46,7 @@ export interface GetTokenAllowanceResult {
 
 export interface PluginUseAllowanceResult extends GetTokenAllowanceResult {
   isApproved: boolean
+  isPermit2Required?: boolean
   approve: (isCancel?: boolean) => Promise<void>
   signMessage?: (data: SignDataType) => Promise<any> // optional
 }
@@ -93,6 +101,7 @@ export interface ChainToken {
   decimals: number
   symbol: string
   peggedTo: string
+  isPermit2?: boolean
   supportedLocations?: Location[]
 }
 

@@ -8,6 +8,7 @@ import {
   selectBtcSubmitStopRequested,
   selectCCTransactionIdSeed,
   selectFeeDeduct,
+  selectIsPermit2Required,
   selectHtlcCreationHash,
   selectHtlcCreationVout,
   selectHtlcExpirationTimestamp,
@@ -16,6 +17,7 @@ import {
   selectMode,
   selectServiceFee,
   selectSubmitted,
+  selectPermit2Signature,
   selectSourceAddress,
   selectSourceChain,
   selectSourceCurrency,
@@ -73,6 +75,8 @@ const useSubmitTransaction = (
   const htlcVersion = useSelector(selectHtlcVersion)
   const htlcSenderPubKey = useSelector(selectHtlcSenderPubKey)
   const submitStopRequested = useSelector(selectBtcSubmitStopRequested)
+  const isPermit2Required = useSelector(selectIsPermit2Required)
+  const permit2Signature = useSelector(selectPermit2Signature)
 
   const isBtcOrigin = originChainData.shortName === ChainName.BTC
   const btcSenderPubKey = htlcSenderPubKey || bitcoinPubkey
@@ -250,10 +254,17 @@ const useSubmitTransaction = (
         await waitForBtcHtlcReady()
       }
 
+      if (isPermit2Required && !permit2Signature) {
+        throw new Error('Permit2 signature is required before submitting')
+      }
+
       const baseOptions = {
         signature: effectiveValues.originChain === 'CC' ? '' : signature,
         feeId: effectiveFeeId,
         chargeFeeAtTarget: feeDeduct,
+        ...(isPermit2Required && permit2Signature
+          ? { permit2: permit2Signature }
+          : {}),
         ...feeOptions
       }
 
@@ -266,6 +277,9 @@ const useSubmitTransaction = (
           signature: effectiveValues.originChain === 'CC' ? '' : signature,
           feeId: effectiveFeeId,
           chargeFeeAtTarget: feeDeduct,
+          ...(isPermit2Required && permit2Signature
+            ? { permit2: permit2Signature }
+            : {}),
           ...feeOptions
         }
 

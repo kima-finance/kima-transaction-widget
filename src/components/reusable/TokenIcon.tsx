@@ -29,6 +29,8 @@ const COIN_LIST: Record<string, React.FC<IconProps>> = {
   KIMAUSD: USDKIcon,
   USDC: USDCIcon,
   USDK: USDKIcon,
+  USDK2: USDKIcon,
+  usdk2: USDKIcon,
   USD: USDIcon,
   USDT: USDTIcon,
   USD1: USD1Icon,

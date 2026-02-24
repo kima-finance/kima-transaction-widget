@@ -157,6 +157,7 @@ const KimaWidgetWrapper = ({
       dispatch(setKimaExplorer(kimaExplorer))
       prevConfigRef.current.kimaExplorer = kimaExplorer
     }
+
   }, [
     compliantOption,
     kimaBackendUrl,
