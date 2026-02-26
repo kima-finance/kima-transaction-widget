@@ -62,16 +62,6 @@ export const selectBtcConnectModal = (state: RootState) =>
 export const selectPendingTxs = (state: RootState) => state.option.pendingTxs
 export const selectPendingTxData = (state: RootState) =>
   state.option.pendingTxData
-export const selectBtcApprovalRetrying = (state: RootState) =>
-  state.option.btcApprovalRetrying
-export const selectBtcApprovalStopRequested = (state: RootState) =>
-  state.option.btcApprovalStopRequested
-export const selectBtcApprovalResumeAllowed = (state: RootState) =>
-  state.option.btcApprovalResumeAllowed
-export const selectBtcSubmitRetrying = (state: RootState) =>
-  state.option.btcSubmitRetrying
-export const selectBtcSubmitStopRequested = (state: RootState) =>
-  state.option.btcSubmitStopRequested
 export const selectBtcWalletType = (state: RootState) =>
   state.option.btcWalletType
 
@@ -181,6 +171,9 @@ export const selectHtlcExpirationTimestamp = (state: RootState) =>
 export const selectHtlcVersion = (state: RootState) => state.option.htlcVersion
 export const selectHtlcSenderPubKey = (state: RootState) =>
   state.option.htlcSenderPubKey
+export const selectHtlcAddress = (state: RootState) => state.option.htlcAddress
+export const selectHtlcAmountSats = (state: RootState) =>
+  state.option.htlcAmountSats
 export const selectHtlcLockId = (state: RootState) => state.option.htlcLockId
 
 export const selectSourceToken = (state: RootState) =>

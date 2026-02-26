@@ -2,8 +2,7 @@ import { useKimaContext } from '@kima-widget/app/providers'
 import {
   CrossIcon,
   ErrorIcon,
-  NotificationIcon,
-  StopIcon
+  NotificationIcon
 } from '@kima-widget/assets/icons'
 import useGetFees from '@kima-widget/hooks/useGetFees'
 import useSubmitTransaction from '@kima-widget/widgets/transfer/hooks/useSubmitTransaction'
@@ -19,11 +18,6 @@ import {
   resetHtlcData,
   resetServiceFee,
   setAmount,
-  setBtcApprovalRetrying,
-  setBtcApprovalResumeAllowed,
-  setBtcApprovalStopRequested,
-  setBtcSubmitRetrying,
-  setBtcSubmitStopRequested,
   setCCTransactionStatus,
   setServiceFee,
   setSourceAddress,
@@ -36,8 +30,6 @@ import {
 import {
   selectAmount,
   selectBackendUrl,
-  selectBtcApprovalRetrying,
-  selectBtcSubmitRetrying,
   selectCCTransactionStatus,
   selectCompliantOption,
   selectDappOption,
@@ -91,7 +83,6 @@ import useDisconnectWallet from '../hooks/useDisconnectWallet'
 import SolanaWalletConnectModal from './solana/SolanaConnectModal'
 import TronWalletConnectModal from './tron/TronWalletConnectModal'
 import BtcWalletConnectModal from './btc/BtcConnectModal'
-import HtlcRecoveryModal from './btc/HtlcRecoveryModal'
 import { isSamePeggedToken } from '@kima-widget/shared/lib/misc'
 import { isUserRejected } from '@kima-widget/shared/lib/wallet'
 
@@ -120,7 +111,6 @@ export const TransferWidget = ({
     message: string
   } | null>(null)
   const [resetModalOpen, setResetModalOpen] = useState<boolean>(false)
-  const [htlcRecoveryOpen, setHtlcRecoveryOpen] = useState(false)
   const [toastPanelOpen, setToastPanelOpen] = useState(false)
   const [toastHistory, setToastHistory] = useState<
     { id: string; message: string; time: number }[]
@@ -133,9 +123,6 @@ export const TransferWidget = ({
   const [isApproving, setApproving] = useState(false)
   const [isSigning, setSigning] = useState(false)
   const [feeOptionDisabled, setFeeOptionDisabled] = useState(false)
-  const [stopRetryModal, setStopRetryModal] = useState<{
-    kind: 'approval' | 'submit' | null
-  }>({ kind: null })
 
   // Redux selections
   const networkOption = useSelector(selectNetworkOption)
@@ -158,21 +145,12 @@ export const TransferWidget = ({
   const networks = useSelector(selectNetworks)
   const submitted = useSelector(selectSubmitted)
   const ccTransactionStatus = useSelector(selectCCTransactionStatus)
-  const btcApprovalRetrying = useSelector(selectBtcApprovalRetrying)
-  const btcSubmitRetrying = useSelector(selectBtcSubmitRetrying)
 
   const txValues = feeDeduct
     ? transactionValues.feeFromTarget
     : transactionValues.feeFromOrigin
 
   const isBtcOrigin = sourceChain.shortName === ChainName.BTC
-  const shouldShowStopRetry =
-    isBtcOrigin && (btcApprovalRetrying || btcSubmitRetrying)
-  const stopRetryKind = btcApprovalRetrying ? 'approval' : 'submit'
-  const stopRetryTooltip =
-    stopRetryKind === 'approval'
-      ? 'Stop retrying BTC approval'
-      : 'Stop retrying BTC submission'
 
   const { keplrHandler, closeHandler } = useKimaContext()
   const { width: windowWidth } = useWidth()
@@ -295,9 +273,6 @@ export const TransferWidget = ({
       dispatch(clearPermit2Signature())
       if (isBtcOrigin) {
         dispatch(resetHtlcData())
-        dispatch(setBtcApprovalResumeAllowed(false))
-        dispatch(setBtcApprovalStopRequested(true))
-        dispatch(setBtcSubmitStopRequested(true))
       }
     }
     prevAmountRef.current = amount
@@ -306,20 +281,6 @@ export const TransferWidget = ({
   useEffect(() => {
     dispatch(clearPermit2Signature())
   }, [dispatch, feeDeduct])
-
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      const isCombo =
-        (e.ctrlKey || e.metaKey) &&
-        e.shiftKey &&
-        e.key.toLowerCase() === 'h'
-      if (!isCombo) return
-      e.preventDefault()
-      setHtlcRecoveryOpen(true)
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [])
 
   // Push fee quote into store and finalize initial selections once
   useEffect(() => {
@@ -413,11 +374,6 @@ export const TransferWidget = ({
     setIsSubmitting
   )
 
-  const requestStopRetry = useCallback(() => {
-    if (!shouldShowStopRetry) return
-    setStopRetryModal({ kind: stopRetryKind })
-  }, [shouldShowStopRetry, stopRetryKind])
-
   const submit = useCallback(async () => {
     try {
       await submitTransaction(signature)
@@ -427,14 +383,6 @@ export const TransferWidget = ({
         err instanceof Error && err.message
           ? err.message
           : 'Failed to submit your transaction. Please contact support for assistance.'
-      if (message === 'BTC submission retry stopped') {
-        toast('BTC submission retry stopped.', { icon: 'ℹ️' })
-        return
-      }
-      if (message.startsWith('BTC HTLC lock')) {
-        toast(message, { icon: '⏳' })
-        return
-      }
       toast.error(message, { icon: <ErrorIcon /> })
       dispatch(setCCTransactionStatus('error-generic'))
     }
@@ -531,13 +479,6 @@ export const TransferWidget = ({
 
         // Chain mismatch or provider routing issues → provide actionable guidance
         const msg = String(err?.message ?? err)
-        if (
-          err?.code === 'BTC_RETRY_STOPPED' ||
-          msg === 'BTC approval retry stopped'
-        ) {
-          toast('BTC approval retry stopped.', { icon: 'ℹ️' })
-          return
-        }
         if (msg.includes('ChainMismatch')) {
           toast.error(
             `Your wallet is on the wrong network. Please switch to ${sourceChain.name} and try again.`,
@@ -724,7 +665,6 @@ export const TransferWidget = ({
       setFeeOptionDisabled(false)
       setFormStep(0)
       setInitialSelection({ sourceSelection: true, targetSelection: true })
-      setStopRetryModal({ kind: null })
 
       // redux state back to the same “initial chains” as slice
       dispatch(resetServiceFee())
@@ -732,11 +672,6 @@ export const TransferWidget = ({
       dispatch(resetHtlcData())
       dispatch(setAmount(''))
       dispatch(setCCTransactionStatus('idle'))
-      dispatch(setBtcApprovalRetrying(false))
-      dispatch(setBtcSubmitRetrying(false))
-      dispatch(setBtcApprovalStopRequested(true))
-      dispatch(setBtcSubmitStopRequested(true))
-      dispatch(setBtcApprovalResumeAllowed(false))
 
       // clear addresses & currencies so dropdowns and wrappers go back to pristine
       dispatch(setSourceAddress(''))
@@ -779,26 +714,6 @@ export const TransferWidget = ({
             setResetModalOpen(false)
           }}
           onCancel={() => setResetModalOpen(false)}
-        />
-      )}
-      {stopRetryModal.kind && (
-        <WarningModal
-          message={
-            stopRetryModal.kind === 'approval'
-              ? 'Stop retrying BTC approval? You can resume later without re-signing.'
-              : 'Stop retrying BTC submission? You can resume later without re-signing.'
-          }
-          acknowledgeButtonText='Stop'
-          onAcknowledge={() => {
-            if (stopRetryModal.kind === 'approval') {
-              dispatch(setBtcApprovalStopRequested(true))
-              dispatch(setBtcApprovalResumeAllowed(true))
-            } else {
-              dispatch(setBtcSubmitStopRequested(true))
-            }
-            setStopRetryModal({ kind: null })
-          }}
-          onCancel={() => setStopRetryModal({ kind: null })}
         />
       )}
 
@@ -992,18 +907,6 @@ export const TransferWidget = ({
                 </SecondaryButton>
               )}
 
-            {shouldShowStopRetry && (
-              <button
-                type='button'
-                className={`stop-retry-button ${theme.colorMode}`}
-                onClick={requestStopRetry}
-                title={stopRetryTooltip}
-              >
-                <StopIcon width={18} height={18} />
-                <span className='tooltip'>{stopRetryTooltip}</span>
-              </button>
-            )}
-
             {isSubmitButtonEnabled && (
               <PrimaryButton
                 clickHandler={onNext}
@@ -1027,10 +930,6 @@ export const TransferWidget = ({
         <SolanaWalletConnectModal />
         <TronWalletConnectModal />
         <BtcWalletConnectModal />
-        <HtlcRecoveryModal
-          isOpen={htlcRecoveryOpen}
-          onClose={() => setHtlcRecoveryOpen(false)}
-        />
 
         <Toaster
           position='top-right'

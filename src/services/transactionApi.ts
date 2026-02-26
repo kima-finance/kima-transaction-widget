@@ -80,10 +80,15 @@ const parseTxData = (raw?: KimaTransactionRaw): TransactionData => {
   }
 }
 
+const toFiniteNumber = (value: unknown): number | undefined => {
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? parsed : undefined
+}
+
 const parseSwapTxData = (raw?: KimaSwapTransactionRaw): TransactionData => {
   if (!raw) return emptyStatus
-  const amountOut =
-    typeof raw.amountOut === 'number' ? raw.amountOut : (raw.amount ?? 0)
+  const amountOut = toFiniteNumber(raw.amountOut) ?? toFiniteNumber(raw.amount) ?? 0
+  const amountIn = toFiniteNumber(raw.amountIn)
 
   return {
     status: raw.txstatus as TransactionStatus,
@@ -94,7 +99,7 @@ const parseSwapTxData = (raw?: KimaSwapTransactionRaw): TransactionData => {
     tssRefundHash: raw.refundhash,
     failReason: raw.failreason,
     amount: amountOut,
-    amountIn: raw.amountIn,
+    amountIn,
     sourceSymbol: raw.originsymbol,
     targetSymbol: raw.targetsymbol,
     kimaTxHash: raw.kimahash

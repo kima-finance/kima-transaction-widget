@@ -199,17 +199,14 @@ export interface OptionState {
   networkOption: NetworkOptions
   networks: ChainData[]
   uiError: UiError | null
-  btcApprovalRetrying: boolean
-  btcApprovalStopRequested: boolean
-  btcApprovalResumeAllowed: boolean
-  btcSubmitRetrying: boolean
-  btcSubmitStopRequested: boolean
   btcWalletType: '' | 'unisat'
   htlcCreationHash: string
   htlcCreationVout: number
   htlcExpirationTimestamp: string
   htlcVersion: string
   htlcSenderPubKey: string
+  htlcAddress: string
+  htlcAmountSats: string
   htlcLockId: string
 }
 
@@ -220,11 +217,6 @@ const initialState: OptionState = {
   tokenOptions: {},
   pendingTxs: 0,
   pendingTxData: [],
-  btcApprovalRetrying: false,
-  btcApprovalStopRequested: false,
-  btcApprovalResumeAllowed: false,
-  btcSubmitRetrying: false,
-  btcSubmitStopRequested: false,
   btcWalletType: '',
   kimaExplorerUrl: 'https://explorer.sardis.kima.network',
   mode: ModeOptions.bridge,
@@ -275,6 +267,8 @@ const initialState: OptionState = {
   htlcExpirationTimestamp: '',
   htlcVersion: '',
   htlcSenderPubKey: '',
+  htlcAddress: '',
+  htlcAmountSats: '',
   htlcLockId: ''
 }
 
@@ -304,36 +298,6 @@ export const optionSlice = createSlice({
     ) => {
       state.pendingTxData = action.payload
     },
-    setBtcApprovalRetrying: (
-      state: OptionState,
-      action: PayloadAction<boolean>
-    ) => {
-      state.btcApprovalRetrying = action.payload
-    },
-    setBtcApprovalStopRequested: (
-      state: OptionState,
-      action: PayloadAction<boolean>
-    ) => {
-      state.btcApprovalStopRequested = action.payload
-    },
-    setBtcApprovalResumeAllowed: (
-      state: OptionState,
-      action: PayloadAction<boolean>
-    ) => {
-      state.btcApprovalResumeAllowed = action.payload
-    },
-    setBtcSubmitRetrying: (
-      state: OptionState,
-      action: PayloadAction<boolean>
-    ) => {
-      state.btcSubmitRetrying = action.payload
-    },
-    setBtcSubmitStopRequested: (
-      state: OptionState,
-      action: PayloadAction<boolean>
-    ) => {
-      state.btcSubmitStopRequested = action.payload
-    },
     setBtcWalletType: (
       state: OptionState,
       action: PayloadAction<OptionState['btcWalletType']>
@@ -348,6 +312,8 @@ export const optionSlice = createSlice({
         htlcExpirationTimestamp: string
         htlcVersion: string
         htlcSenderPubKey: string
+        htlcAddress: string
+        htlcAmountSats: string
         htlcLockId: string
       }>
     ) => {
@@ -356,6 +322,8 @@ export const optionSlice = createSlice({
       state.htlcExpirationTimestamp = action.payload.htlcExpirationTimestamp
       state.htlcVersion = action.payload.htlcVersion
       state.htlcSenderPubKey = action.payload.htlcSenderPubKey
+      state.htlcAddress = action.payload.htlcAddress
+      state.htlcAmountSats = action.payload.htlcAmountSats
       state.htlcLockId = action.payload.htlcLockId
     },
     resetHtlcData: (state: OptionState) => {
@@ -364,6 +332,8 @@ export const optionSlice = createSlice({
       state.htlcExpirationTimestamp = ''
       state.htlcVersion = ''
       state.htlcSenderPubKey = ''
+      state.htlcAddress = ''
+      state.htlcAmountSats = ''
       state.htlcLockId = ''
     },
     setTokenOptions: (
@@ -630,11 +600,6 @@ export const {
   setExpireTime,
   setPendingTxData,
   setPendingTxs,
-  setBtcApprovalRetrying,
-  setBtcApprovalStopRequested,
-  setBtcApprovalResumeAllowed,
-  setBtcSubmitRetrying,
-  setBtcSubmitStopRequested,
   setBtcWalletType,
   setHtlcData,
   resetHtlcData,

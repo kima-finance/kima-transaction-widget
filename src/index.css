@@ -426,55 +426,6 @@
     width: 140px;
   }
 }
-.kima-card .kima-card-footer .button-group .stop-retry-button {
-  width: 38px;
-  height: 38px;
-  padding: 0;
-  border-radius: 9999px;
-  border: 1px solid rgba(119, 141, 163, 0.3019607843);
-  background: transparent;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  cursor: pointer;
-  color: #4a5068;
-}
-.kima-card .kima-card-footer .button-group .stop-retry-button svg {
-  width: 18px;
-  height: 18px;
-}
-.kima-card .kima-card-footer .button-group .stop-retry-button:hover .tooltip {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translate(-50%, -6px);
-}
-.kima-card .kima-card-footer .button-group .stop-retry-button .tooltip {
-  position: absolute;
-  left: 50%;
-  bottom: 110%;
-  transform: translate(-50%, 0);
-  background: #4a5068;
-  color: white;
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-size: 12px;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  z-index: 10;
-}
-.kima-card .kima-card-footer .button-group .stop-retry-button.dark {
-  color: white;
-}
-.kima-card .kima-card-footer .button-group .stop-retry-button.dark .tooltip {
-  background: rgba(119, 141, 163, 0.3019607843);
-}
-.kima-card .kima-card-footer .button-group .stop-retry-button:disabled {
-  opacity: 0.6;
-  cursor: default;
-}
 .kima-card .kima-card-footer p {
   font-size: 0.8em;
   margin: 0 0 0 1em;
@@ -2851,120 +2802,8 @@
 .kima-card .card-item.dark {
   background: #242732;
 }
-.kima-card .card-item.htlc-recovery-card {
-  height: auto;
-  cursor: default;
-  padding: 16px;
-  align-items: stretch;
-  flex-direction: column;
-  gap: 12px;
-}
-.kima-card .card-item.htlc-recovery-card .wallet-item {
-  padding: 0;
-  width: 100%;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 8px;
-}
 .kima-card .card-item.selected {
   border-color: #86b8ce;
-}
-.kima-card .htlc-recovery {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.kima-card .htlc-fee {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.kima-card .htlc-fee input {
-  width: 100%;
-  padding: 8px 12px;
-  border-radius: 8px;
-}
-.kima-card .htlc-manual {
-  border: 1px solid rgba(119, 141, 163, 0.3019607843);
-  border-radius: 16px;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.kima-card .htlc-manual-header {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.kima-card .htlc-manual-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px 12px;
-}
-.kima-card .htlc-manual-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.kima-card .htlc-manual-field label {
-  font-size: 12px;
-  font-weight: 600;
-}
-.kima-card .htlc-manual-field input {
-  padding: 8px 12px;
-  border-radius: 8px;
-}
-.kima-card .htlc-manual-actions {
-  display: flex;
-  justify-content: flex-end;
-}
-.kima-card .htlc-recovery-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-height: 48vh;
-  overflow-y: auto;
-  padding-right: 4px;
-}
-.kima-card .htlc-row {
-  display: flex;
-  flex-direction: row;
-  gap: 4px;
-  align-items: flex-start;
-  justify-content: space-between;
-}
-@media (max-width: 900px) {
-  .kima-card .htlc-row {
-    flex-direction: column;
-    justify-content: sta;
-  }
-}
-.kima-card .htlc-label {
-  font-weight: 700;
-  font-family: "Manrope";
-  font-size: 18px;
-}
-.kima-card .htlc-value {
-  font-family: "Manrope";
-  font-size: 14px;
-  text-align: left;
-  word-break: break-all;
-}
-.kima-card .htlc-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: flex-end;
-  width: 100%;
-}
-@media (max-width: 500px) {
-  .kima-card .htlc-manual-grid {
-    grid-template-columns: 1fr;
-  }
-  .kima-card .htlc-value {
-    text-align: left;
-  }
 }
 .kima-card .kima-card-network-label {
   display: flex;
@@ -3336,24 +3175,6 @@
   justify-content: center;
   margin-top: 2em;
 }
-.kima-modal.htlc-recovery-modal .modal-content-container {
-  width: 80vw;
-  max-width: 1100px;
-  max-height: 80vh;
-}
-.kima-modal.htlc-recovery-modal .modal-content {
-  align-items: stretch;
-  justify-content: flex-start;
-  overflow-y: auto;
-  max-height: calc(80vh - 120px);
-  min-height: 0;
-  padding-right: 4px;
-}
-@media (max-width: 500px) {
-  .kima-modal.htlc-recovery-modal .modal-content-container {
-    width: 95vw;
-  }
-}
 .kima-modal.help-popup .modal-content-container {
   width: 30em;
   height: 20em;
@@ -3500,23 +3321,6 @@
 .kima-modal.bank-popup .modal-content .bank-simulation button {
   margin: 2em auto 0;
   width: 16em;
-}
-.kima-modal.htlc-recovery-help .modal-content {
-  align-items: stretch;
-}
-.kima-modal.htlc-recovery-help .htlc-help {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  font-size: 14px;
-  line-height: 1.4;
-}
-.kima-modal.htlc-recovery-help .htlc-help ol {
-  padding-left: 18px;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
 }
 
 @font-face {
