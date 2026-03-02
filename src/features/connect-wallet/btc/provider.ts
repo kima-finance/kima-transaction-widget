@@ -1,3 +1,5 @@
+import { normalizeBtcPubkeyHex } from '@kima-widget/shared/lib/btcPubkey'
+
 export type BtcAccount = {
   address: string
   publicKey?: string
@@ -81,13 +83,17 @@ const resolvePubkey = async (
   provider: ProviderLike,
   account: BtcAccount
 ) => {
-  if (account.publicKey) return account.publicKey
-  if (typeof provider.publicKey === 'string') return provider.publicKey
-  if (typeof provider.pubkey === 'string') return provider.pubkey
+  if (account.publicKey) return normalizeBtcPubkeyHex(account.publicKey)
+  if (typeof provider.publicKey === 'string') {
+    return normalizeBtcPubkeyHex(provider.publicKey)
+  }
+  if (typeof provider.pubkey === 'string') {
+    return normalizeBtcPubkeyHex(provider.pubkey)
+  }
   if (typeof provider.getPublicKey === 'function') {
     try {
       const res = await provider.getPublicKey()
-      return typeof res === 'string' ? res : ''
+      return typeof res === 'string' ? normalizeBtcPubkeyHex(res) : ''
     } catch {
       return ''
     }

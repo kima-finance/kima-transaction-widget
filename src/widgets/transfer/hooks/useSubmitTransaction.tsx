@@ -5,13 +5,15 @@ import {
   selectAmount,
   selectBackendUrl,
   selectBitcoinPubkey,
-  selectBtcSubmitStopRequested,
   selectCCTransactionIdSeed,
   selectFeeDeduct,
   selectIsPermit2Required,
+  selectHtlcAddress,
+  selectHtlcAmountSats,
   selectHtlcCreationHash,
   selectHtlcCreationVout,
   selectHtlcExpirationTimestamp,
+  selectHtlcLockId,
   selectHtlcSenderPubKey,
   selectHtlcVersion,
   selectMode,
@@ -27,8 +29,6 @@ import {
 } from '@kima-widget/shared/store/selectors'
 import { getTransactionId } from '@kima-widget/shared/lib/addresses'
 import {
-  setBtcSubmitRetrying,
-  setBtcSubmitStopRequested,
   setCCTransactionRetrying,
   setCCTransactionStatus,
   setSubmitted,
@@ -38,7 +38,6 @@ import { bigIntChangeDecimals } from '@kima-widget/shared/lib/bigint'
 import { fetchWrapper } from '@kima-widget/shared/api/fetcher'
 import { isSamePeggedToken } from '@kima-widget/shared/lib/misc'
 import { parseUnits } from 'viem'
-import { useEffect, useRef } from 'react'
 import { ChainName } from '@kima-widget/shared/types'
 
 const useSubmitTransaction = (
@@ -74,95 +73,14 @@ const useSubmitTransaction = (
   const htlcExpirationTimestamp = useSelector(selectHtlcExpirationTimestamp)
   const htlcVersion = useSelector(selectHtlcVersion)
   const htlcSenderPubKey = useSelector(selectHtlcSenderPubKey)
-  const submitStopRequested = useSelector(selectBtcSubmitStopRequested)
+  const htlcAddress = useSelector(selectHtlcAddress)
+  const htlcAmountSats = useSelector(selectHtlcAmountSats)
+  const htlcLockId = useSelector(selectHtlcLockId)
   const isPermit2Required = useSelector(selectIsPermit2Required)
   const permit2Signature = useSelector(selectPermit2Signature)
 
   const isBtcOrigin = originChainData.shortName === ChainName.BTC
   const btcSenderPubKey = htlcSenderPubKey || bitcoinPubkey
-  const stopRef = useRef(false)
-  useEffect(() => {
-    stopRef.current = submitStopRequested
-  }, [submitStopRequested])
-
-  const waitForBtcHtlcReady = async () => {
-    if (!backendUrl) {
-      throw new Error('Backend URL is missing')
-    }
-    if (!htlcCreationHash) {
-      throw new Error('BTC HTLC lock transaction is missing')
-    }
-
-    const senderFilter = isBtcOrigin ? sourceAddress : ''
-
-    const sleep = (ms: number) =>
-      new Promise((resolve) => setTimeout(resolve, ms))
-
-    let lastStatus: any = null
-    const maxAttempts = 0
-    const delayMs = 5000
-    const terminalStatuses = new Set([
-      'FailedToPay',
-      'FailedToPull',
-      'RefundFailed',
-      'RefundCompleted',
-      'RefundPaid'
-    ])
-    const terminalPullStatuses = new Set([
-      'htlc_pull_failed',
-      'htlc_reclaimed'
-    ])
-
-    let attempt = 0
-    while (maxAttempts === 0 || attempt < maxAttempts) {
-      if (stopRef.current) {
-        dispatch(setBtcSubmitRetrying(false))
-        dispatch(setBtcSubmitStopRequested(false))
-        throw new Error('BTC submission retry stopped')
-      }
-      attempt += 1
-      try {
-        const query = new URLSearchParams({
-          txHash: htlcCreationHash,
-          ...(senderFilter ? { senderAddress: senderFilter } : {})
-        }).toString()
-        lastStatus = await fetchWrapper.get(
-          `${backendUrl}/btc/htlc/locking-status?${query}`
-        )
-        if (lastStatus?.isReady) {
-          return lastStatus
-        }
-        if (terminalStatuses.has(lastStatus?.status)) {
-          throw new Error(
-            `BTC HTLC lock failed with status ${lastStatus.status}.`
-          )
-        }
-        if (terminalPullStatuses.has(lastStatus?.pullStatus)) {
-          throw new Error(
-            `BTC HTLC lock failed with pull status ${lastStatus.pullStatus}.`
-          )
-        }
-      } catch (err) {
-        if (
-          err instanceof Error &&
-          err.message.startsWith('BTC HTLC lock failed')
-        ) {
-          throw err
-        }
-        lastStatus = err
-      }
-      await sleep(delayMs)
-    }
-    const statusLabel =
-      lastStatus && lastStatus.status
-        ? ` (status: ${lastStatus.status || 'unknown'}, pull: ${
-            lastStatus.pullStatus || 'unknown'
-          })`
-        : ''
-    throw new Error(
-      `BTC HTLC lock not ready yet${statusLabel}. Please wait for confirmation.`
-    )
-  }
 
   const doSwap =
     sourceCurrency !== targetCurrency &&
@@ -248,12 +166,6 @@ const useSubmitTransaction = (
 
       setIsSubmitting(true)
 
-      if (isBtcOrigin) {
-        dispatch(setBtcSubmitRetrying(true))
-        dispatch(setBtcSubmitStopRequested(false))
-        await waitForBtcHtlcReady()
-      }
-
       if (isPermit2Required && !permit2Signature) {
         throw new Error('Permit2 signature is required before submitting')
       }
@@ -300,7 +212,10 @@ const useSubmitTransaction = (
               htlcCreationVout,
               htlcExpirationTimestamp,
               htlcVersion,
-              senderPubKey: btcSenderPubKey
+              senderPubKey: btcSenderPubKey,
+              htlcAddress,
+              htlcAmountSats,
+              htlcLockId
             }
           : {}
 
@@ -375,6 +290,9 @@ const useSubmitTransaction = (
         htlcExpirationTimestamp,
         htlcVersion,
         senderPubKey: btcSenderPubKey,
+        htlcAddress,
+        htlcAmountSats,
+        htlcLockId,
         options: JSON.stringify(baseOptions),
         ccTransactionIdSeed,
         mode
@@ -396,8 +314,6 @@ const useSubmitTransaction = (
       log.debug('submit success', transactionId)
       dispatch(setCCTransactionStatus('success'))
       dispatch(setCCTransactionRetrying(false))
-      dispatch(setBtcSubmitRetrying(false))
-      dispatch(setBtcSubmitStopRequested(false))
       dispatch(setTxId(transactionId))
       dispatch(setSubmitted(true))
       setIsSubmitting(false)
@@ -405,23 +321,12 @@ const useSubmitTransaction = (
     onError: (err) => {
       log.error('submitTransaction error:', err)
       dispatch(setCCTransactionRetrying(false))
-      dispatch(setBtcSubmitRetrying(false))
       setIsSubmitting(false)
     },
     retry: (failureCount, error) => {
       if (mutation.isSuccess || submitted) {
         dispatch(setCCTransactionRetrying(false))
-        dispatch(setBtcSubmitRetrying(false))
         return false
-      }
-      if (isBtcOrigin) {
-        if (stopRef.current) {
-          dispatch(setBtcSubmitRetrying(false))
-          dispatch(setBtcSubmitStopRequested(false))
-          return false
-        }
-        dispatch(setBtcSubmitRetrying(true))
-        return true
       }
       const shouldRetry =
         transactionValues.originChain === 'CC' && failureCount < 10

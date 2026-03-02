@@ -13,6 +13,7 @@ import {
   getBtcAddressNetwork,
   isBtcAddressOnNetwork
 } from '@kima-widget/shared/lib/btc'
+import { normalizeBtcPubkeyHex } from '@kima-widget/shared/lib/btcPubkey'
 import { selectNetworkOption } from '@kima-widget/shared/store/selectors'
 import { getUnisat } from './unisat'
 import { getBtcAccountFromProvider } from './provider'
@@ -47,9 +48,11 @@ export const useBtcWallet = () => {
         const address =
           typeof signer === 'string' ? signer : signer?.address ?? ''
         const pubkey =
-          (typeof signer === 'object' && signer?.publicKey) ||
-          (externalProvider.provider as any)?.publicKey ||
-          ''
+          normalizeBtcPubkeyHex(
+            (typeof signer === 'object' && signer?.publicKey) ||
+              (externalProvider.provider as any)?.publicKey ||
+              ''
+          ) || ''
 
         ensureNetworkMatch(address)
         if (address) {
@@ -93,7 +96,7 @@ export const useBtcWallet = () => {
       }
 
       const address = account?.address ?? ''
-      const pubkey = account?.publicKey ?? ''
+      const pubkey = normalizeBtcPubkeyHex(account?.publicKey ?? '')
 
       if (!address) {
         const err = new Error('No BTC account returned')

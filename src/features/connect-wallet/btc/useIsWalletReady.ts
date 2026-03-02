@@ -24,6 +24,7 @@ import {
   getBtcAddressNetwork,
   isBtcAddressOnNetwork
 } from '@kima-widget/shared/lib/btc'
+import { normalizeBtcPubkeyHex } from '@kima-widget/shared/lib/btcPubkey'
 import { getUnisat } from './unisat'
 import { getBtcAccountFromProvider } from './provider'
 
@@ -51,7 +52,9 @@ export const useIsWalletReady = () => {
         (externalProvider.provider as any)?.publicKey ??
         (externalProvider.provider as any)?.pubkey
       const pubkey =
-        (typeof signer === 'object' && signer?.publicKey) || providerPubkey || ''
+        normalizeBtcPubkeyHex(
+          (typeof signer === 'object' && signer?.publicKey) || providerPubkey || ''
+        ) || ''
       return { address, pubkey }
     }
 
@@ -115,7 +118,10 @@ export const useIsWalletReady = () => {
       if (!address) return
       dispatch(setBitcoinAddress(address))
       dispatch(setSourceAddress(address))
-      if (account?.publicKey) dispatch(setBitcoinPubkey(account.publicKey))
+      if (account?.publicKey) {
+        const pubkey = normalizeBtcPubkeyHex(account.publicKey)
+        if (pubkey) dispatch(setBitcoinPubkey(pubkey))
+      }
     }
 
     syncProvider().catch(() => {

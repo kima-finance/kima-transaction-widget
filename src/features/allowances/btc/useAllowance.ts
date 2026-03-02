@@ -1,41 +1,33 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useMemo } from 'react'
 import { parseUnits } from 'viem'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   selectAmount,
   selectBackendUrl,
-  selectBtcApprovalResumeAllowed,
-  selectBtcApprovalStopRequested,
-  selectBtcWalletType,
   selectBitcoinPubkey,
   selectFeeDeduct,
   selectHtlcCreationHash,
   selectNetworkOption,
   selectServiceFee,
   selectSourceAddress,
-  selectSourceCurrency,
   selectTargetAddress
 } from '@kima-widget/shared/store/selectors'
 import { PluginUseAllowanceResult, SignDataType } from '@kima-widget/shared/types'
 import { fetchWrapper } from '@kima-widget/shared/api/fetcher'
 import log from '@kima-widget/shared/logger'
-import {
-  setBtcApprovalRetrying,
-  setBtcApprovalResumeAllowed,
-  setBtcApprovalStopRequested,
-  setHtlcData
-} from '@kima-widget/shared/store/optionSlice'
+import { setHtlcData } from '@kima-widget/shared/store/optionSlice'
 import { getUnisat } from '@kima-widget/features/connect-wallet/btc/unisat'
 import useGetPools from '@kima-widget/hooks/useGetPools'
 import { getPoolAddress } from '@kima-widget/shared/lib/addresses'
 import { ChainName } from '@kima-widget/shared/types'
 import toast from 'react-hot-toast'
-import {
-  saveBtcHtlcLock,
-  getStoredBtcHtlcLocks,
-  updateStoredBtcHtlcLock
-} from '@kima-widget/shared/lib/btcHtlcStorage'
 import { getFeeSideValues } from '@kima-widget/shared/lib/fees'
+import { normalizeBtcPubkeyHex } from '@kima-widget/shared/lib/btcPubkey'
+import {
+  collectFeeRates,
+  getMaxFeeRate,
+  resolveApprovalFeeRate
+} from './feePolicy'
 
 export const useAllowance = (): PluginUseAllowanceResult => {
   const dispatch = useDispatch()
@@ -44,24 +36,19 @@ export const useAllowance = (): PluginUseAllowanceResult => {
   const sourceAddress = useSelector(selectSourceAddress)
   const targetAddress = useSelector(selectTargetAddress)
   const amount = useSelector(selectAmount)
-  const sourceCurrency = useSelector(selectSourceCurrency)
   const { transactionValues } = useSelector(selectServiceFee)
   const feeDeduct = useSelector(selectFeeDeduct)
   const htlcCreationHash = useSelector(selectHtlcCreationHash)
   const networkOption = useSelector(selectNetworkOption)
-  const approvalResumeAllowed = useSelector(selectBtcApprovalResumeAllowed)
-  const approvalStopRequested = useSelector(selectBtcApprovalStopRequested)
-  const btcWalletType = useSelector(selectBtcWalletType)
   const { pools } = useGetPools(backendUrl, networkOption)
+  const normalizedBitcoinPubkey = useMemo(
+    () => normalizeBtcPubkeyHex(bitcoinPubkey),
+    [bitcoinPubkey]
+  )
   const poolAddress = useMemo(
     () => getPoolAddress(pools, ChainName.BTC),
     [pools]
   )
-
-  const approvalStopRef = useRef(false)
-  useEffect(() => {
-    approvalStopRef.current = approvalStopRequested
-  }, [approvalStopRequested])
 
   const feeSideValues = useMemo(
     () =>
@@ -103,9 +90,7 @@ export const useAllowance = (): PluginUseAllowanceResult => {
         poolAddress,
         amount,
         amountSats: amountSats?.toString(),
-        feeDeduct,
-        approvalResumeAllowed,
-        approvalStopRequested
+        feeDeduct
       })
       if (!backendUrl) {
         throw new Error('Backend URL is missing')
@@ -119,8 +104,10 @@ export const useAllowance = (): PluginUseAllowanceResult => {
       if (!poolAddress) {
         throw new Error('BTC pool address is missing')
       }
-      if (!bitcoinPubkey) {
-        throw new Error('Bitcoin public key is missing')
+      if (!normalizedBitcoinPubkey) {
+        throw new Error(
+          'Bitcoin public key is missing or malformed. Reconnect your wallet and try again.'
+        )
       }
       if (allowanceSats == null || allowanceSats <= 0n) {
         log.warn('[btc.useAllowance] approve:missing-fee', {
@@ -133,16 +120,10 @@ export const useAllowance = (): PluginUseAllowanceResult => {
         throw new Error('Invalid Bitcoin amount')
       }
 
-      dispatch(setBtcApprovalStopRequested(false))
-      dispatch(setBtcApprovalResumeAllowed(false))
-
       const sleep = (ms: number) =>
         new Promise((resolve) => setTimeout(resolve, ms))
 
       const pollRecord = async (lockId: string, txid: string) => {
-        dispatch(setBtcApprovalRetrying(true))
-        dispatch(setBtcApprovalStopRequested(false))
-
         const toastId = toast.loading(
           'Waiting for Bitcoin transaction to propagate...'
         )
@@ -150,36 +131,24 @@ export const useAllowance = (): PluginUseAllowanceResult => {
         let lastError: any
         const delayMs = 5000
 
-        try {
-          while (true) {
-            if (approvalStopRef.current) {
-              toast('BTC approval retry stopped.', { id: toastId, icon: 'ℹ️' })
-              const err: any = new Error('BTC approval retry stopped')
-              err.code = 'BTC_RETRY_STOPPED'
-              throw err
+        while (true) {
+          try {
+            record = await fetchWrapper.post(
+              `${backendUrl}/btc/htlc/record`,
+              JSON.stringify({
+                lockId,
+                txid
+              })
+            )
+            break
+          } catch (err: any) {
+            lastError = err
+            if (err?.status === 404) {
+              await sleep(delayMs)
+              continue
             }
-
-            try {
-              record = await fetchWrapper.post(
-                `${backendUrl}/btc/htlc/record`,
-                JSON.stringify({
-                  lockId,
-                  txid
-                })
-              )
-              break
-            } catch (err: any) {
-              lastError = err
-              if (err?.status === 404) {
-                await sleep(delayMs)
-                continue
-              }
-              break
-            }
+            break
           }
-        } finally {
-          dispatch(setBtcApprovalRetrying(false))
-          dispatch(setBtcApprovalStopRequested(false))
         }
 
         if (!record) {
@@ -191,83 +160,7 @@ export const useAllowance = (): PluginUseAllowanceResult => {
         }
 
         toast.success('BTC transaction recorded.', { id: toastId })
-        updateStoredBtcHtlcLock(lockId, {
-          lockTxId: record.htlcCreationHash,
-          lockVout: record.htlcCreationVout
-        })
-
         return record
-      }
-
-      const registerLock = async (lockId: string) => {
-        const lockToastId = toast.loading(
-          'Registering HTLC lock on Kima chain...'
-        )
-        try {
-          await fetchWrapper.post(
-            `${backendUrl}/btc/htlc/request-lock`,
-            JSON.stringify({ lockId })
-          )
-          toast.success('HTLC lock registered.', { id: lockToastId })
-        } catch (err) {
-          toast.error('Failed to register HTLC lock on Kima chain.', {
-            id: lockToastId
-          })
-          throw err
-        }
-      }
-
-      const resumeFromStorage = async () => {
-        if (!approvalResumeAllowed) return false
-        if (!sourceAddress) return false
-        const stored = getStoredBtcHtlcLocks(sourceAddress, networkOption)
-          .filter((lock) => lock.amountSats === amountSats.toString())
-          .filter((lock) => !!lock.lockTxId)
-
-        const latest = stored[0]
-        if (!latest?.lockId || !latest.lockTxId) return false
-
-        toast('Resuming the latest BTC approval...', { icon: 'ℹ️' })
-
-        let record: any
-        if (latest.lockVout != null) {
-          record = {
-            htlcCreationHash: latest.lockTxId,
-            htlcCreationVout: latest.lockVout,
-            htlcExpirationTimestamp: String(latest.timeoutHeight),
-            htlcVersion: 'p2wsh-sha256-cltv-v1',
-            senderPubKey: latest.senderPubkey || bitcoinPubkey
-          }
-        } else {
-          record = await pollRecord(latest.lockId, latest.lockTxId)
-        }
-
-        await registerLock(latest.lockId)
-
-        dispatch(
-          setHtlcData({
-            htlcCreationHash: record.htlcCreationHash,
-            htlcCreationVout: record.htlcCreationVout,
-            htlcExpirationTimestamp: record.htlcExpirationTimestamp,
-            htlcVersion: record.htlcVersion,
-            htlcSenderPubKey: record.senderPubKey,
-            htlcLockId: latest.lockId
-          })
-        )
-
-        log.debug('[btc.useAllowance] HTLC lock resumed', {
-          lockId: latest.lockId,
-          txid: latest.lockTxId
-        })
-        dispatch(setBtcApprovalResumeAllowed(false))
-        return true
-      }
-
-      log.debug('[btc.useAllowance] approve:resume-check', {
-        approvalResumeAllowed
-      })
-      if (await resumeFromStorage()) {
-        return
       }
 
       log.debug('[btc.useAllowance] approve:lock-intent', {
@@ -277,26 +170,37 @@ export const useAllowance = (): PluginUseAllowanceResult => {
         `${backendUrl}/btc/htlc/lock-intent`,
         JSON.stringify({
           senderAddress: sourceAddress,
-          senderPubkey: bitcoinPubkey,
+          senderPubkey: normalizedBitcoinPubkey,
           recipientAddress: targetAddress,
           poolAddress,
           amountSats: amountSats.toString()
         })
       )
-      saveBtcHtlcLock({
-        lockId: lockIntent.lockId,
-        htlcAddress: lockIntent.htlcAddress,
-        senderAddress: sourceAddress,
-        senderPubkey: lockIntent.senderPubkey || bitcoinPubkey,
-        recipientAddress: lockIntent.recipientAddress || poolAddress,
-        amountSats: lockIntent.amountSats,
-        hash: lockIntent.hash,
-        timeoutHeight: lockIntent.timeoutHeight,
-        network: networkOption,
-        createdAt: Date.now()
-      })
 
       const provider = getUnisat()
+      const getErrorCode = (error: any) => {
+        if (!error) return undefined
+        return error.code ?? error?.error?.code
+      }
+      const getErrorMessage = (error: any) => {
+        if (!error) return ''
+        return (
+          error.message ??
+          error?.error?.message ??
+          error?.data?.message ??
+          ''
+        )
+      }
+      const isUserRejected = (error: any) => {
+        if (!error) return false
+        if (getErrorCode(error) === 4001) return true
+        return /reject|cancel|denied/i.test(String(getErrorMessage(error)))
+      }
+      const isInvalidParams = (error: any) => {
+        if (!error) return false
+        if (getErrorCode(error) === -32602) return true
+        return /invalid params/i.test(String(getErrorMessage(error)))
+      }
       const isMethodNotSupported = (error: any) => {
         if (!error) return false
         if (error.code === -32601) return true
@@ -310,34 +214,16 @@ export const useAllowance = (): PluginUseAllowanceResult => {
         try {
           return await provider.request({ method, params })
         } catch (error) {
+          if (isUserRejected(error)) throw error
           if (!isMethodNotSupported(error)) throw error
           try {
             return await provider.request(method, params)
           } catch (error2) {
+            if (isUserRejected(error2)) throw error2
             if (isMethodNotSupported(error2)) return undefined
             throw error2
           }
         }
-      }
-
-      const extractFeeRates = (value: any): number[] => {
-        if (value == null) return []
-        if (typeof value === 'number' && Number.isFinite(value)) return [value]
-        if (typeof value === 'string') {
-          const num = Number(value)
-          return Number.isFinite(num) ? [num] : []
-        }
-        if (typeof value === 'bigint') {
-          const num = Number(value)
-          return Number.isFinite(num) ? [num] : []
-        }
-        if (Array.isArray(value)) {
-          return value.flatMap(extractFeeRates).filter((n) => n > 0)
-        }
-        if (typeof value === 'object') {
-          return Object.values(value).flatMap(extractFeeRates).filter((n) => n > 0)
-        }
-        return []
       }
 
       const fetchMempoolFeeRate = async (): Promise<{
@@ -353,11 +239,10 @@ export const useAllowance = (): PluginUseAllowanceResult => {
             return { rate: undefined, source: 'mempool:status' }
           }
           const data: any = await res.json()
-          const rates = extractFeeRates(data)
-          if (!rates.length) {
+          const rate = getMaxFeeRate(data)
+          if (!rate) {
             return { rate: undefined, source: 'mempool:empty' }
           }
-          const rate = Math.max(...rates)
           log.debug('[btc.useAllowance] approve:feeRate mempool', {
             rate,
             data
@@ -373,97 +258,134 @@ export const useAllowance = (): PluginUseAllowanceResult => {
 
       const resolveFeeRate = async (): Promise<{
         rate?: number
-        count: number
         source?: string
+        kind: 'mempool' | 'fallback' | 'none'
       }> => {
-        if (!provider) return { rate: undefined, count: 0 }
-        try {
-          if (typeof provider.getFeeRate === 'function') {
-            const res = await provider.getFeeRate()
-            const rates = extractFeeRates(res)
-            return {
-              rate: rates.length ? Math.max(...rates) : undefined,
-              count: rates.length,
-              source: 'getFeeRate'
-            }
-          }
-        } catch {
-          /* noop */
-        }
-
-        if (provider.request) {
-          try {
-            const res = await requestWithFallback('getFeeRates', [])
-            const rates = extractFeeRates(res)
-            if (rates.length) {
-              return {
-                rate: Math.max(...rates),
-                count: rates.length,
-                source: 'request:getFeeRates'
-              }
-            }
-          } catch {
-            /* noop */
-          }
-          try {
-            const res = await requestWithFallback('getFeeRate', [])
-            const rates = extractFeeRates(res)
-            if (rates.length) {
-              return {
-                rate: Math.max(...rates),
-                count: rates.length,
-                source: 'request:getFeeRate'
-              }
-            }
-          } catch {
-            /* noop */
-          }
-        }
-
         const mempool = await fetchMempoolFeeRate()
-        if (mempool.rate) {
+        if (mempool.rate && Number.isFinite(mempool.rate)) {
           return {
             rate: mempool.rate,
-            count: 1,
-            source: mempool.source
+            source: mempool.source || 'mempool',
+            kind: 'mempool'
           }
         }
 
-        return { rate: undefined, count: 0, source: 'none' }
+        const fallbackRates: number[] = []
+        const seenSources = new Set<string>()
+
+        if (provider) {
+          try {
+            if (typeof provider.getFeeRate === 'function') {
+              const res = await provider.getFeeRate()
+              const rates = collectFeeRates(res)
+              if (rates.length) {
+                fallbackRates.push(...rates)
+                seenSources.add('getFeeRate')
+              }
+            }
+          } catch {
+            /* noop */
+          }
+
+          if (provider.request) {
+            try {
+              const res = await requestWithFallback('getFeeRates', [])
+              const rates = collectFeeRates(res)
+              if (rates.length) {
+                fallbackRates.push(...rates)
+                seenSources.add('request:getFeeRates')
+              }
+            } catch {
+              /* noop */
+            }
+            try {
+              const res = await requestWithFallback('getFeeRate', [])
+              const rates = collectFeeRates(res)
+              if (rates.length) {
+                fallbackRates.push(...rates)
+                seenSources.add('request:getFeeRate')
+              }
+            } catch {
+              /* noop */
+            }
+          }
+        }
+
+        if (!fallbackRates.length) {
+          return { rate: undefined, source: 'none', kind: 'none' }
+        }
+
+        return {
+          rate: Math.max(...fallbackRates),
+          source: Array.from(seenSources).join(','),
+          kind: 'fallback'
+        }
       }
 
       const sendBitcoinWithProvider = async (
         feeRate?: number,
         isBoosted?: boolean
       ) => {
+        const hasFeeRate = !!feeRate && Number.isFinite(feeRate)
+
         if (provider?.sendBitcoin) {
-          if (feeRate && Number.isFinite(feeRate)) {
+          if (hasFeeRate) {
             log.debug('[btc.useAllowance] approve:sendBitcoin fee', {
               feeRate,
               boosted: !!isBoosted,
               method: 'sendBitcoin'
             })
             try {
-              return await provider.sendBitcoin(
-                lockIntent.htlcAddress,
-                Number(amountSats),
-                feeRate
-              )
-            } catch {
-              /* noop */
-            }
-            try {
+              // Prefer object-style fee params to avoid ambiguous provider signatures.
               return await provider.sendBitcoin(
                 lockIntent.htlcAddress,
                 Number(amountSats),
                 { feeRate }
               )
-            } catch {
-              /* noop */
+            } catch (error) {
+              if (isUserRejected(error)) throw error
+              if (!isMethodNotSupported(error) && !isInvalidParams(error)) {
+                throw error
+              }
+            }
+            try {
+              return await provider.sendBitcoin(
+                lockIntent.htlcAddress,
+                Number(amountSats),
+                feeRate
+              )
+            } catch (error) {
+              if (isUserRejected(error)) throw error
             }
           }
-          return await provider.sendBitcoin(lockIntent.htlcAddress, Number(amountSats))
         }
+
+        const feePayloads: Array<{ method: string; params: any }> = [
+          {
+            method: 'sendBitcoin',
+            params: [lockIntent.htlcAddress, Number(amountSats), feeRate]
+          },
+          {
+            method: 'sendBitcoin',
+            params: {
+              address: lockIntent.htlcAddress,
+              amount: Number(amountSats),
+              feeRate
+            }
+          },
+          {
+            method: 'sendTransfer',
+            params: {
+              recipients: [
+                {
+                  address: lockIntent.htlcAddress,
+                  amountSats: Number(amountSats)
+                }
+              ],
+              feeRate
+            }
+          }
+        ]
 
         const payloads: Array<{ method: string; params: any }> = [
           {
@@ -488,38 +410,28 @@ export const useAllowance = (): PluginUseAllowanceResult => {
           }
         ]
 
-        if (feeRate && Number.isFinite(feeRate)) {
+        if (hasFeeRate) {
           log.debug('[btc.useAllowance] approve:sendTransfer fee', {
             feeRate,
             boosted: !!isBoosted,
             method: 'sendTransfer'
           })
-          payloads.unshift(
-            {
-              method: 'sendBitcoin',
-              params: [lockIntent.htlcAddress, Number(amountSats), feeRate]
-            },
-            {
-              method: 'sendBitcoin',
-              params: {
-                address: lockIntent.htlcAddress,
-                amount: Number(amountSats),
-                feeRate
-              }
-            },
-            {
-              method: 'sendTransfer',
-              params: {
-                recipients: [
-                  {
-                    address: lockIntent.htlcAddress,
-                    amountSats: Number(amountSats)
-                  }
-                ],
-                feeRate
-              }
-            }
-          )
+          for (const payload of feePayloads) {
+            const result = await requestWithFallback(payload.method, payload.params)
+            if (result != null) return result
+          }
+        }
+
+        if (provider?.sendBitcoin) {
+          try {
+            const fallbackResult = await provider.sendBitcoin(
+              lockIntent.htlcAddress,
+              Number(amountSats)
+            )
+            if (fallbackResult != null) return fallbackResult
+          } catch (error) {
+            if (isUserRejected(error)) throw error
+          }
         }
 
         for (const payload of payloads) {
@@ -539,19 +451,17 @@ export const useAllowance = (): PluginUseAllowanceResult => {
       })
       const rawTxid =
         await (async () => {
-          const { rate, count, source } = await resolveFeeRate()
-          const boosted =
-            rate && Number.isFinite(rate)
-              ? Math.ceil(rate * 2)
-              : undefined
-          log.debug('[btc.useAllowance] approve:feeRate', {
-            base: rate,
-            boosted,
-            count,
-            source,
-            applied: boosted ?? 'default'
+          const { rate, source, kind } = await resolveFeeRate()
+          const selection = resolveApprovalFeeRate({
+            mempoolResponse: kind === 'mempool' ? [rate] : undefined,
+            fallbackRates: kind === 'fallback' && rate ? [rate] : []
           })
-          return sendBitcoinWithProvider(boosted, !!boosted)
+          log.debug('[btc.useAllowance] approve:feeRate', {
+            base: selection.base,
+            source,
+            applied: selection.applied
+          })
+          return sendBitcoinWithProvider(selection.applied, true)
         })()
       const txid =
         typeof rawTxid === 'string'
@@ -568,11 +478,8 @@ export const useAllowance = (): PluginUseAllowanceResult => {
         txid,
         rawTxidType: typeof rawTxid
       })
-      updateStoredBtcHtlcLock(lockIntent.lockId, { lockTxId: txid })
 
       const record = await pollRecord(lockIntent.lockId, txid)
-
-      await registerLock(lockIntent.lockId)
 
       dispatch(
         setHtlcData({
@@ -581,6 +488,8 @@ export const useAllowance = (): PluginUseAllowanceResult => {
           htlcExpirationTimestamp: record.htlcExpirationTimestamp,
           htlcVersion: record.htlcVersion,
           htlcSenderPubKey: record.senderPubKey,
+          htlcAddress: lockIntent.htlcAddress,
+          htlcAmountSats: amountSats.toString(),
           htlcLockId: lockIntent.lockId
         })
       )
@@ -589,19 +498,21 @@ export const useAllowance = (): PluginUseAllowanceResult => {
         lockId: lockIntent.lockId,
         txid
       })
-      dispatch(setBtcApprovalResumeAllowed(false))
     },
     [
       amountSats,
       backendUrl,
       bitcoinPubkey,
-      btcWalletType,
-      approvalResumeAllowed,
       dispatch,
       networkOption,
+      normalizedBitcoinPubkey,
+      allowanceSats,
+      amount,
+      feeDeduct,
       poolAddress,
       sourceAddress,
-      targetAddress
+      targetAddress,
+      transactionValues
     ]
   )
   const signMessage = useCallback(
@@ -630,7 +541,7 @@ export const useAllowance = (): PluginUseAllowanceResult => {
 
       return message
     },
-    [btcWalletType, feeDeduct, networkOption, sourceAddress, transactionValues]
+    [feeDeduct, transactionValues]
   )
 
   return {
