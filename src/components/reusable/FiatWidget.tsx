@@ -63,7 +63,7 @@ const FiatWidget = ({ submitCallback }: { submitCallback: () => void }) => {
   // IMPORTANT: for staging use the same as mainnet
   const baseUrl = useMemo(
     () =>
-      `https://widget2${networkOption === NetworkOptions.testnet ? '-sandbox' : ''}.depa.wtf`,
+      `https://widget${networkOption === NetworkOptions.testnet ? '-sandbox' : ''}.depa.finance`,
     [networkOption]
   )
 
