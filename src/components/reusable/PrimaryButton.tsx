@@ -1,12 +1,15 @@
+import { type LegacyRef, type ReactNode } from 'react'
+
 import { Loading180Ring } from '@kima-widget/assets/loading'
 
 interface Props {
   clickHandler?: any
-  children?: any
+  children?: ReactNode
   className?: string
   isLoading?: boolean
   disabled?: boolean
-  ref?: React.LegacyRef<HTMLButtonElement>
+  infoTooltip?: ReactNode
+  ref?: LegacyRef<HTMLButtonElement>
 }
 
 const PrimaryButton = ({
@@ -15,12 +18,13 @@ const PrimaryButton = ({
   children,
   isLoading = false,
   disabled = false,
+  infoTooltip,
   ref
 }: Props) => {
   return (
     <div className='primary-button-wrapper'>
       <button
-        className={`primary-button ${className}`}
+        className={`primary-button ${className} ${infoTooltip ? 'has-info' : ''}`}
         onClick={clickHandler}
         ref={ref}
         disabled={disabled}
@@ -32,6 +36,7 @@ const PrimaryButton = ({
         )}
         {children}
       </button>
+      {infoTooltip}
     </div>
   )
 }

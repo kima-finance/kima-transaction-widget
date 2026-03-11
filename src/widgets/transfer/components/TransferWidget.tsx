@@ -93,6 +93,11 @@ interface Props {
   paymentTitleOption?: PaymentTitleOption
 }
 
+const PERMIT2_INFO_MESSAGE =
+  'This approval uses Permit2, so you can skip a separate approval transaction and save gas.'
+const PERMIT2_DOCS_URL =
+  'https://docs.kima.network/kima-network/the-kima-sdk/use-kima-sdk-without-widget/message-signing#permit2-tokens'
+
 export const TransferWidget = ({
   theme,
   helpURL,
@@ -115,8 +120,10 @@ export const TransferWidget = ({
   const [toastHistory, setToastHistory] = useState<
     { id: string; message: string; time: number }[]
   >([])
+  const [isPermit2TooltipOpen, setPermit2TooltipOpen] = useState(false)
   const toastIds = useRef(new Set<string>())
   const toastPanelRef = useRef<HTMLDivElement>(null)
+  const permit2TooltipRef = useRef<HTMLDivElement>(null)
 
   // EVM approval/signing UI state
   const [isCancellingApprove, setCancellingApprove] = useState(false)
@@ -193,6 +200,28 @@ export const TransferWidget = ({
       document.removeEventListener('mousedown', handler)
     }
   }, [toastPanelOpen])
+
+  useEffect(() => {
+    if (!isPermit2TooltipOpen) return
+
+    const handler = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as Node
+      if (
+        permit2TooltipRef.current &&
+        !permit2TooltipRef.current.contains(target)
+      ) {
+        setPermit2TooltipOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handler)
+    document.addEventListener('touchstart', handler)
+
+    return () => {
+      document.removeEventListener('mousedown', handler)
+      document.removeEventListener('touchstart', handler)
+    }
+  }, [isPermit2TooltipOpen])
 
   const formatToastTime = useCallback((timestamp: number) => {
     return new Date(timestamp).toLocaleTimeString([], {
@@ -653,6 +682,59 @@ export const TransferWidget = ({
     return 'Next'
   }
 
+  const primaryButtonLabel = getButtonLabel()
+  const isSmallScreen = windowWidth > 0 && windowWidth <= 500
+  const showPermit2Info =
+    formStep === 1 &&
+    isPermit2Required &&
+    mode !== ModeOptions.light &&
+    dAppOption === DAppOptions.None &&
+    signature &&
+    !isApproved &&
+    (primaryButtonLabel === 'Approve' || primaryButtonLabel === 'Approving...')
+
+  const permit2InfoTooltip = showPermit2Info ? (
+    <div className='permit2-button-info' ref={permit2TooltipRef}>
+      <button
+        type='button'
+        className='permit2-info-icon'
+        aria-label='Permit2 information'
+        aria-expanded={isPermit2TooltipOpen}
+        onClick={(event) => {
+          event.preventDefault()
+          event.stopPropagation()
+          if (isSmallScreen) {
+            setPermit2TooltipOpen((current) => !current)
+          }
+        }}
+      >
+        i
+      </button>
+      <div
+        className={`permit2-tooltip ${theme.colorMode} ${
+          isPermit2TooltipOpen ? 'open' : ''
+        }`}
+      >
+        <p>{PERMIT2_INFO_MESSAGE}</p>
+        <ExternalLink className='permit2-tooltip-link' to={PERMIT2_DOCS_URL}>
+          Learn more
+        </ExternalLink>
+      </div>
+    </div>
+  ) : null
+
+  useEffect(() => {
+    if (!showPermit2Info && isPermit2TooltipOpen) {
+      setPermit2TooltipOpen(false)
+    }
+  }, [showPermit2Info, isPermit2TooltipOpen])
+
+  useEffect(() => {
+    if (!isSmallScreen && isPermit2TooltipOpen) {
+      setPermit2TooltipOpen(false)
+    }
+  }, [isSmallScreen, isPermit2TooltipOpen])
+
   const resetForm = async () => {
     if (isApproving || isSubmitting || isSigning) return
 
@@ -913,6 +995,7 @@ export const TransferWidget = ({
                 isLoading={
                   isApproving || isSubmitting || isSigning || isLoadingFees
                 }
+                infoTooltip={permit2InfoTooltip}
                 disabled={
                   isApproving ||
                   isSubmitting ||
@@ -921,7 +1004,7 @@ export const TransferWidget = ({
                   isLoadingFees
                 }
               >
-                {getButtonLabel()}
+                {primaryButtonLabel}
               </PrimaryButton>
             )}
           </div>

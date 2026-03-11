@@ -2652,6 +2652,9 @@
     padding: 2px;
     border-radius: 30px;
     max-height: 48px;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
 
     @include breakpoint(mobile) {
       width: 100%;
@@ -2675,6 +2678,10 @@
     justify-content: center;
     letter-spacing: 0;
     font-size: 16px;
+
+    &.has-info {
+      padding-right: 48px;
+    }
 
     &.light {
       background-color: black;
@@ -2709,6 +2716,119 @@
         opacity: 0.7;
       }
     }
+  }
+
+  .permit2-button-info {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    transform: translateY(-50%);
+    z-index: 20;
+    display: flex;
+    align-items: center;
+
+    &:hover,
+    &:focus-within {
+      .permit2-tooltip {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+    }
+  }
+
+  .permit2-button-info .permit2-info-icon {
+    appearance: none;
+    width: 18px;
+    min-width: 18px;
+    max-width: 18px;
+    flex: 0 0 18px;
+    height: 18px;
+    min-height: 18px;
+    max-height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    background: rgba(255, 255, 255, 0.12);
+    color: white;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1;
+    cursor: help;
+    user-select: none;
+    padding: 0;
+    margin: 0;
+    outline: none;
+  }
+
+  .permit2-tooltip {
+    position: absolute;
+    right: -2px;
+    bottom: calc(100% + 12px);
+    width: 260px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.24);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(6px);
+    transition:
+      opacity 0.2s ease,
+      visibility 0.2s ease,
+      transform 0.2s ease;
+    pointer-events: auto;
+    white-space: normal;
+    z-index: 30;
+
+    &.open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: calc(100% - 1px);
+      right: 8px;
+      border-width: 8px 8px 0 8px;
+      border-style: solid;
+      border-color: inherit transparent transparent transparent;
+    }
+
+    &.light {
+      background: #ffffff;
+      color: #111827;
+      border-color: rgba(148, 163, 184, 0.4);
+    }
+
+    &.dark {
+      background: #111827;
+      color: #f8fafc;
+      border-color: rgba(148, 163, 184, 0.28);
+    }
+
+    p {
+      margin: 0 0 8px 0;
+      display: block;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    @include breakpoint(mobile) {
+      width: min(280px, calc(100vw - 32px));
+      right: -12px;
+    }
+  }
+
+  .permit2-tooltip-link {
+    color: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: underline;
   }
 
   .secondary-button {
