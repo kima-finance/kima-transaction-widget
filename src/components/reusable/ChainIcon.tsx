@@ -31,7 +31,6 @@ const chainIcons: Record<string, React.FC<IconProps>> = {
   CC: CreditCardIcon,
   CFX: CFXIcon,
   ETH: EthereumIcon,
-  FIAT: BankIcon,
   POL: PolygonIcon,
   OPT: OptimismIcon,
   SOL: SolanaIcon,
@@ -45,7 +44,7 @@ export interface ChainIconProps extends IconProps {
 
 export default function ChainIcon({ symbol, width, height }: ChainIconProps) {
   // return an empty icon if no symbol found
-  const Icon = symbol === 'FIAT' ? chainIcons['CC'] : chainIcons[symbol]
+  const Icon = chainIcons[symbol]
 
   if (!Icon) {
     if (symbol) log.warn(`Chain icon not found for symbol: ${symbol}`)

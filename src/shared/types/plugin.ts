@@ -116,7 +116,6 @@ export interface ChainToken {
 export enum ChainCompatibility {
   BTC = 'BTC',
   EVM = 'EVM',
-  FIAT = 'FIAT',
   COSMOS = 'COSMOS',
   SELF = 'SELF',
   CC = 'CC',

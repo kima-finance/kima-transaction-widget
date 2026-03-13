@@ -19,7 +19,8 @@ export enum ChainName {
   OPTIMISM = 'OPT',
   POLYGON_ZKEVM = 'ZKE',
   TRON = 'TRX',
-  FIAT = 'FIAT',
+  CC = 'CC',
+  BANK = 'BANK',
   BTC = 'BTC',
   BERA = 'BERA',
   CFX = 'CFX',
@@ -36,7 +37,8 @@ export const CHAIN_NAMES_TO_STRING: { [chainName: string]: string } = {
   [ChainName.ARBITRUM]: 'Arbitrum',
   [ChainName.POLYGON_ZKEVM]: 'Polygon zkEVM',
   [ChainName.TRON]: 'Tron',
-  [ChainName.FIAT]: 'Pay with FIAT',
+  [ChainName.CC]: 'Credit Card',
+  [ChainName.BANK]: 'Bank Transfer',
   [ChainName.BTC]: 'Bitcoin',
   [ChainName.BASE]: 'Base',
   [ChainName.BERA]: 'Bera',
@@ -54,7 +56,8 @@ export const CHAIN_STRING_TO_NAME: { [chainName: string]: ChainName } = {
   ['Arbitrum']: ChainName.ARBITRUM,
   ['Polygon zkEVM']: ChainName.POLYGON_ZKEVM,
   ['Tron']: ChainName.TRON,
-  ['Pay with FIAT']: ChainName.FIAT,
+  ['Credit Card']: ChainName.CC,
+  ['Bank Transfer']: ChainName.BANK,
   ['Bitcoin']: ChainName.BTC,
   ['Base']: ChainName.BASE,
   ['Bera']: ChainName.BERA,
@@ -101,7 +104,7 @@ export type Cluster = 'devnet' | 'testnet' | 'mainnet'
 export const CLUSTER: Cluster = 'devnet'
 export const SOLANA_HOST = clusterApiUrl(CLUSTER)
 
-export const lightDemoAccounts = {
+export const lightDemoAccounts: Record<'EVM' | 'SOL' | 'TRX', string> = {
   EVM: '0x1150bd27bA25fa13806C98324F201dfe815A4502',
   // EVM: '0x10962c43ea1bfE1186Dbf59985Df4E1ce94Ca4a9', // personal for testing
   SOL: 'GtJAoe2hfKqczCnp3hdKnMK4JC96juQWv5nkn5qgpbZ8',

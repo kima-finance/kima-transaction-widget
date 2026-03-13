@@ -327,10 +327,14 @@ const SingleForm = ({
         </div>
       </div>
 
-      {/* Wallet + Target network area: order depends on FIAT */}
+      {/* Wallet + Target network area: order depends on CC/BANK source flows */}
       <div
         className={`dynamic-area ${
-          sourceNetwork.shortName === ChainName.FIAT ? 'reverse' : '1'
+          [ChainCompatibility.CC, ChainCompatibility.BANK].includes(
+            sourceNetwork.compatibility
+          )
+            ? 'reverse'
+            : '1'
         }`}
       >
         {![ChainCompatibility.CC, ChainCompatibility.BANK].includes(

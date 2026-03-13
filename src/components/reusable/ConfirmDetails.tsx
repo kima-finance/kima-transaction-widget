@@ -14,7 +14,12 @@ import {
   selectTheme,
   selectTransactionOption
 } from '@kima-widget/shared/store/selectors'
-import { ChainName, DAppOptions, ModeOptions } from '@kima-widget/shared/types'
+import {
+  ChainCompatibility,
+  ChainName,
+  DAppOptions,
+  ModeOptions
+} from '@kima-widget/shared/types'
 import useIsWalletReady from '@kima-widget/widgets/transfer/hooks/useIsWalletReady'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -258,8 +263,10 @@ const ConfirmDetails = ({
           ? isSwap
             ? 'Submit Swap Transaction'
             : 'Submit Transfer Transaction'
-          : originNetwork.shortName === ChainName.FIAT
+          : originNetwork.compatibility === ChainCompatibility.BANK
             ? 'Bank Details'
+            : originNetwork.compatibility === ChainCompatibility.CC
+              ? 'Card Details'
             : 'Approval'}
       </p>
 

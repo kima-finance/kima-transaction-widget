@@ -62,12 +62,26 @@ const emptyStatus: TransactionData = {
   failReason: ''
 }
 
+export const normalizeStatusSourceChain = (
+  sourceChain: string,
+  sourceSymbol: string
+) => {
+  if (sourceChain !== 'FIAT') return sourceChain
+
+  const normalizedSymbol = sourceSymbol.trim().toUpperCase()
+  return normalizedSymbol.includes('EUR') ? 'BANK' : 'CC'
+}
+
 const parseTxData = (raw?: KimaTransactionRaw): TransactionData => {
   if (!raw) return emptyStatus
+  const sourceChain = normalizeStatusSourceChain(
+    raw.originchain,
+    raw.originsymbol
+  )
 
   return {
     status: raw.txstatus as TransactionStatus,
-    sourceChain: raw.originchain,
+    sourceChain,
     targetChain: raw.targetchain,
     tssPullHash: raw.pullhash,
     tssReleaseHash: raw.releasehash,
@@ -89,10 +103,14 @@ const parseSwapTxData = (raw?: KimaSwapTransactionRaw): TransactionData => {
   if (!raw) return emptyStatus
   const amountOut = toFiniteNumber(raw.amountOut) ?? toFiniteNumber(raw.amount) ?? 0
   const amountIn = toFiniteNumber(raw.amountIn)
+  const sourceChain = normalizeStatusSourceChain(
+    raw.originchain,
+    raw.originsymbol
+  )
 
   return {
     status: raw.txstatus as TransactionStatus,
-    sourceChain: raw.originchain,
+    sourceChain,
     targetChain: raw.targetchain,
     tssPullHash: raw.pullhash,
     tssReleaseHash: raw.releasehash,

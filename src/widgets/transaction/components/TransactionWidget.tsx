@@ -171,9 +171,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
         (network) =>
           network.shortName ===
           (mode === ModeOptions.status
-            ? data?.sourceChain === 'FIAT'
-              ? 'CC'
-              : data?.sourceChain
+            ? data?.sourceChain
             : sourceChain.shortName)
       ),
     [data, mode, sourceChain, networks]

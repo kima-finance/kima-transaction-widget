@@ -121,6 +121,7 @@ const useSubmitTransaction = (
         ? transactionValues
         : fallbackValues
       const amountBig = effectiveValues.feeFromOrigin.submitAmount.value
+      const isFiatOrigin = ['CC', 'BANK'].includes(effectiveValues.originChain)
 
       if (
         !effectiveValues.originChain ||
@@ -128,8 +129,7 @@ const useSubmitTransaction = (
         !effectiveValues.originSymbol ||
         !effectiveValues.targetSymbol ||
         !effectiveValues.targetAddress ||
-        (!['CC', 'FIAT'].includes(effectiveValues.originChain) &&
-          !effectiveValues.originAddress) ||
+        (!isFiatOrigin && !effectiveValues.originAddress) ||
         amountBig <= 0n
       ) {
         throw new Error(
@@ -155,7 +155,7 @@ const useSubmitTransaction = (
       }
 
       const baseOptions = {
-        signature: effectiveValues.originChain === 'CC' ? '' : signature,
+        signature: isFiatOrigin ? '' : signature,
         feeId: effectiveFeeId,
         chargeFeeAtTarget: feeDeduct,
         ...(isPermit2Required && permit2Signature
@@ -170,7 +170,7 @@ const useSubmitTransaction = (
         setIsSubmitting(true)
 
         const baseOptions = {
-          signature: effectiveValues.originChain === 'CC' ? '' : signature,
+          signature: isFiatOrigin ? '' : signature,
           feeId: effectiveFeeId,
           chargeFeeAtTarget: feeDeduct,
           ...(isPermit2Required && permit2Signature
@@ -205,9 +205,7 @@ const useSubmitTransaction = (
 
         const params = JSON.stringify({
           originAddress:
-            effectiveValues.originChain === 'CC'
-              ? effectiveValues.targetAddress
-            : effectiveValues.originAddress,
+            isFiatOrigin ? '' : effectiveValues.originAddress,
           originChain: effectiveValues.originChain,
           targetAddress: effectiveValues.targetAddress,
           targetChain: effectiveValues.targetChain,
@@ -258,9 +256,7 @@ const useSubmitTransaction = (
 
       const params = JSON.stringify({
         originAddress:
-          effectiveValues.originChain === 'CC'
-            ? effectiveValues.targetAddress
-            : effectiveValues.originAddress,
+          isFiatOrigin ? '' : effectiveValues.originAddress,
         originChain: effectiveValues.originChain,
         targetAddress: effectiveValues.targetAddress,
         targetChain: effectiveValues.targetChain,

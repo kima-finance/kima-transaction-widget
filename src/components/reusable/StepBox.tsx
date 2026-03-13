@@ -51,8 +51,7 @@ const StepBox = ({ step, errorStep, loadingStep, data, steps }: Props) => {
   const stepInfo = steps ?? DEFAULT_STEPS
 
   const sourceChain = useMemo(() => {
-    const sourceKey = data?.sourceChain === 'FIAT' ? 'CC' : data?.sourceChain
-    return networks.find((network) => network.shortName === sourceKey)
+    return networks.find((network) => network.shortName === data?.sourceChain)
   }, [data, networks])
 
   const targetChain = useMemo(
