@@ -17,6 +17,7 @@ import { Loading180Ring } from '@kima-widget/assets/loading'
 import { useKimaContext } from '@kima-widget/app/providers'
 import { useGetEnvOptions } from '@kima-widget/hooks/useGetEnvOptions'
 import { useChainData } from '@kima-widget/shared/lib/hooks/useChainData'
+import { ToastHistoryProvider } from '@kima-widget/shared/lib/hooks/useToastHistory'
 import SkeletonLoader from './SkeletonLoader'
 import ErrorWidget from './ErrorWidget'
 import KimaWidgetWrapper from './KimaWidgetWrapper'
@@ -97,21 +98,23 @@ const KimaTransactionWidget = ({
     )
 
   return (
-    <KimaWidgetWrapper
-      {...{
-        theme,
-        mode,
-        txId,
-        dAppOption,
-        titleOption,
-        paymentTitleOption,
-        helpURL,
-        compliantOption,
-        transactionOption,
-        chainData,
-        envOptions
-      }}
-    />
+    <ToastHistoryProvider>
+      <KimaWidgetWrapper
+        {...{
+          theme,
+          mode,
+          txId,
+          dAppOption,
+          titleOption,
+          paymentTitleOption,
+          helpURL,
+          compliantOption,
+          transactionOption,
+          chainData,
+          envOptions
+        }}
+      />
+    </ToastHistoryProvider>
   )
 }
 

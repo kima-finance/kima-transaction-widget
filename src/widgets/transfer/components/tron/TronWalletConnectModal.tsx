@@ -9,12 +9,15 @@ import {
   setAccountDetailsModal,
   setTronConnectModal
 } from '@kima-widget/shared/store/optionSlice'
-import { ModeOptions, lightDemoAccounts } from '@kima-widget/shared/types'
-import { CrossIcon } from '@kima-widget/assets/icons'
+import {
+  ColorModeOptions,
+  ModeOptions,
+  lightDemoAccounts
+} from '@kima-widget/shared/types'
 
 import AccountDetailsModal from './AccountDetailsModal'
 import TronWalletSelect from './TronWalletSelect'
-import WalletModalShell from '../WalletModalShell'
+import WalletConnectModalBase from '../WalletConnectModalBase'
 
 const TronWalletConnectModal = () => {
   const dispatch = useDispatch()
@@ -37,35 +40,15 @@ const TronWalletConnectModal = () => {
   return (
     <>
       <AccountDetailsModal />
-      <WalletModalShell
+      <WalletConnectModalBase
         isOpen={!!isOpen}
-        title='Connect Wallet'
+        mode={mode}
+        themeMode={theme.colorMode ?? ColorModeOptions.light}
+        demoMessage={demoMsg}
         onClose={close}
-        className='wallet-connect'
-        rightHeader={
-          <button className='icon-button' onClick={close}>
-            <CrossIcon fill={theme.colorMode === 'light' ? 'black' : 'white'} />
-          </button>
-        }
       >
-        {demoMsg && <p className='muted'>{demoMsg}</p>}
-
-        {mode !== ModeOptions.light ? (
-          <TronWalletSelect />
-        ) : (
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button
-              className='secondary'
-              onClick={() => dispatch(setAccountDetailsModal(true))}
-            >
-              View Account
-            </button>
-            <button className='primary' onClick={close}>
-              Close
-            </button>
-          </div>
-        )}
-      </WalletModalShell>
+        <TronWalletSelect />
+      </WalletConnectModalBase>
     </>
   )
 }

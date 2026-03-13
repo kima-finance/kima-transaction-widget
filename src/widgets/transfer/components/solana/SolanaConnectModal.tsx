@@ -10,13 +10,16 @@ import {
   setAccountDetailsModal,
   setSolanaConnectModal
 } from '@kima-widget/shared/store/optionSlice'
-import { ModeOptions, lightDemoAccounts } from '@kima-widget/shared/types'
-import { CrossIcon } from '@kima-widget/assets/icons'
+import {
+  ColorModeOptions,
+  ModeOptions,
+  lightDemoAccounts
+} from '@kima-widget/shared/types'
 import log from '@kima-widget/shared/logger'
 
 import SolanaWalletSelect from './SolanaWalletSelect'
 import AccountDetailsModal from './AccountDetailsModal'
-import WalletModalShell from '../WalletModalShell'
+import WalletConnectModalBase from '../WalletConnectModalBase'
 
 const SolanaWalletConnectModal = () => {
   const dispatch = useDispatch()
@@ -48,39 +51,15 @@ const SolanaWalletConnectModal = () => {
   return (
     <>
       <AccountDetailsModal />
-      <WalletModalShell
+      <WalletConnectModalBase
         isOpen={!!isOpen}
-        title='Connect Wallet'
+        mode={mode}
+        themeMode={theme.colorMode ?? ColorModeOptions.light}
+        demoMessage={demoMsg}
         onClose={close}
-        className='wallet-connect'
-        rightHeader={
-          <button className='cross-icon-button' onClick={close}>
-            <CrossIcon
-              width={30}
-              height={30}
-              fill={theme.colorMode === 'light' ? 'black' : 'white'}
-            />
-          </button>
-        }
       >
-        {demoMsg && <p className='muted'>{demoMsg}</p>}
-
-        {mode !== ModeOptions.light ? (
-          <SolanaWalletSelect />
-        ) : (
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button
-              className='secondary'
-              onClick={() => dispatch(setAccountDetailsModal(true))}
-            >
-              View Account
-            </button>
-            <button className='primary' onClick={close}>
-              Close
-            </button>
-          </div>
-        )}
-      </WalletModalShell>
+        <SolanaWalletSelect />
+      </WalletConnectModalBase>
     </>
   )
 }

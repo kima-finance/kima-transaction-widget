@@ -36,9 +36,12 @@ import {
 } from '@kima-widget/shared/store/optionSlice'
 import { bigIntChangeDecimals } from '@kima-widget/shared/lib/bigint'
 import { fetchWrapper } from '@kima-widget/shared/api/fetcher'
-import { isSamePeggedToken } from '@kima-widget/shared/lib/misc'
-import { parseUnits } from 'viem'
 import { ChainName } from '@kima-widget/shared/types'
+import {
+  buildFallbackSubmitValues,
+  resolveTransferDecimals,
+  shouldUseSwapFlow
+} from '../lib/submission'
 
 const useSubmitTransaction = (
   isSubmitting: boolean,
@@ -82,26 +85,15 @@ const useSubmitTransaction = (
   const isBtcOrigin = originChainData.shortName === ChainName.BTC
   const btcSenderPubKey = htlcSenderPubKey || bitcoinPubkey
 
-  const doSwap =
-    sourceCurrency !== targetCurrency &&
-    !isSamePeggedToken(
-      originChainData,
-      sourceCurrency,
-      targetChainData,
-      targetCurrency
-    )
+  const doSwap = shouldUseSwapFlow({
+    originChainData,
+    sourceCurrency,
+    targetChainData,
+    targetCurrency
+  })
 
   const mutation = useMutation({
     mutationFn: async (signature: string) => {
-      const resolveDecimals = () => {
-        const token = originChainData.supportedTokens?.find(
-          (t) => t.symbol === sourceCurrency
-        )
-        if (token?.decimals != null) return token.decimals
-        if (originChainData.shortName === ChainName.BTC) return 8
-        return 18
-      }
-
       const canUseFees = !!transactionValues.originChain
       const isBtcFlow =
         originChainData.shortName === ChainName.BTC ||
@@ -111,32 +103,24 @@ const useSubmitTransaction = (
           'Fees unavailable for BTC. Please fetch fees before submitting.'
         )
       }
-      const fallbackDecimals = resolveDecimals()
-      const amountStr = (amount ?? '').toString().trim()
-      const amountBig = amountStr ? parseUnits(amountStr, fallbackDecimals) : 0n
-
-      const fallbackValues = {
-        originChain: originChainData.shortName,
-        originAddress: sourceAddress,
-        originSymbol: sourceCurrency,
-        targetChain: targetChainData.shortName,
+      const fallbackDecimals = resolveTransferDecimals(
+        originChainData,
+        sourceCurrency
+      )
+      const fallbackValues = buildFallbackSubmitValues({
+        amount,
+        originChainData,
+        sourceAddress,
+        sourceCurrency,
         targetAddress,
-        targetSymbol: targetCurrency,
-        feeFromOrigin: {
-          allowanceAmount: { value: amountBig, decimals: fallbackDecimals },
-          submitAmount: { value: amountBig, decimals: fallbackDecimals },
-          message: ''
-        },
-        feeFromTarget: {
-          allowanceAmount: { value: amountBig, decimals: fallbackDecimals },
-          submitAmount: { value: amountBig, decimals: fallbackDecimals },
-          message: ''
-        }
-      }
+        targetChainData,
+        targetCurrency
+      })
 
       const effectiveValues = canUseFees
         ? transactionValues
         : fallbackValues
+      const amountBig = effectiveValues.feeFromOrigin.submitAmount.value
 
       if (
         !effectiveValues.originChain ||

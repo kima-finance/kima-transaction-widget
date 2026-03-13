@@ -160,7 +160,7 @@ export const selectCCTransactionStatus = (state: RootState) =>
 export const selectCCTransactionRetrying = (state: RootState) =>
   state.option.ccTransactionRetrying
 
-export const selectUiError = (state: any) => state.options.uiError
+export const selectUiError = (state: RootState) => state.option.uiError
 
 export const selectHtlcCreationHash = (state: RootState) =>
   state.option.htlcCreationHash
