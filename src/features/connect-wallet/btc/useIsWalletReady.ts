@@ -15,7 +15,6 @@ import {
 } from '@kima-widget/shared/store/optionSlice'
 import {
   ChainName,
-  lightDemoAccounts,
   ModeOptions
 } from '@kima-widget/shared/types'
 import log from '@kima-widget/shared/logger'
@@ -38,10 +37,6 @@ export const useIsWalletReady = () => {
   const storedPubkey = useSelector(selectBitcoinPubkey)
 
   const resolved = useMemo(() => {
-    if (mode === ModeOptions.light) {
-      return { address: lightDemoAccounts.BTC, pubkey: '' }
-    }
-
     if (externalProvider?.type === 'btc') {
       const signer = externalProvider.signer as
         | string
@@ -77,8 +72,9 @@ export const useIsWalletReady = () => {
     }
 
     if (mode === ModeOptions.light) {
-      dispatch(setBitcoinAddress(lightDemoAccounts.BTC))
-      dispatch(setSourceAddress(lightDemoAccounts.BTC))
+      dispatch(setBitcoinAddress(''))
+      dispatch(setBitcoinPubkey(''))
+      dispatch(setSourceAddress(''))
       return
     }
 
@@ -146,9 +142,9 @@ export const useIsWalletReady = () => {
 
     if (mode === ModeOptions.light) {
       return {
-        isReady: true,
-        statusMessage: 'Connected demo BTC account',
-        connectedAddress: lightDemoAccounts.BTC
+        isReady: false,
+        statusMessage: 'Bitcoin is not supported in light mode',
+        connectedAddress: ''
       }
     }
 

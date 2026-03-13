@@ -133,7 +133,6 @@ const WalletButton = ({
     if (!short) return ''
     if (short === ChainName.SOLANA) return lightDemoAccounts.SOL
     if (short === ChainName.TRON) return lightDemoAccounts.TRX
-    if (short === ChainName.BTC) return lightDemoAccounts.BTC
     if (isEVMChain(short)) return lightDemoAccounts.EVM
     return ''
   }, [mode, sourceNetwork?.shortName])

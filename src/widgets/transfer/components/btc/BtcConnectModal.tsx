@@ -10,8 +10,7 @@ import { setAccountDetailsModal, setBtcConnectModal } from '@kima-widget/shared/
 import {
   ChainName,
   ColorModeOptions,
-  ModeOptions,
-  lightDemoAccounts
+  ModeOptions
 } from '@kima-widget/shared/types'
 import { ErrorIcon } from '@kima-widget/assets/icons'
 import log from '@kima-widget/shared/logger'
@@ -97,13 +96,7 @@ const BtcConnectModal = () => {
     [connect, connecting, dispatch, isBtc, mode]
   )
 
-  const demoMsg = useMemo(
-    () =>
-      mode === ModeOptions.light
-        ? `Light mode uses a demo Bitcoin address (${lightDemoAccounts.BTC}).`
-        : '',
-    [mode]
-  )
+  const demoMsg = useMemo(() => '', [])
 
   return (
     <>
