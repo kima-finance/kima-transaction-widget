@@ -11,6 +11,7 @@ import {
   setTransactionOption
 } from '@kima-widget/shared/store/optionSlice'
 import {
+  ChainName,
   ColorModeOptions,
   DAppOptions,
   ModeOptions
@@ -151,5 +152,32 @@ describe('KimaWidgetWrapper transactionOption handling', () => {
       transactionOption.currency
     )
     expect(store.getState().option.targetChain.shortName).toBe('ETH')
+  })
+
+  it('stores excluded source and target networks from widget props', async () => {
+    render(
+      <Provider store={store}>
+        <KimaWidgetWrapper
+          theme={theme}
+          mode={ModeOptions.bridge}
+          dAppOption={DAppOptions.None}
+          excludedSourceNetworks={[ChainName.ETHEREUM, ChainName.BASE]}
+          excludedTargetNetworks={[ChainName.ARBITRUM]}
+          chainData={chainData as any}
+          envOptions={envOptions as any}
+        />
+      </Provider>
+    )
+
+    await waitFor(() => {
+      expect(store.getState().option.excludedSourceNetworks).toEqual([
+        ChainName.ETHEREUM,
+        ChainName.BASE
+      ])
+    })
+
+    expect(store.getState().option.excludedTargetNetworks).toEqual([
+      ChainName.ARBITRUM
+    ])
   })
 })

@@ -2,6 +2,7 @@ import * as toolkitRaw from '@reduxjs/toolkit'
 import { PayloadAction } from '@reduxjs/toolkit'
 const { createSlice } = toolkitRaw
 import {
+  ChainName,
   ChainCompatibility,
   ColorModeOptions,
   DAppOptions,
@@ -198,6 +199,8 @@ export interface OptionState {
   pendingTxData: Array<PendingTxData>
   networkOption: NetworkOptions
   networks: ChainData[]
+  excludedSourceNetworks: ChainName[]
+  excludedTargetNetworks: ChainName[]
   uiError: UiError | null
   btcWalletType: '' | 'unisat'
   htlcCreationHash: string
@@ -213,6 +216,8 @@ export interface OptionState {
 const initialState: OptionState = {
   networkOption: NetworkOptions.testnet,
   networks: [],
+  excludedSourceNetworks: [],
+  excludedTargetNetworks: [],
   theme: { colorMode: ColorModeOptions.light },
   tokenOptions: {},
   pendingTxs: 0,
@@ -288,6 +293,18 @@ export const optionSlice = createSlice({
     setNetworks: (state: OptionState, action: PayloadAction<ChainData[]>) => {
       // make each chain redux-safe
       state.networks = action.payload.map(toMutableChain)
+    },
+    setExcludedSourceNetworks: (
+      state: OptionState,
+      action: PayloadAction<ChainName[]>
+    ) => {
+      state.excludedSourceNetworks = action.payload
+    },
+    setExcludedTargetNetworks: (
+      state: OptionState,
+      action: PayloadAction<ChainName[]>
+    ) => {
+      state.excludedTargetNetworks = action.payload
     },
     setPendingTxs: (state: OptionState, action: PayloadAction<number>) => {
       state.pendingTxs = action.payload
@@ -551,6 +568,8 @@ export const {
   initialize,
   setNetworkOption,
   setNetworks,
+  setExcludedSourceNetworks,
+  setExcludedTargetNetworks,
   setTokenOptions,
   setKimaExplorer,
   setTheme,

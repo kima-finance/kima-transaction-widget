@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import {
+  ChainName,
   DAppOptions,
   LoadingErrorMessage,
   LoadingErrorTitle,
@@ -32,6 +33,8 @@ interface Props {
   helpURL?: string
   transactionOption?: TransactionOption
   paymentTitleOption?: PaymentTitleOption
+  excludedSourceNetworks?: ChainName[]
+  excludedTargetNetworks?: ChainName[]
 }
 
 const KimaTransactionWidget = ({
@@ -43,7 +46,9 @@ const KimaTransactionWidget = ({
   paymentTitleOption,
   helpURL = '',
   compliantOption = false,
-  transactionOption
+  transactionOption,
+  excludedSourceNetworks = [],
+  excludedTargetNetworks = []
 }: Props) => {
   const dispatch = useDispatch()
   const { kimaBackendUrl } = useKimaContext()
@@ -110,6 +115,8 @@ const KimaTransactionWidget = ({
           helpURL,
           compliantOption,
           transactionOption,
+          excludedSourceNetworks,
+          excludedTargetNetworks,
           chainData,
           envOptions
         }}

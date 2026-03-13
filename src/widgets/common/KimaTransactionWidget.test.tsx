@@ -2,6 +2,7 @@ import React from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
 import KimaTransactionWidget from './KimaTransactionWidget'
 import {
+  ChainName,
   ColorModeOptions,
   DAppOptions,
   ModeOptions
@@ -112,12 +113,26 @@ describe('KimaTransactionWidget', () => {
         targetAddress: '0x0000000000000000000000000000000000000001',
         amount: 1,
         currency: 'USDC'
-      }
+      },
+      excludedSourceNetworks: [ChainName.ETHEREUM],
+      excludedTargetNetworks: [ChainName.POLYGON]
     },
-    { mode: ModeOptions.status, txId: 42, transactionOption: undefined }
+    {
+      mode: ModeOptions.status,
+      txId: 42,
+      transactionOption: undefined,
+      excludedSourceNetworks: [],
+      excludedTargetNetworks: []
+    }
   ])(
     'preserves the public contract for $mode mode',
-    async ({ mode, txId, transactionOption }) => {
+    async ({
+      mode,
+      txId,
+      transactionOption,
+      excludedSourceNetworks = [],
+      excludedTargetNetworks = []
+    }) => {
       render(
         <KimaTransactionWidget
           mode={mode}
@@ -125,6 +140,8 @@ describe('KimaTransactionWidget', () => {
           dAppOption={DAppOptions.None}
           theme={theme}
           transactionOption={transactionOption}
+          excludedSourceNetworks={excludedSourceNetworks}
+          excludedTargetNetworks={excludedTargetNetworks}
         />
       )
 
@@ -137,7 +154,9 @@ describe('KimaTransactionWidget', () => {
           mode,
           txId,
           chainData,
-          envOptions
+          envOptions,
+          excludedSourceNetworks,
+          excludedTargetNetworks
         })
       )
     }

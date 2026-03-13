@@ -2,6 +2,8 @@ import { useKimaContext } from '@kima-widget/app/providers'
 import { useDebugCode } from '@kima-widget/hooks/useDebugMode'
 import { EnvOptions } from '@kima-widget/hooks/useGetEnvOptions'
 import {
+  setExcludedSourceNetworks,
+  setExcludedTargetNetworks,
   setAmount,
   setBackendUrl,
   setCCTransactionStatus,
@@ -27,6 +29,7 @@ import {
   selectTransactionOption
 } from '@kima-widget/shared/store/selectors'
 import {
+  ChainName,
   ChainData,
   ColorModeOptions,
   DAppOptions,
@@ -57,6 +60,8 @@ type Props = {
   helpURL?: string
   transactionOption?: TransactionOption
   paymentTitleOption?: PaymentTitleOption
+  excludedSourceNetworks?: ChainName[]
+  excludedTargetNetworks?: ChainName[]
   chainData: ChainData[]
   envOptions: EnvOptions
 }
@@ -71,6 +76,8 @@ const KimaWidgetWrapper = ({
   helpURL = '',
   compliantOption = false,
   transactionOption,
+  excludedSourceNetworks = [],
+  excludedTargetNetworks = [],
   chainData,
   envOptions
 }: Props) => {
@@ -116,10 +123,15 @@ const KimaWidgetWrapper = ({
     mode: undefined as ModeOptions | undefined,
     dAppOption: undefined as DAppOptions | undefined,
     networkOption: undefined as NetworkOptions | undefined,
-    kimaExplorer: undefined as string | undefined
+    kimaExplorer: undefined as string | undefined,
+    excludedSourceNetworksJson: '',
+    excludedTargetNetworksJson: ''
   })
 
   useEffect(() => {
+    const excludedSourceNetworksJson = JSON.stringify(excludedSourceNetworks)
+    const excludedTargetNetworksJson = JSON.stringify(excludedTargetNetworks)
+
     // compliant
     if (prevConfigRef.current.compliantOption !== compliantOption) {
       dispatch(setCompliantOption(compliantOption))
@@ -159,6 +171,24 @@ const KimaWidgetWrapper = ({
       prevConfigRef.current.kimaExplorer = kimaExplorer
     }
 
+    if (
+      prevConfigRef.current.excludedSourceNetworksJson !==
+      excludedSourceNetworksJson
+    ) {
+      dispatch(setExcludedSourceNetworks(excludedSourceNetworks))
+      prevConfigRef.current.excludedSourceNetworksJson =
+        excludedSourceNetworksJson
+    }
+
+    if (
+      prevConfigRef.current.excludedTargetNetworksJson !==
+      excludedTargetNetworksJson
+    ) {
+      dispatch(setExcludedTargetNetworks(excludedTargetNetworks))
+      prevConfigRef.current.excludedTargetNetworksJson =
+        excludedTargetNetworksJson
+    }
+
   }, [
     compliantOption,
     kimaBackendUrl,
@@ -166,6 +196,8 @@ const KimaWidgetWrapper = ({
     dAppOption,
     networkOption,
     kimaExplorer,
+    excludedSourceNetworks,
+    excludedTargetNetworks,
     dispatch
   ])
 

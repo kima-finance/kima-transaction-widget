@@ -4,6 +4,7 @@ import log from '@kima-widget/shared/logger'
 import {
   ChainCompatibility,
   ChainData,
+  ChainName,
   Location,
   DAppOptions,
   lightDemoAccounts,
@@ -12,6 +13,8 @@ import {
 } from '@kima-widget/shared/types'
 import {
   selectDappOption,
+  selectExcludedSourceNetworks,
+  selectExcludedTargetNetworks,
   selectMode,
   selectNetworks,
   selectSourceChain,
@@ -30,12 +33,7 @@ import {
   setSourceAddress,
   setTargetCurrency
 } from '@kima-widget/shared/store/optionSlice'
-import {
-  isBtc,
-  isEVMChain,
-  isSolana,
-  isTron
-} from '@kima-widget/shared/lib/addresses'
+import { isEVMChain, isSolana, isTron } from '@kima-widget/shared/lib/addresses'
 import ChainIcon from '../reusable/ChainIcon'
 import { ArrowIcon, WarningIcon } from '@kima-widget/assets/icons'
 import { useKimaContext } from '@kima-widget/app/providers'
@@ -64,6 +62,8 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
   const dispatch = useDispatch()
   const theme = useSelector(selectTheme)
   const networkOptions = useSelector(selectNetworks)
+  const excludedSourceNetworks = useSelector(selectExcludedSourceNetworks)
+  const excludedTargetNetworks = useSelector(selectExcludedTargetNetworks)
   const transactionOption = useSelector(selectTransactionOption)
   const dAppOption = useSelector(selectDappOption)
   const mode = useSelector(selectMode)
@@ -105,8 +105,13 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
         mode !== ModeOptions.light ||
         lightDemoNetworks.includes(network.shortName)
 
+      const isExcludedForLocation = isOriginSelector
+        ? excludedSourceNetworks.includes(network.shortName as ChainName)
+        : excludedTargetNetworks.includes(network.shortName as ChainName)
+
       return (
         network.supportedLocations.includes(type) &&
+        !isExcludedForLocation &&
         !isSameAsSource &&
         isAllowedInLightMode
       )
@@ -127,6 +132,8 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
     type,
     mode,
     dAppOption,
+    excludedSourceNetworks,
+    excludedTargetNetworks,
     isOriginSelector
   ])
 
@@ -362,7 +369,6 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
     if (isEVMChain(sourceNetwork.shortName)) srcDemo = lightDemoAccounts.EVM
     else if (isSolana(sourceNetwork.shortName)) srcDemo = lightDemoAccounts.SOL
     else if (isTron(sourceNetwork.shortName)) srcDemo = lightDemoAccounts.TRX
-    else if (isBtc(sourceNetwork.shortName)) srcDemo = lightDemoAccounts.BTC
 
     if (srcDemo && currentSourceAddr !== srcDemo) {
       log.debug('[NetworkSelector] sync demo SOURCE address', {
@@ -377,7 +383,6 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
     if (isEVMChain(targetNetwork.shortName)) tgtDemo = lightDemoAccounts.EVM
     else if (isSolana(targetNetwork.shortName)) tgtDemo = lightDemoAccounts.SOL
     else if (isTron(targetNetwork.shortName)) tgtDemo = lightDemoAccounts.TRX
-    else if (isBtc(targetNetwork.shortName)) tgtDemo = lightDemoAccounts.BTC
 
     if (tgtDemo && currentTargetAddr !== tgtDemo) {
       log.debug('[NetworkSelector] sync demo TARGET address', {

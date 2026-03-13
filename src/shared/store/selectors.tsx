@@ -10,6 +10,12 @@ export const selectNetworkOption = (state: RootState) =>
 
 export const selectNetworks = (state: RootState) => state.option.networks
 
+export const selectExcludedSourceNetworks = (state: RootState) =>
+  state.option.excludedSourceNetworks
+
+export const selectExcludedTargetNetworks = (state: RootState) =>
+  state.option.excludedTargetNetworks
+
 // Core
 export const selectTokenOptions = (state: RootState) =>
   state.option.tokenOptions
