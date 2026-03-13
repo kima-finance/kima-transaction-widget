@@ -1,13 +1,12 @@
-@import 'variables';
-@import 'layout';
-@import 'reusable';
-@import 'modal';
-@import 'fonts';
+@import 'tokens/index';
+@import 'base/theme';
+@import 'base/widget-shell';
+@import 'components/index';
+@import 'features/index';
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 @import 'react-tooltip/dist/react-tooltip.css';
 
 .kima-card {
-  border: 2px solid $financeGrey;
   border-radius: 42px;
   width: 100%;
   @include transition;
@@ -37,38 +36,32 @@
   }
 
   &.light {
-    background: $financeLight;
-    color: black;
-
     .kima-card-header .kima-card-network-label .label {
-      background: $progressbarLight;
+      background: var(--kima-surface-alt);
     }
 
     .kima-card-content {
       .kima-progressbar {
-        background: $progressbarLight;
+        background: var(--kima-surface-alt);
       }
 
       .kima-tooltip .content-wrapper {
-        background: white;
+        background: var(--kima-surface-elevated);
       }
     }
   }
 
   &.dark {
-    background: $financeDarker;
-    color: white;
-
     .kima-card-header .kima-card-network-label .label {
-      background: $progressbarDark;
+      background: var(--kima-surface-alt);
     }
 
     .kima-card-content {
       .kima-progressbar {
-        background: $progressbarDark;
+        background: var(--kima-surface-alt);
       }
       .kima-tooltip .content-wrapper {
-        background: $backgroundDarker;
+        background: var(--kima-surface-elevated);
       }
     }
   }

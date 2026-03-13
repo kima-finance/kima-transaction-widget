@@ -1,7 +1,6 @@
 import { useKimaContext } from '@kima-widget/app/providers'
 import { useDebugCode } from '@kima-widget/hooks/useDebugMode'
 import { EnvOptions } from '@kima-widget/hooks/useGetEnvOptions'
-import { indexPluginsByChain } from '@kima-widget/shared/plugins/registry'
 import {
   setAmount,
   setBackendUrl,
@@ -24,7 +23,8 @@ import {
   selectCCTransactionRetrying,
   selectCCTransactionStatus,
   selectSourceChain,
-  selectSubmitted
+  selectSubmitted,
+  selectTransactionOption
 } from '@kima-widget/shared/store/selectors'
 import {
   ChainData,
@@ -83,6 +83,7 @@ const KimaWidgetWrapper = ({
   const sourceChain = useSelector(selectSourceChain)
   const ccTransactionStatus = useSelector(selectCCTransactionStatus)
   const ccTransactionRetrying = useSelector(selectCCTransactionRetrying)
+  const storedTransactionOption = useSelector(selectTransactionOption)
 
   const networkOption = envOptions?.env
   const kimaExplorer =
@@ -168,50 +169,52 @@ const KimaWidgetWrapper = ({
     dispatch
   ])
 
-  // 3) transactionOption prefill: deep-equal guard
-  const prevTxOptJson = useRef<string | null>(null)
+  // 3) transactionOption prefill: active only in payment mode
   useEffect(() => {
-    const nextJson = transactionOption
+    const activeTransactionOption =
+      mode === ModeOptions.payment ? transactionOption : undefined
+    const nextJson = activeTransactionOption
       ? JSON.stringify(transactionOption)
       : null
-    if (nextJson === prevTxOptJson.current) return
+    const storedJson = storedTransactionOption
+      ? JSON.stringify(storedTransactionOption)
+      : null
 
-    if (transactionOption) {
-      // store the option object (single dispatch, avoids constant churn)
-      dispatch(setTransactionOption(transactionOption))
+    if (nextJson === storedJson) return
 
-      // source chain (optional)
-      if (transactionOption.sourceChain) {
-        const src = chainData?.find(
-          (c) => c.shortName === transactionOption.sourceChain
-        )
-        if (src) dispatch(setSourceChain(src))
-      }
+    dispatch(setTransactionOption(activeTransactionOption))
 
-      if (transactionOption.targetChain) {
-        const tgt = chainData?.find(
-          (c) => c.shortName === transactionOption.targetChain
-        )
-        if (tgt) dispatch(setTargetChain(tgt))
-      }
+    if (!activeTransactionOption) return
 
-      // scalar fields
-      if (typeof transactionOption.targetAddress === 'string') {
-        dispatch(setTargetAddress(transactionOption.targetAddress))
-      }
-      if (typeof transactionOption.currency === 'string') {
-        dispatch(setTargetCurrency(transactionOption.currency))
-      }
-      if (
-        transactionOption.amount !== undefined &&
-        transactionOption.amount !== null
-      ) {
-        dispatch(setAmount(String(transactionOption.amount)))
-      }
+    // source chain (optional)
+    if (activeTransactionOption.sourceChain) {
+      const src = chainData?.find(
+        (c) => c.shortName === activeTransactionOption.sourceChain
+      )
+      if (src) dispatch(setSourceChain(src))
     }
 
-    prevTxOptJson.current = nextJson
-  }, [transactionOption, chainData, dispatch])
+    if (activeTransactionOption.targetChain) {
+      const tgt = chainData?.find(
+        (c) => c.shortName === activeTransactionOption.targetChain
+      )
+      if (tgt) dispatch(setTargetChain(tgt))
+    }
+
+    // scalar fields
+    if (typeof activeTransactionOption.targetAddress === 'string') {
+      dispatch(setTargetAddress(activeTransactionOption.targetAddress))
+    }
+    if (typeof activeTransactionOption.currency === 'string') {
+      dispatch(setTargetCurrency(activeTransactionOption.currency))
+    }
+    if (
+      activeTransactionOption.amount !== undefined &&
+      activeTransactionOption.amount !== null
+    ) {
+      dispatch(setAmount(String(activeTransactionOption.amount)))
+    }
+  }, [transactionOption, storedTransactionOption, mode, chainData, dispatch])
 
   // 4) Mode → submitted/txId: only when mode or txId change
   const prevModeRef = useRef<ModeOptions | undefined>(undefined)
@@ -250,18 +253,6 @@ const KimaWidgetWrapper = ({
       prevTxIdRef.current = txId
     }
   }, [mode, txId, transactionOption, dispatch])
-
-  // 5) Index plugins once per mount after chains arrive
-  const didIndex = useRef(false)
-  useEffect(() => {
-    if (!chainData?.length || didIndex.current) return
-    log.debug(
-      '[KimaWidgetWrapper] indexing plugins for chains:',
-      chainData.map((c) => c.shortName)
-    )
-    indexPluginsByChain(chainData)
-    didIndex.current = true
-  }, [chainData])
 
   // Debug (safe — no deps, runs after paint)
   useEffect(() => {

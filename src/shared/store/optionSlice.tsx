@@ -419,7 +419,7 @@ export const optionSlice = createSlice({
     },
     setTransactionOption: (
       state: OptionState,
-      action: PayloadAction<TransactionOption>
+      action: PayloadAction<TransactionOption | undefined>
     ) => {
       state.transactionOption = action.payload
     },

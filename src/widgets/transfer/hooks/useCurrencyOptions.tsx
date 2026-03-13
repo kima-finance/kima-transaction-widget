@@ -13,6 +13,10 @@ import {
   setSourceCurrency,
   setTargetCurrency
 } from '@kima-widget/shared/store/optionSlice'
+import {
+  filterTokensByLocation,
+  resolveDefaultCurrency
+} from '../lib/currencyOptions'
 
 const emptyTokenList = { tokenList: [] as ChainToken[] }
 
@@ -47,11 +51,7 @@ export default function useCurrencyOptions(isSourceChain: boolean) {
       return emptyTokenList
     }
 
-    // Filter by allowed locations; default to both when field is missing.
-    const tokenList = (chain.supportedTokens ?? []).filter((t) => {
-      const allowed = t.supportedLocations ?? ['origin', 'target']
-      return allowed.includes(location)
-    })
+    const tokenList = filterTokensByLocation(chain.supportedTokens, location)
 
     log.debug(`useCurrencyOptions(${location}): token list`, {
       chainShortName: chain.shortName,
@@ -77,8 +77,12 @@ export default function useCurrencyOptions(isSourceChain: boolean) {
 
     if (stillValid) return
 
-    // If empty or invalid for this chain/location, set a sane default (first token).
-    const next = tokenList[0]?.symbol
+    const next = resolveDefaultCurrency({
+      current,
+      isSourceChain,
+      mode,
+      tokenList
+    })
     if (!next) return
 
     if (isSourceChain) {

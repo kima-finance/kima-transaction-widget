@@ -31,7 +31,7 @@ const App = () => {
   return (
     <KimaProvider
       kimaBackendUrl='http://localhost:3001' // or your deployed backend instance
-      walletConnectProjectId='e579511a495b5c312b572b036e60555a'
+      projectId='e579511a495b5c312b572b036e60555a'
       externalProvider={} // in case you want to provide an already connected wallet
     >
       <KimaTransactionWidget
@@ -78,7 +78,7 @@ const App = () => {
   return (
     <KimaProvider
       kimaBackendUrl='http://localhost:3001' // or your deployed backend instance
-      walletConnectProjectId='e579511a495b5c312b572b036e60555a'
+      projectId='e579511a495b5c312b572b036e60555a'
       externalProvider={} // in case you want to provide an already connected wallet
     >
       <KimaTransactionWidget
@@ -122,7 +122,7 @@ const App = () => {
   return (
     <KimaProvider
       kimaBackendUrl='http://localhost:3001' // or your deployed backend instance
-      walletConnectProjectId='e579511a495b5c312b572b036e60555a'
+      projectId='e579511a495b5c312b572b036e60555a'
     >
       <KimaTransactionWidget
         theme={{
@@ -267,7 +267,7 @@ Used to specify payment screen's title.
   kimaBackendUrl='http://localhost:3001' // or your deployed backend instance
   externalProvider={new Web3Provider()}
   logLevel='debug' // optional, default is 'error'
-  walletConnectProjectId='e579511a495b5c312b572b036e60555a'
+  projectId='e579511a495b5c312b572b036e60555a'
 >
   {/ * etc */}
 </KimaProvider>
@@ -282,9 +282,9 @@ Used to specify kima transaction backend url.
 - Required: `true`
 - Type: `string`
 
-### `walletConnectProjectId`
+### `projectId`
 
-Used to specify the WalletConnect project id. A default value is provided, but you can specify your own. To create a project, visit [Reown Cloud](https://cloud.reown.com/sign-in) and sign up for a free account (WalletConnect is now called Reown).
+Used to specify the Reown project id. A default value is provided, but you can specify your own. To create a project, visit [Reown Cloud](https://cloud.reown.com/sign-in) and sign up for a free account.
 
 - Required: `false`
 - Type: `string`
@@ -317,6 +317,16 @@ interface ExternalProvider {
 - `errorHandler: (e: any) => void`: Callback function to handle errors.
 - `closeHandler: (e: any) => void`: Callback function to handle close event.
 - `successHandler: (e: any) => void`: Callback function to handle success event after transaction submission to kima transaction backend.
+
+## Testing
+
+Run the widget test suite with:
+
+```bash
+npm test
+```
+
+The repository keeps contract-focused tests for the public widget API, plugin runtime resolution and the core pure helpers used by transfer and status flows.
 
 - `switchChainHandler: (chainId: number) => void`: Callback function to handle chain switch event.
 

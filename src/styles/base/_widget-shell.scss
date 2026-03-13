@@ -1,0 +1,12 @@
+@import '../variables';
+
+.kima-card {
+  border: 2px solid var(--kima-border-subtle);
+  background: var(--kima-surface);
+  color: var(--kima-text);
+
+  .wallet-modal-actions {
+    display: flex;
+    gap: var(--kima-wallet-action-gap);
+  }
+}

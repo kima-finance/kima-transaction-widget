@@ -9,10 +9,11 @@ import {
 import { setAccountDetailsModal, setBtcConnectModal } from '@kima-widget/shared/store/optionSlice'
 import {
   ChainName,
+  ColorModeOptions,
   ModeOptions,
   lightDemoAccounts
 } from '@kima-widget/shared/types'
-import { CrossIcon, ErrorIcon } from '@kima-widget/assets/icons'
+import { ErrorIcon } from '@kima-widget/assets/icons'
 import log from '@kima-widget/shared/logger'
 import toast from 'react-hot-toast'
 import { isUserRejected } from '@kima-widget/shared/lib/wallet'
@@ -21,7 +22,7 @@ import { getUnisat } from '@kima-widget/features/connect-wallet/btc/unisat'
 
 import BtcWalletSelect from './BtcWalletSelect'
 import AccountDetailsModal from './AccountDetailsModal'
-import WalletModalShell from '../WalletModalShell'
+import WalletConnectModalBase from '../WalletConnectModalBase'
 
 type WalletId = 'unisat'
 
@@ -107,43 +108,19 @@ const BtcConnectModal = () => {
   return (
     <>
       <AccountDetailsModal />
-      <WalletModalShell
+      <WalletConnectModalBase
         isOpen={!!isOpen}
-        title='Connect Wallet'
+        mode={mode}
+        themeMode={theme.colorMode ?? ColorModeOptions.light}
+        demoMessage={demoMsg}
         onClose={close}
-        className='wallet-connect'
-        rightHeader={
-          <button className='cross-icon-button' onClick={close}>
-            <CrossIcon
-              width={30}
-              height={30}
-              fill={theme.colorMode === 'light' ? 'black' : 'white'}
-            />
-          </button>
-        }
       >
-        {demoMsg && <p className='muted'>{demoMsg}</p>}
-
-        {mode !== ModeOptions.light ? (
-          <BtcWalletSelect
-            selectedWallet={selectedWallet}
-            onSelect={onSelectWallet}
-            disabled={connecting}
-          />
-        ) : (
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button
-              className='secondary'
-              onClick={() => dispatch(setAccountDetailsModal(true))}
-            >
-              View Account
-            </button>
-            <button className='primary' onClick={close}>
-              Close
-            </button>
-          </div>
-        )}
-      </WalletModalShell>
+        <BtcWalletSelect
+          selectedWallet={selectedWallet}
+          onSelect={onSelectWallet}
+          disabled={connecting}
+        />
+      </WalletConnectModalBase>
     </>
   )
 }

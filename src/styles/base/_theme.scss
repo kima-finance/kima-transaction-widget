@@ -1,0 +1,30 @@
+@import '../variables';
+
+.kima-card {
+  --kima-surface: #{$financeLight};
+  --kima-surface-alt: #{$progressbarLight};
+  --kima-surface-elevated: #ffffff;
+  --kima-text: #000000;
+  --kima-text-muted: #{$finance};
+  --kima-border-subtle: #{$financeGrey};
+  --kima-border-strong: #{$financeIcon};
+  --kima-overlay: rgba(119, 141, 163, 0.85);
+  --kima-icon-button-border: #{$financeGrey};
+  --kima-wallet-action-gap: 8px;
+
+  &.light {
+    --kima-surface: #{$financeLight};
+    --kima-surface-alt: #{$progressbarLight};
+    --kima-surface-elevated: #ffffff;
+    --kima-text: #000000;
+    --kima-text-muted: #{$finance};
+  }
+
+  &.dark {
+    --kima-surface: #{$financeDarker};
+    --kima-surface-alt: #{$progressbarDark};
+    --kima-surface-elevated: #{$backgroundDarker};
+    --kima-text: #ffffff;
+    --kima-text-muted: #{$financeIcon};
+  }
+}

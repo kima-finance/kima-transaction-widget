@@ -1,9 +1,8 @@
 import React, {
   useEffect,
   useMemo,
-  useState,
   useRef,
-  useCallback
+  useState
 } from 'react'
 
 import Progressbar from '../../../components/reusable/Progressbar'
@@ -17,7 +16,7 @@ import {
 import { Provider } from 'react-redux'
 import { useSelector } from 'react-redux'
 import { useDispatch } from 'react-redux'
-import { toast, Toaster, useToasterStore } from 'react-hot-toast'
+import { toast, Toaster } from 'react-hot-toast'
 import log from '@kima-widget/shared/logger'
 import {
   ColorModeOptions,
@@ -80,81 +79,19 @@ import useWidth from '@kima-widget/shared/lib/hooks/useWidth'
 import ChainIcon from '@kima-widget/components/reusable/ChainIcon'
 import TransactionStatusMessage from '@kima-widget/components/reusable/TransactionStatusMessage'
 import TransactionSearch from '@kima-widget/components/reusable/TransactionSearch'
-import { isSamePeggedToken, uiTokenSymbol } from '@kima-widget/shared/lib/misc'
-
-type StepDef = { title: string }
-
-const TRANSFER_STEPS: StepDef[] = [
-  { title: 'Initialize' },
-  { title: 'Source Transfer' },
-  { title: 'Validation' },
-  { title: 'Target Transfer' },
-  { title: 'Finalize' }
-]
-
-const SWAP_STEPS: StepDef[] = [
-  { title: 'Initialize' },
-  { title: 'Source Transfer' },
-  { title: 'Swap' },
-  { title: 'Target Transfer' },
-  { title: 'Finalize' }
-]
-
-const normalizeStatus = (s?: string) =>
-  (s ?? '')
-    .toString()
-    .trim()
-    .toUpperCase()
-    .replace(/[\s-]+/g, '_')
-
-const compact = (s: string) => s.replace(/_/g, '')
-
-/**
- * UI-only symbol normalization
- */
-const displaySymbol = (sym?: string) => uiTokenSymbol(sym)
-
-const formatTruncMaxDecimals = (
-  value: unknown,
-  maxDecimals = 4,
-  maxExtraDecimals = 12 // safety cap: maxDecimals + maxExtraDecimals
-): string => {
-  const n = Number(value)
-  if (!Number.isFinite(n)) return ''
-
-  const abs = Math.abs(n)
-
-  // Normal path: truncate to maxDecimals
-  const baseFactor = 10 ** maxDecimals
-  const baseTrunc = Math.trunc(n * baseFactor) / baseFactor
-
-  // If it's truly zero (or exactly truncs to non-zero), format normally
-  if (abs === 0 || baseTrunc !== 0) {
-    const fixed = baseTrunc.toFixed(maxDecimals)
-    return fixed.replace(/\.?0+$/, '')
-  }
-
-  // Here: n != 0 but truncating to maxDecimals becomes 0.0000
-  // Increase decimals until we hit a non-zero trunc, but cap it.
-  let d = maxDecimals + 1
-  const maxD = maxDecimals + maxExtraDecimals
-
-  while (d <= maxD) {
-    const factor = 10 ** d
-    const trunc = Math.trunc(n * factor) / factor
-    if (trunc !== 0) {
-      const fixed = trunc.toFixed(d)
-      return fixed.replace(/\.?0+$/, '')
-    }
-    d += 1
-  }
-
-  // Fallback (extremely tiny values): show the smallest representable at cap
-  const capFactor = 10 ** maxD
-  const capTrunc = Math.trunc(n * capFactor) / capFactor
-  const fixed = capTrunc.toFixed(maxD)
-  return fixed.replace(/\.?0+$/, '')
-}
+import { isSamePeggedToken } from '@kima-widget/shared/lib/misc'
+import { useToastHistory } from '@kima-widget/shared/lib/hooks/useToastHistory'
+import {
+  compactStatus,
+  didStatusChange,
+  displaySymbol,
+  formatTruncMaxDecimals,
+  normalizeStatus,
+  StepDef,
+  SWAP_STEPS,
+  TRANSFER_STEPS
+} from '../lib/status'
+import { resolveTransactionResetTarget } from '../lib/reset'
 
 export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [step, setStep] = useState(0)
@@ -167,12 +104,8 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   const [statusTxType, setStatusTxType] = useState<'transfer' | 'swap'>(
     'transfer'
   )
-  const [toastPanelOpen, setToastPanelOpen] = useState(false)
-  const [toastHistory, setToastHistory] = useState<
-    { id: string; message: string; time: number }[]
-  >([])
-  const toastIds = useRef(new Set<string>())
-  const toastPanelRef = useRef<HTMLDivElement>(null)
+  const previousStatusRef = useRef<string | null>(null)
+  const previousErrorRef = useRef<string | null>(null)
 
   const dispatch = useDispatch()
   const explorerUrl = useSelector(selectKimaExplorer)
@@ -211,54 +144,16 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   )
 
   const { width: windowWidth, updateWidth } = useWidth()
-  const { toasts } = useToasterStore()
+  const {
+    history: toastHistory,
+    isOpen: toastPanelOpen,
+    setIsOpen: setToastPanelOpen,
+    panelRef,
+    formatTime: formatToastTime
+  } = useToastHistory()
   useEffect(() => {
     windowWidth === 0 && updateWidth(window.innerWidth)
   }, [windowWidth, updateWidth])
-
-  useEffect(() => {
-    if (!toasts?.length) return
-    const nextItems: { id: string; message: string; time: number }[] = []
-    toasts.forEach((item) => {
-      if (toastIds.current.has(item.id)) return
-      toastIds.current.add(item.id)
-      const message =
-        typeof item.message === 'string'
-          ? item.message
-          : typeof (item.message as any)?.props?.children === 'string'
-            ? (item.message as any).props.children
-            : 'Notification'
-      nextItems.push({
-        id: item.id,
-        message,
-        time: item.createdAt ?? Date.now()
-      })
-    })
-    if (nextItems.length) {
-      setToastHistory((prev) => [...nextItems, ...prev])
-    }
-  }, [toasts])
-
-  useEffect(() => {
-    if (!toastPanelOpen) return
-    const handler = (event: MouseEvent) => {
-      const target = event.target as Node
-      if (toastPanelRef.current && !toastPanelRef.current.contains(target)) {
-        setToastPanelOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handler)
-    return () => {
-      document.removeEventListener('mousedown', handler)
-    }
-  }, [toastPanelOpen])
-
-  const formatToastTime = useCallback((timestamp: number) => {
-    return new Date(timestamp).toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }, [])
 
   const safeTxId: string | number =
     typeof txId === 'string' || typeof txId === 'number' ? txId : -1
@@ -326,6 +221,10 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
   }, [data])
 
   useEffect(() => {
+    const nextError = error ? String(error) : null
+    if (!nextError || previousErrorRef.current === nextError) return
+    previousErrorRef.current = nextError
+
     if (error)
       toast.error(
         'The provided transaction id is not valid, please use a different one or contact support for further assistance',
@@ -335,16 +234,18 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
 
   useEffect(() => {
     const raw = normalizeStatus(data?.status as any)
-    const s = compact(raw)
+    const s = compactStatus(raw)
+    const statusChanged = didStatusChange(previousStatusRef.current, raw)
 
     const is = (candidate: string) => {
       const cRaw = normalizeStatus(candidate)
-      return raw === cRaw || s === compact(cRaw)
+      return raw === cRaw || s === compactStatus(cRaw)
     }
 
     if (!data || !raw) {
       setStep(0)
       setLoadingStep(0)
+      previousStatusRef.current = raw || null
       return
     }
 
@@ -355,7 +256,8 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setStep(0)
       setErrorStep(0)
       setLoadingStep(-1)
-      toast.error('Invalid signature!')
+      if (statusChanged) toast.error('Invalid signature!')
+      previousStatusRef.current = raw
       return
     }
 
@@ -363,8 +265,9 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setStep(1)
       setErrorStep(1)
       setLoadingStep(-1)
-      toast.error('Unavailable', { icon: <ErrorIcon /> })
+      if (statusChanged) toast.error('Unavailable', { icon: <ErrorIcon /> })
       setErrorMessage('Unavailable')
+      previousStatusRef.current = raw
       return
     }
 
@@ -372,8 +275,13 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setStep(1)
       setErrorStep(1)
       setLoadingStep(-1)
-      toast.error('Failed to pull tokens from source!', { icon: <ErrorIcon /> })
+      if (statusChanged) {
+        toast.error('Failed to pull tokens from source!', {
+          icon: <ErrorIcon />
+        })
+      }
       setErrorMessage('Failed to pull tokens from source!')
+      previousStatusRef.current = raw
       return
     }
 
@@ -381,10 +289,13 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setStep(3)
       setErrorStep(3)
       setLoadingStep(-1)
-      toast.error('Failed to release tokens to target!', {
-        icon: <ErrorIcon />
-      })
+      if (statusChanged) {
+        toast.error('Failed to release tokens to target!', {
+          icon: <ErrorIcon />
+        })
+      }
       setErrorMessage('Failed to release tokens to target!')
+      previousStatusRef.current = raw
       return
     }
 
@@ -396,13 +307,16 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
     ) {
       setStep(3)
       setLoadingStep(3)
-      toast.error(
-        'Failed to release tokens to target! Starting refund process.',
-        { icon: <ErrorIcon /> }
-      )
+      if (statusChanged) {
+        toast.error(
+          'Failed to release tokens to target! Starting refund process.',
+          { icon: <ErrorIcon /> }
+        )
+      }
       setErrorMessage(
         'Failed to release tokens to target! Starting refund process.'
       )
+      previousStatusRef.current = raw
       return
     }
 
@@ -410,8 +324,13 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setStep(3)
       setErrorStep(3)
       setLoadingStep(-1)
-      toast.error('Failed to refund tokens to source!', { icon: <ErrorIcon /> })
+      if (statusChanged) {
+        toast.error('Failed to refund tokens to source!', {
+          icon: <ErrorIcon />
+        })
+      }
       setErrorMessage('Failed to refund tokens to source!')
+      previousStatusRef.current = raw
       return
     }
 
@@ -419,8 +338,11 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setStep(4)
       setErrorStep(3)
       setLoadingStep(-1)
-      toast.success('Refund completed!', { icon: <ErrorIcon /> })
+      if (statusChanged) {
+        toast.success('Refund completed!', { icon: <ErrorIcon /> })
+      }
       setErrorMessage('Refund completed!')
+      previousStatusRef.current = raw
       return
     }
 
@@ -461,6 +383,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
 
       setStep((prev) => Math.max(prev, 1))
       setLoadingStep((prev) => Math.max(prev, 1))
+      previousStatusRef.current = raw
       return
     }
 
@@ -482,9 +405,11 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
     if (is('COMPLETED')) {
       setStep(4)
       setLoadingStep(-1)
+      previousStatusRef.current = raw
       return
     }
-  }, [data?.status, widgetIsSwap, errorMessage])
+    previousStatusRef.current = raw
+  }, [data?.status, widgetIsSwap])
 
   const verb = useMemo(() => {
     if (mode === ModeOptions.status) {
@@ -605,7 +530,13 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
       setIsComplete(false)
       dispatch(resetServiceFee())
 
-      if (mode === ModeOptions.light) {
+      const resetTarget = resolveTransactionResetTarget({
+        mode,
+        amount,
+        transactionOption
+      })
+
+      if (resetTarget === 'light') {
         dispatch(setMode(ModeOptions.light))
         dispatch(setTxId(-1))
         dispatch(setSubmitted(false))
@@ -613,16 +544,14 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
         return
       }
 
-      if (mode === ModeOptions.status && amount === '') {
+      if (resetTarget === 'status') {
         dispatch(setMode(ModeOptions.status))
         dispatch(setTxId(-1))
         dispatch(setSubmitted(true))
         return
       }
 
-      const isPaymentFlow = !!transactionOption
-
-      if (isPaymentFlow) {
+      if (resetTarget === 'payment') {
         dispatch(setMode(ModeOptions.payment))
         dispatch(setAmount(transactionOption?.amount?.toString() || ''))
         dispatch(setTargetAddress(transactionOption?.targetAddress || ''))
@@ -726,7 +655,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
 
                 {toastHistory.length > 0 && (
                   <div
-                    ref={toastPanelRef}
+                    ref={panelRef}
                     className={`toast-history ${theme.colorMode}`}
                   >
                     <button

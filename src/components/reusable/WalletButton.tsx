@@ -342,7 +342,10 @@ const WalletButton = ({
             <div className='loading' aria-label='balance-loading'></div>
           ) : (
             <p className='balance-info'>
-              {formatBigInt({ value: balance, decimals })}{' '}
+              {formatBigInt({
+                value: balance ?? 0n,
+                decimals: decimals ?? 0
+              })}{' '}
               {uiTokenSymbol(selectedCoin)} available
             </p>
           )}

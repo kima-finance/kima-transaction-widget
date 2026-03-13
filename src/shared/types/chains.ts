@@ -106,7 +106,7 @@ export const lightDemoAccounts = {
   // EVM: '0x10962c43ea1bfE1186Dbf59985Df4E1ce94Ca4a9', // personal for testing
   SOL: 'GtJAoe2hfKqczCnp3hdKnMK4JC96juQWv5nkn5qgpbZ8',
   // SOL: 'HeiUB7M6WESHurGs2nBbX9tyGC3RcTwtnJZjdRigNZRT', // personal for testing
-  TRX: 'TBVn4bsBN4DhtZ7D3vEVpAyqkvdFn7zmpU'
+  TRX: 'TBVn4bsBN4DhtZ7D3vEVpAyqkvdFn7zmpU',
   // TRX: 'TL6yGtzbHfQdBRFYh4TLFoU5iiPMmpQtur' // personal for testing
 }
 

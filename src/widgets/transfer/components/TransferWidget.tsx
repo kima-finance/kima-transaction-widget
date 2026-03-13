@@ -61,7 +61,7 @@ import {
   TitleOption
 } from '@kima-widget/shared/types'
 import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react'
-import toast, { Toaster, useToasterStore } from 'react-hot-toast'
+import toast, { Toaster } from 'react-hot-toast'
 import { useDispatch, useSelector } from 'react-redux'
 import { parseUnits } from 'viem'
 import log from '@kima-widget/shared/logger'
@@ -85,6 +85,7 @@ import TronWalletConnectModal from './tron/TronWalletConnectModal'
 import BtcWalletConnectModal from './btc/BtcConnectModal'
 import { isSamePeggedToken } from '@kima-widget/shared/lib/misc'
 import { isUserRejected } from '@kima-widget/shared/lib/wallet'
+import { useToastHistory } from '@kima-widget/shared/lib/hooks/useToastHistory'
 
 interface Props {
   theme: ThemeOptions
@@ -116,13 +117,7 @@ export const TransferWidget = ({
     message: string
   } | null>(null)
   const [resetModalOpen, setResetModalOpen] = useState<boolean>(false)
-  const [toastPanelOpen, setToastPanelOpen] = useState(false)
-  const [toastHistory, setToastHistory] = useState<
-    { id: string; message: string; time: number }[]
-  >([])
   const [isPermit2TooltipOpen, setPermit2TooltipOpen] = useState(false)
-  const toastIds = useRef(new Set<string>())
-  const toastPanelRef = useRef<HTMLDivElement>(null)
   const permit2TooltipRef = useRef<HTMLDivElement>(null)
 
   // EVM approval/signing UI state
@@ -162,44 +157,13 @@ export const TransferWidget = ({
   const { keplrHandler, closeHandler } = useKimaContext()
   const { width: windowWidth } = useWidth()
   const { disconnectWallet } = useDisconnectWallet()
-  const { toasts } = useToasterStore()
-
-  useEffect(() => {
-    if (!toasts?.length) return
-    const nextItems: { id: string; message: string; time: number }[] = []
-    toasts.forEach((item) => {
-      if (toastIds.current.has(item.id)) return
-      toastIds.current.add(item.id)
-      const message =
-        typeof item.message === 'string'
-          ? item.message
-          : typeof (item.message as any)?.props?.children === 'string'
-            ? (item.message as any).props.children
-            : 'Notification'
-      nextItems.push({
-        id: item.id,
-        message,
-        time: item.createdAt ?? Date.now()
-      })
-    })
-    if (nextItems.length) {
-      setToastHistory((prev) => [...nextItems, ...prev])
-    }
-  }, [toasts])
-
-  useEffect(() => {
-    if (!toastPanelOpen) return
-    const handler = (event: MouseEvent) => {
-      const target = event.target as Node
-      if (toastPanelRef.current && !toastPanelRef.current.contains(target)) {
-        setToastPanelOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handler)
-    return () => {
-      document.removeEventListener('mousedown', handler)
-    }
-  }, [toastPanelOpen])
+  const {
+    history: toastHistory,
+    isOpen: toastPanelOpen,
+    setIsOpen: setToastPanelOpen,
+    panelRef: toastPanelRef,
+    formatTime: formatToastTime
+  } = useToastHistory()
 
   useEffect(() => {
     if (!isPermit2TooltipOpen) return
@@ -222,13 +186,6 @@ export const TransferWidget = ({
       document.removeEventListener('touchstart', handler)
     }
   }, [isPermit2TooltipOpen])
-
-  const formatToastTime = useCallback((timestamp: number) => {
-    return new Date(timestamp).toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }, [])
 
   // Allowance/sign hooks (plug-in routed)
   const { allowance, isApproved, isPermit2Required, approve, signMessage } =
@@ -315,13 +272,13 @@ export const TransferWidget = ({
   useEffect(() => {
     try {
       if (fees) dispatch(setServiceFee(fees))
-      if (transactionOption?.sourceChain) {
+      if (mode === ModeOptions.payment && transactionOption?.sourceChain) {
         // Once the source chain was pre-provided, collapse its selector
         // so users can progress quickly.
         // (We keep this idempotent to avoid flicker.)
         setInitialSelection((prev) => ({ ...prev, sourceSelection: false }))
       }
-      if (mode === ModeOptions.payment || transactionOption?.targetChain) {
+      if (mode === ModeOptions.payment && transactionOption?.targetChain) {
         setInitialSelection((prev) => ({ ...prev, targetSelection: false }))
       }
     } catch (e) {

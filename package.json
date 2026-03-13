@@ -28,7 +28,7 @@
     "prepare": "npm run build",
     "dev": "tsup --watch",
     "sass": "sass src/styles/main.scss src/index.css -w",
-    "test": "react-scripts test --coverage --watchAll",
+    "test": "jest --runInBand",
     "docs": "typedoc --options typedoc.json"
   },
   "peerDependencies": {
@@ -122,14 +122,5 @@
   },
   "files": [
     "dist"
-  ],
-  "jest": {
-    "coveragePathIgnorePatterns": [
-      "src/utils",
-      "src/styles/hooks",
-      "src/assets",
-      "src/contexts",
-      "src/helpers"
-    ]
-  }
+  ]
 }
