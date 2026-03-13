@@ -1,30 +1,6 @@
 import { Chain } from 'viem'
 import { NetworkOptions } from './app'
 
-export interface Plugin {
-  // required by registry / base
-  compatibility: ChainCompatibility
-  data: PluginData
-  id: string
-  initialize: () => PluginInit
-  isCompatible: (chain: ChainData) => boolean
-  Provider: React.FC<PluginProviderProps>
-
-  // React hooks (optional by adapter)
-  useAllowance?: (args?: any) => PluginUseAllowanceResult
-  useNativeBalance?: () => PluginUseBalanceResult | undefined
-  useTokenBalance?: () => PluginUseBalanceResult | undefined
-  useIsWalletReady?: () => PluginUseIsWalletReadyResult
-  useDisconnectWallet?: () => PluginUseDisconnectWalletResult
-
-  // Optional plain APIs (non-React)
-  getAllowance?(): Promise<GetTokenAllowanceResult & { isApproved: boolean }>
-  getNativeBalance?(): Promise<PluginUseBalanceResult>
-  getTokenBalance?(): Promise<PluginUseBalanceResult>
-  isWalletReady?(): Promise<PluginUseIsWalletReadyResult>
-  disconnectWallet?(): Promise<void>
-}
-
 export interface SignDataType {
   targetAddress: string
   targetChain: string
@@ -67,11 +43,6 @@ export interface PluginUseDisconnectWalletResult {
   disconnectWallet: () => Promise<void>
 }
 
-export interface PluginInit {
-  data: PluginData
-  provider: React.FC<PluginProviderProps>
-}
-
 export interface PluginProviderProps {
   children: React.ReactNode
   networkOption?: NetworkOptions
@@ -80,9 +51,46 @@ export interface PluginProviderProps {
   solRPC?: string
 }
 
-export interface PluginData {
+export interface WalletCapability {
+  useIsWalletReady?: () => PluginUseIsWalletReadyResult
+  useDisconnectWallet?: () => PluginUseDisconnectWalletResult
+}
+
+export interface BalanceCapability {
+  useNativeBalance?: () => PluginUseBalanceResult | undefined
+  useTokenBalance?: () => PluginUseBalanceResult | undefined
+}
+
+export interface AllowanceCapability {
+  useAllowance?: (args?: any) => PluginUseAllowanceResult
+}
+
+export interface PluginCapabilities
+  extends WalletCapability,
+    BalanceCapability,
+    AllowanceCapability {
+  getAllowance?(): Promise<GetTokenAllowanceResult & { isApproved: boolean }>
+  getNativeBalance?(): Promise<PluginUseBalanceResult>
+  getTokenBalance?(): Promise<PluginUseBalanceResult>
+  isWalletReady?(): Promise<PluginUseIsWalletReadyResult>
+  disconnectWallet?(): Promise<void>
+}
+
+export interface PluginDescriptor extends PluginCapabilities {
+  compatibility: ChainCompatibility
   id: string
-  pluginData: { [key: string]: any }
+  isCompatible: (chain: ChainData) => boolean
+  Provider: React.FC<PluginProviderProps>
+}
+
+export type Plugin = PluginDescriptor
+
+export interface PluginRuntime {
+  plugins: PluginDescriptor[]
+  getPluginById: (id: string) => PluginDescriptor | undefined
+  resolvePlugin: (
+    chain?: Pick<ChainData, 'shortName' | 'compatibility'> | null
+  ) => PluginDescriptor | null
 }
 
 export type Location = 'origin' | 'target'

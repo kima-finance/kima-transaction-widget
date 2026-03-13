@@ -1,8 +1,7 @@
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
-import { getPlugin } from '@kima-widget/shared/plugins/registry'
+import { usePluginRuntime } from '@kima-widget/shared/plugins'
 import { selectSourceChain } from '@kima-widget/shared/store/selectors'
-import { selectPluginIsIndexed } from '@kima-widget/shared/store/pluginSlice'
 import { Plugin } from '@kima-widget/shared/types'
 import log from '@kima-widget/shared/logger'
 
@@ -13,23 +12,21 @@ import log from '@kima-widget/shared/logger'
  * hook-order flips.
  */
 const useGetCurrentPlugin = () => {
-  const isIndexed = useSelector(selectPluginIsIndexed)
   const sourceChain = useSelector(selectSourceChain)
+  const runtime = usePluginRuntime()
 
   const currentPlugin = useMemo<Plugin | null>(() => {
-    if (!isIndexed || !sourceChain?.shortName) return null
-    const plugin = getPlugin(sourceChain.shortName) ?? null
+    if (!sourceChain?.shortName) return null
+    const plugin = runtime.resolvePlugin(sourceChain) ?? null
     if (plugin) {
-      // helpful for debugging
       log.debug('[useGetCurrentPlugin] resolved plugin id:', plugin.id)
     }
     log.debug('[useGetCurrentPlugin]', {
-      isIndexed,
       chain: sourceChain.shortName,
       resolved: !!plugin
     })
     return plugin
-  }, [isIndexed, sourceChain?.shortName])
+  }, [runtime, sourceChain])
 
   return { currentPlugin }
 }

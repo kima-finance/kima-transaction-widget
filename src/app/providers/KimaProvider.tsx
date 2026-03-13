@@ -3,23 +3,23 @@ import {
   createContext,
   ReactNode,
   useContext,
-  useMemo,
   useEffect,
   useState
 } from 'react'
-import { Provider, useSelector } from 'react-redux'
+import { Provider } from 'react-redux'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { PublicKey } from '@solana/web3.js'
 import { JsonRpcSigner } from 'ethers'
 import { LogLevelDesc } from 'loglevel'
 import { ExternalProvider, NetworkOptions } from '@kima-widget/shared/types'
 import { useGetEnvOptions } from '@kima-widget/hooks/useGetEnvOptions'
-import { selectAllPlugins } from '@kima-widget/shared/store/pluginSlice'
 import { isValidExternalProvider } from '@kima-widget/shared/lib/bigint'
 import log from '@kima-widget/shared/logger'
 import store from '@kima-widget/shared/store'
-import { getPluginProvider } from '@kima-widget/shared/plugins/registry'
-import '@kima-widget/shared/plugins'
+import {
+  PluginRuntimeProvider,
+  pluginCatalog
+} from '@kima-widget/shared/plugins'
 import { setupAppKit } from '@kima-widget/features/connect-wallet/evm/setupAppkit'
 
 interface KimaContextProps {
@@ -91,37 +91,23 @@ const InternalKimaProvider: React.FC<
     }
   }, [envOptions, projectId, networkOption])
 
-  // Use a stable selector to avoid unnecessary re-renders
-  const plugins = useSelector(selectAllPlugins, (prev, next) => prev === next)
-  log.debug('Registered Plugins:', plugins)
-
-  // Create providers dynamically but flatten their structure
-  const WrappedProviders = useMemo(() => {
-    return plugins.reduce<ReactNode>((acc, pluginData) => {
-      const plugin = getPluginProvider(pluginData.id)
-      if (plugin) {
-        const { Provider: PluginProvider } = plugin
-        return (
-          <PluginProvider
-            key={plugin.data.id}
-            networkOption={networkOption}
-            projectId={projectId}
-            isLoading={isLoadingEnv || !appKitReady}
-            solRPC={solRPC}
-          >
-            {acc}
-          </PluginProvider>
-        )
-      }
-      return acc
-    }, children)
-  }, [plugins, projectId, networkOption, isLoadingEnv, appKitReady, children])
-
   // Don’t render children (e.g., KimaWidgetWrapper which calls useAppKitTheme)
   // until AppKit exists.
   if (!appKitReady) return null
 
-  return <>{WrappedProviders}</>
+  return (
+    <PluginRuntimeProvider
+      plugins={pluginCatalog}
+      providerProps={{
+        networkOption,
+        projectId,
+        isLoading: isLoadingEnv || !appKitReady,
+        solRPC
+      }}
+    >
+      {children}
+    </PluginRuntimeProvider>
+  )
 })
 
 const KimaProvider = ({
