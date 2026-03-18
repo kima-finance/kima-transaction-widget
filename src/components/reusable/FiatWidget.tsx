@@ -33,6 +33,7 @@ const FiatWidget = ({ submitCallback }: { submitCallback: () => void }) => {
 
   const { transactionValues } = useSelector(selectServiceFee)
   const ccTransactionIdSeedRef = useRef(uuidv4())
+  const identificationUuidRef = useRef(uuidv4())
   const ccTransactionSubmittedRef = useRef(false)
   const { data: envOptions, isLoading: isEnvLoading } = useGetEnvOptions({
     kimaBackendUrl: backendUrl
@@ -60,10 +61,11 @@ const FiatWidget = ({ submitCallback }: { submitCallback: () => void }) => {
   )
   const [isLoading, setIsLoading] = useState(true)
 
-  // IMPORTANT: for staging use the same as mainnet
   const baseUrl = useMemo(
     () =>
-      `https://widget${networkOption === NetworkOptions.testnet ? '-sandbox' : ''}.depa.finance`,
+      networkOption === NetworkOptions.testnet
+        ? 'https://widget2-sandbox.depa.wtf'
+        : 'https://widget.depa.finance',
     [networkOption]
   )
 
@@ -74,6 +76,27 @@ const FiatWidget = ({ submitCallback }: { submitCallback: () => void }) => {
         : 'direct_bank_payment',
     [sourceChain]
   )
+
+  const iframeSrc = useMemo(() => {
+    const searchParams = new URLSearchParams({
+      partner: partnerId ?? '',
+      amount: allowanceAmount,
+      currency: sourceCurrency,
+      trx_uuid: data?.transactionId ?? '',
+      identification_uuid: identificationUuidRef.current,
+      scenario,
+      postmessage: 'true'
+    })
+
+    return `${baseUrl}/widgets/kyc?${searchParams.toString()}`
+  }, [
+    allowanceAmount,
+    baseUrl,
+    data?.transactionId,
+    partnerId,
+    scenario,
+    sourceCurrency
+  ])
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -151,7 +174,7 @@ const FiatWidget = ({ submitCallback }: { submitCallback: () => void }) => {
             ? 0
             : '100%'
         }
-        src={`${baseUrl}/widgets/kyc?partner=${partnerId}&amount=${allowanceAmount}&currency=${sourceCurrency}&trx_uuid=${data?.transactionId}&scenario=${scenario}&postmessage=true`}
+        src={iframeSrc}
         loading='lazy'
         title='Credit Card Widget'
         allow='camera; clipboard-write'
