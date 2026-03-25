@@ -60,6 +60,8 @@ export const setupAppKit = (
     adapters: [new EthersAdapter()],
     projectId,
     networks,
+    enableInjected: true,
+    enableEIP6963: true,
     metadata: {
       name: 'Kima Transaction Widget',
       description: 'Frontend widget for Kima integration for dApps',

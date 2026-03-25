@@ -12,13 +12,8 @@ import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
 import { createWalletClient, custom, isAddress } from 'viem'
 import log from '@kima-widget/shared/logger'
 import { getFeeSideValues } from '@kima-widget/shared/lib/fees'
+import { getAppKitEip1193Provider } from '@kima-widget/features/connect-wallet/evm/appkit'
 
-/**
- * Sign using viem:
- *  - prefer AppKit EIP-1193 provider (unwrap from ethers BrowserProvider)
- *  - fallback to window.ethereum
- *  - always pass explicit account
- */
 export const useEvmSignMessage = () => {
   const mode = useSelector(selectMode)
   const sourceChain = useSelector(selectSourceChain)
@@ -34,12 +29,10 @@ export const useEvmSignMessage = () => {
 
   const signMessage = useCallback(async (): Promise<string | undefined> => {
     try {
-      const eip1193 =
-        (appkitProvider as any)?.provider ?? (globalThis as any).ethereum
+      const eip1193 = getAppKitEip1193Provider(appkitProvider)
 
       if (!eip1193?.request) {
-        log.error('[useEvmSignMessage] No EIP-1193 provider available')
-        return undefined
+        throw new Error('No AppKit EIP-1193 provider available')
       }
 
       const preferredAccount = (userAddress && userAddress !== ''

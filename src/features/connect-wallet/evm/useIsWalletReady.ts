@@ -11,7 +11,6 @@ import {
   selectSourceChain
 } from '@kima-widget/shared/store/selectors'
 import { setSourceAddress } from '@kima-widget/shared/store/optionSlice'
-import { useKimaContext } from '@kima-widget/app/providers'
 import {
   ChainCompatibility,
   ChainData,
@@ -21,12 +20,12 @@ import {
 import log from '@kima-widget/shared/logger'
 import { BrowserProvider } from 'ethers'
 import { useChainData } from '@kima-widget/shared/lib/hooks/useChainData'
+import { getAppKitEip1193Provider } from './appkit'
 import { switchNetworkSmart } from './switchNetwork'
 import type { WalletReadyStatus } from '../types'
 
 export const useIsWalletReady: () => WalletReadyStatus = () => {
   const dispatch = useDispatch()
-  const { externalProvider } = useKimaContext()
   const backendUrl = useSelector(selectBackendUrl)
   const mode = useSelector(selectMode)
   const sourceChain = useSelector(selectSourceChain)
@@ -51,14 +50,9 @@ export const useIsWalletReady: () => WalletReadyStatus = () => {
     if (!sourceChain || sourceChain.compatibility !== ChainCompatibility.EVM)
       return
 
-    const eip1193 =
-      (externalProvider as any)?.provider?.provider ||
-      (appkitProvider as any)?.provider ||
-      (appkitProvider as any) ||
-      null
+    const eip1193 = getAppKitEip1193Provider(appkitProvider)
 
-    const browserProvider: BrowserProvider | null =
-      (externalProvider?.provider as BrowserProvider) || appkitProvider || null
+    const browserProvider: BrowserProvider | null = appkitProvider || null
 
     await switchNetworkSmart({
       chainId: sourceChain.id,
@@ -66,7 +60,7 @@ export const useIsWalletReady: () => WalletReadyStatus = () => {
       eip1193,
       browserProvider
     })
-  }, [sourceChain, externalProvider, appkitProvider, chains])
+  }, [sourceChain, appkitProvider, chains])
 
   const resolveConnection = useCallback(async () => {
     // LIGHT MODE
@@ -80,52 +74,7 @@ export const useIsWalletReady: () => WalletReadyStatus = () => {
       return
     }
 
-    // EXTERNAL PROVIDER MODE
-    if (
-      externalProvider?.type === 'evm' &&
-      externalProvider?.provider &&
-      sourceChain.compatibility === ChainCompatibility.EVM
-    ) {
-      try {
-        const provider = externalProvider.provider as BrowserProvider
-        const network = await provider.getNetwork()
-        const externalChainId = Number(network.chainId)
-
-        if (externalChainId === sourceChain.id) {
-          const signer = await provider.getSigner()
-          const externalAddress = await signer.getAddress()
-
-          setIsReady(true)
-          setConnectedAddress(externalAddress)
-          setStatusMessage('Connected with external provider')
-          setIsSwitching(false)
-          dispatch(setSourceAddress(externalAddress))
-        } else {
-          setIsReady(false)
-          setConnectedAddress('')
-          setStatusMessage('Switching to correct network...')
-          setIsSwitching(true)
-          dispatch(setSourceAddress(''))
-          try {
-            await trySwitch()
-          } finally {
-            setIsSwitching(false)
-          }
-        }
-        return
-      } catch (error) {
-        log.error('[useIsWalletReady] external provider error', error)
-        setIsReady(false)
-        setConnectedAddress('')
-        setStatusMessage('Failed to connect external provider')
-        setIsSwitching(false)
-        dispatch(setSourceAddress(''))
-        return
-      }
-    }
-
-    // APPKIT MODE
-    if (!externalProvider && isConnected) {
+    if (isConnected) {
       if (walletChainId === sourceChain?.id) {
         setIsReady(true)
         setConnectedAddress(walletAddress ?? '')
@@ -155,7 +104,6 @@ export const useIsWalletReady: () => WalletReadyStatus = () => {
     dispatch(setSourceAddress(''))
   }, [
     mode,
-    externalProvider,
     sourceChain,
     isConnected,
     walletAddress,

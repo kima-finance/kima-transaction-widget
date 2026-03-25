@@ -19,18 +19,23 @@ import {
 } from '@kima-widget/shared/lib/addresses'
 import { getFeeSideValues } from '@kima-widget/shared/lib/fees'
 
-import {
-  createPublicClient,
-  createWalletClient,
-  custom,
-  erc20Abi,
-  http
-} from 'viem'
+import { BrowserProvider, Contract } from 'ethers'
 import { useEvmAddress } from '@kima-widget/features/connect-wallet/evm/useEvmAddress'
-import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
+import {
+  useAppKitAccount,
+  useAppKitProvider,
+  useWalletInfo
+} from '@reown/appkit/react'
 import log from '@kima-widget/shared/logger'
 import { clearPermit2Signature } from '@kima-widget/shared/store/optionSlice'
+import {
+  describeAppKitProvider,
+  getPreferredEvmWriteProvider,
+  readAppKitRpcDebug
+} from '@kima-widget/features/connect-wallet/evm/appkit'
 import { useEvmSignPermit2 } from './useEvmSignPermit2'
+
+const erc20ApproveAbi = ['function approve(address spender, uint256 amount)']
 
 export const useApproveErc20 = () => {
   const dispatch = useDispatch()
@@ -64,10 +69,22 @@ export const useApproveErc20 = () => {
 
   const userAddress = useEvmAddress(mode)
   const { address: appkitAddress } = useAppKitAccount() || {}
-  const { walletProvider: appkitProvider } = useAppKitProvider<any>('eip155')
+  const { walletInfo } = useWalletInfo()
+  const { walletProvider: appkitProvider, walletProviderType } =
+    useAppKitProvider<any>('eip155')
 
   const approve = useCallback(
     async (isCancel = false) => {
+      const approvalDebug: Record<string, unknown> = {
+        walletProviderType,
+        provider: describeAppKitProvider(appkitProvider),
+        walletInfo,
+        sourceChainId: sourceChain?.id,
+        sourceChainName: sourceChain?.name,
+        tokenAddress,
+        poolAddress
+      }
+
       try {
         if (isPermit2Required) {
           if (isCancel) {
@@ -87,48 +104,62 @@ export const useApproveErc20 = () => {
           return
         }
 
-        const eip1193 =
-          (appkitProvider as any)?.provider ?? (globalThis as any).ethereum
+        const { provider: eip1193, source: providerSource } =
+          await getPreferredEvmWriteProvider({
+            appkitProvider,
+            walletInfo
+          })
+        approvalDebug.eip1193Resolved = !!eip1193
+        approvalDebug.providerSource = providerSource
         if (!eip1193?.request) {
-          log.error('[useApproveErc20] No EIP-1193 provider available')
-          return
+          throw new Error('No AppKit EIP-1193 provider available')
         }
+
+        approvalDebug.rpc = await readAppKitRpcDebug(eip1193)
 
         // explicit account for viem
         const account =
           (userAddress as `0x${string}`) ??
           (appkitAddress as `0x${string}`) ??
           null
+        approvalDebug.account = account
         if (!account) {
           throw new Error('No connected EVM account')
         }
 
-        const publicClient = createPublicClient({
-          chain: sourceChain as any,
-          transport: http()
-        })
-
-        const walletClient = createWalletClient({
-          account,
-          chain: sourceChain as any,
-          transport: custom(eip1193)
-        })
+        const browserProvider = new BrowserProvider(
+          eip1193,
+          Number(sourceChain.id)
+        )
+        approvalDebug.browserProvider = {
+          constructor:
+            browserProvider.constructor &&
+            typeof browserProvider.constructor === 'function'
+              ? browserProvider.constructor.name
+              : undefined
+        }
+        const signer = await browserProvider.getSigner(account)
+        approvalDebug.signerAddress = await signer.getAddress()
+        const contract = new Contract(
+          tokenAddress as `0x${string}`,
+          erc20ApproveAbi,
+          signer
+        )
 
         const finalAmount = isCancel ? 0n : allowanceNeeded
 
-        // include `chain` here too, so the inferred type satisfies WriteContractParameters
-        const hash = await walletClient.writeContract({
-          chain: sourceChain as any,
-          account,
-          address: tokenAddress as `0x${string}`,
-          abi: erc20Abi,
-          functionName: 'approve',
-          args: [poolAddress as `0x${string}`, finalAmount]
-        })
+        const tx = await contract.approve(
+          poolAddress as `0x${string}`,
+          finalAmount
+        )
+        const hash = tx?.hash as string | undefined
+        if (!hash) {
+          throw new Error('Approval transaction hash missing')
+        }
 
         log.info('[useApproveErc20] tx sent, waiting receipt', hash)
-        const receipt = await publicClient.waitForTransactionReceipt({ hash })
-        if (receipt.status !== 'success') {
+        const receipt = await tx.wait()
+        if (!receipt || receipt.status !== 1) {
           log.error('[useApproveErc20] tx failed', receipt)
           throw new Error('Approval transaction failed')
         }
@@ -142,6 +173,7 @@ export const useApproveErc20 = () => {
         if (err?.code === 4001 || /UserRejected/i.test(String(err?.message))) {
           err._kimaUserRejected = true
         }
+        log.error('[useApproveErc20] debug', approvalDebug)
         log.error('[useApproveErc20] error', err)
         throw err
       }
@@ -155,6 +187,8 @@ export const useApproveErc20 = () => {
       signPermit2,
       dispatch,
       appkitProvider,
+      walletProviderType,
+      walletInfo,
       userAddress,
       appkitAddress,
       qc

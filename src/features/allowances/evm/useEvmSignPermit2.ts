@@ -19,6 +19,7 @@ import { getFeeSideValues } from '@kima-widget/shared/lib/fees'
 import { setPermit2Signature } from '@kima-widget/shared/store/optionSlice'
 import type { Permit2Payload } from '@kima-widget/shared/types'
 import log from '@kima-widget/shared/logger'
+import { getAppKitEip1193Provider } from '@kima-widget/features/connect-wallet/evm/appkit'
 
 const safeEnv = (typeof process !== 'undefined' && process.env) || {}
 
@@ -94,10 +95,9 @@ export const useEvmSignPermit2 = () => {
         throw new Error('Invalid token or spender address')
       }
 
-      const eip1193 =
-        (appkitProvider as any)?.provider ?? (globalThis as any).ethereum
+      const eip1193 = getAppKitEip1193Provider(appkitProvider)
       if (!eip1193?.request) {
-        throw new Error('No EIP-1193 provider available')
+        throw new Error('No AppKit EIP-1193 provider available')
       }
 
       const preferredAccount = (userAddress && userAddress !== ''
