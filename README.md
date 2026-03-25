@@ -32,7 +32,6 @@ const App = () => {
     <KimaProvider
       kimaBackendUrl='http://localhost:3001' // or your deployed backend instance
       projectId='e579511a495b5c312b572b036e60555a'
-      externalProvider={} // in case you want to provide an already connected wallet
     >
       <KimaTransactionWidget
         theme={{
@@ -79,7 +78,6 @@ const App = () => {
     <KimaProvider
       kimaBackendUrl='http://localhost:3001' // or your deployed backend instance
       projectId='e579511a495b5c312b572b036e60555a'
-      externalProvider={} // in case you want to provide an already connected wallet
     >
       <KimaTransactionWidget
         theme={{
@@ -265,7 +263,6 @@ Used to specify payment screen's title.
 ```tsx
 <KimaProvider
   kimaBackendUrl='http://localhost:3001' // or your deployed backend instance
-  externalProvider={new Web3Provider()}
   logLevel='debug' // optional, default is 'error'
   projectId='e579511a495b5c312b572b036e60555a'
 >
@@ -274,6 +271,8 @@ Used to specify payment screen's title.
 ```
 
 Used to provide the widget with wallet connection and chain switching functionality.
+
+For EVM flows, the widget now uses Reown AppKit as the connection and signing path. Pass a valid `projectId` and let the widget manage the wallet session.
 
 ### `kimaBackendUrl`
 
@@ -296,21 +295,6 @@ For debugging purposes, you can specify the log level. Available levels are  `tr
 The log level can also be set using the `LOG_LEVEL` environment or the equivalent for your framework: `NEXT_PUBLIC_LOG_LEVEL`, `VITE_LOG_LEVEL`. The Widget property will take precedence over the environment variable as it is set last.
 
 **DEBUG mode**: Type `D` `E` `B` `U` `G` while focus is on the Widget (not in the console) to enable debug mode. This will set the log level to `debug` and log all messages to the console. Type it again to disable debug mode and restore the default log level. Useful to temporarily toggle logging in the browser when in production or an already deployed app where changing the ENV variable would require a redeploy.
-
-### `externalProvider`
-
-Used to provide an already connected wallet instance from your app. Depending on the network your dapp is currently connected to is the instance that you will need to provide.
-
-```ts
-interface ExternalProvider {
-  type: 'evm' | 'solana' | 'tron'
-  provider: Web3Provider | SolProvider | TronProvider
-  signer: JsonRpcSigner | PublicKey | string
-}
-```
-
-- Required: `false`
-- Type: `ExternalProvider`
 
 ### Event handlers
 

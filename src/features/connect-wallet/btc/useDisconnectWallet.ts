@@ -1,6 +1,5 @@
 import { useCallback } from 'react'
 import { useDispatch } from 'react-redux'
-import { useKimaContext } from '@kima-widget/app/providers/KimaProvider'
 import { PluginUseDisconnectWalletResult } from '@kima-widget/shared/types'
 import {
   setBitcoinAddress,
@@ -12,15 +11,8 @@ import { getUnisat } from './unisat'
 
 export const useDisconnectWallet = (): PluginUseDisconnectWalletResult => {
   const dispatch = useDispatch()
-  const { externalProvider } = useKimaContext()
 
   const disconnectWallet = useCallback(async () => {
-    if (externalProvider?.type === 'btc') {
-      const disconnect = (externalProvider.provider as any)?.disconnect
-      if (typeof disconnect === 'function') {
-        await disconnect()
-      }
-    }
     const unisat = getUnisat()
     if (unisat?.disconnect) {
       await unisat.disconnect()
@@ -30,7 +22,7 @@ export const useDisconnectWallet = (): PluginUseDisconnectWalletResult => {
     dispatch(setBitcoinPubkey(''))
     dispatch(setBtcWalletType(''))
     dispatch(setSourceAddress(''))
-  }, [dispatch, externalProvider])
+  }, [dispatch])
 
   return { disconnectWallet }
 }

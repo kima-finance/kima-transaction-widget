@@ -1,16 +1,6 @@
 import { formatUnits, parseUnits } from 'viem'
-import {
-  BigintAmount,
-  BtcSigner,
-  ExternalProvider,
-  isSolProvider,
-  isTronProvider,
-  SolProvider,
-  TronProvider
-} from '../types'
+import { BigintAmount } from '../types'
 import { formatterFloat } from './format'
-import { BrowserProvider, JsonRpcSigner } from 'ethers'
-import { PublicKey } from '@solana/web3.js'
 
 export const bigIntToNumber = (
   inputs: BigintAmount<bigint | string>
@@ -67,41 +57,4 @@ export const preciseSubtraction = (
   const numB = parseUnits(b.toString(), decimals)
   const result = numA - numB // ethers v6 uses `BigInt`, so we use `-` instead of `.sub()`
   return parseFloat(formatUnits(result, decimals))
-}
-
-export const isValidExternalProvider = (externalProvider: ExternalProvider) => {
-  const { type, provider, signer } = externalProvider
-
-  // evm provider type check
-  if (type === 'evm') {
-    if (
-      !(provider instanceof BrowserProvider) ||
-      !(signer instanceof JsonRpcSigner)
-    )
-      return false
-  }
-
-  if (type === 'solana') {
-    if (
-      !isSolProvider(provider as SolProvider) ||
-      !(signer instanceof PublicKey)
-    )
-      return false
-  }
-
-  if (type === 'tron') {
-    if (!isTronProvider(provider as TronProvider) || typeof signer !== 'string')
-      return false
-  }
-
-  if (type === 'btc') {
-    const btcSigner = signer as BtcSigner
-    const hasAddress =
-      typeof btcSigner === 'string' ||
-      (typeof btcSigner === 'object' && typeof btcSigner.address === 'string')
-    if (!hasAddress) return false
-    if (provider && typeof provider !== 'object') return false
-  }
-
-  return true
 }

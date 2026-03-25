@@ -25,7 +25,7 @@ export const useIsWalletReady = () => {
   const mode = useSelector(selectMode)
   const sourceChain = useSelector(selectSourceChain)
 
-  const { publicKey } = useSolProvider() // now bridges externalProvider OR wallet-adapter
+  const { publicKey } = useSolProvider()
   const { connected, connecting } = useWallet() // for richer status
 
   useEffect(() => {

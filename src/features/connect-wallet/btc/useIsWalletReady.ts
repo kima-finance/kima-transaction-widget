@@ -1,6 +1,5 @@
 import { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useKimaContext } from '@kima-widget/app/providers/KimaProvider'
 import {
   selectBitcoinAddress,
   selectBitcoinPubkey,
@@ -29,7 +28,6 @@ import { getBtcAccountFromProvider } from './provider'
 
 export const useIsWalletReady = () => {
   const dispatch = useDispatch()
-  const { externalProvider } = useKimaContext()
   const mode = useSelector(selectMode)
   const networkOption = useSelector(selectNetworkOption)
   const sourceChain = useSelector(selectSourceChain)
@@ -37,24 +35,8 @@ export const useIsWalletReady = () => {
   const storedPubkey = useSelector(selectBitcoinPubkey)
 
   const resolved = useMemo(() => {
-    if (externalProvider?.type === 'btc') {
-      const signer = externalProvider.signer as
-        | string
-        | { address?: string; publicKey?: string }
-      const address =
-        typeof signer === 'string' ? signer : signer?.address ?? ''
-      const providerPubkey =
-        (externalProvider.provider as any)?.publicKey ??
-        (externalProvider.provider as any)?.pubkey
-      const pubkey =
-        normalizeBtcPubkeyHex(
-          (typeof signer === 'object' && signer?.publicKey) || providerPubkey || ''
-        ) || ''
-      return { address, pubkey }
-    }
-
     return { address: storedAddress, pubkey: storedPubkey }
-  }, [mode, externalProvider, storedAddress, storedPubkey])
+  }, [storedAddress, storedPubkey])
 
   const addressNetwork = useMemo(
     () => getBtcAddressNetwork(resolved.address),
@@ -100,7 +82,6 @@ export const useIsWalletReady = () => {
   useEffect(() => {
     if (mode === ModeOptions.light) return
     if (sourceChain.shortName !== ChainName.BTC) return
-    if (externalProvider?.type === 'btc') return
     if (storedAddress) return
 
     const unisat = getUnisat()
@@ -126,7 +107,6 @@ export const useIsWalletReady = () => {
   }, [
     mode,
     sourceChain.shortName,
-    externalProvider,
     storedAddress,
     dispatch
   ])

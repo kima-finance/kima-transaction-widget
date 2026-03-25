@@ -11,37 +11,10 @@ import log from '@kima-widget/shared/logger'
 
 export const useSolProvider = (): SolProviderShape => {
   const net = useSelector(selectNetworkOption)
-  const { externalProvider, solRPC } = useKimaContext()
+  const { solRPC } = useKimaContext()
   const wallet = useWallet()
 
   return useMemo(() => {
-    // 1) External provider path (keeps current behavior)
-    if (externalProvider?.type === 'solana') {
-      const prov = externalProvider.provider as {
-        connection: Connection
-        signTransaction: SignTx
-        signMessage: SignMsg
-      }
-      const signer = externalProvider.signer as
-        | { toBase58?: () => string }
-        | undefined
-
-      const pk = signer?.toBase58 ? signer.toBase58() : undefined
-      log.debug('[useSolProvider] using externalProvider', {
-        hasProvider: !!prov,
-        hasSigner: !!signer,
-        publicKey: pk
-      })
-
-      return {
-        connection: prov.connection,
-        publicKey: pk,
-        signTransaction: prov.signTransaction,
-        signMessage: prov.signMessage
-      }
-    }
-
-    // 2) Wallet Adapter path (this was missing before)
     const endpoint =
       net === NetworkOptions.testnet
         ? clusterApiUrl('devnet')
@@ -67,7 +40,7 @@ export const useSolProvider = (): SolProviderShape => {
       signTransaction,
       signMessage
     }
-  }, [externalProvider, net, wallet])
+  }, [net, solRPC, wallet])
 }
 
 export default useSolProvider

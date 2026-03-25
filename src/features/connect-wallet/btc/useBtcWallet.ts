@@ -1,6 +1,5 @@
 import { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useKimaContext } from '@kima-widget/app/providers/KimaProvider'
 import {
   setBitcoinAddress,
   setBitcoinPubkey,
@@ -21,7 +20,6 @@ import type { BtcAccount } from './provider'
 
 export const useBtcWallet = () => {
   const dispatch = useDispatch()
-  const { externalProvider } = useKimaContext()
   const networkOption = useSelector(selectNetworkOption)
 
   const ensureNetworkMatch = useCallback(
@@ -41,28 +39,6 @@ export const useBtcWallet = () => {
 
   const connect = useCallback(
     async (options?: { wallet?: 'unisat' }) => {
-      if (externalProvider?.type === 'btc') {
-        const signer = externalProvider.signer as
-          | string
-          | { address?: string; publicKey?: string }
-        const address =
-          typeof signer === 'string' ? signer : signer?.address ?? ''
-        const pubkey =
-          normalizeBtcPubkeyHex(
-            (typeof signer === 'object' && signer?.publicKey) ||
-              (externalProvider.provider as any)?.publicKey ||
-              ''
-          ) || ''
-
-        ensureNetworkMatch(address)
-        if (address) {
-          dispatch(setBitcoinAddress(address))
-          dispatch(setSourceAddress(address))
-        }
-        if (pubkey) dispatch(setBitcoinPubkey(pubkey))
-        return { address, pubkey }
-      }
-
       const walletType = options?.wallet
       const unisat =
         walletType === 'unisat' || !walletType ? getUnisat() : null
@@ -118,7 +94,7 @@ export const useBtcWallet = () => {
       })
       return { address, pubkey }
     },
-    [dispatch, ensureNetworkMatch, externalProvider, networkOption]
+    [dispatch, ensureNetworkMatch]
   )
 
   const disconnect = useCallback(async () => {

@@ -69,7 +69,6 @@ const WalletButton = ({
   const dAppOption = useSelector(selectDappOption)
 
   // External / hooks
-  const { externalProvider } = useKimaContext()
   const { connected: isSolanaConnected } = useSolanaWallet()
   const { connected: isTronConnected } = useTronWallet()
   const { isReady, statusMessage, connectedAddress } = useIsWalletReady()
@@ -121,10 +120,9 @@ const WalletButton = ({
     log.debug(`${TAG} wallet state`, {
       isReady,
       statusMessage,
-      connectedAddress,
-      externalProvider
+      connectedAddress
     })
-  }, [isReady, statusMessage, connectedAddress, externalProvider])
+  }, [isReady, statusMessage, connectedAddress])
 
   // Light-mode demo source address
   const demoSourceAddress = useMemo(() => {

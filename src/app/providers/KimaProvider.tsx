@@ -8,12 +8,9 @@ import {
 } from 'react'
 import { Provider } from 'react-redux'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { PublicKey } from '@solana/web3.js'
-import { JsonRpcSigner } from 'ethers'
 import { LogLevelDesc } from 'loglevel'
-import { ExternalProvider, NetworkOptions } from '@kima-widget/shared/types'
+import { NetworkOptions } from '@kima-widget/shared/types'
 import { useGetEnvOptions } from '@kima-widget/hooks/useGetEnvOptions'
-import { isValidExternalProvider } from '@kima-widget/shared/lib/bigint'
 import log from '@kima-widget/shared/logger'
 import store from '@kima-widget/shared/store'
 import {
@@ -23,9 +20,7 @@ import {
 import { setupAppKit } from '@kima-widget/features/connect-wallet/evm/setupAppkit'
 
 interface KimaContextProps {
-  sourceAddress: string | undefined
   solRPC?: string
-  externalProvider?: ExternalProvider
   kimaBackendUrl: string
   errorHandler?: (e: any) => void
   closeHandler?: (e: any) => void
@@ -37,7 +32,6 @@ interface KimaContextProps {
 interface KimaProviderProps {
   projectId: string
   solRPC?: string
-  externalProvider?: ExternalProvider
   kimaBackendUrl: string
   children: ReactNode
   logLevel?: LogLevelDesc
@@ -113,7 +107,6 @@ const InternalKimaProvider: React.FC<
 const KimaProvider = ({
   projectId = 'e579511a495b5c312b572b036e60555a',
   children = <></>,
-  externalProvider,
   kimaBackendUrl = 'http://localhost:3001',
   solRPC,
   logLevel,
@@ -128,42 +121,7 @@ const KimaProvider = ({
     log.setLevel(logLevel, false)
   } // else use default from ENV
 
-  let validExternalProvider: ExternalProvider | undefined
-  let sourceAddress: string | undefined
-
-  // validation for provider
-  if (externalProvider && isValidExternalProvider(externalProvider)) {
-    validExternalProvider = externalProvider
-    if (
-      externalProvider.type === 'evm' &&
-      externalProvider.signer instanceof JsonRpcSigner
-    ) {
-      sourceAddress = externalProvider.signer.address
-    }
-    if (
-      externalProvider.type === 'solana' &&
-      externalProvider.signer instanceof PublicKey
-    ) {
-      sourceAddress = externalProvider.signer.toBase58()
-    }
-    if (
-      externalProvider.type === 'tron' &&
-      typeof externalProvider.signer === 'string'
-    ) {
-      sourceAddress = externalProvider.signer
-    }
-    if (externalProvider.type === 'btc') {
-      const btcSigner = externalProvider.signer as
-        | string
-        | { address?: string }
-      sourceAddress =
-        typeof btcSigner === 'string' ? btcSigner : btcSigner?.address
-    }
-  }
-
   const kimaContext: KimaContextProps = {
-    externalProvider: validExternalProvider,
-    sourceAddress,
     solRPC,
     kimaBackendUrl,
     keplrHandler,
