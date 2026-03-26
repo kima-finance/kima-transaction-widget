@@ -10,7 +10,8 @@ import {
   ExternalLink,
   PrimaryButton,
   SecondaryButton,
-  StepBox
+  StepBox,
+  VersionInfo
 } from '../../../components/reusable'
 
 import { Provider } from 'react-redux'
@@ -598,6 +599,7 @@ export const TransactionWidget = ({ theme }: { theme: ThemeOptions }) => {
               : theme.backgroundColorDark
         }}
       >
+        <VersionInfo theme={theme} />
         <div className='kima-card-header'>
           <div className='topbar'>
             {!isComplete && (

@@ -3173,6 +3173,145 @@
 .kima-card .floating-footer .items span.network {
   font-weight: 800;
 }
+.kima-card .version-info {
+  position: absolute;
+  left: 24px;
+  bottom: 24px;
+  z-index: 12;
+}
+@media (max-width: 768px) {
+  .kima-card .version-info {
+    left: 16px;
+    bottom: 16px;
+  }
+}
+.kima-card .version-info .version-info-trigger {
+  width: 15px;
+  height: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  border-radius: 9999px;
+  background: transparent;
+  cursor: pointer;
+  border: 1px solid rgba(119, 141, 163, 0.3019607843);
+  color: inherit;
+}
+.kima-card .version-info .version-info-trigger:hover, .kima-card .version-info .version-info-trigger:disabled {
+  opacity: 0.6;
+}
+.kima-card .version-info .version-info-trigger:disabled {
+  cursor: default;
+}
+.kima-card .version-info .version-info-trigger .version-info-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 14px;
+  font-family: "Sohne";
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1;
+}
+.kima-card .version-info-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(119, 141, 163, 0.45);
+  backdrop-filter: blur(6px);
+  border-radius: 42px;
+  padding: 24px;
+}
+@media (max-width: 768px) {
+  .kima-card .version-info-overlay {
+    align-items: flex-end;
+    padding: 12px;
+  }
+}
+.kima-card .version-info-modal {
+  width: min(100%, 360px);
+  border-radius: 24px;
+  border: 1px solid rgba(119, 141, 163, 0.3019607843);
+  padding: 20px;
+  box-shadow: 0px 16px 40px rgba(0, 0, 0, 0.2);
+  font-family: "Manrope";
+}
+.kima-card .version-info-modal.light {
+  background: #f7f8f9;
+  color: black;
+}
+.kima-card .version-info-modal.dark {
+  background: #242732;
+  color: white;
+}
+.kima-card .version-info-modal .version-info-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.kima-card .version-info-modal .version-info-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+.kima-card .version-info-modal .version-info-close {
+  width: 50px;
+  height: 50px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 9999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  border: 1px solid rgba(119, 141, 163, 0.3019607843);
+}
+.kima-card .version-info-modal .version-info-close svg {
+  width: 20px;
+  height: 25px;
+}
+@media (max-width: 768px) {
+  .kima-card .version-info-modal .version-info-close svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+.kima-card .version-info-modal .version-info-close:hover, .kima-card .version-info-modal .version-info-close:disabled {
+  opacity: 0.6;
+}
+.kima-card .version-info-modal .version-info-close:disabled {
+  cursor: default;
+}
+.kima-card .version-info-modal .version-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.kima-card .version-info-modal .version-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
+  border-radius: 16px;
+}
+.kima-card .version-info-modal .version-info-row strong {
+  font-size: 14px;
+}
+.kima-card .version-info-modal.light .version-info-row {
+  background: white;
+}
+.kima-card .version-info-modal.dark .version-info-row {
+  background: rgba(255, 255, 255, 0.06);
+}
 
 .kima-modal {
   position: fixed;

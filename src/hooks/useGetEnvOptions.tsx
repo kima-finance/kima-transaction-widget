@@ -7,6 +7,7 @@ export interface EnvOptions {
   kimaExplorer: string
   paymentPartnerId: string
   transferLimitMaxUSDT: string | null
+  backendVersion?: string | null
 }
 
 const getEnvOptions = async ({
@@ -21,7 +22,8 @@ const getEnvOptions = async ({
       env: NetworkOptions.testnet,
       kimaExplorer: 'https://explorer.sardis.kima.network',
       paymentPartnerId: 'KimaTest',
-      transferLimitMaxUSDT: null
+      transferLimitMaxUSDT: null,
+      backendVersion: null
     }
 
   return response as EnvOptions

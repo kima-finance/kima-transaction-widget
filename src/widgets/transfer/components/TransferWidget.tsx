@@ -71,7 +71,8 @@ import {
   ConfirmDetails,
   ExternalLink,
   PrimaryButton,
-  SecondaryButton
+  SecondaryButton,
+  VersionInfo
 } from '@kima-widget/components/reusable'
 import SingleForm from '@kima-widget/components/reusable/SingleForm'
 import CCWidget from '@kima-widget/components/reusable/FiatWidget'
@@ -771,16 +772,18 @@ export const TransferWidget = ({
         />
       )}
 
-      {/* Defensive banner if payment mode lacks a transaction payload */}
-      {mode === ModeOptions.payment && !transactionOption && (
-        <h2 className='invalid-option-banner'>
+	      {/* Defensive banner if payment mode lacks a transaction payload */}
+	      {mode === ModeOptions.payment && !transactionOption && (
+	        <h2 className='invalid-option-banner'>
           We're unable to process your payment. Please ensure the necessary
           transaction details are provided. Contact support if the issue
           persists.
-        </h2>
-      )}
+	        </h2>
+	      )}
 
-      <div className='transfer-card'>
+        <VersionInfo theme={theme} />
+
+	      <div className='transfer-card'>
         <div className='kima-card-header'>
           <div className='topbar'>
             <div className='title'>
